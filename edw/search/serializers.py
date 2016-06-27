@@ -16,6 +16,7 @@ class ProductSearchSerializer(HaystackSerializer):
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}
 
+    '''
     def get_price(self, search_result):
         """
         The price can't be stored inside the search index but must be fetched from the resolved
@@ -24,3 +25,4 @@ class ProductSearchSerializer(HaystackSerializer):
         """
         if search_result.object:
             return search_result.object.get_price(self.context['request'])
+    '''
