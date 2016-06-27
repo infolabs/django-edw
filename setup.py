@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-import shop
+import edw
+
 try:
     from pypandoc import convert
 except ImportError:
