@@ -196,9 +196,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
-
-        print("++++++++++++++++++++++++++++++ +++++++++++++++++++++++++++ ++++++++++++++++++++++++++ olololo", self)
-
         return result
 
 
