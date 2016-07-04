@@ -86,8 +86,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         Perform some safety checks on the EntityModel being created.
         """
 
-        print("+++ perform_model_checks 2 +++")
-
         if not isinstance(Model.objects, BaseEntityManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseEntityManager"
             raise NotImplementedError(msg.format(Model.__name__))

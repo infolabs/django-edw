@@ -133,9 +133,6 @@ class MaterializedModel(SimpleLazyObject):
     materialized model using lazy evaluation.
     """
     def __init__(self, base_model):
-
-        print ("+++ MaterializedModel +++", self, base_model)
-
         self.__dict__['_base_model'] = base_model
         super(SimpleLazyObject, self).__init__()
 
