@@ -25,7 +25,7 @@ class AuthFormsView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
-            errors = {NON_FIELD_ERRORS: _("Unable to proceed as guest without items in the cart.")}
+            errors = {NON_FIELD_ERRORS: _("Unable to proceed as guest without items in the cart.")} #todo: исправить
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
         form = self.form_class(data=request.data, instance=request.customer)
         if form.is_valid():
@@ -37,7 +37,7 @@ class AuthFormsView(GenericAPIView):
 class LoginView(OriginalLoginView):
     def login(self):
         """
-        Logs in as the given user, and moves the items from the current to the new cart.
+        Logs in as the given user, and moves the items from the current to the new cart. #todo: исправить
         """
         '''
         try:

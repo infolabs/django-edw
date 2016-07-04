@@ -1,0 +1,34 @@
+{
+  "name": "django-edw",
+  "version": "0.1.0",
+  "homepage": "http://excentrics.github.io/django-edw",
+  "authors": [
+    "Excentrics, LLC <info@excentrics.ru>"
+  ],
+  "description": "Non pip deps for django-edw",
+  "main": "",
+  "moduleType": [],
+  "license": "GPL v3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "1.3.18",
+    "angular-animate": "1.3.18",
+    "angular-bootstrap": "~0.13.4",
+    "angular-bootstrap-plus": "~0.0.4",
+    "angular-i18n": "1.3.18",
+    "angular-sanitize": "1.3.18",
+    "jquery": "~2.1.4",
+    "picturefill": "~3.0.1",
+    "select2": "~4.0.0",
+    "angular-stripe": "~4.2.8",
+    "angular-messages": "1.3.18",
+    "angular-inview": "~1.5.6"
+  }
+}

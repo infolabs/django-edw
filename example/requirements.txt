@@ -1,4 +1,5 @@
 Django==1.9.5
+mysql-python
 beautifulsoup4==4.4.0
 django-admin-sortable2==0.6.3
 django-allauth==0.23.0
@@ -49,3 +50,4 @@ six==1.9.0
 urllib3==1.12
 virtualenv==13.1.2
 #wheel==0.24.0
+git+ssh://git@bitbucket.org/excentrics/django-edw.git

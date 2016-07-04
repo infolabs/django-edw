@@ -39,14 +39,15 @@ setup(
     zip_safe=False,
     install_requires=[
         'Django>=1.9,<1.10',
-        'djangorestframework>=3.1',
+        'djangorestframework>=3.3',
         'beautifulsoup4>=4.4.0',
+        'django-post-office>=2.0.5',
         'django-filer>=1.0.6',
         #'django-ipware>=1.1.1',
         'django-fsm>=2.2.1',
         'django-rest-auth>=0.5.0',
         'django-angular>=0.7.15',
-        #'django-select2>=5.5.0',
+        'django-select2>=5.5.0',
         #'django-sass-processor>=0.3.4',
     ],
 )

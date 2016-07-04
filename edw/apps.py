@@ -6,7 +6,7 @@ from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
 
 
-class ShopConfig(AppConfig):
+class EdwConfig(AppConfig):
     name = 'edw'
     verbose_name = _("EDW")
 
@@ -20,6 +20,8 @@ class ShopConfig(AppConfig):
 
         post_transition.connect(order_event_notification)
         '''
+
+
 
         '''
         # Monkey patches for Django-1.X

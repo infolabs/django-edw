@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-24 11:21+0300\n"
-"PO-Revision-Date: 2016-06-24 18:52+0300\n"
+"POT-Creation-Date: 2016-06-28 12:51+0300\n"
+"PO-Revision-Date: 2016-06-28 22:22+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -19,3 +19,395 @@ msgstr ""
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+
+#: admin/customer.py:26
+msgctxt "customer"
+msgid "Number"
+msgstr "Номер"
+
+#: admin/customer.py:60
+msgid "Customer State"
+msgstr "Сатус пользователя"
+
+#: admin/customer.py:103
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: admin/customer.py:110 models/customer.py:182
+msgid "Salutation"
+msgstr "Обращение"
+
+#: admin/customer.py:117
+msgid "Staff"
+msgstr "Персонал"
+
+#: admin/customer.py:119
+msgid "User"
+msgstr "Пользователь"
+
+#: admin/customer.py:120
+msgid "State"
+msgstr "Состояние"
+
+#: admin/customer.py:125
+msgid "No data"
+msgstr "Никогда"
+
+#: admin/customer.py:126 models/customer.py:183
+msgid "Last accessed"
+msgstr "Дата последнего входа"
+
+#: admin/customer.py:133
+msgid "Unexpired"
+msgstr "Неистекающий"
+
+#: admin/customer.py:144
+msgid "Customer"
+msgstr "Пользователь"
+
+#: admin/customer.py:145
+msgid "Customers"
+msgstr "Пользователи"
+
+#: apps.py:11
+msgid "EDW"
+msgstr "Предметно-ориентированное хранилище данных"
+
+#: forms/auth.py:21 templates/edw/auth/login-reset.html.py:11
+#: templates/edw/auth/login.html:9 templates/edw/auth/reset.html.py:8
+msgid "Your e-mail address"
+msgstr "Выш адрес электронной почты"
+
+#: forms/auth.py:22
+msgid "Preset password"
+msgstr "Сгенерированный пароль"
+
+#: forms/auth.py:24
+msgid "Send a randomly generated password to your e-mail address."
+msgstr ""
+"Отправить случайно сгенерированный пароль на ваш адрес электронной почты."
+
+#: forms/auth.py:26
+msgid "Choose a password"
+msgstr "Введите пароль"
+
+#: forms/auth.py:27
+msgid "Minimum length is 6 characters."
+msgstr "Минимальная длина 6 символов"
+
+#: forms/auth.py:28
+msgid "Repeat password"
+msgstr "Повторить пароль"
+
+#: forms/auth.py:29
+msgid "Confirm password."
+msgstr "Подтверждение пароля"
+
+#: forms/auth.py:45
+msgid "A customer with the e-mail address ‘{email}’ already exists.\n"
+msgstr "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
+
+#: forms/auth.py:55
+msgid "Passwords do not match"
+msgstr "Пароли не совпадают"
+
+#: management/commands/edwcustomers.py:9
+msgid "Collect information about all customers which accessed this EDW."
+msgstr "Сбор статистики по пользователям имеющим доступ к ПХД."
+
+#: management/commands/edwcustomers.py:13
+msgid "Delete customers with expired sessions."
+msgstr "Удалить пользователей с истекшими сессиями."
+
+#: management/commands/edwcustomers.py:35
+msgid ""
+"Customers in this EDW: total={total}, anonymous={anonymous}, expired="
+"{expired}, active={active}, guests={guests}, registered={registered}, staff="
+"{staff}."
+msgstr ""
+"Пользователи ПХД: всего={total}, анонимные={anonymous}, истекающие="
+"{expired}, активные={active}, гости={guests}, зарегистрированные="
+"{registered}, персонал={staff}."
+
+#: models/customer.py:173
+msgid "Mrs."
+msgstr "Господин"
+
+#: models/customer.py:173
+msgid "Mr."
+msgstr "Госпожа"
+
+#: models/customer.py:173
+msgid "(n/a)"
+msgstr "нет"
+
+#: models/customer.py:177
+msgid "Unrecognized"
+msgstr "Не определен"
+
+#: models/customer.py:177
+msgid "Guest"
+msgstr "Гость"
+
+#: models/customer.py:177
+msgid "Registered"
+msgstr "Зарегистрированный"
+
+#: models/customer.py:180
+msgid "Recognized as"
+msgstr "Определен как"
+
+#: models/customer.py:181
+msgid "Designates the state the customer is recognized as."
+msgstr "Обозначает распознанное состояние пользователя."
+
+#: models/customer.py:185
+msgid "Extra information about this customer"
+msgstr "Расширенная информация по пользователю"
+
+#: models/defaults/customer.py:11
+msgid "Customer Number"
+msgstr "Код пользователя"
+
+#: models/entity.py:115
+msgid "Created at"
+msgstr "Дата создания"
+
+#: models/entity.py:116
+msgid "Updated at"
+msgstr "Дата обновления"
+
+#: models/entity.py:117
+msgid "Active"
+msgstr "Активен"
+
+#: models/entity.py:118
+msgid "Is this object publicly visible."
+msgstr "Является ли этот объект общедоступным."
+
+#: models/entity.py:122
+msgid "Entity"
+msgstr "Объект"
+
+#: models/entity.py:123
+msgid "Entities"
+msgstr "Объекты"
+
+#: models/entity.py:133
+msgid "Entity type"
+msgstr "Тип объекта"
+
+#: templates/edw/auth/change.html:4
+msgid "Change Password"
+msgstr "Изменить пароль"
+
+#: templates/edw/auth/change.html:8 templates/edw/auth/change.html.py:11
+#: templates/edw/auth/password-reset-confirm.html:12
+msgid "New Password"
+msgstr "Новый пароль"
+
+#: templates/edw/auth/change.html:14 templates/edw/auth/change.html.py:17
+#: templates/edw/auth/password-reset-confirm.html:18
+msgid "Confirm Password"
+msgstr "Подтвердите пароль"
+
+#: templates/edw/auth/change.html:21
+msgid "Submit Changes"
+msgstr "Сохранить изменения"
+
+#: templates/edw/auth/continue-as-guest.html:4
+msgid "Proceed as guest"
+msgstr "Продолжить как гость"
+
+#: templates/edw/auth/continue-as-guest.html:10
+msgid "Continue as guest"
+msgstr "Продолжить"
+
+#: templates/edw/auth/login-reset.html:6 templates/edw/auth/login.html:29
+msgid "Login"
+msgstr "Войти"
+
+#: templates/edw/auth/login-reset.html:7 templates/edw/auth/reset.html.py:4
+msgid "Password Forgotten?"
+msgstr "Забыли пароль"
+
+#: templates/edw/auth/login-reset.html:14 templates/edw/auth/login.html:12
+#: templates/edw/auth/reset.html.py:11
+#: templates/edw/email/customer-information.html:6
+msgid "Email"
+msgstr "Электронная почта"
+
+#: templates/edw/auth/login-reset.html:18 templates/edw/auth/reset.html:15
+msgid "Reset Password"
+msgstr "Восстановление пароля"
+
+#: templates/edw/auth/login.html:4
+msgid "Sign In"
+msgstr "Зарегистрироваться"
+
+#: templates/edw/auth/login.html:15 templates/edw/auth/register-user.html:15
+msgid "Please provide a valid email address"
+msgstr "Уведомление по email требует правильного email адреса."
+
+#: templates/edw/auth/login.html:20 templates/edw/auth/login.html.py:23
+msgid "Password"
+msgstr "Пароль"
+
+#: templates/edw/auth/logout.html:4
+#, python-format
+msgid "Authenticated as: %(user)s"
+msgstr "Авторизован как: %(user)s"
+
+#: templates/edw/auth/logout.html:8
+msgid "Logout"
+msgstr "Выйти"
+
+#: templates/edw/auth/password-reset-confirm.html:5
+#, python-format
+msgid "New password for '%(user_name)s'"
+msgstr "Введите новый пароль для пользователя <strong>%(user_name)s</strong>."
+
+#: templates/edw/auth/password-reset-confirm.html:11
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+"Пожалуйста, введите новый пароль дважды, чтобы мы могли убедиться в "
+"правильности написания."
+
+#: templates/edw/auth/password-reset-confirm.html:15
+msgid "New password"
+msgstr "Новый пароль"
+
+#: templates/edw/auth/password-reset-confirm.html:21
+msgid "Confirm password"
+msgstr "Подтверждение пароля"
+
+#: templates/edw/auth/password-reset-confirm.html:25
+msgid "Change my password"
+msgstr "Изменить мой пароль"
+
+#: templates/edw/auth/password-reset-decline.html:4
+msgid "Password reset unsuccessful"
+msgstr "Ошибка восстановления пароля"
+
+#: templates/edw/auth/password-reset-decline.html:7
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+"Неверная ссылка для восстановления пароля. Возможно, ей уже воспользовались. "
+"Пожалуйста, попробуйте восстановить пароль еще раз."
+
+#: templates/edw/auth/register-user.html:4
+msgid "Register Yourself"
+msgstr "Зарегистрироваться"
+
+#: templates/edw/auth/register-user.html:51
+msgid "Register"
+msgstr "Зарегистрироваться"
+
+#: templates/edw/email/customer-information.html:4
+msgid "Your Details"
+msgstr "Информация о пользователе"
+
+#: templates/edw/email/customer-information.html:10
+msgid "Billing Address"
+msgstr "Адрес плательщика"
+
+#: templates/edw/email/customer-information.html:14
+msgid "Shipping Address"
+msgstr "Адрес доставки"
+
+#: templates/edw/email/register-user-body.txt:2
+#, python-format
+msgid ""
+"You are receiving this email because you asked for a auto-generated password "
+"for your\n"
+"user account at %(site_name)s."
+msgstr ""
+"Вы получили это письмо потому что запросили автоматически сгенерированный "
+"пароль для вашего\n"
+"пользовательского аккаунта на %(site_name)s."
+
+#: templates/edw/email/register-user-body.txt:5
+#, python-format
+msgid ""
+"In the future, please use username %(email)s with password %(password)s to "
+"sign\n"
+"into %(absolute_base_uri)s."
+msgstr ""
+"В дальнейшем используйте имя пользователя %(email)s и пароль %(password)s "
+"для входа\n"
+"на сайт %(absolute_base_uri)s."
+
+#: templates/edw/email/register-user-body.txt:8
+#: templates/edw/email/reset-password-body.txt:8
+msgid "Thanks for using our site!"
+msgstr "Спасибо, что используете наш сайт."
+
+#: templates/edw/email/register-user-body.txt:10
+#: templates/edw/email/reset-password-body.txt:10
+#, python-format
+msgid "The %(site_name)s team"
+msgstr "Команда сайта %(site_name)s"
+
+#: templates/edw/email/register-user-subject.txt:2
+#, python-format
+msgid "Password set on %(site_name)s"
+msgstr "Установлен пароль для %(site_name)s"
+
+#: templates/edw/email/reset-password-body.txt:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user\n"
+"account '%(user)s' at %(site_name)s."
+msgstr ""
+"Вы получиле это письмо, потому что запросили сброс пароля на свой аккаунт "
+"'%(user)s' на %(site_name)s."
+
+#: templates/edw/email/reset-password-body.txt:5
+msgid "Please go to the following page and choose a new password:"
+msgstr "Пожалуйста, проследуйте на эту страницу и введите новый пароль:"
+
+#: templates/edw/email/reset-password-subject.txt:2
+#, python-format
+msgid "Password reset on %(site_name)s"
+msgstr "Сброс пароля для %(site_name)s"
+
+#: templates/edw/search/results.html:14
+msgid "Searching for '{{ searchQuery }}' did not return any results"
+msgstr "Поиск по запросу '{{ searchQuery }}' не вернул никаких результатов"
+
+#: templates/edw/search/results.html:20
+msgid "{{ search_data.count }} matching objects found"
+msgstr "{{ search_data.count }} объектов найдено"
+
+#: templates/edw/search/results.html:21
+msgid "Base Price"
+msgstr "Базовая цена"
+
+#: templates/edw/search/results.html:35
+msgid "Details"
+msgstr "Подробно"
+
+#: templates/edw/search/results.html:46
+msgid "Loading search results"
+msgstr "Загрузка результатов поиска"
+
+#: views/auth.py:28
+msgid "Unable to proceed as guest without items in the cart."
+msgstr "Невозможно продолжить как гость без элементов в корзине."
+
+#: views/auth.py:75
+msgid "Successfully logged out."
+msgstr "Вы вышли из системы."
+
+#: views/auth.py:95
+msgid "Instructions on how to reset the password have been sent to '{email}'."
+msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
+
+#: views/auth.py:142
+msgid "Password has been reset with the new password."
+msgstr "Пароль был сброшен."

@@ -40,6 +40,12 @@ class BaseEntityManager(PolymorphicManager):
         return queryset
 
 
+    def get_queryset(self):
+        print ("** get_queryset", self)
+
+        return super(BaseEntityManager, self).get_queryset()
+
+
 class PolymorphicEntityMetaclass(PolymorphicModelBase):
     """
     The BaseEntity class must refer to their materialized model definition, for instance when
@@ -79,6 +85,9 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         """
         Perform some safety checks on the EntityModel being created.
         """
+
+        print("+++ perform_model_checks 2 +++")
+
         if not isinstance(Model.objects, BaseEntityManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseEntityManager"
             raise NotImplementedError(msg.format(Model.__name__))
@@ -88,14 +97,14 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
             raise NotImplementedError(msg.format(Model.__name__))
 
         try:
-            Model().object_name
+            Model().entity_name
         except AttributeError:
-            msg = "Class `{}` must provide a model field or property implementing `object_name`"
+            msg = "Class `{}` must provide a model field or property implementing `entity_name`"
             raise NotImplementedError(msg.format(Model.__name__))
 
-        if not callable(getattr(Model, 'get_price', None)):
-            msg = "Class `{}` must provide a method implementing `get_price(request)`"
-            raise NotImplementedError(msg.format(cls.__name__))
+        #if not callable(getattr(Model, 'get_price', None)):
+        #    msg = "Class `{}` must provide a method implementing `get_price(request)`"
+        #    raise NotImplementedError(msg.format(cls.__name__))
 
 
 @python_2_unicode_compatible
@@ -107,10 +116,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     Some attributes for this class are mandatory. They shall be implemented as property method.
     The following fields MUST be implemented by the inheriting class:
-    `object_name`: Return the pronounced name for this object in its localized language.
+    `entity_name`: Return the pronounced name for this object in its localized language.
 
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
-    and `get_price()`. See below for details.
+    and etc. See below for details.
     """
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
@@ -123,17 +132,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         verbose_name_plural = _("Entities")
 
     def __str__(self):
-        return self.object_name
+        return self.entity_name
 
-    def object_type(self):
+    def entity_type(self):
         """
         Returns the polymorphic type of the object.
         """
         return force_text(self.polymorphic_ctype)
-    object_type.short_description = _("Entity type")
+    entity_type.short_description = _("Entity type")
 
     @property
-    def object_model(self):
+    def entity_model(self):
         """
         Returns the polymorphic model name of the object's class.
         """
@@ -187,5 +196,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         cart_item_qs = CartItemModel.objects.filter(cart=cart, object=self)
         return cart_item_qs.first()
     '''
+
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
+
+        print("++++++++++++++++++++++++++++++ +++++++++++++++++++++++++++ ++++++++++++++++++++++++++ olololo", self)
+
+        return result
+
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

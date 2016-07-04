@@ -51,7 +51,7 @@ TEMPLATES = [{
 
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
 
-SHOP_APP_LABEL = 'tests_edw'
+EDW_APP_LABEL = 'tests_edw'
 
 DATABASES = {
     'default': {

@@ -9,6 +9,7 @@ from edw import settings as edw_settings
 
 
 class DeferredRelatedField(object):
+
     def __init__(self, to, **kwargs):
         try:
             self.abstract_model = to._meta.object_name
@@ -16,7 +17,7 @@ class DeferredRelatedField(object):
             assert isinstance(to, six.string_types), "%s(%r) is invalid. First parameter must be either a model or a model name" % (self.__class__.__name__, to)
             self.abstract_model = to
         else:
-            assert to._meta.abstract, "%s can only define a relation with abstract class %s" % (self.__class__.__name__, to._meta.object_name)
+            assert to._meta.abstract, "%s can only define a relation with abstract class %s" % (self.__class__.__name__, to._meta.entity_name)
         self.options = kwargs
 
 
@@ -49,7 +50,7 @@ class ForeignKeyBuilder(ModelBase):
     Here the magic happens: All known and deferred foreign keys are mapped to their correct model's
     counterpart.
     If the main application stores its models in its own directory, add to settings.py:
-    SHOP_APP_LABEL = 'myshop'
+    EDW_APP_LABEL = 'myshop'
     so that the models are created inside your own shop instatiation.
     """
     _materialized_models = {}
@@ -132,6 +133,9 @@ class MaterializedModel(SimpleLazyObject):
     materialized model using lazy evaluation.
     """
     def __init__(self, base_model):
+
+        print ("+++ MaterializedModel +++", self, base_model)
+
         self.__dict__['_base_model'] = base_model
         super(SimpleLazyObject, self).__init__()
 

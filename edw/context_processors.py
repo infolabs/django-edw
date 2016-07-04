@@ -24,7 +24,7 @@ def customer(request):
             pass
     return context
 
-'''
+
 def version(request):
     """
     Add version to context, since in Django-1.9 the path for jquery changed
@@ -32,4 +32,3 @@ def version(request):
     return {
         'DJANGO_VERSION': __version__,
     }
-'''
