@@ -13,6 +13,9 @@ from django.template.context import Context
 from django.template.loader import get_template
 
 
+from edw.admin.term import *
+
+
 class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildModelAdmin):
 
     base_model = Book

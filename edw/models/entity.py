@@ -39,7 +39,6 @@ class BaseEntityManager(PolymorphicManager):
         queryset = self.get_queryset().filter(active=True)
         return queryset
 
-
     def get_queryset(self):
         return super(BaseEntityManager, self).get_queryset()
 
