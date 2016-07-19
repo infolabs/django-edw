@@ -50,7 +50,7 @@ class ForeignKeyBuilder(ModelBase):
     Here the magic happens: All known and deferred foreign keys are mapped to their correct model's
     counterpart.
     If the main application stores its models in its own directory, add to settings.py:
-    EDW_APP_LABEL = 'myshop'
+    EDW_APP_LABEL = 'myedw'
     so that the models are created inside your own shop instatiation.
     """
     _materialized_models = {}
