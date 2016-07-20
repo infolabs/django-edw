@@ -8,4 +8,4 @@ from edw.models.defaults.customer import Customer
 
 from book import Book, ChildBook, AdultBook
 
-from term import Term
+from .term import Term

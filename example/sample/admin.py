@@ -22,7 +22,7 @@ class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'age',),
+            'fields': ('name', 'slug', 'active', 'age', 'customers',),
         }),
         (_("Translatable Fields"), {
             'fields': ('description',)
@@ -51,7 +51,7 @@ class AdultBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'genre',),
+            'fields': ('name', 'slug', 'active', 'genre', 'customers',),
         }),
         (_("Translatable Fields"), {
             'fields': ('description',)
@@ -85,7 +85,7 @@ class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdm
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active',),
+            'fields': ('name', 'slug', 'active', ),
         }),
         (_("Translatable Fields"), {
             'fields': ('description',)

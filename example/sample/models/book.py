@@ -21,6 +21,7 @@ class BookManager(BaseEntityManager, TranslatableManager):
 
 @python_2_unicode_compatible
 class Book(BaseEntity, TranslatableModel):
+
     name = models.CharField(max_length=255, verbose_name=_("Book Name"))
     slug = models.SlugField(verbose_name=_("Slug"), unique=True)
     description = TranslatedField()

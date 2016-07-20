@@ -14,8 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.base import PolymorphicModelBase
-from . import deferred
 
+from . import deferred
+#from .. import settings as edw_settings
+#from .term import BaseTerm
 
 class BaseEntityManager(PolymorphicManager):
     """
@@ -42,6 +44,16 @@ class BaseEntityManager(PolymorphicManager):
     def get_queryset(self):
         return super(BaseEntityManager, self).get_queryset()
 
+'''
+def get_base_polymorphic_model(ChildModel):
+    """
+    First model in the inheritance chain that inherited from the PolymorphicMPTTModel
+    """
+    for Model in reversed(ChildModel.mro()):
+        if isinstance(Model, PolymorphicModelBase) and not Model._meta.abstract:
+            return Model
+    return None
+'''
 
 class PolymorphicEntityMetaclass(PolymorphicModelBase):
     """
@@ -51,10 +63,17 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
     MaterializedModel with it.
     For instance,``EntityModel.objects.all()`` returns all available objects from the shop.
     """
+    #_materialized_models = {}
+
     def __new__(cls, name, bases, attrs):
         Model = super(PolymorphicEntityMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model
+
+        print "------------------------------------------------------------"
+        print "------------------------------------------------------------"
+        print "------------------------------------------------------------"
+
         for baseclass in bases:
             # since an abstract base class does not have no valid model.Manager,
             # refer to it via its materialized Entity model.
@@ -72,7 +91,59 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                 baseclass._materialized_model = Model
 
             # check for pending mappings in the ForeignKeyBuilder and in case, process them
+
+            print "*** deferred.ForeignKeyBuilder.process_pending_mappings ***", Model, baseclass.__name__
             deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
+
+        #base_polymorphic_model = get_base_polymorphic_model(Model)
+
+        #print "%%%%%%%%%%%%%%%%%%%%%%%%"
+
+        #if base_polymorphic_model == Model:
+        #    print "<+>", base_polymorphic_model
+
+        # search for deferred foreign fields in our Model
+        for attrname in dir(Model):
+            try:
+                member = getattr(Model, attrname)
+            except AttributeError:
+                continue
+            if not isinstance(member, deferred.DeferredRelatedField):
+                continue
+            print "!!! Achtung !!!", member, member.abstract_model, attrname
+
+            #print deferred.ForeignKeyBuilder._materialized_models, deferred.ForeignKeyBuilder._pending_mappings, "\n\n\n====="
+
+            #print dir(deferred.ForeignKeyBuilder)
+
+            mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
+
+            if mapmodel:
+                print "@@@@@@@@@@@@@@@@@ Allready matirialize @@@@@@@@@@@@@@@@@@", mapmodel
+
+                field = member.MaterializedField(mapmodel, **member.options)
+                field.contribute_to_class(Model, attrname)
+
+                print "++++", field
+            else:
+                print "----------------------------- Add to wait list"
+                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
+
+            '''
+            mapmodel = cls._materialized_models.get(member.abstract_model)
+
+            print member, member.abstract_model, Model
+
+            if mapmodel:
+                print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+                field = member.MaterializedField(mapmodel, **member.options)
+                field.contribute_to_class(Model, attrname)
+            else:
+
+                print "*******##############***********************"
+                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
+            '''
 
         cls.perform_model_checks(Model)
         return Model
@@ -102,7 +173,9 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         #    raise NotImplementedError(msg.format(cls.__name__))
 
 
+
 @python_2_unicode_compatible
+#class BaseEntity(six.with_metaclass(deferred.PolymorphicForeignKeyBuilder, PolymorphicModel)):
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
     An abstract basic object model for the shop. It is intended to be overridden by one or
@@ -116,6 +189,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
+    #TreeManyToManyField
+    '''
+    terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
+                                     help_text=_("""Use "ctrl" key for choose multiple terms"""))
+    '''
+    customers = deferred.ManyToManyField('BaseCustomer', related_name='entities', verbose_name=_('Customers'), blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
     active = models.BooleanField(default=True, verbose_name=_("Active"),
