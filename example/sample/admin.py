@@ -2,27 +2,34 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from edw.admin.customer import CustomerProxy, CustomerAdmin
-from parler.admin import TranslatableAdmin
-from .models import Book, ChildBook, AdultBook
 from django.utils.translation import ugettext_lazy as _
-from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
-from adminsortable2.admin import SortableAdminMixin
 from django.db.models import Max
 from django.template.context import Context
 from django.template.loader import get_template
 
+from edw.admin.customer import CustomerProxy, CustomerAdmin
 
-from edw.admin.term import *
+from edw.admin.term import TermAdmin
+from edw.models.term import TermModel
 
 
+
+from parler.admin import TranslatableAdmin
+from .models import Book, ChildBook, AdultBook
+
+from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
+from adminsortable2.admin import SortableAdminMixin
+
+
+
+#from edw.admin.term import *
 class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildModelAdmin):
 
     base_model = Book
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'age', 'customers',),
+            'fields': ('name', 'slug', 'active', 'age', 'terms', ),
         }),
         (_("Translatable Fields"), {
             'fields': ('description',)
@@ -51,7 +58,7 @@ class AdultBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'genre', 'customers',),
+            'fields': ('name', 'slug', 'active', 'genre', 'terms', ),
         }),
         (_("Translatable Fields"), {
             'fields': ('description',)
@@ -100,4 +107,8 @@ class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdm
     list_per_page = 250
     list_max_show_all = 1000
 
+
 admin.site.register(CustomerProxy, CustomerAdmin)
+
+
+admin.site.register(TermModel, TermAdmin)

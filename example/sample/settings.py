@@ -5,7 +5,8 @@ from decimal import Decimal
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
-EDW_APP_LABEL = 'sample'
+#EDW_APP_LABEL = 'sample'
+EDW_APP_LABEL = 'edw'
 
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
