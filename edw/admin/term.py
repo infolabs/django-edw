@@ -1,11 +1,14 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib import admin, messages
+from django.contrib import messages
+#from django.contrib import admin
+from django_mptt_admin.admin import DjangoMpttAdmin
+
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
-from django_mptt_admin.admin import DjangoMpttAdmin
-from edw.models.term import TermModel
+
+#from edw.models.term import TermModel
 
 
 class TermAdmin(DjangoMpttAdmin):
@@ -30,5 +33,5 @@ class TermAdmin(DjangoMpttAdmin):
             obj.delete()
 
 
-admin.site.register(TermModel, TermAdmin)
+#admin.site.register(TermModel, TermAdmin)
 

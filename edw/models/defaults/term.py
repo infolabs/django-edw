@@ -9,4 +9,3 @@ class Term(BaseTerm):
     """
     Default materialized model for BaseTerm containing common fields
     """
-    pass

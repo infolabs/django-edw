@@ -18,6 +18,8 @@ from . import deferred
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug
 
+from .. import settings as edw_settings
+
 
 class BaseTermQuerySet(models.QuerySet):
 
@@ -56,29 +58,55 @@ class BaseTermMetaclass(MPTTModelBase):
     accessing its model manager.
     """
     def __new__(cls, name, bases, attrs):
+
+        class Meta:
+            app_label = edw_settings.APP_LABEL
+
+        attrs.setdefault('Meta', Meta)
+        if not hasattr(attrs['Meta'], 'app_label') and not getattr(attrs['Meta'], 'abstract', False):
+            attrs['Meta'].app_label = Meta.app_label
+        attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
+
+        print "@@@@@@@@@@@@@@@@@@@@@@@", name, Meta.app_label, edw_settings.APP_LABEL, dir(attrs['Meta'])
+
         Model = super(BaseTermMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model
         for baseclass in bases:
-            # since an abstract base class does not have no valid model.Manager,
-            # refer to it via its materialized Entity model.
-            if not isinstance(baseclass, cls):
-                continue
+            # classes which materialize an abstract model are added to a mapping dictionary
+            basename = baseclass.__name__
             try:
-                if issubclass(baseclass._materialized_model, Model):
-                    # as the materialized model, use the most generic one
+                if not issubclass(Model, baseclass) or not baseclass._meta.abstract:
+                    raise ImproperlyConfigured("Base class %s is not abstract." % basename)
+            except (AttributeError, NotImplementedError):
+                pass
+            else:
+                if basename in deferred.ForeignKeyBuilder._materialized_models:
+                    if Model.__name__ != deferred.ForeignKeyBuilder._materialized_models[basename]:
+                        raise AssertionError("Both Model classes '%s' and '%s' inherited from abstract"
+                            "base class %s, which is disallowed in this configuration." %
+                            (Model.__name__, deferred.ForeignKeyBuilder._materialized_models[basename], basename))
+                elif isinstance(baseclass, cls):
+                    deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
+                    # remember the materialized model mapping in the base class for further usage
                     baseclass._materialized_model = Model
-                elif not issubclass(Model, baseclass._materialized_model):
-                    raise ImproperlyConfigured("Abstract base class {} has already been associated "
-                        "with a model {}, which is different or not a submodel of {}."
-                        .format(name, Model, baseclass._materialized_model))
-            except (AttributeError, TypeError):
-                baseclass._materialized_model = Model
+            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
 
-            # check for pending mappings in the ForeignKeyBuilder and in case, process them
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
-
-        cls.perform_model_checks(Model)
+        # search for deferred foreign fields in our Model
+        for attrname in dir(Model):
+            try:
+                member = getattr(Model, attrname)
+            except AttributeError:
+                continue
+            if not isinstance(member, deferred.DeferredRelatedField):
+                continue
+            mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
+            if mapmodel:
+                field = member.MaterializedField(mapmodel, **member.options)
+                field.contribute_to_class(Model, attrname)
+            else:
+                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
+        Model.perform_model_checks(Model)
         return Model
 
     @classmethod

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
@@ -7,6 +8,8 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.contrib import admin
 from django.utils.timezone import localtime
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+
+from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 
 
@@ -143,6 +146,8 @@ class CustomerProxy(get_user_model()):
         proxy = True
         verbose_name = _("Customer")
         verbose_name_plural = _("Customers")
+        app_label = edw_settings.APP_LABEL
+
 
 try:
     admin.site.unregister(get_user_model())

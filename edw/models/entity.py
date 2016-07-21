@@ -16,8 +16,8 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.base import PolymorphicModelBase
 
 from . import deferred
-#from .. import settings as edw_settings
-#from .term import BaseTerm
+from .. import settings as edw_settings
+
 
 class BaseEntityManager(PolymorphicManager):
     """
@@ -44,16 +44,6 @@ class BaseEntityManager(PolymorphicManager):
     def get_queryset(self):
         return super(BaseEntityManager, self).get_queryset()
 
-'''
-def get_base_polymorphic_model(ChildModel):
-    """
-    First model in the inheritance chain that inherited from the PolymorphicMPTTModel
-    """
-    for Model in reversed(ChildModel.mro()):
-        if isinstance(Model, PolymorphicModelBase) and not Model._meta.abstract:
-            return Model
-    return None
-'''
 
 class PolymorphicEntityMetaclass(PolymorphicModelBase):
     """
@@ -63,17 +53,21 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
     MaterializedModel with it.
     For instance,``EntityModel.objects.all()`` returns all available objects from the shop.
     """
-    #_materialized_models = {}
-
     def __new__(cls, name, bases, attrs):
+
+        class Meta:
+            app_label = edw_settings.APP_LABEL
+
+        attrs.setdefault('Meta', Meta)
+        if not hasattr(attrs['Meta'], 'app_label') and not getattr(attrs['Meta'], 'abstract', False):
+            attrs['Meta'].app_label = Meta.app_label
+        attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
+
+        print "_________________________", name, Meta.app_label, edw_settings.APP_LABEL, dir(attrs['Meta'])
+
         Model = super(PolymorphicEntityMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model
-
-        print "------------------------------------------------------------"
-        print "------------------------------------------------------------"
-        print "------------------------------------------------------------"
-
         for baseclass in bases:
             # since an abstract base class does not have no valid model.Manager,
             # refer to it via its materialized Entity model.
@@ -89,18 +83,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                         .format(name, Model, baseclass._materialized_model))
             except (AttributeError, TypeError):
                 baseclass._materialized_model = Model
-
-            # check for pending mappings in the ForeignKeyBuilder and in case, process them
-
-            print "*** deferred.ForeignKeyBuilder.process_pending_mappings ***", Model, baseclass.__name__
             deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
-
-        #base_polymorphic_model = get_base_polymorphic_model(Model)
-
-        #print "%%%%%%%%%%%%%%%%%%%%%%%%"
-
-        #if base_polymorphic_model == Model:
-        #    print "<+>", base_polymorphic_model
 
         # search for deferred foreign fields in our Model
         for attrname in dir(Model):
@@ -110,41 +93,12 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                 continue
             if not isinstance(member, deferred.DeferredRelatedField):
                 continue
-            print "!!! Achtung !!!", member, member.abstract_model, attrname
-
-            #print deferred.ForeignKeyBuilder._materialized_models, deferred.ForeignKeyBuilder._pending_mappings, "\n\n\n====="
-
-            #print dir(deferred.ForeignKeyBuilder)
-
             mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-
             if mapmodel:
-                print "@@@@@@@@@@@@@@@@@ Allready matirialize @@@@@@@@@@@@@@@@@@", mapmodel
-
-                field = member.MaterializedField(mapmodel, **member.options)
-                field.contribute_to_class(Model, attrname)
-
-                print "++++", field
-            else:
-                print "----------------------------- Add to wait list"
-                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
-
-            '''
-            mapmodel = cls._materialized_models.get(member.abstract_model)
-
-            print member, member.abstract_model, Model
-
-            if mapmodel:
-                print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-
                 field = member.MaterializedField(mapmodel, **member.options)
                 field.contribute_to_class(Model, attrname)
             else:
-
-                print "*******##############***********************"
                 deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
-            '''
-
         cls.perform_model_checks(Model)
         return Model
 
@@ -153,7 +107,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         """
         Perform some safety checks on the EntityModel being created.
         """
-
         if not isinstance(Model.objects, BaseEntityManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseEntityManager"
             raise NotImplementedError(msg.format(Model.__name__))
@@ -173,12 +126,10 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         #    raise NotImplementedError(msg.format(cls.__name__))
 
 
-
 @python_2_unicode_compatible
-#class BaseEntity(six.with_metaclass(deferred.PolymorphicForeignKeyBuilder, PolymorphicModel)):
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
-    An abstract basic object model for the shop. It is intended to be overridden by one or
+    An abstract basic object model for the EDW. It is intended to be overridden by one or
     more polymorphic models, adding all the fields and relations, required to describe this
     type of object.
 
@@ -189,12 +140,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
-    #TreeManyToManyField
-    '''
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
-    '''
-    customers = deferred.ManyToManyField('BaseCustomer', related_name='entities', verbose_name=_('Customers'), blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
@@ -271,7 +218,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         cart_item_qs = CartItemModel.objects.filter(cart=cart, object=self)
         return cart_item_qs.first()
     '''
-
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
