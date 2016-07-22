@@ -12,14 +12,14 @@ from edw.admin.customer import CustomerProxy, CustomerAdmin
 from edw.admin.term import TermAdmin
 from edw.models.term import TermModel
 
-
+from edw.admin.data_mart import DataMartAdmin
+from edw.models.data_mart import DataMartModel
 
 from parler.admin import TranslatableAdmin
 from .models import Book, ChildBook, AdultBook
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from adminsortable2.admin import SortableAdminMixin
-
 
 
 #from edw.admin.term import *
@@ -112,3 +112,7 @@ admin.site.register(CustomerProxy, CustomerAdmin)
 
 
 admin.site.register(TermModel, TermAdmin)
+
+
+admin.site.register(DataMartModel, DataMartAdmin)
+

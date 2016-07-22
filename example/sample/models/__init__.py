@@ -8,7 +8,7 @@ from django.conf import settings
 
 from edw.models.defaults.customer import Customer
 from edw.models.defaults.term import Term
-
+from edw.models.defaults.data_mart import DataMart
 
 
 from book import Book, ChildBook, AdultBook
