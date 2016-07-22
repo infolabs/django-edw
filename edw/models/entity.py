@@ -63,8 +63,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
             attrs['Meta'].app_label = Meta.app_label
         attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
 
-        print "_________________________", name, Meta.app_label, edw_settings.APP_LABEL, dir(attrs['Meta'])
-
         Model = super(PolymorphicEntityMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model

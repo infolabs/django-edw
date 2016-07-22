@@ -12,6 +12,11 @@ from mptt.models import MPTTModel, MPTTModelBase
 from mptt.managers import TreeManager
 from mptt.exceptions import InvalidMove
 
+from polymorphic.manager import PolymorphicManager
+from polymorphic.models import PolymorphicModel
+from polymorphic.base import PolymorphicModelBase
+from polymorphic.query import PolymorphicQuerySet
+
 from bitfield import BitField
 
 from . import deferred
@@ -21,24 +26,24 @@ from ..utils.hash_helpers import get_unique_slug
 from .. import settings as edw_settings
 
 
-class BaseTermQuerySet(models.QuerySet):
+class BaseDataMartQuerySet(PolymorphicQuerySet):
 
     def active(self):
         return self.filter(active=True)
 
     def hard_delete(self):
-        return super(BaseTermQuerySet, self).delete()
+        return super(BaseDataMartQuerySet, self).delete()
 
     def delete(self):
-        return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
+        return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
 
-class BaseTermManager(TreeManager):
+class BaseDataMartManager(TreeManager, PolymorphicManager):
     """
-    Customized model manager for our Term model.
+    Customized model manager for our DataMart model.
     """
     #: The queryset class to use.
-    queryset_class = BaseTermQuerySet
+    queryset_class = BaseDataMartQuerySet
 
     '''
     def select_lookup(self, search_term):
@@ -52,7 +57,7 @@ class BaseTermManager(TreeManager):
         return queryset
     '''
 
-class BaseTermMetaclass(MPTTModelBase):
+class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
     """
     The BaseTerm class must refer to their materialized model definition, for instance when
     accessing its model manager.
@@ -67,7 +72,9 @@ class BaseTermMetaclass(MPTTModelBase):
             attrs['Meta'].app_label = Meta.app_label
         attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
 
-        Model = super(BaseTermMetaclass, cls).__new__(cls, name, bases, attrs)
+        #-----------------------------
+        '''
+        Model = super(BaseDataMartMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model
         for baseclass in bases:
@@ -89,6 +96,30 @@ class BaseTermMetaclass(MPTTModelBase):
                     # remember the materialized model mapping in the base class for further usage
                     baseclass._materialized_model = Model
             deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
+        '''
+        #-----------------------------
+
+        Model = super(BaseDataMartMetaclass, cls).__new__(cls, name, bases, attrs)
+        if Model._meta.abstract:
+            return Model
+        for baseclass in bases:
+            # since an abstract base class does not have no valid model.Manager,
+            # refer to it via its materialized Entity model.
+            if not isinstance(baseclass, cls):
+                continue
+            try:
+                if issubclass(baseclass._materialized_model, Model):
+                    # as the materialized model, use the most generic one
+                    baseclass._materialized_model = Model
+                elif not issubclass(Model, baseclass._materialized_model):
+                    raise ImproperlyConfigured("Abstract base class {} has already been associated "
+                        "with a model {}, which is different or not a submodel of {}."
+                        .format(name, Model, baseclass._materialized_model))
+            except (AttributeError, TypeError):
+                baseclass._materialized_model = Model
+            deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
+
+        #-----------------------------
 
         # search for deferred foreign fields in our Model
         for attrname in dir(Model):
@@ -110,49 +141,24 @@ class BaseTermMetaclass(MPTTModelBase):
     @classmethod
     def perform_model_checks(cls, Model):
         """
-        Perform some safety checks on the TermModel being created.
+        Perform some safety checks on the DataMartModel being created.
         """
-        if not isinstance(Model.objects, BaseTermManager):
-            msg = "Class `{}.objects` must provide ModelManager inheriting from BaseTermManager"
-            raise NotImplementedError(msg.format(Model.__name__))
+        if not isinstance(Model.objects, BaseDataMartManager):
+            msg = "Class `{}.objects` must provide ModelManager inheriting from `{}`"
+            raise NotImplementedError(msg.format(Model.__name__, BaseDataMartManager.__name__))
 
 
 @python_2_unicode_compatible
-class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
+class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicModel)):
     """
-    The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
+    The data marts for a enterprise data warehouse.
     """
-    OR_RULE = 10
-    XOR_RULE = 20
-    AND_RULE = 30
-    SEMANTIC_RULES = (
-        (OR_RULE, _('OR')),
-        (XOR_RULE, _('XOR')),
-        (AND_RULE, _('AND')),
-    )
-
-    ATTRIBUTES = {
-        0: ('is_characteristic', _('Is characteristic')),
-        1: ('is_mark', _('Is mark')),
-        2: ('is_relation', _('Is relation')),
-    }
-
-    STANDARD_SPECIFICATION = 10
-    EXPANDED_SPECIFICATION = 20
-    REDUCED_SPECIFICATION = 30
-    SPECIFICATION_MODES = (
-        (STANDARD_SPECIFICATION, _('Standard')),
-        (EXPANDED_SPECIFICATION, _('Expanded')),
-        (REDUCED_SPECIFICATION, _('Reduced')),
-    )
 
     SYSTEM_FLAGS = {
         0: ('delete_restriction', _('Delete restriction')),
         1: ('change_parent_restriction', _('Change parent restriction')),
         2: ('change_slug_restriction', _('Change slug restriction')),
-        3: ('change_semantic_rule_restriction', _('Change semantic rule restriction')),
-        4: ('has_child_restriction', _('Has child restriction')),
-        5: ('external_tagging_restriction', _('External tagging restriction')),
+        3: ('has_child_restriction', _('Has child restriction')),
     }
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
@@ -160,31 +166,29 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
     name = models.CharField(verbose_name=_('Name'), max_length=255)
     slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank"))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
-    semantic_rule = models.PositiveSmallIntegerField(verbose_name=_('Semantic Rule'),
-                                                          choices=SEMANTIC_RULES, default=OR_RULE)
-    attributes = BitField(flags=ATTRIBUTES, verbose_name=_('attributes'), null=True, default=None,
-                          help_text=_("Specifying attributes of term."))
-    specification_mode = models.PositiveSmallIntegerField(verbose_name=_('Specification Mode'),
-                                                          choices=SPECIFICATION_MODES, default=STANDARD_SPECIFICATION)
+
+    terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True,
+                                     help_text=_("""Use "ctrl" key for choose multiple terms"""))
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
-                                  help_text=_('Space delimited class attribute, specifies one or more classnames for an entity.'))
+                                  help_text=_('Space delimited class attribute, specifies one or more classnames for an data mart.'))
     description = models.TextField(verbose_name=_('Description'), null=True, blank=True)
     active = models.BooleanField(default=True, verbose_name=_("Active"), db_index=True,
-                                 help_text=_("Is this term active."))
+                                 help_text=_("Is this data mart active."))
 
     system_flags = BitField(flags=SYSTEM_FLAGS, verbose_name=_('system flags'), null=True, default=None)
 
-    objects = BaseTermManager()
+    objects = BaseDataMartManager()
 
     # Whether the node type allows to have children.
     can_have_children = True
 
     class Meta:
         abstract = True
-        verbose_name = _("Term")
-        verbose_name_plural = _("Terms")
+        verbose_name = _("Data mart")
+        verbose_name_plural = _("Data marts")
 
     class MPTTMeta:
         order_insertion_by = ['created_at']
@@ -214,7 +218,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
         if not self.parent_id is None and self.parent.system_flags.has_child_restriction:
             if origin is None or origin.parent_id != self.parent_id:
                 raise ValidationError(self.system_flags.get_label('has_child_restriction'))
-        return super(BaseTerm, self).clean(*args, **kwargs)
+        return super(BaseDataMart, self).clean(*args, **kwargs)
 
     def _make_path(self, items):
 
@@ -243,12 +247,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
             self._make_path(ancestors + [self, ])
             try:
                 with transaction.atomic():
-                    result = super(BaseTerm, self).save(*args, **kwargs)
+                    result = super(BaseDataMart, self).save(*args, **kwargs)
             except IntegrityError as e:
                 if model_class._default_manager.exclude(pk=self.pk).filter(path=self.path).exists():
                     self.slug = get_unique_slug(self.slug, self.id)
                     self._make_path(ancestors + [self, ])
-                    result = super(BaseTerm, self).save(*args, **kwargs)
+                    result = super(BaseDataMart, self).save(*args, **kwargs)
                 else:
                     raise e
             if not origin or origin.active != self.active:
@@ -257,15 +261,15 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
                     update_id_list.extend([x.id for x in self.get_ancestors_list()])
                 model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
         else:
-            result = super(BaseTerm, self).save(*args, **kwargs)
+            result = super(BaseDataMart, self).save(*args, **kwargs)
         return result
 
     def delete(self):
         if not self.system_flags.delete_restriction:
-            super(BaseTerm, self).delete()
+            super(BaseDataMart, self).delete()
 
     def hard_delete(self):
-        super(BaseTerm, self).delete()
+        super(BaseDataMart, self).delete()
 
     def move_to(self, target, position='first-child'):
         if position in ('left', 'right'):
@@ -279,6 +283,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
                     raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
                 if target.system_flags.has_child_restriction:
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
-        super(BaseTerm, self).move_to(target, position)
+        super(BaseDataMart, self).move_to(target, position)
 
-TermModel = deferred.MaterializedModel(BaseTerm)
+DataMartModel = deferred.MaterializedModel(BaseDataMart)
