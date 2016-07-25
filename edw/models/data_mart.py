@@ -72,33 +72,6 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
             attrs['Meta'].app_label = Meta.app_label
         attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
 
-        #-----------------------------
-        '''
-        Model = super(BaseDataMartMetaclass, cls).__new__(cls, name, bases, attrs)
-        if Model._meta.abstract:
-            return Model
-        for baseclass in bases:
-            # classes which materialize an abstract model are added to a mapping dictionary
-            basename = baseclass.__name__
-            try:
-                if not issubclass(Model, baseclass) or not baseclass._meta.abstract:
-                    raise ImproperlyConfigured("Base class %s is not abstract." % basename)
-            except (AttributeError, NotImplementedError):
-                pass
-            else:
-                if basename in deferred.ForeignKeyBuilder._materialized_models:
-                    if Model.__name__ != deferred.ForeignKeyBuilder._materialized_models[basename]:
-                        raise AssertionError("Both Model classes '%s' and '%s' inherited from abstract"
-                            "base class %s, which is disallowed in this configuration." %
-                            (Model.__name__, deferred.ForeignKeyBuilder._materialized_models[basename], basename))
-                elif isinstance(baseclass, cls):
-                    deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
-                    # remember the materialized model mapping in the base class for further usage
-                    baseclass._materialized_model = Model
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
-        '''
-        #-----------------------------
-
         Model = super(BaseDataMartMetaclass, cls).__new__(cls, name, bases, attrs)
         if Model._meta.abstract:
             return Model
@@ -118,8 +91,6 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
             except (AttributeError, TypeError):
                 baseclass._materialized_model = Model
             deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
-
-        #-----------------------------
 
         # search for deferred foreign fields in our Model
         for attrname in dir(Model):
