@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from mptt.models import MPTTModel, MPTTModelBase
 from mptt.managers import TreeManager
+from mptt.querysets import TreeQuerySet
 from mptt.exceptions import InvalidMove
 
 from bitfield import BitField
@@ -21,7 +22,7 @@ from ..utils.hash_helpers import get_unique_slug
 from .. import settings as edw_settings
 
 
-class BaseTermQuerySet(models.QuerySet):
+class BaseTermQuerySet(TreeQuerySet):
 
     def active(self):
         return self.filter(active=True)
@@ -32,13 +33,17 @@ class BaseTermQuerySet(models.QuerySet):
     def delete(self):
         return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
+    def toplevel(self):
+        """
+        Return all nodes which have no parent.
+        """
+        return self.filter(parent__isnull=True)
 
-class BaseTermManager(TreeManager):
+
+class BaseTermManager(TreeManager.from_queryset(BaseTermQuerySet)):
     """
     Customized model manager for our Term model.
     """
-    #: The queryset class to use.
-    queryset_class = BaseTermQuerySet
 
     '''
     def select_lookup(self, search_term):
@@ -51,6 +56,7 @@ class BaseTermManager(TreeManager):
         queryset = self.get_queryset().filter(reduce(operator.or_, filter_by_term))
         return queryset
     '''
+
 
 class BaseTermMetaclass(MPTTModelBase):
     """

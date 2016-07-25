@@ -38,12 +38,16 @@ class BaseDataMartQuerySet(PolymorphicQuerySet):
         return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
 
-class BaseDataMartManager(TreeManager, PolymorphicManager):
+class TreePolymorphicManager(TreeManager, PolymorphicManager):
+    """
+    Combine TreeManager & PolymorphicManager
+    """
+
+
+class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
     """
     Customized model manager for our DataMart model.
     """
-    #: The queryset class to use.
-    queryset_class = BaseDataMartQuerySet
 
     '''
     def select_lookup(self, search_term):
