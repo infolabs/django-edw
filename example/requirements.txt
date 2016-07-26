@@ -58,3 +58,4 @@ urllib3==1.12
 virtualenv==13.1.2
 #wheel==0.24.0
 git+ssh://git@bitbucket.org/excentrics/django-edw.git
+git+https://github.com/heywbj/django-rest-framework-recursive

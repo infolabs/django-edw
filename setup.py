@@ -48,6 +48,7 @@ setup(
         'django-rest-auth>=0.5.0',
         'django-angular>=0.7.15',
         'django-select2>=5.5.0',
+        'djangorestframework-recursive == 0.1.1',
         #'django-sass-processor>=0.3.4',
     ],
 )
