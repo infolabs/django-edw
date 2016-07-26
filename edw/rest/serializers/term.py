@@ -7,15 +7,37 @@ from rest_framework_recursive.fields import RecursiveField
 from edw.models.term import TermModel
 
 
-class TermSelectSerializer(serializers.ModelSerializer):
+class TermListField(serializers.ListField):
+    '''
+    Bla Bla...
+    '''
+
+    def to_representation(self, data):
+        print "+++", self.parent._tmp
+
+        print "* TermListField *", data
+        #print dir(self)
+
+
+
+        #print "+++", self.parent.instance
+
+
+
+        #todo: PassTestResult
+
+        #return []
+        return super(TermListField, self).to_representation(data)
+
+
+
+class TermSerializer(serializers.ModelSerializer):
     """
     A simple serializer to convert the terms data for rendering the select widget
     when looking up for a term.
     """
-    #parent = RecursiveField(allow_null=True)
     name = serializers.CharField(read_only=True)
-    children = serializers.ListField(child=RecursiveField(), source='get_children', read_only=True)
-
+    children = TermListField(child=RecursiveField(), source='get_children', read_only=True)
 
     #text = serializers.SerializerMethodField()
 
@@ -23,7 +45,22 @@ class TermSelectSerializer(serializers.ModelSerializer):
         model = TermModel
         fields = ('id', 'name', 'children')
 
+
+    def to_representation(self, data):
+
+        #print "@ TermSerializer @", data
+
+        self._tmp = data
+
+        #todo: #1. self.context
+        #todo: #2. ....
+        #todo: PassTest
+        #todo: treeInfo
+
+        return super(TermSerializer, self).to_representation(data)
+
+
     '''
     def get_text(self, instance):
-        return instance.entity_name
+        return instance.slug
     '''
