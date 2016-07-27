@@ -45,7 +45,7 @@ class TermSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TermModel
-        fields = ('id', 'name', 'semantic_rule', 'children')
+        fields = ('id', 'name', 'slug', 'semantic_rule', 'children')
 
 
     def to_representation(self, data):
