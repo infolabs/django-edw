@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#import operator
+import operator
+
 from six import with_metaclass
+
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, IntegrityError, transaction
+from django.db.models import Q
+from django.db.models.query import EmptyQuerySet
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,7 +21,8 @@ from bitfield import BitField
 
 from . import deferred
 from .fields import TreeForeignKey
-from ..utils.hash_helpers import get_unique_slug
+from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
+from ..utils.set_helpers import uniq
 
 from .. import settings as edw_settings
 
@@ -287,4 +292,223 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         super(BaseTerm, self).move_to(target, position)
 
+    @staticmethod
+    def decompress(value=None, fix_it=False):
+        """
+        Shortcut to TermInfo.decompress method
+        """
+        return TermInfo.decompress(TermModel, value, fix_it)
+
+
 TermModel = deferred.MaterializedModel(BaseTerm)
+
+
+def get_queryset_descendants(nodes, include_self=False):
+    if not nodes:
+        return EmptyQuerySet(MPTTModel) #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
+    filters = []
+    Model = nodes[0].__class__
+    if include_self:
+        for n in nodes:
+            lft, rght = n.lft - 1, n.rght + 1
+            filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
+    else:
+        for n in nodes:
+            if n.get_descendant_count():
+                lft, rght = n.lft, n.rght
+                filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
+    if filters:
+        return Model.objects.filter(reduce(operator.or_, filters))
+    else:
+        #HACK: Emulate Model.objects.none()
+        return Model.objects.filter(id__isnull=True)
+
+
+class TermTreeInfo(dict):
+    """
+    Helper class TermTreeInfo
+    """
+    def __init__(self, root=None, *args, **kwargs):
+        self.root = root
+        super(TermTreeInfo, self).__init__(*args, **kwargs)
+
+    def get_hash(self):
+        keys = [x.term.id for x in self.values() if x.is_leaf]
+        return hash_unsorted_list(keys) if keys else ''
+
+    def trim(self, ids=None):
+        tree = self.deepcopy()
+        tree._expand()
+        return tree._trim(ids)
+
+    def _expand(self):
+        terms = [x.term for x in self.values() if x.is_leaf]
+        if terms:
+            for term in get_queryset_descendants(terms, include_self=False).filter(active=True):
+                ancestor = self.get(term.parent_id)
+                child = self[term.id] = TermInfo(term=term, is_leaf=True)
+                ancestor.is_leaf = False
+                ancestor.append(child)
+
+    def _trim(self, ids=None):
+        if ids is None:
+            ids = []
+        #ids = uniq(ids)
+        root_model_class = self.root.term.__class__
+        root = TermInfo(term=root_model_class())
+        tree = TermTreeInfo(root)
+        for id in ids:
+            src_node = self.get(id)
+            if not src_node is None:
+                if not id in tree:
+                    node = tree[id] = TermInfo(term=src_node.term, is_leaf=True)
+                    src_ancestor = self.get(node.term.parent_id)
+                    while src_ancestor:
+                        ancestor = tree.get(src_ancestor.term.id)
+                        if not ancestor:
+                            node = tree[src_ancestor.term.id] = TermInfo(term=src_ancestor.term, is_leaf=False, children=[node])
+                            if node.term.parent_id is None:
+                                root.append(node)
+                                break
+                        else:
+                            ancestor.is_leaf = False
+                            ancestor.append(node)
+                            break
+                        src_ancestor = self.get(src_ancestor.term.parent_id)
+                    else:
+                        root.append(node)
+        for ancestor in [x for x in tree.values() if x.is_leaf]:
+            src_ancestor = self[ancestor.term.id]
+            if len(src_ancestor):
+                ancestor.is_leaf = False
+                for src_node in src_ancestor:
+                    ancestor.append(tree._copy_recursively(src_node))
+        return tree
+
+    def _copy_recursively(self, src_node):
+        node = self[src_node.term.id] = TermInfo(term=src_node.term, is_leaf=src_node.is_leaf)
+        for src_child in src_node:
+            node.append(self._copy_recursively(src_child))
+        return node
+
+    def deepcopy(self):
+        root_model_class = self.root.term.__class__
+        root = TermInfo(term=root_model_class())
+        tree = TermTreeInfo(root)
+        for src_node in self.root:
+            root.append(tree._copy_recursively(src_node))
+        return tree
+
+
+class TermInfo(list):
+    """
+    Class TermInfo
+    Usage: tree = TermInfo.decompress(term_model, term_ids_set, fix_it=True), result type is TermTreeInfo
+    """
+    def __init__(self, term=None, is_leaf=False, children=(), attrs=None):
+        super(TermInfo, self).__init__(children)
+        self.attrs = attrs or {}
+        self.term, self.is_leaf = term, is_leaf
+
+    def get_children_dict(self):
+        result = {}
+        for child in self:
+            result[child.term.id] = child
+        return result
+
+    def get_descendants_ids(self):
+        result = []
+        for child in self:
+            result.append(child.term.id)
+            result.extend(child.get_descendants_ids())
+        return result
+
+    @staticmethod
+    def decompress(model_class, value=None, fix_it=False):
+        if value is None:
+            value = []
+        value = uniq(value)
+        root = TermInfo(term=model_class())
+        tree = TermTreeInfo(root)
+        for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
+            if not term.id in tree:
+                node = tree[term.id] = TermInfo(term=term, is_leaf=True)
+                term_parent = term.parent
+                if term_parent:
+                    ancestor = tree.get(term_parent.id)
+                    if not ancestor is None:
+                        ancestor.is_leaf = False
+                        ancestor.append(node)
+                    else:
+                        node = tree[term_parent.id] = TermInfo(term=term_parent, is_leaf=False, children=[node])
+                        if not term_parent.parent_id is None:
+                            for term_ancestor in term_parent.get_ancestors(ascending=True).exclude(pk__in=tree.keys()):
+                                node = tree[term_ancestor.id] = TermInfo(term=term_ancestor, is_leaf=False, children=[node])
+                            ancestor = tree.get(node.term.parent_id)
+                            if not ancestor is None:
+                                ancestor.is_leaf = False
+                                ancestor.append(node)
+                            else:
+                                root.append(node)
+                        else:
+                            root.append(node)
+                else:
+                    root.append(node)
+        '''
+        if fix_it:
+            invalid_ids = []
+            for x in [x for x in tree.values() if not x.is_leaf]:
+                if len(x) > 1 and (x.term.get_classification_method() == HIERARCHY_CLASSIFICATION):
+                    invalid_ids.extend(x.get_descendants_ids())
+                    x.is_leaf = True
+                    del x[:]
+            for id in invalid_ids:
+                del tree[id]
+        '''
+        return tree
+
+
+'''
+class CachedTermInfo(TermInfo):
+
+
+
+    CACHE_TIMEOUT = 3600
+
+    DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
+    DECOMPRESS_BUFFER_CACHE_SIZE = 500
+    DECOMPRESS_TREE_CACHE_KEY_PATTERN = 'tr_i::%(model_name)s:%(value_hash)s:%(fix_it)s'
+
+
+
+    @staticmethod
+    def cached_decompress(model_class, value=None, fix_it=False):
+        key = RubricInfo.DECOMPRESS_TREE_CACHE_KEY_PATTERN % {
+            "model_name": model_class.__name__,
+            "value_hash": hash_unsorted_list(value) if value else '',
+            "fix_it": 'Y' if fix_it else 'N'
+        }
+        tree = cache.get(key, None)
+        if tree is None:
+            tree = RubricInfo.decompress(model_class, value, fix_it)
+            cache.set(key, tree, RubricInfo.CACHE_TIMEOUT)
+            buf = RubricInfo.get_decompress_buffer()
+            old_key = buf.record(key)
+            if not old_key is None:
+                cache.delete(old_key)
+        return tree
+
+    @staticmethod
+    def get_decompress_buffer():
+        return RingBuffer.factory(RubricInfo.DECOMPRESS_BUFFER_CACHE_KEY,
+                                  max_size=RubricInfo.DECOMPRESS_BUFFER_CACHE_SIZE, empty=None)
+
+    @staticmethod
+    def clear_decompress_buffer():
+        buf = RubricInfo.get_decompress_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
+
+
+'''

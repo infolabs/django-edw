@@ -17,6 +17,15 @@ class TermViewSet(viewsets.ViewSet):
     A simple ViewSet for listing or retrieving terms.
     """
     def list(self, request, format=None):
+
+        print "******** TEST ********"
+        print "**********************"
+
+        print TermModel.decompress([2, 5])
+
+        print "**********************"
+        print "**********************"
+
         queryset = TermModel.objects.toplevel() #.active()
         serializer = TermSerializer(queryset, many=True, context={"arg1": "var1"})
         return Response(serializer.data)
