@@ -305,7 +305,8 @@ TermModel = deferred.MaterializedModel(BaseTerm)
 
 def get_queryset_descendants(nodes, include_self=False):
     if not nodes:
-        return EmptyQuerySet(MPTTModel) #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
+        #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
+        return EmptyQuerySet(MPTTModel)
     filters = []
     Model = nodes[0].__class__
     if include_self:
@@ -454,32 +455,29 @@ class TermInfo(list):
                             root.append(node)
                 else:
                     root.append(node)
-        '''
+
         if fix_it:
             invalid_ids = []
             for x in [x for x in tree.values() if not x.is_leaf]:
-                if len(x) > 1 and (x.term.get_classification_method() == HIERARCHY_CLASSIFICATION):
+                if len(x) > 1 and (x.term.semantic_rule == BaseTerm.XOR_RULE):
                     invalid_ids.extend(x.get_descendants_ids())
                     x.is_leaf = True
                     del x[:]
             for id in invalid_ids:
                 del tree[id]
-        '''
+
         return tree
+
 
 
 '''
 class CachedTermInfo(TermInfo):
-
-
 
     CACHE_TIMEOUT = 3600
 
     DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
     DECOMPRESS_BUFFER_CACHE_SIZE = 500
     DECOMPRESS_TREE_CACHE_KEY_PATTERN = 'tr_i::%(model_name)s:%(value_hash)s:%(fix_it)s'
-
-
 
     @staticmethod
     def cached_decompress(model_class, value=None, fix_it=False):
@@ -509,6 +507,5 @@ class CachedTermInfo(TermInfo):
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)
-
 
 '''

@@ -21,7 +21,7 @@ class TermViewSet(viewsets.ViewSet):
         print "******** TEST ********"
         print "**********************"
 
-        print TermModel.decompress([2, 5])
+        print TermModel.decompress([4, 5], fix_it=False)
 
         print "**********************"
         print "**********************"

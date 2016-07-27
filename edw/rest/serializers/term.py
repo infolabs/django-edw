@@ -38,12 +38,14 @@ class TermSerializer(serializers.ModelSerializer):
     """
     name = serializers.CharField(read_only=True)
     children = TermListField(child=RecursiveField(), source='get_children', read_only=True)
+    slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
+    semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
 
     #text = serializers.SerializerMethodField()
 
     class Meta:
         model = TermModel
-        fields = ('id', 'name', 'children')
+        fields = ('id', 'name', 'semantic_rule', 'children')
 
 
     def to_representation(self, data):
