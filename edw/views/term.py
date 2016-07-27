@@ -12,10 +12,14 @@ from edw.rest.serializers.term import TermSerializer
 from edw.models.term import TermModel
 
 
-class TermViewSet(viewsets.ViewSet):
+class TermViewSet(viewsets.ReadOnlyModelViewSet):
+#class TermViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
     """
+    queryset = TermModel.objects.all()
+    serializer_class = TermSerializer
+
     def list(self, request, format=None):
 
         print "******** TEST ********"
@@ -27,14 +31,16 @@ class TermViewSet(viewsets.ViewSet):
         print "**********************"
 
         queryset = TermModel.objects.toplevel() #.active()
-        serializer = TermSerializer(queryset, many=True, context={"arg1": "var1"})
+        serializer = TermSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
+    '''
     def retrieve(self, request, pk=None, format=None):
         queryset = TermModel.objects.all()
         term = get_object_or_404(queryset, pk=pk)
-        serializer = TermSerializer(term)
+        serializer = TermSerializer(term, context={"request": request})
         return Response(serializer.data)
+    '''
 
 '''
 class TermSelectView(generics.ListAPIView):

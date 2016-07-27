@@ -12,7 +12,7 @@ from edw.views.term import TermViewSet
 router = routers.DefaultRouter()
 #router.include_format_suffixes = False
 
-router.register(r'terms', TermViewSet, base_name='term')
+router.register(r'terms', TermViewSet) #, base_name='term'
 
 '''
 router.register(r'cart', CartViewSet, base_name='cart')
@@ -22,7 +22,7 @@ router.register(r'checkout', CheckoutViewSet, base_name='checkout')
 
 urlpatterns = (
     #url(r'^selected-terms/$', TermSelectView.as_view(), name='selected-terms'),
-    url(r'^', include(router.urls)), #url(r'^api/', include(router.urls, namespace='api')),
+    url(r'^', include(router.urls, namespace='edw-api')), #url(r'^api/', include(router.urls, namespace='api')),
 )
 
 # Format suffixes

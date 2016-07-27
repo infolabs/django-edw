@@ -31,12 +31,14 @@ class TermListField(serializers.ListField):
 
 
 
-class TermSerializer(serializers.ModelSerializer):
+#class TermSerializer(serializers.ModelSerializer):
+class TermSerializer(serializers.HyperlinkedModelSerializer):
     """
     A simple serializer to convert the terms data for rendering the select widget
     when looking up for a term.
     """
     name = serializers.CharField(read_only=True)
+    #url = serializers.URLField(source='get_absolute_url', read_only=True)
     children = TermListField(child=RecursiveField(), source='get_children', read_only=True)
     slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
     semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
@@ -45,8 +47,8 @@ class TermSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TermModel
-        fields = ('id', 'name', 'slug', 'semantic_rule', 'children')
-
+        fields = ('id', 'name', 'slug', 'semantic_rule', 'url', 'children')
+        extra_kwargs = {'url': {'view_name': 'edw-api:term-detail', 'lookup_field': 'pk'}}
 
     def to_representation(self, data):
 

@@ -292,6 +292,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         super(BaseTerm, self).move_to(target, position)
 
+    '''
+    @models.permalink
+    def get_absolute_url(self):
+        return "edw:api:{}-detail".format(self.__class__.__name__.lower()), (), {'pk': self.pk}
+    '''
+
     @staticmethod
     def decompress(value=None, fix_it=False):
         """
