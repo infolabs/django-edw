@@ -12,7 +12,7 @@ from edw.views.term import TermViewSet
 router = routers.DefaultRouter()
 #router.include_format_suffixes = False
 
-router.register(r'terms', TermViewSet) #, base_name='term'
+router.register(r'terms', TermViewSet)
 
 '''
 router.register(r'cart', CartViewSet, base_name='cart')

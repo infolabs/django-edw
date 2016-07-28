@@ -1,43 +1,40 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import get_object_or_404
-
-#from rest_framework import generics
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route#, detail_route
-
-#from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from edw.rest.serializers.term import TermSerializer, TermTreeSerializer
+from rest_framework_filters.backends import DjangoFilterBackend
+
+from edw.rest.serializers.term import (
+    TermSerializer,
+    TermTreeSerializer,
+    TermListSerializer,
+    TermDetailSerializer
+)
 from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel
+from edw.rest.viewsets import CustomSerializerViewSetMixin
 
 
 
 
-class TermViewSet(viewsets.ReadOnlyModelViewSet):
+class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
     """
     queryset = TermModel.objects.all()
     serializer_class = TermSerializer
+    custom_serializer_classes = {
+        'list':  TermListSerializer,
+        'retrieve':  TermDetailSerializer,
+    }
+
     filter_class = TermFilter
-
-    @list_route()
-    def tree(self, request, format=None):
-        #print "******** TEST ********"
-        #print "**********************"
-
-        #print TermModel.decompress([4, 5], fix_it=False)
-
-        #print "**********************"
-        #print "**********************"
-
-        queryset = TermModel.objects.toplevel().active()
-        serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
-        return Response(serializer.data)
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ('name', 'slug')
+    ordering_fields = ('name', )
 
     def initialize_request(self, request, *args, **kwargs):
         """
@@ -49,5 +46,20 @@ class TermViewSet(viewsets.ReadOnlyModelViewSet):
                 del query_params[k]
         request.GET = query_params
         return super(TermViewSet, self).initialize_request(request, *args, **kwargs)
+
+    @list_route()
+    def tree(self, request, format=None):
+        #print "******** TEST ********"
+        #print "**********************"
+
+        #print TermModel.decompress([4, 5], fix_it=False)
+
+        #print "**********************"
+        #print "**********************"
+
+        queryset = TermModel.objects.toplevel()
+        serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
 
 
