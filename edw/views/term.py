@@ -5,60 +5,49 @@ from django.shortcuts import get_object_or_404
 
 #from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.decorators import list_route#, detail_route
+
 #from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from edw.rest.serializers.term import TermSerializer
+from edw.rest.serializers.term import TermSerializer, TermTreeSerializer
+from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel
 
 
+
+
 class TermViewSet(viewsets.ReadOnlyModelViewSet):
-#class TermViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
     """
     queryset = TermModel.objects.all()
     serializer_class = TermSerializer
+    filter_class = TermFilter
 
-    def list(self, request, format=None):
+    @list_route()
+    def tree(self, request, format=None):
+        #print "******** TEST ********"
+        #print "**********************"
 
-        print "******** TEST ********"
-        print "**********************"
+        #print TermModel.decompress([4, 5], fix_it=False)
 
-        print TermModel.decompress([4, 5], fix_it=False)
+        #print "**********************"
+        #print "**********************"
 
-        print "**********************"
-        print "**********************"
-
-        queryset = TermModel.objects.toplevel() #.active()
-        serializer = TermSerializer(queryset, many=True, context={"request": request})
+        queryset = TermModel.objects.toplevel().active()
+        serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
-    '''
-    def retrieve(self, request, pk=None, format=None):
-        queryset = TermModel.objects.all()
-        term = get_object_or_404(queryset, pk=pk)
-        serializer = TermSerializer(term, context={"request": request})
-        return Response(serializer.data)
-    '''
-
-'''
-class TermSelectView(generics.ListAPIView):
-    """
-    A simple list view, which is used only by the admin backend. It is required to fetch
-    the data for rendering the select widget when looking up for a product.
-    """
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
-    serializer_class = TermSerializer
-
-    def get_queryset(self):
-
-        return TermModel.objects.active().toplevel()
-
+    def initialize_request(self, request, *args, **kwargs):
         """
-        term = self.request.GET.get('term', '')
-        if len(term) >= 2:
-            return ProductModel.objects.select_lookup(term)[:10]
-        return ProductModel.objects.all()[:10]
+        Remove empty query params from request
         """
-'''
+        query_params = request.GET.copy()
+        for k, v in query_params.items():
+            if v == '':
+                del query_params[k]
+        request.GET = query_params
+        return super(TermViewSet, self).initialize_request(request, *args, **kwargs)
+
+

@@ -183,7 +183,7 @@ INSTALLED_APPS = (
     'rest_auth',
     'django_fsm',
     'fsm_admin',
-    'djng',
+    #'djng',
     'compressor',
     'sekizai',
     'post_office',
@@ -259,7 +259,7 @@ REST_FRAMEWORK = {
 	    'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',  # can be disabled for production environments
     ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework_filters.backends.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 12,
 }

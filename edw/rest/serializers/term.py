@@ -7,9 +7,36 @@ from rest_framework_recursive.fields import RecursiveField
 from edw.models.term import TermModel
 
 
-class TermListField(serializers.ListField):
+#class TermSerializer(serializers.ModelSerializer):
+class TermSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    A simple serializer to convert the terms data for rendering the select widget
+    when looking up for a term.
+    """
+    #name = serializers.CharField(read_only=True)
+    #slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
+    #path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
+    #semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
+    #specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES)
+    #active = serializers.BooleanField()
+
+    #text = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TermModel
+        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active')
+        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
+
+
     '''
-    Bla Bla...
+    def get_text(self, instance):
+        return instance.slug
+    '''
+
+
+class TermTreeListField(serializers.ListField):
+    '''
+    TermTreeListField
     '''
 
     def to_representation(self, data):
@@ -19,40 +46,27 @@ class TermListField(serializers.ListField):
         #print dir(self)
 
 
-
         #print "+++", self.parent.instance
-
 
 
         #todo: PassTestResult
 
         #return []
-        return super(TermListField, self).to_representation(data)
+        return super(TermTreeListField, self).to_representation(data)
 
 
-
-#class TermSerializer(serializers.ModelSerializer):
-class TermSerializer(serializers.HyperlinkedModelSerializer):
+class TermTreeSerializer(TermSerializer):
     """
-    A simple serializer to convert the terms data for rendering the select widget
-    when looking up for a term.
+    Term Tree Serializer
     """
-    name = serializers.CharField(read_only=True)
-    #url = serializers.URLField(source='get_absolute_url', read_only=True)
-    children = TermListField(child=RecursiveField(), source='get_children', read_only=True)
-    slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
-    semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
+    children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
-    #text = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TermModel
-        fields = ('id', 'name', 'slug', 'semantic_rule', 'url', 'children')
-        extra_kwargs = {'url': {'view_name': 'edw-api:term-detail', 'lookup_field': 'pk'}}
+    class Meta(TermSerializer.Meta):
+        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'children')
 
     def to_representation(self, data):
 
-        #print "@ TermSerializer @", data
+        print "@ TermSerializer @", dir(TermModel)
 
         self._tmp = data
 
@@ -63,8 +77,3 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
 
         return super(TermSerializer, self).to_representation(data)
 
-
-    '''
-    def get_text(self, instance):
-        return instance.slug
-    '''
