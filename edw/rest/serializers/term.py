@@ -7,9 +7,9 @@ from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.models.term import TermModel
+from edw.rest.serializers.decorators import get_from_context_or_request
 
 
-#class TermSerializer(serializers.ModelSerializer):
 class TermSerializer(serializers.HyperlinkedModelSerializer):
     """
     A simple serializer to convert the terms data for rendering the select widget
@@ -57,7 +57,7 @@ class TermTreeListField(serializers.ListField):
     def to_representation(self, data):
         #print "+++", self.parent._tmp
 
-        #print "* TermListField *", data
+        print "* TermListField *", data
         #print dir(self)
 
 
@@ -82,35 +82,53 @@ class TermTreeSerializer(TermSerializer):
     def to_representation(self, data):
 
         print "-----------------"
-        print "* is_active_only:", self.is_active_only
+        #print "* is_active_only:", self.is_active_only
 
+        print "+++++++++++++++++"
+        print "-<*>->", self.is_active_only
 
-        #print "@ TermSerializer @", self.instance, self.root.instance
+        print "* selected:", self.selected
 
-        self._tmp = data
+        print "@ TermSerializer @", self.__class__, self.root.__class__
+
 
         #todo: #1. self.context
         #todo: #2. ....
         #todo: PassTest
         #todo: treeInfo
-
         return super(TermSerializer, self).to_representation(data)
 
     @property
-    def is_active_only(self):
+    @get_from_context_or_request('active_only', True)
+    def is_active_only(self, value):
         '''
         :return:
-        active_only value in context or request, default: True
+        `active_only` value in context or request, default: True
         '''
-        result = self.context.get('active_only')
-        if result is None:
-            result = True
-            request = self.context.get('request')
-            if request:
-                value = request.GET.get('active_only')
-                if not value is None:
-                    result = serializers.BooleanField().to_representation(value)
-            self.context['active_only'] = result
-        return result
+        return serializers.BooleanField().to_representation(value)
 
-    #todo: selected property
+    @property
+    @get_from_context_or_request('fix_it', False)
+    def fix_it(self, value):
+        '''
+        :return:
+        `fix_it` value in context or request, default: False
+        '''
+        return serializers.BooleanField().to_representation(value)
+
+    @property
+    @get_from_context_or_request('selected', [])
+    def selected(self, value):
+        '''
+        :return:
+        `selected` terms ids in context or request, default: []
+        '''
+        return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
+
+    @property
+    def tree(self):
+        '''
+
+        :return:
+        '''
+        return None
