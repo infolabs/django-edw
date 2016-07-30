@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from edw.models.term import TermModel
+from edw.models.term import TermModel, BaseTermQuerySet
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
@@ -49,25 +49,44 @@ class TermListSerializer(TermSerializer):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active')
 
 
+class _ActiveOnlyFilterMixin(object):
+    '''
+    If `active_only` parameter set `True`, then add filtering by `active` = `True`
+    '''
+    @property
+    @get_from_context_or_request('active_only', True)
+    def is_active_only(self, value):
+        '''
+        :return:
+        `active_only` value in context or request, default: True
+        '''
+        return serializers.BooleanField().to_representation(value)
 
-class TermTreeListField(serializers.ListField):
+    def to_representation(self, data):
+        if isinstance(data, BaseTermQuerySet) and self.is_active_only:
+            data = data.active()
+        return super(_ActiveOnlyFilterMixin, self).to_representation(data)
+
+
+class TermTreeListField(_ActiveOnlyFilterMixin, serializers.ListField):
     '''
     TermTreeListField
     '''
     def to_representation(self, data):
         #print "+++", self.parent._tmp
-
         print "* TermListField *", data
-        #print dir(self)
-
 
         #print "+++", self.parent.instance
-
-
         #todo: PassTestResult
 
         #return []
         return super(TermTreeListField, self).to_representation(data)
+
+
+class _TermTreeRootSerializer(_ActiveOnlyFilterMixin, serializers.ListSerializer):
+    """
+    Term Tree Root Serializer
+    """
 
 
 class TermTreeSerializer(TermSerializer):
@@ -77,19 +96,18 @@ class TermTreeSerializer(TermSerializer):
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'children')
+        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active', 'children')
+        list_serializer_class = _TermTreeRootSerializer
+
 
     def to_representation(self, data):
 
-        print "-----------------"
-        #print "* is_active_only:", self.is_active_only
+        print "@ TermSerializer: to_representation @", self.__class__
+        print "*--> data:", data
 
-        print "+++++++++++++++++"
-        print "-<*>->", self.is_active_only
 
-        print "* selected:", self.selected
-
-        print "@ TermSerializer @", self.__class__, self.root.__class__
+        #print "+++++++++++++++++"
+        #print "-<*>->", data
 
 
         #todo: #1. self.context
@@ -98,14 +116,6 @@ class TermTreeSerializer(TermSerializer):
         #todo: treeInfo
         return super(TermSerializer, self).to_representation(data)
 
-    @property
-    @get_from_context_or_request('active_only', True)
-    def is_active_only(self, value):
-        '''
-        :return:
-        `active_only` value in context or request, default: True
-        '''
-        return serializers.BooleanField().to_representation(value)
 
     @property
     @get_from_context_or_request('fix_it', False)

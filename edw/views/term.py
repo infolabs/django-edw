@@ -9,9 +9,9 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.term import (
     TermSerializer,
-    TermTreeSerializer,
     TermListSerializer,
-    TermDetailSerializer
+    TermDetailSerializer,
+    TermTreeSerializer,
 )
 from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel

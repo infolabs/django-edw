@@ -22,8 +22,7 @@ router.register(r'checkout', CheckoutViewSet, base_name='checkout')
 
 urlpatterns = (
     #url(r'^selected-terms/$', TermSelectView.as_view(), name='selected-terms'),
-    url(r'^', include(router.urls, namespace='edw')), #url(r'^api/', include(router.urls, namespace='api')),
-    #url(r'^', include(router.urls)), #url(r'^api/', include(router.urls, namespace='api')),
+    url(r'^', include(router.urls, namespace='edw')),
 )
 
 # Format suffixes
