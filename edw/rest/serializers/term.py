@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from edw.models.term import TermModel, BaseTermQuerySet
+from edw.models.term import TermModel
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
@@ -49,7 +49,7 @@ class TermListSerializer(TermSerializer):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active')
 
 
-class _ActiveOnlyFilterMixin(object):
+class _TermsFilterMixin(object):
     '''
     If `active_only` parameter set `True`, then add filtering by `active` = `True`
     '''
@@ -62,60 +62,94 @@ class _ActiveOnlyFilterMixin(object):
         '''
         return serializers.BooleanField().to_representation(value)
 
+    def active_only_filter(self, data):
+        if self.is_active_only:
+            return data.active()
+        else:
+            return data
+
+    def get_selected_terms(self):
+        '''
+        :return:
+        `None` if parent node not selected, or selected child dict.
+        '''
+        raise NotImplementedError(
+            '{cls}.get_selected_terms() must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+    @property
+    def is_expanded_specification(self):
+        '''
+        :return:
+        `True` if parent node specification mode is `expanded`.
+        '''
+        raise NotImplementedError(
+            '{cls}.is_expanded_specification must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
     def to_representation(self, data):
-        if isinstance(data, BaseTermQuerySet) and self.is_active_only:
-            data = data.active()
-        return super(_ActiveOnlyFilterMixin, self).to_representation(data)
+        terms = list(self.active_only_filter(data))
+
+        print "===================================================="
+
+        selected_terms = self.get_selected_terms()
+
+        print ">>> is_expanded_specification", self.is_expanded_specification
+
+        if self.is_expanded_specification or not selected_terms is None:
+            for term in terms:
+                try:
+                    term._selected_term_info = selected_terms.pop(term.id)
+                except (KeyError, AttributeError):
+                    term._selected_term_info = None
+        else:
+            terms = []
+
+        print "===================================================="
+
+        return super(_TermsFilterMixin, self).to_representation(terms)
 
 
-class TermTreeListField(_ActiveOnlyFilterMixin, serializers.ListField):
+class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     '''
     TermTreeListField
     '''
+    def get_selected_terms(self):
+        term_info = self.parent._selected_term_info
+        return None if term_info is None else term_info.get_children_dict()
+
+    @property
+    def is_expanded_specification(self):
+        return self.parent._is_expanded_specification
+
     def to_representation(self, data):
-        #print "+++", self.parent._tmp
         print "* TermListField *", data
-
-        #print "+++", self.parent.instance
         #todo: PassTestResult
-
         #return []
         return super(TermTreeListField, self).to_representation(data)
 
 
-class _TermTreeRootSerializer(_ActiveOnlyFilterMixin, serializers.ListSerializer):
+class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
     Term Tree Root Serializer
     """
 
+    def get_selected_terms(self):
+        tree = TermModel.decompress(self.selected, self.fix_it)
+        return tree.root.get_children_dict()
 
-class TermTreeSerializer(TermSerializer):
-    """
-    Term Tree Serializer
-    """
-    children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
+    @property
+    def is_expanded_specification(self):
+        return True
 
-    class Meta(TermSerializer.Meta):
-        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active', 'children')
-        list_serializer_class = _TermTreeRootSerializer
-
-
+    '''
     def to_representation(self, data):
-
-        print "@ TermSerializer: to_representation @", self.__class__
-        print "*--> data:", data
-
-
-        #print "+++++++++++++++++"
-        #print "-<*>->", data
-
-
-        #todo: #1. self.context
-        #todo: #2. ....
-        #todo: PassTest
-        #todo: treeInfo
-        return super(TermSerializer, self).to_representation(data)
-
+        return super(_TermTreeRootSerializer, self).to_representation(data)
+    '''
 
     @property
     @get_from_context_or_request('fix_it', False)
@@ -135,10 +169,29 @@ class TermTreeSerializer(TermSerializer):
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
 
-    @property
-    def tree(self):
-        '''
 
-        :return:
-        '''
-        return None
+class TermTreeSerializer(TermSerializer):
+    """
+    Term Tree Serializer
+    """
+    children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
+    is_selected = serializers.SerializerMethodField()
+
+    class Meta(TermSerializer.Meta):
+        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
+                  'is_selected', 'children')
+        list_serializer_class = _TermTreeRootSerializer
+
+    def to_representation(self, data):
+        """
+        Prepare some data for children serialization
+        """
+        self._selected_term_info = data._selected_term_info
+        self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
+
+        print "@ TermSerializer: to_representation @", data
+
+        return super(TermSerializer, self).to_representation(data)
+
+    def get_is_selected(self, instance):
+        return not self._selected_term_info is None
