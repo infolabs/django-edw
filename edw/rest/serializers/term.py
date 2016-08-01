@@ -46,7 +46,7 @@ class TermListSerializer(TermSerializer):
     TermListSerializer
     '''
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active')
+        fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active')
 
 
 class _TermsFilterMixin(object):
@@ -93,13 +93,7 @@ class _TermsFilterMixin(object):
 
     def to_representation(self, data):
         terms = list(self.active_only_filter(data))
-
-        print "===================================================="
-
         selected_terms = self.get_selected_terms()
-
-        print ">>> is_expanded_specification", self.is_expanded_specification
-
         if self.is_expanded_specification or not selected_terms is None:
             for term in terms:
                 try:
@@ -108,9 +102,6 @@ class _TermsFilterMixin(object):
                     term._selected_term_info = None
         else:
             terms = []
-
-        print "===================================================="
-
         return super(_TermsFilterMixin, self).to_representation(terms)
 
 
@@ -126,12 +117,10 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
+    '''
     def to_representation(self, data):
-        print "* TermListField *", data
-        #todo: PassTestResult
-        #return []
         return super(TermTreeListField, self).to_representation(data)
-
+    '''
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
@@ -178,7 +167,7 @@ class TermTreeSerializer(TermSerializer):
     is_selected = serializers.SerializerMethodField()
 
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
+        fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
                   'is_selected', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
@@ -189,7 +178,7 @@ class TermTreeSerializer(TermSerializer):
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
 
-        print "@ TermSerializer: to_representation @", data
+        #print "@ TermSerializer: to_representation @", data
 
         return super(TermSerializer, self).to_representation(data)
 

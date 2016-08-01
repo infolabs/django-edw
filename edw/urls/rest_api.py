@@ -8,11 +8,13 @@ from rest_framework import routers
 #from shop.views.checkout import CheckoutViewSet
 #from edw.views.term import TermSelectView
 from edw.views.term import TermViewSet
+from edw.views.customer import CustomerViewSet
 
 router = routers.DefaultRouter()
 #router.include_format_suffixes = False
 
 router.register(r'terms', TermViewSet)
+router.register(r'customers', CustomerViewSet)
 
 '''
 router.register(r'cart', CartViewSet, base_name='cart')

@@ -17,7 +17,7 @@ from rest_framework import serializers
 #from rest_framework.fields import empty
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
-from edw.models.customer import CustomerModel
+#from edw.models.customer import CustomerModel
 
 
 class OrderedDictField(serializers.Field):
@@ -138,14 +138,14 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
         # add a serialized representation of the entity to the context
         return {'entity': dict(entity)}
 
-
+'''
 class CustomerSerializer(serializers.ModelSerializer):
     salutation = serializers.CharField(source='get_salutation_display')
 
     class Meta:
         model = CustomerModel
         fields = ('salutation', 'first_name', 'last_name', 'email', 'extra',)
-
+'''
 
 class EntitySelectSerializer(serializers.ModelSerializer):
     """
