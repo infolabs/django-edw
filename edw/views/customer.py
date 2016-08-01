@@ -7,7 +7,6 @@ from edw.rest.serializers.customer import CustomerSerializer
 from edw.models.customer import CustomerModel
 
 
-
 class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for listing or retrieving customer.

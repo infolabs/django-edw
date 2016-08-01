@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 from django.conf.urls import url, include
 from rest_framework import routers
+from django.conf import settings
+
 #from rest_framework.urlpatterns import format_suffix_patterns
 
 #from shop.views.cart import CartViewSet, WatchViewSet
@@ -14,7 +16,8 @@ router = routers.DefaultRouter()
 #router.include_format_suffixes = False
 
 router.register(r'terms', TermViewSet)
-router.register(r'customers', CustomerViewSet)
+if settings.DEBUG:
+    router.register(r'customers', CustomerViewSet)
 
 '''
 router.register(r'cart', CartViewSet, base_name='cart')

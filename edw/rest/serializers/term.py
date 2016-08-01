@@ -177,9 +177,6 @@ class TermTreeSerializer(TermSerializer):
         """
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
-
-        #print "@ TermSerializer: to_representation @", data
-
         return super(TermSerializer, self).to_representation(data)
 
     def get_is_selected(self, instance):
