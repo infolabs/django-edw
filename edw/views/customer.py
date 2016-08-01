@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 from rest_framework import viewsets, filters
 
-from edw.rest.serializers.customer import CustomerSerializer
 from edw.models.customer import CustomerModel
+from edw.rest.serializers.customer import CustomerSerializer
+from edw.rest.viewsets import remove_empty_params_from_request
 
 
 class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
@@ -18,14 +19,7 @@ class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('first_name', 'last_name')
     ordering_fields = ('first_name', )
 
-    def initialize_request(self, request, *args, **kwargs):
-        """
-        Remove empty query params from request
-        """
-        query_params = request.GET.copy()
-        for k, v in query_params.items():
-            if v == '':
-                del query_params[k]
-        request.GET = query_params
-        return super(CustomerViewSet, self).initialize_request(request, *args, **kwargs)
+    @remove_empty_params_from_request
+    def initialize_request(self, *args, **kwargs):
+        return super(CustomerViewSet, self).initialize_request(*args, **kwargs)
 

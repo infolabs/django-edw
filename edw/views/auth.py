@@ -13,7 +13,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_auth.views import LoginView as OriginalLoginView
-from edw.rest.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
+from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 
 class AuthFormsView(GenericAPIView):

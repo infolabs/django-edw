@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import viewsets, filters
-from rest_framework.decorators import list_route#, detail_route
+from rest_framework.decorators import list_route  #, detail_route
 from rest_framework.response import Response
 
 from rest_framework_filters.backends import DjangoFilterBackend
@@ -15,9 +15,7 @@ from edw.rest.serializers.term import (
 )
 from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel
-from edw.rest.viewsets import CustomSerializerViewSetMixin
-
-
+from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 
 
 class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
@@ -36,30 +34,16 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 
-    def initialize_request(self, request, *args, **kwargs):
-        """
-        Remove empty query params from request
-        """
-        query_params = request.GET.copy()
-        for k, v in query_params.items():
-            if v == '':
-                del query_params[k]
-        request.GET = query_params
-        return super(TermViewSet, self).initialize_request(request, *args, **kwargs)
+    @remove_empty_params_from_request
+    def initialize_request(self, *args, **kwargs):
+        return super(TermViewSet, self).initialize_request(*args, **kwargs)
 
-    @list_route()
+    def get_serializer(self, *args, **kwargs):
+        return super(TermViewSet, self).get_serializer(*args, **kwargs)
+
+    @list_route(filter_backends=())
     def tree(self, request, format=None):
-        #print "******** TEST ********"
-        #print "**********************"
-
-        #print TermModel.decompress([4, 5], fix_it=False)
-
-        #print "**********************"
-        #print "**********************"
-
         queryset = TermModel.objects.toplevel()
         serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
-
-
 

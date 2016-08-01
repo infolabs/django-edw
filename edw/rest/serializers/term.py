@@ -38,7 +38,8 @@ class TermDetailSerializer(TermSerializer):
     TermDetailSerializer
     '''
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active', 'description')
+        fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
+                  'description')
 
 
 class TermListSerializer(TermSerializer):
