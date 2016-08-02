@@ -37,11 +37,18 @@ class BaseDataMartQuerySet(PolymorphicQuerySet):
     def delete(self):
         return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
+    def toplevel(self):
+        """
+        Return all nodes which have no parent.
+        """
+        return self.filter(parent__isnull=True)
+
 
 class TreePolymorphicManager(TreeManager, PolymorphicManager):
     """
     Combine TreeManager & PolymorphicManager
     """
+    queryset_class = BaseDataMartQuerySet
 
 
 class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
@@ -60,6 +67,7 @@ class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuery
         queryset = self.get_queryset().filter(reduce(operator.or_, filter_by_term))
         return queryset
     '''
+
 
 class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
     """
