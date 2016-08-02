@@ -31,6 +31,8 @@ class Book(BaseEntity, TranslatableModel):
 
     class Meta:
         ordering = ('order',)
+        verbose_name = _("Book")
+        verbose_name_plural = _("Books")
 
     objects = BookManager()
 

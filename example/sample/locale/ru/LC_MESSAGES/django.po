@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-29 12:42+0300\n"
-"PO-Revision-Date: 2016-06-29 12:44+0300\n"
+"POT-Creation-Date: 2016-08-01 22:33+0300\n"
+"PO-Revision-Date: 2016-08-01 22:34+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,11 +19,11 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "X-Generator: Poedit 1.5.7\n"
 
-#: admin.py:24 admin.py:53 admin.py:87
+#: admin.py:34 admin.py:63 admin.py:97
 msgid "Translatable Fields"
 msgstr "Переводимые поля"
 
-#: admin.py:42 admin.py:71
+#: admin.py:52 admin.py:81
 msgid "Text Index"
 msgstr "Индексируемый текст"
 
@@ -31,55 +31,64 @@ msgstr "Индексируемый текст"
 msgid "My EDW Sample"
 msgstr "Мой ПХД пример"
 
-#: models/book.py:24
+#: models/book.py:25
 msgid "Book Name"
 msgstr "Наименование"
 
-#: models/book.py:25
+#: models/book.py:26
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/book.py:29
+#: models/book.py:30
 msgid "Sort by"
 msgstr "Сортировать по"
 
-#: models/book.py:49
+#: models/book.py:34
+#| msgid "Book Name"
+msgid "Book"
+msgstr "Книга"
+
+#: models/book.py:35
+msgid "Books"
+msgstr "Книги"
+
+#: models/book.py:52
 msgid "Description"
 msgstr "Описание"
 
-#: models/book.py:50
+#: models/book.py:53
 msgid "Description for the list view of books."
 msgstr "Описание для списка книг."
 
-#: models/book.py:64
+#: models/book.py:67
 msgid "Age"
 msgstr "Возрастные ограничения"
 
-#: models/book.py:67
+#: models/book.py:70
 msgid "Child book"
 msgstr "Детская книга"
 
-#: models/book.py:68
+#: models/book.py:71
 msgid "Child books"
 msgstr "Детские книги"
 
-#: models/book.py:78
+#: models/book.py:81
 msgid "Genre"
 msgstr "Жанр"
 
-#: models/book.py:81
+#: models/book.py:84
 msgid "Adult book"
 msgstr "Книга для взрослых"
 
-#: models/book.py:82
+#: models/book.py:85
 msgid "Adult books"
 msgstr "Книги для взрослых"
 
-#: settings.py:48
+#: settings.py:49
 msgid "Russian"
 msgstr "Русский"
 
-#: settings.py:49
+#: settings.py:50
 msgid "English"
 msgstr "Английский"
 
