@@ -134,10 +134,15 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def is_expanded_specification(self):
         return True
 
-    '''
+    #
     def to_representation(self, data):
+        print "*************************************************"
+        print self.data_mart_id
+        print "-------"
+        print self.data_mart_path
+
         return super(_TermTreeRootSerializer, self).to_representation(data)
-    '''
+    #
 
     @property
     @get_from_context_or_request('fix_it', False)
@@ -154,6 +159,28 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         :return: `selected` terms ids in context or request, default: []
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
+
+    def test_fn(self):
+        #
+        #print "CALL TEST FN", self
+        #
+        return None
+
+    @property
+    @get_from_context_or_request('data_mart_id', test_fn)
+    def data_mart_id(self, value):
+        '''
+        :return: `data_mart_id` data mart id in context or request, default: None
+        '''
+        return serializers.IntegerField().to_internal_value(value)
+
+    @property
+    @get_from_context_or_request('data_mart_path', None)
+    def data_mart_path(self, value):
+        '''
+        :return: `data_mart_path` data mart path in context or request, default: None
+        '''
+        return serializers.CharField().to_internal_value(value)
 
 
 class TermTreeSerializer(TermSerializer):
