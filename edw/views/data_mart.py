@@ -23,7 +23,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
     """
     A simple ViewSet for listing or retrieving data marts.
     Additional actions:
-        `tree` - retrieve tree action. `GET /edw/api/terms/tree/`
+        `tree` - retrieve tree action. `GET /edw/api/data-marts/tree/`
     """
     queryset = DataMartModel.objects.all()
     serializer_class = DataMartSerializer

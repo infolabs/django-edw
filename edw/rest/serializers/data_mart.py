@@ -18,6 +18,7 @@ class DataMartSerializer(serializers.HyperlinkedModelSerializer):
     #path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
     #active = serializers.BooleanField()
     #description = serializers.CharField(read_only=True)
+    #view_class = serializers.CharField(read_only=True)
 
     parent_id = serializers.SerializerMethodField()
 
@@ -34,7 +35,8 @@ class DataMartDetailSerializer(DataMartSerializer):
     DataMartDetailSerializer
     """
     class Meta(DataMartSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'path', 'url', 'active', 'description')
+        fields = ('id', 'parent_id', 'name', 'slug', 'path', 'url', 'view_class', 'created_at', 'updated_at', 'level',
+                  'active', 'description')
 
 
 class DataMartListSerializer(DataMartSerializer):
@@ -42,7 +44,7 @@ class DataMartListSerializer(DataMartSerializer):
     DataMartListSerializer
     """
     class Meta(DataMartSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'url', 'active')
+        fields = ('id', 'parent_id', 'name', 'slug', 'url', 'active', 'view_class')
 
 
 class _DataMartFilterMixin(object):
@@ -86,6 +88,6 @@ class DataMartTreeSerializer(DataMartSerializer):
     children = DataMartTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
     class Meta(DataMartSerializer.Meta):
-        fields = ('id', 'name', 'slug', 'url', 'active', 'children')
+        fields = ('id', 'name', 'slug', 'url', 'active', 'view_class', 'children')
         list_serializer_class = _DataMartTreeRootSerializer
 

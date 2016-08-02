@@ -39,7 +39,7 @@ class TermDetailSerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'description')
+                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes')
 
 
 class TermListSerializer(TermSerializer):
@@ -47,7 +47,8 @@ class TermListSerializer(TermSerializer):
     TermListSerializer
     '''
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active')
+        fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
+                  'view_class', 'attributes')
 
 
 class _TermsFilterMixin(object):
@@ -164,7 +165,7 @@ class TermTreeSerializer(TermSerializer):
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'is_selected', 'children')
+                  'is_selected', 'attributes', 'view_class', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):
