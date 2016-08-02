@@ -21,6 +21,8 @@ from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_
 class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
+    Additional actions:
+        `tree` - retrieve tree action. `GET /edw/api/terms/tree/`
     """
     queryset = TermModel.objects.all()
     serializer_class = TermSerializer
@@ -38,11 +40,14 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     def initialize_request(self, *args, **kwargs):
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
 
-    def get_serializer(self, *args, **kwargs):
-        return super(TermViewSet, self).get_serializer(*args, **kwargs)
-
     @list_route(filter_backends=())
     def tree(self, request, format=None):
+        '''
+        Retrieve tree action
+        :param request:
+        :param format:
+        :return:
+        '''
         queryset = TermModel.objects.toplevel()
         serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)

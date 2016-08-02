@@ -40,7 +40,7 @@ class BaseTermQuerySet(TreeQuerySet):
 
     def toplevel(self):
         """
-        Return all nodes which have no parent.
+        :return: all nodes which have no parent
         """
         return self.filter(parent__isnull=True)
 

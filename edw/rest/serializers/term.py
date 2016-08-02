@@ -39,7 +39,7 @@ class TermDetailSerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'description')
+                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes')
 
 
 class TermListSerializer(TermSerializer):
@@ -47,7 +47,8 @@ class TermListSerializer(TermSerializer):
     TermListSerializer
     '''
     class Meta(TermSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active')
+        fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
+                  'view_class', 'attributes')
 
 
 class _TermsFilterMixin(object):
@@ -58,8 +59,7 @@ class _TermsFilterMixin(object):
     @get_from_context_or_request('active_only', True)
     def is_active_only(self, value):
         '''
-        :return:
-        `active_only` value in context or request, default: True
+        :return: `active_only` value in context or request, default: True
         '''
         return serializers.BooleanField().to_representation(value)
 
@@ -71,8 +71,7 @@ class _TermsFilterMixin(object):
 
     def get_selected_terms(self):
         '''
-        :return:
-        `None` if parent node not selected, or selected child dict.
+        :return: `None` if parent node not selected, or selected child dict
         '''
         raise NotImplementedError(
             '{cls}.get_selected_terms() must be implemented.'.format(
@@ -83,8 +82,7 @@ class _TermsFilterMixin(object):
     @property
     def is_expanded_specification(self):
         '''
-        :return:
-        `True` if parent node specification mode is `expanded`.
+        :return: `True` if parent node specification mode is `expanded`
         '''
         raise NotImplementedError(
             '{cls}.is_expanded_specification must be implemented.'.format(
@@ -136,17 +134,21 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def is_expanded_specification(self):
         return True
 
-    '''
+    #
     def to_representation(self, data):
+        print "*************************************************"
+        print self.data_mart_id
+        print "-------"
+        print self.data_mart_path
+
         return super(_TermTreeRootSerializer, self).to_representation(data)
-    '''
+    #
 
     @property
     @get_from_context_or_request('fix_it', False)
     def fix_it(self, value):
         '''
-        :return:
-        `fix_it` value in context or request, default: False
+        :return: `fix_it` value in context or request, default: False
         '''
         return serializers.BooleanField().to_representation(value)
 
@@ -154,10 +156,31 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     @get_from_context_or_request('selected', [])
     def selected(self, value):
         '''
-        :return:
-        `selected` terms ids in context or request, default: []
+        :return: `selected` terms ids in context or request, default: []
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
+
+    def test_fn(self):
+        #
+        #print "CALL TEST FN", self
+        #
+        return None
+
+    @property
+    @get_from_context_or_request('data_mart_id', test_fn)
+    def data_mart_id(self, value):
+        '''
+        :return: `data_mart_id` data mart id in context or request, default: None
+        '''
+        return serializers.IntegerField().to_internal_value(value)
+
+    @property
+    @get_from_context_or_request('data_mart_path', None)
+    def data_mart_path(self, value):
+        '''
+        :return: `data_mart_path` data mart path in context or request, default: None
+        '''
+        return serializers.CharField().to_internal_value(value)
 
 
 class TermTreeSerializer(TermSerializer):
@@ -169,7 +192,7 @@ class TermTreeSerializer(TermSerializer):
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'is_selected', 'children')
+                  'is_selected', 'attributes', 'view_class', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):

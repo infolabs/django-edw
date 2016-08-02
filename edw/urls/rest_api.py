@@ -8,16 +8,20 @@ from django.conf import settings
 
 #from shop.views.cart import CartViewSet, WatchViewSet
 #from shop.views.checkout import CheckoutViewSet
-#from edw.views.term import TermSelectView
+
 from edw.views.term import TermViewSet
-from edw.views.customer import CustomerViewSet
+from edw.views.data_mart import DataMartViewSet
+#from edw.views.customer import CustomerViewSet
 
 router = routers.DefaultRouter()
 #router.include_format_suffixes = False
 
 router.register(r'terms', TermViewSet)
+router.register(r'data-marts', DataMartViewSet)
+'''
 if settings.DEBUG:
     router.register(r'customers', CustomerViewSet)
+'''
 
 '''
 router.register(r'cart', CartViewSet, base_name='cart')
