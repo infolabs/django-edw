@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.models.term import TermModel
-from edw.rest.serializers.decorators import get_from_context_or_request
+from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 
 
 class TermSerializer(serializers.HyperlinkedModelSerializer):
@@ -140,6 +140,8 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         print self.data_mart_id
         print "-------"
         print self.data_mart_path
+        print "-------"
+        print self.data_mart
 
         return super(_TermTreeRootSerializer, self).to_representation(data)
     #
@@ -160,14 +162,18 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
 
-    def test_fn(self):
+    @property
+    @get_from_context('data_mart')
+    def data_mart(self):
         #
         #print "CALL TEST FN", self
         #
-        return None
+        return {"tmp": True}
+
+
 
     @property
-    @get_from_context_or_request('data_mart_id', test_fn)
+    @get_from_context_or_request('data_mart_id', None)
     def data_mart_id(self, value):
         '''
         :return: `data_mart_id` data mart id in context or request, default: None
