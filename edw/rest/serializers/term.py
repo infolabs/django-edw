@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from django.utils.functional import cached_property
+from django.utils.functional import cached_property
 
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.models.term import TermModel
+from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 
 
@@ -61,7 +63,7 @@ class _TermsFilterMixin(object):
         '''
         :return: `active_only` value in context or request, default: True
         '''
-        return serializers.BooleanField().to_representation(value)
+        return serializers.BooleanField().to_internal_value(value)
 
     def active_only_filter(self, data):
         if self.is_active_only:
@@ -127,24 +129,26 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
 
     def get_selected_terms(self):
-        tree = TermModel.decompress(self.selected, self.fix_it)
+
+        print "*************************************************"
+        print self.data_mart
+
+        selected = self.selected
+
+        #self.trunk = self.category.rubrics.active().values_list('id', flat=True) if self.category else []
+
+
+        tree = TermModel.decompress(selected, self.fix_it)
         return tree.root.get_children_dict()
 
     @property
     def is_expanded_specification(self):
         return True
 
-    #
+    '''
     def to_representation(self, data):
-        print "*************************************************"
-        print self.data_mart_id
-        print "-------"
-        print self.data_mart_path
-        print "-------"
-        print self.data_mart
-
         return super(_TermTreeRootSerializer, self).to_representation(data)
-    #
+    '''
 
     @property
     @get_from_context_or_request('fix_it', False)
@@ -152,7 +156,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         :return: `fix_it` value in context or request, default: False
         '''
-        return serializers.BooleanField().to_representation(value)
+        return serializers.BooleanField().to_internal_value(value)
 
     @property
     @get_from_context_or_request('selected', [])
@@ -165,12 +169,20 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     @property
     @get_from_context('data_mart')
     def data_mart(self):
-        #
-        #print "CALL TEST FN", self
-        #
-        return {"tmp": True}
+        '''
+        :return: active `DataMartModel` instance from context, if `data_mart` not set, try find object by parsing request
+        '''
+        def get_queryset():
+            return DataMartModel.objects.active()
 
-
+        pk = self.data_mart_id
+        if not pk is None:
+            return get_object_or_404(get_queryset(), pk=pk)
+        else:
+            path = self.data_mart_path
+            if not path is None:
+                return get_object_or_404(get_queryset(), path=path)
+        return None
 
     @property
     @get_from_context_or_request('data_mart_id', None)
