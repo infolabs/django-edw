@@ -131,14 +131,47 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def get_selected_terms(self):
 
         print "*************************************************"
-        print self.data_mart
 
-        selected = self.selected
+        selected = self.selected[:]
+        fix_it = self.fix_it
 
-        #self.trunk = self.category.rubrics.active().values_list('id', flat=True) if self.category else []
+        has_selected = bool(selected)
 
+        data_mart = self.data_mart
 
-        tree = TermModel.decompress(selected, self.fix_it)
+        print data_mart
+
+        if data_mart:
+            terms_ids_qs = data_mart.terms.values_list('id', flat=True)
+            if self.is_active_only:
+                trunk = list(terms_ids_qs.active())
+            else:
+                trunk = list(terms_ids_qs)
+        else:
+            trunk = []
+
+        if trunk:
+            selected.extend(trunk)
+        else:
+            trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
+
+        trunk = TermModel.decompress(trunk, fix_it) # need cache
+        if has_selected:
+            tree = TermModel.decompress(selected, fix_it) # need cache
+        else:
+            tree = trunk
+
+        '''
+        tree.root.attrs['trunk'] = True
+        for k, v in trunk.items():
+            x = tree.get(k)
+            if not x is None:
+                if v.is_leaf:
+                    x.attrs['branch'] = True
+                else:
+                    x.attrs['trunk'] = True
+        '''
+
         return tree.root.get_children_dict()
 
     @property
