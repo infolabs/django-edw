@@ -118,10 +118,6 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
-    '''
-    def to_representation(self, data):
-        return super(TermTreeListField, self).to_representation(data)
-    '''
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
@@ -129,18 +125,14 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
 
     def get_selected_terms(self):
-
-        print "*************************************************"
-
         selected = self.selected[:]
-        fix_it = self.fix_it
-
         has_selected = bool(selected)
+        fix_it = self.fix_it
+        cached = self.cached
+
+        print "** cached **", cached
 
         data_mart = self.data_mart
-
-        print data_mart
-
         if data_mart:
             terms_ids_qs = data_mart.terms.values_list('id', flat=True)
             if self.is_active_only:
@@ -161,16 +153,13 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             tree = trunk
 
-        '''
-        tree.root.attrs['trunk'] = True
         for k, v in trunk.items():
             x = tree.get(k)
             if not x is None:
                 if v.is_leaf:
-                    x.attrs['branch'] = True
+                    x.attrs['structure'] = 'limb'
                 else:
-                    x.attrs['trunk'] = True
-        '''
+                    x.attrs['structure'] = 'trunk'
 
         return tree.root.get_children_dict()
 
@@ -178,16 +167,19 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def is_expanded_specification(self):
         return True
 
-    '''
-    def to_representation(self, data):
-        return super(_TermTreeRootSerializer, self).to_representation(data)
-    '''
-
     @property
     @get_from_context_or_request('fix_it', False)
     def fix_it(self, value):
         '''
         :return: `fix_it` value in context or request, default: False
+        '''
+        return serializers.BooleanField().to_internal_value(value)
+
+    @property
+    @get_from_context_or_request('cached', False)
+    def cached(self, value):
+        '''
+        :return: `cached` value in context or request, default: False
         '''
         return serializers.BooleanField().to_internal_value(value)
 
@@ -239,11 +231,11 @@ class TermTreeSerializer(TermSerializer):
     Term Tree Serializer
     """
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
-    is_selected = serializers.SerializerMethodField()
+    structure = serializers.SerializerMethodField()
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'is_selected', 'attributes', 'view_class', 'children')
+                  'attributes', 'view_class', 'structure', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):
@@ -254,5 +246,7 @@ class TermTreeSerializer(TermSerializer):
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
         return super(TermSerializer, self).to_representation(data)
 
-    def get_is_selected(self, instance):
-        return not self._selected_term_info is None
+    def get_structure(self, instance):
+        if not self._selected_term_info is None:
+            return self._selected_term_info.attrs.get('structure', 'branch')
+        return None  # 'twig', node not selected
