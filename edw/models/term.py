@@ -24,6 +24,7 @@ from . import deferred
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
+from ..utils.circular_buffer_in_cache import RingBuffer
 
 from .. import settings as edw_settings
 
@@ -110,9 +111,9 @@ class BaseTermMetaclass(MPTTModelBase):
                 continue
             if not isinstance(member, deferred.DeferredRelatedField):
                 continue
-            mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-            if mapmodel:
-                field = member.MaterializedField(mapmodel, **member.options)
+            map_model = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
+            if map_model:
+                field = member.MaterializedField(map_model, **member.options)
                 field.contribute_to_class(Model, attrname)
             else:
                 deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
@@ -204,19 +205,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
     def __str__(self):
         return self.name
 
-    '''
-    def get_ancestors_list(self):
-        if not hasattr(self, '_ancestors_cache'):
-            self._ancestors_cache = []
-            if self.parent:
-                self._ancestors_cache = list(self.parent.get_ancestors(include_self=True))
-        return self._ancestors_cache
-    '''
-
     @cached_property
     def ancestors_list(self):
         return list(self.parent.get_ancestors(include_self=True)) if self.parent else []
-
 
     def clean(self, *args, **kwargs):
         model_class = self.__class__
@@ -252,7 +243,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
         force_update = kwargs.get('force_update', False)
         if not force_update:
             model_class = self.__class__
-            #ancestors = self.get_ancestors_list()
             ancestors = self.ancestors_list
             try:
                 origin = model_class._default_manager.get(pk=self.pk)
@@ -274,7 +264,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
             if not origin or origin.active != self.active:
                 update_id_list = [x.id for x in self.get_descendants(include_self=False)]
                 if self.active:
-                    #update_id_list.extend([x.id for x in self.get_ancestors_list()])
                     update_id_list.extend([x.id for x in ancestors])
                 model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
         else:
@@ -314,6 +303,11 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
         Shortcut to TermInfo.decompress method
         """
         return TermInfo.decompress(TermModel, value, fix_it)
+
+    @staticmethod
+    def get_decompress_buffer():
+        return RingBuffer.factory(BaseTerm.DECOMPRESS_BUFFER_CACHE_KEY,
+                                  max_size=BaseTerm.DECOMPRESS_BUFFER_CACHE_SIZE, empty=None)
 
 
 TermModel = deferred.MaterializedModel(BaseTerm)

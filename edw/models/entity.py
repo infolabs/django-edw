@@ -91,9 +91,9 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                 continue
             if not isinstance(member, deferred.DeferredRelatedField):
                 continue
-            mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-            if mapmodel:
-                field = member.MaterializedField(mapmodel, **member.options)
+            map_model = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
+            if map_model:
+                field = member.MaterializedField(map_model, **member.options)
                 field.contribute_to_class(Model, attrname)
             else:
                 deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
