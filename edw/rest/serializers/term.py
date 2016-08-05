@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.utils.functional import cached_property
 
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
