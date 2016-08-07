@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 #import operator
 from six import with_metaclass
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, IntegrityError, transaction
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 
 from mptt.models import MPTTModel, MPTTModelBase
 from mptt.managers import TreeManager
@@ -112,9 +114,9 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
                 continue
             if not isinstance(member, deferred.DeferredRelatedField):
                 continue
-            mapmodel = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-            if mapmodel:
-                field = member.MaterializedField(mapmodel, **member.options)
+            map_model = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
+            if map_model:
+                field = member.MaterializedField(map_model, **member.options)
                 field.contribute_to_class(Model, attrname)
             else:
                 deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
@@ -179,12 +181,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
     def __str__(self):
         return self.name
 
-    def get_ancestors_list(self):
-        if not hasattr(self, '_ancestors_cache'):
-            self._ancestors_cache = []
-            if self.parent:
-                self._ancestors_cache = list(self.parent.get_ancestors(include_self=True))
-        return self._ancestors_cache
+    @cached_property
+    def ancestors_list(self):
+        return list(self.parent.get_ancestors(include_self=True)) if self.parent else []
 
     def clean(self, *args, **kwargs):
         model_class = self.__class__
@@ -220,7 +219,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
         force_update = kwargs.get('force_update', False)
         if not force_update:
             model_class = self.__class__
-            ancestors = self.get_ancestors_list()
+            ancestors = self.ancestors_list
             try:
                 origin = model_class._default_manager.get(pk=self.pk)
             except model_class.DoesNotExist:
@@ -241,7 +240,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
             if not origin or origin.active != self.active:
                 update_id_list = [x.id for x in self.get_descendants(include_self=False)]
                 if self.active:
-                    update_id_list.extend([x.id for x in self.get_ancestors_list()])
+                    update_id_list.extend([x.id for x in ancestors])
                 model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
         else:
             result = super(BaseDataMart, self).save(*args, **kwargs)

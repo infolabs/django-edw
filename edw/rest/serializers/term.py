@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from django.utils.functional import cached_property
 
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.models.term import TermModel
-from edw.rest.serializers.decorators import get_from_context_or_request
+from edw.models.data_mart import DataMartModel
+from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 
 
 class TermSerializer(serializers.HyperlinkedModelSerializer):
@@ -61,7 +62,7 @@ class _TermsFilterMixin(object):
         '''
         :return: `active_only` value in context or request, default: True
         '''
-        return serializers.BooleanField().to_representation(value)
+        return serializers.BooleanField().to_internal_value(value)
 
     def active_only_filter(self, data):
         if self.is_active_only:
@@ -116,10 +117,6 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
-    '''
-    def to_representation(self, data):
-        return super(TermTreeListField, self).to_representation(data)
-    '''
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
@@ -127,22 +124,47 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
 
     def get_selected_terms(self):
-        tree = TermModel.decompress(self.selected, self.fix_it)
+        selected = self.selected[:]
+        has_selected = bool(selected)
+        fix_it = self.fix_it
+        cached = self.cached
+
+        print "** cached **", cached
+
+        data_mart = self.data_mart
+        if data_mart:
+            terms_ids_qs = data_mart.terms.values_list('id', flat=True)
+            if self.is_active_only:
+                trunk = list(terms_ids_qs.active())
+            else:
+                trunk = list(terms_ids_qs)
+        else:
+            trunk = []
+
+        if trunk:
+            selected.extend(trunk)
+        else:
+            trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
+
+        trunk = TermModel.decompress(trunk, fix_it) # need cache
+        if has_selected:
+            tree = TermModel.decompress(selected, fix_it) # need cache
+        else:
+            tree = trunk
+
+        for k, v in trunk.items():
+            x = tree.get(k)
+            if not x is None:
+                if v.is_leaf:
+                    x.attrs['structure'] = 'limb'
+                else:
+                    x.attrs['structure'] = 'trunk'
+
         return tree.root.get_children_dict()
 
     @property
     def is_expanded_specification(self):
         return True
-
-    #
-    def to_representation(self, data):
-        print "*************************************************"
-        print self.data_mart_id
-        print "-------"
-        print self.data_mart_path
-
-        return super(_TermTreeRootSerializer, self).to_representation(data)
-    #
 
     @property
     @get_from_context_or_request('fix_it', False)
@@ -150,7 +172,15 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         :return: `fix_it` value in context or request, default: False
         '''
-        return serializers.BooleanField().to_representation(value)
+        return serializers.BooleanField().to_internal_value(value)
+
+    @property
+    @get_from_context_or_request('cached', False)
+    def cached(self, value):
+        '''
+        :return: `cached` value in context or request, default: False
+        '''
+        return serializers.BooleanField().to_internal_value(value)
 
     @property
     @get_from_context_or_request('selected', [])
@@ -160,14 +190,26 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
 
-    def test_fn(self):
-        #
-        #print "CALL TEST FN", self
-        #
+    @property
+    @get_from_context('data_mart')
+    def data_mart(self):
+        '''
+        :return: active `DataMartModel` instance from context, if `data_mart` not set, try find object by parsing request
+        '''
+        def get_queryset():
+            return DataMartModel.objects.active()
+
+        pk = self.data_mart_id
+        if not pk is None:
+            return get_object_or_404(get_queryset(), pk=pk)
+        else:
+            path = self.data_mart_path
+            if not path is None:
+                return get_object_or_404(get_queryset(), path=path)
         return None
 
     @property
-    @get_from_context_or_request('data_mart_id', test_fn)
+    @get_from_context_or_request('data_mart_id', None)
     def data_mart_id(self, value):
         '''
         :return: `data_mart_id` data mart id in context or request, default: None
@@ -188,11 +230,11 @@ class TermTreeSerializer(TermSerializer):
     Term Tree Serializer
     """
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
-    is_selected = serializers.SerializerMethodField()
+    structure = serializers.SerializerMethodField()
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'is_selected', 'attributes', 'view_class', 'children')
+                  'attributes', 'view_class', 'structure', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):
@@ -203,5 +245,7 @@ class TermTreeSerializer(TermSerializer):
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
         return super(TermSerializer, self).to_representation(data)
 
-    def get_is_selected(self, instance):
-        return not self._selected_term_info is None
+    def get_structure(self, instance):
+        if not self._selected_term_info is None:
+            return self._selected_term_info.attrs.get('structure', 'branch')
+        return None  # 'twig', node not selected
