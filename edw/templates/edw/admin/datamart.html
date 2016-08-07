@@ -1,0 +1,15 @@
+{% load i18n edw_utils_tags %}{% spaceless %}
+<div class="drag" title="{{ instance.path }}"></div>
+<span class="datamart {% if instance.active %}on{% else %}off{% endif %}{% comment %}
+                {% endcomment %}{% if instance.system_flags %} has-system-flags{% endif %}" >
+    <i class="icons fa fa-exclamation-triangle has-system-flags" title="{% trans 'System flags' %}"></i>
+    <i class="icons fa fa-power-off" title="{% trans 'Active' %}"></i>
+    <span class="view_classes">
+        {% if instance.view_class %}
+            {% for view_class in instance.view_class|split:' ' %}
+                <span class="view_class">{{ view_class }}</span>
+            {% endfor %}
+        {% endif %}
+    </span>
+    {% with label=node_info|get_value:'label' %}<div class="title" title="{{ label }}">{{ label }}</div>{% endwith %}
+</span>{% endspaceless %}

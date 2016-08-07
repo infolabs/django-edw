@@ -4,6 +4,11 @@ from __future__ import unicode_literals
 from django.contrib import messages
 #from django.contrib import admin
 from django_mptt_admin.admin import DjangoMpttAdmin
+from django_mptt_admin.util import get_tree_from_queryset
+
+from edw.utils.render_helpers import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
+
+from django.conf import settings
 
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
@@ -24,6 +29,20 @@ class DataMartAdmin(DjangoMpttAdmin):
 
     search_fields = ['name', 'slug']
 
+    autoescape = False
+
+
+    class Media:
+        js = [
+            '/static/edw/js/admin/datamart.js',
+        ]
+        css = {
+            'all': [
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/datamart.css',
+                ]
+        }
+
     def delete_model(self, request, obj):
         if obj.system_flags.delete_restriction:
             storage = messages.get_messages(request)
@@ -32,6 +51,22 @@ class DataMartAdmin(DjangoMpttAdmin):
         else:
             obj.delete()
 
+    def get_tree_data(self, qs, max_level):
+        def handle_create_node(instance, node_info):
+            mptt_admin_node_info_update_with_template(admin_instance=self,
+                                                      template=get_mptt_admin_node_template(instance),
+                                                      instance=instance,
+                                                      node_info=node_info,
+                                                      )
 
+        return get_tree_from_queryset(qs, handle_create_node, max_level)
+
+    def i18n_javascript(self, request):
+        if settings.USE_I18N:
+            from django.views.i18n import javascript_catalog
+        else:
+            from django.views.i18n import null_javascript_catalog as javascript_catalog
+
+        return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 #admin.site.register(DataMartModel, DataMartAdmin)
 

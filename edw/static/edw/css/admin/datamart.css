@@ -27,17 +27,10 @@ ul.jqtree-tree li.jqtree-folder {
     margin-bottom: 0;
 }
 
-.jqtree-element img {
-    display: none;
-}
-
 ul.jqtree-tree li.jqtree-folder {
     margin-bottom: 0;
 }
 
-ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
-    display: inherit;
-}
 
 .tree-header {
     background: #eee;
@@ -56,7 +49,7 @@ ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
     color: #1d1d5f;
 }
 
-.view_classes, .specification_mode {
+.view_classes {
     display: inline-block;
     float: right;
     width: 210px;
@@ -64,7 +57,7 @@ ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
     overflow: hidden;
 }
 
-.tree-header .title, .tree-header .view_classes , .tree-header .specification_mode {
+.tree-header .title, .tree-header .view_classes {
     display: inline-block;
     text-transform: uppercase;
     font-weight: bold;
@@ -77,21 +70,6 @@ ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
 }
 
 .fa-power-off {
-    display: inline-block;
-    float: right;
-}
-
-.is_relation {
-    display: inline-block;
-    float: right;
-}
-
-.is_mark {
-    display: inline-block;
-    float: right;
-}
-
-.is_characteristic {
     display: inline-block;
     float: right;
 }
@@ -133,20 +111,9 @@ div.drag {
     white-space: nowrap;
 }
 
-.term img {
-    position: absolute;
-    height: 16px;
-    padding-left: 7px;
-    margin-top: 2px;
-    padding-right: 10px;
-    -webkit-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-    -o-filter: grayscale(100%);
-    filter: grayscale(100%);
-}
 
-.term .title {
-    padding-left: 31px;
+.datamart .title {
+    padding-left: 13px;
     padding-top: 1px;
     max-width: 590px;
     max-height: 15px;
@@ -157,27 +124,9 @@ div.drag {
 }
 
 
-.term.is-characteristic > .is_characteristic {
-    display: inherit;
-    color: #000066;
-    opacity: 1;
-}
-
-.term.has-system-flags > .has-system-flags {
+.datamart.has-system-flags > .has-system-flags {
     display: inherit;
     color: orangered;
-    opacity: 1;
-}
-
-.term.is-mark > .is_mark {
-    display: inherit;
-    color: orange;
-    opacity: 1;
-}
-
-.term.is-relation > .is_relation {
-    display: inherit;
-    color: darkblue;
     opacity: 1;
 }
 
@@ -186,18 +135,8 @@ div.drag {
     opacity: 1;
 }
 
-.help_text {
-    font-size: 13px;
-    color: #666;
-}
-
-.help_text sup {
-    font-size: 13px;
-    color: red;
-}
-
 @media (max-width: 1023px) and (min-width: 768px) {
-    .term .title {
+    .datamart .title {
         max-width: 140px;
     }
     .view_classes, .specification_mode {
@@ -206,7 +145,7 @@ div.drag {
 }
 
 @media (max-width: 1199px) and (min-width: 1024px) {
-    .term .title {
+    .datamart .title {
         max-width: 180px;
     }
     .view_classes, .specification_mode {
@@ -215,7 +154,7 @@ div.drag {
 }
 
 @media (max-width: 1500px) and (min-width: 1200px) {
-    .term .title {
+    .datamart .title {
         max-width: 300px;
     }
     .view_classes, .specification_mode {

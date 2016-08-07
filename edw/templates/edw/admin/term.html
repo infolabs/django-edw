@@ -1,0 +1,25 @@
+{% load i18n edw_utils_tags %}{% spaceless %}
+<div class="drag" title="{{ instance.path }}"></div>
+<span class="term {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
+                {% endcomment %}{% if instance.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
+                {% endcomment %}{% if instance.attributes.is_mark %} is-mark{% endif %}{% comment %}
+                {% endcomment %}{% if instance.attributes.is_relation %} is-relation{% endif %}{% comment %}
+                {% endcomment %}{% if instance.system_flags %} has-system-flags{% endif %}" >
+    <i class="icons fa fa-exclamation-triangle has-system-flags" title="{% trans 'System flags' %}"></i>
+    <i class="icons fa fa-link is_relation" title="{% trans 'Relation' %}"></i>
+    <i class="icons fa fa-tags is_mark" title="{% trans 'Mark' %}"></i>
+    <i class="icons fa fa-list is_characteristic" title="{% trans 'Characteristic' %}"></i>
+    <i class="icons fa fa-power-off" title="{% trans 'Active' %}"></i>
+    <span class="view_classes">
+        {% if instance.view_class %}
+            {% for view_class in instance.view_class|split:' ' %}
+                <span class="view_class">{{ view_class }}</span>
+            {% endfor %}
+        {% endif %}
+    </span>
+    <span class="specification_mode">{{ specification_modes|get_value:instance.specification_mode }}</span>
+    {% with semantic_rule=semantic_rules|get_value:instance.semantic_rule label=node_info|get_value:'label' %}
+        <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{{ semantic_rule }}" title="{{ semantic_rule }}">
+        <div class="title" title="{{ label }}">{{ label }}</div>
+    {% endwith %}
+</span>{% endspaceless %}

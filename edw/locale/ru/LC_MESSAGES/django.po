@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-02 17:29+0300\n"
-"PO-Revision-Date: 2016-08-02 17:30+0300\n"
+"PO-Revision-Date: 2016-08-03 18:53+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -313,15 +313,15 @@ msgstr "Неизвестное значение родителя."
 
 #: models/term.py:140
 msgid "OR"
-msgstr "OR"
+msgstr "«ИЛИ»"
 
 #: models/term.py:141
 msgid "XOR"
-msgstr "XOR"
+msgstr "«Исключающее ИЛИ»"
 
 #: models/term.py:142
 msgid "AND"
-msgstr "AND"
+msgstr "«И»"
 
 #: models/term.py:146
 msgid "Is characteristic"
@@ -337,15 +337,15 @@ msgstr "Отношение"
 
 #: models/term.py:155
 msgid "Standard"
-msgstr "По-умолчанию"
+msgstr "Стандартный"
 
 #: models/term.py:156
 msgid "Expanded"
-msgstr "Развернуто"
+msgstr "Расширенный"
 
 #: models/term.py:157
 msgid "Reduced"
-msgstr "Свернуто"
+msgstr "Сокращенный"
 
 #: models/term.py:164
 msgid "Change semantic rule restriction"
@@ -369,7 +369,7 @@ msgstr "Позволяет устанавливать атрибуты терм�
 
 #: models/term.py:178
 msgid "Specification Mode"
-msgstr "режим отображения"
+msgstr "Режим конкретизации"
 
 #: models/term.py:183
 msgid ""
