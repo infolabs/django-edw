@@ -26,6 +26,7 @@ from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
+from ..signals.mptt import MPTTModelSignalSenderMixin
 
 from .. import settings as edw_settings
 
@@ -132,7 +133,7 @@ class BaseTermMetaclass(MPTTModelBase):
 
 
 @python_2_unicode_compatible
-class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
+class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPTTModel)):
     """
     The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
     """
