@@ -6,6 +6,7 @@ import operator
 from six import with_metaclass
 
 from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.cache import cache
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q
 from django.db.models.query import EmptyQuerySet
@@ -135,6 +136,11 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
     """
     The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
     """
+    DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
+    DECOMPRESS_BUFFER_CACHE_SIZE = 500
+    DECOMPRESS_CACHE_KEY_PATTERN = 't_i::{value_hash}:{fix_it}'
+    DECOMPRESS_CACHE_TIMEOUT = 3600
+
     OR_RULE = 10
     XOR_RULE = 20
     AND_RULE = 30
@@ -291,12 +297,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         super(BaseTerm, self).move_to(target, position)
 
-    '''
-    @models.permalink
-    def get_absolute_url(self):
-        return "edw:api:{}-detail".format(self.__class__.__name__.lower()), (), {'pk': self.pk}
-    '''
-
     @staticmethod
     def decompress(value=None, fix_it=False):
         """
@@ -307,7 +307,30 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModel)):
     @staticmethod
     def get_decompress_buffer():
         return RingBuffer.factory(BaseTerm.DECOMPRESS_BUFFER_CACHE_KEY,
-                                  max_size=BaseTerm.DECOMPRESS_BUFFER_CACHE_SIZE, empty=None)
+                                  max_size=BaseTerm.DECOMPRESS_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_decompress_buffer():
+        buf = BaseTerm.get_decompress_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
+
+    @staticmethod
+    def cached_decompress(value=None, fix_it=False):
+        key = BaseTerm.DECOMPRESS_CACHE_KEY_PATTERN.format(**{
+            "value_hash": hash_unsorted_list(value) if value else '',
+            "fix_it": 'Y' if fix_it else 'N'
+        })
+        tree = cache.get(key, None)
+        if tree is None:
+            tree = BaseTerm.decompress(value, fix_it)
+            cache.set(key, tree, BaseTerm.DECOMPRESS_CACHE_TIMEOUT)
+            buf = BaseTerm.get_decompress_buffer()
+            old_key = buf.record(key)
+            if old_key != buf.empty:
+                cache.delete(old_key)
+        return tree
 
 
 TermModel = deferred.MaterializedModel(BaseTerm)
@@ -478,44 +501,3 @@ class TermInfo(list):
 
         return tree
 
-
-
-'''
-class CachedTermInfo(TermInfo):
-
-    CACHE_TIMEOUT = 3600
-
-    DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
-    DECOMPRESS_BUFFER_CACHE_SIZE = 500
-    DECOMPRESS_TREE_CACHE_KEY_PATTERN = 'tr_i::%(model_name)s:%(value_hash)s:%(fix_it)s'
-
-    @staticmethod
-    def cached_decompress(model_class, value=None, fix_it=False):
-        key = RubricInfo.DECOMPRESS_TREE_CACHE_KEY_PATTERN % {
-            "model_name": model_class.__name__,
-            "value_hash": hash_unsorted_list(value) if value else '',
-            "fix_it": 'Y' if fix_it else 'N'
-        }
-        tree = cache.get(key, None)
-        if tree is None:
-            tree = RubricInfo.decompress(model_class, value, fix_it)
-            cache.set(key, tree, RubricInfo.CACHE_TIMEOUT)
-            buf = RubricInfo.get_decompress_buffer()
-            old_key = buf.record(key)
-            if not old_key is None:
-                cache.delete(old_key)
-        return tree
-
-    @staticmethod
-    def get_decompress_buffer():
-        return RingBuffer.factory(RubricInfo.DECOMPRESS_BUFFER_CACHE_KEY,
-                                  max_size=RubricInfo.DECOMPRESS_BUFFER_CACHE_SIZE, empty=None)
-
-    @staticmethod
-    def clear_decompress_buffer():
-        buf = RubricInfo.get_decompress_buffer()
-        keys = buf.get_all()
-        buf.clear()
-        cache.delete_many(keys)
-
-'''

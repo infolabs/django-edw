@@ -146,9 +146,11 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
 
-        trunk = TermModel.decompress(trunk, fix_it) # need cache
+        decompress = TermModel.cached_decompress if cached else TermModel.decompress
+
+        trunk = decompress(trunk, fix_it) # need cache
         if has_selected:
-            tree = TermModel.decompress(selected, fix_it) # need cache
+            tree = decompress(selected, fix_it) # need cache
         else:
             tree = trunk
 

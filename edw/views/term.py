@@ -48,7 +48,22 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         :param format:
         :return:
         '''
+
+        import time
+
+
         queryset = TermModel.objects.toplevel()
         serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
-        return Response(serializer.data)
+        #return Response(serializer.data)
+
+        #
+        start0 = time.time()
+
+        result = Response(serializer.data)
+
+        #
+        stop0 = time.time()
+        print("* Time delta: %s ms" % int(round((stop0 - start0) * 1000)))
+
+        return result
 
