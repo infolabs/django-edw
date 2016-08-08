@@ -148,9 +148,9 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         decompress = TermModel.cached_decompress if cached else TermModel.decompress
 
-        trunk = decompress(trunk, fix_it) # need cache
+        trunk = decompress(trunk, fix_it)
         if has_selected:
-            tree = decompress(selected, fix_it) # need cache
+            tree = decompress(selected, fix_it)
         else:
             tree = trunk
 
