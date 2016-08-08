@@ -167,3 +167,9 @@ class MaterializedModel(SimpleLazyObject):
         if self._wrapped is empty:
             self._setup()
         return isinstance(instance, self._materialized_model)
+
+    @property
+    def materialized(self):
+        if self._wrapped is empty:
+            self._setup()
+        return self._wrapped
