@@ -41,7 +41,7 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
 
     @list_route(filter_backends=())
-    def tree(self, request, format=None):
+    def tree(self, request, data_mart_pk=None, format=None):
         '''
         Retrieve tree action
         :param request:
@@ -49,6 +49,9 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         :return:
         '''
         queryset = TermModel.objects.toplevel()
-        serializer = TermTreeSerializer(queryset, many=True, context={"request": request})
+        serializer = TermTreeSerializer(queryset, many=True, context={
+            "request": request,
+            "data_mart_pk": data_mart_pk
+        })
         return Response(serializer.data)
 

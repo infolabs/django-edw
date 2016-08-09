@@ -201,7 +201,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         def get_queryset():
             return DataMartModel.objects.active()
 
-        pk = self.data_mart_id
+        pk = self.data_mart_pk
         if not pk is None:
             return get_object_or_404(get_queryset(), pk=pk)
         else:
@@ -211,10 +211,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         return None
 
     @property
-    @get_from_context_or_request('data_mart_id', None)
-    def data_mart_id(self, value):
+    @get_from_context_or_request('data_mart_pk', None)
+    def data_mart_pk(self, value):
         '''
-        :return: `data_mart_id` data mart id in context or request, default: None
+        :return: `data_mart_pk` data mart id in context or request, default: None
         '''
         return serializers.IntegerField().to_internal_value(value)
 

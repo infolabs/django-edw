@@ -60,3 +60,4 @@ virtualenv==13.1.2
 git+ssh://git@bitbucket.org/excentrics/django-edw.git
 djangorestframework-recursive==0.1.1
 djangorestframework-filters==0.8.0
+drf-nested-routers==0.11.1
