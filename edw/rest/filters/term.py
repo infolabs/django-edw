@@ -13,10 +13,16 @@ class TermFilter(filters.FilterSet):
     TermFilter
     """
     active = filters.BooleanFilter(name="active")
+    parent_id = filters.NumberFilter(name='parent_id')
     semantic_rule = filters.ChoiceFilter(name="semantic_rule", choices=BaseTerm.SEMANTIC_RULES + (('', _('Any')), ))
-    specification_mode = filters.ChoiceFilter(name="specification_mode", choices=BaseTerm.SPECIFICATION_MODES + (('', _('Any')), ))
+    specification_mode = filters.ChoiceFilter(name="specification_mode",
+                                              choices=BaseTerm.SPECIFICATION_MODES + (('', _('Any')), ))
 
     class Meta:
         model = BaseTerm
         fields = ['active', 'semantic_rule', 'specification_mode']
 
+    def filter_parent_id(self, name, queryset, value):
+        if value:
+            return queryset.filter(parent_id=value)
+        return queryset

@@ -11,6 +11,9 @@ class EdwConfig(AppConfig):
     verbose_name = _("EDW")
 
     def ready(self):
+
+        from edw.signals import handlers
+
         '''
         from django_fsm.signals import post_transition
         from jsonfield.fields import JSONField

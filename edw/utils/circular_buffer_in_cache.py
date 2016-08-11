@@ -20,7 +20,6 @@ class empty:
 #==============================================================================
 class RingBuffer(object):
     """Ring buffer"""
-
     BUFFER_SIZE_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::sz'
     BUFFER_INDEX_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::in'
     BUFFER_ELEMENT_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::%(index)d::el'
@@ -29,26 +28,17 @@ class RingBuffer(object):
 
     _registry = {}
 
-    '''
     @staticmethod
-    def get_empty():
-        return empty
-    '''
-
-    @staticmethod
-    #def factory(key, max_size=100, empty=None):
-    def factory(key, max_size=100):
+    def factory(key, max_size=100, empty=empty):
         result = RingBuffer._registry.get(key)
         if result is None:
-            #result = RingBuffer._registry[key] = RingBuffer(key, max_size, empty, True)
-            result = RingBuffer._registry[key] = RingBuffer(key, max_size, True)
+            result = RingBuffer._registry[key] = RingBuffer(key, max_size, empty, True)
         return result
 
-    #def __init__(self, key, max_size, empty, from_factory=False):
-    def __init__(self, key, max_size, from_factory=False):
+    def __init__(self, key, max_size, empty, from_factory=False):
         assert from_factory, 'use "factory" method, for instance create'
         self.key = key
-        #self.empty = empty
+        self.empty = empty
         self.max_size = max(max_size, self.init_size())
         self.init_index()
 
@@ -63,10 +53,8 @@ class RingBuffer(object):
     @property
     def size(self):
         key = RingBuffer.BUFFER_SIZE_CACHE_KEY_PATTERN % {'key': self.key}
-        val = cache.get(key, empty)
-        #val = cache.get(key, None)
-        if val == empty:  # HACK: if cache timeout expire
-        #if val is None:  # HACK: if cache timeout expire
+        val = cache.get(key, self.empty)
+        if val == self.empty:  # HACK: if cache timeout expire
             val = self.max_size
             cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
         return val
@@ -109,8 +97,7 @@ class RingBuffer(object):
 
     def get_element(self, index):
         key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': index}
-        #return cache.get(key, self.empty)
-        return cache.get(key, empty) # <--- todo: raise KeyError(_'Mapping key not found.')
+        return cache.get(key, self.empty)
 
     def record(self, val):
         """append an element"""
@@ -119,8 +106,7 @@ class RingBuffer(object):
         if size < self.max_size:
             self.set_element(index, val)
             self.size = index + 1
-            #return self.empty
-            return empty
+            return self.empty
         else:
             if index == size:
                 index = self.index = 0
@@ -143,9 +129,7 @@ class RingBuffer(object):
         heap = cache.get_many(keys)
         result = []
         for key in keys:
-            #element = heap.get(key, self.empty)
             element = heap.get(key, empty)
-            #if not element is self.empty:
             if element != empty:
                 result.append(element)
                 del heap[key]

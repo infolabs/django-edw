@@ -1,38 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.conf.urls import url, include
-from rest_framework import routers
-from django.conf import settings
+#from django.conf import settings
 
-#from rest_framework.urlpatterns import format_suffix_patterns
-
-#from shop.views.cart import CartViewSet, WatchViewSet
-#from shop.views.checkout import CheckoutViewSet
+from rest_framework_nested import routers
 
 from edw.views.term import TermViewSet
 from edw.views.data_mart import DataMartViewSet
-#from edw.views.customer import CustomerViewSet
+
 
 router = routers.DefaultRouter()
-#router.include_format_suffixes = False
 
-router.register(r'terms', TermViewSet)
 router.register(r'data-marts', DataMartViewSet)
+router.register(r'terms', TermViewSet)
+
+data_mart_terms_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
+data_mart_terms_router.register(r'terms', TermViewSet, base_name='data-mart-terms')
+
+
 '''
 if settings.DEBUG:
     router.register(r'customers', CustomerViewSet)
 '''
 
-'''
-router.register(r'cart', CartViewSet, base_name='cart')
-router.register(r'watch', WatchViewSet, base_name='watch')
-router.register(r'checkout', CheckoutViewSet, base_name='checkout')
-'''
-
 urlpatterns = (
-    #url(r'^selected-terms/$', TermSelectView.as_view(), name='selected-terms'),
     url(r'^', include(router.urls, namespace='edw')),
+    url(r'^', include(data_mart_terms_router.urls, namespace='edw')),
 )
-
-# Format suffixes
-#urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'api'])

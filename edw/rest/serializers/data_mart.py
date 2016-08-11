@@ -57,7 +57,7 @@ class _DataMartFilterMixin(object):
         '''
         :return: `active_only` value in context or request, default: True
         '''
-        return serializers.BooleanField().to_representation(value)
+        return serializers.BooleanField().to_internal_value(value)
 
     def active_only_filter(self, data):
         if self.is_active_only:
@@ -65,20 +65,53 @@ class _DataMartFilterMixin(object):
         else:
             return data
 
+    @property
+    @get_from_context_or_request('max_depth', None)
+    def max_depth(self, value):
+        '''
+        :return: `max_depth` value in context or request, default: None
+        '''
+        return serializers.IntegerField().to_internal_value(value)
+
+    @property
+    def depth(self):
+        '''
+        :return: recursion depth
+        '''
+        raise NotImplementedError(
+            '{cls}.depth must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
     def to_representation(self, data):
-        return super(_DataMartFilterMixin, self).to_representation(self.active_only_filter(data))
+        max_depth = self.max_depth
+        next_depth = self.depth + 1
+        if not max_depth is None and next_depth > max_depth:
+            data_marts = []
+        else:
+            data_marts = list(self.active_only_filter(data))
+            for data_mart in data_marts:
+                data_mart._depth = next_depth
+        return super(_DataMartFilterMixin, self).to_representation(data_marts)
 
 
 class DataMartTreeListField(_DataMartFilterMixin, serializers.ListField):
     """
     DataMartTreeListField
     """
+    @property
+    def depth(self):
+        return self.parent._depth
 
 
 class _DataMartTreeRootSerializer(_DataMartFilterMixin, serializers.ListSerializer):
     """
     Data Mart Tree Root Serializer
     """
+    @property
+    def depth(self):
+        return 0
 
 
 class DataMartTreeSerializer(DataMartSerializer):
@@ -91,3 +124,9 @@ class DataMartTreeSerializer(DataMartSerializer):
         fields = ('id', 'name', 'slug', 'url', 'active', 'view_class', 'children')
         list_serializer_class = _DataMartTreeRootSerializer
 
+    def to_representation(self, data):
+        """
+        Prepare some data for children serialization
+        """
+        self._depth = data._depth
+        return super(DataMartTreeSerializer, self).to_representation(data)

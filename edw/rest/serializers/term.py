@@ -91,17 +91,42 @@ class _TermsFilterMixin(object):
             )
         )
 
+    @property
+    @get_from_context_or_request('max_depth', None)
+    def max_depth(self, value):
+        '''
+        :return: `max_depth` value in context or request, default: None
+        '''
+        return serializers.IntegerField().to_internal_value(value)
+
+    @property
+    def depth(self):
+        '''
+        :return: recursion depth
+        '''
+        raise NotImplementedError(
+            '{cls}.depth must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
     def to_representation(self, data):
-        terms = list(self.active_only_filter(data))
-        selected_terms = self.get_selected_terms()
-        if self.is_expanded_specification or not selected_terms is None:
-            for term in terms:
-                try:
-                    term._selected_term_info = selected_terms.pop(term.id)
-                except (KeyError, AttributeError):
-                    term._selected_term_info = None
-        else:
+        max_depth = self.max_depth
+        next_depth = self.depth + 1
+        if not max_depth is None and next_depth > max_depth:
             terms = []
+        else:
+            selected_terms = self.get_selected_terms()
+            if self.is_expanded_specification or not selected_terms is None:
+                terms = list(self.active_only_filter(data))
+                for term in terms:
+                    term._depth = next_depth
+                    try:
+                        term._selected_term_info = selected_terms.pop(term.id)
+                    except (KeyError, AttributeError):
+                        term._selected_term_info = None
+            else:
+                terms = []
         return super(_TermsFilterMixin, self).to_representation(terms)
 
 
@@ -117,6 +142,10 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
+    @property
+    def depth(self):
+        return self.parent._depth
+
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
@@ -128,8 +157,6 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         has_selected = bool(selected)
         fix_it = self.fix_it
         cached = self.cached
-
-        print "** cached **", cached
 
         data_mart = self.data_mart
         if data_mart:
@@ -146,9 +173,11 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
 
-        trunk = TermModel.decompress(trunk, fix_it) # need cache
+        decompress = TermModel.cached_decompress if cached else TermModel.decompress
+
+        trunk = decompress(trunk, fix_it)
         if has_selected:
-            tree = TermModel.decompress(selected, fix_it) # need cache
+            tree = decompress(selected, fix_it)
         else:
             tree = trunk
 
@@ -199,7 +228,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         def get_queryset():
             return DataMartModel.objects.active()
 
-        pk = self.data_mart_id
+        pk = self.data_mart_pk
         if not pk is None:
             return get_object_or_404(get_queryset(), pk=pk)
         else:
@@ -209,10 +238,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         return None
 
     @property
-    @get_from_context_or_request('data_mart_id', None)
-    def data_mart_id(self, value):
+    @get_from_context_or_request('data_mart_pk', None)
+    def data_mart_pk(self, value):
         '''
-        :return: `data_mart_id` data mart id in context or request, default: None
+        :return: `data_mart_pk` data mart id in context or request, default: None
         '''
         return serializers.IntegerField().to_internal_value(value)
 
@@ -223,6 +252,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         :return: `data_mart_path` data mart path in context or request, default: None
         '''
         return serializers.CharField().to_internal_value(value)
+
+    @property
+    def depth(self):
+        return 0
 
 
 class TermTreeSerializer(TermSerializer):
@@ -241,6 +274,7 @@ class TermTreeSerializer(TermSerializer):
         """
         Prepare some data for children serialization
         """
+        self._depth = data._depth
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
         return super(TermSerializer, self).to_representation(data)
