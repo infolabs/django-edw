@@ -57,6 +57,6 @@ six==1.9.0
 urllib3==1.12
 virtualenv==13.1.2
 #wheel==0.24.0
-git+ssh://git@bitbucket.org/excentrics/django-edw.git
+git+ssh://git@bitbucket.org/info-labs/django-edw.git
 djangorestframework-recursive==0.1.1
 djangorestframework-filters==0.8.0
