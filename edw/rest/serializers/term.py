@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.core.cache import cache
+from django.utils.functional import cached_property
 
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -9,6 +11,7 @@ from rest_framework_recursive.fields import RecursiveField
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
+from edw.utils.circular_buffer_in_cache import RingBuffer
 
 
 class TermSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,7 +59,7 @@ class _TermsFilterMixin(object):
     '''
     If `active_only` parameter set `True`, then add filtering by `active` = `True`
     '''
-    @property
+    @cached_property
     @get_from_context_or_request('active_only', True)
     def is_active_only(self, value):
         '''
@@ -80,7 +83,7 @@ class _TermsFilterMixin(object):
             )
         )
 
-    @property
+    @cached_property
     def is_expanded_specification(self):
         '''
         :return: `True` if parent node specification mode is `expanded`
@@ -91,7 +94,7 @@ class _TermsFilterMixin(object):
             )
         )
 
-    @property
+    @cached_property
     @get_from_context_or_request('max_depth', None)
     def max_depth(self, value):
         '''
@@ -99,7 +102,7 @@ class _TermsFilterMixin(object):
         '''
         return serializers.IntegerField().to_internal_value(value)
 
-    @property
+    @cached_property
     def depth(self):
         '''
         :return: recursion depth
@@ -110,15 +113,25 @@ class _TermsFilterMixin(object):
             )
         )
 
+    @cached_property
+    @get_from_context_or_request('cached', False)
+    def cached(self, value):
+        '''
+        :return: `cached` value in context or request, default: False
+        '''
+        return serializers.BooleanField().to_internal_value(value)
+
+    def prepare_data(self, data):
+        return list(self.active_only_filter(data))
+
     def to_representation(self, data):
-        max_depth = self.max_depth
         next_depth = self.depth + 1
-        if not max_depth is None and next_depth > max_depth:
+        if self.max_depth is not None and next_depth > self.max_depth:
             terms = []
         else:
             selected_terms = self.get_selected_terms()
-            if self.is_expanded_specification or not selected_terms is None:
-                terms = list(self.active_only_filter(data))
+            if self.is_expanded_specification or selected_terms is not None:
+                terms = self.prepare_data(data)
                 for term in terms:
                     term._depth = next_depth
                     try:
@@ -134,17 +147,43 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     '''
     TermTreeListField
     '''
+    """
+    def get_attribute(self, instance):
+        print "*** get_attribute ***", instance, self.source_attrs
+        result = super(TermTreeListField, self).get_attribute(instance)
+        print ">", result
+        return result
+
+    def bind(self, field_name, parent):
+        print "bind", field_name, self.source
+        return super(TermTreeListField, self).bind(field_name, parent)
+    """
+
     def get_selected_terms(self):
         term_info = self.parent._selected_term_info
         return None if term_info is None else term_info.get_children_dict()
 
-    @property
+    @cached_property
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
-    @property
+    @cached_property
     def depth(self):
         return self.parent._depth
+
+    @cached_property
+    def key(self):
+        return self.parent._id
+
+    def cached_prepare_data(self, data):
+        print "*** cached prepaire data ***", self.key
+
+        #todo: cached prepare
+
+        return super(TermTreeListField, self).prepare_data(data)
+
+    def prepare_data(self, data):
+        return self.cached_prepare_data(data) if self.cached else super(TermTreeListField, self).prepare_data(data)
 
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
@@ -155,16 +194,9 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def get_selected_terms(self):
         selected = self.selected[:]
         has_selected = bool(selected)
-        fix_it = self.fix_it
-        cached = self.cached
 
-        data_mart = self.data_mart
-        if data_mart:
-            terms_ids_qs = data_mart.terms.values_list('id', flat=True)
-            if self.is_active_only:
-                trunk = list(terms_ids_qs.active())
-            else:
-                trunk = list(terms_ids_qs)
+        if self.data_mart:
+            trunk = list(self.active_only_filter(self.data_mart.terms.values_list('id', flat=True)))
         else:
             trunk = []
 
@@ -173,17 +205,17 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
 
-        decompress = TermModel.cached_decompress if cached else TermModel.decompress
+        decompress = TermModel.cached_decompress if self.cached else TermModel.decompress
 
-        trunk = decompress(trunk, fix_it)
+        trunk = decompress(trunk, self.fix_it)
         if has_selected:
-            tree = decompress(selected, fix_it)
+            tree = decompress(selected, self.fix_it)
         else:
             tree = trunk
 
         for k, v in trunk.items():
             x = tree.get(k)
-            if not x is None:
+            if x is not None:
                 if v.is_leaf:
                     x.attrs['structure'] = 'limb'
                 else:
@@ -191,11 +223,11 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         return tree.root.get_children_dict()
 
-    @property
+    @cached_property
     def is_expanded_specification(self):
         return True
 
-    @property
+    @cached_property
     @get_from_context_or_request('fix_it', False)
     def fix_it(self, value):
         '''
@@ -203,15 +235,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.BooleanField().to_internal_value(value)
 
-    @property
-    @get_from_context_or_request('cached', False)
-    def cached(self, value):
-        '''
-        :return: `cached` value in context or request, default: False
-        '''
-        return serializers.BooleanField().to_internal_value(value)
-
-    @property
+    @cached_property
     @get_from_context_or_request('selected', [])
     def selected(self, value):
         '''
@@ -219,7 +243,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
 
-    @property
+    @cached_property
     @get_from_context('data_mart')
     def data_mart(self):
         '''
@@ -229,15 +253,15 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
             return DataMartModel.objects.active()
 
         pk = self.data_mart_pk
-        if not pk is None:
+        if pk is not None:
             return get_object_or_404(get_queryset(), pk=pk)
         else:
             path = self.data_mart_path
-            if not path is None:
+            if path is not None:
                 return get_object_or_404(get_queryset(), path=path)
         return None
 
-    @property
+    @cached_property
     @get_from_context_or_request('data_mart_pk', None)
     def data_mart_pk(self, value):
         '''
@@ -245,7 +269,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.IntegerField().to_internal_value(value)
 
-    @property
+    @cached_property
     @get_from_context_or_request('data_mart_path', None)
     def data_mart_path(self, value):
         '''
@@ -253,7 +277,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.CharField().to_internal_value(value)
 
-    @property
+    @cached_property
     def depth(self):
         return 0
 
@@ -262,6 +286,11 @@ class TermTreeSerializer(TermSerializer):
     """
     Term Tree Serializer
     """
+    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
+    CHILDREN_BUFFER_CACHE_SIZE = 500
+    CHILDREN_CACHE_KEY_PATTERN = 't_ch::{term_id}:{active_only}'
+    CHILDREN_CACHE_TIMEOUT = 3600
+
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
     structure = serializers.SerializerMethodField()
 
@@ -274,12 +303,25 @@ class TermTreeSerializer(TermSerializer):
         """
         Prepare some data for children serialization
         """
+        self._id = data.id
         self._depth = data._depth
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION
         return super(TermSerializer, self).to_representation(data)
 
     def get_structure(self, instance):
-        if not self._selected_term_info is None:
+        if self._selected_term_info is not None:
             return self._selected_term_info.attrs.get('structure', 'branch')
         return None  # 'twig', node not selected
+
+    @staticmethod
+    def get_children_buffer():
+        return RingBuffer.factory(TermTreeSerializer.CHILDREN_BUFFER_CACHE_KEY,
+                                  max_size=TermTreeSerializer.CHILDREN_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_children_buffer():
+        buf = TermTreeSerializer.get_children_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)

@@ -87,7 +87,7 @@ class _DataMartFilterMixin(object):
     def to_representation(self, data):
         max_depth = self.max_depth
         next_depth = self.depth + 1
-        if not max_depth is None and next_depth > max_depth:
+        if max_depth is not None and next_depth > max_depth:
             data_marts = []
         else:
             data_marts = list(self.active_only_filter(data))

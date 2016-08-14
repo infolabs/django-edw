@@ -223,12 +223,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
         except model_class.DoesNotExist:
             origin = None
         if self.system_flags:
-            if not origin is None:
+            if origin is not None:
                 if self.system_flags.change_slug_restriction and origin.slug != self.slug:
                     raise ValidationError(self.system_flags.get_label('change_slug_restriction'))
                 if self.system_flags.change_parent_restriction and origin.parent_id != self.parent_id:
                     raise ValidationError(self.system_flags.get_label('change_parent_restriction'))
-        if not self.parent_id is None and self.parent.system_flags.has_child_restriction:
+        if self.parent_id is not None and self.parent.system_flags.has_child_restriction:
             if origin is None or origin.parent_id != self.parent_id:
                 raise ValidationError(self.system_flags.get_label('has_child_restriction'))
         return super(BaseTerm, self).clean(*args, **kwargs)
@@ -288,7 +288,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
         if position in ('left', 'right'):
             if self.system_flags.change_parent_restriction and target.parent_id != self.parent_id:
                 raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
-            if not target.parent_id is None and target.parent.system_flags.has_child_restriction and target.parent_id != self.parent_id:
+            if target.parent_id is not None and target.parent.system_flags.has_child_restriction and target.parent_id != self.parent_id:
                 raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         elif position in ('first-child', 'last-child'):
             if target.id != self.parent_id:
@@ -394,7 +394,7 @@ class TermTreeInfo(dict):
         tree = TermTreeInfo(root)
         for id in ids:
             src_node = self.get(id)
-            if not src_node is None:
+            if src_node is not None:
                 if not id in tree:
                     node = tree[id] = TermInfo(term=src_node.term, is_leaf=True)
                     src_ancestor = self.get(node.term.parent_id)
@@ -471,16 +471,16 @@ class TermInfo(list):
                 term_parent = term.parent
                 if term_parent:
                     ancestor = tree.get(term_parent.id)
-                    if not ancestor is None:
+                    if ancestor is not None:
                         ancestor.is_leaf = False
                         ancestor.append(node)
                     else:
                         node = tree[term_parent.id] = TermInfo(term=term_parent, is_leaf=False, children=[node])
-                        if not term_parent.parent_id is None:
+                        if term_parent.parent_id is not None:
                             for term_ancestor in term_parent.get_ancestors(ascending=True).exclude(pk__in=tree.keys()):
                                 node = tree[term_ancestor.id] = TermInfo(term=term_ancestor, is_leaf=False, children=[node])
                             ancestor = tree.get(node.term.parent_id)
-                            if not ancestor is None:
+                            if ancestor is not None:
                                 ancestor.is_leaf = False
                                 ancestor.append(node)
                             else:

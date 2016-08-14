@@ -192,12 +192,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
         except model_class.DoesNotExist:
             origin = None
         if self.system_flags:
-            if not origin is None:
+            if origin is not None:
                 if self.system_flags.change_slug_restriction and origin.slug != self.slug:
                     raise ValidationError(self.system_flags.get_label('change_slug_restriction'))
                 if self.system_flags.change_parent_restriction and origin.parent_id != self.parent_id:
                     raise ValidationError(self.system_flags.get_label('change_parent_restriction'))
-        if not self.parent_id is None and self.parent.system_flags.has_child_restriction:
+        if self.parent_id is not None and self.parent.system_flags.has_child_restriction:
             if origin is None or origin.parent_id != self.parent_id:
                 raise ValidationError(self.system_flags.get_label('has_child_restriction'))
         return super(BaseDataMart, self).clean(*args, **kwargs)
@@ -257,7 +257,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
         if position in ('left', 'right'):
             if self.system_flags.change_parent_restriction and target.parent_id != self.parent_id:
                 raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
-            if not target.parent_id is None and target.parent.system_flags.has_child_restriction and target.parent_id != self.parent_id:
+            if target.parent_id is not None and target.parent.system_flags.has_child_restriction and target.parent_id != self.parent_id:
                 raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         elif position in ('first-child', 'last-child'):
             if target.id != self.parent_id:
