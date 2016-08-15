@@ -121,14 +121,23 @@ class _TermsFilterMixin(object):
         '''
         return serializers.BooleanField().to_internal_value(value)
 
+    @staticmethod
+    def on_cache_set(key, context):
+        buf = TermTreeSerializer.get_children_buffer()
+        old_key = buf.record(key)
+        if old_key != buf.empty:
+            cache.delete(old_key)
+
     def prepare_data(self, data):
 
-        data = self.active_only_filter(data)
+        #print "*** PREPAIR DATA ***", self.cached
 
-        print "*** PREPAIR DATA ***"
-        print data.from_cache()
-
-        return list(data)
+        if self.cached:
+            return data.cache(
+                on_cache_set=_TermsFilterMixin.on_cache_set,
+                timeout=TermTreeSerializer.CHILDREN_CACHE_TIMEOUT)
+        else:
+            return list(data)
 
     def to_representation(self, data):
         next_depth = self.depth + 1
@@ -137,7 +146,7 @@ class _TermsFilterMixin(object):
         else:
             selected_terms = self.get_selected_terms()
             if self.is_expanded_specification or selected_terms is not None:
-                terms = self.prepare_data(data)
+                terms = self.prepare_data(self.active_only_filter(data))
                 for term in terms:
                     term._depth = next_depth
                     try:
@@ -150,21 +159,9 @@ class _TermsFilterMixin(object):
 
 
 class TermTreeListField(_TermsFilterMixin, serializers.ListField):
-    '''
+    """
     TermTreeListField
-    '''
     """
-    def get_attribute(self, instance):
-        print "*** get_attribute ***", instance, self.source_attrs
-        result = super(TermTreeListField, self).get_attribute(instance)
-        print ">", result
-        return result
-
-    def bind(self, field_name, parent):
-        print "bind", field_name, self.source
-        return super(TermTreeListField, self).bind(field_name, parent)
-    """
-
     def get_selected_terms(self):
         term_info = self.parent._selected_term_info
         return None if term_info is None else term_info.get_children_dict()
@@ -177,28 +174,11 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def depth(self):
         return self.parent._depth
 
-    '''
-    @cached_property
-    def key(self):
-        return self.parent._id
-
-    def cached_prepare_data(self, data):
-        print "*** cached prepaire data ***", self.key
-
-        #todo: cached prepare
-
-        return super(TermTreeListField, self).prepare_data(data)
-
-    def prepare_data(self, data):
-        return self.cached_prepare_data(data) if self.cached else super(TermTreeListField, self).prepare_data(data)
-    '''
-
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     """
     Term Tree Root Serializer
     """
-
     def get_selected_terms(self):
         selected = self.selected[:]
         has_selected = bool(selected)
@@ -296,7 +276,7 @@ class TermTreeSerializer(TermSerializer):
     """
     CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
     CHILDREN_BUFFER_CACHE_SIZE = 500
-    CHILDREN_CACHE_KEY_PATTERN = 't_ch::{term_id}:{active_only}'
+    #CHILDREN_CACHE_KEY_PATTERN = 't_ch::{term_id}:{active_only}'
     CHILDREN_CACHE_TIMEOUT = 3600
 
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
@@ -311,7 +291,6 @@ class TermTreeSerializer(TermSerializer):
         """
         Prepare some data for children serialization
         """
-        #self._id = data.id
         self._depth = data._depth
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION

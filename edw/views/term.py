@@ -49,12 +49,28 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         :param format:
         :return:
         '''
+
+        import time
+
+        print("**************************")
+
+        #
+        start0 = time.time()
+
         queryset = TermModel.objects.toplevel()
         serializer = TermTreeSerializer(queryset, many=True, context={
             "request": request,
             "data_mart_pk": data_mart_pk
         })
-        return Response(serializer.data)
+        result = Response(serializer.data)
+
+
+        #
+        stop0 = time.time()
+        print("* Time: %s ms" % int(round((stop0 - start0) * 1000)))
+
+        return result
+        #return Response(serializer.data)
 
     @detail_route()
     def children(self, request, pk, format=None, **kwargs):

@@ -22,7 +22,7 @@ from mptt.exceptions import InvalidMove
 from bitfield import BitField
 
 from . import deferred
-from .decorators import add_cache_key, QuerySetCachedResultMixin
+from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
@@ -142,10 +142,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
     """
     DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
     DECOMPRESS_BUFFER_CACHE_SIZE = 500
-    DECOMPRESS_CACHE_KEY_PATTERN = 't_i::{value_hash}:{fix_it}'
+    DECOMPRESS_CACHE_KEY_PATTERN = 't_i:{value_hash}:{fix_it}'
     DECOMPRESS_CACHE_TIMEOUT = 3600
 
-    CHILDREN_CACHE_KEY_PATTERN = 'trm{parent_id}_chldrn'
+    CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
 
     OR_RULE = 10
     XOR_RULE = 20

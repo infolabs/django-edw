@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.cache import cache
 from django.db.models.signals import (
     pre_delete,
 )
@@ -21,6 +22,27 @@ def invalidate_term_before_save(sender, instance, **kwargs):
     print "*******************************"
     print "* invalidate_term_before_save *"
     print "*******************************"
+
+
+    # active children cache
+    if not instance.id is None:
+        try:
+            original = sender._default_manager.get(pk=instance.id)
+            if original.parent_id != instance.parent_id:
+                key = ":".join([
+                    sender._meta.object_name.lower(),
+                    sender.CHILDREN_CACHE_KEY_PATTERN.format(parent_id=original.parent_id)
+                    if original.parent_id is not None else
+                    "toplevel"
+                ])
+                keys = [key, ":".join([key, "active"])]
+
+                print "keys", keys
+
+                cache.delete_many(keys)
+        except sender.DoesNotExist:
+            pass
+
     print sender, instance
 
 
