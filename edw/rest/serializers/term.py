@@ -122,7 +122,13 @@ class _TermsFilterMixin(object):
         return serializers.BooleanField().to_internal_value(value)
 
     def prepare_data(self, data):
-        return list(self.active_only_filter(data))
+
+        data = self.active_only_filter(data)
+
+        print "*** PREPAIR DATA ***"
+        print data.from_cache()
+
+        return list(data)
 
     def to_representation(self, data):
         next_depth = self.depth + 1
@@ -171,6 +177,7 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
     def depth(self):
         return self.parent._depth
 
+    '''
     @cached_property
     def key(self):
         return self.parent._id
@@ -184,6 +191,7 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
 
     def prepare_data(self, data):
         return self.cached_prepare_data(data) if self.cached else super(TermTreeListField, self).prepare_data(data)
+    '''
 
 
 class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
@@ -303,7 +311,7 @@ class TermTreeSerializer(TermSerializer):
         """
         Prepare some data for children serialization
         """
-        self._id = data.id
+        #self._id = data.id
         self._depth = data._depth
         self._selected_term_info = data._selected_term_info
         self._is_expanded_specification = data.specification_mode == TermModel.EXPANDED_SPECIFICATION

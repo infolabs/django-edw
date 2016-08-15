@@ -22,6 +22,7 @@ from mptt.exceptions import InvalidMove
 from bitfield import BitField
 
 from . import deferred
+from .decorators import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
@@ -31,8 +32,9 @@ from ..signals.mptt import MPTTModelSignalSenderMixin
 from .. import settings as edw_settings
 
 
-class BaseTermQuerySet(TreeQuerySet):
+class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
+    @add_cache_key('active')
     def active(self):
         return self.filter(active=True)
 
@@ -42,6 +44,7 @@ class BaseTermQuerySet(TreeQuerySet):
     def delete(self):
         return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
+    @add_cache_key('toplevel')
     def toplevel(self):
         """
         :return: all nodes which have no parent
@@ -141,6 +144,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
     DECOMPRESS_BUFFER_CACHE_SIZE = 500
     DECOMPRESS_CACHE_KEY_PATTERN = 't_i::{value_hash}:{fix_it}'
     DECOMPRESS_CACHE_TIMEOUT = 3600
+
+    CHILDREN_CACHE_KEY_PATTERN = 'trm{parent_id}_chldrn'
 
     OR_RULE = 10
     XOR_RULE = 20
@@ -298,6 +303,15 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         super(BaseTerm, self).move_to(target, position)
 
+    def get_children_cache_key(self):
+        return self.CHILDREN_CACHE_KEY_PATTERN.format(
+            parent_id=self.id
+        )
+
+    @add_cache_key(get_children_cache_key)
+    def get_children(self):
+        return super(BaseTerm, self).get_children()
+    
     @staticmethod
     def decompress(value=None, fix_it=False):
         """
