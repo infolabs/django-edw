@@ -9,7 +9,7 @@ from django.template.context import Context
 from django.template.loader import get_template
 
 from edw.admin.customer import CustomerProxy, CustomerAdmin
-from edw.admin.forms import EntityAdminForm
+from edw.admin.entity.forms import EntityAdminForm
 
 from edw.admin.term import TermAdmin
 from edw.models.term import TermModel

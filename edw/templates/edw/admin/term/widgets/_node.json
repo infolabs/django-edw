@@ -1,1 +1,1 @@
-{% templatetag openbrace %}{% block content %}"id": {{ node.id }}, "name": "{{ node.name }}"{% endblock %}{% templatetag closebrace %}
+{% templatetag openbrace %}{% block content %}"id": {{ node.id }}, "name": "{{ node.name }}"{% if not node.is_leaf %},"load_on_demand": true{% endif %}{% endblock %}{% templatetag closebrace %}

@@ -112,6 +112,9 @@ class TermAdmin(DjangoMpttAdmin):
                 "request": request
             }, many=True)
 
+            print "/n/n/n/n"
+            print serializer.data
+
             json_data = mark_safe(render_to_string('edw/admin/term/widgets/children.json', {"nodes": serializer.data}))
         else:
             queryset = TermModel.objects.toplevel()
@@ -119,8 +122,8 @@ class TermAdmin(DjangoMpttAdmin):
                 "request": request
             }, many=True)
 
-            print "/n/n/n/n"
-            print serializer.data
+            #print "/n/n/n/n"
+            #print serializer.data
 
             json_data = mark_safe(render_to_string('edw/admin/term/widgets/tree_root.json', {"nodes": serializer.data}))
 

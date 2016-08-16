@@ -29,12 +29,17 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
 
     parent_id = serializers.SerializerMethodField()
 
+    is_leaf = serializers.SerializerMethodField()
+
     class Meta:
         model = TermModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
     def get_parent_id(self, instance):
         return instance.parent_id
+
+    def get_is_leaf(self, instance):
+        return instance.is_leaf_node()
 
 
 class TermDetailSerializer(TermSerializer):
@@ -43,7 +48,7 @@ class TermDetailSerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes')
+                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes', 'is_leaf')
 
 
 class TermListSerializer(TermSerializer):
@@ -52,7 +57,7 @@ class TermListSerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'view_class', 'attributes')
+                  'view_class', 'attributes', 'is_leaf')
 
 
 class _TermsFilterMixin(object):
@@ -274,7 +279,7 @@ class TermTreeSerializer(TermSerializer):
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'attributes', 'view_class', 'structure', 'children')
+                  'attributes', 'view_class', 'structure', 'is_leaf', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):
