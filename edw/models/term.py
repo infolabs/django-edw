@@ -277,9 +277,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
                 else:
                     raise e
             if not origin or origin.active != self.active:
-                update_id_list = [x.id for x in self.get_descendants(include_self=False)]
                 if self.active:
-                    update_id_list.extend([x.id for x in ancestors])
+                    update_id_list = list(self.get_family().values_list('id', flat=True))
+                else:
+                    update_id_list = list(self.get_descendants(include_self=False).values_list('id', flat=True))
                 model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
         else:
             result = super(BaseTerm, self).save(*args, **kwargs)

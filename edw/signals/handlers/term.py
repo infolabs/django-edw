@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.cache import cache
+from django.db.models import F
 from django.db.models.signals import (
     pre_delete,
 )
@@ -28,53 +29,43 @@ def get_children_keys(sender, parent_id):
 # Term model event handlers
 #==============================================================================
 def invalidate_term_before_save(sender, instance, **kwargs):
-    print "*******************************"
-    print "* invalidate_term_before_save *"
-    print "*******************************"
-
-    # term root and nodes children cache
     if instance.id is not None:
         try:
             original = sender._default_manager.get(pk=instance.id)
-            if original.active != instance.active:
-                TermModel.clear_children_buffer()  # Clear children buffer
-                instance._children_buffer_empty = True
-            elif original.parent_id != instance.parent_id:
-                keys = get_children_keys(sender, original.parent_id)
-
-                #print "keys", keys
-                cache.delete_many(keys)
+            if original.parent_id != instance.parent_id:
+                if original.active != instance.active:
+                    TermModel.clear_children_buffer()  # Clear children buffer
+                else:
+                    keys = get_children_keys(sender, original.parent_id)
+                    cache.delete_many(keys)
+            else:
+                if original.active != instance.active:
+                    if instance.active:
+                        parent_id_list = list(original.get_family().
+                                              exclude(lft=F('rght')-1).values_list('id', flat=True))
+                        parent_id_list.append(None)
+                    else:
+                        parent_id_list = list(original.get_descendants(include_self=True).
+                                              exclude(lft=F('rght')-1).values_list('id', flat=True))
+                        parent_id_list.append(original.parent_id)
+                    keys = []
+                    for parent_id in parent_id_list:
+                        keys.extend(get_children_keys(sender, parent_id))
+                    cache.delete_many(keys)
         except sender.DoesNotExist:
             pass
 
-    #print sender, instance
-
 
 def invalidate_term_after_save(sender, instance, **kwargs):
-    print "*******************************"
-    print "* invalidate_term_after_save  *"
-    print "*******************************"
-
     if instance.id is not None and not getattr(instance, '_children_buffer_empty', False) :
         keys = get_children_keys(sender, instance.parent_id)
-
-        #print "keys", keys
         cache.delete_many(keys)
-
-    #print sender, instance
 
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
 
 
 def invalidate_term_after_move(sender, instance, target, position, prev_parent, **kwargs):
-    print "*******************************"
-    print "* invalidate_term_after_move  *"
-    print "*******************************"
-    #print sender, instance, target, position, prev_parent
-
     keys = get_children_keys(sender, prev_parent.id if prev_parent is not None else None)
-
-    #print "keys", keys
     cache.delete_many(keys)
 
     invalidate_term_after_save(sender, instance, **kwargs)
