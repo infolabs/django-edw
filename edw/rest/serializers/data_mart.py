@@ -89,10 +89,10 @@ class _DataMartFilterMixin(object):
         )
 
     @cached_property
-    @get_from_context_or_request('cached', False)
+    @get_from_context_or_request('cached', True)
     def cached(self, value):
         '''
-        :return: `cached` value in context or request, default: False
+        :return: `cached` value in context or request, default: True
         '''
         return serializers.BooleanField().to_internal_value(value)
 
