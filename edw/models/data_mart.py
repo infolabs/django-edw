@@ -149,11 +149,20 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = 3600
 
+    messages = {
+        'delete_restriction': _('Delete restriction'),
+        'change_parent_restriction': _('Change parent restriction'),
+        'change_slug_restriction': _('Change slug restriction'),
+        'has_child_restriction': _('Has child restriction'),
+
+        'parent_not_active': _('Parent node not active')
+    }
+
     SYSTEM_FLAGS = {
-        0: ('delete_restriction', _('Delete restriction')),
-        1: ('change_parent_restriction', _('Change parent restriction')),
-        2: ('change_slug_restriction', _('Change slug restriction')),
-        3: ('has_child_restriction', _('Has child restriction')),
+        0: ('delete_restriction', messages['delete_restriction']),
+        1: ('change_parent_restriction', messages['change_parent_restriction']),
+        2: ('change_slug_restriction', messages['change_slug_restriction']),
+        3: ('has_child_restriction', messages['has_child_restriction'])
     }
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
@@ -204,12 +213,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         if self.system_flags:
             if origin is not None:
                 if self.system_flags.change_slug_restriction and origin.slug != self.slug:
-                    raise ValidationError(self.system_flags.get_label('change_slug_restriction'))
+                    raise ValidationError(self.messages['change_slug_restriction'])
                 if self.system_flags.change_parent_restriction and origin.parent_id != self.parent_id:
-                    raise ValidationError(self.system_flags.get_label('change_parent_restriction'))
+                    raise ValidationError(self.messages['change_parent_restriction'])
         if self.parent_id is not None and self.parent.system_flags.has_child_restriction:
             if origin is None or origin.parent_id != self.parent_id:
-                raise ValidationError(self.system_flags.get_label('has_child_restriction'))
+                raise ValidationError(self.messages['has_child_restriction'])
         return super(BaseDataMart, self).clean(*args, **kwargs)
 
     def _make_path(self, items):
@@ -266,19 +275,22 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     def move_to(self, target, position='first-child'):
         if position in ('left', 'right'):
-            if self.system_flags.change_parent_restriction and target.parent_id != self.parent_id:
-                raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
-            if target.parent_id is not None and target.parent.system_flags.has_child_restriction and target.parent_id != self.parent_id:
-                raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
+            if target.parent_id != self.parent_id:
+                if self.system_flags.change_parent_restriction:
+                    raise InvalidMove(self.messages['change_parent_restriction'])
+                if target.parent_id is not None:
+                    if target.parent.system_flags.has_child_restriction:
+                        raise InvalidMove(self.messages['has_child_restriction'])
+                    if self.active and not target.parent.active:
+                        raise InvalidMove(self.messages['parent_not_active'])
         elif position in ('first-child', 'last-child'):
             if target.id != self.parent_id:
                 if self.system_flags.change_parent_restriction:
-                    raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
+                    raise InvalidMove(self.messages['change_parent_restriction'])
                 if target.system_flags.has_child_restriction:
-                    raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
-
-
-        #todo: Add Active Parent Check
+                    raise InvalidMove(self.messages['has_child_restriction'])
+                if not target.active and self.active:
+                    raise InvalidMove(self.messages['parent_not_active'])
         super(BaseDataMart, self).move_to(target, position)
 
     def get_children_cache_key(self):
