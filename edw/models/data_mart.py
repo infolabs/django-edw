@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 #import operator
 from six import with_metaclass
 from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.cache import cache
 from django.db import models, IntegrityError, transaction
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
@@ -22,14 +23,18 @@ from polymorphic.query import PolymorphicQuerySet
 from bitfield import BitField
 
 from . import deferred
+from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug
+from ..utils.circular_buffer_in_cache import RingBuffer
+from ..signals.mptt import MPTTModelSignalSenderMixin
 
 from .. import settings as edw_settings
 
 
-class BaseDataMartQuerySet(PolymorphicQuerySet):
+class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
+    @add_cache_key('active')
     def active(self):
         return self.filter(active=True)
 
@@ -39,6 +44,7 @@ class BaseDataMartQuerySet(PolymorphicQuerySet):
     def delete(self):
         return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
+    @add_cache_key('toplevel')
     def toplevel(self):
         """
         Return all nodes which have no parent.
@@ -134,10 +140,14 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
 
 
 @python_2_unicode_compatible
-class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicModel)):
+class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel)):
     """
     The data marts for a enterprise data warehouse.
     """
+    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
+    CHILDREN_BUFFER_CACHE_SIZE = 500
+    CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
+    CHILDREN_CACHE_TIMEOUT = 3600
 
     SYSTEM_FLAGS = {
         0: ('delete_restriction', _('Delete restriction')),
@@ -267,5 +277,27 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModel, PolymorphicM
                 if target.system_flags.has_child_restriction:
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
         super(BaseDataMart, self).move_to(target, position)
+
+    def get_children_cache_key(self):
+        return self.CHILDREN_CACHE_KEY_PATTERN.format(
+            parent_id=self.id
+        )
+
+    @add_cache_key(get_children_cache_key)
+    def get_children(self):
+        return super(BaseDataMart, self).get_children()
+
+    @staticmethod
+    def get_children_buffer():
+        return RingBuffer.factory(BaseDataMart.CHILDREN_BUFFER_CACHE_KEY,
+                                  max_size=BaseDataMart.CHILDREN_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_children_buffer():
+        buf = BaseDataMart.get_children_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
+
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)

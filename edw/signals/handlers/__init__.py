@@ -2,4 +2,5 @@
 
 from . import (
     term,
+    data_mart,
 )

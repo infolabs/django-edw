@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
+from django.core.cache import cache
+from django.utils.functional import cached_property
+
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
@@ -51,7 +55,7 @@ class _DataMartFilterMixin(object):
     """
     If `active_only` parameter set `True`, then add filtering by `active` = `True`
     """
-    @property
+    @cached_property
     @get_from_context_or_request('active_only', True)
     def is_active_only(self, value):
         '''
@@ -65,7 +69,7 @@ class _DataMartFilterMixin(object):
         else:
             return data
 
-    @property
+    @cached_property
     @get_from_context_or_request('max_depth', None)
     def max_depth(self, value):
         '''
@@ -73,7 +77,7 @@ class _DataMartFilterMixin(object):
         '''
         return serializers.IntegerField().to_internal_value(value)
 
-    @property
+    @cached_property
     def depth(self):
         '''
         :return: recursion depth
@@ -84,13 +88,35 @@ class _DataMartFilterMixin(object):
             )
         )
 
+    @cached_property
+    @get_from_context_or_request('cached', False)
+    def cached(self, value):
+        '''
+        :return: `cached` value in context or request, default: False
+        '''
+        return serializers.BooleanField().to_internal_value(value)
+
+    @staticmethod
+    def on_cache_set(key):
+        buf = DataMartModel.get_children_buffer()
+        old_key = buf.record(key)
+        if old_key != buf.empty:
+            cache.delete(old_key)
+
+    def prepare_data(self, data):
+        if self.cached:
+            return data.cache(on_cache_set=_DataMartFilterMixin.on_cache_set,
+                              timeout=DataMartModel.CHILDREN_CACHE_TIMEOUT)
+        else:
+            return data.prepare_for_cache(data)
+
     def to_representation(self, data):
         max_depth = self.max_depth
         next_depth = self.depth + 1
         if max_depth is not None and next_depth > max_depth:
             data_marts = []
         else:
-            data_marts = list(self.active_only_filter(data))
+            data_marts = self.prepare_data(self.active_only_filter(data))
             for data_mart in data_marts:
                 data_mart._depth = next_depth
         return super(_DataMartFilterMixin, self).to_representation(data_marts)
@@ -100,7 +126,7 @@ class DataMartTreeListField(_DataMartFilterMixin, serializers.ListField):
     """
     DataMartTreeListField
     """
-    @property
+    @cached_property
     def depth(self):
         return self.parent._depth
 
@@ -109,7 +135,7 @@ class _DataMartTreeRootSerializer(_DataMartFilterMixin, serializers.ListSerializ
     """
     Data Mart Tree Root Serializer
     """
-    @property
+    @cached_property
     def depth(self):
         return 0
 
