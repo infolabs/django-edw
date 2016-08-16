@@ -5,15 +5,28 @@ from django.contrib import messages
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
 
-from edw.utils.render_helpers import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
+from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
 
 from django.conf import settings
+from django.conf.urls import url
+from django.utils.safestring import mark_safe
 
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
-from edw.models.term import BaseTerm
+from edw.models.term import BaseTerm, TermModel
 
+from edw.rest.serializers.term import (
+    TermListSerializer,
+    TermTreeSerializer,
+)
+
+from functools import update_wrapper
+
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+import json
 
 
 class TermAdmin(DjangoMpttAdmin):
@@ -46,6 +59,17 @@ class TermAdmin(DjangoMpttAdmin):
                 ]
         }
 
+    def get_urls(self):
+        def wrap(view, cacheable=False):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view, cacheable)(*args, **kwargs)
+            return update_wrapper(wrapper, view)
+
+        # prepend new urls to existing urls
+        return [
+           url(r'^select_json/$', wrap(self.term_select_json_view), name="edw_term_select_json")
+        ] + super(TermAdmin, self).get_urls()
+
     def delete_model(self, request, obj):
         if obj.system_flags.delete_restriction:
             storage = messages.get_messages(request)
@@ -65,8 +89,8 @@ class TermAdmin(DjangoMpttAdmin):
                                                       instance=instance,
                                                       node_info=node_info,
                                                       context={
-                                                                'specification_modes': SPECIFICATION_MODES,
-                                                                'semantic_rules': SEMANTIC_RULES,
+                                                                'specification_mode_name': SPECIFICATION_MODES.get(instance.specification_mode),
+                                                                'semantic_rule_name': SEMANTIC_RULES.get(instance.semantic_rule),
                                                     })
 
         return get_tree_from_queryset(qs, handle_create_node, max_level)
@@ -79,3 +103,27 @@ class TermAdmin(DjangoMpttAdmin):
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
+
+    def term_select_json_view(self, request):
+        node_id = request.GET.get('node')
+        if node_id:
+            queryset = TermModel.objects.filter(parent_id=node_id)
+            serializer = TermListSerializer(queryset, context={
+                "request": request
+            }, many=True)
+
+            json_data = mark_safe(render_to_string('edw/admin/term/widgets/children.json', {"nodes": serializer.data}))
+        else:
+            queryset = TermModel.objects.toplevel()
+            serializer = TermTreeSerializer(queryset, context={
+                "request": request
+            }, many=True)
+
+            print "/n/n/n/n"
+            print serializer.data
+
+            json_data = mark_safe(render_to_string('edw/admin/term/widgets/tree_root.json', {"nodes": serializer.data}))
+
+
+        # Set safe to False because the data is a list instead of a dict
+        return HttpResponse(json_data, content_type = "application/json")

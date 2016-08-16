@@ -1,0 +1,1 @@
+{% templatetag openbrace %}{% block content %}"id": {{ node.id }}, "name": "{{ node.name }}"{% endblock %}{% templatetag closebrace %}

@@ -101,6 +101,7 @@ ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
     float: right;
 }
 
+
 div.drag {
     background: url(/static/adminsortable2/icons/drag.png) repeat 0 0;
     cursor: pointer;
@@ -194,6 +195,10 @@ div.drag {
 .help_text sup {
     font-size: 13px;
     color: red;
+}
+
+.specification_mode.mode_10 {
+    opacity: 0;
 }
 
 @media (max-width: 1023px) and (min-width: 768px) {

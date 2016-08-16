@@ -10,13 +10,11 @@ class TermTreeWidget(forms.SelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []
         return render_to_string(
-                                 'edw/admin/widgets/terms_tree.html',
-                                 { 'tree_json_url': '/edw/api/terms/tree/',
-                                   'name': name,
-                                   'value': value,
-                                   'attrs': attrs
-                                 }
-                                )
+            'edw/admin/term/widgets/tree.html', {
+                'name': name,
+                'value': value,
+                'attrs': attrs
+            })
 
     class Media:
         css = {

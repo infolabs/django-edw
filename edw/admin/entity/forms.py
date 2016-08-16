@@ -8,7 +8,7 @@ from edw.models.entity import EntityModel
 
 from django import forms
 
-from edw.admin.widgets import TermTreeWidget
+from edw.admin.term.widgets import TermTreeWidget
 
 
 #==============================================================================

@@ -1,0 +1,4 @@
+{% extends 'edw/admin/term/widgets/_node.json' %}
+{% block content %}{{ block.super }}{% if node. %},
+"load_on_demand": true{% endif %},
+"children": [{% for child in node.children %}{% include 'edw/admin/term/widgets/_tree_node.json' with node=child only %}{% if not forloop.last %},{% endif %}{% endfor %}]{% endblock %}

@@ -32,6 +32,7 @@ def mptt_admin_node_info_update_with_template(admin_instance, template, instance
         'node_info': node_info,
     })
 
+
     label = render_to_string(template, context)
 
     node_info.update(
@@ -39,5 +40,3 @@ def mptt_admin_node_info_update_with_template(admin_instance, template, instance
         move_url=admin_instance.get_admin_url('move', (quote(pk),)),
         label=label,
     )
-
-    #todo: dispatch exception

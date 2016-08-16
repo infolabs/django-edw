@@ -1,0 +1,9 @@
+{% load i18n %}
+<script type="text/javascript">
+    "use strict";
+    $(function(){
+        $('#{{ name }}-select').tree();
+    });
+</script>
+
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?_={% now 'U' %}" class="clear tree-container"></div>

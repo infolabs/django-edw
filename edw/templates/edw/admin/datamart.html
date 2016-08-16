@@ -1,4 +1,4 @@
-{% load i18n edw_utils_tags %}{% spaceless %}
+{% load i18n edw_tags %}{% spaceless %}
 <div class="drag" title="{{ instance.path }}"></div>
 <span class="datamart {% if instance.active %}on{% else %}off{% endif %}{% comment %}
                 {% endcomment %}{% if instance.system_flags %} has-system-flags{% endif %}" >
@@ -11,5 +11,5 @@
             {% endfor %}
         {% endif %}
     </span>
-    {% with label=node_info|get_value:'label' %}<div class="title" title="{{ label }}">{{ label }}</div>{% endwith %}
+    <div class="title" title="{{ node_info.label }}">{{ node_info.label }}</div>
 </span>{% endspaceless %}

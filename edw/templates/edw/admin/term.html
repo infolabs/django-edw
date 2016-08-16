@@ -1,4 +1,4 @@
-{% load i18n edw_utils_tags %}{% spaceless %}
+{% load i18n edw_tags %}{% spaceless %}
 <div class="drag" title="{{ instance.path }}"></div>
 <span class="term {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
@@ -17,9 +17,7 @@
             {% endfor %}
         {% endif %}
     </span>
-    <span class="specification_mode">{{ specification_modes|get_value:instance.specification_mode }}</span>
-    {% with semantic_rule=semantic_rules|get_value:instance.semantic_rule label=node_info|get_value:'label' %}
-        <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{{ semantic_rule }}" title="{{ semantic_rule }}">
-        <div class="title" title="{{ label }}">{{ label }}</div>
-    {% endwith %}
+    <span class="specification_mode mode_{{ instance.specification_mode }}">{{ specification_mode_name }}</span>
+    <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{{ semantic_rule_name }}" title="{{ semantic_rule_name }}">
+    <div class="title" title="{{ node_info.label }}">{{ node_info.label }}</div>
 </span>{% endspaceless %}

@@ -76,3 +76,14 @@ def rest_json(value, arg=None):
     data = JSONRenderer().render(value)
     return mark_safe(data)
 '''
+
+#==============================================================================
+# String utils
+#==============================================================================
+@register.filter
+def split(value, separator):
+    """Return the string split by separator.
+
+    Example usage: {{ value|split:"/" }}
+    """
+    return value.split(separator)

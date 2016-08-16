@@ -1,0 +1,1 @@
+[{% for node in nodes %}{% include 'edw/admin/term/widgets/_node.json' with node=node only %}{% if not forloop.last %},{% endif %}{% endfor %}]
