@@ -11,7 +11,6 @@ from rest_framework_recursive.fields import RecursiveField
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
-from edw.utils.circular_buffer_in_cache import RingBuffer
 
 
 class TermSerializer(serializers.HyperlinkedModelSerializer):
@@ -122,22 +121,17 @@ class _TermsFilterMixin(object):
         return serializers.BooleanField().to_internal_value(value)
 
     @staticmethod
-    def on_cache_set(key, context):
-        buf = TermTreeSerializer.get_children_buffer()
+    def on_cache_set(key):
+        buf = TermModel.get_children_buffer()
         old_key = buf.record(key)
         if old_key != buf.empty:
             cache.delete(old_key)
 
     def prepare_data(self, data):
-
-        #print "*** PREPAIR DATA ***", self.cached
-
         if self.cached:
-            return data.cache(
-                on_cache_set=_TermsFilterMixin.on_cache_set,
-                timeout=TermTreeSerializer.CHILDREN_CACHE_TIMEOUT)
+            return data.cache(on_cache_set=_TermsFilterMixin.on_cache_set, timeout=TermModel.CHILDREN_CACHE_TIMEOUT)
         else:
-            return list(data)
+            return data.prepare_for_cache(data)
 
     def to_representation(self, data):
         next_depth = self.depth + 1
@@ -274,11 +268,6 @@ class TermTreeSerializer(TermSerializer):
     """
     Term Tree Serializer
     """
-    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
-    CHILDREN_BUFFER_CACHE_SIZE = 500
-    #CHILDREN_CACHE_KEY_PATTERN = 't_ch::{term_id}:{active_only}'
-    CHILDREN_CACHE_TIMEOUT = 3600
-
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
     structure = serializers.SerializerMethodField()
 
@@ -300,15 +289,3 @@ class TermTreeSerializer(TermSerializer):
         if self._selected_term_info is not None:
             return self._selected_term_info.attrs.get('structure', 'branch')
         return None  # 'twig', node not selected
-
-    @staticmethod
-    def get_children_buffer():
-        return RingBuffer.factory(TermTreeSerializer.CHILDREN_BUFFER_CACHE_KEY,
-                                  max_size=TermTreeSerializer.CHILDREN_BUFFER_CACHE_SIZE)
-
-    @staticmethod
-    def clear_children_buffer():
-        buf = TermTreeSerializer.get_children_buffer()
-        keys = buf.get_all()
-        buf.clear()
-        cache.delete_many(keys)

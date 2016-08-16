@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 
 from django.core.cache import cache
+from django.utils.functional import cached_property
 
 
 class empty:
@@ -20,9 +21,9 @@ class empty:
 #==============================================================================
 class RingBuffer(object):
     """Ring buffer"""
-    BUFFER_SIZE_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::sz'
-    BUFFER_INDEX_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::in'
-    BUFFER_ELEMENT_CACHE_KEY_PATTERN = 'rng_buf::%(key)s::%(index)d::el'
+    BUFFER_SIZE_CACHE_KEY_PATTERN = 'rng_buf:{key}:sz'
+    BUFFER_INDEX_CACHE_KEY_PATTERN = 'rng_buf:{key}:in'
+    BUFFER_ELEMENT_CACHE_KEY_PATTERN = 'rng_buf:{key}:{index}:el'
 
     BUFFER_CACHE_TIMEOUT = 2592000  # 60*60*24*30, 30 days
 
@@ -30,7 +31,7 @@ class RingBuffer(object):
 
     @staticmethod
     def factory(key, max_size=100, empty=empty):
-        result = RingBuffer._registry.get(key)
+        result = RingBuffer._registry.get(key, None)
         if result is None:
             result = RingBuffer._registry[key] = RingBuffer(key, max_size, empty, True)
         return result
@@ -42,61 +43,61 @@ class RingBuffer(object):
         self.max_size = max(max_size, self.init_size())
         self.init_index()
 
+    @cached_property
+    def buffer_size_cache_key(self):
+        return RingBuffer.BUFFER_SIZE_CACHE_KEY_PATTERN.format(key=self.key)
+
+    @cached_property
+    def buffer_index_cache_key(self):
+        return RingBuffer.BUFFER_INDEX_CACHE_KEY_PATTERN.format(key=self.key)
+
     def init_size(self):
-        key = RingBuffer.BUFFER_SIZE_CACHE_KEY_PATTERN % {'key': self.key}
-        val = cache.get(key, None)
+        val = cache.get(self.buffer_size_cache_key, None)
         if val is None:
             val = 0
-            cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
         return val
 
     @property
     def size(self):
-        key = RingBuffer.BUFFER_SIZE_CACHE_KEY_PATTERN % {'key': self.key}
-        val = cache.get(key, self.empty)
-        if val == self.empty:  # HACK: if cache timeout expire
+        val = cache.get(self.buffer_size_cache_key, None)
+        if val is None:  # HACK: if cache timeout expire
             val = self.max_size
-            cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
         return val
 
     @size.setter
     def size(self, val):
-        key = RingBuffer.BUFFER_SIZE_CACHE_KEY_PATTERN % {'key': self.key}
-        cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+        cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
 
     def init_index(self):
-        key = RingBuffer.BUFFER_INDEX_CACHE_KEY_PATTERN % {'key': self.key}
-        val = cache.get(key, None)
+        val = cache.get(self.buffer_index_cache_key, None)
         if val is None:
             val = -1
-            cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_index_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
         return val
 
     @property
     def index(self):
-        key = RingBuffer.BUFFER_INDEX_CACHE_KEY_PATTERN % {'key': self.key}
-        val = cache.get(key)
-        return val
+        return cache.get(self.buffer_index_cache_key, None)
 
     @index.setter
     def index(self, val):
-        key = RingBuffer.BUFFER_INDEX_CACHE_KEY_PATTERN % {'key': self.key}
-        cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+        cache.set(self.buffer_index_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
 
     def incr_index(self, val=1):
-        key = RingBuffer.BUFFER_INDEX_CACHE_KEY_PATTERN % {'key': self.key}
         try:
-            result = cache.incr(key, val)  # HACK: if cache timeout expire
+            result = cache.incr(self.buffer_index_cache_key, val)  # HACK: if cache timeout expire
         except ValueError:
             result = self.index = 0
         return result
 
     def set_element(self, index, val):
-        key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': index}
+        key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=index)
         cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
 
     def get_element(self, index):
-        key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': index}
+        key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=index)
         return cache.get(key, self.empty)
 
     def record(self, val):
@@ -120,12 +121,12 @@ class RingBuffer(object):
         """return a list of all the elements"""
         size = self.size
         if size < self.max_size:
-            keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': i} for i in range(size)]
+            keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=i) for i in range(size)]
         else:  # Bugfix for self.index is None
             index = self.index
             index = 0 if index is None else index + 1
-            keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': i} for i in range(index, size)]
-            keys.extend([RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': i} for i in range(index)])
+            keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=i) for i in range(index, size)]
+            keys.extend([RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=i) for i in range(index)])
         heap = cache.get_many(keys)
         result = []
         for key in keys:
@@ -138,7 +139,7 @@ class RingBuffer(object):
     def clear(self):
         """clear buffer"""
         size = self.size
-        keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN % {'key': self.key, 'index': i} for i in range(size)]
+        keys = [RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=i) for i in range(size)]
         cache.delete_many(keys)
         self.index = -1
         self.size = 0

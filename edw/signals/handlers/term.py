@@ -14,53 +14,68 @@ from edw.signals.mptt import (
 from edw.models.term import TermModel
 
 
+def get_children_keys(sender, parent_id):
+    key = ":".join([
+        sender._meta.object_name.lower(),
+        sender.CHILDREN_CACHE_KEY_PATTERN.format(parent_id=parent_id)
+        if parent_id is not None else
+        "toplevel"
+    ])
+    return [key, ":".join([key, "active"])]
+
+
 #==============================================================================
 # Term model event handlers
 #==============================================================================
-
 def invalidate_term_before_save(sender, instance, **kwargs):
     print "*******************************"
     print "* invalidate_term_before_save *"
     print "*******************************"
 
-
-    # active children cache
-    if not instance.id is None:
+    # term root and nodes children cache
+    if instance.id is not None:
         try:
             original = sender._default_manager.get(pk=instance.id)
-            if original.parent_id != instance.parent_id:
-                key = ":".join([
-                    sender._meta.object_name.lower(),
-                    sender.CHILDREN_CACHE_KEY_PATTERN.format(parent_id=original.parent_id)
-                    if original.parent_id is not None else
-                    "toplevel"
-                ])
-                keys = [key, ":".join([key, "active"])]
+            if original.active != instance.active:
+                TermModel.clear_children_buffer()  # Clear children buffer
+                instance._children_buffer_empty = True
+            elif original.parent_id != instance.parent_id:
+                keys = get_children_keys(sender, original.parent_id)
 
-                print "keys", keys
-
+                #print "keys", keys
                 cache.delete_many(keys)
         except sender.DoesNotExist:
             pass
 
-    print sender, instance
+    #print sender, instance
 
 
 def invalidate_term_after_save(sender, instance, **kwargs):
     print "*******************************"
     print "* invalidate_term_after_save  *"
     print "*******************************"
-    print sender, instance
 
-    # Clear decompress buffer
-    TermModel.clear_decompress_buffer()
+    if instance.id is not None and not getattr(instance, '_children_buffer_empty', False) :
+        keys = get_children_keys(sender, instance.parent_id)
+
+        #print "keys", keys
+        cache.delete_many(keys)
+
+    #print sender, instance
+
+    TermModel.clear_decompress_buffer()  # Clear decompress buffer
 
 
 def invalidate_term_after_move(sender, instance, target, position, prev_parent, **kwargs):
     print "*******************************"
     print "* invalidate_term_after_move  *"
     print "*******************************"
-    print sender, instance, target, position, prev_parent
+    #print sender, instance, target, position, prev_parent
+
+    keys = get_children_keys(sender, prev_parent.id if prev_parent is not None else None)
+
+    #print "keys", keys
+    cache.delete_many(keys)
 
     invalidate_term_after_save(sender, instance, **kwargs)
 

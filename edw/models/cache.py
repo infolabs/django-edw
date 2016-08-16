@@ -64,7 +64,6 @@ class QuerySetCachedResultMixin(object):
     def cache(self,
               on_cache_set=None,
               timeout=DEFAULT_CACHE_TIMEOUT,
-              context=empty,
               cache_key_attr=DEFAULT_CACHE_KEY_ATTR):
         key = getattr(self, cache_key_attr, empty)
         if key != empty:
@@ -73,7 +72,7 @@ class QuerySetCachedResultMixin(object):
                 result = self.prepare_for_cache(self)
                 cache.set(key, result, timeout)
                 if on_cache_set is not None:
-                    on_cache_set(key, context if context != empty else {})
+                    on_cache_set(key)
         else:
             raise AttributeError(
                 '{cls}.{attr} not found.'.format(

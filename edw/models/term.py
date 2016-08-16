@@ -145,7 +145,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
     DECOMPRESS_CACHE_KEY_PATTERN = 't_i:{value_hash}:{fix_it}'
     DECOMPRESS_CACHE_TIMEOUT = 3600
 
+    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
+    CHILDREN_BUFFER_CACHE_SIZE = 500
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
+    CHILDREN_CACHE_TIMEOUT = 3600
 
     OR_RULE = 10
     XOR_RULE = 20
@@ -346,6 +349,18 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
             if old_key != buf.empty:
                 cache.delete(old_key)
         return tree
+
+    @staticmethod
+    def get_children_buffer():
+        return RingBuffer.factory(BaseTerm.CHILDREN_BUFFER_CACHE_KEY,
+                                  max_size=BaseTerm.CHILDREN_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_children_buffer():
+        buf = BaseTerm.get_children_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
 
 
 TermModel = deferred.MaterializedModel(BaseTerm)
