@@ -276,6 +276,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                     raise InvalidMove(self.system_flags.get_label('change_parent_restriction'))
                 if target.system_flags.has_child_restriction:
                     raise InvalidMove(self.system_flags.get_label('has_child_restriction'))
+
+
+        #todo: Add Active Parent Check
         super(BaseDataMart, self).move_to(target, position)
 
     def get_children_cache_key(self):
