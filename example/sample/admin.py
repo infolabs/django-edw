@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
+from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max
 from django.template.context import Context
 from django.template.loader import get_template
 
 from edw.admin.customer import CustomerProxy, CustomerAdmin
+from edw.admin.forms import EntityAdminForm
 
 from edw.admin.term import TermAdmin
 from edw.models.term import TermModel
@@ -16,16 +18,25 @@ from edw.admin.data_mart import DataMartAdmin
 from edw.models.data_mart import DataMartModel
 
 from parler.admin import TranslatableAdmin
+from parler.forms import TranslatableModelForm
 from .models import Book, ChildBook, AdultBook
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from adminsortable2.admin import SortableAdminMixin
 
 
+class BookAdminForm(EntityAdminForm, TranslatableModelForm):
+    """
+    BookAdminForm Mixin
+    """
+
+
 #from edw.admin.term import *
 class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildModelAdmin):
 
     base_model = Book
+
+    form = BookAdminForm
 
     fieldsets = (
         (None, {
@@ -56,6 +67,8 @@ class AdultBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
 
     base_model = Book
 
+    form = BookAdminForm
+
     fieldsets = (
         (None, {
             'fields': ('name', 'slug', 'active', 'genre', 'terms', ),
@@ -85,6 +98,8 @@ class AdultBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
 class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdmin):
 
     base_model = Book
+
+    form = EntityAdminForm
 
     child_models = ((ChildBook, ChildBookAdmin), (AdultBook, AdultBookAdmin),)
 

@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'easy_thumbnails.optimize',
     'parler',
     'haystack',
+    'mptt',
     'django_mptt_admin',
     'edw.apps.EdwConfig',
     'sample.apps.SampleConfig',

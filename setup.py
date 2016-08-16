@@ -24,8 +24,8 @@ CLASSIFIERS = [
 ]
 
 setup(
-    author="Excentrics LLC",
-    author_email="info@excentrics.ru",
+    author="InfoLabs LLC",
+    author_email="team@infolabs.ru",
     name="django-edw",
     version=edw.__version__,
     description="A RESTful Django Enterprise Data Warehouse",
