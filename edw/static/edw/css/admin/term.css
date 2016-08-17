@@ -58,6 +58,7 @@ ul.jqtree-tree li.jqtree-folder .jqtree-title-folder img {
 
 .view_classes, .specification_mode {
     display: inline-block;
+    text-align: center;
     float: right;
     width: 210px;
     height: 28px;
@@ -127,7 +128,8 @@ div.drag {
     font-size: 65%;
     font-weight: 700;
     line-height: 1;
-    margin-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
     padding: 0.2em 0.6em 0.3em;
     text-align: center;
     vertical-align: baseline;
@@ -157,10 +159,13 @@ div.drag {
     display: inline-block;
 }
 
+.edit {
+    text-transform: lowercase;
+}
 
 .term.is-characteristic > .is_characteristic {
     display: inherit;
-    color: #000066;
+    color: darkblue;
     opacity: 1;
 }
 
@@ -172,7 +177,7 @@ div.drag {
 
 .term.is-mark > .is_mark {
     display: inherit;
-    color: orange;
+    color: darkblue;
     opacity: 1;
 }
 
@@ -197,9 +202,15 @@ div.drag {
     color: red;
 }
 
+.tree_widget .term {
+
+}
+
 .specification_mode.mode_10 {
     opacity: 0;
 }
+
+
 
 @media (max-width: 1023px) and (min-width: 768px) {
     .term .title {

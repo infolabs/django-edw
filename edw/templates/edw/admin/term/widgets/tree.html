@@ -2,8 +2,11 @@
 <script type="text/javascript">
     "use strict";
     $(function(){
-        $('#{{ name }}-select').tree();
+        $('#{{ name }}-select').tree({
+            autoEscape: false,
+            selectable: false
+        });
     });
 </script>
 
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?_={% now 'U' %}" class="clear tree-container"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?_={% now 'U' %}&name={{ name }}&cached=0&active_only=0&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}" class="term tree-widget"></div>

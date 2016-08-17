@@ -20,6 +20,8 @@ class TermTreeWidget(forms.SelectMultiple):
         css = {
             'all': (
                 '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css',
             )
         }
         js = (

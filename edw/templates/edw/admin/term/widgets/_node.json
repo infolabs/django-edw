@@ -1,1 +1,12 @@
-{% templatetag openbrace %}{% block content %}"id": {{ node.id }}, "name": "{{ node.name }}"{% if not node.is_leaf %},"load_on_demand": true{% endif %}{% endblock %}{% templatetag closebrace %}
+{% load i18n edw_tags %}{% templatetag openbrace %}{% block content %}
+"label": "<input class='rubric_set_checkbox' type='checkbox' name='{{ name }}' value='{{ node.id }}' id='id_{{ name }}_{{ node.id }}' {% for val in selected %}{% ifequal node.id|add:'0' val|add:'0' %}checked='checked'{% endifequal %}{% endfor %}>{% comment %}
+{% endcomment %}<span class='term semantic_rule_{{ node.semantic_rule }} {% if node.active %}on{% else %}off{% endif %}{% comment %}
+{% endcomment %}{% if node.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
+{% endcomment %}{% if node.attributes.is_mark %} is-mark{% endif %}{% comment %}
+{% endcomment %}{% if node.attributes.is_relation %} is-relation{% endif %}'>{% comment %}
+{% endcomment %}<i class='icons fa fa-link is_relation' title='{% trans 'Relation' %}'></i>{% comment %}
+{% endcomment %}<i class='icons fa fa-tags is_mark' title='{% trans 'Mark' %}'></i>{% comment %}
+{% endcomment %}<i class='icons fa fa-list is_characteristic' title='{% trans 'Characteristic' %}'></i>{% comment %}
+{% endcomment %}<i class='icons fa fa-power-off' title='{% trans 'Active' %}'></i>{% comment %}
+{% endcomment %}<img src='/static/edw/img/{{ node.semantic_rule }}.png'><div class='title' title='{{ node.name }}'>{{ node.name }}</div>",{% comment %}
+{% endcomment %}"id": {{ node.id }}{% block is_leaf %}{% if not node.is_leaf %}, "load_on_demand": true{% endif %}{% endblock %}{% endblock %}{% templatetag closebrace %}

@@ -50,6 +50,7 @@ ul.jqtree-tree li.jqtree-folder {
 }
 
 .view_classes {
+    text-align: center;
     display: inline-block;
     float: right;
     width: 210px;
@@ -104,7 +105,8 @@ div.drag {
     font-size: 65%;
     font-weight: 700;
     line-height: 1;
-    margin-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
     padding: 0.2em 0.6em 0.3em;
     text-align: center;
     vertical-align: baseline;
@@ -123,6 +125,10 @@ div.drag {
     display: inline-block;
 }
 
+
+.edit {
+    text-transform: lowercase;
+}
 
 .datamart.has-system-flags > .has-system-flags {
     display: inherit;
