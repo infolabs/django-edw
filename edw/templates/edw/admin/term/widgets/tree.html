@@ -2,9 +2,21 @@
 <script type="text/javascript">
     "use strict";
     $(function(){
-        $('#{{ name }}-select').tree({
+        var $container = $('#{{ name }}-select');
+        $container.tree({
             autoEscape: false,
-            selectable: false
+            selectable: false,
+            onLoading: function (is_loading, node, $el) {
+                //console.log("*", is_loading, node, $el);
+
+                if ( !is_loading ) {
+                    if ( !node ) {
+                        //console.log("READY", $("imput['checked']", $container));
+
+
+                    }
+                }
+            }
         });
     });
 </script>

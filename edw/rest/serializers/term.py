@@ -28,7 +28,6 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
     #description = serializers.CharField(read_only=True)
 
     parent_id = serializers.SerializerMethodField()
-
     is_leaf = serializers.SerializerMethodField()
 
     class Meta:
@@ -185,13 +184,9 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         if self.data_mart:
             trunk = list(self.active_only_filter(self.data_mart.terms.values_list('id', flat=True)))
-        else:
-            trunk = []
-
-        if trunk:
             selected.extend(trunk)
         else:
-            trunk = list(self.active_only_filter(self.instance).values_list('id', flat=True))
+            trunk = selected
 
         decompress = TermModel.cached_decompress if self.cached else TermModel.decompress
 
@@ -239,7 +234,6 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         def get_queryset():
             return DataMartModel.objects.active()
-
         pk = self.data_mart_pk
         if pk is not None:
             return get_object_or_404(get_queryset(), pk=pk)
@@ -279,7 +273,7 @@ class TermTreeSerializer(TermSerializer):
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'attributes', 'view_class', 'structure', 'is_leaf', 'children')
+                  'attributes', 'is_leaf', 'view_class', 'structure', 'children')
         list_serializer_class = _TermTreeRootSerializer
 
     def to_representation(self, data):

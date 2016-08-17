@@ -1,5 +1,5 @@
-{% load i18n edw_tags %}{% templatetag openbrace %}{% block content %}
-"label": "<input class='rubric_set_checkbox' type='checkbox' name='{{ name }}' value='{{ node.id }}' id='id_{{ name }}_{{ node.id }}' {% for val in selected %}{% ifequal node.id|add:'0' val|add:'0' %}checked='checked'{% endifequal %}{% endfor %}>{% comment %}
+{% load i18n edw_tags %}{% templatetag openbrace %}{% block content %}{% comment %}
+{% endcomment %}"label": "<input class='rubric_set_checkbox' type='checkbox' name='{{ name }}' value='{{ node.id }}' id='id_{{ name }}_{{ node.id }}' {% block checked %}{% endblock %}>{% comment %}
 {% endcomment %}<span class='term semantic_rule_{{ node.semantic_rule }} {% if node.active %}on{% else %}off{% endif %}{% comment %}
 {% endcomment %}{% if node.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
 {% endcomment %}{% if node.attributes.is_mark %} is-mark{% endif %}{% comment %}
