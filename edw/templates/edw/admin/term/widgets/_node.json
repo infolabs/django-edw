@@ -8,5 +8,5 @@
 {% endcomment %}<i class='icons fa fa-tags is_mark' title='{% trans 'Mark' %}'></i>{% comment %}
 {% endcomment %}<i class='icons fa fa-list is_characteristic' title='{% trans 'Characteristic' %}'></i>{% comment %}
 {% endcomment %}<i class='icons fa fa-power-off' title='{% trans 'Active' %}'></i>{% comment %}
-{% endcomment %}<img src='/static/edw/img/{{ node.semantic_rule }}.png'><div class='title' title='{{ node.name }}'>{{ node.name }}</div>",{% comment %}
+{% endcomment %}<img src='/static/edw/img/{{ node.semantic_rule }}.png'><label for='id_{{ name }}_{{ node.id }}' class='title' title='{{ node.name }}'>{{ node.name }}</label>",{% comment %}
 {% endcomment %}"id": {{ node.id }}{% block load_on_demand %}{% if not node.is_leaf %}, "load_on_demand": true{% endif %}{% endblock %}{% endblock %}{% templatetag closebrace %}
