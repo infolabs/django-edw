@@ -8,7 +8,8 @@ class TermTreeWidget(forms.SelectMultiple):
         super(TermTreeWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None, choices=()):
-        if value is None: value = []
+        if value is None:
+            value = []
         return render_to_string(
             'edw/admin/term/widgets/tree.html', {
                 'name': name,

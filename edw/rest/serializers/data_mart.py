@@ -14,8 +14,7 @@ from edw.rest.serializers.decorators import get_from_context_or_request
 
 class DataMartSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A simple serializer to convert the data mart items for rendering
-    when looking up for a term.
+    A simple serializer to convert the data mart items for rendering.
     """
     #name = serializers.CharField(read_only=True)
     #slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)

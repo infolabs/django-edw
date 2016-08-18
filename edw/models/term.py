@@ -32,6 +32,9 @@ from ..signals.mptt import MPTTModelSignalSenderMixin
 from .. import settings as edw_settings
 
 
+#==============================================================================
+# BaseTermQuerySet
+#==============================================================================
 class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
     @add_cache_key('active')
@@ -52,6 +55,9 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         return self.filter(parent__isnull=True)
 
 
+#==============================================================================
+# BaseTermManager
+#==============================================================================
 class BaseTermManager(TreeManager.from_queryset(BaseTermQuerySet)):
     """
     Customized model manager for our Term model.
@@ -70,6 +76,75 @@ class BaseTermManager(TreeManager.from_queryset(BaseTermQuerySet)):
     '''
 
 
+#==============================================================================
+# SemanticRuleFilterMixin
+#==============================================================================
+class SemanticRuleFilterMixin(object):
+
+    def make_filters(self, *args, **kwargs):
+        '''
+        :return: queryset filters
+        '''
+        raise NotImplementedError(
+            '{cls}.make_filters must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+    def make_leaf_filters(self, field_name):
+        if self.pk is not None:
+            ids = list(self.get_descendants(include_self=True).active().values_list('id', flat=True))
+            return [models.Q(**{field_name + '__in': ids})] if len(ids) > 1 else [models.Q(**{field_name: ids[0]})]
+        else:
+            return []
+
+
+#==============================================================================
+# OrRuleFilterMixin
+#==============================================================================
+class OrRuleFilterMixin(SemanticRuleFilterMixin):
+
+    def make_filters(self, *args, **kwargs):
+        term_info = kwargs.pop('term_info')
+        field_name = kwargs.get('field_name')
+        filters = filter(None, (x.term.make_filters(term_info=x, *args, **kwargs) for x in term_info))
+        if term_info.is_leaf or not filters:
+            result = self.make_leaf_filters(field_name)
+        else:
+            result = filters[0]
+            for z in filters[1:]:
+                r = []
+                for x in result:
+                    for y in z:
+                        r.append(x | y)
+                result = r
+            if self.pk is not None:
+                result = [models.Q(**{field_name: self.pk}) | x for x in result]
+        return result
+
+
+#==============================================================================
+# AndRuleFilterMixin
+#==============================================================================
+class AndRuleFilterMixin(SemanticRuleFilterMixin):
+
+    def make_filters(self, *args, **kwargs):
+        term_info = kwargs.pop('term_info')
+        field_name = kwargs.get('field_name')
+        filters = filter(None, (x.term.make_filters(term_info=x, *args, **kwargs) for x in term_info if not x.is_leaf))
+        if term_info.is_leaf or not filters:
+            result = self.make_leaf_filters(field_name)
+        else:
+            result = []
+            for x in filters:
+                for y in x:
+                    result.append(y)
+        return result
+
+
+#==============================================================================
+# BaseTermMetaclass
+#==============================================================================
 class BaseTermMetaclass(MPTTModelBase):
     """
     The BaseTerm class must refer to their materialized model definition, for instance when
@@ -135,8 +210,12 @@ class BaseTermMetaclass(MPTTModelBase):
             raise NotImplementedError(msg.format(Model.__name__))
 
 
+#==============================================================================
+# BaseTerm
+#==============================================================================
 @python_2_unicode_compatible
-class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPTTModel)):
+class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilterMixin,
+                              MPTTModelSignalSenderMixin, MPTTModel)):
     """
     The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
     """
@@ -158,6 +237,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
         (XOR_RULE, _('XOR')),
         (AND_RULE, _('AND')),
     )
+    ROOT_RULE = AND_RULE
 
     ATTRIBUTES = {
         0: ('is_characteristic', _('Is characteristic')),
@@ -193,7 +273,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
         4: ('has_child_restriction', messages['has_child_restriction']),
         5: ('external_tagging_restriction', messages['external_tagging_restriction'])
     }
-
 
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
@@ -232,6 +311,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
 
     def __str__(self):
         return self.name
+
+    def make_filters(self, *args, **kwargs):
+        if self.semantic_rule == self.AND_RULE:
+            return super(AndRuleFilterMixin, self).make_filters(*args, **kwargs)
+        else:
+            return super(OrRuleFilterMixin, self).make_filters(*args, **kwargs)
 
     @cached_property
     def ancestors_list(self):
@@ -383,6 +468,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, MPTTModelSignalSenderMixin, MPT
         cache.delete_many(keys)
 
 
+#==============================================================================
+# TermModel
+#==============================================================================
 TermModel = deferred.MaterializedModel(BaseTerm)
 
 
@@ -408,6 +496,9 @@ def get_queryset_descendants(nodes, include_self=False):
         return Model.objects.filter(id__isnull=True)
 
 
+#==============================================================================
+# TermTreeInfo
+#==============================================================================
 class TermTreeInfo(dict):
     """
     Helper class TermTreeInfo
@@ -484,6 +575,9 @@ class TermTreeInfo(dict):
         return tree
 
 
+#==============================================================================
+# TermInfo
+#==============================================================================
 class TermInfo(list):
     """
     Class TermInfo
@@ -512,7 +606,7 @@ class TermInfo(list):
         if value is None:
             value = []
         value = uniq(value)
-        root = TermInfo(term=model_class())
+        root = TermInfo(term=model_class(semantic_rule=model_class.ROOT_RULE))
         tree = TermTreeInfo(root)
         for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
             if not term.id in tree:

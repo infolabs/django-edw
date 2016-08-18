@@ -1,13 +1,30 @@
-{% load i18n pipeline compress %}
-{% compress js %}
+{% load i18n %}
 <script type="text/javascript">
     "use strict";
+
     $(function(){
-        $('#{{ name }}-select').tree({
+        var $tree = $('#{{ name }}-select').tree({
             autoEscape: false,
-            selectable: false
-        });
+            selectable: false,
+            onCreateLi: function(node, $li) {
+                var $checkbox = $("input:checkbox", $li);
+                $checkbox.change(node, function(e){
+                    e.data._cheked = $(this).is(':checked');
+                });
+                if ( node._cheked ){
+                    $checkbox.prop('checked', true);
+                }
+            }
+        }).bind(
+            'tree.init',
+            function() {
+                $("input:checkbox[autoopen]", this).each(function(){
+                    var node = $tree.tree('getNodeById', $(this).val());
+                    $tree.tree('openNode', node, false);
+                });
+            }
+        );
     });
 </script>
-{% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?_={% now 'U' %}&name={{ name }}&cached=0&active_only=0&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}" class="term tree-widget"></div>
+
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only=0&_={% now 'U' %}" class="term tree-widget"></div>

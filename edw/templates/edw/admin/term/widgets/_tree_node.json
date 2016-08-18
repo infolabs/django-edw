@@ -1,7 +1,10 @@
 {% extends 'edw/admin/term/widgets/_node.json' %}
 
 
-{% block content %}{{ block.super }}, "children": [{% for child in node.children %}{% include 'edw/admin/term/widgets/_tree_node.json' with node=child name=name selected=selected only %}{% if not forloop.last %},{% endif %}{% endfor %}]{% endblock %}
+{% block content %}{{ block.super }}, "children": [{% for child in node.children %}{% include 'edw/admin/term/widgets/_tree_node.json' with node=child name=name only %}{% if not forloop.last %},{% endif %}{% endfor %}]{% endblock %}
 
 
-{% block is_leaf %}{% if not node.structure %}{{ block.super}}{% endif %}{% endblock %}
+{% block load_on_demand %}{% if not node.structure %}{{ block.super }}{% endif %}{% endblock %}
+
+
+{% block checkbox_extra %}{% if node.structure = "limb" %} checked='checked'{% endif %}{% if node.structure %} autoopen='autoopen'{% endif %}{% endblock %}

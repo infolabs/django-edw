@@ -104,22 +104,21 @@ class TermAdmin(DjangoMpttAdmin):
     def term_select_json_view(self, request):
         node_id = request.GET.get('node')
         name = request.GET.get('name')
-        selected = request.GET.get('selected')
+
+        context = {
+            "request": request
+        }
 
         if node_id:
             queryset = TermModel.objects.filter(parent_id=node_id)
-            serializer = TermListSerializer(queryset, context={
-                "request": request,
-            }, many=True)
-
-            json_data = mark_safe(render_to_string('edw/admin/term/widgets/children.json', {"nodes": serializer.data, "name": name, "selected": selected}))
+            serializer = TermListSerializer(queryset, context=context, many=True)
+            template = 'edw/admin/term/widgets/children.json'
         else:
             queryset = TermModel.objects.toplevel()
-            serializer = TermTreeSerializer(queryset, context={
-                "request": request
-            }, many=True)
+            serializer = TermTreeSerializer(queryset, context=context, many=True)
+            template = 'edw/admin/term/widgets/tree_root.json'
 
-            json_data = mark_safe(render_to_string('edw/admin/term/widgets/tree_root.json', {"nodes": serializer.data, "name": name, "selected": selected}))
-
-
-        return HttpResponse(json_data, content_type = "application/json")
+        return HttpResponse(mark_safe(render_to_string(template, {
+                "nodes": serializer.data,
+                "name": name
+            })), content_type = "application/json")
