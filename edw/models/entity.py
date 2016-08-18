@@ -18,7 +18,8 @@ from polymorphic.base import PolymorphicModelBase
 from . import deferred
 from .. import settings as edw_settings
 
-
+#  todo: need refactoring: active, Manager.from_queryset & etc.
+#  add semantic_filtering
 class BaseEntityManager(PolymorphicManager):
     """
     A base ModelManager for all non-object manipulation needs, mostly statistics and querying.
@@ -43,6 +44,7 @@ class BaseEntityManager(PolymorphicManager):
 
     def get_queryset(self):
         return super(BaseEntityManager, self).get_queryset()
+
 
 
 class PolymorphicEntityMetaclass(PolymorphicModelBase):
