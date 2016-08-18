@@ -1,0 +1,62 @@
+/*
+  Import common LESS
+*/
+@import "static/edw/assets/less/admin/tree_common.less";
+
+/*
+  Term admin LESS
+*/
+
+
+#tree {
+  .node {
+    .icons {
+      &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
+        display: inline-block;
+        float: right;
+      }
+    }
+    &.is-characteristic > .icons.is_characteristic,
+    &.is-mark > .icons.is_mark,
+    &.is-relation > .icons.is_relation {
+      color: #666;
+      opacity: 1;
+    }
+  }
+  .jqtree_common {
+    &.jqtree-title-folder img {
+      display: block;
+      margin-left: 4px;
+      margin-top: 3px;
+      width: 16px;
+    }
+    img {
+      display: none;
+    }
+  }
+  &.block-style ul.jqtree-tree {
+    li.jqtree-selected > .jqtree-element {
+      .jqtree-title {
+        .specification_mode {
+          text-shadow: none;
+        }
+      }
+    }
+  }
+  .specification_mode {
+    font-family: FontAwesome;
+    text-shadow: 0 1px 0 #ffffff;
+    color: #666666;
+    margin-left: 9px;
+    font-size: 13px;
+    &.mode_10 {
+      display: none;
+    }
+    &.mode_20:before {
+      content: "\f065";
+    }
+    &.mode_30:before {
+      content: "\f066";
+    }
+  }
+}

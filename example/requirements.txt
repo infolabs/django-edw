@@ -61,3 +61,7 @@ git+ssh://git@bitbucket.org/info-labs/django-edw.git
 djangorestframework-recursive==0.1.1
 djangorestframework-filters==0.8.0
 drf-nested-routers==0.11.1
+django-mptt-admin==0.4.0
+django-pipeline==1.6.8
+django_compressor==2.1
+django-compress==1.0.1

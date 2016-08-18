@@ -45,7 +45,6 @@ class TermAdmin(DjangoMpttAdmin):
 
     autoescape = False
 
-
     class Media:
         js = [
             '/static/edw/js/admin/term.js',
@@ -53,7 +52,7 @@ class TermAdmin(DjangoMpttAdmin):
         css = {
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-                '/static/edw/css/admin/term.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
                 ]
         }
 

@@ -6,6 +6,7 @@ from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
 
 from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
+from edw.admin.data_mart.forms import DataMartAdminForm
 
 from django.conf import settings
 
@@ -14,6 +15,8 @@ from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 
 class DataMartAdmin(DjangoMpttAdmin):
+    form = DataMartAdminForm
+
     save_on_top = True
 
     prepopulated_fields = {"slug": ("name",)}
@@ -28,15 +31,11 @@ class DataMartAdmin(DjangoMpttAdmin):
 
     autoescape = False
 
-
     class Media:
-        js = [
-            '/static/edw/js/admin/datamart.js',
-        ]
         css = {
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-                '/static/edw/css/admin/datamart.css',
+                '/static/edw/css/admin/datamart.css' if not settings.DEBUG else '/static/edw/assets/less/admin/datamart.css',
                 ]
         }
 

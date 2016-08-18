@@ -1,6 +1,8 @@
 {% load i18n edw_tags %}{% spaceless %}
-<div class="drag" title="{{ instance.path }}"></div>
-<span class="term {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
+<div class="drag" title="{{ instance.path }}">
+    <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}">
+</div>
+<div class="node {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_mark %} is-mark{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_relation %} is-relation{% endif %}{% comment %}
@@ -10,14 +12,17 @@
     <i class="icons fa fa-tags is_mark" title="{% trans 'Mark' %}"></i>
     <i class="icons fa fa-list is_characteristic" title="{% trans 'Characteristic' %}"></i>
     <i class="icons fa fa-power-off" title="{% trans 'Active' %}"></i>
-    <span class="view_classes">
+    <div class="title">
+        <a href="/admin/edw/term/{{ instance.pk }}/change/" title="{% trans 'Edit' %}">{{ node_info.label }}</a>
+        <span class="specification_mode mode_{{ instance.specification_mode }}" title="{% trans 'Specification Mode' %}: {{ specification_mode_name }}"></span>
         {% if instance.view_class %}
             {% for view_class in instance.view_class|split:' ' %}
-                <span class="view_class">{{ view_class }}</span>
+                <span class="view_class" title="{% trans 'View Class' %}: {{ view_class }}">{{ view_class }}</span>
             {% endfor %}
         {% endif %}
-    </span>
-    <span class="specification_mode mode_{{ instance.specification_mode }}">{{ specification_mode_name }}</span>
-    <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{{ semantic_rule_name }}" title="{{ semantic_rule_name }}">
-    <div class="title" title="{{ node_info.label }}">{{ node_info.label }}</div>
-</span>{% endspaceless %}
+    </div>
+    <div class="control">
+        <a href="/admin/edw/term/{{ instance.pk }}/change/" title="{% trans 'Edit' %}"><i class="fa fa-pencil-square" aria-hidden="true"></i></a>
+        <a href="/admin/edw/term/add/?insert_at={{ instance.pk }}" title="{% trans 'Add' %}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+    </div>
+</div>{% endspaceless %}

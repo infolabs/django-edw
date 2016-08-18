@@ -11,6 +11,8 @@ EDW_APP_LABEL = 'edw'
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_NAME = os.path.split(PROJECT_DIR)[1]
+ENV_DIR = os.path.dirname(os.__file__)
+
 
 DEBUG = True
 
@@ -92,7 +94,9 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'pipeline.finders.FileSystemFinder',
+    'pipeline.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
     'compressor.finders.CompressorFinder',
 )
 
@@ -113,22 +117,15 @@ AUTHENTICATION_BACKENDS = (
 )
         
 MIDDLEWARE_CLASSES = (
+    'pipeline.middleware.MinifyHTMLMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'djng.middleware.AngularUrlMiddleware',
-    # 'django.middleware.cache.UpdateCacheMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'edw.middleware.CustomerMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.gzip.GZipMiddleware',
 )
 
@@ -184,7 +181,6 @@ INSTALLED_APPS = (
     'django_fsm',
     'fsm_admin',
     #'djng',
-    'compressor',
     'sekizai',
     'post_office',
     'filer',
@@ -192,10 +188,61 @@ INSTALLED_APPS = (
     'easy_thumbnails.optimize',
     'parler',
     'haystack',
+
+    # CSS and JS builder
+    'pipeline',
+    'compressor',
+
     'django_mptt_admin',
     'edw.apps.EdwConfig',
     'sample.apps.SampleConfig',
 )
+
+PIPELINE_COMPILERS = (
+  'pipeline.compilers.less.LessCompiler',
+  'pipeline.compilers.coffee.CoffeeScriptCompiler',
+)
+
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+
+PIPLINE_INCLUDE_PATH = os.path.join(ENV_DIR, 'site-packages/edw/')
+
+if DEBUG:
+    LESS_ARGUMENTS = "-ru --compress --include-path=" + PIPLINE_INCLUDE_PATH
+else:
+    LESS_ARGUMENTS = "-ru --clean-css --compress --include-path" + PIPLINE_INCLUDE_PATH
+
+PIPELINE = {
+    'CSS_COMPRESSOR': 'pipeline.compressors.yuglify.YuglifyCompressor',
+    'JS_COMPRESSOR': 'pipeline.compressors.yuglify.YuglifyCompressor',
+    'COMPILERS': (
+        'pipeline.compilers.less.LessCompiler',
+        'pipeline.compilers.coffee.CoffeeScriptCompiler',
+    ),
+    'LESS_ARGUMENTS': LESS_ARGUMENTS,
+    'STYLESHEETS': {
+        'term_admin': {
+            'source_filenames': (
+                'edw/assets/less/admin/term.less',
+            ),
+            'output_filename': 'edw/css/admin/term.css',
+            'extra_context': {
+                'media': 'screen',
+            },
+        },
+        'datamart_admin': {
+            'source_filenames': (
+                'edw/assets/less/admin/datamart.less',
+            ),
+            'output_filename': 'edw/css/admin/datamart.css',
+            'extra_context': {
+                'media': 'screen',
+            },
+        },
+    },
+    'JAVASCRIPT': {
+    }
+}
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
