@@ -33,7 +33,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
     }
 
     filter_class = DataMartFilter
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter,)
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 
