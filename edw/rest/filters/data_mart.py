@@ -11,14 +11,9 @@ class DataMartFilter(filters.FilterSet):
     """
     DataMartFilter
     """
-    active = filters.BooleanFilter(name="active")
-    parent_id = filters.NumberFilter(name='parent_id')
+    #active = filters.BooleanFilter()
+    parent_id = filters.NumberFilter()
 
     class Meta:
         model = BaseDataMart
-        fields = ['active', ]
-
-    def filter_parent_id(self, name, queryset, value):
-        if value:
-            return queryset.filter(parent_id=value)
-        return queryset
+        fields = ['active']
