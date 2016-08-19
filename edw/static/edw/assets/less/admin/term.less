@@ -8,7 +8,7 @@
 */
 
 
-#tree, .tree-widget {
+#tree {
   .node {
     .icons {
       &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
@@ -29,6 +29,7 @@
       margin-left: 4px;
       margin-top: 10px;
       width: 16px;
+      position: absolute;
     }
     img {
       display: none;
@@ -43,22 +44,44 @@
       }
     }
   }
-  .specification_mode {
-    font-family: FontAwesome;
-    text-shadow: 0 1px 0 #ffffff;
-    color: #e80e0e;
-    position: absolute;
-    top: 10px;
-    font-size: 23px;
-    left: 2px;
-    &.mode_10 {
-      display: none;
+}
+
+.tree-widget {
+  float: left;
+  max-height: 400px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  ul.jqtree_common.jqtree-tree[role="tree"] {
+    padding-left: 0;
+    margin-left: 0;
+  }
+  ul.jqtree-tree li.jqtree-folder {
+    margin-bottom: 0;
+  }
+  .term_set_checkbox {
+    margin: 0;
+    padding: 0;
+  }
+  .icons {
+    float: right;
+    padding: 4px 8px;
+    opacity: 0.2;
+    font-size: 14px;
+    &.fa-power-off, &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
+      display: inline-block;
+      float: right;
     }
-    &.mode_20:before {
-      content: "\f065";
+  }
+  .term {
+    &.on > .icons.fa-power-off,
+    &.is-characteristic > .icons.is_characteristic,
+    &.is-mark > .icons.is_mark,
+    &.is-relation > .icons.is_relation {
+      color: #666;
+      opacity: 1;
     }
-    &.mode_30:before {
-      content: "\f066";
+    label.title {
+      padding-left: 8px;
     }
   }
 }

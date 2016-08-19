@@ -87,3 +87,10 @@ def split(value, separator):
     Example usage: {{ value|split:"/" }}
     """
     return value.split(separator)
+
+#==============================================================================
+# Logical utils
+#==============================================================================
+@register.filter
+def bitwise_and(value, arg):
+    return bool(value & arg)
