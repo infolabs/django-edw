@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 
+from django_filters.widgets import CSVWidget
+
 import rest_framework_filters as filters
 
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 
-from edw.models.entity import BaseEntity, EntityModel
+from edw.models.entity import BaseEntity
 
 
 class EntityFilter(filters.FilterSet):
@@ -15,7 +17,8 @@ class EntityFilter(filters.FilterSet):
     EntityFilter
     """
     #active = filters.BooleanFilter()
-    terms = filters.MethodFilter()
+    terms = filters.MethodFilter(widget=CSVWidget())
+
 
     class Meta:
         model = BaseEntity
@@ -23,14 +26,7 @@ class EntityFilter(filters.FilterSet):
 
     def filter_terms(self, name, queryset, value):
         try:
-            terms_ids = serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
+            terms_ids = serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
         except ValidationError:
             return queryset
-
-        print "*** filter_terms ***"
-        print queryset.semantic_filter([1, 3])
-        # print self, name, queryset, value, terms_ids
-
-        print EntityModel.objects.indexable()
-
-        return queryset
+        return queryset.semantic_filter(terms_ids)

@@ -32,11 +32,8 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
 
     def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
-        print "*** semantic filter ***", use_cached_decompress
         tree = decompress(value, fix_it=True)
-
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
-
         if filters:
             result = self.filter(filters[0])
             for x in filters[1:]:
