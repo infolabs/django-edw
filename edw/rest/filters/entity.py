@@ -19,7 +19,6 @@ class EntityFilter(filters.FilterSet):
     #active = filters.BooleanFilter()
     terms = filters.MethodFilter(widget=CSVWidget())
 
-
     class Meta:
         model = BaseEntity
         fields = ['active']

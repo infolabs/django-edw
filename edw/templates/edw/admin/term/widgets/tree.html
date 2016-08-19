@@ -4,10 +4,12 @@
     "use strict";
 
     $(function(){
+        var spinners = {};
+
         var $tree = $('#{{ name }}-select').tree({
             autoEscape: false,
             selectable: false,
-            onCreateLi: function(node, $li) {
+            onCreateLi: function(node, $li){
                 var $checkbox = $("input:checkbox", $li);
                 $checkbox.change(node, function(e){
                     e.data._cheked = $(this).is(':checked');
@@ -15,10 +17,43 @@
                 if ( node._cheked ){
                     $checkbox.prop('checked', true);
                 }
+            },
+            onLoading: function (is_loading, node, $el){
+
+                function getNodeId() {
+                    if (!node) {
+                        return "__root__";
+                    }
+                    else {
+                        return node.id;
+                    }
+                }
+
+                function getContainer() {
+                    if (node) {
+                        return $el.find(".jqtree-element")[0];
+                    }
+                    else {
+                        return $el[0];
+                    }
+                }
+
+                var node_id = getNodeId();
+
+                if (is_loading) {
+                    spinners[node_id] = new Spinner().spin(getContainer());
+                }
+                else {
+                    var spinner = spinners[node_id];
+                    if (spinner) {
+                        spinner.stop();
+                        spinners[node_id] = null;
+                    }
+                }
             }
         }).bind(
             'tree.init',
-            function() {
+            function(){
                 $("input:checkbox[autoopen]", this).each(function(){
                     var node = $tree.tree('getNodeById', $(this).val());
                     $tree.tree('openNode', node, false);

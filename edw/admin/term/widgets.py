@@ -28,5 +28,6 @@ class TermTreeWidget(forms.SelectMultiple):
         }
         js = (
             '/static/edw/lib/jquery/jquery.min.js',
-            '/static/edw/js/admin/tree.jquery.js',
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/tree.jquery.js'
         )
