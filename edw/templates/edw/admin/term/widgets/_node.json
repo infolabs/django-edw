@@ -1,9 +1,9 @@
 {% load i18n edw_tags %}{% templatetag openbrace %}{% block content %}{% comment %}
-{% endcomment %}"label": "<input class='term_set_checkbox' type='checkbox' name='{{ name }}' value='{{ node.id }}' id='id_{{ name }}_{{ node.id }}'{% block checkbox_extra %}{% endblock %}>{% comment %}
+{% endcomment %}"label": "<img src='/static/edw/img/admin/semantic_rules/{{ node.semantic_rule }}.png'><input class='term_set_checkbox' type='checkbox' name='{{ name }}' value='{{ node.id }}' id='id_{{ name }}_{{ node.id }}'{% block checkbox_extra %}{% endblock %}>{% comment %}
 {% endcomment %}<span class='term semantic_rule_{{ node.semantic_rule }} {% if node.active %}on{% else %}off{% endif %}{% comment %}
-{% endcomment %}{% if node.attributes|bitwise_and:3 %} is-characteristic{% endif %}{% comment %}
-{% endcomment %}{% if node.attributes|bitwise_and:1 %} is-mark{% endif %}{% comment %}
-{% endcomment %}{% if node.attributes|bitwise_and:2 %} is-relation{% endif %}'>{% comment %}
+{% endcomment %}{% if node.attributes|bitwise_and:1 %} is-characteristic{% endif %}{% comment %}
+{% endcomment %}{% if node.attributes|bitwise_and:2 %} is-mark{% endif %}{% comment %}
+{% endcomment %}{% if node.attributes|bitwise_and:4 %} is-relation{% endif %}'>{% comment %}
 {% endcomment %}<i class='icons fa fa-link is_relation' title='{% trans 'Relation' %}'></i>{% comment %}
 {% endcomment %}<i class='icons fa fa-tags is_mark' title='{% trans 'Mark' %}'></i>{% comment %}
 {% endcomment %}<i class='icons fa fa-list is_characteristic' title='{% trans 'Characteristic' %}'></i>{% comment %}

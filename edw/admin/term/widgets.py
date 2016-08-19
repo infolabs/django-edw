@@ -15,7 +15,8 @@ class TermTreeWidget(forms.SelectMultiple):
             'edw/admin/term/widgets/tree.html', {
                 'name': name,
                 'value': value,
-                'attrs': attrs
+                'attrs': attrs,
+                'active_only': 0
             })
 
     class Media:
