@@ -7,11 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from parler.fields import TranslatedField
 from parler.managers import TranslatableManager, TranslatableQuerySet
-from polymorphic.query import PolymorphicQuerySet
-from edw.models.entity import BaseEntity, BaseEntityManager
+from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
 
 
-class BookQuerySet(TranslatableQuerySet, PolymorphicQuerySet):
+class BookQuerySet(TranslatableQuerySet, BaseEntityQuerySet):
     pass
 
 
