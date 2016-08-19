@@ -7,7 +7,7 @@ import rest_framework_filters as filters
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 
-from edw.models.entity import BaseEntity
+from edw.models.entity import BaseEntity, EntityModel
 
 
 class EntityFilter(filters.FilterSet):
@@ -27,7 +27,10 @@ class EntityFilter(filters.FilterSet):
         except ValidationError:
             return queryset
 
-        # print "*** filter_terms ***"
+        print "*** filter_terms ***"
+        print queryset.semantic_filter([1, 3])
         # print self, name, queryset, value, terms_ids
+
+        print EntityModel.objects.indexable()
 
         return queryset

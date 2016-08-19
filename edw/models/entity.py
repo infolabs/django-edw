@@ -11,19 +11,47 @@ from django.db import models
 from django.utils import six
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
+
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
+from polymorphic.query import PolymorphicQuerySet
 from polymorphic.base import PolymorphicModelBase
 
 from . import deferred
+from .term import TermModel
 from .. import settings as edw_settings
 
-#  todo: need refactoring: active, Manager.from_queryset & etc.
-#  add semantic_filtering
-class BaseEntityManager(PolymorphicManager):
+
+#==============================================================================
+# BaseEntityQuerySet
+#==============================================================================
+class BaseEntityQuerySet(PolymorphicQuerySet):
+
+    def active(self):
+        return self.filter(active=True)
+
+    def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
+        decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
+        print "*** semantic filter ***", use_cached_decompress
+        tree = decompress(value, fix_it=True)
+
+        filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
+
+        if filters:
+            result = self.filter(filters[0])
+            for x in filters[1:]:
+                result = result.filter(x)
+            return result.distinct()
+        else:
+            return self
+
+
+class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
     """
     A base ModelManager for all non-object manipulation needs, mostly statistics and querying.
     """
+    queryset_class = BaseEntityQuerySet
+
     '''
     def select_lookup(self, search_term):
         """
@@ -35,16 +63,12 @@ class BaseEntityManager(PolymorphicManager):
         queryset = self.get_queryset().filter(reduce(operator.or_, filter_by_term))
         return queryset
     '''
+
     def indexable(self):
         """
         Return a queryset of indexable Entities.
         """
-        queryset = self.get_queryset().filter(active=True)
-        return queryset
-
-    def get_queryset(self):
-        return super(BaseEntityManager, self).get_queryset()
-
+        return self.active()
 
 
 class PolymorphicEntityMetaclass(PolymorphicModelBase):

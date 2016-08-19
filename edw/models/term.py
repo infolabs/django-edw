@@ -314,9 +314,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     def make_filters(self, *args, **kwargs):
         if self.semantic_rule == self.AND_RULE:
-            return super(AndRuleFilterMixin, self).make_filters(*args, **kwargs)
+            return AndRuleFilterMixin.make_filters(self, *args, **kwargs)
         else:
-            return super(OrRuleFilterMixin, self).make_filters(*args, **kwargs)
+            return OrRuleFilterMixin.make_filters(self, *args, **kwargs)
 
     @cached_property
     def ancestors_list(self):
