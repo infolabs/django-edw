@@ -92,7 +92,7 @@ class SemanticRuleFilterMixin(object):
         )
 
     def make_leaf_filters(self, field_name):
-        if self.pk is not None:
+        if self.active and self.pk is not None:
             ids = list(self.get_descendants(include_self=True).active().values_list('id', flat=True))
             return [models.Q(**{field_name + '__in': ids})] if len(ids) > 1 else [models.Q(**{field_name: ids[0]})]
         else:
@@ -606,7 +606,7 @@ class TermInfo(list):
         if value is None:
             value = []
         value = uniq(value)
-        root = TermInfo(term=model_class(semantic_rule=model_class.ROOT_RULE))
+        root = TermInfo(term=model_class(semantic_rule=model_class.ROOT_RULE, active=True))
         tree = TermTreeInfo(root)
         for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
             if not term.id in tree:
