@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 from django import forms
 from django.template.loader import render_to_string
+from django.conf import settings
 
 
 class TermTreeWidget(forms.SelectMultiple):
@@ -22,6 +23,7 @@ class TermTreeWidget(forms.SelectMultiple):
             'all': (
                 '/static/edw/css/admin/jqtree.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
             )
         }
         js = (

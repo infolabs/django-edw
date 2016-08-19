@@ -1,6 +1,7 @@
 {% load i18n edw_tags %}{% spaceless %}
 <div class="drag" title="{{ instance.path }}">
-    <img src="/static/edw/img/{{ instance.semantic_rule }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}">
+    <img src="/static/edw/img/admin/rules/{{ instance.semantic_rule }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}">
+    <span class="specification_mode mode_{{ instance.specification_mode }}" title="{% trans 'Specification Mode' %}: {{ specification_mode_name }}"></span>
 </div>
 <div class="node {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
@@ -14,7 +15,6 @@
     <i class="icons fa fa-power-off" title="{% trans 'Active' %}"></i>
     <div class="title">
         <a href="/admin/edw/term/{{ instance.pk }}/change/" title="{% trans 'Edit' %}">{{ node_info.label }}</a>
-        <span class="specification_mode mode_{{ instance.specification_mode }}" title="{% trans 'Specification Mode' %}: {{ specification_mode_name }}"></span>
         {% if instance.view_class %}
             {% for view_class in instance.view_class|split:' ' %}
                 <span class="view_class" title="{% trans 'View Class' %}: {{ view_class }}">{{ view_class }}</span>

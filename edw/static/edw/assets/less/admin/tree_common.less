@@ -2,7 +2,7 @@
 Mptt-admin tree widget common LESS
 */
 
-#tree {
+#tree, .tree-widget {
   padding-top: 0;
   ul.jqtree-tree li {
     line-height: 18px;
@@ -48,7 +48,8 @@ Mptt-admin tree widget common LESS
   }
   .control {
     position: relative;
-    top: 2px;
+    top: 1px;
+    width: 50px;
     margin-right: 23px;
     float: right;
     display: inline;
@@ -62,7 +63,7 @@ Mptt-admin tree widget common LESS
       font-size: 14px;
       padding-left: 35px;
       padding-top: 0;
-      max-width: 83%;
+      max-width: 71%;
       line-height: 21px;
       text-shadow: 0 1px 0 #eeeeee;
       display: inline-block;
@@ -115,5 +116,30 @@ Mptt-admin tree widget common LESS
   }
 }
 
+@media (min-width: 1200px) {
+  #tree, .tree-widget {
+    .control {
+      margin-right: 13px;
+    }
+    .node {
+      .title {
+        max-width: 83%;
+      }
+    }
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+  #tree, .tree-widget {
+    .control {
+      margin-right: 13px;
+    }
+    .node {
+      .title {
+        max-width: 71%;
+      }
+    }
+  }
+}
 
 
