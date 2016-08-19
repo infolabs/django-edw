@@ -8,7 +8,7 @@
 */
 
 
-#tree {
+#tree, .tree-widget {
   .node {
     .icons {
       &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
@@ -27,7 +27,7 @@
     &.jqtree-title-folder img {
       display: block;
       margin-left: 4px;
-      margin-top: 3px;
+      margin-top: 10px;
       width: 16px;
     }
     img {
@@ -46,9 +46,11 @@
   .specification_mode {
     font-family: FontAwesome;
     text-shadow: 0 1px 0 #ffffff;
-    color: #666666;
-    margin-left: 9px;
-    font-size: 13px;
+    color: #e80e0e;
+    position: absolute;
+    top: 10px;
+    font-size: 23px;
+    left: 2px;
     &.mode_10 {
       display: none;
     }

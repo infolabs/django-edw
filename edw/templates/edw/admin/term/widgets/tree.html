@@ -1,4 +1,4 @@
-{% load i18n pipeline compress %}
+{% load i18n pipeline compress %}{% stylesheet 'term_admin' %}
 {% compress js %}
 <script type="text/javascript">
     "use strict";
@@ -28,4 +28,4 @@
     });
 </script>
 {% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only=0&_={% now 'U' %}" class="term tree-widget"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only=0&_={% now 'U' %}" class="tree-widget"></div>
