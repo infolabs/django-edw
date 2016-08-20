@@ -15,7 +15,7 @@ from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 from edw.models.term import BaseTerm, TermModel
-
+from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.serializers.term import (
     TermListSerializer,
     TermTreeSerializer,
@@ -77,8 +77,8 @@ class TermAdmin(DjangoMpttAdmin):
 
     def get_tree_data(self, qs, max_level):
 
-        SPECIFICATION_MODES = dict((k, v) for k, v in BaseTerm.SPECIFICATION_MODES)
-        SEMANTIC_RULES = dict((k, v) for k, v in BaseTerm.SEMANTIC_RULES)
+        specification_modes = dict((k, v) for k, v in BaseTerm.SPECIFICATION_MODES)
+        semantic_rules = dict((k, v) for k, v in BaseTerm.SEMANTIC_RULES)
 
         def handle_create_node(instance, node_info):
             mptt_admin_node_info_update_with_template(admin_instance=self,
@@ -86,9 +86,9 @@ class TermAdmin(DjangoMpttAdmin):
                                                       instance=instance,
                                                       node_info=node_info,
                                                       context={
-                                                                'specification_mode_name': SPECIFICATION_MODES.get(instance.specification_mode),
-                                                                'semantic_rule_name': SEMANTIC_RULES.get(instance.semantic_rule),
-                                                    })
+                                                          'specification_mode_name': specification_modes.get(instance.specification_mode),
+                                                          'semantic_rule_name': semantic_rules.get(instance.semantic_rule)
+                                                      })
 
         return get_tree_from_queryset(qs, handle_create_node, max_level)
 
@@ -100,7 +100,7 @@ class TermAdmin(DjangoMpttAdmin):
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
-
+    @remove_empty_params_from_request
     def term_select_json_view(self, request):
         node_id = request.GET.get('node')
         name = request.GET.get('name')
