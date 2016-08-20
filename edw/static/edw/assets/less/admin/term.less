@@ -7,7 +7,7 @@
   Term admin LESS
 */
 
-
+/* MPTT admin Term list tree view */
 #tree {
   .node {
     .icons {
@@ -35,28 +35,40 @@
       display: none;
     }
   }
-  &.block-style ul.jqtree-tree {
-    li.jqtree-selected > .jqtree-element {
-      .jqtree-title {
-        .specification_mode {
-          text-shadow: none;
-        }
-      }
-    }
-  }
 }
 
+/* */
 .tree-widget {
   float: left;
   max-height: 400px;
   overflow-x: hidden;
   overflow-y: scroll;
   ul.jqtree_common.jqtree-tree[role="tree"] {
-    padding-left: 0;
+    padding-left: 20px;
     margin-left: 0;
   }
-  ul.jqtree-tree li.jqtree-folder {
-    margin-bottom: 0;
+  ul.jqtree-tree {
+    .jqtree-element {
+      cursor: default;
+      .jqtree-toggler.jqtree-toggler-left {
+        cursor: pointer;
+      }
+    }
+    li.jqtree-folder {
+      margin-bottom: 0;
+    }
+  }
+  .jqtree_common {
+    &.jqtree-title-folder img {
+      display: inline;
+      margin-left: -40px;
+      margin-top: 5px;
+      width: 16px;
+      position: absolute;
+    }
+    img {
+      display: none;
+    }
   }
   .term_set_checkbox {
     margin: 0;
@@ -81,6 +93,7 @@
       opacity: 1;
     }
     label.title {
+      cursor: pointer;
       padding-left: 8px;
     }
   }

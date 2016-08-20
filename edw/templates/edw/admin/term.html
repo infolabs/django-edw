@@ -1,7 +1,7 @@
 {% load i18n edw_tags %}{% spaceless %}
 <span class="drag" title="{{ instance.path }}">
     <img src="/static/edw/img/admin/semantic_rules/{{ instance.semantic_rule }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}">
-    {% ifnotequal instance.specification_mode 10 %}<img src="/static/edw/img/admin/specification_modes/{{ instance.specification_mode }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}. {% trans 'Specification Mode' %}: {{ specification_mode_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}. {% trans 'Specification Mode' %}: {{ specification_mode_name }}">{% endifnotequal %}
+    {% ifnotequal instance.specification_mode 10 %}<img src="/static/edw/img/admin/specification_modes/{{ instance.specification_mode }}.png" alt="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}. {% trans 'Specification Mode' %}: {{ specification_mode_name }}" title="{% trans 'Semantic Rule' %}: {{ semantic_rule_name }}. {% trans 'Specification Mode' %}: {{ specification_mode_name|lower }}">{% endifnotequal %}
 </span>
 <span class="node {{ instance.semantic_rule }} {% if instance.active %}on{% else %}off{% endif %}{% comment %}
                 {% endcomment %}{% if instance.attributes.is_characteristic %} is-characteristic{% endif %}{% comment %}
@@ -18,7 +18,7 @@
         <a href="/admin/edw/term/add/?insert_at={{ instance.pk }}" title="{% trans 'Add' %}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
     </span>
     <span class="title">
-        <a href="/admin/edw/term/{{ instance.pk }}/change/" title="{% trans 'Change' %}">{{ node_info.label }}</a>
+        <a href="/admin/edw/term/{{ instance.pk }}/change/" title="{% trans 'Term' %} id:{{ instance.pk}}">{{ node_info.label }}</a>
         {% if instance.view_class %}
             {% for view_class in instance.view_class|split:' ' %}
                 <span class="view_class" title="{% trans 'View Class' %}: {{ view_class }}">{{ view_class }}</span>

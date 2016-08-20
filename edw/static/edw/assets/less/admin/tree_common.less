@@ -4,6 +4,7 @@ Mptt-admin tree widget common LESS
 
 #tree {
   padding-top: 0;
+  padding-bottom: 25px;
   ul.jqtree-tree li {
     line-height: 18px;
     padding: 2px 0 0 0;
@@ -11,7 +12,6 @@ Mptt-admin tree widget common LESS
       margin-bottom: 0;
     }
   }
-
   &.block-style ul.jqtree-tree {
     .jqtree-element {
       margin-bottom: 0;
@@ -20,27 +20,23 @@ Mptt-admin tree widget common LESS
     }
     li.jqtree-selected > .jqtree-element {
       background: #aaaaaa;
-      text-shadow: none;
-      .jqtree-title {
-        .title {
-          text-shadow: none;
-        }
-      }
     }
   }
   .jqtree-element {
     .jqtree-toggler.jqtree-toggler-right {
       position: absolute;
+      cursor: pointer;
       left: 15px;
       top: 9px;
     }
   }
   .edit {
     display: none;
+    visibility: hidden;
   }
   .drag {
     background: url(/static/adminsortable2/icons/drag.png) repeat 0 0;
-    cursor: pointer;
+    cursor: move;
     position: absolute;
     left: 0;
     top: 0;
@@ -61,18 +57,11 @@ Mptt-admin tree widget common LESS
   }
   .node {
     .title {
-      font-size: 14px;
       padding-left: 35px;
-      padding-top: 0;
-      max-width: 71%;
-      line-height: 21px;
-      text-shadow: 0 1px 0 #eeeeee;
-      display: inline-block;
       .view_class {
         border-radius: 0.25em;
         background-color: #777;
         text-transform: uppercase;
-        text-shadow: none;
         color: #fff;
         font-size: 56%;
         font-weight: 700;
@@ -81,7 +70,6 @@ Mptt-admin tree widget common LESS
         padding: 0.2em 0.6em 0.3em;
         text-align: center;
         vertical-align: baseline;
-        display: inline-block;
       }
     }
     .icons {
@@ -94,12 +82,9 @@ Mptt-admin tree widget common LESS
         float: right;
       }
     }
-    &.has-system-flags > .icons.has-system-flags {
-      display: inherit;
-      color: #666;
-      opacity: 1;
-    }
-    &.on > .icons.fa-power-off {
+    &.has-system-flags > .icons.has-system-flags,
+    &.on > .icons.fa-power-off
+    {
       color: #666;
       opacity: 1;
     }
@@ -109,12 +94,17 @@ Mptt-admin tree widget common LESS
 .help_text {
   font-size: 13px;
   color: #666;
-  sup {
-    font-size: 13px;
-    color: red;
+  .footnote {
+    sup {
+      font-size: 13px;
+      color: red;
+    }
+    font-weight: 300;
   }
   img {
     height: 16px;
+    float: left;
+    margin-top: 1px;
   }
 }
 

@@ -5,7 +5,20 @@
 
     $(function(){
         var spinners = {};
-
+        var opts = {
+              lines: 11 // The number of lines to draw
+            , length: 1 // The length of each line
+            , width: 2 // The line thickness
+            , radius: 4 // The radius of the inner circle
+            , scale: 2 // Scales overall size of the spinner
+            , corners: 1 // Corner roundness (0..1)
+            , color: '#777' // #rgb or #rrggbb or array of colors
+            , opacity: 0.2 // Opacity of the lines
+            , rotate: 0 // The rotation offset
+            , direction: 1 // 1: clockwise, -1: counterclockwise
+            , speed: 1.1 // Rounds per second
+            , trail: 50 // Afterglow percentage
+        }
         var $tree = $('#{{ name }}-select').tree({
             autoEscape: false,
             selectable: false,
@@ -41,7 +54,7 @@
                 var node_id = getNodeId();
 
                 if (is_loading) {
-                    spinners[node_id] = new Spinner().spin(getContainer());
+                    spinners[node_id] = new Spinner(opts).spin(getContainer());
                 }
                 else {
                     var spinner = spinners[node_id];
@@ -63,4 +76,4 @@
     });
 </script>
 {% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only=0&_={% now 'U' %}" class="tree-widget"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&_={% now 'U' %}" class="tree-widget"></div>
