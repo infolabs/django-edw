@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.utils.functional import cached_property
 from django_filters.widgets import CSVWidget
 
 import rest_framework_filters as filters
@@ -23,20 +23,19 @@ class EntityFilter(filters.FilterSet):
         model = BaseEntity
         fields = ['active']
 
+    @cached_property
+    def use_cached_decompress(self):
+        '''
+        :return: `use_cached_decompress` value from `self.data`, default: True
+        '''
+        try:
+            return serializers.BooleanField().to_internal_value(self.data.get('use_cached_decompress'))
+        except ValidationError:
+            return True
+
     def filter_terms(self, name, queryset, value):
-        '''
-        Semantic filter, use cached decompress by default
-        :param name:
-        :param queryset:
-        :param value:
-        :return:
-        '''
         try:
             terms_ids = serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
         except ValidationError:
             return queryset
-        try:
-            use_cached_decompress = serializers.BooleanField().to_internal_value(self.data.get('use_cached_decompress'))
-        except ValidationError:
-            use_cached_decompress = True
-        return queryset.semantic_filter(terms_ids, use_cached_decompress=use_cached_decompress)
+        return queryset.semantic_filter(terms_ids, use_cached_decompress=self.use_cached_decompress)
