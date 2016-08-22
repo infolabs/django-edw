@@ -44,12 +44,13 @@
   overflow-x: hidden;
   overflow-y: scroll;
   ul.jqtree_common.jqtree-tree[role="tree"] {
-    padding-left: 20px;
-    margin-left: 0;
+    padding: 0;
+    margin: 0;
   }
   ul.jqtree-tree {
     .jqtree-element {
       border-top: 1px dotted #eeeeee;
+      padding-left: 25px;
       cursor: default;
       .jqtree-toggler.jqtree-toggler-left {
         cursor: pointer;
@@ -83,6 +84,7 @@
     &.fa-power-off, &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
       display: inline-block;
       float: right;
+      margin-top: 2px;
     }
   }
   .term {
