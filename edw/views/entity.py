@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 
 from rest_framework import viewsets
-#from rest_framework.decorators import list_route, detail_route
+#from rest_framework.decorators import list_route
 #from rest_framework.response import Response
+from rest_framework import pagination
 
 
 from edw.rest.serializers.entity import (
@@ -31,6 +32,36 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     filter_class = EntityFilter
 
+    pagination_class = pagination.LimitOffsetPagination
+
     @remove_empty_params_from_request
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
+
+    """
+    @list_route(filter_backends=())
+    def detailed(self, request, data_mart_pk=None, format=None):
+        '''
+        Retrieve tree action
+        :param request:
+        :param data_mart_pk:
+        :param format:
+        :return:
+        '''
+        context = {
+            "request": request
+        }
+        if data_mart_pk is not None:
+            context["data_mart_pk"] = data_mart_pk
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = EntityListSerializer(page, many=True, context=context)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = EntityListSerializer(queryset, many=True, context=context)
+        return Response(serializer.data)
+
+    """
