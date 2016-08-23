@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
-from edw.models.term import BaseTerm, TermModel
+from edw.models.term import TermModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.serializers.term import (
     TermListSerializer,
@@ -76,10 +76,6 @@ class TermAdmin(DjangoMpttAdmin):
             obj.delete()
 
     def get_tree_data(self, qs, max_level):
-
-        specification_modes = dict((k, v) for k, v in BaseTerm.SPECIFICATION_MODES)
-        semantic_rules = dict((k, v) for k, v in BaseTerm.SEMANTIC_RULES)
-
         def handle_create_node(instance, node_info):
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
@@ -100,6 +96,7 @@ class TermAdmin(DjangoMpttAdmin):
     def term_select_json_view(self, request):
         node_id = request.GET.get('node')
         name = request.GET.get('name')
+        node_template = request.GET.get('node_template')
 
         context = {
             "request": request
@@ -116,5 +113,6 @@ class TermAdmin(DjangoMpttAdmin):
 
         return HttpResponse(mark_safe(render_to_string(template, {
                 "nodes": serializer.data,
-                "name": name
+                "name": name,
+                "node_template": node_template
             })), content_type = "application/json")

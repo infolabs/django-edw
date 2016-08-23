@@ -23,6 +23,9 @@ from .models import Book, ChildBook, AdultBook
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from adminsortable2.admin import SortableAdminMixin
 
+from edw.admin.entity import TermsTreeFilter
+from django.conf import settings
+
 
 class BookAdminForm(EntityAdminForm, TranslatableModelForm):
     """
@@ -113,11 +116,24 @@ class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdm
         }),
     )
 
+    class Media:
+        css = {
+            'all': (
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+            )
+        }
+        js = (
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
+
     prepopulated_fields = {'slug': ('name',)}
 
     search_fields = ('name',)
 
-    list_filter = (PolymorphicChildModelFilter,)
+    list_filter = (PolymorphicChildModelFilter, 'active', TermsTreeFilter)
     list_per_page = 250
     list_max_show_all = 1000
 

@@ -5,6 +5,9 @@ from django.conf import settings
 
 
 class TermTreeWidget(forms.SelectMultiple):
+
+    node_template = 'extended'
+
     def __init__(self, attrs=None):
         super(TermTreeWidget, self).__init__(attrs)
 
@@ -16,7 +19,8 @@ class TermTreeWidget(forms.SelectMultiple):
                 'name': name,
                 'value': value,
                 'attrs': attrs,
-                'active_only': 0
+                'active_only': 0,
+                'node_template': self.node_template
             })
 
     class Media:
@@ -28,7 +32,12 @@ class TermTreeWidget(forms.SelectMultiple):
             )
         }
         js = (
-            '/static/edw/lib/jquery/jquery.min.js',
             '/static/edw/lib/spin/spin.min.js',
             '/static/edw/js/admin/tree.jquery.js'
         )
+
+"""
+class SimpleTermTreeWidget(forms.SelectMultiple):
+    node_template = 'simple'
+# пронаследовать и добавить переменную шаблон, в пронаследованном перекрыть шаблон
+"""
