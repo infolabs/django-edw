@@ -84,11 +84,7 @@ class TermAdmin(DjangoMpttAdmin):
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
-                                                      node_info=node_info,
-                                                      context={
-                                                          'specification_mode_name': specification_modes.get(instance.specification_mode),
-                                                          'semantic_rule_name': semantic_rules.get(instance.semantic_rule)
-                                                      })
+                                                      node_info=node_info)
 
         return get_tree_from_queryset(qs, handle_create_node, max_level)
 
