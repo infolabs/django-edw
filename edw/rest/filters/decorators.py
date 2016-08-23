@@ -16,14 +16,13 @@ class empty:
     pass
 
 
-def get_from_underscore_or_data(default, from_datadict=empty):
+def get_from_underscore_or_data(var_name, default, from_datadict=empty):
     def get_from_underscore_or_data_decorator(func):
         @wraps(func)
         def func_wrapper(self):
-            prop_name = func.__name__
-            value = getattr(self, "_{}".format(prop_name), empty)
+            value = getattr(self, "_{}".format(func.__name__), empty)
             if value == empty:
-                value = self.data.get(prop_name, empty)
+                value = self.data.get(var_name, empty)
                 if value == empty:  # all sources are empty
                     return default
                 else:
