@@ -28,6 +28,39 @@
                 var $checkbox = $("input:checkbox", $li);
                 $checkbox.change(node, function(e){
                     e.data._cheked = $(this).is(':checked');
+                    {% ifequal node_template "simple" %}
+                    function getUrlParams(url) {
+                        var params = {};
+                        url.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+                            function (str, key, value) {
+                                params[key] = value;
+                            });
+                        return params;
+                    }
+
+                    function makeFiltering(terms) {
+                        var old_param = $(location).attr('search'),
+                            params = getUrlParams(old_param);
+
+                        params['terms'] = terms;
+                            var param = '?';
+                            $.each(params, function(i, val) {
+                                param = param + i + '=' + val + '&'
+                            });
+                        if (param != '?') {
+                            param = param.slice(0,-1)
+                        }
+                        var url = window.location.protocol + "//" + window.location.host + window.location.pathname + param;
+                        if (old_param != param) { window.location.href = url }
+                    }
+
+                    var term_list = new Array();
+                    $("#terms-select :checked").each(function(){
+                        term_list.push(parseInt($(this).val()))
+                    });
+                    makeFiltering(term_list.toString());
+
+                    {% endifequal %}
                 });
                 if ( node._cheked ){
                     $checkbox.prop('checked', true);
@@ -78,4 +111,4 @@
     });
 </script>
 {% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val|add:'0' }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&_={% now 'U' %}" class="tree-widget"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&_={% now 'U' %}" class="tree-widget"></div>

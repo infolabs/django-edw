@@ -35,22 +35,27 @@ class TermsTreeFilter(ListFilter):
         if self.parameter_name in params:
             value = params.pop(self.parameter_name)
             if value:
-                self.used_parameters[self.parameter_name] = value
+                self.used_parameters[self.parameter_name] = str(value)
 
     def has_output(self):
         return True
 
     def value(self):
-        print self.used_parameters.get(self.parameter_name, None)
         return self.used_parameters.get(self.parameter_name, None)
 
     def expected_parameters(self):
         return [self.parameter_name]
 
     def choices(self, cl):
+        value = self.value()
+        if value:
+            values = value.split(',')
+        else:
+            values = list()
+
         yield {
             'title': self.title,
-            'value': '%s' % self.value()
+            'selected': values
         }
 
     def queryset(self, request, queryset):
