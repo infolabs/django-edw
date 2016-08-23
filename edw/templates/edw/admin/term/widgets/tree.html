@@ -28,38 +28,25 @@
                 var $checkbox = $("input:checkbox", $li);
                 $checkbox.change(node, function(e){
                     e.data._cheked = $(this).is(':checked');
+                    /* make entity filtering by selected terms */
                     {% ifequal node_template "simple" %}
-                    function getUrlParams(url) {
-                        var params = {};
-                        url.replace(/[?&]+([^=&]+)=([^&]*)/gi,
-                            function (str, key, value) {
-                                params[key] = value;
-                            });
-                        return params;
-                    }
-
-                    function makeFiltering(terms) {
-                        var old_param = $(location).attr('search'),
-                            params = getUrlParams(old_param);
-
-                        params['terms'] = terms;
-                            var param = '?';
-                            $.each(params, function(i, val) {
-                                param = param + i + '=' + val + '&'
-                            });
-                        if (param != '?') {
-                            param = param.slice(0,-1)
-                        }
-                        var url = window.location.protocol + "//" + window.location.host + window.location.pathname + param;
-                        if (old_param != param) { window.location.href = url }
-                    }
-
-                    var term_list = new Array();
+                    var new_param_sting = '?',
+                        current_filter_dict = {},
+                        selected_terms = new Array();
                     $("#terms-select :checked").each(function(){
-                        term_list.push(parseInt($(this).val()))
+                        selected_terms.push(parseInt($(this).val()))
                     });
-                    makeFiltering(term_list.toString());
-
+                    $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi,
+                        function (str, key, value) {
+                            current_filter_dict[key] = value;
+                        });
+                    current_filter_dict['terms'] = selected_terms;
+                    $.each(current_filter_dict, function(k, v) {
+                        if (v !== undefined && v != '') {
+                            new_param_sting += k + '=' + v + '&'
+                        }
+                    });
+                    window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + new_param_sting.slice(0, -1)
                     {% endifequal %}
                 });
                 if ( node._cheked ){
