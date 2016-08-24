@@ -1,9 +1,8 @@
 {% load i18n pipeline compress %}{% stylesheet 'term_admin' %}
 {% compress js %}
 <script type="text/javascript">
+(function ($) {
     "use strict";
-
-    $ = jQuery;
 
     $(function(){
         var spinners = {};
@@ -28,11 +27,11 @@
                 var $checkbox = $("input:checkbox", $li);
                 $checkbox.change(node, function(e){
                     e.data._cheked = $(this).is(':checked');
-                    /* make entity filtering by selected terms */
                     {% ifequal node_template "simple" %}
+                    /* make entity filtering by selected terms */
                     var new_param_sting = '?',
                         current_filter_dict = {},
-                        selected_terms = new Array();
+                        selected_terms = [];
                     $("#terms-select :checked").each(function(){
                         selected_terms.push(parseInt($(this).val()))
                     });
@@ -96,6 +95,9 @@
             }
         );
     });
+})(jQuery);
+
+
 </script>
 {% endcompress %}
 <div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&_={% now 'U' %}" class="tree-widget"></div>

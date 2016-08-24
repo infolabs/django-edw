@@ -68,11 +68,26 @@ class EntityFilter(filters.FilterSet):
 
     def filter_data_mart_pk(self, name, queryset, value):
 
-        #print "*** filter_data_mart_pk ***", value, self, self._subset_cache
+        print "*** filter_data_mart_pk ***", value, self, self._subset_cache
 
-        #print "----------------------------"
+        print "----------------------------"
 
-        #print "***"
+        #
+        params = self.get_filters()
+
+        filter_names = [self.get_filter_name(param) for param in params]
+
+        key = self.cache_key(filter_names)
+
+        subset_class = self.cache_get(key)
+
+        print id(subset_class), id(self), id(self.data)
+
+        print "----------------------------"
+
+        print "***", dir(self)
+
+        # http://ericplumb.com/blog/understanding-djangos-cached_property-decorator.html
 
         self._data_mart_id = value
         if self.data_mart_id is None:
