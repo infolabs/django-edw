@@ -7,7 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from edw.rest.filters.entity import EntityFilter
-from edw.models.entity import EntityModel
 
 
 #===========================================================================================

@@ -26,8 +26,10 @@ from functools import update_wrapper
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 
+from salmonella.admin import SalmonellaMixin
 
-class TermAdmin(DjangoMpttAdmin):
+
+class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     save_on_top = True
 
@@ -42,6 +44,8 @@ class TermAdmin(DjangoMpttAdmin):
     search_fields = ['name', 'slug']
 
     tree_auto_open = 0
+
+    salmonella_fields = ('parent', )
 
     autoescape = False
 

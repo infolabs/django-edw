@@ -20,4 +20,4 @@ class Term(BaseTerm):
     class Meta:
         abstract = False
         verbose_name = _("Term")
-        verbose_name_plural = _("Terms")
+        verbose_name_plural = _("Topic model")

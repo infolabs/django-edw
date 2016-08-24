@@ -13,8 +13,10 @@ from django.conf import settings
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
+from salmonella.admin import SalmonellaMixin
 
-class DataMartAdmin(DjangoMpttAdmin):
+
+class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
     form = DataMartAdminForm
 
     save_on_top = True
@@ -28,6 +30,8 @@ class DataMartAdmin(DjangoMpttAdmin):
     list_filter = ('active', ) #todo: Add ', ('system_flags', BitFieldListFilter)', Django 1.7 support, fixes https://github.com/coagulant/django-bitfield/commit/fbbececd6e60c9a804846050da8bf258bd7f2937
 
     search_fields = ['name', 'slug']
+
+    salmonella_fields = ('parent', )
 
     autoescape = False
 

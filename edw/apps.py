@@ -38,7 +38,7 @@ class EdwConfig(AppConfig):
         # add JSONField to the map of customized serializers
         ModelSerializer.serializer_field_mapping[JSONField] = JSONSerializerField
         '''
-        print('Start EDW app')
+        #print('Start EDW app')
 
 '''
 def get_tuple_version(version=None):

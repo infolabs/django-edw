@@ -193,6 +193,8 @@ INSTALLED_APPS = (
     'pipeline',
     'compressor',
 
+    'salmonella',
+
     'django_mptt_admin',
     'edw.apps.EdwConfig',
     'sample.apps.SampleConfig',

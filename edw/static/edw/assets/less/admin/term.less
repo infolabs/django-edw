@@ -99,7 +99,7 @@
     }
     label.title {
       cursor: pointer;
-      padding-left: 8px;
+      padding-left: 4px;
     }
   }
 }
@@ -107,19 +107,33 @@
 .filter_tree {
   .tree-widget {
     margin-bottom: 50px;
-    ul.jqtree-tree .jqtree-element {
-      border-top: 1px dotted #eeeeee;
-      padding-left: 0;
-      .jqtree-toggler-left {
-        display: inline!important;
+    ul.jqtree-tree {
+      .jqtree-element {
+        border-top: 1px dotted #eeeeee;
+        padding-left: 0;
+        .jqtree-title {
+          margin-left: 17px;
+          &.jqtree-title-folder {
+            margin-left: 0;
+          }
+        }
+        .jqtree-toggler-left {
+          display: inline!important;
+          margin-right: 0.3em;
+        }
       }
     }
     ul.jqtree_common.jqtree-tree[role="tree"] {
-      padding: 0 0 0 15px!important;
+      padding: 0 0 0 18px!important;
       margin: 0!important;
     }
     ul:last-child {
       padding: 0 0 0 15px!important;
+    }
+    .jqtree_common img {
+      margin-left: -32px;
+      margin-top: 6px;
+      width: 12px;
     }
   }
 }

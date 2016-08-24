@@ -304,7 +304,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     class Meta:
         abstract = True
         verbose_name = _("Term")
-        verbose_name_plural = _("Terms")
+        verbose_name_plural = _("Topic model")
 
     class MPTTMeta:
         order_insertion_by = ['created_at']
