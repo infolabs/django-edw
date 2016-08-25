@@ -6,8 +6,6 @@ from django_filters.widgets import CSVWidget
 
 import rest_framework_filters as filters
 
-import django_filters
-
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -59,53 +57,25 @@ class EntityFilter(filters.FilterSet):
         '''
         :return: active `DataMartModel` instance from `self.data_mart_id`
         '''
-        #print "GET DATA MART", self.data_mart_id, self
-
         pk = self.data_mart_id
         if pk is not None:
             return get_object_or_404(DataMartModel.objects.active(), pk=pk)
         return None
 
+    @cached_property
+    def data_mart_term_ids(self):
+        return list(self.data_mart.terms.active().values_list('id', flat=True)) if self.data_mart else []
+
     def filter_data_mart_pk(self, name, queryset, value):
-
-        print "*** filter_data_mart_pk ***", value, self, self._subset_cache
-
-        print "----------------------------"
-
-        #
-        params = self.get_filters()
-
-        filter_names = [self.get_filter_name(param) for param in params]
-
-        key = self.cache_key(filter_names)
-
-        subset_class = self.cache_get(key)
-
-        print id(subset_class), id(self), id(self.data)
-
-        print "----------------------------"
-
-        print "***", dir(self)
-
-        # http://ericplumb.com/blog/understanding-djangos-cached_property-decorator.html
-
         self._data_mart_id = value
-        if self.data_mart_id is None:
+        if self.data_mart_id is None or 'terms' in self.data:
             return queryset
-
-        #print "*** DM ID:", self.data_mart_id, self.data_mart
-
-        #if self.data_mart:
-        #    term_ids = list(self.data_mart.terms.active().values_list('id', flat=True))
-        #else:
-        #    term_ids = []
-
-        #print "Active Terms::::", term_ids
-
-        return queryset
+        return queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
 
     def filter_terms(self, name, queryset, value):
         self._term_ids = value
         if not self.term_ids:
             return queryset
-        return queryset.semantic_filter(self.term_ids, use_cached_decompress=self.use_cached_decompress)
+        selected = self.term_ids[:]
+        selected.extend(self.data_mart_term_ids)
+        return queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
