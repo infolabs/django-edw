@@ -14,4 +14,4 @@ from edw.models.defaults.data_mart import DataMart
 from book import Book, ChildBook, AdultBook
 
 
-
+from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark

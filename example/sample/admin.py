@@ -23,7 +23,7 @@ from .models import Book, ChildBook, AdultBook
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from adminsortable2.admin import SortableAdminMixin
 
-from edw.admin.entity import TermsTreeFilter
+from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline
 from django.conf import settings
 
 
@@ -136,6 +136,8 @@ class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdm
     list_filter = (PolymorphicChildModelFilter, 'active', TermsTreeFilter)
     list_per_page = 250
     list_max_show_all = 1000
+
+    #inlines = [EntityCharacteristicOrMarkInline]
 
 
 admin.site.register(CustomerProxy, CustomerAdmin)
