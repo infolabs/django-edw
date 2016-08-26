@@ -7,11 +7,20 @@ from rest_framework import serializers
 from edw.models.entity import EntityModel
 
 
+class AttributeSerializer(serializers.Serializer):
+    """
+    A serializer to convert the characteristics and marks for rendering.
+    """
+    path = serializers.CharField(max_length=255)
+    view_class = serializers.CharField(max_length=255)
+
+
 class EntitySerializer(serializers.HyperlinkedModelSerializer):
     """
     A simple serializer to convert the entity items for rendering.
     """
     #active = serializers.BooleanField()
+    characteristics = AttributeSerializer(read_only=True, many=True)
 
     class Meta:
         model = EntityModel
@@ -31,5 +40,5 @@ class EntityListSerializer(EntitySerializer):
     EntityListSerializer
     """
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'url', 'active')
+        fields = ('id', 'url', 'active', 'characteristics')
 

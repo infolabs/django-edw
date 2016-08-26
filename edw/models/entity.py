@@ -6,9 +6,11 @@ from datetime import datetime
 from functools import reduce
 import operator
 '''
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils import six
+from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -242,6 +244,26 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
+        return result
+
+    @cached_property
+    def characteristics(self):
+
+        result = [
+            {
+                "path": "kategoriya/kondicionirovanie/moshnost",
+                "name": "Мощность",
+                "value": "до 2,3 кВт",
+                "view_class": ""
+            },
+            {
+                "path": "base/proizvoditelnost\u002Dv\u002Drezhime\u002Dohlazhdeniya\u002Dkvt",
+                "name": "Производительность в режиме охлаждения, кВт",
+                "value": "2,2",
+                "view_class": "red only-group"
+            }
+        ]
+
         return result
 
 
