@@ -1,18 +1,20 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.admin import ListFilter
+from django.contrib import admin
 
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from edw.rest.filters.entity import EntityFilter
+from edw.models.related import AdditionalEntityCharacteristicOrMarkModel
+from edw.admin.entity.forms import EntityCharacteristicOrMarkInlineForm
 
 
 #===========================================================================================
-#
+# TermsTreeFilter
 #===========================================================================================
-class TermsTreeFilter(ListFilter):
+class TermsTreeFilter(admin.ListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
     title = _('Terms')
@@ -65,3 +67,12 @@ class TermsTreeFilter(ListFilter):
         """
         f = EntityFilter(request.GET, queryset=queryset)
         return f.qs
+
+
+#===========================================================================================
+# EntityCharacteristicOrMarkInline
+#===========================================================================================
+class EntityCharacteristicOrMarkInline(admin.TabularInline):
+    model = AdditionalEntityCharacteristicOrMarkModel
+    extra = 1
+    form = EntityCharacteristicOrMarkInlineForm

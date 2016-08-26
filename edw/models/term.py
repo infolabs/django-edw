@@ -54,6 +54,10 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         """
         return self.filter(parent__isnull=True)
 
+    def attribute_is_characteristic_or_mark(self):
+        return self.filter(Q(attributes=self.model.attributes.is_characteristic) |
+                           Q(attributes=self.model.attributes.is_mark))
+
 
 #==============================================================================
 # BaseTermManager

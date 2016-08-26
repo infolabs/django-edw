@@ -246,8 +246,32 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
         return result
 
+    '''
+        def get_characteristics(self):
+        """
+        Return all characteristics objects of current product
+        """
+        if not hasattr(self, '_BaseProduct__characteristics_cache'):
+            tree_opts = Rubric._mptt_meta
+            self.__characteristics_cache = ProductCharacteristicOrMarkSet(
+                self.get_active_rubrics_for_characteristics(),
+                self.get_additional_characteristics(),
+                #Rubric.ATTRIBUTE_IS_CHARACTERISTIC,
+                Rubric.attributes.is_characteristic,
+                tree_opts)
+        return self.__characteristics_cache
+
+    '''
+
     @cached_property
     def characteristics(self):
+        """
+        Return all characteristics objects of current entity
+        """
+        #print ">>>>>", TermModel._mptt_meta
+
+
+
 
         result = [
             {

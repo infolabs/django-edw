@@ -11,8 +11,10 @@ class AttributeSerializer(serializers.Serializer):
     """
     A serializer to convert the characteristics and marks for rendering.
     """
-    path = serializers.CharField(max_length=255)
-    view_class = serializers.CharField(max_length=255)
+    name = serializers.CharField()
+    value = serializers.CharField()
+    path = serializers.CharField()
+    view_class = serializers.CharField()
 
 
 class EntitySerializer(serializers.HyperlinkedModelSerializer):
