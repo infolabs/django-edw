@@ -7,8 +7,6 @@ from six import with_metaclass
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-#from .entity import BaseEntity
-#from .term import BaseTerm
 from ..models import deferred
 
 

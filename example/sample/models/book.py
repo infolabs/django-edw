@@ -4,26 +4,23 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from parler.models import TranslatableModel, TranslatedFieldsModel
-from parler.fields import TranslatedField
-from parler.managers import TranslatableManager, TranslatableQuerySet
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
 
 
-class BookQuerySet(TranslatableQuerySet, BaseEntityQuerySet):
+class BookQuerySet(BaseEntityQuerySet):
     pass
 
 
-class BookManager(BaseEntityManager, TranslatableManager):
+class BookManager(BaseEntityManager):
     queryset_class = BookQuerySet
 
 
 @python_2_unicode_compatible
-class Book(BaseEntity, TranslatableModel):
+class Book(BaseEntity):
 
     name = models.CharField(max_length=255, verbose_name=_("Book Name"))
     slug = models.SlugField(verbose_name=_("Slug"), unique=True)
-    description = TranslatedField()
+    description = models.TextField(verbose_name=_('Description'), blank=True, null=True)
 
     # controlling the catalog
     order = models.PositiveIntegerField(verbose_name=_("Sort by"), db_index=True, default=1)
@@ -44,16 +41,6 @@ class Book(BaseEntity, TranslatableModel):
 
     def __str__(self):
         return self.name
-
-
-class BookTranslation(TranslatedFieldsModel):
-    master = models.ForeignKey(Book, related_name='translations', null=True)
-    description = models.TextField(verbose_name=_("Description"), null=True, blank=True,
-                            help_text=_("Description for the list view of books."))
-
-
-    class Meta:
-        unique_together = [('language_code', 'master')]
 
 
 class ChildBook(Book):

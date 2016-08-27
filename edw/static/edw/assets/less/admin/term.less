@@ -103,7 +103,11 @@
     }
   }
 }
-
+#changelist-filter li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+}
 .filter_tree {
   .tree-widget {
     margin-bottom: 50px;
@@ -111,7 +115,7 @@
     ul.jqtree-tree {
       .jqtree-element {
         border-top: 1px dotted #eeeeee;
-        padding-left: 0;
+        padding-left: 20px;
         .jqtree-title {
           margin-left: 17px;
           &.jqtree-title-folder {
@@ -123,9 +127,13 @@
           margin-right: 0.3em;
         }
       }
+      li {
+        margin-left: 0;
+        padding-left: 0;
+      }
     }
     ul.jqtree_common.jqtree-tree[role="tree"] {
-      padding: 0 0 0 18px!important;
+      padding: 0!important;
       margin: 0!important;
     }
     ul:last-child {
