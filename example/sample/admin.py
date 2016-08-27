@@ -33,7 +33,6 @@ class BookAdminForm(EntityAdminForm, TranslatableModelForm):
     """
 
 
-#from edw.admin.term import *
 class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildModelAdmin):
 
     base_model = Book
@@ -50,6 +49,8 @@ class ChildBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
     )
 
     prepopulated_fields = {'slug': ('name',)}
+
+    inlines = [EntityCharacteristicOrMarkInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -81,6 +82,8 @@ class AdultBookAdmin(SortableAdminMixin, TranslatableAdmin, PolymorphicChildMode
     )
 
     prepopulated_fields = {'slug': ('name',)}
+
+    inlines = [EntityCharacteristicOrMarkInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -137,7 +140,7 @@ class BookAdmin(TranslatableAdmin, SortableAdminMixin, PolymorphicParentModelAdm
     list_per_page = 250
     list_max_show_all = 1000
 
-    #inlines = [EntityCharacteristicOrMarkInline]
+    inlines = [EntityCharacteristicOrMarkInline]
 
 
 admin.site.register(CustomerProxy, CustomerAdmin)

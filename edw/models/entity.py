@@ -21,6 +21,7 @@ from polymorphic.base import PolymorphicModelBase
 
 from . import deferred
 from .term import TermModel
+from .related import AdditionalEntityCharacteristicOrMarkModel
 from .. import settings as edw_settings
 
 
@@ -170,6 +171,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
     active = models.BooleanField(default=True, verbose_name=_("Active"),
         help_text=_("Is this object publicly visible."))
+
+    additional_characteristics_or_marks = deferred.ManyToManyField(
+        'BaseTerm',
+        related_name='entity_additional_characteristics_or_marks',
+        through=AdditionalEntityCharacteristicOrMarkModel)
 
     class Meta:
         abstract = True

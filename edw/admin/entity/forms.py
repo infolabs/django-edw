@@ -2,12 +2,9 @@
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
-
-from edw.models.term import TermModel, BaseTerm
-#from edw.models.entity import EntityModel
-
 from django import forms
 
+from edw.models.term import TermModel, BaseTerm
 from edw.admin.term.widgets import TermTreeWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
@@ -21,11 +18,6 @@ class EntityAdminForm(forms.ModelForm):
         system_flags=BaseTerm.system_flags.external_tagging_restriction),
         required=False, widget=TermTreeWidget(), label=_("Terms"))
 
-    """
-    class Meta:
-        model = EntityModel
-        exclude = ()
-    """
 
 #==============================================================================
 # EntityCharacteristicOrMarkInlineForm
