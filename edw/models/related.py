@@ -34,4 +34,10 @@ class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKe
     def __str__(self):
         return "{}: {}".format(self.term.name, self.value)
 
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if not force_update:
+            self.view_class = ' '.join([x.lower() for x in self.view_class.split()]) if self.view_class else None
+        return super(BaseAdditionalEntityCharacteristicOrMark, self).save(force_insert, force_update, *args, **kwargs)
+
+
 AdditionalEntityCharacteristicOrMarkModel = deferred.MaterializedModel(BaseAdditionalEntityCharacteristicOrMark)

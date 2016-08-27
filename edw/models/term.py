@@ -471,6 +471,41 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         buf.clear()
         cache.delete_many(keys)
 
+    @staticmethod
+    def get_all_active_characteristics_descendants_ids():
+        #key = BaseTerm.TERM_CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY
+        key = 'TERM_CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY'
+        descendants_ids = cache.get(key, None)
+        if descendants_ids is None:
+            #Model = self.get_base_instance_class()
+            characteristics_queryset = TermModel.objects.active().filter(
+                attributes=TermModel.attributes.is_characteristic)
+            if characteristics_queryset:
+                descendants_ids = list(get_queryset_descendants(
+                    characteristics_queryset).active().order_by().values_list('id', flat=True).distinct())
+            else:
+                descendants_ids = []
+            # cache.set(key, descendants_ids, BaseTerm.CACHE_TIMEOUT)
+            cache.set(key, descendants_ids, 3600)
+        return descendants_ids
+
+    @staticmethod
+    def get_all_active_marks_descendants_ids(self):
+        # key = BaseRubric.RUBRIC_MARK_DESCENDANTS_IDS_CACHE_KEY
+        key = 'RUBRIC_MARK_DESCENDANTS_IDS_CACHE_KEY'
+        descendants_ids = cache.get(key, None)
+        if descendants_ids is None:
+            # Model = self.get_base_instance_class()
+            marks_queryset = TermModel.objects.active().filter(attributes=TermModel.attributes.is_mark)
+            if marks_queryset:
+                descendants_ids = list(get_queryset_descendants(
+                    marks_queryset).active().order_by().values_list('id', flat=True).distinct())
+            else:
+                descendants_ids = []
+            cache.set(key, descendants_ids, 3600)
+            # cache.set(key, descendants_ids, BaseTerm.CACHE_TIMEOUT)
+        return descendants_ids
+
 
 #==============================================================================
 # TermModel

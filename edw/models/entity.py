@@ -22,6 +22,7 @@ from polymorphic.base import PolymorphicModelBase
 from . import deferred
 from .term import TermModel
 from .related import AdditionalEntityCharacteristicOrMarkModel
+from ..utils.set_helpers import uniq
 from .. import settings as edw_settings
 
 
@@ -150,6 +151,197 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         #    raise NotImplementedError(msg.format(cls.__name__))
 
 
+#==============================================================================
+# EntityCharacteristicOrMarkInfo & EntityCharacteristicOrMarkSet cache system
+#==============================================================================
+class EntityCharacteristicOrMarkInfo(object):
+
+    def __init__(self, name, path, values, view_class, tree_id, tree_left):
+        self.id = id
+        self.name = name
+        self.path = path
+        self.values = values
+        self.view_class = view_class
+        self.tree_id = tree_id
+        self.tree_left = tree_left
+
+    def __cmp__(self, other):
+        if self.tree_id == other.tree_id:
+            if self.tree_left == other.tree_left:
+                return 0
+            elif self.tree_left < other.tree_left:
+                return -1
+            else:
+                return 1
+        elif self.tree_id < other.tree_id:
+            return -1
+        else:
+            return 1
+
+    def __repr__(self):
+        return repr((self.name, self.values))
+
+
+class ProductCharacteristicOrMarkSet(object):
+    """
+    Represents a lazy database lookup for a set of attributes.
+    """
+
+    def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts):
+        self.terms = terms
+        self.additional_characteristics_or_marks = additional_characteristics_or_marks
+        self.attribute_mode = attribute_mode
+        self.tree_opts = tree_opts
+        self._result_cache = {}
+
+    def all(self, limit=None):
+        if not limit in self._result_cache:
+            result = self._get_attributes(limit)
+            self._result_cache[limit] = result
+        else:
+            result = self._result_cache[limit]
+        return result
+
+    def __getitem__(self, k):
+        """
+        Retrieves an item or slice from the set of results.
+        """
+        if not isinstance(k, (slice,) + six.integer_types):
+            raise TypeError
+        assert ((not isinstance(k, slice) and (k >= 0)) or
+                (isinstance(k, slice) and (k.start is None or k.start >= 0) and
+                 (k.stop is None or k.stop >= 0))), \
+            "Negative indexing is not supported."
+        limit = None
+        if isinstance(k, slice):
+            if k.stop is not None:
+                limit = int(k.stop)
+        return self.all(limit)[k]
+
+    @staticmethod
+    def _get_attr_ancs_by_rbrc(term, attribute_mode):
+        # key = Rubric.RUBRIC_ATTRIBUTES_ANCESTORS_CACHE_KEY_PATTERN % {'id': term.id, 'attribute_mode': attribute_mode}
+        # ancestors = cache.get(key, None)
+        # if ancestors is None:
+        ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(attributes=attribute_mode).select_related('parent'))
+        #     ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(attributes=attribute_mode).select_related('parent'))
+        #     cache.set(key, ancestors, Rubric.CACHE_TIMEOUT)
+        return ancestors
+
+    def _get_attributes(self, limit=None):
+        """
+        Return attributes objects of product
+        """
+        attrs0 = []
+        cnt = 0
+        seen_attrs = {}
+        for term in self.terms:
+            if limit and cnt > limit:
+                break
+            ancestors = ProductCharacteristicOrMarkSet._get_attr_ancs_by_rbrc(term, self.attribute_mode)
+            if ancestors:
+                attr0 = ancestors.pop(0)
+                prev_attr = attr0
+                buffer = []
+                for ancestor in ancestors:
+                    index = seen_attrs.get(ancestor.id)
+                    if index is None:
+                        if prev_attr.parent_id != ancestor.id:
+                            buffer.insert(0, {
+                                'attr': ancestor,
+                                'term': prev_attr.parent
+                            })
+                        prev_attr = ancestor
+                    else:
+                        if prev_attr.parent_id != ancestor.id:
+                            attr_info = attrs0[index]
+                            attr_info.values.append(prev_attr.parent.name)
+                            if prev_attr.parent.view_class:
+                                attr_info.view_class.extend(prev_attr.parent.view_class.split())
+                        break
+                for obj in buffer:
+                    attr = obj['attr']
+                    seen_attrs[attr.id] = len(attrs0)
+                    view_class = attr.view_class.split() if attr.view_class else []
+                    if obj['term'].view_class:
+                        view_class.extend(obj['term'].view_class.split())
+                    attrs0.append(EntityCharacteristicOrMarkInfo(attr.name, attr.path, [obj['term'].name],
+                                                                  view_class,
+                                                                  getattr(attr, self.tree_opts.tree_id_attr),
+                                                                  getattr(attr, self.tree_opts.left_attr)))
+                    cnt += 1
+                if not (term.attributes & self.attribute_mode):
+                    index = seen_attrs.get(attr0.id)
+                    if index is None:
+                        seen_attrs[attr0.id] = len(attrs0)
+                        view_class = attr0.view_class.split() if attr0.view_class else []
+                        if term.view_class:
+                            view_class.extend(term.view_class.split())
+                        attrs0.append(EntityCharacteristicOrMarkInfo(attr0.name, attr0.path, [term.name],
+                                                                      view_class,
+                                                                      getattr(attr0, self.tree_opts.tree_id_attr),
+                                                                      getattr(attr0, self.tree_opts.left_attr)))
+                        cnt += 1
+                    else:
+                        attr_info = attrs0[index]
+                        attr_info.values.append(term.name)
+                        if term.view_class:
+                            attr_info.view_class.extend(term.view_class.split())
+        attrs1 = []
+        prev_id = None
+        cnt = 0
+        for additional_attribute in self.additional_characteristics_or_marks.select_related('term'):
+            if limit and cnt > limit:
+                break
+            attribute = additional_attribute.term
+            if attribute.id != prev_id:
+                view_class = attribute.view_class.split() if attribute.view_class else []
+                if additional_attribute.view_class:
+                    view_class.extend(additional_attribute.view_class.split())
+                attrs1.append(EntityCharacteristicOrMarkInfo(attribute.name, attribute.path, [additional_attribute.value],
+                                                              view_class,
+                                                              getattr(attribute, self.tree_opts.tree_id_attr),
+                                                              getattr(attribute, self.tree_opts.left_attr)))
+                cnt += 1
+                prev_id = attribute.id
+            else:
+                attr_info = attrs1[-1]
+                attr_info.values.append(additional_attribute.value)
+                if additional_attribute.view_class:
+                    attr_info.view_class.extend(additional_attribute.view_class.split())
+        # merge attributes
+        attrs = []
+        while attrs0 and attrs1:
+            if attrs0[0] == attrs1[0]:
+                attrs.append(attrs1.pop(0))
+                attrs0.pop(0)
+            elif attrs0[0] < attrs1[0]:
+                attrs.append(attrs0.pop(0))
+            else:
+                attrs.append(attrs1.pop(0))
+        if attrs0:
+            attrs.extend(attrs0)
+        elif attrs1:
+            attrs.extend(attrs1)
+
+        # clean not uniq values and view_class
+        for attr in attrs:
+            if len(attr.values) > 1:
+                attr.values = uniq(attr.values)
+            if len(attr.view_class) > 1:
+                attr.view_class = uniq(attr.view_class)
+
+        # sort values
+        for attr in attrs:
+            for v in attr.values:
+                if not v.isdigit():
+                    attr.values.sort()
+                    break
+            else:
+                attr.values.sort(key=int)
+        return attrs if limit is None else attrs[:limit]
+
+
 @python_2_unicode_compatible
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
@@ -252,29 +444,56 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
         return result
 
-    '''
-        def get_characteristics(self):
+    @cached_property
+    def additional_characteristics(self):
         """
-        Return all characteristics objects of current product
+        Return additional characteristics of current entity
         """
-        if not hasattr(self, '_BaseProduct__characteristics_cache'):
-            tree_opts = Rubric._mptt_meta
-            self.__characteristics_cache = ProductCharacteristicOrMarkSet(
-                self.get_active_rubrics_for_characteristics(),
-                self.get_additional_characteristics(),
-                #Rubric.ATTRIBUTE_IS_CHARACTERISTIC,
-                Rubric.attributes.is_characteristic,
-                tree_opts)
-        return self.__characteristics_cache
+        tree_opts = TermModel._mptt_meta
+        return self.additional_characteristics_or_marks.filter(
+            attributes=TermModel.attributes.is_characteristic).order_by(tree_opts.tree_id_attr, tree_opts.left_attr)
 
-    '''
+    @cached_property
+    def additional_marks(self):
+        """
+        Return additional marks of current entity
+        """
+        tree_opts = TermModel._mptt_meta
+        return self.additional_characteristics_or_marks.filter(
+            attributes=TermModel.attributes.is_mark).order_by(tree_opts.tree_id_attr, tree_opts.left_attr)
+
+    @cached_property
+    def active_terms_for_characteristics(self):
+        """
+        Return terms for characteristics of current entity
+        """
+        tree_opts = TermModel._mptt_meta
+        descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
+        return list(self.terms.filter(id__in=descendants_ids).order_by(tree_opts.tree_id_attr, tree_opts.left_attr))
+
+    @cached_property
+    def active_terms_for_marks(self):
+        """
+        Return terms for marks of current entity
+        """
+        tree_opts = TermModel._mptt_meta
+        descendants_ids = TermModel.get_all_active_marks_descendants_ids()
+        return list(self.terms.filter(id__in=descendants_ids).order_by(tree_opts.tree_id_attr, tree_opts.left_attr))
+
 
     @cached_property
     def characteristics(self):
         """
         Return all characteristics objects of current entity
         """
-        #print ">>>>>", TermModel._mptt_meta
+        tree_opts = TermModel._mptt_meta
+        tmp = ProductCharacteristicOrMarkSet(
+            self.active_terms_for_characteristics,
+            self.additional_characteristics,
+            TermModel.attributes.is_characteristic,
+            tree_opts)
+
+        print "c>>>>>", tmp # tmp.all()
 
 
 
@@ -295,6 +514,22 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         ]
 
         return result
+
+    @cached_property
+    def marks(self):
+        """
+        Return all marks objects of current entity
+        """
+        tree_opts = TermModel._mptt_meta
+        tmp = ProductCharacteristicOrMarkSet(
+                self.active_terms_for_marks,
+                self.additional_marks,
+                TermModel.attributes.is_mark,
+                tree_opts)
+
+
+        print "m>>>>>", tmp
+        return []
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
