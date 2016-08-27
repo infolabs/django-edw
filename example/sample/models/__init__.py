@@ -10,8 +10,8 @@ from edw.models.defaults.customer import Customer
 from edw.models.defaults.term import Term
 from edw.models.defaults.data_mart import DataMart
 
+from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark
 
 from book import Book, ChildBook, AdultBook
 
 
-from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark

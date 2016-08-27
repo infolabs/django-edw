@@ -76,4 +76,3 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
     model = AdditionalEntityCharacteristicOrMarkModel
     extra = 1
     form = EntityCharacteristicOrMarkInlineForm
-    fk_name = "entity"

@@ -39,6 +39,8 @@ class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     prepopulated_fields = {'slug': ('name',)}
 
+    inlines = [EntityCharacteristicOrMarkInline]
+
     def save_model(self, request, obj, form, change):
         if not change:
             # since SortableAdminMixin is missing on this class, ordering has to be computed by hand
@@ -69,6 +71,8 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
     )
 
     prepopulated_fields = {'slug': ('name',)}
+
+    inlines = [EntityCharacteristicOrMarkInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
