@@ -66,3 +66,4 @@ django-pipeline==1.6.8
 django_compressor==2.1
 django-compress==1.0.1
 django-salmonella==1.0
+django-ckeditor==5.1.0

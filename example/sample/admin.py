@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
+from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max
 from django.template.context import Context
@@ -24,16 +25,25 @@ from adminsortable2.admin import SortableAdminMixin
 from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline
 from django.conf import settings
 
+from ckeditor.widgets import CKEditorWidget
+
+
+class BookAdminForm(EntityAdminForm):
+    """
+    BookAdminForm Mixin
+    """
+    description = forms.CharField(widget=CKEditorWidget(), label=_('Description'), required=False)
+
 
 class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     base_model = Book
 
-    form = EntityAdminForm
+    form = BookAdminForm
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'age', 'terms', 'description' ),
+            'fields': ('name', 'slug', 'active', 'age', 'terms', 'description'),
         }),
     )
 
@@ -59,14 +69,11 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     base_model = Book
 
-    form = EntityAdminForm
+    form = BookAdminForm
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'genre', 'terms', ),
-        }),
-        (_("Translatable Fields"), {
-            'fields': ('description',)
+            'fields': ('name', 'slug', 'active', 'genre', 'terms', 'description'),
         }),
     )
 
@@ -93,7 +100,7 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
 
     base_model = Book
 
-    form = EntityAdminForm
+    form = BookAdminForm
 
     child_models = ((ChildBook, ChildBookAdmin), (AdultBook, AdultBookAdmin),)
 
@@ -101,10 +108,7 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', ),
-        }),
-        (_("Translatable Fields"), {
-            'fields': ('description',)
+            'fields': ('name', 'slug', 'active', 'description'),
         }),
     )
 

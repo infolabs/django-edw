@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'compressor',
 
     'salmonella',
+    'ckeditor',
 
     'django_mptt_admin',
     'edw.apps.EdwConfig',
@@ -366,3 +367,36 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_ROUTERS = ('edw.search.routers.LanguageRouter',)
 
 SILENCED_SYSTEM_CHECKS = ('auth.W004')
+
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
+
+TEXT_ADDITIONAL_TAGS = ('iframe',)
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'edw',
+        'toolbar_edw': [
+            ['NewPage', 'Preview', 'Print'],
+            ['Cut', 'Copy', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'],
+            ['Find', 'Replace'],
+            ['Source', 'Maximize'],
+            '/',
+            ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft',
+             'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            '/',
+            ['Format', 'Styles'],
+            ['TextColor', 'BGColor'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['Table', 'HorizontalRule', 'SpecialChar', 'Iframe'],
+        ],
+        'skin': 'moono',
+        'height': 450,
+        'width': 800,
+    }
+}
