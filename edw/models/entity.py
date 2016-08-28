@@ -157,7 +157,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
 class EntityCharacteristicOrMarkInfo(object):
 
     def __init__(self, name, path, values, view_class, tree_id, tree_left):
-        self.id = id
         self.name = name
         self.path = path
         self.values = values
@@ -188,6 +187,9 @@ class ProductCharacteristicOrMarkSet(object):
     """
 
     def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts):
+
+        print "~~~~~ INIT", terms, additional_characteristics_or_marks, attribute_mode
+
         self.terms = terms
         self.additional_characteristics_or_marks = additional_characteristics_or_marks
         self.attribute_mode = attribute_mode
@@ -195,9 +197,8 @@ class ProductCharacteristicOrMarkSet(object):
         self._result_cache = {}
 
     def all(self, limit=None):
-        if not limit in self._result_cache:
-            result = self._get_attributes(limit)
-            self._result_cache[limit] = result
+        if limit not in self._result_cache:
+            self._result_cache[limit] = result = self._get_attributes(limit)
         else:
             result = self._result_cache[limit]
         return result
@@ -323,14 +324,12 @@ class ProductCharacteristicOrMarkSet(object):
             attrs.extend(attrs0)
         elif attrs1:
             attrs.extend(attrs1)
-
         # clean not uniq values and view_class
         for attr in attrs:
             if len(attr.values) > 1:
                 attr.values = uniq(attr.values)
             if len(attr.view_class) > 1:
                 attr.view_class = uniq(attr.view_class)
-
         # sort values
         for attr in attrs:
             for v in attr.values:
@@ -366,7 +365,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     additional_characteristics_or_marks = deferred.ManyToManyField(
         'BaseTerm',
-        related_name='entity_additional_characteristics_or_marks',
+        # related_name='entity_additional_characteristics_or_marks',
         through=AdditionalEntityCharacteristicOrMarkModel)
 
     class Meta:
@@ -450,8 +449,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return additional characteristics of current entity
         """
         tree_opts = TermModel._mptt_meta
-        return self.additional_characteristics_or_marks.filter(
-            attributes=TermModel.attributes.is_characteristic).order_by(tree_opts.tree_id_attr, tree_opts.left_attr)
+        return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+            entity=self, term__attributes=TermModel.attributes.is_characteristic).order_by(
+            'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
 
     @cached_property
     def additional_marks(self):
@@ -459,8 +459,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return additional marks of current entity
         """
         tree_opts = TermModel._mptt_meta
-        return self.additional_characteristics_or_marks.filter(
-            attributes=TermModel.attributes.is_mark).order_by(tree_opts.tree_id_attr, tree_opts.left_attr)
+        return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+            entity=self, term__attributes=TermModel.attributes.is_mark).order_by(
+            'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
 
     @cached_property
     def active_terms_for_characteristics(self):
@@ -480,24 +481,23 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         descendants_ids = TermModel.get_all_active_marks_descendants_ids()
         return list(self.terms.filter(id__in=descendants_ids).order_by(tree_opts.tree_id_attr, tree_opts.left_attr))
 
-
     @cached_property
     def characteristics(self):
         """
         Return all characteristics objects of current entity
         """
         tree_opts = TermModel._mptt_meta
-        tmp = ProductCharacteristicOrMarkSet(
+        result = ProductCharacteristicOrMarkSet(
             self.active_terms_for_characteristics,
             self.additional_characteristics,
             TermModel.attributes.is_characteristic,
-            tree_opts)
+            tree_opts).all()
 
-        print "c>>>>>", tmp # tmp.all()
+        print "c>>>>>", result
 
+        return result
 
-
-
+        '''
         result = [
             {
                 "path": "kategoriya/kondicionirovanie/moshnost",
@@ -514,6 +514,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         ]
 
         return result
+        '''
 
     @cached_property
     def marks(self):
@@ -521,15 +522,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return all marks objects of current entity
         """
         tree_opts = TermModel._mptt_meta
-        tmp = ProductCharacteristicOrMarkSet(
+        result = ProductCharacteristicOrMarkSet(
                 self.active_terms_for_marks,
                 self.additional_marks,
                 TermModel.attributes.is_mark,
-                tree_opts)
+                tree_opts).all()
 
+        print "m>>>>>", result
 
-        print "m>>>>>", tmp
-        return []
+        return result
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
