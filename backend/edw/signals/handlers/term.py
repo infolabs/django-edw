@@ -59,17 +59,17 @@ def invalidate_term_before_save(sender, instance, **kwargs):
 
 
 def invalidate_term_after_save(sender, instance, **kwargs):
-    if instance.id is not None and not getattr(instance, '_parent_id_validate', False) :
-        keys = get_children_keys(sender, instance.parent_id)
+    if instance.id is not None:
+        keys = [sender.CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY, sender.MARK_DESCENDANTS_IDS_CACHE_KEY]
+        if not getattr(instance, '_parent_id_validate', False):
+            keys.extend(get_children_keys(sender, instance.parent_id))
         cache.delete_many(keys)
-
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
 
 
 def invalidate_term_after_move(sender, instance, target, position, prev_parent, **kwargs):
     keys = get_children_keys(sender, prev_parent.id if prev_parent is not None else None)
     cache.delete_many(keys)
-
     invalidate_term_after_save(sender, instance, **kwargs)
 
 

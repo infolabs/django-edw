@@ -233,6 +233,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = 3600
 
+    CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY = 't_chr_ds_ids'
+    MARK_DESCENDANTS_IDS_CACHE_KEY = 't_mrk_ds_ids'
+    ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT = 3600
+
     OR_RULE = 10
     XOR_RULE = 20
     AND_RULE = 30
@@ -423,6 +427,20 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     @add_cache_key(get_children_cache_key)
     def get_children(self):
         return super(BaseTerm, self).get_children()
+
+    '''
+
+    def get_ancestors_cache_key(self):
+        ##
+        return self.CHILDREN_CACHE_KEY_PATTERN.format(
+            parent_id=self.id
+        )
+
+    @add_cache_key(get_ancestors_cache_key)
+    def get_ancestors(self):
+        return super(BaseTerm, self).get_children()
+
+    '''
     
     @staticmethod
     def decompress(value=None, fix_it=False):
@@ -473,12 +491,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_all_active_characteristics_descendants_ids():
-        '''
-        #key = BaseTerm.TERM_CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY
-        key = 'TERM_CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY'
+        key = BaseTerm.CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
-            #Model = self.get_base_instance_class()
             characteristics_queryset = TermModel.objects.active().filter(
                 attributes=TermModel.attributes.is_characteristic)
             if characteristics_queryset:
@@ -486,47 +501,21 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                     characteristics_queryset).active().order_by().values_list('id', flat=True).distinct())
             else:
                 descendants_ids = []
-            # cache.set(key, descendants_ids, BaseTerm.CACHE_TIMEOUT)
-            cache.set(key, descendants_ids, 3600)
-        return descendants_ids
-        '''
-        characteristics_queryset = TermModel.objects.active().filter(
-            attributes=TermModel.attributes.is_characteristic)
-        if characteristics_queryset:
-            descendants_ids = list(get_queryset_descendants(
-                characteristics_queryset).active().order_by().values_list('id', flat=True).distinct())
-        else:
-            descendants_ids = []
-
+            cache.set(key, descendants_ids, BaseTerm.ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT)
         return descendants_ids
 
     @staticmethod
     def get_all_active_marks_descendants_ids():
-        '''
-        # key = BaseRubric.RUBRIC_MARK_DESCENDANTS_IDS_CACHE_KEY
-        key = 'RUBRIC_MARK_DESCENDANTS_IDS_CACHE_KEY'
+        key = BaseTerm.MARK_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
-            # Model = self.get_base_instance_class()
             marks_queryset = TermModel.objects.active().filter(attributes=TermModel.attributes.is_mark)
             if marks_queryset:
                 descendants_ids = list(get_queryset_descendants(
                     marks_queryset).active().order_by().values_list('id', flat=True).distinct())
             else:
                 descendants_ids = []
-            cache.set(key, descendants_ids, 3600)
-            # cache.set(key, descendants_ids, BaseTerm.CACHE_TIMEOUT)
-        return descendants_ids
-        '''
-        # key = BaseRubric.RUBRIC_MARK_DESCENDANTS_IDS_CACHE_KEY
-
-        marks_queryset = TermModel.objects.active().filter(attributes=TermModel.attributes.is_mark)
-        if marks_queryset:
-            descendants_ids = list(get_queryset_descendants(
-                marks_queryset).active().order_by().values_list('id', flat=True).distinct())
-        else:
-            descendants_ids = []
-
+            cache.set(key, descendants_ids, BaseTerm.ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT)
         return descendants_ids
 
 

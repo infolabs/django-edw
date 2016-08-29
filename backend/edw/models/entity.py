@@ -185,11 +185,7 @@ class ProductCharacteristicOrMarkSet(object):
     """
     Represents a lazy database lookup for a set of attributes.
     """
-
     def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts):
-
-        print "~~~~~ INIT", terms, additional_characteristics_or_marks, attribute_mode
-
         self.terms = terms
         self.additional_characteristics_or_marks = additional_characteristics_or_marks
         self.attribute_mode = attribute_mode
@@ -220,7 +216,7 @@ class ProductCharacteristicOrMarkSet(object):
         return self.all(limit)[k]
 
     @staticmethod
-    def _get_attr_ancs_by_rbrc(term, attribute_mode):
+    def _get_attridute_ancestors(term, attribute_mode):
         # key = Rubric.RUBRIC_ATTRIBUTES_ANCESTORS_CACHE_KEY_PATTERN % {'id': term.id, 'attribute_mode': attribute_mode}
         # ancestors = cache.get(key, None)
         # if ancestors is None:
@@ -239,7 +235,7 @@ class ProductCharacteristicOrMarkSet(object):
         for term in self.terms:
             if limit and cnt > limit:
                 break
-            ancestors = ProductCharacteristicOrMarkSet._get_attr_ancs_by_rbrc(term, self.attribute_mode)
+            ancestors = ProductCharacteristicOrMarkSet._get_attridute_ancestors(term, self.attribute_mode)
             if ancestors:
                 attr0 = ancestors.pop(0)
                 prev_attr = attr0
