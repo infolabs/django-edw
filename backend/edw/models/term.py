@@ -58,6 +58,24 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         return self.filter(Q(attributes=self.model.attributes.is_characteristic) |
                            Q(attributes=self.model.attributes.is_mark))
 
+    def get_attribute_filter_cache_key(self, attribute_mode):
+        return self.model.ATTRIBUTE_FILTER_CACHE_KEY_PATTERN.format(
+            mode=int(attribute_mode)
+        )
+
+    @add_cache_key(get_attribute_filter_cache_key)
+    def attribute_filter(self, attribute_mode):
+        return self.filter(attributes=attribute_mode)
+
+    def get_select_related_cache_key(self, *fields):
+        return self.model.SELECT_RELATED_CACHE_KEY_PATTERN.format(
+            fields=':'.join(fields)
+        )
+
+    @add_cache_key(get_select_related_cache_key)
+    def select_related(self, *fields):
+        return super(BaseTermQuerySet, self).select_related(*fields)
+
 
 #==============================================================================
 # BaseTermManager
@@ -233,9 +251,17 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = 3600
 
+    ANCESTORS_CACHE_KEY_PATTERN = '{id}:anc:{ascending:d}:{include_self:d}'
+    ANCESTORS_CACHE_TIMEOUT = 3600
+
     CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY = 't_chr_ds_ids'
     MARK_DESCENDANTS_IDS_CACHE_KEY = 't_mrk_ds_ids'
     ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT = 3600
+
+    SELECT_RELATED_CACHE_KEY_PATTERN = '{fields}:sr'
+
+    ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
+    ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = 3600
 
     OR_RULE = 10
     XOR_RULE = 20
@@ -428,19 +454,16 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     def get_children(self):
         return super(BaseTerm, self).get_children()
 
-    '''
-
-    def get_ancestors_cache_key(self):
-        ##
-        return self.CHILDREN_CACHE_KEY_PATTERN.format(
-            parent_id=self.id
+    def get_ancestors_cache_key(self, ascending=False, include_self=False):
+        return self.ANCESTORS_CACHE_KEY_PATTERN.format(
+            id=self.id,
+            ascending=ascending,
+            include_self=include_self
         )
 
     @add_cache_key(get_ancestors_cache_key)
-    def get_ancestors(self):
-        return super(BaseTerm, self).get_children()
-
-    '''
+    def get_ancestors(self, ascending=False, include_self=False):
+        return super(BaseTerm, self).get_ancestors(ascending, include_self)
     
     @staticmethod
     def decompress(value=None, fix_it=False):

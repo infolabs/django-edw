@@ -216,13 +216,37 @@ class ProductCharacteristicOrMarkSet(object):
         return self.all(limit)[k]
 
     @staticmethod
+    def on_attridute_ancestors_cache_set(key):
+
+        print "\n\n\n**** on_attridute_ancestors_cache_set", key
+
+        # buf = TermModel.get_children_buffer()
+        # old_key = buf.record(key)
+        # if old_key != buf.empty:
+        #     cache.delete(old_key)
+
+    @staticmethod
     def _get_attridute_ancestors(term, attribute_mode):
         # key = Rubric.RUBRIC_ATTRIBUTES_ANCESTORS_CACHE_KEY_PATTERN % {'id': term.id, 'attribute_mode': attribute_mode}
         # ancestors = cache.get(key, None)
         # if ancestors is None:
-        ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(attributes=attribute_mode).select_related('parent'))
         #     ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(attributes=attribute_mode).select_related('parent'))
         #     cache.set(key, ancestors, Rubric.CACHE_TIMEOUT)
+
+        ancestors = term.get_ancestors(ascending=True, include_self=False).attribute_filter(
+            attribute_mode=attribute_mode).select_related('parent').cache(
+            on_cache_set=ProductCharacteristicOrMarkSet.on_attridute_ancestors_cache_set,
+            timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT)
+
+        # try:
+        #     print dir(ancestors.attribute_filter(attribute_mode=attribute_mode))
+        # except Exception as e:
+        #     print "________________________________"
+        #     print e
+        #
+        # ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(
+        #     attributes=attribute_mode).select_related('parent'))
+
         return ancestors
 
     def _get_attributes(self, limit=None):
@@ -361,7 +385,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     additional_characteristics_or_marks = deferred.ManyToManyField(
         'BaseTerm',
-        # related_name='entity_additional_characteristics_or_marks',
         through=AdditionalEntityCharacteristicOrMarkModel)
 
     class Meta:

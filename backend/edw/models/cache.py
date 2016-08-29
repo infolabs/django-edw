@@ -20,12 +20,12 @@ class empty:
     pass
 
 
-def _parse_cache_key(self, cache_key):
+def _parse_cache_key(self, cache_key, *args, **kwargs):
     if hasattr(cache_key, '__call__'):
         if hasattr(self, cache_key.__name__):
-            return cache_key(self)
+            return cache_key(self, *args, **kwargs)
         else:
-            return cache_key()
+            return cache_key(*args, **kwargs)
     else:
         return cache_key
 
@@ -36,16 +36,16 @@ def add_cache_key(cache_key,
                   new_key_pattern='{model}:{new}'):
     def add_cache_key_decorator(func):
         @wraps(func)
-        def func_wrapper(self):
-            result = func(self)
+        def func_wrapper(self, *args, **kwargs):
+            result = func(self, *args, **kwargs)
             if hasattr(self, cache_key_attr):
                 setattr(result, cache_key_attr, contact_key_pattern.format(**{
                     'prev': getattr(self, cache_key_attr),
-                    'next': _parse_cache_key(self, cache_key)
+                    'next': _parse_cache_key(self, cache_key, *args, **kwargs)
                 }))
             else:
                 setattr(result, cache_key_attr, new_key_pattern.format(**{
-                    'new':_parse_cache_key(self, cache_key),
+                    'new':_parse_cache_key(self, cache_key, *args, **kwargs),
                     'model': result.model._meta.object_name.lower()
                 }))
             return result
