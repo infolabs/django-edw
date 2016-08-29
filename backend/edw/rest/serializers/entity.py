@@ -12,9 +12,9 @@ class AttributeSerializer(serializers.Serializer):
     A serializer to convert the characteristics and marks for rendering.
     """
     name = serializers.CharField()
-    values = serializers.CharField() #???
+    values = serializers.ListField(child=serializers.CharField())
     path = serializers.CharField()
-    view_class = serializers.CharField() #???
+    view_class = serializers.ListField(child=serializers.CharField())
 
     def to_representation(self, data):
         """
@@ -22,7 +22,7 @@ class AttributeSerializer(serializers.Serializer):
         """
         # print "*** ATTRIBUTE TO PRESENTATION ***", data
         # print data.values
-        # print "\n"
+        # print "\n\n"
         return super(AttributeSerializer, self).to_representation(data)
 
 
