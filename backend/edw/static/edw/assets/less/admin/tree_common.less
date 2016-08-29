@@ -1,0 +1,136 @@
+/*
+Mptt-admin tree widget common LESS
+*/
+
+#tree {
+  padding-top: 0;
+  padding-bottom: 25px;
+  ul.jqtree-tree li {
+    line-height: 18px;
+    padding: 2px 0 0 0;
+    &.jqtree-folder {
+      margin-bottom: 0;
+    }
+  }
+  &.block-style ul.jqtree-tree {
+    .jqtree-element {
+      margin-bottom: 0;
+      cursor: default;
+    }
+    li.jqtree-selected > .jqtree-element {
+      background: #aaaaaa;
+    }
+  }
+  .jqtree-element {
+    .jqtree-toggler.jqtree-toggler-right {
+      position: absolute;
+      cursor: pointer;
+      left: 15px;
+      top: 9px;
+    }
+  }
+  .edit {
+    display: none;
+    visibility: hidden;
+  }
+  .drag {
+    background: url(/static/adminsortable2/icons/drag.png) repeat 0 0;
+    cursor: move;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 100%;
+  }
+  .control {
+    position: relative;
+    top: 1px;
+    width: 50px;
+    margin-right: 23px;
+    float: right;
+    display: inline;
+    a {
+      margin-left: 5px;
+      font-size: 20px;
+    }
+  }
+  .node {
+    .title {
+      padding-left: 35px;
+      .view_class {
+        border-radius: 0.25em;
+        background-color: #777;
+        text-transform: uppercase;
+        color: #fff;
+        font-size: 56%;
+        font-weight: 700;
+        line-height: 1;
+        margin-left: 10px;
+        padding: 0.2em 0.6em 0.3em;
+        text-align: center;
+        vertical-align: baseline;
+      }
+    }
+    .icons {
+      float: right;
+      padding: 4px 8px;
+      opacity: 0.2;
+      font-size: 14px;
+      &.fa-power-off, &.has-system-flags {
+        display: inline-block;
+        float: right;
+      }
+    }
+    &.has-system-flags > .icons.has-system-flags,
+    &.on > .icons.fa-power-off
+    {
+      color: #666;
+      opacity: 1;
+    }
+  }
+}
+
+.help_text {
+  font-size: 13px;
+  color: #666;
+  .footnote {
+    sup {
+      font-size: 13px;
+      color: red;
+    }
+    font-weight: 300;
+  }
+  img {
+    height: 16px;
+    float: left;
+    margin-top: 1px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #tree {
+    .control {
+      margin-right: 13px;
+    }
+    .node {
+      .title {
+        max-width: 79%;
+      }
+    }
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+  #tree {
+    .control {
+      margin-right: 13px;
+    }
+    .node {
+      .title {
+        max-width: 71%;
+      }
+    }
+  }
+}
+
+

@@ -1,0 +1,20 @@
+{% load i18n edw_tags %}{% spaceless %}
+<span class="drag" title="{{ instance.path }}"></span>
+<span class="node {% if instance.active %}on{% else %}off{% endif %}{% comment %}
+                {% endcomment %}{% if instance.system_flags %} has-system-flags{% endif %}" >
+    <i class="icons fa fa-exclamation-triangle has-system-flags" title="{% trans 'System flags' %}"></i>
+    <i class="icons fa fa-power-off" title="{% trans 'Active' %}"></i>
+    <span class="title" title="{{ node_info.label }}">
+        <a href="/admin/edw/datamart/{{ instance.pk }}/change/" title="{% trans 'Data mart' %} id:{{ instance.pk}}">{{ node_info.label }}</a>
+        {% if instance.view_class %}
+            {% for view_class in instance.view_class|split:' ' %}
+                <span class="view_class" title="{% trans 'View Class' %}: {{ view_class }}">{{ view_class }}</span>
+            {% endfor %}
+        {% endif %}
+    </span>
+    <span class="control">
+        <a href="/admin/edw/datamart/{{ instance.pk }}/change/" title="{% trans 'Change' %}"><i class="fa fa-pencil-square" aria-hidden="true"></i></a>
+        <a href="/admin/edw/datamart/add/?insert_at={{ instance.pk }}" title="{% trans 'Add' %}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+    </span>
+</span>
+{% endspaceless %}

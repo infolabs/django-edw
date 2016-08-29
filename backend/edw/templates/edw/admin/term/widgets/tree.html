@@ -1,0 +1,103 @@
+{% load i18n pipeline compress %}{% stylesheet 'term_admin' %}
+{% compress js %}
+<script type="text/javascript">
+(function ($) {
+    "use strict";
+
+    $(function(){
+        var spinners = {};
+        var opts = {
+              lines: 11 // The number of lines to draw
+            , length: 1 // The length of each line
+            , width: 2 // The line thickness
+            , radius: 4 // The radius of the inner circle
+            , scale: 2 // Scales overall size of the spinner
+            , corners: 1 // Corner roundness (0..1)
+            , color: '#777' // #rgb or #rrggbb or array of colors
+            , opacity: 0.2 // Opacity of the lines
+            , rotate: 0 // The rotation offset
+            , direction: 1 // 1: clockwise, -1: counterclockwise
+            , speed: 1.1 // Rounds per second
+            , trail: 50 // Afterglow percentage
+        }
+        var $tree = $('#{{ name }}-select').tree({
+            autoEscape: false,
+            selectable: false,
+            onCreateLi: function(node, $li){
+                var $checkbox = $("input:checkbox", $li);
+                $checkbox.change(node, function(e){
+                    e.data._cheked = $(this).is(':checked');
+                    {% ifequal node_template "simple" %}
+                    /* make entity filtering by selected terms */
+                    var new_param_sting = '?',
+                        current_filter_dict = {},
+                        selected_terms = [];
+                    $("#terms-select :checked").each(function(){
+                        selected_terms.push(parseInt($(this).val()))
+                    });
+                    $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi,
+                        function (str, key, value) {
+                            current_filter_dict[key] = value;
+                        });
+                    current_filter_dict['terms'] = selected_terms;
+                    $.each(current_filter_dict, function(k, v) {
+                        if (v !== undefined && v != '') {
+                            new_param_sting += k + '=' + v + '&'
+                        }
+                    });
+                    window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + new_param_sting.slice(0, -1)
+                    {% endifequal %}
+                });
+                if ( node._cheked ){
+                    $checkbox.prop('checked', true);
+                }
+            },
+            onLoading: function (is_loading, node, $el){
+
+                function getNodeId() {
+                    if (!node) {
+                        return "__root__";
+                    }
+                    else {
+                        return node.id;
+                    }
+                }
+
+                function getContainer() {
+                    if (node) {
+                        return $el.find(".jqtree-element")[0];
+                    }
+                    else {
+                        return $el[0];
+                    }
+                }
+
+                var node_id = getNodeId();
+
+                if (is_loading) {
+                    spinners[node_id] = new Spinner(opts).spin(getContainer());
+                }
+                else {
+                    var spinner = spinners[node_id];
+                    if (spinner) {
+                        spinner.stop();
+                        spinners[node_id] = null;
+                    }
+                }
+            }
+        }).bind(
+            'tree.init',
+            function(){
+                $("input:checkbox[autoopen]", this).each(function(){
+                    var node = $tree.tree('getNodeById', $(this).val());
+                    $tree.tree('openNode', node, false);
+                });
+            }
+        );
+    });
+})(jQuery);
+
+
+</script>
+{% endcompress %}
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&_={% now 'U' %}" class="tree-widget"></div>

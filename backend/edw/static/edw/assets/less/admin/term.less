@@ -1,0 +1,148 @@
+/*
+  Import common LESS
+*/
+@import "static/edw/assets/less/admin/tree_common.less";
+
+/*
+  Term admin LESS
+*/
+
+/* MPTT admin Term list tree view */
+#tree {
+  .node {
+    .icons {
+      &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
+        display: inline-block;
+        float: right;
+      }
+    }
+    &.is-characteristic > .icons.is_characteristic,
+    &.is-mark > .icons.is_mark,
+    &.is-relation > .icons.is_relation {
+      color: #666;
+      opacity: 1;
+    }
+  }
+  .jqtree_common {
+    &.jqtree-title-folder img {
+      display: block;
+      margin-left: 4px;
+      margin-top: 10px;
+      width: 16px;
+      position: absolute;
+    }
+    img {
+      display: none;
+    }
+  }
+}
+
+/* */
+.tree-widget {
+  float: left;
+  width: 100%;
+  min-height: 200px;
+  max-height: 450px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  ul.jqtree_common.jqtree-tree[role="tree"] {
+    padding: 0;
+    margin: 0;
+  }
+  ul.jqtree-tree {
+    .jqtree-element {
+      border-top: 1px dotted #eeeeee;
+      padding-left: 25px;
+      cursor: default;
+      .jqtree-toggler.jqtree-toggler-left {
+        cursor: pointer;
+      }
+    }
+    li.jqtree-folder {
+      margin-bottom: 0;
+    }
+  }
+  .jqtree_common {
+    &.jqtree-title-folder img {
+      display: inline;
+      margin-left: -40px;
+      margin-top: 5px;
+      width: 16px;
+      position: absolute;
+    }
+    img {
+      display: none;
+    }
+  }
+  .term_set_checkbox {
+    margin: 0;
+    padding: 0;
+  }
+  .icons {
+    float: right;
+    padding: 4px 8px;
+    opacity: 0.2;
+    font-size: 14px;
+    &.fa-power-off, &.is_relation, &.is_mark, &.is_characteristic, .specification_mode {
+      display: inline-block;
+      float: right;
+      margin-top: 2px;
+    }
+  }
+  .term {
+    &.on > .icons.fa-power-off,
+    &.is-characteristic > .icons.is_characteristic,
+    &.is-mark > .icons.is_mark,
+    &.is-relation > .icons.is_relation {
+      color: #666;
+      opacity: 1;
+    }
+    label.title {
+      cursor: pointer;
+      padding-left: 4px;
+    }
+  }
+}
+#changelist-filter li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+.filter_tree {
+  .tree-widget {
+    margin-bottom: 50px;
+    min-width: 100%;
+    ul.jqtree-tree {
+      .jqtree-element {
+        border-top: 1px dotted #eeeeee;
+        padding-left: 20px;
+        .jqtree-title {
+          margin-left: 17px;
+          &.jqtree-title-folder {
+            margin-left: 0;
+          }
+        }
+        .jqtree-toggler-left {
+          display: inline!important;
+          margin-right: 0.3em;
+        }
+      }
+      li {
+        margin-left: 0;
+        padding-left: 0;
+      }
+    }
+    ul.jqtree_common.jqtree-tree[role="tree"] {
+      padding: 0!important;
+      margin: 0!important;
+    }
+    ul:last-child {
+      padding: 0 0 0 15px!important;
+    }
+    .jqtree_common img {
+      margin-left: -32px;
+      margin-top: 6px;
+      width: 12px;
+    }
+  }
+}
