@@ -71,7 +71,7 @@ setup(
         #'django-ipware>=1.1.1',
         'django-fsm>=2.2.1',
         'django-rest-auth>=0.5.0',
-        'django-angular>=0.7.15',
+        #'django-angular>=0.7.15',
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',

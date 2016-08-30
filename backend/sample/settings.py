@@ -1,9 +1,7 @@
 # Django settings for sample project.
 from __future__ import unicode_literals
 import os
-from decimal import Decimal
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ImproperlyConfigured
 
 #EDW_APP_LABEL = 'sample'
 EDW_APP_LABEL = 'edw'
@@ -12,7 +10,6 @@ PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_NAME = os.path.split(PROJECT_DIR)[1]
 ENV_DIR = os.path.dirname(os.__file__)
-
 
 DEBUG = True
 
@@ -100,9 +97,7 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-
 ADMIN_MEDIA_PREFIX = '/static/admin/'
-
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'r=wi%2(qg34n&9hp1vub*vgsz0je2+5lu(!1zect6%qti=qegz'
@@ -133,8 +128,6 @@ ROOT_URLCONF = 'sample.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sample.wsgi.application'
-
-
 
 TEMPLATES = [	{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -192,6 +185,9 @@ INSTALLED_APPS = (
     # CSS and JS builder
     'pipeline',
     'compressor',
+
+    'django_js_reverse',
+    'webpack_loader',
 
     'salmonella',
     'ckeditor',
