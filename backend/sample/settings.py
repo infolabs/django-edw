@@ -179,7 +179,6 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     'easy_thumbnails.optimize',
-    'parler',
     'haystack',
 
     # CSS and JS builder
