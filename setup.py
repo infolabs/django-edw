@@ -20,7 +20,7 @@ def _post_install(dir):
 
 class install(st_install):
     def run(self):
-        pass
+        raise Exception
         """
         st_install.run(self)
         self.execute(_post_install, (self.install_lib,),
