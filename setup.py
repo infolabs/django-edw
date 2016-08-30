@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from setuptools.command.install import install as st_install
 from setuptools import setup, find_packages
-import backend.edw
+from setuptools.command.install import install as st_install
+
+import os
+import shutil
 
 try:
     from pypandoc import convert
@@ -14,18 +16,26 @@ except ImportError:
             return fd.read()
 
 
-def _post_install(dir):
-    print('POST INSTALL', dir)
+def _post_install(lib_dir):
+    packages = ('edw', 'email_auth', 'tests_edw')
+    backend_dir = os.path.join(lib_dir, 'backend')
+    if os.path.exists(backend_dir):
+        for package in packages:
+            src_dir = os.path.join(backend_dir, package)
+            dst_dir = os.path.join(lib_dir, package)
+            if os.path.exists(dst_dir):
+                shutil.rmtree(dst_dir)
+            shutil.copytree(src_dir, dst_dir, symlinks=True)
+        if os.path.exists(backend_dir):
+            shutil.rmtree(backend_dir)
 
 
 class install(st_install):
     def run(self):
-        raise Exception
-        """
         st_install.run(self)
         self.execute(_post_install, (self.install_lib,),
                      msg="Running post install task")
-        """
+        raise Exception
 
 
 CLASSIFIERS = [
@@ -43,14 +53,14 @@ setup(
     author="InfoLabs LLC",
     author_email="team@infolabs.ru",
     name="django-edw",
-    version=backend.edw.__version__,
+    version='0.1.0',
     description="A RESTful Django Enterprise Data Warehouse",
     long_description=convert('README.md', 'rst'),
     url='http://excentrics.github.io/django-edw',
     license='GPL v3 License',
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
-    packages=find_packages(exclude=['example', 'docs']),
+    packages=find_packages(exclude=['docs']),
     package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth', 'test_edw': 'backend/test_edw'},
     include_package_data=True,
     zip_safe=False,
