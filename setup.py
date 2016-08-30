@@ -14,8 +14,8 @@ except ImportError:
             return fd.read()
 
 
-def _post_install():
-    print('POST INSTALL')
+def _post_install(dir):
+    print('POST INSTALL', dir)
 
 
 class edw_install(install):
