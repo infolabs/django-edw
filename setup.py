@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from setuptools.command.install import install
 from setuptools import setup, find_packages
 import backend.edw
 
@@ -11,6 +12,18 @@ except ImportError:
     def convert(filename, fmt):
         with open(filename) as fd:
             return fd.read()
+
+
+def _post_install():
+    print('POST INSTALL')
+
+
+class edw_install(install):
+    def run(self):
+        install.run(self)
+        self.execute(_post_install, (self.install_lib,),
+                     msg="Running post install task")
+
 
 CLASSIFIERS = [
     'Environment :: Web Environment',
@@ -38,6 +51,7 @@ setup(
     package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth', 'test_edw': 'backend/test_edw'},
     include_package_data=True,
     zip_safe=False,
+    cmdclass={'install': edw_install},
     install_requires=[
         'Django>=1.9,<1.10',
         'djangorestframework>=3.3',
