@@ -17,7 +17,7 @@ except ImportError:
 
 
 class install(st_install):
-    def _post_install(lib_dir):
+    def _post_install(self, lib_dir):
         packages = ('edw', 'email_auth', 'tests_edw')
         backend_dir = os.path.join(lib_dir, 'backend')
         if os.path.exists(backend_dir):
@@ -57,7 +57,7 @@ setup(
     license='GPL v3 License',
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
-    packages=find_packages(exclude=['docs']),
+    packages=find_packages(exclude=['docs', 'requirements']),
     package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth', 'test_edw': 'backend/test_edw'},
     include_package_data=True,
     zip_safe=False,
