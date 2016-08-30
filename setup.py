@@ -35,7 +35,6 @@ class install(st_install):
         st_install.run(self)
         self.execute(_post_install, (self.install_lib,),
                      msg="Running post install task")
-        raise Exception
 
 
 CLASSIFIERS = [
