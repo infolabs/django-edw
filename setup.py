@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-import edw
+import backend.edw
 
 try:
     from pypandoc import convert
@@ -27,7 +27,7 @@ setup(
     author="InfoLabs LLC",
     author_email="team@infolabs.ru",
     name="django-edw",
-    version=edw.__version__,
+    version=backend.edw.__version__,
     description="A RESTful Django Enterprise Data Warehouse",
     long_description=convert('README.md', 'rst'),
     url='http://excentrics.github.io/django-edw',
@@ -35,6 +35,7 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     packages=find_packages(exclude=['example', 'docs']),
+    package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth', 'test_edw': 'backend/test_edw'},
     include_package_data=True,
     zip_safe=False,
     install_requires=[
