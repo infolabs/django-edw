@@ -24,8 +24,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'edw_sample_db',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'root',
-        'PASSWORD': 'ker7HgeejUE31TY',
+        'USER': 'edw',
+        'PASSWORD': 'edwpass',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -203,7 +203,8 @@ PIPELINE_COMPILERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
-PIPLINE_INCLUDE_PATH = os.path.join(ENV_DIR, 'site-packages/edw/')
+PIPLINE_INCLUDE_PATH = os.path.join(ENV_DIR, 'site-packages/edw/') + ":" + \
+    os.path.join(PROJECT_PATH, 'edw')
 
 if DEBUG:
     LESS_ARGUMENTS = "-ru --compress --include-path=" + PIPLINE_INCLUDE_PATH

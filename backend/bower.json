@@ -1,0 +1,25 @@
+{
+  "name": "django-edw",
+  "version": "0.1.0",
+  "homepage": "http://excentrics.github.io/django-edw",
+  "authors": [
+    "InfoLabs, LLC <team@infolabs.ru>"
+  ],
+  "description": "Non pip deps for django-edw",
+  "main": "",
+  "moduleType": [],
+  "license": "GPL v3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "picturefill": "~3.0.1",
+    "select2": "~4.0.0"
+  }
+}

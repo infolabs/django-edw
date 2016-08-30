@@ -18,7 +18,7 @@ except ImportError:
 
 class install(st_install):
     def _post_install(self, lib_dir):
-        packages = ('edw', 'email_auth', 'tests_edw')
+        packages = ('edw', 'email_auth')
         backend_dir = os.path.join(lib_dir, 'backend')
         if os.path.exists(backend_dir):
             for package in packages:
@@ -53,12 +53,12 @@ setup(
     version='0.1.0',
     description="A RESTful Django Enterprise Data Warehouse",
     long_description=convert('README.md', 'rst'),
-    url='http://excentrics.github.io/django-edw',
+    url='https://bitbucket.org/info-labs/django-edw.git',
     license='GPL v3 License',
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     packages=find_packages(exclude=['docs', 'requirements']),
-    package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth', 'test_edw': 'backend/test_edw'},
+    package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth'},
     include_package_data=True,
     zip_safe=False,
     cmdclass={'install': install},
@@ -68,13 +68,10 @@ setup(
         'beautifulsoup4>=4.4.0',
         'django-post-office>=2.0.5',
         'django-filer>=1.0.6',
-        #'django-ipware>=1.1.1',
         'django-fsm>=2.2.1',
         'django-rest-auth>=0.5.0',
-        #'django-angular>=0.7.15',
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
-        #'django-sass-processor>=0.3.4',
     ],
 )
