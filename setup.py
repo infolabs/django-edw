@@ -16,24 +16,22 @@ except ImportError:
             return fd.read()
 
 
-def _post_install(lib_dir):
-    packages = ('edw', 'email_auth', 'tests_edw')
-    backend_dir = os.path.join(lib_dir, 'backend')
-    if os.path.exists(backend_dir):
-        for package in packages:
-            src_dir = os.path.join(backend_dir, package)
-            dst_dir = os.path.join(lib_dir, package)
-            if os.path.exists(dst_dir):
-                shutil.rmtree(dst_dir)
-            shutil.copytree(src_dir, dst_dir, symlinks=True)
-        if os.path.exists(backend_dir):
-            shutil.rmtree(backend_dir)
-
-
 class install(st_install):
+    def _post_install(lib_dir):
+        packages = ('edw', 'email_auth', 'tests_edw')
+        backend_dir = os.path.join(lib_dir, 'backend')
+        if os.path.exists(backend_dir):
+            for package in packages:
+                src_dir = os.path.join(backend_dir, package)
+                dst_dir = os.path.join(lib_dir, package)
+                if os.path.exists(dst_dir):
+                    shutil.rmtree(dst_dir)
+                shutil.copytree(src_dir, dst_dir, symlinks=True)
+            if os.path.exists(backend_dir):
+                shutil.rmtree(backend_dir)
     def run(self):
         st_install.run(self)
-        self.execute(_post_install, (self.install_lib,),
+        self.execute(self._post_install, (self.install_lib,),
                      msg="Running post install task")
 
 
