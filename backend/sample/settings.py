@@ -21,7 +21,7 @@ MANAGERS = ADMINS
 
 EDW_DB_ENGINE = os.environ.get('EDW_DB_ENGINE')
 if EDW_DB_ENGINE is None:
-    EDW_DB_ENGINE="sqlite3"
+    EDW_DB_ENGINE="mysql"
 
 SAMPLE_DBS = {
     'mysql': {
