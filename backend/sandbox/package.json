@@ -1,0 +1,20 @@
+{
+  "name": "edw-backend",
+  "version": "0.1.0",
+  "description": "EDW backend",
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/info-labs/django-edw.git"
+  },
+  "keywords": [
+    "less",
+    "yuglify",
+    "edw"
+  ],
+  "license": "GPL v3",
+  "dependencies": {
+    "less": "^2.7.1",
+    "uglify-js": "^2.7.3",
+    "bower": "^1.7.9"
+  }
+}

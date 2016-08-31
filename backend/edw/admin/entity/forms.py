@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from edw.models.term import TermModel, BaseTerm
+from edw.models.term import BaseTerm
+from edw.models.term import TermModel
 
 from django import forms
 

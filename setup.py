@@ -3,7 +3,10 @@
 from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-import edw
+from setuptools.command.install import install as st_install
+
+import os
+import shutil
 
 try:
     from pypandoc import convert
@@ -11,6 +14,26 @@ except ImportError:
     def convert(filename, fmt):
         with open(filename) as fd:
             return fd.read()
+
+
+class install(st_install):
+    def _post_install(self, lib_dir):
+        packages = ('edw', 'email_auth')
+        backend_dir = os.path.join(lib_dir, 'backend')
+        if os.path.exists(backend_dir):
+            for package in packages:
+                src_dir = os.path.join(backend_dir, package)
+                dst_dir = os.path.join(lib_dir, package)
+                if os.path.exists(dst_dir):
+                    shutil.rmtree(dst_dir)
+                shutil.copytree(src_dir, dst_dir, symlinks=True)
+            if os.path.exists(backend_dir):
+                shutil.rmtree(backend_dir)
+    def run(self):
+        st_install.run(self)
+        self.execute(self._post_install, (self.install_lib,),
+                     msg="Running post install task")
+
 
 CLASSIFIERS = [
     'Environment :: Web Environment',
@@ -27,29 +50,28 @@ setup(
     author="InfoLabs LLC",
     author_email="team@infolabs.ru",
     name="django-edw",
-    version=edw.__version__,
+    version='0.1.0',
     description="A RESTful Django Enterprise Data Warehouse",
     long_description=convert('README.md', 'rst'),
-    url='http://excentrics.github.io/django-edw',
+    url='https://bitbucket.org/info-labs/django-edw.git',
     license='GPL v3 License',
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
-    packages=find_packages(exclude=['example', 'docs']),
+    packages=find_packages(exclude=['docs', 'requirements']),
+    package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth'},
     include_package_data=True,
     zip_safe=False,
+    cmdclass={'install': install},
     install_requires=[
         'Django>=1.9,<1.10',
         'djangorestframework>=3.3',
         'beautifulsoup4>=4.4.0',
         'django-post-office>=2.0.5',
         'django-filer>=1.0.6',
-        #'django-ipware>=1.1.1',
         'django-fsm>=2.2.1',
         'django-rest-auth>=0.5.0',
-        'django-angular>=0.7.15',
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
-        #'django-sass-processor>=0.3.4',
     ],
 )

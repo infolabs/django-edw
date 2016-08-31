@@ -9,8 +9,7 @@ def get_mptt_admin_node_template(instance):
     :param instance: instance of mptt model
     :return: template name
     '''
-
-    return '%s/admin/%s.html' % (instance._meta.app_label.lower(), instance.__class__.__name__.lower())
+    return 'edw/admin/mptt/%s.html' % instance.__class__.__name__.lower()
 
 
 def mptt_admin_node_info_update_with_template(admin_instance, template, instance, node_info, context={}):
@@ -30,8 +29,8 @@ def mptt_admin_node_info_update_with_template(admin_instance, template, instance
     context.update({
         'instance': instance,
         'node_info': node_info,
+        'app_label': instance._meta.app_label.lower()
     })
-
 
     label = render_to_string(template, context)
 

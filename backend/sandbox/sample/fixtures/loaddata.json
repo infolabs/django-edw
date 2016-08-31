@@ -1,0 +1,539 @@
+[
+{
+  "model": "sample.term",
+  "pk": 2,
+  "fields": {
+    "parent": null,
+    "name": "\u0422\u0435\u0440\u043c \u21162",
+    "slug": "term22",
+    "path": "term22",
+    "semantic_rule": 10,
+    "attributes": "3",
+    "specification_mode": 20,
+    "created_at": "2016-07-21T16:37:37.153Z",
+    "updated_at": "2016-08-30T17:09:42.027Z",
+    "view_class": "class1 class2 class3 class4",
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 1,
+    "rght": 8,
+    "tree_id": 4,
+    "level": 0
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 3,
+  "fields": {
+    "parent": 11,
+    "name": "Term3",
+    "slug": "term3",
+    "path": "terrm9/term3",
+    "semantic_rule": 10,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-07-21T16:37:45.934Z",
+    "updated_at": "2016-08-16T21:08:43.497Z",
+    "view_class": null,
+    "description": "",
+    "active": false,
+    "system_flags": "0",
+    "lft": 6,
+    "rght": 7,
+    "tree_id": 12,
+    "level": 3
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 4,
+  "fields": {
+    "parent": 2,
+    "name": "Term2_1",
+    "slug": "term2_1",
+    "path": "term1/term2/term2_1",
+    "semantic_rule": 30,
+    "attributes": "2",
+    "specification_mode": 10,
+    "created_at": "2016-07-25T15:15:06.581Z",
+    "updated_at": "2016-08-03T08:03:14.495Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 6,
+    "rght": 7,
+    "tree_id": 4,
+    "level": 1
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 5,
+  "fields": {
+    "parent": 2,
+    "name": "Term2_2",
+    "slug": "term2_2",
+    "path": "term22/term2_2",
+    "semantic_rule": 30,
+    "attributes": "6",
+    "specification_mode": 30,
+    "created_at": "2016-07-25T15:15:23.010Z",
+    "updated_at": "2016-08-30T17:09:06.808Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 2,
+    "rght": 5,
+    "tree_id": 4,
+    "level": 1
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 6,
+  "fields": {
+    "parent": 5,
+    "name": "Term2_2_1",
+    "slug": "term2_2_1",
+    "path": "term1/term2/term2_2/term2_2_1",
+    "semantic_rule": 30,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-07-28T08:57:32.663Z",
+    "updated_at": "2016-07-28T08:57:32.663Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 3,
+    "rght": 4,
+    "tree_id": 4,
+    "level": 2
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 7,
+  "fields": {
+    "parent": 1,
+    "name": "Term1-1",
+    "slug": "term1-1",
+    "path": "term1/term1-1",
+    "semantic_rule": 30,
+    "attributes": "1",
+    "specification_mode": 10,
+    "created_at": "2016-07-31T13:08:12.547Z",
+    "updated_at": "2016-08-07T11:54:11.338Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 2,
+    "rght": 3,
+    "tree_id": 2,
+    "level": 1
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 8,
+  "fields": {
+    "parent": null,
+    "name": "test4",
+    "slug": "test4",
+    "path": "test4",
+    "semantic_rule": 10,
+    "attributes": "7",
+    "specification_mode": 10,
+    "created_at": "2016-08-15T20:07:13.723Z",
+    "updated_at": "2016-08-28T08:28:04.161Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 1,
+    "rght": 2,
+    "tree_id": 5,
+    "level": 0
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 9,
+  "fields": {
+    "parent": 11,
+    "name": "test5",
+    "slug": "test5",
+    "path": "test5",
+    "semantic_rule": 10,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-08-15T20:07:23.308Z",
+    "updated_at": "2016-08-15T23:26:52.276Z",
+    "view_class": null,
+    "description": "",
+    "active": false,
+    "system_flags": "0",
+    "lft": 4,
+    "rght": 5,
+    "tree_id": 12,
+    "level": 3
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 10,
+  "fields": {
+    "parent": 12,
+    "name": "test6",
+    "slug": "test6",
+    "path": "terrm9/test6",
+    "semantic_rule": 30,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-08-15T20:07:31.628Z",
+    "updated_at": "2016-08-19T13:58:41.588Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 2,
+    "rght": 9,
+    "tree_id": 12,
+    "level": 1
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 11,
+  "fields": {
+    "parent": 10,
+    "name": "test7",
+    "slug": "test7",
+    "path": "test5/test7",
+    "semantic_rule": 10,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-08-15T20:07:42.133Z",
+    "updated_at": "2016-08-15T23:27:23.283Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 3,
+    "rght": 8,
+    "tree_id": 12,
+    "level": 2
+  }
+},
+{
+  "model": "sample.term",
+  "pk": 12,
+  "fields": {
+    "parent": null,
+    "name": "terrm9",
+    "slug": "terrm9",
+    "path": "terrm9",
+    "semantic_rule": 20,
+    "attributes": "0",
+    "specification_mode": 10,
+    "created_at": "2016-08-15T21:27:39.079Z",
+    "updated_at": "2016-08-19T13:58:19.183Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 1,
+    "rght": 10,
+    "tree_id": 12,
+    "level": 0
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 1,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": null,
+    "name": "Collection 1",
+    "slug": "collection-1",
+    "path": "collection-1",
+    "created_at": "2016-07-22T15:57:36.807Z",
+    "updated_at": "2016-08-18T16:18:54.864Z",
+    "view_class": "class1",
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 1,
+    "rght": 10,
+    "tree_id": 1,
+    "level": 0,
+    "terms": [
+      5,
+      3
+    ]
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 2,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": 1,
+    "name": "Collection 2",
+    "slug": "collection-2",
+    "path": "collection-1/collection-2",
+    "created_at": "2016-07-22T15:57:43.442Z",
+    "updated_at": "2016-08-02T13:47:38.498Z",
+    "view_class": null,
+    "description": "\u0422\u0435\u0441\u0442\u043e\u0432\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435...",
+    "active": true,
+    "system_flags": "0",
+    "lft": 2,
+    "rght": 5,
+    "tree_id": 1,
+    "level": 1,
+    "terms": [
+      2
+    ]
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 3,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": null,
+    "name": "Collection 3",
+    "slug": "collection-3",
+    "path": "collection-3",
+    "created_at": "2016-07-22T15:57:51.522Z",
+    "updated_at": "2016-08-17T08:43:00.507Z",
+    "view_class": null,
+    "description": "",
+    "active": false,
+    "system_flags": "15",
+    "lft": 1,
+    "rght": 2,
+    "tree_id": 2,
+    "level": 0,
+    "terms": [
+      1,
+      10,
+      11,
+      9,
+      3
+    ]
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 4,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": 1,
+    "name": "Co4",
+    "slug": "co4",
+    "path": "collection-1/collection-2/co4",
+    "created_at": "2016-07-25T12:21:22.586Z",
+    "updated_at": "2016-08-16T13:22:56.274Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 6,
+    "rght": 9,
+    "tree_id": 1,
+    "level": 1,
+    "terms": []
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 6,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": 4,
+    "name": "Co5",
+    "slug": "co5",
+    "path": "collection-1/collection-2/co4/co5",
+    "created_at": "2016-07-25T16:55:28.492Z",
+    "updated_at": "2016-08-02T13:48:31.402Z",
+    "view_class": null,
+    "description": "",
+    "active": true,
+    "system_flags": "0",
+    "lft": 7,
+    "rght": 8,
+    "tree_id": 1,
+    "level": 2,
+    "terms": []
+  }
+},
+{
+  "model": "sample.datamart",
+  "pk": 7,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "datamart"
+    ],
+    "parent": 2,
+    "name": "Collection 2",
+    "slug": "collection-2",
+    "path": "collection-1/collection-2/collection-2",
+    "created_at": "2016-08-02T13:47:11.535Z",
+    "updated_at": "2016-08-18T17:07:35.703Z",
+    "view_class": "class1 class2 class3",
+    "description": "\u0422\u0435\u0441\u0442\u043e\u0432\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+    "active": false,
+    "system_flags": "0",
+    "lft": 3,
+    "rght": 4,
+    "tree_id": 1,
+    "level": 2,
+    "terms": [
+      6,
+      4
+    ]
+  }
+},
+{
+  "model": "sample.additionalentitycharacteristicormark",
+  "pk": 1,
+  "fields": {
+    "value": "additional value",
+    "view_class": "clazz33",
+    "term": 8,
+    "entity": 2
+  }
+},
+{
+  "model": "sample.additionalentitycharacteristicormark",
+  "pk": 2,
+  "fields": {
+    "value": "additional val2",
+    "view_class": "clazz1",
+    "term": 2,
+    "entity": 3
+  }
+},
+{
+  "model": "sample.book",
+  "pk": 1,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "childbook"
+    ],
+    "created_at": "2016-07-21T16:36:50.283Z",
+    "updated_at": "2016-08-28T10:08:36.832Z",
+    "active": true,
+    "name": "Book1",
+    "slug": "book1",
+    "description": "",
+    "order": 1,
+    "terms": [
+      2,
+      6,
+      12
+    ]
+  }
+},
+{
+  "model": "sample.book",
+  "pk": 2,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "adultbook"
+    ],
+    "created_at": "2016-07-21T16:37:09.975Z",
+    "updated_at": "2016-08-28T08:49:58.055Z",
+    "active": true,
+    "name": "Hastler1",
+    "slug": "hastler1",
+    "description": "",
+    "order": 1,
+    "terms": [
+      5,
+      4,
+      8
+    ]
+  }
+},
+{
+  "model": "sample.book",
+  "pk": 3,
+  "fields": {
+    "polymorphic_ctype": [
+      "sample",
+      "childbook"
+    ],
+    "created_at": "2016-08-26T19:51:51.936Z",
+    "updated_at": "2016-08-28T08:28:57.082Z",
+    "active": true,
+    "name": "\u041c\u0443\u043c\u0443",
+    "slug": "mumu",
+    "description": "",
+    "order": 2,
+    "terms": [
+      7,
+      11
+    ]
+  }
+},
+{
+  "model": "sample.childbook",
+  "pk": 1,
+  "fields": {
+    "age": 1,
+    "terms": [
+      2,
+      6,
+      12
+    ]
+  }
+},
+{
+  "model": "sample.childbook",
+  "pk": 3,
+  "fields": {
+    "age": 1,
+    "terms": [
+      7,
+      11
+    ]
+  }
+},
+{
+  "model": "sample.adultbook",
+  "pk": 2,
+  "fields": {
+    "genre": 1,
+    "terms": [
+      5,
+      4,
+      8
+    ]
+  }
+}
+]

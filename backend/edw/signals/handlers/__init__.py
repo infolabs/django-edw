@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from . import (
-    term,
-    data_mart,
-)
+try:
+    from . import (
+        term,
+        data_mart,
+    )
+except AttributeError as e:
+    # initial migrations hack
+    print e.args

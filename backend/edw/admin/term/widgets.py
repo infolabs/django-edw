@@ -35,9 +35,3 @@ class TermTreeWidget(forms.SelectMultiple):
             '/static/edw/lib/spin/spin.min.js',
             '/static/edw/js/admin/tree.jquery.js'
         )
-
-"""
-class SimpleTermTreeWidget(forms.SelectMultiple):
-    node_template = 'simple'
-# пронаследовать и добавить переменную шаблон, в пронаследованном перекрыть шаблон
-"""

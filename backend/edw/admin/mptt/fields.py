@@ -14,6 +14,7 @@ from django.forms.models import ModelChoiceIterator
 
 import hashlib
 
+from django.db.utils import ProgrammingError
 
 __all__ = ('FullPathTreeNodeChoiceField',)
 
@@ -23,6 +24,9 @@ __all__ = ('FullPathTreeNodeChoiceField',)
 class FullPathTreeNodeChoiceFieldMixin(object):
 
     def __init__(self, queryset, *args, **kwargs):
+
+
+
         self.joiner = kwargs.pop('joiner', ' / ')
         self.to_field_name = kwargs.pop('to_field_name', None)
 
@@ -44,9 +48,15 @@ class FullPathTreeNodeChoiceFieldMixin(object):
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
-
         hash = hashlib.md5()
-        hash.update(';'.join(str(x) for x in self.queryset.values_list('id', flat=True)))
+
+        try:
+            hash.update(';'.join(str(x) for x in self.queryset.values_list('id', flat=True)))
+        except ProgrammingError as e:
+            # initial migrations hack
+            print e.args
+            return []
+
         current_queryset_hash = hash.hexdigest()
 
         if hasattr(self.queryset, '_queryset_hash') and self.queryset._queryset_hash == current_queryset_hash:
