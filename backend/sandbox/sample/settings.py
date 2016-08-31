@@ -5,7 +5,6 @@ from django.utils.translation import ugettext_lazy as _
 
 #EDW_APP_LABEL = 'sample'
 EDW_APP_LABEL = 'edw'
-
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_NAME = os.path.split(PROJECT_DIR)[1]
@@ -212,8 +211,10 @@ PIPELINE_COMPILERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
+BACKEND_DIR = PROJECT_PATH.split('sandbox')[0]
+
 PIPLINE_INCLUDE_PATH = os.path.join(ENV_DIR, 'site-packages/edw/') + ":" + \
-    os.path.join(PROJECT_PATH, 'edw')
+    os.path.join(BACKEND_DIR, 'edw')
 
 if DEBUG:
     LESS_ARGUMENTS = "-ru --compress --include-path=" + PIPLINE_INCLUDE_PATH
