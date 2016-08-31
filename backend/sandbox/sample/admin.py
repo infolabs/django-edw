@@ -9,20 +9,21 @@ from django.template.context import Context
 from django.template.loader import get_template
 
 from edw.admin.customer import CustomerProxy, CustomerAdmin
-from edw.admin.entity.forms import EntityAdminForm
 
-from edw.admin.term import TermAdmin
 from edw.models.term import TermModel
+from edw.admin.term import TermAdmin
 
-from edw.admin.data_mart import DataMartAdmin
 from edw.models.data_mart import DataMartModel
+from edw.admin.data_mart import DataMartAdmin
+
+from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline
+from edw.admin.entity.forms import EntityAdminForm
 
 from .models import Book, ChildBook, AdultBook
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from adminsortable2.admin import SortableAdminMixin
 
-from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline
 from django.conf import settings
 
 from ckeditor.widgets import CKEditorWidget

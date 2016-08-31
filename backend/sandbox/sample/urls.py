@@ -21,7 +21,6 @@ urlpatterns = patterns('',
     url(r'^robots\.txt$', render_robots),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^edw/', include('edw.urls')),
-    #url(r'^edw/', include('edw.urls')),
     #url(r'^book/(?P<slug>[0-9A-Za-z_.-]+)/$', BookDetailView.as_view(), name="book_detail"),
     )
 

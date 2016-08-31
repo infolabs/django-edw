@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 import os
 from django.utils.translation import ugettext_lazy as _
 
-#EDW_APP_LABEL = 'sample'
-EDW_APP_LABEL = 'edw'
+EDW_APP_LABEL = 'sample'
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_NAME = os.path.split(PROJECT_DIR)[1]
