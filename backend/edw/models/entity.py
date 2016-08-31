@@ -470,7 +470,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
 
     @cached_property
-    def active_terms_for_characteristics(self):
+    def _active_terms_for_characteristics(self):
         """
         Return terms for characteristics of current entity
         """
@@ -479,7 +479,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return list(self.terms.filter(id__in=descendants_ids).order_by(tree_opts.tree_id_attr, tree_opts.left_attr))
 
     @cached_property
-    def active_terms_for_marks(self):
+    def _active_terms_for_marks(self):
         """
         Return terms for marks of current entity
         """
@@ -490,7 +490,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def characteristics_getter(self):
         tree_opts = TermModel._mptt_meta
-        return EntityCharacteristicOrMarkGetter(self.active_terms_for_characteristics, self.additional_characteristics,
+        return EntityCharacteristicOrMarkGetter(self._active_terms_for_characteristics, self.additional_characteristics,
                                                 TermModel.attributes.is_characteristic, tree_opts)
 
     @cached_property
@@ -507,7 +507,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def marks_getter(self):
         tree_opts = TermModel._mptt_meta
-        return EntityCharacteristicOrMarkGetter(self.active_terms_for_marks, self.additional_marks,
+        return EntityCharacteristicOrMarkGetter(self._active_terms_for_marks, self.additional_marks,
                                                 TermModel.attributes.is_mark, tree_opts)
 
     @cached_property

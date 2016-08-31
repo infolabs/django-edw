@@ -562,6 +562,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 TermModel = deferred.MaterializedModel(BaseTerm)
 
 
+#==============================================================================
+# get_queryset_descendants
+#==============================================================================
 def get_queryset_descendants(nodes, include_self=False):
     if not nodes:
         #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
