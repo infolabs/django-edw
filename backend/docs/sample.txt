@@ -1,22 +1,19 @@
-First terminal:
-go to your workdir
+First terminal (backend):
+1. Create working environment
 > git clone https://bitbucket.org/info-labs/django-edw.git
-> cd django-edw
-> virtualenv env
-> source env/bin/activate
-> pip install -r backend/requirements.txt
-> cd ./backend/
+> cd django-edw/backend/sandbox && virtualenv env && source env/bin/activate
+> pip install -r requirements.txt
 > npm install
 > bower install --allow-root
-
+2. Start sample project django server
 # if you use mysql database
 > export EDW_DB_ENGINE=mysql
 # for sqlite3
 > export EDW_DB_ENGINE=sqlite3
 > python manage.py runserver 0.0.0.0:8000 --insecure
 
-Second terminal:
-go to your workdir
+Second terminal (frontend):
+1. Start sample project js server
 > cd ./django-edw/frontend/
 > npm install
 > npm start
