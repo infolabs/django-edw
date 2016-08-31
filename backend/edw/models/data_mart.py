@@ -147,7 +147,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
     CHILDREN_BUFFER_CACHE_SIZE = 500
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
-    CHILDREN_CACHE_TIMEOUT = 3600
+    CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_children']
 
     messages = {
         'delete_restriction': _('Delete restriction'),

@@ -14,6 +14,14 @@ a password reset, so that they can log into their account at a later time. The d
 
 
 CACHE_DURATIONS = {
+    'data_mart_children': 3600,
+
+    'term_decompress': 3600,
+    'term_children': 3600,
+    'term_ancestors': 3600,
+    'term_attribute_descendants_ids': 3600,
+    'term_attribute_ancestors': 3600,
+
     'entity_html_snippet': 86400,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
