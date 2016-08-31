@@ -12,18 +12,9 @@ class AttributeSerializer(serializers.Serializer):
     A serializer to convert the characteristics and marks for rendering.
     """
     name = serializers.CharField()
-    values = serializers.ListField(child=serializers.CharField())
     path = serializers.CharField()
+    values = serializers.ListField(child=serializers.CharField())
     view_class = serializers.ListField(child=serializers.CharField())
-
-    def to_representation(self, data):
-        """
-        Prepare some data for children serialization
-        """
-        # print "*** ATTRIBUTE TO PRESENTATION ***", data
-        # print data.values
-        # print "\n\n"
-        return super(AttributeSerializer, self).to_representation(data)
 
 
 class EntitySerializer(serializers.HyperlinkedModelSerializer):
@@ -44,13 +35,16 @@ class EntityDetailSerializer(EntitySerializer):
     EntityDetailSerializer
     """
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'url', 'created_at', 'updated_at', 'active')
+        fields = ('id', 'url', 'created_at', 'updated_at', 'active', 'characteristics', 'marks')
 
 
 class EntityListSerializer(EntitySerializer):
     """
     EntityListSerializer
     """
+    short_characteristics = AttributeSerializer(read_only=True, many=True)
+    short_marks = AttributeSerializer(read_only=True, many=True)
+
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'url', 'active', 'characteristics', 'marks')
+        fields = ('id', 'url', 'active', 'short_characteristics', 'short_marks')
 

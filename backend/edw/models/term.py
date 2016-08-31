@@ -254,12 +254,14 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     ANCESTORS_CACHE_KEY_PATTERN = '{id}:anc:{ascending:d}:{include_self:d}'
     ANCESTORS_CACHE_TIMEOUT = 3600
 
-    CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY = 't_chr_ds_ids'
-    MARK_DESCENDANTS_IDS_CACHE_KEY = 't_mrk_ds_ids'
+    ACTIVE_CHARACTERISTICS_DESCENDANTS_IDS_CACHE_KEY = 't_chr_ds_ids'
+    ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY = 't_mrk_ds_ids'
     ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT = 3600
 
     SELECT_RELATED_CACHE_KEY_PATTERN = '{fields}:sr'
 
+    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 'anc_bf'
+    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE = 500
     ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
     ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = 3600
 
@@ -513,8 +515,20 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         cache.delete_many(keys)
 
     @staticmethod
+    def get_attridute_ancestors_buffer():
+        return RingBuffer.factory(BaseTerm.ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY,
+                                  max_size=BaseTerm.ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_attridute_ancestors_buffer():
+        buf = BaseTerm.get_attridute_ancestors_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
+
+    @staticmethod
     def get_all_active_characteristics_descendants_ids():
-        key = BaseTerm.CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY
+        key = BaseTerm.ACTIVE_CHARACTERISTICS_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
             characteristics_queryset = TermModel.objects.active().filter(
@@ -529,7 +543,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_all_active_marks_descendants_ids():
-        key = BaseTerm.MARK_DESCENDANTS_IDS_CACHE_KEY
+        key = BaseTerm.ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
             marks_queryset = TermModel.objects.active().filter(attributes=TermModel.attributes.is_mark)

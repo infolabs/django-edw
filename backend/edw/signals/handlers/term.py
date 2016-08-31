@@ -25,6 +25,20 @@ def get_children_keys(sender, parent_id):
     return [key, ":".join([key, "active"])]
 
 
+def _get_attridute_ancestors_key(sender, id, attribute_mode):
+    return ":".join([
+        sender._meta.object_name.lower(),
+        sender.ANCESTORS_CACHE_KEY_PATTERN.format(id=id, ascending=True, include_self=False),
+        sender.ATTRIBUTE_FILTER_CACHE_KEY_PATTERN.format(mode=int(attribute_mode)),
+        sender.SELECT_RELATED_CACHE_KEY_PATTERN.format(fields='parent')
+    ])
+
+def get_attridute_ancestors_keys(sender, instance):
+    return [_get_attridute_ancestors_key(sender, id, attribute_mode) for id in
+            instance.get_descendants(include_self=True).values_list('id', flat=True) for attribute_mode in
+            (sender.attributes.is_characteristic, sender.attributes.is_mark)]
+
+
 #==============================================================================
 # Term model event handlers
 #==============================================================================
@@ -39,6 +53,9 @@ def invalidate_term_before_save(sender, instance, **kwargs):
                 else:
                     keys = get_children_keys(sender, original.parent_id)
                     cache.delete_many(keys)
+
+                keys = get_attridute_ancestors_keys(sender, instance)
+                cache.delete_many(keys)
             else:
                 if original.active != instance.active:
                     if instance.active:
@@ -54,13 +71,17 @@ def invalidate_term_before_save(sender, instance, **kwargs):
                         keys.extend(get_children_keys(sender, parent_id))
                     cache.delete_many(keys)
                     instance._parent_id_validate = True
+
+                if original.attributes != instance.attributes:
+                    keys = get_attridute_ancestors_keys(sender, instance)
+                    cache.delete_many(keys)
         except sender.DoesNotExist:
             pass
 
 
 def invalidate_term_after_save(sender, instance, **kwargs):
     if instance.id is not None:
-        keys = [sender.CHARACTERISTIC_DESCENDANTS_IDS_CACHE_KEY, sender.MARK_DESCENDANTS_IDS_CACHE_KEY]
+        keys = [sender.ACTIVE_CHARACTERISTICS_DESCENDANTS_IDS_CACHE_KEY, sender.ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY]
         if not getattr(instance, '_parent_id_validate', False):
             keys.extend(get_children_keys(sender, instance.parent_id))
         cache.delete_many(keys)
@@ -68,7 +89,10 @@ def invalidate_term_after_save(sender, instance, **kwargs):
 
 
 def invalidate_term_after_move(sender, instance, target, position, prev_parent, **kwargs):
-    keys = get_children_keys(sender, prev_parent.id if prev_parent is not None else None)
+    prev_parent_id = prev_parent.id if prev_parent is not None else None
+    keys = get_children_keys(sender, prev_parent_id)
+    if prev_parent_id != instance.parent_id:
+        keys.extend(get_attridute_ancestors_keys(sender, instance))
     cache.delete_many(keys)
     invalidate_term_after_save(sender, instance, **kwargs)
 

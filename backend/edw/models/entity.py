@@ -8,6 +8,7 @@ import operator
 '''
 
 from django.core.exceptions import ImproperlyConfigured
+from django.core.cache import cache
 from django.db import models
 from django.utils import six
 from django.utils.functional import cached_property
@@ -152,7 +153,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
 
 
 #==============================================================================
-# EntityCharacteristicOrMarkInfo & EntityCharacteristicOrMarkSet cache system
+# EntityCharacteristicOrMarkInfo & EntityCharacteristicOrMarkGetter cache system
 #==============================================================================
 class EntityCharacteristicOrMarkInfo(object):
 
@@ -181,7 +182,7 @@ class EntityCharacteristicOrMarkInfo(object):
         return repr((self.name, self.values))
 
 
-class ProductCharacteristicOrMarkSet(object):
+class EntityCharacteristicOrMarkGetter(object):
     """
     Represents a lazy database lookup for a set of attributes.
     """
@@ -217,36 +218,17 @@ class ProductCharacteristicOrMarkSet(object):
 
     @staticmethod
     def on_attridute_ancestors_cache_set(key):
-
-        print "\n\n\n**** on_attridute_ancestors_cache_set", key
-
-        # buf = TermModel.get_children_buffer()
-        # old_key = buf.record(key)
-        # if old_key != buf.empty:
-        #     cache.delete(old_key)
+        buf = TermModel.get_attridute_ancestors_buffer()
+        old_key = buf.record(key)
+        if old_key != buf.empty:
+            cache.delete(old_key)
 
     @staticmethod
     def _get_attridute_ancestors(term, attribute_mode):
-        # key = Rubric.RUBRIC_ATTRIBUTES_ANCESTORS_CACHE_KEY_PATTERN % {'id': term.id, 'attribute_mode': attribute_mode}
-        # ancestors = cache.get(key, None)
-        # if ancestors is None:
-        #     ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(attributes=attribute_mode).select_related('parent'))
-        #     cache.set(key, ancestors, Rubric.CACHE_TIMEOUT)
-
         ancestors = term.get_ancestors(ascending=True, include_self=False).attribute_filter(
             attribute_mode=attribute_mode).select_related('parent').cache(
-            on_cache_set=ProductCharacteristicOrMarkSet.on_attridute_ancestors_cache_set,
+            on_cache_set=EntityCharacteristicOrMarkGetter.on_attridute_ancestors_cache_set,
             timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT)
-
-        # try:
-        #     print dir(ancestors.attribute_filter(attribute_mode=attribute_mode))
-        # except Exception as e:
-        #     print "________________________________"
-        #     print e
-        #
-        # ancestors = list(term.get_ancestors(ascending=True, include_self=False).filter(
-        #     attributes=attribute_mode).select_related('parent'))
-
         return ancestors
 
     def _get_attributes(self, limit=None):
@@ -259,7 +241,7 @@ class ProductCharacteristicOrMarkSet(object):
         for term in self.terms:
             if limit and cnt > limit:
                 break
-            ancestors = ProductCharacteristicOrMarkSet._get_attridute_ancestors(term, self.attribute_mode)
+            ancestors = EntityCharacteristicOrMarkGetter._get_attridute_ancestors(term, self.attribute_mode)
             if ancestors:
                 attr0 = ancestors.pop(0)
                 prev_attr = attr0
@@ -361,6 +343,9 @@ class ProductCharacteristicOrMarkSet(object):
         return attrs if limit is None else attrs[:limit]
 
 
+#==============================================================================
+# BaseEntity
+#==============================================================================
 @python_2_unicode_compatible
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
@@ -375,6 +360,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
+    SHORT_CHARACTERISTICS_MAX_COUNT = 3
+    SHORT_MARKS_MAX_COUNT = 5
+
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
 
@@ -383,9 +371,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     active = models.BooleanField(default=True, verbose_name=_("Active"),
         help_text=_("Is this object publicly visible."))
 
-    additional_characteristics_or_marks = deferred.ManyToManyField(
-        'BaseTerm',
-        through=AdditionalEntityCharacteristicOrMarkModel)
+    additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
+                                                                   through=AdditionalEntityCharacteristicOrMarkModel)
 
     class Meta:
         abstract = True
@@ -501,55 +488,38 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return list(self.terms.filter(id__in=descendants_ids).order_by(tree_opts.tree_id_attr, tree_opts.left_attr))
 
     @cached_property
+    def characteristics_getter(self):
+        tree_opts = TermModel._mptt_meta
+        return EntityCharacteristicOrMarkGetter(self.active_terms_for_characteristics, self.additional_characteristics,
+                                                TermModel.attributes.is_characteristic, tree_opts)
+
+    @cached_property
     def characteristics(self):
         """
         Return all characteristics objects of current entity
         """
+        return self.characteristics_getter.all()
+
+    @cached_property
+    def short_characteristics(self):
+        return self.characteristics_getter[:self.SHORT_CHARACTERISTICS_MAX_COUNT]
+
+    @cached_property
+    def marks_getter(self):
         tree_opts = TermModel._mptt_meta
-        result = ProductCharacteristicOrMarkSet(
-            self.active_terms_for_characteristics,
-            self.additional_characteristics,
-            TermModel.attributes.is_characteristic,
-            tree_opts).all()
-
-        print "c>>>>>", result
-
-        return result
-
-        '''
-        result = [
-            {
-                "path": "kategoriya/kondicionirovanie/moshnost",
-                "name": "Мощность",
-                "value": "до 2,3 кВт",
-                "view_class": ""
-            },
-            {
-                "path": "base/proizvoditelnost\u002Dv\u002Drezhime\u002Dohlazhdeniya\u002Dkvt",
-                "name": "Производительность в режиме охлаждения, кВт",
-                "value": "2,2",
-                "view_class": "red only-group"
-            }
-        ]
-
-        return result
-        '''
+        return EntityCharacteristicOrMarkGetter(self.active_terms_for_marks, self.additional_marks,
+                                                TermModel.attributes.is_mark, tree_opts)
 
     @cached_property
     def marks(self):
         """
         Return all marks objects of current entity
         """
-        tree_opts = TermModel._mptt_meta
-        result = ProductCharacteristicOrMarkSet(
-                self.active_terms_for_marks,
-                self.additional_marks,
-                TermModel.attributes.is_mark,
-                tree_opts).all()
+        return self.marks_getter.all()
 
-        print "m>>>>>", result
-
-        return result
+    @cached_property
+    def short_marks(self):
+        return self.marks_getter[:self.SHORT_MARKS_MAX_COUNT]
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
