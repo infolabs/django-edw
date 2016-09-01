@@ -218,17 +218,17 @@ class EntityCharacteristicOrMarkGetter(object):
         return self.all(limit)[k]
 
     @staticmethod
-    def on_attridute_ancestors_cache_set(key):
-        buf = TermModel.get_attridute_ancestors_buffer()
+    def on_attribute_ancestors_cache_set(key):
+        buf = TermModel.get_attribute_ancestors_buffer()
         old_key = buf.record(key)
         if old_key != buf.empty:
             cache.delete(old_key)
 
     @staticmethod
-    def _get_attridute_ancestors(term, attribute_mode):
+    def _get_attribute_ancestors(term, attribute_mode):
         ancestors = term.get_ancestors(ascending=True, include_self=False).attribute_filter(
             attribute_mode=attribute_mode).select_related('parent').cache(
-            on_cache_set=EntityCharacteristicOrMarkGetter.on_attridute_ancestors_cache_set,
+            on_cache_set=EntityCharacteristicOrMarkGetter.on_attribute_ancestors_cache_set,
             timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT)
         return ancestors
 
@@ -242,7 +242,7 @@ class EntityCharacteristicOrMarkGetter(object):
         for term in self.terms:
             if limit and cnt > limit:
                 break
-            ancestors = EntityCharacteristicOrMarkGetter._get_attridute_ancestors(term, self.attribute_mode)
+            ancestors = EntityCharacteristicOrMarkGetter._get_attribute_ancestors(term, self.attribute_mode)
             if ancestors:
                 attr0 = ancestors.pop(0)
                 prev_attr = attr0

@@ -298,6 +298,36 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                     raise InvalidMove(self.messages['parent_not_active'])
         super(BaseDataMart, self).move_to(target, position)
 
+    """
+    def validate_terms(self, pk_set=None):
+
+        if pk_set is None:
+            pk_set = set(self.terms.values_list('id', flat=True))
+        origin_pk_set = pk_set.copy()
+
+        tree = TermModel.decompress(pk_set, fix_it=True)
+        pk_set = set([x.term.id for x in tree.values() if x.is_leaf])
+
+        #print "::Validate terms::", origin_pk_set, pk_set
+
+        if origin_pk_set != pk_set:
+            self._during_terms_validation = True
+            pk_set_difference = origin_pk_set - pk_set
+            difference_list = list(pk_set_difference)
+
+            #print "+++ REMOVE", difference_list
+
+            self.terms.remove(*difference_list)
+            pk_set_difference = pk_set - origin_pk_set
+            difference_list = list(pk_set_difference)
+
+            #print "+++ ADD", difference_list
+
+            self.terms.add(*difference_list)
+            del self._during_rubrics_validation
+    """
+
+
     def get_children_cache_key(self):
         return self.CHILDREN_CACHE_KEY_PATTERN.format(
             parent_id=self.id
@@ -342,36 +372,6 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 result[obj['id']] = obj['num']
             cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
-
-
-    """
-    def get_all_category_active_rubrics_count(self):
-        key = self.CATEGORY_ACTIVE_RUBRIC_COUNT_CACHE_KEY
-        result = cache.get(key, None)
-        if result is None:
-            category_rubrics_info = self.__class__.objects.distinct().filter(rubrics__active=True).annotate(
-                num=models.Count('rubrics__id')).values('id', 'num')
-            result = {}
-            for obj in category_rubrics_info:
-                result[obj['id']] = obj['num']
-            cache.set(key, result, self.CACHE_TIMEOUT)
-        return result
-
-    def get_all_category_active_rubrics_ids(self):
-        key = self.CATEGORY_ACTIVE_RUBRIC_IDS_CACHE_KEY
-        result = cache.get(key, None)
-        if result is None:
-            category_rubrics_ids = self.__class__.rubrics.through.objects.distinct().filter(rubric__active=True).values_list('rubric__id', flat=True)
-            result = RubricInfo.decompress(self.__class__.rubrics.field.rel.to, category_rubrics_ids, fix_it=False).keys()
-            cache.set(key, result, self.CACHE_TIMEOUT)
-        return result
-
-    def get_active_rubrics_ids(self):
-        if not hasattr(self, '_RubricMixIn__active_rubrics_ids_cache'):
-            self.__active_rubrics_ids_cache = self.rubrics.active().values_list('id', flat=True)
-        return self.__active_rubrics_ids_cache
-
-    """
 
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)

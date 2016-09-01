@@ -20,7 +20,7 @@ CACHE_DURATIONS = {
     'term_decompress': 3600,
     'term_children': 3600,
     'term_ancestors': 3600,
-    'term_attribute_descendants_ids': 3600,
+    'term_all_attribute_descendants_ids': 3600,
     'term_attribute_ancestors': 3600,
 
     'entity_html_snippet': 86400,
