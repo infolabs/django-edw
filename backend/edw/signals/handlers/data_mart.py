@@ -28,6 +28,25 @@ def get_children_keys(sender, parent_id):
 #==============================================================================
 # DataMart model event handlers
 #==============================================================================
+"""
+@receiver(m2m_changed, sender=Category.rubrics.through,
+          dispatch_uid=make_dispatch_uid(m2m_changed, 'invalidate_after_rubrics_set_changed', Category.rubrics.through))
+def invalidate_after_rubrics_set_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    '''
+    Automatically normalize rubrics set
+    '''
+    if action == 'post_add':
+        if not hasattr(instance, '_during_rubrics_validation'):
+            # normalize rubrics set
+            instance.validate_rubrics(pk_set)
+            # clear cache
+            # ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, ALL_ACTIVE_TERMS_IDS_CACHE_KEY
+            keys = [instance.CATEGORY_ACTIVE_RUBRIC_COUNT_CACHE_KEY,
+                    instance.CATEGORY_ACTIVE_RUBRIC_IDS_CACHE_KEY]
+            cache.delete_many(keys)
+"""
+
+
 def invalidate_data_mart_before_save(sender, instance, **kwargs):
     if instance.id is not None:
         try:

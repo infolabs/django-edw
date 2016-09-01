@@ -246,7 +246,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     DECOMPRESS_CACHE_KEY_PATTERN = 't_i:{value_hash}:{fix_it}'
     DECOMPRESS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_decompress']
 
-    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
+    CHILDREN_BUFFER_CACHE_KEY = 't_ch_bf'
     CHILDREN_BUFFER_CACHE_SIZE = 500
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_children']
@@ -260,7 +260,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     SELECT_RELATED_CACHE_KEY_PATTERN = '{fields}:sr'
 
-    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 'anc_bf'
+    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 't_a_anc_bf'
     ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE = 500
     ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
     ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_attribute_ancestors']

@@ -23,6 +23,7 @@ from polymorphic.query import PolymorphicQuerySet
 from bitfield import BitField
 
 from . import deferred
+from .term import TermModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug
@@ -144,7 +145,11 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     """
     The data marts for a enterprise data warehouse.
     """
-    CHILDREN_BUFFER_CACHE_KEY = 'tsch_bf'
+    ALL_ACTIVE_TERMS_COUNT_CACHE_KEY = 'dm_act_t_cnt'
+    ALL_ACTIVE_TERMS_IDS_CACHE_KEY = 'dm_act_t_ids'
+    ALL_ACTIVE_TERMS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_all_active_terms']
+
+    CHILDREN_BUFFER_CACHE_KEY = 'dm_ch_bf'
     CHILDREN_BUFFER_CACHE_SIZE = 500
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_children']
@@ -313,6 +318,60 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)
+
+    @staticmethod
+    def get_all_active_terms_ids():
+        key = BaseDataMart.ALL_ACTIVE_TERMS_IDS_CACHE_KEY
+        result = cache.get(key, None)
+        if result is None:
+            active_terms_ids = DataMartModel.terms.through.objects.distinct().filter(term__active=True).values_list(
+                'term__id', flat=True)
+            result = TermModel.decompress(active_terms_ids, fix_it=False).keys()
+            cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
+        return result
+
+    @staticmethod
+    def get_all_active_terms_count():
+        key = BaseDataMart.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY
+        result = cache.get(key, None)
+        if result is None:
+            terms_info = DataMartModel.objects.distinct().filter(terms__active=True).annotate(
+                num=models.Count('terms__id')).values('id', 'num')
+            result = {}
+            for obj in terms_info:
+                result[obj['id']] = obj['num']
+            cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
+        return result
+
+
+    """
+    def get_all_category_active_rubrics_count(self):
+        key = self.CATEGORY_ACTIVE_RUBRIC_COUNT_CACHE_KEY
+        result = cache.get(key, None)
+        if result is None:
+            category_rubrics_info = self.__class__.objects.distinct().filter(rubrics__active=True).annotate(
+                num=models.Count('rubrics__id')).values('id', 'num')
+            result = {}
+            for obj in category_rubrics_info:
+                result[obj['id']] = obj['num']
+            cache.set(key, result, self.CACHE_TIMEOUT)
+        return result
+
+    def get_all_category_active_rubrics_ids(self):
+        key = self.CATEGORY_ACTIVE_RUBRIC_IDS_CACHE_KEY
+        result = cache.get(key, None)
+        if result is None:
+            category_rubrics_ids = self.__class__.rubrics.through.objects.distinct().filter(rubric__active=True).values_list('rubric__id', flat=True)
+            result = RubricInfo.decompress(self.__class__.rubrics.field.rel.to, category_rubrics_ids, fix_it=False).keys()
+            cache.set(key, result, self.CACHE_TIMEOUT)
+        return result
+
+    def get_active_rubrics_ids(self):
+        if not hasattr(self, '_RubricMixIn__active_rubrics_ids_cache'):
+            self.__active_rubrics_ids_cache = self.rubrics.active().values_list('id', flat=True)
+        return self.__active_rubrics_ids_cache
+
+    """
 
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)

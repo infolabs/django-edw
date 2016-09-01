@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 
 from rest_framework import viewsets
-#from rest_framework.decorators import list_route
-#from rest_framework.response import Response
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 from rest_framework import pagination
 
 
@@ -14,14 +14,17 @@ from edw.rest.serializers.entity import (
     EntityDetailSerializer
 )
 
-from edw.rest.filters.entity import EntityFilter
 from edw.models.entity import EntityModel
+from edw.rest.filters.entity import EntityFilter
+from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 
 
 class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     A simple ViewSet for listing or retrieving entities.
+    Additional actions:
+        `data_mart` - retrieve data mart for entity. `GET /edw/api/entities/<id>/data_mart/`
     """
     queryset = EntityModel.objects.all()
     serializer_class = EntitySerializer
@@ -38,30 +41,22 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 
-    """
-    @list_route(filter_backends=())
-    def detailed(self, request, data_mart_pk=None, format=None):
+    @detail_route(filter_backends=())
+    def data_mart(self, request, format=None, **kwargs):
         '''
-        Retrieve tree action
+        Retrieve entity data mart
         :param request:
-        :param data_mart_pk:
         :param format:
         :return:
         '''
-        context = {
-            "request": request
-        }
-        if data_mart_pk is not None:
-            context["data_mart_pk"] = data_mart_pk
+        instance = self.get_object()
+        data_mart = instance.data_mart
 
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = EntityListSerializer(page, many=True, context=context)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = EntityListSerializer(queryset, many=True, context=context)
-        return Response(serializer.data)
-
-    """
+        if data_mart is not None:
+            context = {
+                "request": request
+            }
+            serializer = DataMartDetailSerializer(data_mart, context=context)
+            return Response(serializer.data)
+        else:
+            return Response({})

@@ -22,6 +22,7 @@ from polymorphic.base import PolymorphicModelBase
 
 from . import deferred
 from .term import TermModel
+from .data_mart import DataMartModel
 from .related import AdditionalEntityCharacteristicOrMarkModel
 from ..utils.set_helpers import uniq
 from .. import settings as edw_settings
@@ -520,6 +521,30 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def short_marks(self):
         return self.marks_getter[:self.SHORT_MARKS_MAX_COUNT]
+
+    @cached_property
+    def data_mart(self):
+        """
+        Return entity data mart
+        """
+        entity_terms_ids = self.terms.active().values_list('id', flat=True)
+        all_entity_terms_ids = TermModel.decompress(entity_terms_ids, fix_it=False).keys()
+        all_data_mart_terms_ids = DataMartModel.get_all_active_terms_ids()
+        crossing_terms_ids = list(set(all_entity_terms_ids) & set(all_data_mart_terms_ids))
+        tree_opts = DataMartModel._mptt_meta
+        crossing_data_marts_info = DataMartModel.objects.distinct().filter(
+            terms__id__in=crossing_terms_ids).annotate(num=models.Count('terms__id')).values('id', 'num').order_by(
+            '-num', '-' + tree_opts.level_attr, tree_opts.tree_id_attr, tree_opts.left_attr)
+        all_data_marts_active_terms_count = DataMartModel.get_all_active_terms_count()
+        for obj in crossing_data_marts_info:
+            id = obj['id']
+            num = all_data_marts_active_terms_count.get(id, None)
+            if num is not None and num == obj['num']:
+                result = DataMartModel.objects.get(id=id)
+                break
+        else:
+            result = None
+        return result
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

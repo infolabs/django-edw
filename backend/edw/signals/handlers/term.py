@@ -84,6 +84,11 @@ def invalidate_term_after_save(sender, instance, **kwargs):
         keys = [sender.ACTIVE_CHARACTERISTICS_DESCENDANTS_IDS_CACHE_KEY, sender.ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY]
         if not getattr(instance, '_parent_id_validate', False):
             keys.extend(get_children_keys(sender, instance.parent_id))
+
+            # ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, ALL_ACTIVE_TERMS_IDS_CACHE_KEY
+            #Category.CATEGORY_ACTIVE_RUBRIC_COUNT_CACHE_KEY,
+            #Category.CATEGORY_ACTIVE_RUBRIC_IDS_CACHE_KEY
+
         cache.delete_many(keys)
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
 
