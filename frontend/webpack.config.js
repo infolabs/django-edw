@@ -6,14 +6,14 @@ module.exports = {
   context: __dirname,
   devtool: 'eval',
   entry: [
-    'webpack-dev-server/client?http://localhost:3000',
+    'webpack-dev-server/client?http://d.excentrics.ru:3000',
     'webpack/hot/only-dev-server',
     './src/index'
   ],
   output: {
     path: path.resolve('../backend/edw/static/js/'),
     filename: "bundle.js",
-    publicPath: 'http://localhost:3000/assets/bundles/',
+    publicPath: 'http://d.excentrics.ru:3000/assets/bundles/',
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),

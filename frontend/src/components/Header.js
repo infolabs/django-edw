@@ -18,7 +18,7 @@ export default class Header extends Component {
           <h1>todos</h1>
           <TodoTextInput newTodo={true}
                          onSave={::this.handleSave}
-                         placeholder='What needs to be done?' />
+                         placeholder='Что надо сделать?' />
       </header>
     );
   }

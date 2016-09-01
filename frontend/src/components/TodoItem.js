@@ -35,7 +35,7 @@ export default class TodoItem extends Component {
     let element;
     if (this.state.editing) {
       element = (
-        <TodoTextInput text={todo.text}
+        <TodoTextInput text={todo.name}
                        editing={this.state.editing}
                        onSave={(text) => this.handleSave(todo.id, text)} />
       );
@@ -47,7 +47,7 @@ export default class TodoItem extends Component {
                  checked={todo.marked}
                  onChange={() => editTodo(Object.assign({}, todo, {marked: !todo.marked}))} />
           <label onDoubleClick={::this.handleDoubleClick}>
-            {todo.text}
+            {todo.name}
           </label>
           <button className='destroy'
                   onClick={() => deleteTodo(todo.id)} />

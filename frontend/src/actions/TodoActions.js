@@ -22,13 +22,13 @@ export function getTodos() {
     credentials: 'same-origin'
   }).then(response => response.json()).then(json => ({
     type: types.GET_TODOS,
-    todos: json
+    todos: json.results
   }));
 }
 
 export function addTodo(text) {
   const newTodo = {
-    text: text,
+    name: text,
     marked: false
   };
 
@@ -43,7 +43,7 @@ export function addTodo(text) {
     body: JSON.stringify(newTodo)
   }).then(response => response.json()).then(json => ({
     type: types.ADD_TODO,
-    todo: json
+    todo: json.results
   }));
 }
 
@@ -74,7 +74,7 @@ export function editTodo(editedTodo) {
     body: JSON.stringify(editedTodo)
   }).then(response => response.json()).then(json => ({
     type: types.EDIT_TODO,
-    todo: json
+    todo: json.results
   }));
 }
 
