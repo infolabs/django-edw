@@ -6,11 +6,7 @@ First terminal (backend):
 > npm install
 > bower install --allow-root
 2. Start sample project django server
-# if you use mysql database
-> export EDW_DB_ENGINE=mysql
-# for sqlite3
-> export EDW_DB_ENGINE=sqlite3
-> python manage.py runserver 0.0.0.0:8000 --insecure
+> python manage_todos.py runserver 0.0.0.0:8000 --insecure
 
 Second terminal (frontend):
 1. Start sample project js server
