@@ -30,7 +30,6 @@ class Todo(BaseEntity):
     )
 
     name = models.CharField(max_length=255, verbose_name=_("Todo Name"))
-    slug = models.SlugField(verbose_name=_("Slug"), unique=True)
     marked = models.BooleanField(verbose_name=_('Marked'), default=False)
     priority = models.PositiveSmallIntegerField(_("Priority"), choices=PRIORITIES, blank=True, null=True)
     direction = models.PositiveSmallIntegerField(_("Direction"), choices=DIRECTIONS, blank=True, null=True)

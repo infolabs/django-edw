@@ -42,11 +42,11 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
 
     form = TodoAdminForm
 
-    list_display = ('name', 'slug', 'entity_type', 'marked', 'active',)
+    list_display = ('name', 'entity_type', 'marked', 'active',)
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'active', 'marked', 'priority', 'direction', 'terms', 'description'),
+            'fields': ('name', 'active', 'marked', 'priority', 'direction', 'terms', 'description'),
         }),
     )
 
@@ -62,8 +62,6 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
             '/static/edw/lib/spin/spin.min.js',
             '/static/edw/js/admin/tree.jquery.js'
         )
-
-    prepopulated_fields = {'slug': ('name',)}
 
     search_fields = ('name',)
 
