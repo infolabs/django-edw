@@ -43,7 +43,7 @@ export function addTodo(text) {
     body: JSON.stringify(newTodo)
   }).then(response => response.json()).then(json => ({
     type: types.ADD_TODO,
-    todo: json.results
+    todo: json
   }));
 }
 
