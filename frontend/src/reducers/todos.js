@@ -17,6 +17,8 @@ export default function todos(state = initialState, action) {
     );
 
   case EDIT_TODO:
+
+    console.log("****", state);
     return state.map(todo =>
       todo.id === action.todo.id ? action.todo : todo
     );
