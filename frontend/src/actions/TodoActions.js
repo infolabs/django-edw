@@ -72,9 +72,9 @@ export function editTodo(editedTodo) {
     },
     credentials: 'same-origin',
     body: JSON.stringify(editedTodo)
-  }).then(response => response.json()).then(json => ({
+  }).then(response => response.json()). then(json => ({
     type: types.EDIT_TODO,
-    todo: json.results
+    todo: json
   }));
 }
 
