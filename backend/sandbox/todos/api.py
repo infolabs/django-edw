@@ -8,7 +8,7 @@ from .models import Todo
 class TodoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Todo
-        fields = ('id', 'name', 'marked', 'active', 'description' )
+        fields = ('id', 'name', 'marked')
 
 
 class TodoViewSet(viewsets.ModelViewSet):
