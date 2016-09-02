@@ -88,8 +88,8 @@ CREATE TABLE django_migrations (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 31
-AVG_ROW_LENGTH = 546
+AUTO_INCREMENT = 32
+AVG_ROW_LENGTH = 528
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -104,7 +104,7 @@ CREATE TABLE django_session (
   INDEX django_session_de54fa62 (expire_date)
 )
 ENGINE = INNODB
-AVG_ROW_LENGTH = 5461
+AVG_ROW_LENGTH = 4096
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -316,8 +316,8 @@ CREATE TABLE django_admin_log (
     REFERENCES auth_user(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 12
-AVG_ROW_LENGTH = 1489
+AUTO_INCREMENT = 14
+AVG_ROW_LENGTH = 1260
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -479,7 +479,8 @@ CREATE TABLE todos_datamart (
     REFERENCES todos_datamart(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -492,7 +493,6 @@ CREATE TABLE todos_todo (
   updated_at DATETIME(6) NOT NULL,
   active TINYINT(1) NOT NULL,
   name VARCHAR(255) NOT NULL,
-  slug VARCHAR(50) NOT NULL,
   marked TINYINT(1) NOT NULL,
   priority SMALLINT(5) UNSIGNED DEFAULT NULL,
   direction SMALLINT(5) UNSIGNED DEFAULT NULL,
@@ -500,14 +500,13 @@ CREATE TABLE todos_todo (
   `order` INT(10) UNSIGNED NOT NULL,
   polymorphic_ctype_id INT(11) DEFAULT NULL,
   PRIMARY KEY (id),
-  UNIQUE INDEX slug (slug),
   INDEX todos_todo_70a17ffa (`order`),
   CONSTRAINT todos_to_polymorphic_ctype_id_df409da2_fk_django_content_type_id FOREIGN KEY (polymorphic_ctype_id)
     REFERENCES django_content_type(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 18
-AVG_ROW_LENGTH = 2340
+AUTO_INCREMENT = 23
+AVG_ROW_LENGTH = 2730
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -706,7 +705,8 @@ CREATE TABLE todos_datamart_terms (
     REFERENCES todos_term(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 6
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -781,7 +781,7 @@ COLLATE utf8_general_ci;
 -- Вывод данных для таблицы auth_user
 --
 INSERT INTO auth_user VALUES
-(1, 'pbkdf2_sha256$24000$kBnFkZ9Q4fh7$kaU11ff/NKfcZT5MMerFg1wNi179z89E8hKMxlxmh3E=', '2016-09-01 23:18:23.710788', 1, 'root', '', '', 'team@infolabs.ru', 1, 1, '2016-09-01 22:16:06.038951');
+(1, 'pbkdf2_sha256$24000$kBnFkZ9Q4fh7$kaU11ff/NKfcZT5MMerFg1wNi179z89E8hKMxlxmh3E=', '2016-09-02 08:00:33.600457', 1, 'root', '', '', 'team@infolabs.ru', 1, 1, '2016-09-01 22:16:06.038951');
 
 --
 -- Вывод данных для таблицы django_content_type
@@ -849,14 +849,15 @@ INSERT INTO django_migrations VALUES
 (27, 'sessions', '0001_initial', '2016-09-01 22:15:30.622405'),
 (28, 'sites', '0001_initial', '2016-09-01 22:15:30.670716'),
 (29, 'sites', '0002_alter_domain_unique', '2016-09-01 22:15:30.711552'),
-(30, 'todos', '0001_initial', '2016-09-01 22:15:32.882867');
+(30, 'todos', '0001_initial', '2016-09-01 22:15:32.882867'),
+(31, 'todos', '0002_remove_todo_slug', '2016-09-02 08:23:00.506776');
 
 --
 -- Вывод данных для таблицы django_session
 --
 INSERT INTO django_session VALUES
 ('buz9ekli1ancfjh2pndoxt5g06hwzlyc', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-15 22:40:13.198928'),
-('gy9xv0v1n2zpq6qv9zdw5c7xk9f8c16a', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-16 07:54:15.198475'),
+('gy9xv0v1n2zpq6qv9zdw5c7xk9f8c16a', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-16 08:56:19.244507'),
 ('sfx9ukrnsu1r3fyct63zm27ymqfrodm9', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-15 23:14:14.483252');
 
 --
@@ -1026,7 +1027,9 @@ INSERT INTO django_admin_log VALUES
 (8, '2016-09-01 22:53:18.370517', '6', 'Помочь ребенку с подготовкой к экзамену', 2, 'Изменен marked, priority, direction и terms.', 27, 1),
 (9, '2016-09-01 22:54:06.131324', '3', 'Навести порядок на рабочем месте', 2, 'Изменен priority и terms.', 27, 1),
 (10, '2016-09-01 23:01:24.869458', '8', 'Тест', 3, '', 27, 1),
-(11, '2016-09-02 07:43:24.051789', '15', 'Получить скидку', 2, 'Изменен name, slug, priority, direction и terms.', 27, 1);
+(11, '2016-09-02 07:43:24.051789', '15', 'Получить скидку', 2, 'Изменен name, slug, priority, direction и terms.', 27, 1),
+(12, '2016-09-02 08:24:09.901236', '17', '123', 2, 'Изменен name.', 27, 1),
+(13, '2016-09-02 08:52:23.971261', '1', 'Срочные дела', 1, 'Добавлено.', 25, 1);
 
 --
 -- Вывод данных для таблицы easy_thumbnails_thumbnail
@@ -1056,25 +1059,24 @@ INSERT INTO django_admin_log VALUES
 -- Вывод данных для таблицы todos_customer
 --
 INSERT INTO todos_customer VALUES
-(1, 2, '', '2016-09-02 07:50:16.169622', '{}', NULL);
+(1, 2, '', '2016-09-02 08:56:11.653979', '{}', NULL);
 
 --
 -- Вывод данных для таблицы todos_datamart
 --
-
--- Таблица edw_todos_db.todos_datamart не содержит данных
+INSERT INTO todos_datamart VALUES
+(1, 'Срочные дела', 'srochnye-dela', 'srochnye-dela', '2016-09-02 08:52:23.964205', '2016-09-02 08:52:23.964237', NULL, '', 1, 0, 1, 2, 1, 0, NULL, 25);
 
 --
 -- Вывод данных для таблицы todos_todo
 --
 INSERT INTO todos_todo VALUES
-(2, '2016-09-01 09:59:24.193448', '2016-09-01 23:51:06.532967', 1, 'Провести сверку по дебиторам', 'provesti-sverku-po-debitoram', 0, 2, 3, '<p>Сделать до отчета сверку по всем дебиторам.&nbsp;</p>', 2, 27),
-(3, '2016-09-01 10:01:55.823774', '2016-09-01 23:25:44.381802', 1, 'Навести порядок на рабочем месте', 'navesti-poryadok-na-rabochem-meste', 1, 1, NULL, '<p>Сдать в архив все закрытые сделки. Рассортировать всю текущую документацию по приоритетам. Всю&nbsp;документацию не нужную в текущей работе убрать или уничтожить при окончании срока хранения.</p>', 4, 27),
-(5, '2016-09-01 10:03:45.694074', '2016-09-01 23:35:56.409812', 1, 'Сходить к стоматологу', 'shodit-k-stomatologu', 0, 2, 1, '<p>Записаться и наконец сходить к зубному.</p>', 2, 27),
-(6, '2016-09-01 10:04:45.71809', '2016-09-01 22:53:18.365563', 1, 'Помочь ребенку с подготовкой к экзамену', 'pomoch-rebenku-s-podgotovkoj-k-ekzamenu', 1, 3, 2, '', 4, 27),
-(7, '2016-09-01 10:06:05.324555', '2016-09-01 23:25:37.776572', 1, 'Съездить на рыбалку в выходные', 'sezdit-na-rybalku-v-vyhodnye', 0, 3, 4, '<p>Собрать всех своих к субботе.</p>', 3, 27),
-(15, '2016-09-01 23:50:52.748865', '2016-09-02 07:54:15.191596', 1, 'Получить скидку', 'poluchit-skidku', 1, 3, 3, '', 1, 27),
-(17, '2016-09-02 07:53:05.826328', '2016-09-02 07:53:05.826443', 1, '123.', '', 0, NULL, NULL, NULL, 1, 27);
+(2, '2016-09-01 09:59:24.193448', '2016-09-01 23:51:06.532967', 1, 'Провести сверку по дебиторам', 0, 2, 3, '<p>Сделать до отчета сверку по всем дебиторам.&nbsp;</p>', 2, 27),
+(3, '2016-09-01 10:01:55.823774', '2016-09-02 08:01:14.896353', 1, 'Навести порядок на рабочем месте', 0, 1, NULL, '<p>Сдать в архив все закрытые сделки. Рассортировать всю текущую документацию по приоритетам. Всю&nbsp;документацию не нужную в текущей работе убрать или уничтожить при окончании срока хранения.</p>', 4, 27),
+(5, '2016-09-01 10:03:45.694074', '2016-09-01 23:35:56.409812', 1, 'Сходить к стоматологу', 0, 2, 1, '<p>Записаться и наконец сходить к зубному.</p>', 2, 27),
+(6, '2016-09-01 10:04:45.71809', '2016-09-01 22:53:18.365563', 1, 'Помочь ребенку с подготовкой к экзамену', 1, 3, 2, '', 4, 27),
+(7, '2016-09-01 10:06:05.324555', '2016-09-02 08:01:26.109404', 1, 'Съездить на рыбалку в выходные', 1, 3, 4, '<p>Собрать всех своих к субботе.</p>', 3, 27),
+(15, '2016-09-01 23:50:52.748865', '2016-09-02 08:26:16.20303', 1, 'Получить скидку', 1, 3, 3, '', 1, 27);
 
 --
 -- Вывод данных для таблицы auth_group_permissions
@@ -1127,8 +1129,12 @@ INSERT INTO todos_todo VALUES
 --
 -- Вывод данных для таблицы todos_datamart_terms
 --
-
--- Таблица edw_todos_db.todos_datamart_terms не содержит данных
+INSERT INTO todos_datamart_terms VALUES
+(1, 1, 1),
+(5, 1, 4),
+(3, 1, 12),
+(4, 1, 14),
+(2, 1, 15);
 
 --
 -- Вывод данных для таблицы todos_todo_terms
