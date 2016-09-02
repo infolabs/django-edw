@@ -233,8 +233,8 @@ CREATE TABLE todos_term (
     REFERENCES todos_term(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 17
-AVG_ROW_LENGTH = 1024
+AUTO_INCREMENT = 19
+AVG_ROW_LENGTH = 910
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -316,8 +316,8 @@ CREATE TABLE django_admin_log (
     REFERENCES auth_user(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 14
-AVG_ROW_LENGTH = 1260
+AUTO_INCREMENT = 18
+AVG_ROW_LENGTH = 963
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -479,8 +479,8 @@ CREATE TABLE todos_datamart (
     REFERENCES todos_datamart(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 2
-AVG_ROW_LENGTH = 16384
+AUTO_INCREMENT = 4
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -505,7 +505,7 @@ CREATE TABLE todos_todo (
     REFERENCES django_content_type(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 23
+AUTO_INCREMENT = 24
 AVG_ROW_LENGTH = 2730
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
@@ -705,8 +705,8 @@ CREATE TABLE todos_datamart_terms (
     REFERENCES todos_term(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 6
-AVG_ROW_LENGTH = 3276
+AUTO_INCREMENT = 14
+AVG_ROW_LENGTH = 1260
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -781,7 +781,7 @@ COLLATE utf8_general_ci;
 -- Вывод данных для таблицы auth_user
 --
 INSERT INTO auth_user VALUES
-(1, 'pbkdf2_sha256$24000$kBnFkZ9Q4fh7$kaU11ff/NKfcZT5MMerFg1wNi179z89E8hKMxlxmh3E=', '2016-09-02 08:00:33.600457', 1, 'root', '', '', 'team@infolabs.ru', 1, 1, '2016-09-01 22:16:06.038951');
+(1, 'pbkdf2_sha256$24000$kBnFkZ9Q4fh7$kaU11ff/NKfcZT5MMerFg1wNi179z89E8hKMxlxmh3E=', '2016-09-02 09:19:41.094275', 1, 'root', '', '', 'team@infolabs.ru', 1, 1, '2016-09-01 22:16:06.038951');
 
 --
 -- Вывод данных для таблицы django_content_type
@@ -857,7 +857,8 @@ INSERT INTO django_migrations VALUES
 --
 INSERT INTO django_session VALUES
 ('buz9ekli1ancfjh2pndoxt5g06hwzlyc', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-15 22:40:13.198928'),
-('gy9xv0v1n2zpq6qv9zdw5c7xk9f8c16a', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-16 08:56:19.244507'),
+('gy9xv0v1n2zpq6qv9zdw5c7xk9f8c16a', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-16 09:35:20.750918'),
+('m0d83jyts8yxep3g0znzz4mti5u5pjnp', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-16 09:35:14.326919'),
 ('sfx9ukrnsu1r3fyct63zm27ymqfrodm9', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-15 23:14:14.483252');
 
 --
@@ -902,14 +903,16 @@ INSERT INTO todos_term VALUES
 (6, 'Семья', 'semya', 'napravlenie/semya', 10, 0, 10, '2016-09-01 09:50:28.052175', '2016-09-01 09:54:05.129704', 'family', '', 1, 0, 4, 5, 3, 1, 4),
 (7, 'Финансы', 'finansy', 'napravlenie/finansy', 10, 0, 10, '2016-09-01 09:50:56.260197', '2016-09-01 09:54:13.330201', 'finance', '', 1, 0, 6, 7, 3, 1, 4),
 (8, 'Хобби', 'hobbi', 'napravlenie/hobbi', 10, 0, 10, '2016-09-01 09:51:09.908891', '2016-09-01 09:54:20.580387', 'hobby', '', 1, 0, 8, 9, 3, 1, 4),
-(9, 'Приоритет', 'prioritet', 'prioritet', 20, 3, 10, '2016-09-01 09:51:33.267616', '2016-09-01 09:52:52.639264', 'priority', '', 1, 0, 1, 8, 2, 0, NULL),
-(10, 'Низкий', 'nizkij', 'prioritet/nizkij', 10, 0, 10, '2016-09-01 09:52:01.637618', '2016-09-01 09:53:00.597857', 'low', '', 1, 0, 2, 3, 2, 1, 9),
-(11, 'Средний', 'srednij', 'prioritet/srednij', 10, 0, 10, '2016-09-01 09:52:36.38551', '2016-09-01 09:53:07.775504', 'middle', '', 1, 0, 4, 5, 2, 1, 9),
-(12, 'Высокий', 'vysokij', 'prioritet/vysokij', 10, 0, 10, '2016-09-01 09:53:24.164271', '2016-09-01 09:53:24.164306', 'high', '', 1, 0, 6, 7, 2, 1, 9),
+(9, 'Приоритет', 'prioritet', 'prioritet', 20, 3, 10, '2016-09-01 09:51:33.267616', '2016-09-01 09:52:52.639264', 'priority', '', 1, 0, 1, 12, 2, 0, NULL),
+(10, 'Низкий', 'nizkij', 'prioritet/nizkij', 10, 0, 10, '2016-09-01 09:52:01.637618', '2016-09-01 09:53:00.597857', 'low', '', 1, 0, 2, 7, 2, 1, 9),
+(11, 'Средний', 'srednij', 'prioritet/srednij', 10, 0, 10, '2016-09-01 09:52:36.38551', '2016-09-01 09:53:07.775504', 'middle', '', 1, 0, 8, 9, 2, 1, 9),
+(12, 'Высокий', 'vysokij', 'prioritet/vysokij', 10, 0, 10, '2016-09-01 09:53:24.164271', '2016-09-01 09:53:24.164306', 'high', '', 1, 0, 10, 11, 2, 1, 9),
 (13, 'Состояние', 'sostoyanie', 'sostoyanie', 20, 3, 10, '2016-09-01 10:06:52.402104', '2016-09-01 10:07:58.103911', NULL, '', 1, 0, 1, 8, 4, 0, NULL),
 (14, 'Запланированно', 'zaplanirovanno', 'sostoyanie/zaplanirovanno', 10, 0, 10, '2016-09-01 10:07:22.437182', '2016-09-01 10:07:50.467462', NULL, '', 1, 0, 2, 3, 4, 1, 13),
 (15, 'В процессе', 'v-processe', 'sostoyanie/v-processe', 10, 0, 10, '2016-09-01 10:07:33.700932', '2016-09-01 10:07:33.700965', NULL, '', 1, 0, 4, 5, 4, 1, 13),
-(16, 'Завершено', 'zaversheno', 'sostoyanie/zaversheno', 10, 0, 10, '2016-09-01 10:08:11.591613', '2016-09-01 10:08:11.59166', NULL, '', 1, 0, 6, 7, 4, 1, 13);
+(16, 'Завершено', 'zaversheno', 'sostoyanie/zaversheno', 10, 0, 10, '2016-09-01 10:08:11.591613', '2016-09-01 10:08:11.59166', NULL, '', 1, 0, 6, 7, 4, 1, 13),
+(17, 'В течении недели', 'v-techenii-nedeli', 'prioritet/nizkij/v-techenii-nedeli', 10, 0, 10, '2016-09-02 09:35:07.26623', '2016-09-02 09:35:07.266273', NULL, '', 1, 0, 3, 4, 2, 2, 10),
+(18, 'В течении месяца', 'v-techenii-mesyaca', 'prioritet/nizkij/v-techenii-mesyaca', 10, 0, 10, '2016-09-02 09:35:19.832931', '2016-09-02 09:35:19.832965', NULL, '', 1, 0, 5, 6, 2, 2, 10);
 
 --
 -- Вывод данных для таблицы auth_permission
@@ -1029,7 +1032,11 @@ INSERT INTO django_admin_log VALUES
 (10, '2016-09-01 23:01:24.869458', '8', 'Тест', 3, '', 27, 1),
 (11, '2016-09-02 07:43:24.051789', '15', 'Получить скидку', 2, 'Изменен name, slug, priority, direction и terms.', 27, 1),
 (12, '2016-09-02 08:24:09.901236', '17', '123', 2, 'Изменен name.', 27, 1),
-(13, '2016-09-02 08:52:23.971261', '1', 'Срочные дела', 1, 'Добавлено.', 25, 1);
+(13, '2016-09-02 08:52:23.971261', '1', 'Срочные дела', 1, 'Добавлено.', 25, 1),
+(14, '2016-09-02 09:33:27.523537', '2', 'Личные', 1, 'Добавлено.', 25, 1),
+(15, '2016-09-02 09:34:26.827407', '3', 'Рабочие', 1, 'Добавлено.', 25, 1),
+(16, '2016-09-02 09:35:07.285945', '17', 'В течении недели', 1, 'Добавлено.', 24, 1),
+(17, '2016-09-02 09:35:19.844718', '18', 'В течении месяца', 1, 'Добавлено.', 24, 1);
 
 --
 -- Вывод данных для таблицы easy_thumbnails_thumbnail
@@ -1059,13 +1066,15 @@ INSERT INTO django_admin_log VALUES
 -- Вывод данных для таблицы todos_customer
 --
 INSERT INTO todos_customer VALUES
-(1, 2, '', '2016-09-02 08:56:11.653979', '{}', NULL);
+(1, 2, '', '2016-09-02 09:35:20.059118', '{}', NULL);
 
 --
 -- Вывод данных для таблицы todos_datamart
 --
 INSERT INTO todos_datamart VALUES
-(1, 'Срочные дела', 'srochnye-dela', 'srochnye-dela', '2016-09-02 08:52:23.964205', '2016-09-02 08:52:23.964237', NULL, '', 1, 0, 1, 2, 1, 0, NULL, 25);
+(1, 'Срочные дела', 'srochnye-dela', 'srochnye-dela', '2016-09-02 08:52:23.964205', '2016-09-02 08:52:23.964237', NULL, '', 1, 0, 1, 6, 1, 0, NULL, 25),
+(2, 'Личные', 'lichnye', 'srochnye-dela/lichnye', '2016-09-02 09:33:27.488956', '2016-09-02 09:33:27.489', NULL, '', 1, 0, 2, 3, 1, 1, 1, 25),
+(3, 'Рабочие', 'rabochie', 'srochnye-dela/rabochie', '2016-09-02 09:34:26.813196', '2016-09-02 09:34:26.813235', NULL, '', 1, 0, 4, 5, 1, 1, 1, 25);
 
 --
 -- Вывод данных для таблицы todos_todo
@@ -1134,7 +1143,15 @@ INSERT INTO todos_datamart_terms VALUES
 (5, 1, 4),
 (3, 1, 12),
 (4, 1, 14),
-(2, 1, 15);
+(2, 1, 15),
+(7, 2, 2),
+(8, 2, 4),
+(6, 2, 12),
+(9, 2, 13),
+(11, 3, 2),
+(12, 3, 4),
+(10, 3, 12),
+(13, 3, 13);
 
 --
 -- Вывод данных для таблицы todos_todo_terms
