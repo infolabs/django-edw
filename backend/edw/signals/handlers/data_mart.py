@@ -15,6 +15,7 @@ from edw.signals.mptt import (
 )
 
 from edw.models.data_mart import DataMartModel
+from edw.models.term import TermModel
 
 
 def get_children_keys(sender, parent_id):
@@ -30,42 +31,38 @@ def get_children_keys(sender, parent_id):
 #==============================================================================
 # DataMart model event handlers
 #==============================================================================
-"""
 Model = DataMartModel.terms.through
 @receiver(m2m_changed, sender=Model, dispatch_uid=make_dispatch_uid(
     m2m_changed, 'invalidate_after_terms_set_changed', Model))
-def invalidate_after_terms_set_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
-    '''
-    Automatically normalize terms set
-    '''
-    print "M2M_CHANGED!!!", instance, action, pk_set
-    # pre_remove
-    # post_remove
-    # pre_add
-    # post_add
+def invalidate_after_terms_set_changed(sender, instance, **kwargs):
+    if getattr(instance, "_during_terms_validation", False):
+        return
 
-    if action == 'post_add':
-        if not hasattr(instance, '_during_terms_validation'):
-            # normalize terms set
-            instance.validate_terms(pk_set)
-            # clear cache
-            keys = [instance.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, instance.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
-            cache.delete_many(keys)
-"""
+    #print "************", sender, instance, kwargs
 
-"""
-# Excample...
-@receiver(m2m_changed, sender=Video.category.through)
-def video_category_changed(sender, **kwargs):
-    instance = kwargs.pop('instance', None)
     pk_set = kwargs.pop('pk_set', None)
     action = kwargs.pop('action', None)
+
     if action == "pre_add":
-        if 1 not in pk_set:
-            c = Category.objects.get(pk=1)
-            instance.category.add(c)
-            instance.save()
-"""
+        # normalize terms set
+        origin_pk_set = set(instance.terms.values_list('id', flat=True))
+        tree = TermModel.decompress(origin_pk_set | pk_set, fix_it=True)
+        normal_pk_set = set([x.term.id for x in tree.values() if x.is_leaf])
+        # pk set to add
+        pk_set_difference = normal_pk_set - origin_pk_set
+        pk_set.clear()
+        pk_set.update(pk_set_difference)
+        # pk set to remove
+        pk_set_difference = origin_pk_set - normal_pk_set
+        if pk_set_difference:
+            instance._during_terms_validation = True
+            instance.terms.remove(*list(pk_set_difference))
+            del instance._during_terms_validation
+
+    elif action == 'post_add' or action == 'post_remove':
+        # clear cache
+        keys = [instance.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, instance.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+        cache.delete_many(keys)
 
 
 def invalidate_data_mart_before_save(sender, instance, **kwargs):
@@ -99,12 +96,18 @@ def invalidate_data_mart_before_save(sender, instance, **kwargs):
 
 
 def invalidate_data_mart_after_save(sender, instance, **kwargs):
+
+    print "*** invalidate_data_mart_after_save ***", sender, instance, id(instance)
+
     if instance.id is not None and not getattr(instance, '_parent_id_validate', False) :
         keys = get_children_keys(sender, instance.parent_id)
         cache.delete_many(keys)
 
 
 def invalidate_data_mart_before_delete(sender, instance, **kwargs):
+    # todo: clear cache
+    # keys = [instance.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, instance.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+
     invalidate_data_mart_after_save(sender, instance, **kwargs)
 
 

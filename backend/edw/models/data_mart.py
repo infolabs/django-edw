@@ -226,6 +226,13 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 raise ValidationError(self.messages['has_child_restriction'])
         return super(BaseDataMart, self).clean(*args, **kwargs)
 
+    def need_terms_validation(self, origin, **kwargs):
+        return origin is None
+
+    def validate_terms(self, origin, **kwargs):
+        # todo: Type validator: DataMartModel.materialized.__subclasses__()
+        pass
+
     def _make_path(self, items):
 
         def join_path(joiner, field, ancestors):
@@ -267,6 +274,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 else:
                     update_id_list = list(self.get_descendants(include_self=False).values_list('id', flat=True))
                 model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
+            force_validate_terms = kwargs.get('force_validate_terms', False)
+            validation_context = {}
+            if force_validate_terms or self.need_terms_validation(origin, context=validation_context):
+                self._during_terms_validation = True
+                self.validate_terms(origin, context=validation_context)
+                del self._during_terms_validation
         else:
             result = super(BaseDataMart, self).save(*args, **kwargs)
         return result
@@ -297,36 +310,6 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 if not target.active and self.active:
                     raise InvalidMove(self.messages['parent_not_active'])
         super(BaseDataMart, self).move_to(target, position)
-
-    """
-    def validate_terms(self, pk_set=None):
-
-        if pk_set is None:
-            pk_set = set(self.terms.values_list('id', flat=True))
-        origin_pk_set = pk_set.copy()
-
-        tree = TermModel.decompress(pk_set, fix_it=True)
-        pk_set = set([x.term.id for x in tree.values() if x.is_leaf])
-
-        #print "::Validate terms::", origin_pk_set, pk_set
-
-        if origin_pk_set != pk_set:
-            self._during_terms_validation = True
-            pk_set_difference = origin_pk_set - pk_set
-            difference_list = list(pk_set_difference)
-
-            #print "+++ REMOVE", difference_list
-
-            self.terms.remove(*difference_list)
-            pk_set_difference = pk_set - origin_pk_set
-            difference_list = list(pk_set_difference)
-
-            #print "+++ ADD", difference_list
-
-            self.terms.add(*difference_list)
-            del self._during_rubrics_validation
-    """
-
 
     def get_children_cache_key(self):
         return self.CHILDREN_CACHE_KEY_PATTERN.format(
