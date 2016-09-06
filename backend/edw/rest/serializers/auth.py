@@ -30,3 +30,4 @@ class PasswordResetSerializer(serializers.PasswordResetSerializer):
 class PasswordResetConfirmSerializer(serializers.PasswordResetConfirmSerializer):
     new_password1 = CharField(min_length=6, max_length=128)
     new_password2 = CharField(min_length=6, max_length=128)
+

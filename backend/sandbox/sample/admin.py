@@ -48,6 +48,19 @@ class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
         }),
     )
 
+    class Media:
+        css = {
+            'all': (
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+            )
+        }
+        js = (
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
+
     prepopulated_fields = {'slug': ('name',)}
 
     inlines = [EntityCharacteristicOrMarkInline]
@@ -79,6 +92,19 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
     )
 
     prepopulated_fields = {'slug': ('name',)}
+
+    class Media:
+        css = {
+            'all': (
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+            )
+        }
+        js = (
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
 
     inlines = [EntityCharacteristicOrMarkInline]
 
