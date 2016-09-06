@@ -13,7 +13,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_auth.views import LoginView as OriginalLoginView
-from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer #, RegistrationSerializer
+from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 
 class AuthFormsView(GenericAPIView):
@@ -21,16 +21,7 @@ class AuthFormsView(GenericAPIView):
     Generic view to handle authetication related forms such as user registration
     """
     serializer_class = None
-    #serializer_class = RegistrationSerializer
     form_class = None
-
-    #permission_classes = (AllowAny,)
-    #def get(self, request):
-    #    serializer_class = self.get_serializer_class()
-    #    serializer = serializer_class(data=request.data, context=self.get_serializer_context())
-    #    if not serializer.is_valid():
-    #        return Response({'valid': False})
-    #    return Response({'valid': True, 'user_name': force_text(serializer.user)})
 
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
