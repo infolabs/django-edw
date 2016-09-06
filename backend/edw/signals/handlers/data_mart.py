@@ -28,6 +28,10 @@ def get_children_keys(sender, parent_id):
     return [key, ":".join([key, "active"])]
 
 
+def get_all_active_terms_keys(sender):
+    return [sender.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, sender.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+
+
 #==============================================================================
 # DataMart model event handlers
 #==============================================================================
@@ -37,9 +41,6 @@ Model = DataMartModel.terms.through
 def invalidate_after_terms_set_changed(sender, instance, **kwargs):
     if getattr(instance, "_during_terms_validation", False):
         return
-
-    #print "************", sender, instance, kwargs
-
     pk_set = kwargs.pop('pk_set', None)
     action = kwargs.pop('action', None)
 
@@ -61,7 +62,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
 
     elif action == 'post_add' or action == 'post_remove':
         # clear cache
-        keys = [instance.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, instance.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+        keys = get_all_active_terms_keys(sender)
         cache.delete_many(keys)
 
 
@@ -96,17 +97,14 @@ def invalidate_data_mart_before_save(sender, instance, **kwargs):
 
 
 def invalidate_data_mart_after_save(sender, instance, **kwargs):
-
-    print "*** invalidate_data_mart_after_save ***", sender, instance, id(instance)
-
     if instance.id is not None and not getattr(instance, '_parent_id_validate', False) :
         keys = get_children_keys(sender, instance.parent_id)
         cache.delete_many(keys)
 
 
 def invalidate_data_mart_before_delete(sender, instance, **kwargs):
-    # todo: clear cache
-    # keys = [instance.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, instance.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+    keys = get_all_active_terms_keys(sender)
+    cache.delete_many(keys)
 
     invalidate_data_mart_after_save(sender, instance, **kwargs)
 

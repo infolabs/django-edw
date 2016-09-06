@@ -446,8 +446,35 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return cart_item_qs.first()
     '''
 
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        result = super(BaseEntity, self).save(force_insert, force_update, *args, **kwargs)
+
+
+    def need_terms_validation(self, origin, **kwargs):
+        return origin is None
+
+    def validate_terms(self, origin, **kwargs):
+
+        print "*** @@@@@ ***", EntityModel.materialized.__subclasses__()
+
+        # todo: Type validator: EntityModel.materialized.__subclasses__()
+        pass
+
+    def save(self, *args, **kwargs):
+        force_update = kwargs.get('force_update', False)
+        if not force_update:
+            model_class = self.__class__
+            try:
+                origin = model_class._default_manager.get(pk=self.pk)
+            except model_class.DoesNotExist:
+                origin = None
+            result = super(BaseEntity, self).save(*args, **kwargs)
+            force_validate_terms = kwargs.get('force_validate_terms', False)
+            validation_context = {}
+            if force_validate_terms or self.need_terms_validation(origin, context=validation_context):
+                self._during_terms_validation = True
+                self.validate_terms(origin, context=validation_context)
+                del self._during_terms_validation
+        else:
+            result = super(BaseEntity, self).save(*args, **kwargs)
         return result
 
     @cached_property

@@ -230,7 +230,6 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         return origin is None
 
     def validate_terms(self, origin, **kwargs):
-        # todo: Type validator: DataMartModel.materialized.__subclasses__()
         pass
 
     def _make_path(self, items):
@@ -257,14 +256,14 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 origin = None
             if not origin or origin.view_class != self.view_class:
                 self.view_class = ' '.join([x.lower() for x in self.view_class.split()]) if self.view_class else None
-            self._make_path(ancestors + [self, ])
+            self._make_path(ancestors + [self])
             try:
                 with transaction.atomic():
                     result = super(BaseDataMart, self).save(*args, **kwargs)
             except IntegrityError as e:
                 if model_class._default_manager.exclude(pk=self.pk).filter(path=self.path).exists():
                     self.slug = get_unique_slug(self.slug, self.id)
-                    self._make_path(ancestors + [self, ])
+                    self._make_path(ancestors + [self])
                     result = super(BaseDataMart, self).save(*args, **kwargs)
                 else:
                     raise e
