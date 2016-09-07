@@ -19,13 +19,9 @@ from django.db.utils import ProgrammingError
 __all__ = ('FullPathTreeNodeChoiceField',)
 
 
-# Fields ######################################################################
-
 class FullPathTreeNodeChoiceFieldMixin(object):
 
     def __init__(self, queryset, *args, **kwargs):
-
-
 
         self.joiner = kwargs.pop('joiner', ' / ')
         self.to_field_name = kwargs.pop('to_field_name', None)

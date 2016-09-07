@@ -15,9 +15,6 @@ Model = EntityModel.terms.through
 @receiver(m2m_changed, sender=Model, dispatch_uid=make_dispatch_uid(
     m2m_changed, 'invalidate_after_terms_set_changed', Model))
 def invalidate_after_terms_set_changed(sender, instance, **kwargs):
-
-    print "*** invalidate_after_terms_set_changed ***", sender, instance, kwargs
-
     if getattr(instance, "_during_terms_validation", False):
         return
     pk_set = kwargs.pop('pk_set', None)
@@ -26,7 +23,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
     if action == "pre_add":
         # normalize terms set
         origin_pk_set = set(instance.terms.values_list('id', flat=True))
-        tree = TermModel.decompress(origin_pk_set | pk_set, fix_it=True)
+        tree = TermModel.decompress(origin_pk_set | pk_set, fix_it=False)
         normal_pk_set = set([x.term.id for x in tree.values() if x.is_leaf])
         # pk set to add
         pk_set_difference = normal_pk_set - origin_pk_set
@@ -38,3 +35,11 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
             instance._during_terms_validation = True
             instance.terms.remove(*list(pk_set_difference))
             del instance._during_terms_validation
+
+
+#==============================================================================
+# Term model validation
+#==============================================================================
+Model = EntityModel.materialized
+for clazz in [Model] + Model.__subclasses__():
+    clazz.validate_term_model()

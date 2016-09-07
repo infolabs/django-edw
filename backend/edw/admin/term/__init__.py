@@ -1,32 +1,32 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from functools import update_wrapper
+
 from django.contrib import messages
-from django_mptt_admin.admin import DjangoMpttAdmin
-from django_mptt_admin.util import get_tree_from_queryset
-
-from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
-
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
 
+from django_mptt_admin.admin import DjangoMpttAdmin
+from django_mptt_admin.util import get_tree_from_queryset
+
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
+from rest_framework import serializers
+
+from salmonella.admin import SalmonellaMixin
+
+from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
 from edw.models.term import TermModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.serializers.term import (
     TermListSerializer,
     TermTreeSerializer,
 )
-
-from functools import update_wrapper
-
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-
-from salmonella.admin import SalmonellaMixin
 
 
 class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
@@ -108,6 +108,10 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
         if node_id:
             queryset = TermModel.objects.filter(parent_id=node_id)
+
+            if serializers.BooleanField().to_internal_value(request.GET.get('active_only', False)):
+                queryset = queryset.active()
+
             serializer = TermListSerializer(queryset, context=context, many=True)
             template = 'edw/admin/term/widgets/children.json'
         else:
