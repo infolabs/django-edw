@@ -1,0 +1,5 @@
+{% if customer.is_anonymous %}
+	{% include "edw/auth/login-reset.html" %}
+{% else %}
+	{% include "edw/auth/logout.html" %}
+{% endif %}

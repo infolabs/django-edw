@@ -1,53 +1,66 @@
-{% extends "shop/auth/anonymous-base.html" %}
+{% extends "edw/auth/anonymous-base.html" %}
 {% load i18n %}
 
 {% block form_title %}{% trans "Register Yourself" %}{% endblock %}
 
 {% block form_content %}
 {{ block.super }}
-<div class="form-group has-feedback" style="margin-bottom: 20px">
+{% csrf_token %}
+<div class="form-group{% if register_user_form.email.errors %} has-error{% elif register_user_form.is_bound %} has-success{% endif %} has-feedback" style="margin-bottom: 20px">
 	{{ register_user_form.email.label_tag }}
-	<div class="input-group" ng-class="hasError('email')">
+	<div class="input-group">
 		<span class="input-group-addon"><i class="fa fa-envelope-o fa-fw"></i></span>
-		{{ register_user_form.email }}
+        <input class="form-control" type="{{ register_user_form.email.field.widget.input_type }}" id="{{ register_user_form.email.id_for_label }}" name="{{ register_user_form.email.html_name }}" placeholder="{{ register_user_form.email.label }}"{% if register_user_form.email.value %} value="{{ register_user_form.email.value }}"{% endif %}>
 	</div>
-	<ul ng-messages="register_user_form.email.$error" class="shop-form-error" ng-cloak>
-		<li ng-show="register_user_form.email.$dirty" ng-message="email">{% trans "Please provide a valid email address" %}</li>
-		<li ng-show="register_user_form.email.$pristine" ng-message="rejected"><span ng-bind="register_user_form.email.$message"></span></li>
-	</ul>
+    {% if register_user_form.email.errors %}
+        {% for field_error in register_user_form.email.errors %}
+            <span class="help-block">{{ field_error }}</span>
+        {% endfor %}
+    {% endif %}
+    {% if register_user_form.email.help_text %}
+        <span class="help-block">{{ register_user_form.email.help_text }}</span>
+    {% endif %}
 </div>
 
 <div class="form-group">
-	{{ register_user_form.preset_password }}
-	<span class="help-block">{{ register_user_form.preset_password.help_text }}</span>
+    <label for="{{ register_user_form.preset_password.id_for_label }}">
+        <input type="checkbox" id="{{ register_user_form.preset_password.id_for_label }}" name="{{ register_user_form.preset_password.html_name }}">&nbsp;{{ register_user_form.preset_password.label|safe }}
+    </label>
+	{% if register_user_form.preset_password.help_text %}<span class="help-block">{{ register_user_form.preset_password.help_text }}</span>{% endif %}
 </div>
 
-<div shop-form-validate="!form_data.preset_password" ng-hide="form_data.preset_password" style="margin-top: 20px;">
-	<div class="form-group has-feedback">
-		{{ register_user_form.password1.label_tag }}
-		<div class="input-group" ng-class="hasError('password1')">
-			<span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
-			{{ register_user_form.password1 }}
-		</div>
-		<ul ng-messages="register_user_form.password1.$error" ng-show="register_user_form.password1.$pristine" class="shop-form-error" ng-cloak>
-			<li ng-message="rejected"><span ng-bind="register_user_form.password1.$message"></span></li>
-		</ul>
-		<span class="help-block">{{ register_user_form.password1.help_text }}</span>
-	</div>
+<div class="form-group{% if register_user_form.password1.errors %} has-error{% elif register_user_form.is_bound %} has-success{% endif %} has-feedback">
+    {{ register_user_form.password1.label_tag }}
+    <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+        <input class="form-control" type="{{ register_user_form.password1.field.widget.input_type }}" id="{{ register_user_form.password1.id_for_label }}" name="{{ register_user_form.password1.html_name }}" placeholder="{{ register_user_form.password1.label }}"{% if register_user_form.password1.value %} value="{{ register_user_form.password1.value }}"{% endif %}>
+    </div>
+    {% if register_user_form.password1.errors %}
+        {% for field_error in register_user_form.password1.errors %}
+            <span class="help-block">{{ field_error }}</span>
+        {% endfor %}
+    {% endif %}
+    {% if register_user_form.password1.help_text %}
+        <span class="help-block">{{ register_user_form.password1.help_text }}</span>
+    {% endif %}
+</div>
 
-	<div class="form-group has-feedback">
-		<div class="input-group" ng-class="hasError('password2')">
-			<span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
-			{{ register_user_form.password2 }}
-		</div>
-		<ul ng-messages="register_user_form.password2.$error" ng-show="register_user_form.password2.$pristine" class="shop-form-error" ng-cloak>
-			<li ng-message="rejected"><span ng-bind="register_user_form.password2.$message"></span></li>
-		</ul>
-		<span class="help-block">{{ register_user_form.password2.help_text }}</span>
-	</div>
+<div class="form-group{% if register_user_form.password1.errors %} has-error{% elif register_user_form.is_bound %} has-success{% endif %} has-feedback">
+    <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+        <input class="form-control" type="{{ register_user_form.password2.field.widget.input_type }}" id="{{ register_user_form.password2.id_for_label }}" name="{{ register_user_form.password2.html_name }}" placeholder="{{ register_user_form.password2.label }}"{% if register_user_form.password2.value %} value="{{ register_user_form.password2.value }}"{% endif %}>
+    </div>
+    {% if register_user_form.password2.errors %}
+        {% for field_error in register_user_form.password2.errors %}
+            <span class="help-block">{{ field_error }}</span>
+        {% endfor %}
+    {% endif %}
+    {% if register_user_form.password1.help_text %}
+        <span class="help-block">{{ register_user_form.password1.help_text }}</span>
+    {% endif %}
 </div>
 
 <div class="form-group">
-	<button type="button" ng-click="submitForm('{% url 'shop:register-user' %}', 5000)" class="btn btn-primary">{% trans "Register" %}</button>
+	<button type="submit" class="btn btn-primary">{% trans "Register" %}</button>
 </div>
 {% endblock form_content %}

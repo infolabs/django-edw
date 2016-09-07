@@ -1,26 +1,29 @@
 #-*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django import forms
-from django.template.loader import render_to_string
 from django.conf import settings
+from django.template.loader import render_to_string
 
 
 class TermTreeWidget(forms.SelectMultiple):
 
-    node_template = 'extended'
-
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, external_tagging_restriction=False, node_template='extended'):
+        self.external_tagging_restriction = external_tagging_restriction
+        self.node_template = node_template
         super(TermTreeWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None, choices=()):
         if value is None:
             value = []
         return render_to_string(
-            'edw/admin/term/widgets/tree.html', {
+            'edw/admin/term/widgets/tree/widget.html', {
                 'name': name,
                 'value': value,
                 'attrs': attrs,
                 'active_only': 0,
-                'node_template': self.node_template
+                'node_template': self.node_template,
+                'tagging_restriction': self.external_tagging_restriction
             })
 
     class Media:

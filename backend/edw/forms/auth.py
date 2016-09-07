@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from django.core.exceptions import ValidationError
+
 from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError
+
 from django.forms import fields, widgets, ModelForm
+
 from django.template import Context
 from django.template.loader import select_template
+
 from django.utils.translation import ugettext_lazy as _
-from djng.forms import NgModelFormMixin, NgFormValidationMixin
-from djng.styling.bootstrap3.forms import Bootstrap3ModelForm
+
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 
 
-class RegisterUserForm(NgModelFormMixin, NgFormValidationMixin, Bootstrap3ModelForm):
+class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
     scope_prefix = 'form_data'
     field_css_classes = 'input-group has-feedback'

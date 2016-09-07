@@ -1,0 +1,7 @@
+{% load i18n %}
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+
+<h3>{{ title }}</h3>
+<div class="clear filter_tree">
+    {% include "edw/admin/term/widgets/tree/widget.html" with name="terms" value=choices.0.selected active_only="1" node_template="simple" %}
+</div>

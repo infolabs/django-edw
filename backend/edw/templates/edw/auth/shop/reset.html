@@ -1,4 +1,4 @@
-{% extends "shop/auth/anonymous-base.html" %}
+{% extends "edw/auth/anonymous-base.html" %}
 {% load i18n %}
 
 {% block form_title %}{% trans "Password Forgotten?" %}{% endblock %}
@@ -12,6 +12,6 @@
 </div>
 
 <div class="form-group" ng-hide="success_message">
-	<button type="button" ng-click="submitForm('{% url 'shop:password-reset' %}', 5000)" class="btn btn-primary">{% trans "Reset Password" %}</button>
+	<button type="button" ng-click="submitForm('{% url 'edw:password-reset' %}', 5000)" class="btn btn-primary">{% trans "Reset Password" %}</button>
 </div>
 {% endblock %}

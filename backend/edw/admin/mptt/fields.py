@@ -3,18 +3,19 @@
 Form components for working with trees.
 """
 from django import forms
-try:
-    from django.utils.encoding import smart_text
-except ImportError:
-    from django.utils.encoding import smart_unicode as smart_text
-from django.utils.html import conditional_escape, mark_safe
 
 from django.forms.fields import ChoiceField
 from django.forms.models import ModelChoiceIterator
 
-import hashlib
+try:
+    from django.utils.encoding import smart_text
+except ImportError:
+    from django.utils.encoding import smart_unicode as smart_text
 
+from django.utils.html import conditional_escape, mark_safe
 from django.db.utils import ProgrammingError
+
+import hashlib
 
 __all__ = ('FullPathTreeNodeChoiceField',)
 

@@ -6,9 +6,9 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
-from edw.rest.filters.entity import EntityFilter
 from edw.models.related import AdditionalEntityCharacteristicOrMarkModel
 from edw.admin.entity.forms import EntityCharacteristicOrMarkInlineForm
+from edw.rest.filters.entity import EntityFilter
 
 
 #===========================================================================================
@@ -18,8 +18,7 @@ class TermsTreeFilter(admin.ListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
     title = _('Terms')
-    template = 'edw/admin/term/widgets/filter_tree.html'
-    node_template = 'simple'
+    template = 'edw/admin/term/filters/tree/filter.html'
 
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'terms'
