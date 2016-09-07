@@ -29,11 +29,11 @@ from .. import settings as edw_settings
 
 
 #==============================================================================
-# get_polymorphic_ancestors
+# get_polymorphic_ancestors_models
 #==============================================================================
-def get_polymorphic_ancestors(ChildModel):
+def get_polymorphic_ancestors_models(ChildModel):
     """
-    Inheritance chain that inherited from the PolymorphicMPTTModel include self
+    Inheritance chain that inherited from the PolymorphicModel include self model
     """
     ancestors = []
     for Model in ChildModel.mro():
@@ -470,7 +470,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def validate_term_model(cls):
         if EntityModel.materialized.__subclasses__():
             parent = None
-            for Model in get_polymorphic_ancestors(cls):
+            for Model in get_polymorphic_ancestors_models(cls):
                 slug = Model.__name__.lower()
                 try:
                     term = TermModel.objects.get(slug=slug, parent=parent)
@@ -488,12 +488,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     term.save()
                 parent = term
 
-    def need_terms_validation(self, origin, **kwargs):
-        return origin is None
+    def need_terms_validation(self, origin, **kwargs): # after save
+        return True # origin is None
 
     def validate_terms(self, origin, **kwargs):
         # todo: Type validator: EntityModel.materialized.__subclasses__()
-        pass
+        slug = EntityModel.materialized.__name__.lower()
+        print ">>> BASE:", slug
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
