@@ -370,6 +370,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                     raise ValidationError(self.messages['change_slug_restriction'])
                 if self.system_flags.change_parent_restriction and origin.parent_id != self.parent_id:
                     raise ValidationError(self.messages['change_parent_restriction'])
+                if self.system_flags.change_semantic_rule_restriction and origin.semantic_rule != self.semantic_rule:
+                    raise ValidationError(self.messages['change_semantic_rule_restriction'])
         if self.parent_id is not None and self.parent.system_flags.has_child_restriction:
             if origin is None or origin.parent_id != self.parent_id:
                 raise ValidationError(self.messages['has_child_restriction'])

@@ -28,17 +28,20 @@ from ..utils.set_helpers import uniq
 from .. import settings as edw_settings
 
 
+#==============================================================================
+# get_polymorphic_ancestors
+#==============================================================================
 def get_polymorphic_ancestors(ChildModel):
     """
-    Inheritance chain that inherited from the PolymorphicMPTTModel
+    Inheritance chain that inherited from the PolymorphicMPTTModel include self
     """
     ancestors = []
-    for Model in ChildModel.mro()[1:]:
+    for Model in ChildModel.mro():
         if isinstance(Model, PolymorphicModelBase) and not Model._meta.abstract:
             ancestors.append(Model)
         else:
             break
-    return ancestors
+    return reversed(ancestors)
 
 
 #==============================================================================
@@ -381,21 +384,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
 
-    ENTITY_TYPE_CLASSIFIER_TERM = {
-        "slug": "__entity_type__",
-        "name": _("Entity type"),
-        "parent": None,
-        "semantic_rule": TermModel.OR_RULE,
-        "system_flags": (
-            TermModel.system_flags.delete_restriction |
-            TermModel.system_flags.change_parent_restriction |
-            TermModel.system_flags.change_slug_restriction |
-            TermModel.system_flags.change_semantic_rule_restriction |
-            TermModel.system_flags.has_child_restriction |
-            TermModel.system_flags.external_tagging_restriction
-        )
-    }
-
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
 
@@ -480,36 +468,25 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @classmethod
     def validate_term_model(cls):
-        print "*** validate_term_model ***", cls
         if EntityModel.materialized.__subclasses__():
-            # entity type classifier
-            try:
-                entity_type_classifier = TermModel.objects.get(slug=cls.ENTITY_TYPE_CLASSIFIER_TERM["slug"])
-            except TermModel.DoesNotExist:
-                entity_type_classifier = TermModel(**cls.ENTITY_TYPE_CLASSIFIER_TERM)
-                entity_type_classifier.save()
-
-            # entity type
-            slug = cls.__name__.lower()
-            try:
-                TermModel.objects.get(slug=slug, parent=entity_type_classifier)
-            except TermModel.DoesNotExist:
-                entity_type = TermModel(slug=slug,
-                                        name=cls._meta.verbose_name,
-                                        parent=entity_type_classifier,
-                                        system_flags=(
-                                            TermModel.system_flags.delete_restriction |
-                                            TermModel.system_flags.change_parent_restriction |
-                                            TermModel.system_flags.change_slug_restriction |
-                                            TermModel.system_flags.change_semantic_rule_restriction |
-                                            TermModel.system_flags.has_child_restriction |
-                                            TermModel.system_flags.external_tagging_restriction))
-
-                entity_type.save()
-
-            #print "---------------", cls
-            print get_polymorphic_ancestors(cls)
-
+            parent = None
+            for Model in get_polymorphic_ancestors(cls):
+                slug = Model.__name__.lower()
+                try:
+                    term = TermModel.objects.get(slug=slug, parent=parent)
+                except TermModel.DoesNotExist:
+                    term = TermModel(slug=slug,
+                                     parent=parent,
+                                     name=cls._meta.verbose_name,
+                                     semantic_rule=TermModel.XOR_RULE,
+                                     system_flags=(TermModel.system_flags.delete_restriction |
+                                                   TermModel.system_flags.change_parent_restriction |
+                                                   TermModel.system_flags.change_slug_restriction |
+                                                   TermModel.system_flags.change_semantic_rule_restriction |
+                                                   TermModel.system_flags.has_child_restriction |
+                                                   TermModel.system_flags.external_tagging_restriction))
+                    term.save()
+                parent = term
 
     def need_terms_validation(self, origin, **kwargs):
         return origin is None

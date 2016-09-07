@@ -28,8 +28,8 @@ def get_children_keys(sender, parent_id):
     return [key, ":".join([key, "active"])]
 
 
-def get_all_active_terms_keys(sender):
-    return [sender.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, sender.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+def get_data_mart_all_active_terms_keys():
+    return [DataMartModel.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, DataMartModel.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
 
 
 #==============================================================================
@@ -62,7 +62,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
 
     elif action == 'post_add' or action == 'post_remove':
         # clear cache
-        keys = get_all_active_terms_keys(sender)
+        keys = get_data_mart_all_active_terms_keys()
         cache.delete_many(keys)
 
 
@@ -103,7 +103,7 @@ def invalidate_data_mart_after_save(sender, instance, **kwargs):
 
 
 def invalidate_data_mart_before_delete(sender, instance, **kwargs):
-    keys = get_all_active_terms_keys(sender)
+    keys = get_data_mart_all_active_terms_keys()
     cache.delete_many(keys)
 
     invalidate_data_mart_after_save(sender, instance, **kwargs)
