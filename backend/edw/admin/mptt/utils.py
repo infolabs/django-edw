@@ -9,7 +9,7 @@ def get_mptt_admin_node_template(instance):
     :param instance: instance of mptt model
     :return: template name
     '''
-    return 'edw/admin/mptt/%s.html' % instance.__class__.__name__.lower()
+    return 'edw/admin/mptt/_%s_node.html' % instance.__class__.__name__.lower()
 
 
 def mptt_admin_node_info_update_with_template(admin_instance, template, instance, node_info, context={}):

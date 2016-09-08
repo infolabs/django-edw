@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-27 11:52+0300\n"
-"PO-Revision-Date: 2016-08-27 11:53+0300\n"
+"PO-Revision-Date: 2016-09-07 21:16+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -86,7 +86,7 @@ msgstr "Предметно-ориентированное хранилище д�
 #: forms/auth.py:21 templates/edw/auth/login-reset.html:11
 #: templates/edw/auth/login.html:9 templates/edw/auth/reset.html:8
 msgid "Your e-mail address"
-msgstr "Выш адрес электронной почты"
+msgstr "Ваш адрес электронной почты"
 
 #: forms/auth.py:22
 msgid "Preset password"
@@ -373,7 +373,7 @@ msgstr "Ограничение на изменение семантическо�
 
 #: models/term.py:267
 msgid "External tagging restriction"
-msgstr "Ограничение на изменение синонима"
+msgstr "Ограничение на ручную установку в объектах"
 
 #: models/term.py:287 templates/edw/admin/term.html:3
 #: templates/edw/admin/term.html:4

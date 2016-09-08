@@ -1,0 +1,1 @@
+[{% for node in nodes %}{% include 'edw/admin/term/widgets/tree/_tree_node.json' with node=node name=name selected=selected node_template=node_template tagging_restriction=tagging_restriction only %}{% if not forloop.last %},{% endif %}{% endfor %}]

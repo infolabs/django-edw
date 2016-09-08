@@ -1,4 +1,4 @@
-{% load i18n pipeline compress %}{% comment %}{% stylesheet 'term_admin' %}{% stylesheet 'datamart_admin' %}{% endcomment %}
+{% load i18n compress %}
 {% compress js %}
 <script type="text/javascript">
 (function ($) {
@@ -100,4 +100,4 @@
 
 </script>
 {% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&_={% now 'U' %}" class="tree-widget"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&tagging_restriction={{ tagging_restriction }}&_={% now 'U' %}" class="tree-widget"></div>

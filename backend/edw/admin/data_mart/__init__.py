@@ -1,19 +1,19 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.contrib import messages
+
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
-
-from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
-from edw.admin.data_mart.forms import DataMartAdminForm
-
-from django.conf import settings
 
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 from salmonella.admin import SalmonellaMixin
+
+from edw.admin.data_mart.forms import DataMartAdminForm
+from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
 
 
 class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):

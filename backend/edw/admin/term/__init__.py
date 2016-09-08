@@ -16,17 +16,17 @@ from django_mptt_admin.util import get_tree_from_queryset
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
-from rest_framework import serializers
+from rest_framework.serializers import BooleanField
 
 from salmonella.admin import SalmonellaMixin
 
 from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
-from edw.models.term import TermModel
+from edw.models.term import BaseTerm, TermModel
+
 from edw.rest.viewsets import remove_empty_params_from_request
-from edw.rest.serializers.term import (
-    TermListSerializer,
-    TermTreeSerializer,
-)
+from edw.rest.serializers.term import TermListSerializer
+
+from edw.admin.term.serializers import WidgetTermTreeSerializer
 
 
 class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
@@ -101,6 +101,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         node_id = request.GET.get('node')
         name = request.GET.get('name')
         node_template = request.GET.get('node_template')
+        tagging_restriction = BooleanField().to_internal_value(request.GET.get('tagging_restriction', False))
 
         context = {
             "request": request
@@ -108,19 +109,22 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
         if node_id:
             queryset = TermModel.objects.filter(parent_id=node_id)
-
-            if serializers.BooleanField().to_internal_value(request.GET.get('active_only', False)):
+            if tagging_restriction:
+                queryset = queryset.exclude(system_flags=BaseTerm.system_flags.external_tagging_restriction)
+            if BooleanField().to_internal_value(request.GET.get('active_only', False)):
                 queryset = queryset.active()
-
             serializer = TermListSerializer(queryset, context=context, many=True)
-            template = 'edw/admin/term/widgets/children.json'
+            template = 'edw/admin/term/widgets/tree/children.json'
         else:
             queryset = TermModel.objects.toplevel()
-            serializer = TermTreeSerializer(queryset, context=context, many=True)
-            template = 'edw/admin/term/widgets/tree_root.json'
+            if tagging_restriction:
+                queryset = queryset.exclude(system_flags=BaseTerm.system_flags.external_tagging_restriction)
+            serializer = WidgetTermTreeSerializer(queryset, context=context, many=True)
+            template = 'edw/admin/term/widgets/tree/toplevel.json'
 
         return HttpResponse(mark_safe(render_to_string(template, {
                 "nodes": serializer.data,
                 "name": name,
-                "node_template": node_template
+                "node_template": node_template,
+                "tagging_restriction": tagging_restriction
             })), content_type = "application/json")
