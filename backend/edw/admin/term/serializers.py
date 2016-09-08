@@ -17,7 +17,4 @@ class WidgetTermTreeSerializer(TermTreeSerializer):
                   'attributes', 'is_leaf', 'view_class', 'structure', 'tagging_restriction', 'children')
 
     def get_tagging_restriction(self, instance):
-        if instance.system_flags.external_tagging_restriction:
-            return True
-        else:
-            return False
+        return bool(instance.system_flags.external_tagging_restriction)
