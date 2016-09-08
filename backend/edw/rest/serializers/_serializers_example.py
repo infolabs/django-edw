@@ -145,7 +145,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerModel
         fields = ('salutation', 'first_name', 'last_name', 'email', 'extra',)
-'''
+
 
 class EntitySelectSerializer(serializers.ModelSerializer):
     """
@@ -161,7 +161,7 @@ class EntitySelectSerializer(serializers.ModelSerializer):
     def get_text(self, instance):
         return instance.entity_name
 
-'''
+
 class AddToCartSerializer(serializers.Serializer):
     """
     Serialize fields used in the "Add to Cart" dialog box.

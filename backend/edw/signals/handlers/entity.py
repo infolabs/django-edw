@@ -20,9 +20,14 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
     pk_set = kwargs.pop('pk_set', None)
     action = kwargs.pop('action', None)
 
+    if action in ["pre_remove", "pre_add"]:
+        normal_pk_set = set(TermModel.objects.filter(pk__in=pk_set).exclude(
+            system_flags=TermModel.system_flags.external_tagging_restriction).order_by().values_list('id', flat=True))
+        pk_set.clear()
+        pk_set.update(normal_pk_set)
+
     if action == "pre_add":
         # normalize terms set
-        # todo: add tagged restriction filter --> pk_set & pre_remove
         origin_pk_set = set(instance.terms.values_list('id', flat=True))
         tree = TermModel.decompress(origin_pk_set | pk_set, fix_it=False)
         normal_pk_set = set([x.term.id for x in tree.values() if x.is_leaf])

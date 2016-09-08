@@ -164,10 +164,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
             msg = "Class `{}` must provide a model field or property implementing `entity_name`"
             raise NotImplementedError(msg.format(Model.__name__))
 
-        # if not callable(getattr(Model, 'validate_term_model', None)):
-        #    msg = "Class `{}` must provide a classmethod implementing `validate_term_model()`"
-        #    raise NotImplementedError(msg.format(Model.__name__))
-
         #if not callable(getattr(Model, 'get_price', None)):
         #    msg = "Class `{}` must provide a method implementing `get_price(request)`"
         #    raise NotImplementedError(msg.format(Model.__name__))
@@ -466,6 +462,20 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return cart_item_qs.first()
     '''
 
+    @staticmethod
+    def get_entities_types():
+        entities_types = getattr(EntityModel, "_entities_types_cache", None)
+        if entities_types is None:
+            entities_types = {}
+            try:
+                root = TermModel.objects.get(slug=EntityModel.materialized.__name__.lower())
+                for term in root.get_descendants(include_self=True):
+                    entities_types[term.slug] = term
+            except TermModel.DoesNotExist:
+                pass
+            EntityModel._entities_types_cache = entities_types
+        return entities_types
+
     @classmethod
     def validate_term_model(cls):
         if EntityModel.materialized.__subclasses__():
@@ -488,13 +498,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     term.save()
                 parent = term
 
-    def need_terms_validation(self, origin, **kwargs): # after save
-        return True # origin is None
+    def need_terms_validation_after_save(self, origin, **kwargs):
+        do_validate = origin is None
+        if do_validate and EntityModel.materialized.__subclasses__():
+            kwargs["context"]["validate_entity_type"] = True
+        return do_validate
 
     def validate_terms(self, origin, **kwargs):
-        # todo: Type validator: EntityModel.materialized.__subclasses__()
-        slug = EntityModel.materialized.__name__.lower()
-        print ">>> BASE:", slug
+        if kwargs["context"].get("validate_entity_type", False):
+            term = self.get_entities_types().get(self.__class__.__name__.lower())
+            self.terms.add(term)
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
@@ -507,7 +520,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             result = super(BaseEntity, self).save(*args, **kwargs)
             force_validate_terms = kwargs.get('force_validate_terms', False)
             validation_context = {}
-            if force_validate_terms or self.need_terms_validation(origin, context=validation_context):
+            if force_validate_terms or self.need_terms_validation_after_save(origin, context=validation_context):
                 self._during_terms_validation = True
                 self.validate_terms(origin, context=validation_context)
                 del self._during_terms_validation
