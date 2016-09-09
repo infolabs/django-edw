@@ -518,7 +518,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             except model_class.DoesNotExist:
                 origin = None
             result = super(BaseEntity, self).save(*args, **kwargs)
-            force_validate_terms = kwargs.get('force_validate_terms', False)
+            force_validate_terms = kwargs.pop('force_validate_terms', False)
             validation_context = {}
             if force_validate_terms or self.need_terms_validation_after_save(origin, context=validation_context):
                 self._during_terms_validation = True
