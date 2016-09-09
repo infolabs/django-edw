@@ -505,7 +505,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return do_validate
 
     def validate_terms(self, origin, **kwargs):
-        if kwargs["context"].get("validate_entity_type", False):
+        context = kwargs["context"]
+        if context.get("force_validate_terms", False) or context.get("validate_entity_type", False):
             term = self.get_entities_types().get(self.__class__.__name__.lower())
             self.terms.add(term)
 
@@ -519,7 +520,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 origin = None
             force_validate_terms = kwargs.pop('force_validate_terms', False)
             result = super(BaseEntity, self).save(*args, **kwargs)
-            validation_context = {}
+            validation_context = {
+                "force_validate_terms": force_validate_terms
+            }
             if force_validate_terms or self.need_terms_validation_after_save(origin, context=validation_context):
                 self._during_terms_validation = True
                 self.validate_terms(origin, context=validation_context)
