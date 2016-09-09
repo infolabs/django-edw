@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.contrib.auth import logout
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+
 from rest_auth.views import LoginView as OriginalLoginView
+
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 
