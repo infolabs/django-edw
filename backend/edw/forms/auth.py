@@ -19,8 +19,6 @@ from edw.models.customer import CustomerModel
 
 class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
-    scope_prefix = 'form_data'
-    field_css_classes = 'input-group has-feedback'
 
     email = fields.EmailField(label=_("Your e-mail address"))
     preset_password = fields.BooleanField(required=False, label=_("Preset password"),
@@ -100,7 +98,6 @@ class ContinueAsGuestForm(ModelForm):
     Handles Customer's decision to order as guest.
     """
     form_name = 'continue_as_guest_form'
-    scope_prefix = 'form_data'
 
     class Meta:
         model = CustomerModel
