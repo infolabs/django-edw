@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.contrib.auth import logout
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
-from django.core.exceptions import NON_FIELD_ERRORS
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,6 +16,7 @@ from rest_framework.response import Response
 
 from rest_auth.views import LoginView as OriginalLoginView
 
+from edw.models.customer import CustomerModel
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
 
 
@@ -29,11 +29,11 @@ class AuthFormsView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
-            errors = {NON_FIELD_ERRORS: _("Unable to proceed as guest without items in the cart.")} #todo: исправить
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-        form = self.form_class(data=request.data, instance=request.customer)
+            request.customer = CustomerModel.objects.get_or_create_from_request(request)
+        request_data = request.data.copy()
+        form = self.form_class(data=request_data, instance=request.customer)
         if form.is_valid():
-            form.save(request=request)
+            form.save(request=request_data)
             return Response(form.data, status=status.HTTP_200_OK)
         return Response(dict(form.errors), status=status.HTTP_400_BAD_REQUEST)
 
