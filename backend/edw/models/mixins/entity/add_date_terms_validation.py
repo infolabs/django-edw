@@ -5,7 +5,19 @@ from django.utils.translation import ugettext_lazy as _
 from edw.models.term import TermModel
 
 
-class AddedDayTermsValidationMixin(object):
+class BaseAddedDateTermsValidationMixin(object):
+
+    def need_terms_validation_after_save(self, origin, **kwargs):
+        if origin is None or origin.created_at != self.created_at:
+            ctx = kwargs["context"]
+            do_validate = ctx["validate_added_day"] = ctx["validate_added_month"] = ctx["validate_added_year"] = True
+        else:
+            do_validate = False
+        return super(BaseAddedDateTermsValidationMixin, self).need_terms_validation_after_save(
+            origin, **kwargs) or do_validate
+
+
+class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     ADDED_DAY_ROOT_TERM_SLUG = "added-day"
     ADDED_DAY_KEY = 'added-day-{:02d}'
@@ -63,16 +75,34 @@ class AddedDayTermsValidationMixin(object):
 
         super(AddedDayTermsValidationMixin, cls).validate_term_model()
 
-    def need_terms_validation_after_save(self, origin, **kwargs):
 
-        #print ">>>>1", self
+class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
-        return super(AddedDayTermsValidationMixin, self).need_terms_validation_after_save(origin, **kwargs)
+    @classmethod
+    def validate_term_model(cls):
+        system_flags = (TermModel.system_flags.delete_restriction |
+                        TermModel.system_flags.change_parent_restriction |
+                        TermModel.system_flags.change_slug_restriction |
+                        TermModel.system_flags.change_semantic_rule_restriction |
+                        TermModel.system_flags.has_child_restriction |
+                        TermModel.system_flags.external_tagging_restriction)
 
-"""
-def need_terms_validation_after_save(self, origin, **kwargs):
-    do_validate = origin is None
-    if do_validate and EntityModel.materialized.__subclasses__():
-        kwargs["context"]["validate_entity_type"] = True
-    return do_validate
-"""
+        super(AddedMonthTermsValidationMixin, cls).validate_term_model()
+
+
+class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
+    @classmethod
+    def validate_term_model(cls):
+        system_flags = (TermModel.system_flags.delete_restriction |
+                        TermModel.system_flags.change_parent_restriction |
+                        TermModel.system_flags.change_slug_restriction |
+                        TermModel.system_flags.change_semantic_rule_restriction |
+                        TermModel.system_flags.has_child_restriction |
+                        TermModel.system_flags.external_tagging_restriction)
+
+        super(AddedYearTermsValidationMixin, cls).validate_term_model()
+
+
+class AddedDateTermsValidationMixin(AddedDayTermsValidationMixin, AddedMonthTermsValidationMixin,
+                                    AddedYearTermsValidationMixin):
+    pass

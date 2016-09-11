@@ -499,12 +499,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 parent = term
 
     def need_terms_validation_after_save(self, origin, **kwargs):
-
-        #print ">>>>2", self
-
-        do_validate = origin is None
-        if do_validate and EntityModel.materialized.__subclasses__():
-            kwargs["context"]["validate_entity_type"] = True
+        if origin is None and EntityModel.materialized.__subclasses__():
+            do_validate = kwargs["context"]["validate_entity_type"] = True
+        else:
+            do_validate = False
         return do_validate
 
     def validate_terms(self, origin, **kwargs):

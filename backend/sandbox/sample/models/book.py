@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
-from edw.models.mixins.entity.add_date_terms_validation import AddedDayTermsValidationMixin
+from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
 
 
 class BookQuerySet(BaseEntityQuerySet):
@@ -18,7 +18,7 @@ class BookManager(BaseEntityManager):
 
 
 @python_2_unicode_compatible
-class Book(AddedDayTermsValidationMixin, BaseEntity):
+class Book(AddedDateTermsValidationMixin, BaseEntity):
 
     name = models.CharField(max_length=255, verbose_name=_("Book Name"))
     slug = models.SlugField(verbose_name=_("Slug"), unique=True)
