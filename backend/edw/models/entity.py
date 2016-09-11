@@ -468,7 +468,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         if entities_types is None:
             entities_types = {}
             try:
-                root = TermModel.objects.get(slug=EntityModel.materialized.__name__.lower())
+                root = TermModel.objects.get(slug=EntityModel.materialized.__name__.lower(), parent=None)
                 for term in root.get_descendants(include_self=True):
                     entities_types[term.slug] = term
             except TermModel.DoesNotExist:
@@ -508,7 +508,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def validate_terms(self, origin, **kwargs):
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_entity_type", False):
-            term = self.get_entities_types().get(self.__class__.__name__.lower())
+            term = self.get_entities_types()[self.__class__.__name__.lower()]
             self.terms.add(term)
 
     def save(self, *args, **kwargs):
