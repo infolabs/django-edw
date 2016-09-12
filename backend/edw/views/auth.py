@@ -30,10 +30,9 @@ class AuthFormsView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
             request.customer = CustomerModel.objects.get_or_create_from_request(request)
-        request_data = request.data.copy()
-        form = self.form_class(data=request_data, instance=request.customer)
+        form = self.form_class(data=request.data, instance=request.customer)
         if form.is_valid():
-            form.save(request=request_data)
+            form.save(request=request)
             return Response(form.data, status=status.HTTP_200_OK)
         return Response(dict(form.errors), status=status.HTTP_400_BAD_REQUEST)
 
@@ -41,24 +40,10 @@ class AuthFormsView(GenericAPIView):
 class LoginView(OriginalLoginView):
     def login(self):
         """
-        Logs in as the given user, and moves the items from the current to the new cart. #todo: исправить
+        Logs in as the given user
         """
-        '''
-        try:
-            anonymous_cart = CartModel.objects.get_from_request(self.request)
-        except CartModel.DoesNotExist:
-            anonymous_cart = None
-        '''
-
         dead_user = None if self.request.user.is_anonymous() or self.request.customer.is_registered() else self.request.customer.user
         super(LoginView, self).login()  # this rotates the session_key
-
-        '''
-        authenticated_cart = CartModel.objects.get_from_request(self.request)
-        if anonymous_cart:
-            anonymous_cart.items.update(cart=authenticated_cart)
-        '''
-
         if dead_user and dead_user.is_active is False:
             dead_user.delete()  # to keep the database clean
 

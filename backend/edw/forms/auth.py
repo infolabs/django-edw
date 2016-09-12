@@ -17,6 +17,9 @@ from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 
 
+#class RegisterUserForm(NgModelFormMixin, NgFormValidationMixin, Bootstrap3ModelForm):
+#from djng.forms import NgModelFormMixin, NgFormValidationMixin
+#from djng.styling.bootstrap3.forms import Bootstrap3ModelForm
 class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
 
@@ -67,7 +70,7 @@ class RegisterUserForm(ModelForm):
         password = self.cleaned_data['password1']
         if self.cleaned_data['preset_password']:
             self._send_password(request, customer.user, password)
-        user = authenticate(username=customer.user.get_username(), password=password)
+        user = authenticate(username=customer.user.username, password=password) #todo: проверить почему не get_username()
         login(request, user)
         return customer
 

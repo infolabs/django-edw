@@ -20,6 +20,8 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from polymorphic.base import PolymorphicModelBase
 
+from datetime import datetime
+
 from . import deferred
 from .term import TermModel
 from .data_mart import DataMartModel
@@ -383,7 +385,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
+    created_at = models.DateTimeField(default=datetime.now, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
     active = models.BooleanField(default=True, verbose_name=_("Active"),
         help_text=_("Is this object publicly visible."))
