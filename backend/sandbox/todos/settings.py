@@ -11,6 +11,14 @@ ENV_DIR = os.path.dirname(os.__file__)
 
 DEBUG = True
 
+if DEBUG:
+    CACHE_BACKEND = 'dummy:///'
+    CMS_PLUGIN_CACHE = False
+    CMS_PLACEHOLDER_CACHE = False
+    CMS_PAGE_CACHE = False
+else:
+    CACHE_BACKEND = 'locmem:///'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
