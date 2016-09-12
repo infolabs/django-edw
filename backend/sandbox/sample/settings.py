@@ -13,9 +13,6 @@ DEBUG = True
 
 if DEBUG:
     CACHE_BACKEND = 'dummy:///'
-    CMS_PLUGIN_CACHE = False
-    CMS_PLACEHOLDER_CACHE = False
-    CMS_PAGE_CACHE = False
 else:
     CACHE_BACKEND = 'locmem:///'
 
