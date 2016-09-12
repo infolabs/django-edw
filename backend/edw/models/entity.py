@@ -25,7 +25,10 @@ from datetime import datetime
 from . import deferred
 from .term import TermModel
 from .data_mart import DataMartModel
-from .related import AdditionalEntityCharacteristicOrMarkModel
+from .related import (
+    AdditionalEntityCharacteristicOrMarkModel,
+    EntityRelationModel
+)
 from ..utils.set_helpers import uniq
 from .. import settings as edw_settings
 
@@ -392,6 +395,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
                                                                    through=AdditionalEntityCharacteristicOrMarkModel)
+
+    relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
+                                         through_fields=('from_entity', 'to_entity'))
 
     class Meta:
         abstract = True

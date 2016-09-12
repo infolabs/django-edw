@@ -76,6 +76,9 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
     def select_related(self, *fields):
         return super(BaseTermQuerySet, self).select_related(*fields)
 
+    def attribute_is_relation(self):
+        return self.filter(attributes=self.model.attributes.is_relation)
+
 
 #==============================================================================
 # BaseTermManager
