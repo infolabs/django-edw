@@ -317,26 +317,26 @@ ROBOTS_META_TAGS = ('noindex', 'nofollow')
 ############################################
 # settings for django-restframework and plugins
 
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-	    'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',  # can be disabled for production environments
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework_filters.backends.DjangoFilterBackend',),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
-    ],
-    'PAGE_SIZE': 12,
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_RENDERER_CLASSES': (
+# 	    'rest_framework.renderers.JSONRenderer',
+#         'rest_framework.renderers.BrowsableAPIRenderer',  # can be disabled for production environments
+#     ),
+#     'DEFAULT_FILTER_BACKENDS': ('rest_framework_filters.backends.DjangoFilterBackend',),
+#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated'
+#     ],
+#     'PAGE_SIZE': 12,
+# }
         
 SERIALIZATION_MODULES = {}
 
 ############################################
 # settings for storing session data
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+# SESSION_SAVE_EVERY_REQUEST = True
 
 ############################################
 # settings for storing files and images
