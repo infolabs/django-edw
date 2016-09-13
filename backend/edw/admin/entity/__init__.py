@@ -13,10 +13,12 @@ from edw.models.related import (
     EntityRelationModel,
     EntityImageModel
 )
+
 from edw.admin.entity.forms import (
     EntityCharacteristicOrMarkInlineForm,
     EntityRelationInlineForm
 )
+
 from edw.rest.filters.entity import EntityFilter
 
 

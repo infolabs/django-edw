@@ -111,7 +111,7 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
             '/static/edw/js/admin/tree.jquery.js'
         )
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -165,7 +165,7 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
     list_per_page = 250
     list_max_show_all = 1000
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline]
 
 
 admin.site.register(CustomerProxy, CustomerAdmin)
