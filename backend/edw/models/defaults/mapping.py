@@ -16,5 +16,5 @@ class AdditionalEntityCharacteristicOrMark(BaseAdditionalEntityCharacteristicOrM
 
 class EntityRelation(BaseEntityRelation):
     """Materialize many-to-many relation with entities"""
-    class Meta(BaseAdditionalEntityCharacteristicOrMark.Meta):
+    class Meta(BaseEntityRelation.Meta):
         abstract = False

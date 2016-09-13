@@ -91,7 +91,6 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 class EntityRelationInline(SalmonellaMixin, admin.TabularInline):
     model = EntityRelationModel
     fk_name = 'from_entity'
-    fields = ['term', 'to_entity']
     extra = 1
     form = EntityRelationInlineForm
     salmonella_fields = ('to_entity',)

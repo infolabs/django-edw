@@ -51,7 +51,7 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
     """
     Allows to be attached related entities.
     """
-    from_entity = deferred.ForeignKey('BaseEntity', verbose_name=_('From Entity'))
+    from_entity = deferred.ForeignKey('BaseEntity', related_name='forward_relations', verbose_name=_('From Entity'))
     to_entity = deferred.ForeignKey('BaseEntity', related_name='backward_relations', verbose_name=_('To Entity'))
     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
 
@@ -59,6 +59,7 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
         abstract = True
         verbose_name = _("Entity Relation")
         verbose_name_plural = _("Entity Relations")
+        unique_together = ('from_entity', 'to_entity', 'term',)
 
     def __str__(self):
         return "{} → {} → {}".format(self.from_entity.entity_name, self.term.name, self.to_entity.entity_name)

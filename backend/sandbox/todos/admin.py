@@ -46,7 +46,7 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'active', 'marked', 'priority', 'direction', 'terms', 'description'),
+            'fields': ('name', 'created_at', 'active', 'marked', 'priority', 'direction', 'terms', 'description'),
         }),
     )
 
