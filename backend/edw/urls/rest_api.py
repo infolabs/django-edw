@@ -10,6 +10,7 @@ from edw.views.term import TermViewSet
 from edw.views.data_mart import DataMartViewSet
 from edw.views.entity import EntityViewSet
 
+from rest_framework.urlpatterns import format_suffix_patterns
 
 #==============================================================================
 # routers
@@ -23,7 +24,6 @@ router.register(r'entities', EntityViewSet)
 data_mart_terms_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
 data_mart_terms_router.register(r'terms', TermViewSet, base_name='data-mart-terms')
 
-
 '''
 if settings.DEBUG:
     router.register(r'customers', CustomerViewSet)
@@ -35,5 +35,5 @@ if settings.DEBUG:
 #==============================================================================
 urlpatterns = (
     url(r'^', include(router.urls, namespace='edw')),
-    url(r'^', include(data_mart_terms_router.urls, namespace='edw')),
+    url(r'^', include(format_suffix_patterns(data_mart_terms_router.urls), namespace='edw')),
 )
