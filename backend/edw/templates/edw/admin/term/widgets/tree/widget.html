@@ -35,10 +35,16 @@
                     $("#terms-select :checked").each(function(){
                         selected_terms.push(parseInt($(this).val()))
                     });
-                    $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi,
-                        function (str, key, value) {
+                    $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
+                        if (key == "_changelist_filters") {
+                            $.each(value.split(/&|%26/), function (index, value) {
+                                var x = value.split(/=|%3D/i);
+                                current_filter_dict[x[0]] = x[1];
+                            });
+                        } else {
                             current_filter_dict[key] = value;
-                        });
+                        }
+                    });
                     current_filter_dict['terms'] = selected_terms;
                     $.each(current_filter_dict, function(k, v) {
                         if (v !== undefined && v != '') {

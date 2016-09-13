@@ -46,7 +46,7 @@ class TermsTreeFilter(admin.ListFilter):
         if self.parameter_name in params:
             value = params.pop(self.parameter_name)
             if value:
-                self.used_parameters[self.parameter_name] = str(value)
+                self.used_parameters[self.parameter_name] = value
 
     def has_output(self):
         return True
