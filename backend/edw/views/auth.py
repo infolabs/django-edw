@@ -21,6 +21,7 @@ from rest_auth.views import PasswordChangeView as OriginalPasswordChangeView
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
+from edw.signals.auth import user_activated
 
 
 class AuthFormsView(GenericAPIView):
@@ -168,17 +169,16 @@ class ActivationView(APIView):
     renderer_classes = (TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer)
     template_name = '{}/auth/account-activate.html'.format(edw_settings.APP_LABEL)
 
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         The base activation logic; subclasses should leave this method
         alone and implement activate(), which is called from this
         method.
         """
-        activated_user = self.activate(*args, **kwargs)
+        activated_user = self.activate(request, *args, **kwargs)
         if not activated_user:
             return Response(
-                _("Error validate account. Validate link wrong or expired validate code."),
-                status=status.HTTP_400_BAD_REQUEST
+                _("Error validate account. Validate link wrong or expired validate code."), status=status.HTTP_400_BAD_REQUEST
             )
         else:
             return Response({"success": _("Account success validate.")})
@@ -218,7 +218,7 @@ class ActivationView(APIView):
         except User.DoesNotExist:
             return None
 
-    def activate(self, *args, **kwargs):
+    def activate(self, request, *args, **kwargs):
         # This is safe even if, somehow, there's no activation key,
         # because unsign() will raise BadSignature rather than
         # TypeError on a value of None.
@@ -228,5 +228,6 @@ class ActivationView(APIView):
             if user is not None:
                 user.is_active = True
                 user.save()
+                user_activated.send(user=user, request=request)
                 return user
         return False
