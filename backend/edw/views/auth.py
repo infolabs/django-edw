@@ -165,6 +165,9 @@ class ActivationView(APIView):
     """
     Base class for user activation views.
     """
+    renderer_classes = (TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer)
+    template_name = '{}/auth/account-activate.html'.format(edw_settings.APP_LABEL)
+
     def get(self, *args, **kwargs):
         """
         The base activation logic; subclasses should leave this method
@@ -174,7 +177,8 @@ class ActivationView(APIView):
         activated_user = self.activate(*args, **kwargs)
         if not activated_user:
             return Response(
-                _("Error validate account. Validate link wrong or expired validate code."), status=status.HTTP_400_BAD_REQUEST
+                _("Error validate account. Validate link wrong or expired validate code."),
+                status=status.HTTP_400_BAD_REQUEST
             )
         else:
             return Response({"success": _("Account success validate.")})
