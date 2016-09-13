@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.conf.urls import patterns, url
-from rest_auth.views import PasswordChangeView
 from edw.forms.auth import RegisterUserForm, ContinueAsGuestForm
-from edw.views.auth import AuthFormsView, LoginView, LogoutView, PasswordResetView, ActivationView
+from edw.views.auth import AuthFormsView, LoginView, LogoutView, PasswordResetView, PasswordChangeView, ActivationView
 
 
 urlpatterns = patterns(

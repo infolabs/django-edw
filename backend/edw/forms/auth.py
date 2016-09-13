@@ -19,9 +19,6 @@ from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 
 
-#class RegisterUserForm(NgModelFormMixin, NgFormValidationMixin, Bootstrap3ModelForm):
-#from djng.forms import NgModelFormMixin, NgFormValidationMixin
-#from djng.styling.bootstrap3.forms import Bootstrap3ModelForm
 class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
 
@@ -52,6 +49,7 @@ class RegisterUserForm(ModelForm):
             msg = _("A customer with the e-mail address ‘{email}’ already exists.\n"
                     "If you have used this address previously, try to reset the password.")
             raise ValidationError(msg.format(**self.cleaned_data))
+
         return self.cleaned_data['email']
 
     def clean(self):
@@ -79,7 +77,9 @@ class RegisterUserForm(ModelForm):
         else:
             self._send_activation_email(request, customer.user)
             logout(request)
-        return customer
+        msg = _("A customer ‘{email}’ success registered.\n"
+                "To complete the registration, click the link that was sent to you by e-mail")
+        return msg.format(**self.cleaned_data)
 
     def _send_password(self, request, user, password):
         current_site = get_current_site(request)

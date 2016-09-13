@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-13 17:23+0300\n"
-"PO-Revision-Date: 2016-09-13 17:49+0300\n"
+"POT-Creation-Date: 2016-09-14 00:25+0300\n"
+"PO-Revision-Date: 2016-09-14 00:27+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -27,7 +27,7 @@ msgstr "Номер"
 
 #: admin/customer.py:63
 msgid "Customer State"
-msgstr "Сатус пользователя"
+msgstr "Состояние"
 
 #: admin/customer.py:106
 msgid "Username"
@@ -69,7 +69,7 @@ msgstr "Пользователь"
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:19 admin/entity/__init__.py:29
+#: admin/data_mart/forms.py:19 admin/entity/__init__.py:31
 #: admin/entity/forms.py:25 models/data_mart.py:179 models/entity.py:388
 msgid "Terms"
 msgstr "Термины"
@@ -90,36 +90,36 @@ msgstr "Цель"
 msgid "EDW"
 msgstr "Предметно-ориентированное хранилище данных"
 
-#: forms/auth.py:28
+#: forms/auth.py:25
 msgid "Your e-mail address"
 msgstr "Ваш адрес электронной почты"
 
-#: forms/auth.py:29
+#: forms/auth.py:26
 msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
-#: forms/auth.py:31
+#: forms/auth.py:28
 msgid "Send a randomly generated password to your e-mail address."
 msgstr ""
 "Отправить случайно сгенерированный пароль на ваш адрес электронной почты."
 
-#: forms/auth.py:33
+#: forms/auth.py:30
 msgid "Choose a password"
 msgstr "Введите пароль"
 
-#: forms/auth.py:34
+#: forms/auth.py:31
 msgid "Minimum length is 6 characters."
 msgstr "Минимальная длина 6 символов"
 
-#: forms/auth.py:35
+#: forms/auth.py:32
 msgid "Repeat password"
 msgstr "Повторить пароль"
 
-#: forms/auth.py:36
+#: forms/auth.py:33
 msgid "Confirm password."
 msgstr "Подтверждение пароля"
 
-#: forms/auth.py:52
+#: forms/auth.py:49
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -127,9 +127,18 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: forms/auth.py:62
+#: forms/auth.py:60
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
+
+#: forms/auth.py:80
+msgid ""
+"A customer ‘{email}’ success registered.\n"
+"To complete the registration, click the link that was sent to you by e-mail"
+msgstr ""
+"Пользователь ‘{email}’ успешно зарегистрирован.\n"
+"Для завершения регистрации, перейдите по ссылке, которая была вам выслана на "
+"электронную почту"
 
 #: management/commands/edwcustomers.py:9
 msgid "Collect information about all customers which accessed this EDW."
@@ -295,7 +304,7 @@ msgstr "Тематическая модель"
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
-#: models/entity.py:404 models/related.py:25
+#: models/entity.py:404 models/related.py:25 models/related.py:78
 msgid "Entity"
 msgstr "Объект"
 
@@ -367,13 +376,15 @@ msgstr "Отношение"
 msgid "Entity Relations"
 msgstr "Отношения"
 
+#: models/related.py:77
+msgid "Image"
+msgstr "Изображение"
+
 #: models/related.py:83
-#| msgid "Entity type"
 msgid "Entity Image"
 msgstr "Изображение"
 
 #: models/related.py:84
-#| msgid "Entity type"
 msgid "Entity Images"
 msgstr "Изображения"
 
@@ -473,10 +484,6 @@ msgstr "Характеристика"
 
 #: templates/edw/email/activate-account-body.txt:2
 #, python-format
-#| msgid ""
-#| "You are receiving this email because you asked for a auto-generated "
-#| "password for your\n"
-#| "user account at %(site_name)s."
 msgid ""
 "You are receiving this email because you asked for registration for your\n"
 "user account at «%(site_name)s»."
@@ -505,22 +512,16 @@ msgstr "Спасибо, что используете наш сайт."
 #: templates/edw/email/register-user-body.txt:10
 #: templates/edw/email/reset-password-body.txt:10
 #, python-format
-#| msgid "The %(site_name)s team"
 msgid "The «%(site_name)s» team"
 msgstr "Команда сайта «%(site_name)s»"
 
 #: templates/edw/email/activate-account-subject.txt:2
 #, python-format
-#| msgid "Password set on %(site_name)s"
 msgid "Activate account on «%(site_name)s»"
 msgstr "Активация аккаунта на «%(site_name)s»"
 
 #: templates/edw/email/register-user-body.txt:2
 #, python-format
-#| msgid ""
-#| "You are receiving this email because you asked for a auto-generated "
-#| "password for your\n"
-#| "user account at %(site_name)s."
 msgid ""
 "You are receiving this email because you asked for a auto-generated password "
 "for your\n"
@@ -543,16 +544,11 @@ msgstr ""
 
 #: templates/edw/email/register-user-subject.txt:2
 #, python-format
-#| msgid "Password set on %(site_name)s"
 msgid "Password set on «%(site_name)s»"
 msgstr "Установлен пароль для «%(site_name)s»"
 
 #: templates/edw/email/reset-password-body.txt:2
 #, python-format
-#| msgid ""
-#| "You're receiving this email because you requested a password reset for "
-#| "your user\n"
-#| "account '%(user)s' at %(site_name)s."
 msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user\n"
@@ -567,7 +563,6 @@ msgstr "Пожалуйста, проследуйте на эту страниц�
 
 #: templates/edw/email/reset-password-subject.txt:2
 #, python-format
-#| msgid "Password reset on %(site_name)s"
 msgid "Password reset on «%(site_name)s»"
 msgstr "Сброс пароля для «%(site_name)s»"
 
@@ -591,17 +586,31 @@ msgstr "Подробно"
 msgid "Loading search results"
 msgstr "Загрузка результатов поиска"
 
-#: views/auth.py:65
+#: views/auth.py:68
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
-#: views/auth.py:85
+#: views/auth.py:88
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
-#: views/auth.py:132
+#: views/auth.py:135
 msgid "Password has been reset with the new password."
 msgstr "Пароль был сброшен."
+
+#: views/auth.py:147
+msgid "New password has been saved."
+msgstr "Новый пароль установлен."
+
+#: views/auth.py:179
+msgid "Error validate account. Validate link wrong or expired validate code."
+msgstr ""
+"Ошибка активации аккаунта. Либо код активации неверно указан, либо он был "
+"просрочен."
+
+#: views/auth.py:182
+msgid "Account success validate."
+msgstr "Аккаунт успешно активирован."
 
 #~ msgid "Your Details"
 #~ msgstr "Информация о пользователе"
@@ -656,10 +665,6 @@ msgstr "Пароль был сброшен."
 
 #~ msgid "Logout"
 #~ msgstr "Выйти"
-
-#~ msgid "New password for '%(user_name)s'"
-#~ msgstr ""
-#~ "Введите новый пароль для пользователя <strong>%(user_name)s</strong>."
 
 #~ msgid ""
 #~ "Please enter your new password twice so we can verify you typed it in "

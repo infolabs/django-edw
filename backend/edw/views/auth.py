@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth import logout
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
+from django.core import signing
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -15,7 +16,9 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, Browsab
 from rest_framework.response import Response
 
 from rest_auth.views import LoginView as OriginalLoginView
+from rest_auth.views import PasswordChangeView as OriginalPasswordChangeView
 
+from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
 
@@ -33,9 +36,15 @@ class AuthFormsView(GenericAPIView):
         data =  request.data.copy()
         form = self.form_class(data=data, instance=request.customer)
         if form.is_valid():
-            form.save(request=request)
-            return Response(form.data, status=status.HTTP_200_OK)
-        return Response(dict(form.errors), status=status.HTTP_400_BAD_REQUEST)
+            msg = form.save(request=request)
+            return Response(
+                {'success': msg},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            dict(form.errors),
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class LoginView(OriginalLoginView):
@@ -62,7 +71,10 @@ class LogoutView(APIView):
             pass
         logout(request)
         request.user = AnonymousUser()
-        return Response({'success': _("Successfully logged out.")}, status=status.HTTP_200_OK)
+        return Response(
+            {'success': _("Successfully logged out.")},
+            status=status.HTTP_200_OK
+        )
 
 
 class PasswordResetView(GenericAPIView):
@@ -79,7 +91,10 @@ class PasswordResetView(GenericAPIView):
         # Create a serializer with request.data
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
         # Return the success message with OK HTTP status
         msg = _("Instructions on how to reset the password have been sent to '{email}'.")
@@ -126,18 +141,30 @@ class PasswordResetConfirm(GenericAPIView):
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
             return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
         return Response({"success": _("Password has been reset with the new password.")})
+
+
+class PasswordChangeView(OriginalPasswordChangeView):
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
+        return Response({"success": _("New password has been saved.")})
 
 
 class ActivationView(APIView):
     """
     Base class for user activation views.
     """
-    template_name = 'registration/activate.html'
-
     def get(self, *args, **kwargs):
         """
         The base activation logic; subclasses should leave this method
@@ -145,35 +172,57 @@ class ActivationView(APIView):
         method.
         """
         activated_user = self.activate(*args, **kwargs)
-        """
-        if activated_user:
-            signals.user_activated.send(
-                sender=self.__class__,
-                user=activated_user,
-                request=self.request
+        if not activated_user:
+            return Response(
+                _("Error validate account. Validate link wrong or expired validate code."), status=status.HTTP_400_BAD_REQUEST
             )
-            success_url = self.get_success_url(activated_user)
-            try:
-                to, args, kwargs = success_url
-                return redirect(to, *args, **kwargs)
-            except ValueError:
-                return redirect(success_url)
-        return super(ActivationView, self).get(*args, **kwargs)
+        else:
+            return Response({"success": _("Account success validate.")})
+
+    def validate_key(self, activation_key):
         """
+        Verify that the activation key is valid and within the
+        permitted activation time window, returning the username if
+        valid or ``None`` if not.
+        """
+        try:
+            username = signing.loads(
+                activation_key,
+                salt=edw_settings.REGISTRATION_PROCESS['registration_salt'],
+                max_age=edw_settings.REGISTRATION_PROCESS['account_activation_days'] * 86400
+            )
+            return username
+        # SignatureExpired is a subclass of BadSignature, so this will
+        # catch either one.
+        except signing.BadSignature:
+            return None
+
+    def get_user(self, username):
+        """
+        Given the verified username, look up and return the
+        corresponding user account if it exists, or ``None`` if it
+        doesn't.
+        """
+        User = get_user_model()
+        lookup_kwargs = {
+            User.USERNAME_FIELD: username,
+            'is_active': False
+        }
+        try:
+            user = User.objects.get(**lookup_kwargs)
+            return user
+        except User.DoesNotExist:
+            return None
 
     def activate(self, *args, **kwargs):
-        """
-        Implement account-activation logic here.
-        """
-        raise NotImplementedError
-
-    def get_success_url(self, user):
-        """
-        Implement this to return the URL (either a 3-tuple for
-        redirect(), or a simple string name of a URL pattern) to
-        redirect to after successful activation.
-        This differs from most get_success_url() methods of Django
-        views in that it receives an extra argument: the user whose
-        account was activated.
-        """
-        raise NotImplementedError
+        # This is safe even if, somehow, there's no activation key,
+        # because unsign() will raise BadSignature rather than
+        # TypeError on a value of None.
+        username = self.validate_key(kwargs.get('activation_key'))
+        if username is not None:
+            user = self.get_user(username)
+            if user is not None:
+                user.is_active = True
+                user.save()
+                return user
+        return False
