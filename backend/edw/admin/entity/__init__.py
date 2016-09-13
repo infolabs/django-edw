@@ -8,8 +8,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 from adminsortable2.admin import SortableInlineAdminMixin
 
-from salmonella.admin import SalmonellaMixin
-
 from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
@@ -91,18 +89,17 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 #===========================================================================================
 # EntityRelationInline
 #===========================================================================================
-class EntityRelationInline(SalmonellaMixin, admin.TabularInline):
+class EntityRelationInline(admin.TabularInline):
     model = EntityRelationModel
     fk_name = 'from_entity'
     extra = 1
     form = EntityRelationInlineForm
-    salmonella_fields = ('to_entity',)
 
 
 #===========================================================================================
 # EntityRelationInline
 #===========================================================================================
 class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
-    model = EntityRelationModel
+    model = EntityImageModel
     extra = 1
     ordering = ('order',)

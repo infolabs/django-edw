@@ -16,7 +16,12 @@ from edw.admin.term import TermAdmin
 from edw.models.data_mart import DataMartModel
 from edw.admin.data_mart import DataMartAdmin
 
-from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline, EntityRelationInline
+from edw.admin.entity import (
+    TermsTreeFilter,
+    EntityCharacteristicOrMarkInline,
+    EntityRelationInline,
+    EntityImageInline
+)
 from edw.admin.entity.forms import EntityAdminForm
 
 from .models import Book, ChildBook, AdultBook
@@ -63,7 +68,7 @@ class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     prepopulated_fields = {'slug': ('name',)}
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -106,7 +111,7 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
             '/static/edw/js/admin/tree.jquery.js'
         )
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -160,7 +165,7 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
     list_per_page = 250
     list_max_show_all = 1000
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
 
 
 admin.site.register(CustomerProxy, CustomerAdmin)

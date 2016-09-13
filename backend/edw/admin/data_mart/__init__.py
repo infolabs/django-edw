@@ -68,5 +68,4 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             from django.views.i18n import null_javascript_catalog as javascript_catalog
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
-#admin.site.register(DataMartModel, DataMartAdmin)
 
