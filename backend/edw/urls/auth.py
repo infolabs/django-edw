@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.conf.urls import patterns, url
 from rest_auth.views import PasswordChangeView
 from edw.forms.auth import RegisterUserForm, ContinueAsGuestForm
-from edw.views.auth import AuthFormsView, LoginView, LogoutView, PasswordResetView
+from edw.views.auth import AuthFormsView, LoginView, LogoutView, PasswordResetView, ActivationView
 
 
 urlpatterns = patterns(
@@ -14,6 +14,8 @@ urlpatterns = patterns(
         name='login'),
     url(r'^register/$', AuthFormsView.as_view(form_class=RegisterUserForm),
         name='register-user'),
+    url(r'^activate/(?P<activation_key>[-:\w]+)/$', ActivationView.as_view(),
+        name='registration_activate'),
     url(r'^continue/$', AuthFormsView.as_view(form_class=ContinueAsGuestForm),
         name='continue-as-guest'),
     url(r'^logout/$', LogoutView.as_view(),

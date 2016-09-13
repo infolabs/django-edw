@@ -30,7 +30,8 @@ class AuthFormsView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
             request.customer = CustomerModel.objects.get_or_create_from_request(request)
-        form = self.form_class(data=request.data, instance=request.customer)
+        data =  request.data.copy()
+        form = self.form_class(data=data, instance=request.customer)
         if form.is_valid():
             form.save(request=request)
             return Response(form.data, status=status.HTTP_200_OK)
@@ -129,3 +130,50 @@ class PasswordResetConfirm(GenericAPIView):
             )
         serializer.save()
         return Response({"success": _("Password has been reset with the new password.")})
+
+
+class ActivationView(APIView):
+    """
+    Base class for user activation views.
+    """
+    template_name = 'registration/activate.html'
+
+    def get(self, *args, **kwargs):
+        """
+        The base activation logic; subclasses should leave this method
+        alone and implement activate(), which is called from this
+        method.
+        """
+        activated_user = self.activate(*args, **kwargs)
+        """
+        if activated_user:
+            signals.user_activated.send(
+                sender=self.__class__,
+                user=activated_user,
+                request=self.request
+            )
+            success_url = self.get_success_url(activated_user)
+            try:
+                to, args, kwargs = success_url
+                return redirect(to, *args, **kwargs)
+            except ValueError:
+                return redirect(success_url)
+        return super(ActivationView, self).get(*args, **kwargs)
+        """
+
+    def activate(self, *args, **kwargs):
+        """
+        Implement account-activation logic here.
+        """
+        raise NotImplementedError
+
+    def get_success_url(self, user):
+        """
+        Implement this to return the URL (either a 3-tuple for
+        redirect(), or a simple string name of a URL pattern) to
+        redirect to after successful activation.
+        This differs from most get_success_url() methods of Django
+        views in that it receives an extra argument: the user whose
+        account was activated.
+        """
+        raise NotImplementedError

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.exceptions import ValidationError
-
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
+
+from django.core import signing
+from django.core.exceptions import ValidationError
 
 from django.forms import fields, widgets, ModelForm
 
@@ -12,6 +13,7 @@ from django.template import Context
 from django.template.loader import select_template
 
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
@@ -62,16 +64,21 @@ class RegisterUserForm(ModelForm):
         return cleaned_data
 
     def save(self, request=None, commit=True):
+        do_activation = edw_settings.REGISTRATION_PROCESS['do_activation']
         self.instance.recognize_as_registered()
-        self.instance.user.is_active = True
+        self.instance.user.is_active = do_activation
         self.instance.user.email = self.cleaned_data['email']
         self.instance.user.set_password(self.cleaned_data['password1'])
         customer = super(RegisterUserForm, self).save(commit)
         password = self.cleaned_data['password1']
         if self.cleaned_data['preset_password']:
             self._send_password(request, customer.user, password)
-        user = authenticate(username=customer.user.username, password=password) #todo: проверить почему не get_username()
-        login(request, user)
+        if do_activation:
+            user = authenticate(username=customer.user.username, password=password)
+            login(request, user)
+        else:
+            self._send_activation_email(request, customer.user)
+            logout(request)
         return customer
 
     def _send_password(self, request, user, password):
@@ -92,6 +99,35 @@ class RegisterUserForm(ModelForm):
         body = select_template([
             '{}/email/register-user-body.txt'.format(edw_settings.APP_LABEL),
             'edw/email/register-user-body.txt',
+        ]).render(context)
+        user.email_user(subject, body)
+
+    def _send_activation_email(self, request, user):
+        """
+        Send the activation email. The activation key is simply the
+        username, signed using TimestampSigner.
+        """
+        current_site = get_current_site(request)
+        activation_key = signing.dumps(
+            obj=getattr(user, user.USERNAME_FIELD),
+            salt=edw_settings.REGISTRATION_PROCESS['registration_salt']
+        )
+        activation_link = request.build_absolute_uri(reverse('registration_activate', kwargs={'activation_key': activation_key}))
+        context = Context({
+            'site_name': current_site.name,
+            'activation_link': activation_link,
+            'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
+            'email': user.email,
+        })
+        subject = select_template([
+            '{}/email/activate-account-subject.txt'.format(edw_settings.APP_LABEL),
+            'edw/email/activate-account-subject.txt',
+        ]).render(context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        body = select_template([
+            '{}/email/activate-account-body.txt'.format(edw_settings.APP_LABEL),
+            'edw/email/activate-account-body.txt',
         ]).render(context)
         user.email_user(subject, body)
 
