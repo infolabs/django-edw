@@ -6,8 +6,6 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
-from salmonella.admin import SalmonellaMixin
-
 from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel
@@ -88,9 +86,8 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 #===========================================================================================
 #
 #===========================================================================================
-class EntityRelationInline(SalmonellaMixin, admin.TabularInline):
+class EntityRelationInline(admin.TabularInline):
     model = EntityRelationModel
     fk_name = 'from_entity'
     extra = 1
     form = EntityRelationInlineForm
-    salmonella_fields = ('to_entity',)
