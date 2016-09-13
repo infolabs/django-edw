@@ -8,6 +8,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
+from filer.fields import image
+
 from ..models import deferred
 
 
@@ -66,3 +68,21 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
 
 
 EntityRelationModel = deferred.MaterializedModel(BaseEntityRelation)
+
+
+class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+    """
+    ManyToMany relation from the polymorphic Entity to a set of images.
+    """
+    image = image.FilerImageField()
+    entity = deferred.ForeignKey('BaseEntity')
+    order = models.SmallIntegerField(default=0, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+        verbose_name = _("Entity Image")
+        verbose_name_plural = _("Entity Images")
+        ordering = ('order',)
+
+
+EntityImageModel = deferred.MaterializedModel(BaseEntityImage)

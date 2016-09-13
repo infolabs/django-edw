@@ -6,11 +6,14 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
+from adminsortable2.admin import SortableInlineAdminMixin
+
 from salmonella.admin import SalmonellaMixin
 
 from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
-    EntityRelationModel
+    EntityRelationModel,
+    EntityImageModel
 )
 from edw.admin.entity.forms import (
     EntityCharacteristicOrMarkInlineForm,
@@ -86,7 +89,7 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 
 
 #===========================================================================================
-#
+# EntityRelationInline
 #===========================================================================================
 class EntityRelationInline(SalmonellaMixin, admin.TabularInline):
     model = EntityRelationModel
@@ -94,3 +97,12 @@ class EntityRelationInline(SalmonellaMixin, admin.TabularInline):
     extra = 1
     form = EntityRelationInlineForm
     salmonella_fields = ('to_entity',)
+
+
+#===========================================================================================
+# EntityRelationInline
+#===========================================================================================
+class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = EntityRelationModel
+    extra = 1
+    ordering = ('order',)

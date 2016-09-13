@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
 from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
+from edw.models.defaults.mapping import EntityImage
 
 
 class BookQuerySet(BaseEntityQuerySet):
@@ -26,6 +27,9 @@ class Book(AddedDateTermsValidationMixin, BaseEntity):
 
     # controlling the catalog
     order = models.PositiveIntegerField(verbose_name=_("Sort by"), db_index=True, default=1)
+
+    # images
+    images = models.ManyToManyField('filer.Image', through=EntityImage)
 
     class Meta:
         ordering = ('order',)
