@@ -17,6 +17,7 @@ from django.core.urlresolvers import reverse
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
+from edw.signals.auth import customer_registered
 
 
 class RegisterUserForm(ModelForm):
@@ -77,6 +78,9 @@ class RegisterUserForm(ModelForm):
         else:
             self._send_activation_email(request, customer.user)
             logout(request)
+
+        customer_registered.send(customer=customer, request=request)
+
         msg = _("A customer ‘{email}’ success registered.\n"
                 "To complete the registration, click the link that was sent to you by e-mail")
         return msg.format(**self.cleaned_data)
