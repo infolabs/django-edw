@@ -182,6 +182,8 @@ class ActivationView(APIView):
                 'message': _("Error validate account. Validate link wrong or expired validate code.")
             })
         else:
+            #user = authenticate(username=customer.user.username, password=password)
+            #login(request, user)
             return Response({
                 'is_activate': True,
                 'message': _("Account success validate.")
