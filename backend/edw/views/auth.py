@@ -21,7 +21,7 @@ from rest_auth.views import PasswordChangeView as OriginalPasswordChangeView
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
-from edw.signals.auth import user_activated
+#from edw.signals.auth import user_activated #todo: поправить
 
 
 class AuthFormsView(GenericAPIView):
@@ -177,11 +177,15 @@ class ActivationView(APIView):
         """
         activated_user = self.activate(request, *args, **kwargs)
         if not activated_user:
-            return Response(
-                _("Error validate account. Validate link wrong or expired validate code."), status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({
+                'is_activate': False,
+                'message': _("Error validate account. Validate link wrong or expired validate code.")
+            })
         else:
-            return Response({"success": _("Account success validate.")})
+            return Response({
+                'is_activate': True,
+                'message': _("Account success validate.")
+            })
 
     def validate_key(self, activation_key):
         """
@@ -228,6 +232,6 @@ class ActivationView(APIView):
             if user is not None:
                 user.is_active = True
                 user.save()
-                user_activated.send(user=user, request=request)
+                #user_activated.send(user=user, request=request) #todo: поправить
                 return user
         return False
