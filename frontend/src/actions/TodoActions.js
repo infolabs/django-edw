@@ -22,7 +22,7 @@ export function getTodos() {
     credentials: 'same-origin'
   }).then(response => response.json()).then(json => ({
     type: types.GET_TODOS,
-    todos: json.results
+    todos: json
   }));
 }
 
