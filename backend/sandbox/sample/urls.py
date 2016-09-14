@@ -14,6 +14,7 @@ def render_robots(request):
         
 i18n_urls = (
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/salmonella/', include('salmonella.urls'))
 )
 
 
