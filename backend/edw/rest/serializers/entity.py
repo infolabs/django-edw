@@ -22,6 +22,9 @@ class EntitySerializer(serializers.HyperlinkedModelSerializer):
     A simple serializer to convert the entity items for rendering.
     """
     #active = serializers.BooleanField()
+    entity_name = serializers.CharField(read_only=True)
+    entity_model = serializers.CharField(read_only=True)
+
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
 
@@ -35,7 +38,8 @@ class EntityDetailSerializer(EntitySerializer):
     EntityDetailSerializer
     """
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'url', 'created_at', 'updated_at', 'active', 'characteristics', 'marks')
+        fields = ('id', 'entity_name', 'entity_model', 'url', 'created_at', 'updated_at', 'active',
+                  'characteristics', 'marks')
 
 
 class EntityListSerializer(EntitySerializer):
@@ -46,5 +50,6 @@ class EntityListSerializer(EntitySerializer):
     short_marks = AttributeSerializer(read_only=True, many=True)
 
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'url', 'active', 'short_characteristics', 'short_marks')
+        fields = ('id', 'entity_name', 'entity_model', 'url', 'active',
+                  'short_characteristics', 'short_marks')
 

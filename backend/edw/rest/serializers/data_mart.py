@@ -42,9 +42,9 @@ class DataMartDetailSerializer(DataMartSerializer):
                   'active', 'description')
 
 
-class DataMartListSerializer(DataMartSerializer):
+class DataMartSummarySerializer(DataMartSerializer):
     """
-    DataMartListSerializer
+    DataMartSummarySerializer
     """
     class Meta(DataMartSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'url', 'active', 'view_class')
