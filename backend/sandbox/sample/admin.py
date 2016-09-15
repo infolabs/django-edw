@@ -161,7 +161,7 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
 
     search_fields = ('name',)
 
-    list_filter = (PolymorphicChildModelFilter, 'active', TermsTreeFilter)
+    list_filter = (TermsTreeFilter, 'active')
     list_per_page = 250
     list_max_show_all = 1000
 

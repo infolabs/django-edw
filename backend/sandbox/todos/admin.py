@@ -65,7 +65,7 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
 
     search_fields = ('name',)
 
-    list_filter = ('active', 'marked', TermsTreeFilter)
+    list_filter = (TermsTreeFilter, 'active', 'marked')
     list_per_page = 250
     list_max_show_all = 1000
 
