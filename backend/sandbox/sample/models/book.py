@@ -22,7 +22,7 @@ class BookManager(BaseEntityManager):
 class Book(AddedDateTermsValidationMixin, BaseEntity):
 
     name = models.CharField(max_length=255, verbose_name=_("Book Name"))
-    slug = models.SlugField(verbose_name=_("Slug"), unique=True)
+    #slug = models.SlugField(verbose_name=_("Slug"), unique=True)
     description = models.TextField(verbose_name=_('Description'), blank=True, null=True)
 
     # controlling the catalog
