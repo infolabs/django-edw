@@ -49,9 +49,9 @@ class TermDetailSerializer(TermSerializer):
                   'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes', 'is_leaf')
 
 
-class TermListSerializer(TermSerializer):
+class TermSummarySerializer(TermSerializer):
     '''
-    TermListSerializer
+    TermSummarySerializer
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',

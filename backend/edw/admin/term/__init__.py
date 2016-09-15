@@ -24,7 +24,7 @@ from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_i
 from edw.models.term import BaseTerm, TermModel
 
 from edw.rest.viewsets import remove_empty_params_from_request
-from edw.rest.serializers.term import TermListSerializer
+from edw.rest.serializers.term import TermSummarySerializer
 
 from edw.admin.term.serializers import WidgetTermTreeSerializer
 
@@ -113,7 +113,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
                 queryset = queryset.exclude(system_flags=BaseTerm.system_flags.external_tagging_restriction)
             if BooleanField().to_internal_value(request.GET.get('active_only', False)):
                 queryset = queryset.active()
-            serializer = TermListSerializer(queryset, context=context, many=True)
+            serializer = TermSummarySerializer(queryset, context=context, many=True)
             template = 'edw/admin/term/widgets/tree/children.json'
         else:
             queryset = TermModel.objects.toplevel()
