@@ -42,9 +42,9 @@ class EntityDetailSerializer(EntitySerializer):
                   'characteristics', 'marks')
 
 
-class EntityListSerializer(EntitySerializer):
+class EntitySummarySerializer(EntitySerializer):
     """
-    EntityListSerializer
+    EntitySummarySerializer
     """
     short_characteristics = AttributeSerializer(read_only=True, many=True)
     short_marks = AttributeSerializer(read_only=True, many=True)
