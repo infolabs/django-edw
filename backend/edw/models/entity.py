@@ -496,7 +496,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     term = TermModel(slug=slug,
                                      parent=parent,
                                      name=cls._meta.verbose_name,
-                                     semantic_rule=TermModel.OR_RULE,
+                                     semantic_rule=TermModel.XOR_RULE,
                                      system_flags=(TermModel.system_flags.delete_restriction |
                                                    TermModel.system_flags.change_parent_restriction |
                                                    TermModel.system_flags.change_slug_restriction |
