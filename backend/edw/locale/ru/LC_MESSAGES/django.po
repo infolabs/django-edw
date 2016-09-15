@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-14 00:25+0300\n"
-"PO-Revision-Date: 2016-09-14 00:27+0300\n"
+"POT-Creation-Date: 2016-09-15 18:27+0300\n"
+"PO-Revision-Date: 2016-09-15 18:28+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -69,7 +69,7 @@ msgstr "Пользователь"
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:19 admin/entity/__init__.py:31
+#: admin/data_mart/forms.py:18 admin/entity/__init__.py:31
 #: admin/entity/forms.py:25 models/data_mart.py:179 models/entity.py:388
 msgid "Terms"
 msgstr "Термины"
@@ -78,7 +78,7 @@ msgstr "Термины"
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: admin/entity/forms.py:43 templates/edw/admin/mptt/_term_node.html:16
+#: admin/entity/forms.py:43 templates/edw/admin/mptt/_term_node.html.py:16
 msgid "Relation"
 msgstr "Отношение"
 
@@ -90,36 +90,36 @@ msgstr "Цель"
 msgid "EDW"
 msgstr "Предметно-ориентированное хранилище данных"
 
-#: forms/auth.py:25
+#: forms/auth.py:26
 msgid "Your e-mail address"
 msgstr "Ваш адрес электронной почты"
 
-#: forms/auth.py:26
+#: forms/auth.py:27
 msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
-#: forms/auth.py:28
+#: forms/auth.py:29
 msgid "Send a randomly generated password to your e-mail address."
 msgstr ""
 "Отправить случайно сгенерированный пароль на ваш адрес электронной почты."
 
-#: forms/auth.py:30
+#: forms/auth.py:31
 msgid "Choose a password"
 msgstr "Введите пароль"
 
-#: forms/auth.py:31
+#: forms/auth.py:32
 msgid "Minimum length is 6 characters."
 msgstr "Минимальная длина 6 символов"
 
-#: forms/auth.py:32
+#: forms/auth.py:33
 msgid "Repeat password"
 msgstr "Повторить пароль"
 
-#: forms/auth.py:33
+#: forms/auth.py:34
 msgid "Confirm password."
 msgstr "Подтверждение пароля"
 
-#: forms/auth.py:49
+#: forms/auth.py:50
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -127,11 +127,11 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: forms/auth.py:60
+#: forms/auth.py:61
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: forms/auth.py:80
+#: forms/auth.py:84
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -168,7 +168,7 @@ msgstr "Госпожа"
 
 #: models/customer.py:173
 msgid "(n/a)"
-msgstr "нет"
+msgstr "Не задано"
 
 #: models/customer.py:177
 msgid "Unrecognized"
@@ -292,7 +292,7 @@ msgid "Customer Number"
 msgstr "Код пользователя"
 
 #: models/defaults/term.py:22 models/related.py:24 models/related.py:58
-#: models/term.py:345 templates/edw/admin/mptt/_term_node.html:25
+#: models/term.py:345 templates/edw/admin/mptt/_term_node.html.py:25
 msgid "Term"
 msgstr "Термин"
 
@@ -432,7 +432,7 @@ msgstr "Ограничение на изменение семантическо�
 msgid "External tagging restriction"
 msgstr "Ограничение на ручную установку в объектах"
 
-#: models/term.py:322 templates/edw/admin/mptt/_term_node.html:3
+#: models/term.py:322 templates/edw/admin/mptt/_term_node.html.py:3
 #: templates/edw/admin/mptt/_term_node.html:4
 msgid "Semantic Rule"
 msgstr "Семантическое правило"
@@ -445,7 +445,7 @@ msgstr "атрибуты"
 msgid "Specifying attributes of term."
 msgstr "Позволяет устанавливать атрибуты термина"
 
-#: models/term.py:326 templates/edw/admin/mptt/_term_node.html:4
+#: models/term.py:326 templates/edw/admin/mptt/_term_node.html.py:4
 msgid "Specification Mode"
 msgstr "Режим конкретизации"
 
@@ -481,6 +481,10 @@ msgstr "Метка"
 #: templates/edw/admin/mptt/_term_node.html:18
 msgid "Characteristic"
 msgstr "Характеристика"
+
+#: templates/edw/admin/term/filters/tree/filter.html:4
+msgid "Clear filter"
+msgstr "Сбросить всё"
 
 #: templates/edw/email/activate-account-body.txt:2
 #, python-format
@@ -586,29 +590,29 @@ msgstr "Подробно"
 msgid "Loading search results"
 msgstr "Загрузка результатов поиска"
 
-#: views/auth.py:68
+#: views/auth.py:76
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
-#: views/auth.py:88
+#: views/auth.py:101
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
-#: views/auth.py:135
+#: views/auth.py:149
 msgid "Password has been reset with the new password."
 msgstr "Пароль был сброшен."
 
-#: views/auth.py:147
+#: views/auth.py:162
 msgid "New password has been saved."
 msgstr "Новый пароль установлен."
 
-#: views/auth.py:179
+#: views/auth.py:182
 msgid "Error validate account. Validate link wrong or expired validate code."
 msgstr ""
 "Ошибка активации аккаунта. Либо код активации неверно указан, либо он был "
 "просрочен."
 
-#: views/auth.py:182
+#: views/auth.py:189
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
 
