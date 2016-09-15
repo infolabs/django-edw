@@ -61,7 +61,7 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
         abstract = True
         verbose_name = _("Entity Relation")
         verbose_name_plural = _("Entity Relations")
-        unique_together = ('from_entity', 'to_entity', 'term',)
+        unique_together = ('term', 'from_entity', 'to_entity',)
 
     def __str__(self):
         return "{} → {} → {}".format(self.from_entity.entity_name, self.term.name, self.to_entity.entity_name)
