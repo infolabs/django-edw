@@ -2,11 +2,12 @@
 from __future__ import unicode_literals
 
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import pagination
 
+from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.entity import (
     EntitySerializer,
@@ -34,6 +35,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     }
 
     filter_class = EntityFilter
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ('created_at',)
 
     pagination_class = pagination.LimitOffsetPagination
 
