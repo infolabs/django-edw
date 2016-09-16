@@ -4,7 +4,8 @@ try:
     from . import (
         term,
         data_mart,
-        entity
+        entity,
+        auth
     )
 except AttributeError as e:
     # initial migrations hack
