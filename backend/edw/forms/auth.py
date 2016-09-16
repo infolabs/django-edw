@@ -136,21 +136,21 @@ class RegisterUserForm(ModelForm):
         user.email_user(subject, body)
 
 
-class ContinueAsGuestForm(ModelForm):
-    """
-    Handles Customer's decision to order as guest.
-    """
-    form_name = 'continue_as_guest_form'
-
-    class Meta:
-        model = CustomerModel
-        fields = ()  # this form doesn't show any fields
-
-    def save(self, request=None, commit=True):
-        self.instance.recognize_as_guest()
-        self.instance.user.is_active = edw_settings.GUEST_IS_ACTIVE_USER
-        if self.instance.user.is_active:
-            # set a usable password, otherwise the user later can not reset its password
-            password = get_user_model().objects.make_random_password(length=30)
-            self.instance.user.set_password(password)
-        return super(ContinueAsGuestForm, self).save(commit)
+#class ContinueAsGuestForm(ModelForm):
+#    """
+#    Handles Customer's decision to order as guest.
+#    """
+#    form_name = 'continue_as_guest_form'
+#
+#    class Meta:
+#        model = CustomerModel
+#        fields = ()  # this form doesn't show any fields
+#
+#    def save(self, request=None, commit=True):
+#        self.instance.recognize_as_guest()
+#        self.instance.user.is_active = edw_settings.GUEST_IS_ACTIVE_USER
+#        if self.instance.user.is_active:
+#            # set a usable password, otherwise the user later can not reset its password
+#            password = get_user_model().objects.make_random_password(length=30)
+#            self.instance.user.set_password(password)
+#        return super(ContinueAsGuestForm, self).save(commit)
