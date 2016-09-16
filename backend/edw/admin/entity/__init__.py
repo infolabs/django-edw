@@ -84,6 +84,7 @@ class TermsTreeFilter(admin.ListFilter):
 #===========================================================================================
 class EntityCharacteristicOrMarkInline(admin.TabularInline):
     model = AdditionalEntityCharacteristicOrMarkModel
+    fields = ['term', 'value', 'view_class']
     extra = 1
     form = EntityCharacteristicOrMarkInlineForm
 
@@ -93,6 +94,7 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 #===========================================================================================
 class EntityRelationInline(admin.TabularInline):
     model = EntityRelationModel
+    fields = ['term', 'to_entity']
     fk_name = 'from_entity'
     extra = 1
     form = EntityRelationInlineForm

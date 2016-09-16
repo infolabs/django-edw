@@ -15,8 +15,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from rest_auth.views import LoginView as OriginalLoginView
-from rest_auth.views import PasswordChangeView as OriginalPasswordChangeView
+from rest_auth.views import (
+    LoginView as OriginalLoginView,
+    PasswordChangeView as OriginalPasswordChangeView
+)
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
@@ -105,7 +107,14 @@ class PasswordResetView(GenericAPIView):
         )
 
 
-class PasswordResetConfirm(GenericAPIView):
+try:
+    from django.utils.http import urlsafe_base64_decode as uid_decoder
+except:
+    # make compatible with django 1.5
+    from django.utils.http import base36_to_int as uid_decoder
+
+
+class PasswordResetConfirmView(GenericAPIView):
     """
     Password reset e-mail link points onto this view, which when invoked by a GET request renderes
     a HTML page containing a password reset form. This form then can be used to reset the user's
@@ -115,7 +124,7 @@ class PasswordResetConfirm(GenericAPIView):
 
     ```
     url(r'^password-reset-confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        PasswordResetConfirm.as_view(), name='password_reset_confirm'),
+        PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     ```
 
     Accepts the following POST parameters: new_password1, new_password2
@@ -138,7 +147,11 @@ class PasswordResetConfirm(GenericAPIView):
         return Response({'validlink': True, 'user_name': force_text(serializer.user)})
 
     def post(self, request, uidb64=None, token=None):
-        data = dict(request.data, uid=uidb64, token=token)
+        data = {'uid': uidb64,
+                'token': token,
+                'new_password1': request.data['new_password1'],
+                'new_password2': request.data['new_password2']
+                }
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
             return Response(
