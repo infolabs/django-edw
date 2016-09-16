@@ -18,7 +18,14 @@ from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 
 
-#===================================================
+class AttributeSerializer(serializers.Serializer):
+    """
+    A serializer to convert the characteristics and marks for rendering.
+    """
+    name = serializers.CharField()
+    path = serializers.CharField()
+    values = serializers.ListField(child=serializers.CharField())
+    view_class = serializers.ListField(child=serializers.CharField())
 
 
 class EntityCommonSerializer(serializers.ModelSerializer):
@@ -28,6 +35,7 @@ class EntityCommonSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = EntityModel
+        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
     def render_html(self, entity, postfix):
         """
@@ -89,6 +97,8 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     entity_url = serializers.URLField(source='get_absolute_url', read_only=True)
     entity_type = serializers.CharField(read_only=True)
     entity_model = serializers.CharField(read_only=True)
+    short_characteristics = AttributeSerializer(read_only=True, many=True)
+    short_marks = AttributeSerializer(read_only=True, many=True)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'catalog')
@@ -99,23 +109,33 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     """
     Serialize all fields of the Product model, for the products detail view.
     """
+    characteristics = AttributeSerializer(read_only=True, many=True)
+    marks = AttributeSerializer(read_only=True, many=True)
+
+    def __new__(cls, instance, *args, **kwargs):
+        obj = super(EntityDetailSerializerBase, cls).__new__(cls, instance, *args, **kwargs)
+
+        class Meta(obj.Meta):
+            model = instance.__class__
+
+        setattr(obj, 'Meta', Meta)
+        return obj
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'catalog')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
-    def to_representation(self, obj):
-        entity = super(EntityDetailSerializerBase, self).to_representation(obj)
-        # add a serialized representation of the entity to the context
-        return {'entity': dict(entity)}
+    # def to_representation(self, obj):
+    #     entity = super(EntityDetailSerializerBase, self).to_representation(obj)
+    #     # add a serialized representation of the entity to the context
+    #     return {'entity': dict(entity)}
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-    # class Meta:
-        # model = EntityModel
-        fields = ('id', 'entity_name', 'entity_url', 'entity_model', 'media')
+        fields = ('id', 'entity_name', 'entity_url', 'entity_model', 'short_characteristics', 'short_marks', 'media')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
@@ -123,56 +143,5 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
 class EntityDetailSerializer(EntityDetailSerializerBase):
     class Meta(EntityCommonSerializer.Meta):
-    # class Meta:
-        # model = EntityModel
-        exclude = ('active', 'polymorphic_ctype',)
+        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
 
-
-#===================================================
-'''
-class AttributeSerializer(serializers.Serializer):
-    """
-    A serializer to convert the characteristics and marks for rendering.
-    """
-    name = serializers.CharField()
-    path = serializers.CharField()
-    values = serializers.ListField(child=serializers.CharField())
-    view_class = serializers.ListField(child=serializers.CharField())
-
-
-class EntitySerializer(serializers.HyperlinkedModelSerializer):
-    """
-    A simple serializer to convert the entity items for rendering.
-    """
-    #active = serializers.BooleanField()
-    entity_name = serializers.CharField(read_only=True)
-    entity_model = serializers.CharField(read_only=True)
-
-    characteristics = AttributeSerializer(read_only=True, many=True)
-    marks = AttributeSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = EntityModel
-        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
-
-
-class EntityDetailSerializer(EntitySerializer):
-    """
-    EntityDetailSerializer
-    """
-    class Meta(EntitySerializer.Meta):
-        fields = ('id', 'entity_name', 'entity_model', 'url', 'created_at', 'updated_at', 'active',
-                  'characteristics', 'marks')
-
-
-class EntitySummarySerializer(EntitySerializer):
-    """
-    EntitySummarySerializer
-    """
-    short_characteristics = AttributeSerializer(read_only=True, many=True)
-    short_marks = AttributeSerializer(read_only=True, many=True)
-
-    class Meta(EntitySerializer.Meta):
-        fields = ('id', 'entity_name', 'entity_model', 'url', 'active', 'short_characteristics', 'short_marks')
-
-'''

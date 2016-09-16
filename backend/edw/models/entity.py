@@ -9,6 +9,7 @@ import operator
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import six
 from django.utils.functional import cached_property
@@ -638,3 +639,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
+
+
+class ApiReferenceMixin(object):
+    """
+    Add this mixin to Entity classes to add a ``get_absolute_url()`` method.
+    """
+    def get_absolute_url(self):
+        """
+        Return the absolute URL of a entity
+        """
+        return reverse('edw:{}-detail'.format(EntityModel._meta.model_name), kwargs={'pk': self.pk})
