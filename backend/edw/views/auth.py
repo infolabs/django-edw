@@ -23,7 +23,7 @@ from rest_auth.views import (
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.rest.serializers.auth import PasswordResetSerializer, PasswordResetConfirmSerializer
-#from edw.signals.auth import user_activated #todo: поправить
+from edw.signals.auth import user_activated
 
 
 class AuthFormsView(GenericAPIView):
@@ -247,6 +247,6 @@ class ActivationView(APIView):
             if user is not None:
                 user.is_active = True
                 user.save()
-                #user_activated.send(user=user, request=request) #todo: поправить
+                user_activated.send_robust(sender=self.__class__, user=user, request=request)
                 return user
         return False
