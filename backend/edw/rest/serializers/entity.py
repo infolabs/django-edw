@@ -7,17 +7,18 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
+from django.utils.six import with_metaclass
+from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 
 from rest_framework import serializers
 
+from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 
 
 #===================================================
-
-'''
 
 
 class EntityCommonSerializer(serializers.ModelSerializer):
@@ -25,6 +26,8 @@ class EntityCommonSerializer(serializers.ModelSerializer):
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
     EntityDetailSerializer.
     """
+    class Meta:
+        model = EntityModel
 
     def render_html(self, entity, postfix):
         """
@@ -53,68 +56,80 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         # when rendering emails, we require an absolute URI, so that media can be accessed from
         # the mail client
         absolute_base_uri = request.build_absolute_uri('/').rstrip('/')
-
-
-        # todo: <--- Start here!!!
-
-
-        context = RequestContext(request, {'product': product, 'ABSOLUTE_BASE_URI': absolute_base_uri})
+        context = RequestContext(request, {'entity': entity, 'ABSOLUTE_BASE_URI': absolute_base_uri})
         content = strip_spaces_between_tags(template.render(context).strip())
-        cache.set(cache_key, content, shop_settings.CACHE_DURATIONS['product_html_snippet'])
+        cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['entity_html_snippet'])
         return mark_safe(content)
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
     """
-    Keep a global reference onto the class implementing `ProductSummarySerializerBase`.
-    There can be only one class instance, because the products summary is the lowest common
-    denominator for all products of this shop instance. Otherwise we would be unable to mix
-    different polymorphic product types in the Catalog, Cart and Order list views.
+    Keep a global reference onto the class implementing `EntitySummarySerializerBase`.
+    There can be only one class instance, because the entities summary is the lowest common
+    denominator for all entities of this edw instance. Otherwise we would be unable to mix
+    different polymorphic entity types in the all list views.
     """
     def __new__(cls, clsname, bases, attrs):
-        global product_summary_serializer_class
-        if product_summary_serializer_class:
-            msg = "Class `{}` inheriting from `ProductSummarySerializerBase` already registred."
-            raise exceptions.ImproperlyConfigured(msg.format(product_summary_serializer_class.__name__))
+        global entity_summary_serializer_class
+        if entity_summary_serializer_class:
+            msg = "Class `{}` inheriting from `EntitySummarySerializerBase` already registred."
+            raise exceptions.ImproperlyConfigured(msg.format(entity_summary_serializer_class.__name__))
         new_class = super(cls, SerializerRegistryMetaclass).__new__(cls, clsname, bases, attrs)
-        if clsname != 'ProductSummarySerializerBase':
-            product_summary_serializer_class = new_class
+        if clsname != 'EntitySummarySerializerBase':
+            entity_summary_serializer_class = new_class
         return new_class
 
-product_summary_serializer_class = None
+entity_summary_serializer_class = None
 
 
-class ProductSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, ProductCommonSerializer)):
+class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
     """
-    Serialize a summary of the polymorphic Product model, suitable for Catalog List Views,
-    Cart List Views and Order List Views.
+    Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
     """
-    product_url = serializers.URLField(source='get_absolute_url', read_only=True)
-    product_type = serializers.CharField(read_only=True)
-    product_model = serializers.CharField(read_only=True)
+    entity_url = serializers.URLField(source='get_absolute_url', read_only=True)
+    entity_type = serializers.CharField(read_only=True)
+    entity_model = serializers.CharField(read_only=True)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'catalog')
-        super(ProductSummarySerializerBase, self).__init__(*args, **kwargs)
+        super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
 
-class ProductDetailSerializerBase(ProductCommonSerializer):
+class EntityDetailSerializerBase(EntityCommonSerializer):
     """
     Serialize all fields of the Product model, for the products detail view.
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'catalog')
-        super(ProductDetailSerializerBase, self).__init__(*args, **kwargs)
+        super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def to_representation(self, obj):
-        product = super(ProductDetailSerializerBase, self).to_representation(obj)
-        # add a serialized representation of the product to the context
-        return {'product': dict(product)}
+        entity = super(EntityDetailSerializerBase, self).to_representation(obj)
+        # add a serialized representation of the entity to the context
+        return {'entity': dict(entity)}
 
-'''
+
+class EntitySummarySerializer(EntitySummarySerializerBase):
+    media = serializers.SerializerMethodField()
+
+    class Meta(EntityCommonSerializer.Meta):
+    # class Meta:
+        # model = EntityModel
+        fields = ('id', 'entity_name', 'entity_url', 'entity_model', 'media')
+
+    def get_media(self, entity):
+        return self.render_html(entity, 'media')
+
+
+class EntityDetailSerializer(EntityDetailSerializerBase):
+    class Meta(EntityCommonSerializer.Meta):
+    # class Meta:
+        # model = EntityModel
+        exclude = ('active', 'polymorphic_ctype',)
+
 
 #===================================================
-
+'''
 class AttributeSerializer(serializers.Serializer):
     """
     A serializer to convert the characteristics and marks for rendering.
@@ -158,6 +173,6 @@ class EntitySummarySerializer(EntitySerializer):
     short_marks = AttributeSerializer(read_only=True, many=True)
 
     class Meta(EntitySerializer.Meta):
-        fields = ('id', 'entity_name', 'entity_model', 'url', 'active',
-                  'short_characteristics', 'short_marks')
+        fields = ('id', 'entity_name', 'entity_model', 'url', 'active', 'short_characteristics', 'short_marks')
 
+'''
