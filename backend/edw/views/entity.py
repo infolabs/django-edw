@@ -10,7 +10,7 @@ from rest_framework import pagination
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.entity import (
-    EntitySerializer,
+    EntityCommonSerializer,
     EntitySummarySerializer,
     EntityDetailSerializer
 )
@@ -28,7 +28,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         `data_mart` - retrieve data mart for entity. `GET /edw/api/entities/<id>/data_mart/`
     """
     queryset = EntityModel.objects.all()
-    serializer_class = EntitySerializer
+    serializer_class = EntityCommonSerializer
     custom_serializer_classes = {
         'list':  EntitySummarySerializer,
         'retrieve':  EntityDetailSerializer,
