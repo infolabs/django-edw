@@ -48,6 +48,10 @@ class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
     def __str__(self):
         return self.name
 
+    @property
+    def sample_image(self):
+        return self.images.first()
+
 
 class ChildBook(Book):
     AGES = (

@@ -33,6 +33,8 @@ class EntityCommonSerializer(serializers.ModelSerializer):
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
     EntityDetailSerializer.
     """
+    entity_model = serializers.CharField(read_only=True)
+
     class Meta:
         model = EntityModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
@@ -96,12 +98,12 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     """
     entity_url = serializers.URLField(source='get_absolute_url', read_only=True)
     entity_type = serializers.CharField(read_only=True)
-    entity_model = serializers.CharField(read_only=True)
+
     short_characteristics = AttributeSerializer(read_only=True, many=True)
     short_marks = AttributeSerializer(read_only=True, many=True)
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label', 'catalog')
+        kwargs.setdefault('label', 'data-mart')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
 
@@ -112,30 +114,41 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
 
+    _meta_cache = {}
+
+    @staticmethod
+    def _get_meta_class(base, model_class):
+
+        class Meta(base):
+            model = model_class
+
+        return Meta
+
+    @classmethod
+    def _update_meta(cls, it, instance):
+        model_class = instance.__class__
+        key = model_class.__name__
+        meta_class = cls._meta_cache.get(key, None)
+        if meta_class is None:
+            cls._meta_cache[key] = meta_class = EntityDetailSerializerBase._get_meta_class(it.Meta, model_class)
+        setattr(it, 'Meta', meta_class)
+
     def __new__(cls, instance, *args, **kwargs):
-        obj = super(EntityDetailSerializerBase, cls).__new__(cls, instance, *args, **kwargs)
-
-        class Meta(obj.Meta):
-            model = instance.__class__
-
-        setattr(obj, 'Meta', Meta)
-        return obj
+        it = super(EntityDetailSerializerBase, cls).__new__(cls, instance, *args, **kwargs)
+        cls._update_meta(it, instance)
+        return it
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'catalog')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
-
-    # def to_representation(self, obj):
-    #     entity = super(EntityDetailSerializerBase, self).to_representation(obj)
-    #     # add a serialized representation of the entity to the context
-    #     return {'entity': dict(entity)}
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-        fields = ('id', 'entity_name', 'entity_url', 'entity_model', 'short_characteristics', 'short_marks', 'media')
+        fields = ('id', 'entity_name', 'entity_url', 'entity_model',
+                  'short_characteristics', 'short_marks', 'media')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
