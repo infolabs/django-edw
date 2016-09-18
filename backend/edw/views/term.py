@@ -80,3 +80,8 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = serializer_class(queryset, context=context, many=True)
         return Response(serializer.data)
+
+    def list(self, request, data_mart_pk=None, *args, **kwargs):
+        if data_mart_pk is not None:
+            request.GET.setdefault('data_mart_pk', data_mart_pk)
+        return super(TermViewSet, self).list(request, *args, **kwargs)

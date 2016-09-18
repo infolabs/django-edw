@@ -25,7 +25,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     """
     A simple ViewSet for listing or retrieving entities.
     Additional actions:
-        `data_mart` - retrieve data mart for entity. `GET /edw/api/entities/<id>/data_mart/`
+        `data_mart` - retrieve data mart for entity. `GET /edw/api/entities/<id>/data-mart/`
     """
     queryset = EntityModel.objects.all()
     serializer_class = EntityCommonSerializer
@@ -44,7 +44,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 
-    @detail_route(filter_backends=())
+    @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
         '''
         Retrieve entity data mart
@@ -63,3 +63,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             return Response(serializer.data)
         else:
             return Response({})
+
+    def list(self, request, data_mart_pk=None, *args, **kwargs):
+        if data_mart_pk is not None:
+            request.GET.setdefault('data_mart_pk', data_mart_pk)
+        return super(EntityViewSet, self).list(request, *args, **kwargs)
