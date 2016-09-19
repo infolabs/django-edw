@@ -22,7 +22,7 @@ class EntityAdminForm(forms.ModelForm):
 
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all().exclude(
         system_flags=BaseTerm.system_flags.external_tagging_restriction),
-        required=False, widget=TermTreeWidget(external_tagging_restriction=True), label=_("Terms"))
+        required=False, widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False), label=_("Terms"))
 
 
 #==============================================================================
