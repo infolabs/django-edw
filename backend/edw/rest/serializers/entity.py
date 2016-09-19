@@ -103,7 +103,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     short_marks = AttributeSerializer(read_only=True, many=True)
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label', 'data-mart')
+        kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
 
@@ -139,7 +139,7 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
         return it
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label', 'catalog')
+        kwargs.setdefault('label', 'detail')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
 
