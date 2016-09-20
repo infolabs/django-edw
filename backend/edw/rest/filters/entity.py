@@ -16,7 +16,6 @@ from rest_framework.generics import get_object_or_404
 
 from edw.models.entity import BaseEntity
 from edw.models.data_mart import DataMartModel
-from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 
 
@@ -78,6 +77,9 @@ class EntityFilter(filters.FilterSet):
         self._data_mart_id = value
         if self.data_mart_id is None or 'terms' in self.data:
             return queryset
+
+        # self.data._tmp = "OLOLO!!!"
+
         return queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
 
     def filter_terms(self, name, queryset, value):

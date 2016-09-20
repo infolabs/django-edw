@@ -155,6 +155,25 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
 
 class EntityDetailSerializer(EntityDetailSerializerBase):
+
     class Meta(EntityCommonSerializer.Meta):
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
 
+
+class EntitySummaryMetadataSerializer(serializers.Serializer):
+    cnt = serializers.SerializerMethodField()
+
+    def get_cnt(self, instance):
+
+        # print ">>>>>>>>>>>", self.context['request'].GET._tmp, instance
+
+        return len(instance)
+
+
+class EntityTotalSummarySerializer(serializers.Serializer):
+    meta = EntitySummaryMetadataSerializer(source="*")
+    objects = EntitySummarySerializer(source="*", many=True)
+
+    def __new__(cls, *args, **kwargs):
+        kwargs['many'] = False
+        return super(EntityTotalSummarySerializer, cls).__new__(cls, *args, **kwargs)
