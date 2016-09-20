@@ -492,7 +492,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             for Model in get_polymorphic_ancestors_models(cls):
                 slug = Model.__name__.lower()
                 try:
-                    term = TermModel.objects.get(slug=slug, parent=parent)
+                    if parent is None:
+                        term = TermModel.objects.get(slug=slug, parent=parent)
+                    else:
+                        term = TermModel.objects.get(slug=slug, id__in=list(
+                            parent.get_descendants(include_self=False).values_list('id', flat=True)))
                 except TermModel.DoesNotExist:
                     term = TermModel(slug=slug,
                                      parent=parent,
