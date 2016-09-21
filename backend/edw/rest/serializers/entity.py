@@ -161,13 +161,21 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
 
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
-    cnt = serializers.SerializerMethodField()
+    tmp = serializers.SerializerMethodField()
 
-    def get_cnt(self, instance):
+    def get_tmp(self, instance):
 
         # print ">>>>>>>>>>>", self.context['request'].GET._tmp, instance
+        # print ">>>>>>>>>>>", self.context['request'].GET._origin_queryset, instance
 
-        return len(instance)
+        # origin_queryset = self.context['request'].GET._origin_queryset
+
+        tree = getattr(self.context['request'].GET, '_semantic_filter_terms_tree', {})
+
+        # tmp = origin_queryset.get_terms_ids()
+
+
+        return tree
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):

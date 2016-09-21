@@ -33,6 +33,13 @@ class EntityFilter(filters.FilterSet):
         model = BaseEntity
         fields = ['active']
 
+    # def __init__(self, data, **kwargs):
+    #     data._origin_queryset = kwargs['queryset']
+    #
+    #     print ">>>Init filters<<<", data, kwargs
+    #     super(EntityFilter, self).__init__(data, **kwargs)
+
+
     @cached_property
     @get_from_underscore_or_data('terms', [], lambda value: value.split(","))
     def term_ids(self, value):
@@ -77,18 +84,23 @@ class EntityFilter(filters.FilterSet):
         self._data_mart_id = value
         if self.data_mart_id is None or 'terms' in self.data:
             return queryset
-
-        # self.data._tmp = "OLOLO!!!"
-
-        return queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+        meta = {}
+        result = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress,
+                                          meta=meta)
+        self.data._semantic_filter_terms_tree = meta['tree']
+        return result
 
     def filter_terms(self, name, queryset, value):
         self._term_ids = value
         if not self.term_ids:
+            # {}
             return queryset
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
-        return queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
+        meta = {}
+        result = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress, meta=meta)
+        self.data._semantic_filter_terms_tree = meta['tree']
+        return result
 
     @cached_property
     @get_from_underscore_or_data('subj', [], lambda value: value.split(","))
