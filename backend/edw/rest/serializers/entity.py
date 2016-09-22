@@ -155,6 +155,32 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
 
 class EntityDetailSerializer(EntityDetailSerializerBase):
+
     class Meta(EntityCommonSerializer.Meta):
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
 
+
+class EntitySummaryMetadataSerializer(serializers.Serializer):
+    potential_terms_ids = serializers.SerializerMethodField()
+    real_terms_ids = serializers.SerializerMethodField()
+
+    def get_potential_terms_ids(self, instance):
+        request = self.context['request']
+        tree = getattr(request.GET, '_initial_filter_meta')
+        initial_queryset = getattr(request.GET, '_initial_queryset')
+
+        # todo: add cache logic
+
+        return initial_queryset.get_potential_terms_ids(tree)
+
+    def get_real_terms_ids(self, instance):
+        return []
+
+
+class EntityTotalSummarySerializer(serializers.Serializer):
+    meta = EntitySummaryMetadataSerializer(source="*")
+    objects = EntitySummarySerializer(source="*", many=True)
+
+    def __new__(cls, *args, **kwargs):
+        kwargs['many'] = False
+        return super(EntityTotalSummarySerializer, cls).__new__(cls, *args, **kwargs)

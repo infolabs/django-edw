@@ -11,7 +11,8 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.entity import (
     EntityCommonSerializer,
-    EntitySummarySerializer,
+    # EntitySummarySerializer,
+    EntityTotalSummarySerializer,
     EntityDetailSerializer
 )
 
@@ -30,7 +31,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     queryset = EntityModel.objects.all()
     serializer_class = EntityCommonSerializer
     custom_serializer_classes = {
-        'list':  EntitySummarySerializer,
+        # 'list':  EntitySummarySerializer,
+        'list':  EntityTotalSummarySerializer,
         'retrieve':  EntityDetailSerializer,
     }
 

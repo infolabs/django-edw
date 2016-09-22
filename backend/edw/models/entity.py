@@ -2,10 +2,12 @@
 from __future__ import unicode_literals
 
 
+import types
+
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, connections
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible, force_text
@@ -21,6 +23,7 @@ from datetime import datetime
 #from ipware.ip import get_ip #todo: поставить и включить в зависимости
 
 from . import deferred
+from .cache import add_cache_key, QuerySetCachedResultMixin
 from .term import TermModel
 from .data_mart import DataMartModel
 from .related import (
@@ -28,6 +31,7 @@ from .related import (
     EntityRelationModel
 )
 from ..utils.set_helpers import uniq
+from ..utils.circular_buffer_in_cache import RingBuffer
 from .. import settings as edw_settings
 
 
@@ -50,8 +54,9 @@ def get_polymorphic_ancestors_models(ChildModel):
 #==============================================================================
 # BaseEntityQuerySet
 #==============================================================================
-class BaseEntityQuerySet(PolymorphicQuerySet):
+class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
+    @add_cache_key('active')
     def active(self):
         return self.filter(active=True)
 
@@ -63,9 +68,61 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
             result = self.filter(filters[0])
             for x in filters[1:]:
                 result = result.filter(x)
-            return result.distinct()
+            result = result.distinct()
         else:
-            return self
+            result = self
+        result.semantic_filter_meta = tree
+        return result
+
+    def get_terms_ids(self):
+        """
+        # Pythonic, but working to slow, use connection.ops.quote_name monkey-path
+        result = self.model.terms.through.objects.filter(**{
+            "{entity}_id__in".format(
+                entity_model=self.model._meta.object_name.lower()
+            ): self.values_list('pk', flat=True)}).distinct().values_list('term_id', flat=True)
+        """
+        # Re-support subqueries by disabling the auto-quote feature with the following monkey-patch
+        db_ops = connections[self.db].ops
+        if not hasattr(db_ops, '_MP_quote_name'):
+            db_ops._MP_quote_name = db_ops.quote_name
+            db_ops.quote_name = types.MethodType(
+                lambda self, name: name if name.startswith('(') else self._MP_quote_name(name), db_ops)
+
+        # Make queryset
+        model = self.model.terms.through
+        inner_alias = self.query.get_initial_alias() + "_after_filtering"
+        outer_qs = model.objects.distinct().values_list('term_id', flat=True)
+        outer_alias = outer_qs.query.get_initial_alias()
+        inner_qs = self.order_by().values_list('pk', flat=True)
+        raw_subquery, subquery_params = inner_qs.query.get_compiler(self.db).as_sql()
+        result = outer_qs.extra(
+            tables=['({select}) AS {alias}'.format(
+                select=raw_subquery,
+                alias=inner_alias
+            )],
+            where=['{outer_alias}.{entity}_id = {inner_alias}.id'.format(
+                entity=self.model._meta.object_name.lower(),
+                outer_alias=outer_alias,
+                inner_alias=inner_alias
+            )],
+            params=subquery_params
+        )
+
+        return result
+
+    def get_potential_terms_ids(self, tree): # todo: add serializer cache logic
+        model_class = self.model
+        key = model_class.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
+        ids = cache.get(key, None)
+        if ids is None:
+            ids = tree.trim(self.get_terms_ids()).keys()
+            cache.set(key, ids, model_class.POTENTIAL_TERMS_IDS_CACHE_TIMEOUT)
+            buf = model_class.get_potential_cache_buffer()
+            old_key = buf.record(key)
+            if not old_key is None:
+                cache.delete(old_key)
+        return ids
 
     # def stored_request(self, request):
     #     """
@@ -391,8 +448,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
-    SHORT_CHARACTERISTICS_MAX_COUNT = 3
-    SHORT_MARKS_MAX_COUNT = 5
+    SHORT_CHARACTERISTICS_MAX_COUNT = 3 # todo: move to settings
+    SHORT_MARKS_MAX_COUNT = 5 # todo: move to settings
+
+    POTENTIAL_TERMS_BUFFER_CACHE_KEY = 'ptl_t_bf'
+    POTENTIAL_TERMS_BUFFER_CACHE_SIZE = 500 # todo: move to settings
+    POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN = 'ptl_t_ids:{tree_hash}s'
+    POTENTIAL_TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_potential_terms_ids']
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
@@ -648,6 +710,18 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         else:
             result = None
         return result
+
+    @staticmethod
+    def get_potential_cache_buffer():
+        return RingBuffer.factory(BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_KEY,
+                                  max_size=BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_potential_cache_buffer():
+        buf = BaseEntity.get_potential_cache_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

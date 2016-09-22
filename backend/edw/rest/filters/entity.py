@@ -16,7 +16,6 @@ from rest_framework.generics import get_object_or_404
 
 from edw.models.entity import BaseEntity
 from edw.models.data_mart import DataMartModel
-from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 
 
@@ -33,6 +32,11 @@ class EntityFilter(filters.FilterSet):
     class Meta:
         model = BaseEntity
         fields = ['active']
+
+    def __init__(self, *args, **kwargs):
+        super(EntityFilter, self).__init__(*args, **kwargs)
+        self.data._initial_queryset = self.queryset
+        self.data._initial_filter_meta = {}
 
     @cached_property
     @get_from_underscore_or_data('terms', [], lambda value: value.split(","))
@@ -76,9 +80,19 @@ class EntityFilter(filters.FilterSet):
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
-        if self.data_mart_id is None or 'terms' in self.data:
+        if self.data_mart_id is None:
             return queryset
-        return queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+
+        self.data._initial_queryset = initial_queryset = self.queryset.semantic_filter(
+            self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+        self.data._initial_filter_meta = initial_queryset.semantic_filter_meta
+
+        if 'terms' in self.data:
+            return queryset
+
+        queryset = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+        self.data._terms_filter_meta = queryset.semantic_filter_meta
+        return queryset
 
     def filter_terms(self, name, queryset, value):
         self._term_ids = value
@@ -86,7 +100,9 @@ class EntityFilter(filters.FilterSet):
             return queryset
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
-        return queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
+        queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
+        self.data._terms_filter_meta = queryset.semantic_filter_meta
+        return queryset
 
     @cached_property
     @get_from_underscore_or_data('subj', [], lambda value: value.split(","))
@@ -138,7 +154,7 @@ class EntityFilter(filters.FilterSet):
             rel_r_ids.extend(rel_b_ids)
         return rel_f_ids, rel_r_ids
 
-    def filter_rel(self, name, queryset, value):
+    def filter_rel(self, name, queryset, value): # todo: move logic to model
         self._rel_ids = value
         if self.rel_ids is None:
             return queryset

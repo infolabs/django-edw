@@ -24,6 +24,7 @@ CACHE_DURATIONS = {
     'term_attribute_ancestors': 3600,
 
     'entity_html_snippet': 86400,
+    'entity_potential_terms_ids': 3600,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 

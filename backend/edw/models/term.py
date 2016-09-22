@@ -245,12 +245,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
     """
     DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
-    DECOMPRESS_BUFFER_CACHE_SIZE = 500
+    DECOMPRESS_BUFFER_CACHE_SIZE = 500 # todo: move to settings
     DECOMPRESS_CACHE_KEY_PATTERN = 't_i:{value_hash}:{fix_it}'
     DECOMPRESS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_decompress']
 
     CHILDREN_BUFFER_CACHE_KEY = 't_ch_bf'
-    CHILDREN_BUFFER_CACHE_SIZE = 500
+    CHILDREN_BUFFER_CACHE_SIZE = 500 # todo: move to settings
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_children']
 
@@ -264,7 +264,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     SELECT_RELATED_CACHE_KEY_PATTERN = '{fields}:sr'
 
     ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 't_a_anc_bf'
-    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE = 500
+    ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE = 500 # todo: move to settings
     ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
     ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_attribute_ancestors']
 
@@ -624,7 +624,7 @@ class TermTreeInfo(dict):
     def _trim(self, ids=None):
         if ids is None:
             ids = []
-        #ids = uniq(ids)
+        # ids = uniq(ids)
         root_model_class = self.root.term.__class__
         root = TermInfo(term=root_model_class())
         tree = TermTreeInfo(root)
