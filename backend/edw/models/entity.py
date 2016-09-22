@@ -55,19 +55,19 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
     def active(self):
         return self.filter(active=True)
 
-    def semantic_filter(self, value, use_cached_decompress=False, meta=None, field_name='terms'):
+    def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         tree = decompress(value, fix_it=True)
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
-        if isinstance(meta, dict):
-            meta["tree"] = tree
         if filters:
             result = self.filter(filters[0])
             for x in filters[1:]:
                 result = result.filter(x)
-            return result.distinct()
+            result = result.distinct()
         else:
-            return self
+            result = self
+        result.terms_filter_tree = tree
+        return result
 
     def get_terms_ids(self):
         """

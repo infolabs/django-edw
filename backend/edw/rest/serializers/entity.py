@@ -170,7 +170,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
         # origin_queryset = self.context['request'].GET._origin_queryset
 
-        tree = getattr(self.context['request'].GET, '_semantic_filter_terms_tree', {})
+        tree = getattr(self.context['request'].GET, '_terms_filter_tree', {})
 
         # tmp = origin_queryset.get_terms_ids()
 

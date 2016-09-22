@@ -84,22 +84,19 @@ class EntityFilter(filters.FilterSet):
         self._data_mart_id = value
         if self.data_mart_id is None or 'terms' in self.data:
             return queryset
-        meta = {}
-        result = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress,
-                                          meta=meta)
-        self.data._semantic_filter_terms_tree = meta['tree']
+        result = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+        self.data._terms_filter_tree = result.terms_filter_tree
         return result
 
     def filter_terms(self, name, queryset, value):
         self._term_ids = value
         if not self.term_ids:
-            # {}
             return queryset
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
         meta = {}
-        result = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress, meta=meta)
-        self.data._semantic_filter_terms_tree = meta['tree']
+        result = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
+        self.data._terms_filter_tree = result.terms_filter_tree
         return result
 
     @cached_property
