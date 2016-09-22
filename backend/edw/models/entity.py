@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-'''
-from datetime import datetime
-from functools import reduce
-import operator
-'''
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
@@ -22,6 +17,8 @@ from polymorphic.query import PolymorphicQuerySet
 from polymorphic.base import PolymorphicModelBase
 
 from datetime import datetime
+
+#from ipware.ip import get_ip #todo: поставить и включить в зависимости
 
 from . import deferred
 from .term import TermModel
@@ -70,6 +67,17 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
         else:
             return self
 
+    # def stored_request(self, request):
+    #     """
+    #     Extract useful information about the request to be used for emulating a Django request
+    #     during offline rendering.
+    #     """
+    #     return {
+    #         'language': get_language_from_request(request),
+    #         'absolute_base_uri': request.build_absolute_uri('/'),
+    #         'remote_ip': get_ip(request),
+    #         'user_agent': request.META.get('HTTP_USER_AGENT'),
+    #     }
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
     """

@@ -31,6 +31,6 @@ CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 REGISTRATION_PROCESS = {
     'registration_salt': 'registration',
     'do_activation': False,
-    'account_activation_days': 5
+    'account_activation_days': 2
 }
 REGISTRATION_PROCESS.update(getattr(settings, 'EDW_REGISTRATION_PROCESS', {}))

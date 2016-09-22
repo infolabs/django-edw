@@ -10,5 +10,5 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = CustomerModel
-        fields = ('salutation', 'first_name', 'last_name', 'email', 'extra', 'url')
+        fields = ('salutation', 'first_name', 'last_name', 'email', 'extra')
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}

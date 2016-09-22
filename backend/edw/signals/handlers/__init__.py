@@ -5,7 +5,8 @@ try:
         term,
         data_mart,
         entity,
-        auth
+        auth,
+        notification
     )
 except AttributeError as e:
     # initial migrations hack
