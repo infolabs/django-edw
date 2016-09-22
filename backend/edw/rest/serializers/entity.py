@@ -161,21 +161,20 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
 
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
-    tmp = serializers.SerializerMethodField()
+    potential_terms_ids = serializers.SerializerMethodField()
+    real_terms_ids = serializers.SerializerMethodField()
 
-    def get_tmp(self, instance):
+    def get_potential_terms_ids(self, instance):
+        request = self.context['request']
+        tree = getattr(request.GET, '_initial_filter_meta')
+        initial_queryset = getattr(request.GET, '_initial_queryset')
 
-        # print ">>>>>>>>>>>", self.context['request'].GET._tmp, instance
-        # print ">>>>>>>>>>>", self.context['request'].GET._origin_queryset, instance
+        # todo: add cache logic
 
-        # origin_queryset = self.context['request'].GET._origin_queryset
+        return initial_queryset.get_potential_terms_ids(tree)
 
-        tree = getattr(self.context['request'].GET, '_terms_filter_tree', {})
-
-        # tmp = origin_queryset.get_terms_ids()
-
-
-        return tree
+    def get_real_terms_ids(self, instance):
+        return []
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):

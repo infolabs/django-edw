@@ -21,6 +21,7 @@ from polymorphic.base import PolymorphicModelBase
 from datetime import datetime
 
 from . import deferred
+from .cache import add_cache_key, QuerySetCachedResultMixin
 from .term import TermModel
 from .data_mart import DataMartModel
 from .related import (
@@ -28,6 +29,7 @@ from .related import (
     EntityRelationModel
 )
 from ..utils.set_helpers import uniq
+from ..utils.circular_buffer_in_cache import RingBuffer
 from .. import settings as edw_settings
 
 
@@ -50,8 +52,9 @@ def get_polymorphic_ancestors_models(ChildModel):
 #==============================================================================
 # BaseEntityQuerySet
 #==============================================================================
-class BaseEntityQuerySet(PolymorphicQuerySet):
+class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
+    @add_cache_key('active')
     def active(self):
         return self.filter(active=True)
 
@@ -66,7 +69,7 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
             result = result.distinct()
         else:
             result = self
-        result.terms_filter_tree = tree
+        result.semantic_filter_meta = tree
         return result
 
     def get_terms_ids(self):
@@ -105,6 +108,19 @@ class BaseEntityQuerySet(PolymorphicQuerySet):
         )
 
         return result
+
+    def get_potential_terms_ids(self, tree): # todo: add serializer cache logic
+        model_class = self.model
+        key = model_class.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
+        ids = cache.get(key, None)
+        if ids is None:
+            ids = tree.trim(self.get_terms_ids()).keys()
+            cache.set(key, ids, model_class.POTENTIAL_TERMS_IDS_CACHE_TIMEOUT)
+            buf = model_class.get_potential_cache_buffer()
+            old_key = buf.record(key)
+            if not old_key is None:
+                cache.delete(old_key)
+        return ids
 
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
@@ -419,8 +435,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
-    SHORT_CHARACTERISTICS_MAX_COUNT = 3
-    SHORT_MARKS_MAX_COUNT = 5
+    SHORT_CHARACTERISTICS_MAX_COUNT = 3 # todo: move to settings
+    SHORT_MARKS_MAX_COUNT = 5 # todo: move to settings
+
+    POTENTIAL_TERMS_BUFFER_CACHE_KEY = 'ptl_t_bf'
+    POTENTIAL_TERMS_BUFFER_CACHE_SIZE = 500 # todo: move to settings
+    POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN = 'ptl_t_ids:{tree_hash}s'
+    POTENTIAL_TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_potential_terms_ids']
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
@@ -676,6 +697,18 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         else:
             result = None
         return result
+
+    @staticmethod
+    def get_potential_cache_buffer():
+        return RingBuffer.factory(BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_KEY,
+                                  max_size=BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_potential_cache_buffer():
+        buf = BaseEntity.get_potential_cache_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
