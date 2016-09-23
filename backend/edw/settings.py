@@ -29,6 +29,19 @@ CACHE_DURATIONS = {
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 
 
+CACHE_BUFFERS_SIZES = {
+    'term_decompress': 500,
+    'term_children': 500,
+    'term_attribute_ancestors': 500,
+
+    'data_mart_children': 500,
+
+    'entity_potential_terms_ids': 500,
+}
+CACHE_BUFFERS_SIZES.update(getattr(settings, 'EDW_CACHE_BUFFERS_SIZES', {}))
+
+
+
 REGISTRATION_PROCESS = {
     'registration_salt': 'registration',
     'do_activation': False,

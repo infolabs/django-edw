@@ -150,7 +150,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     ALL_ACTIVE_TERMS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_all_active_terms']
 
     CHILDREN_BUFFER_CACHE_KEY = 'dm_ch_bf'
-    CHILDREN_BUFFER_CACHE_SIZE = 500 # todo: move to settings
+    CHILDREN_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['data_mart_children']
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_children']
 

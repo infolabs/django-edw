@@ -15,18 +15,6 @@ class EdwConfig(AppConfig):
         from edw.signals import handlers
 
         '''
-        from django_fsm.signals import post_transition
-        from jsonfield.fields import JSONField
-        from rest_framework.serializers import ModelSerializer
-        from shop.rest.serializers import JSONSerializerField
-        from shop.models.notification import order_event_notification
-
-        post_transition.connect(order_event_notification)
-        '''
-
-
-
-        '''
         # Monkey patches for Django-1.X
         if get_tuple_version()[:2] < (1, 9):
             from django.utils import foo_fn
@@ -34,11 +22,6 @@ class EdwConfig(AppConfig):
             foo_fn.fn = patched_foo_fn.fn
         '''
 
-        '''
-        # add JSONField to the map of customized serializers
-        ModelSerializer.serializer_field_mapping[JSONField] = JSONSerializerField
-        '''
-        #print('Start EDW app')
 
 '''
 def get_tuple_version(version=None):

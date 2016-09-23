@@ -455,7 +455,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_MARKS_MAX_COUNT = 5 # todo: move to settings
 
     POTENTIAL_TERMS_BUFFER_CACHE_KEY = 'ptl_t_bf'
-    POTENTIAL_TERMS_BUFFER_CACHE_SIZE = 500 # todo: move to settings
+    POTENTIAL_TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_potential_terms_ids']
     POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN = 'ptl_t_ids:{tree_hash}s'
     POTENTIAL_TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_potential_terms_ids']
 
