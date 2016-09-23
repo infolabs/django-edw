@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.contrib import admin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max
 from django.template.context import Context
 from django.template.loader import get_template
+
+from adminsortable2.admin import SortableAdminBase
+from ckeditor.widgets import CKEditorWidget
 
 from edw.admin.customer import CustomerProxy, CustomerAdmin
 
@@ -16,16 +20,15 @@ from edw.admin.term import TermAdmin
 from edw.models.data_mart import DataMartModel
 from edw.admin.data_mart import DataMartAdmin
 
-from edw.admin.entity import TermsTreeFilter, EntityCharacteristicOrMarkInline
+from edw.admin.entity import (
+    TermsTreeFilter,
+    EntityCharacteristicOrMarkInline,
+    EntityRelationInline,
+    EntityImageInline
+)
 from edw.admin.entity.forms import EntityAdminForm
 
 from .models import Todo
-
-from adminsortable2.admin import SortableAdminBase
-
-from django.conf import settings
-
-from ckeditor.widgets import CKEditorWidget
 
 
 class TodoAdminForm(EntityAdminForm):
@@ -69,7 +72,7 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
     list_per_page = 250
     list_max_show_all = 1000
 
-    inlines = [EntityCharacteristicOrMarkInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
 
     def save_model(self, request, obj, form, change):
         if not change:

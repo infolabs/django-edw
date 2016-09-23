@@ -36,12 +36,11 @@ i18n_urls = (
 urlpatterns = patterns('',
     url(r'^robots\.txt$', render_robots),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    url(r'^admin/salmonella/', include('salmonella.urls')),
     url(r'^api/', include(SharedAPIRootRouter.router.urls)),
     url(r'^edw/', include('edw.urls')),
     url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse'),
     url(r'^$', views.index, name='index'),
-    url(r'^registration/$', views.registration, name='registration'),
-    #url(r'^todo/(?P<slug>[0-9A-Za-z_.-]+)/$', TodoDetailView.as_view(), name="todo_detail"),
     )
 
 
