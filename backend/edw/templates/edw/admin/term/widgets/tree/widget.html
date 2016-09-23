@@ -19,7 +19,41 @@
             , direction: 1 // 1: clockwise, -1: counterclockwise
             , speed: 1.1 // Rounds per second
             , trail: 50 // Afterglow percentage
+        };
+
+        {% ifequal node_template "simple" %}
+        function makeFiltering(selected_terms) {
+            var new_param_sting = '?',
+                current_filter_dict = {};
+            $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
+                if (key == "_changelist_filters") {
+                    $.each(value.split(/&|%26/), function (index, value) {
+                        var x = value.split(/=|%3D/i);
+                        current_filter_dict[x[0]] = x[1];
+                    });
+                } else {
+                    current_filter_dict[key] = value;
+                }
+            });
+            if (selected_terms != '') {
+                current_filter_dict['terms'] = selected_terms;
+            } else {
+                delete current_filter_dict['terms'];
+            }
+            $.each(current_filter_dict, function(k, v) {
+                if (v !== undefined && v != '') {
+                    new_param_sting += k + '=' + v + '&'
+                }
+            });
+            window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + new_param_sting.slice(0, -1)
         }
+
+        $("#clear_rubric_filter").click(function() {
+            makeFiltering('');
+            event.preventDefault();
+        });
+
+        {% endifequal %}
         var $tree = $('#{{ name }}-select').tree({
             autoEscape: false,
             selectable: false,
@@ -29,29 +63,12 @@
                     e.data._cheked = $(this).is(':checked');
                     {% ifequal node_template "simple" %}
                     /* make entity filtering by selected terms */
-                    var new_param_sting = '?',
-                        current_filter_dict = {},
+                    var current_filter_dict = {},
                         selected_terms = [];
                     $("#terms-select :checked").each(function(){
                         selected_terms.push(parseInt($(this).val()))
                     });
-                    $(location).attr('search').replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
-                        if (key == "_changelist_filters") {
-                            $.each(value.split(/&|%26/), function (index, value) {
-                                var x = value.split(/=|%3D/i);
-                                current_filter_dict[x[0]] = x[1];
-                            });
-                        } else {
-                            current_filter_dict[key] = value;
-                        }
-                    });
-                    current_filter_dict['terms'] = selected_terms;
-                    $.each(current_filter_dict, function(k, v) {
-                        if (v !== undefined && v != '') {
-                            new_param_sting += k + '=' + v + '&'
-                        }
-                    });
-                    window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + new_param_sting.slice(0, -1)
+                    makeFiltering(selected_terms);
                     {% endifequal %}
                 });
                 if ( node._cheked ){
@@ -106,4 +123,4 @@
 
 </script>
 {% endcompress %}
-<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&tagging_restriction={{ tagging_restriction }}&_={% now 'U' %}" class="tree-widget"></div>
+<div id="{{ name }}-select" data-url="{% url 'admin:edw_term_select_json' %}?name={{ name }}&selected={% for val in value %}{{ val }}{% if not forloop.last %},{% endif %}{% endfor %}&cached=0&active_only={{ active_only }}&node_template={{ node_template }}&fix_it={{ fix_it }}&tagging_restriction={{ tagging_restriction }}&_={% now 'U' %}" class="tree-widget"></div>

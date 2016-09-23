@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
+from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet, ApiReferenceMixin
 from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
 from edw.models.defaults.mapping import EntityImage
 
@@ -19,10 +19,10 @@ class BookManager(BaseEntityManager):
 
 
 @python_2_unicode_compatible
-class Book(AddedDateTermsValidationMixin, BaseEntity):
+class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
 
     name = models.CharField(max_length=255, verbose_name=_("Book Name"))
-    slug = models.SlugField(verbose_name=_("Slug"), unique=True)
+    #slug = models.SlugField(verbose_name=_("Slug"), unique=True)
     description = models.TextField(verbose_name=_('Description'), blank=True, null=True)
 
     # controlling the catalog
@@ -47,6 +47,10 @@ class Book(AddedDateTermsValidationMixin, BaseEntity):
 
     def __str__(self):
         return self.name
+
+    @property
+    def sample_image(self):
+        return self.images.first()
 
 
 class ChildBook(Book):

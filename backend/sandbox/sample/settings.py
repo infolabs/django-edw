@@ -383,8 +383,6 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 
 CKEDITOR_IMAGE_BACKEND = "pillow"
 
-CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
-
 TEXT_ADDITIONAL_TAGS = ('iframe',)
 
 CKEDITOR_CONFIGS = {

@@ -46,7 +46,7 @@ class RegisterUserForm(ModelForm):
 
     def clean_email(self):
         # check for uniqueness of email address
-        if get_user_model().objects.filter(is_active=True, email=self.cleaned_data['email']).exists():
+        if get_user_model().objects.filter(email=self.cleaned_data['email']).exists():
             msg = _("A customer with the e-mail address ‘{email}’ already exists.\n"
                     "If you have used this address previously, try to reset the password.")
             raise ValidationError(msg.format(**self.cleaned_data))
@@ -79,7 +79,7 @@ class RegisterUserForm(ModelForm):
             self._send_activation_email(request, customer.user)
             logout(request)
 
-        customer_registered.send(customer=customer, request=request)
+        customer_registered.send_robust(sender=self.__class__, customer=customer, request=request) #todo: поправить
 
         msg = _("A customer ‘{email}’ success registered.\n"
                 "To complete the registration, click the link that was sent to you by e-mail")
@@ -136,21 +136,21 @@ class RegisterUserForm(ModelForm):
         user.email_user(subject, body)
 
 
-class ContinueAsGuestForm(ModelForm):
-    """
-    Handles Customer's decision to order as guest.
-    """
-    form_name = 'continue_as_guest_form'
-
-    class Meta:
-        model = CustomerModel
-        fields = ()  # this form doesn't show any fields
-
-    def save(self, request=None, commit=True):
-        self.instance.recognize_as_guest()
-        self.instance.user.is_active = edw_settings.GUEST_IS_ACTIVE_USER
-        if self.instance.user.is_active:
-            # set a usable password, otherwise the user later can not reset its password
-            password = get_user_model().objects.make_random_password(length=30)
-            self.instance.user.set_password(password)
-        return super(ContinueAsGuestForm, self).save(commit)
+#class ContinueAsGuestForm(ModelForm):
+#    """
+#    Handles Customer's decision to order as guest.
+#    """
+#    form_name = 'continue_as_guest_form'
+#
+#    class Meta:
+#        model = CustomerModel
+#        fields = ()  # this form doesn't show any fields
+#
+#    def save(self, request=None, commit=True):
+#        self.instance.recognize_as_guest()
+#        self.instance.user.is_active = edw_settings.GUEST_IS_ACTIVE_USER
+#        if self.instance.user.is_active:
+#            # set a usable password, otherwise the user later can not reset its password
+#            password = get_user_model().objects.make_random_password(length=30)
+#            self.instance.user.set_password(password)
+#        return super(ContinueAsGuestForm, self).save(commit)

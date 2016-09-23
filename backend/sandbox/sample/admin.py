@@ -49,7 +49,7 @@ class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'created_at', 'slug', 'active', 'age', 'terms', 'description'),
+            'fields': ('name', 'created_at', 'active', 'age', 'terms', 'description'),
         }),
     )
 
@@ -66,7 +66,7 @@ class ChildBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
             '/static/edw/js/admin/tree.jquery.js'
         )
 
-    prepopulated_fields = {'slug': ('name',)}
+    #prepopulated_fields = {'slug': ('name',)}
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
 
@@ -92,11 +92,11 @@ class AdultBookAdmin(SortableAdminMixin, PolymorphicChildModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'created_at', 'slug', 'active', 'genre', 'terms', 'description'),
+            'fields': ('name', 'created_at', 'active', 'genre', 'terms', 'description'),
         }),
     )
 
-    prepopulated_fields = {'slug': ('name',)}
+    #prepopulated_fields = {'slug': ('name',)}
 
     class Media:
         css = {
@@ -136,11 +136,11 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
 
     child_models = ((ChildBook, ChildBookAdmin), (AdultBook, AdultBookAdmin),)
 
-    list_display = ('name', 'slug', 'entity_type', 'active',)
+    list_display = ('name', 'entity_type', 'active',)
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'created_at', 'slug', 'active', 'description'),
+            'fields': ('name', 'created_at', 'active', 'description'),
         }),
     )
 
@@ -157,11 +157,11 @@ class BookAdmin(SortableAdminMixin, PolymorphicParentModelAdmin):
             '/static/edw/js/admin/tree.jquery.js'
         )
 
-    prepopulated_fields = {'slug': ('name',)}
+    #prepopulated_fields = {'slug': ('name',)}
 
     search_fields = ('name',)
 
-    list_filter = (PolymorphicChildModelFilter, 'active', TermsTreeFilter)
+    list_filter = (TermsTreeFilter, 'active')
     list_per_page = 250
     list_max_show_all = 1000
 

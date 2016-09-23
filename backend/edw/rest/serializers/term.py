@@ -49,9 +49,9 @@ class TermDetailSerializer(TermSerializer):
                   'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes', 'is_leaf')
 
 
-class TermListSerializer(TermSerializer):
+class TermSummarySerializer(TermSerializer):
     '''
-    TermListSerializer
+    TermSummarySerializer
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
@@ -210,10 +210,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         return True
 
     @cached_property
-    @get_from_context_or_request('fix_it', False)
+    @get_from_context_or_request('fix_it', True)
     def fix_it(self, value):
         '''
-        :return: `fix_it` value in context or request, default: False
+        :return: `fix_it` value in context or request, default: True
         '''
         return serializers.BooleanField().to_internal_value(value)
 

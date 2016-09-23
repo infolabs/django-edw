@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet
+
+from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet, ApiReferenceMixin
+from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
+from edw.models.defaults.mapping import EntityImage
 
 
 class TodoQuerySet(BaseEntityQuerySet):
@@ -16,7 +19,7 @@ class TodoManager(BaseEntityManager):
 
 
 @python_2_unicode_compatible
-class Todo(BaseEntity):
+class Todo(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
     PRIORITIES = (
         (1, _("Low")),
         (2, _("Middle")),
@@ -38,6 +41,9 @@ class Todo(BaseEntity):
     # controlling the catalog
     order = models.PositiveIntegerField(verbose_name=_("Sort by"), db_index=True, default=1)
 
+    # images
+    images = models.ManyToManyField('filer.Image', through=EntityImage)
+
     class Meta:
         ordering = ('order',)
         verbose_name = _("Todo")
@@ -54,3 +60,7 @@ class Todo(BaseEntity):
 
     def __str__(self):
         return self.name
+
+    @property
+    def sample_image(self):
+        return self.images.first()

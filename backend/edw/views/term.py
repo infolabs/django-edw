@@ -9,7 +9,7 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.term import (
     TermSerializer,
-    TermListSerializer,
+    TermSummarySerializer,
     TermDetailSerializer,
     TermTreeSerializer,
 )
@@ -27,7 +27,7 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = TermModel.objects.all()
     serializer_class = TermSerializer
     custom_serializer_classes = {
-        'list':  TermListSerializer,
+        'list':  TermSummarySerializer,
         'retrieve':  TermDetailSerializer,
     }
 
@@ -80,3 +80,8 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = serializer_class(queryset, context=context, many=True)
         return Response(serializer.data)
+
+    def list(self, request, data_mart_pk=None, *args, **kwargs):
+        if data_mart_pk is not None:
+            request.GET.setdefault('data_mart_pk', data_mart_pk)
+        return super(TermViewSet, self).list(request, *args, **kwargs)

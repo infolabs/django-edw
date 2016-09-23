@@ -9,7 +9,7 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.data_mart import (
     DataMartSerializer,
-    DataMartListSerializer,
+    DataMartSummarySerializer,
     DataMartDetailSerializer,
     DataMartTreeSerializer,
 )
@@ -28,7 +28,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
     queryset = DataMartModel.objects.all()
     serializer_class = DataMartSerializer
     custom_serializer_classes = {
-        'list':  DataMartListSerializer,
+        'list':  DataMartSummarySerializer,
         'retrieve':  DataMartDetailSerializer,
     }
 

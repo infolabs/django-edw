@@ -21,8 +21,9 @@ router.register(r'data-marts', DataMartViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'entities', EntityViewSet)
 
-data_mart_terms_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
-data_mart_terms_router.register(r'terms', TermViewSet, base_name='data-mart-terms')
+data_mart_nested_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
+data_mart_nested_router.register(r'terms', TermViewSet, base_name='data-mart-terms')
+data_mart_nested_router.register(r'entities', EntityViewSet, base_name='data-mart-entities')
 
 '''
 if settings.DEBUG:
@@ -35,5 +36,5 @@ if settings.DEBUG:
 #==============================================================================
 urlpatterns = (
     url(r'^', include(router.urls, namespace='edw')),
-    url(r'^', include(format_suffix_patterns(data_mart_terms_router.urls), namespace='edw')),
+    url(r'^', include(format_suffix_patterns(data_mart_nested_router.urls), namespace='edw')),
 )

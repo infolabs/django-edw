@@ -1,16 +1,17 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.contrib import admin
 from django.utils.timezone import localtime
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+
+from edw.models.customer import CustomerModel
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
 from edw import settings as edw_settings
-from edw.models.customer import CustomerModel
+
+from .forms import CustomerChangeForm, CustomerCreationForm
 
 
 class CustomerInlineAdmin(admin.StackedInline):
@@ -27,36 +28,6 @@ class CustomerInlineAdmin(admin.StackedInline):
     def get_number(self, customer):
         return customer.get_number()
     get_number.short_description = pgettext_lazy('customer', "Number")
-
-
-class CustomerCreationForm(UserCreationForm):
-    class Meta(UserChangeForm.Meta):
-        model = get_user_model()
-
-    def save(self, commit=True):
-        self.instance.is_staff = True
-        return super(CustomerCreationForm, self).save(commit=False)
-
-
-class CustomerChangeForm(UserChangeForm):
-    email = forms.EmailField(required=False)
-
-    class Meta(UserChangeForm.Meta):
-        model = get_user_model()
-
-    def __init__(self, *args, **kwargs):
-        initial = kwargs.get('initial', {})
-        instance = kwargs.get('instance')
-        initial['email'] = instance.email or ''
-        super(CustomerChangeForm, self).__init__(initial=initial, *args, **kwargs)
-
-    def clean_email(self):
-        # nullify empty email field in order to prevent unique index collisions
-        return self.cleaned_data.get('email').strip() or None
-
-    def save(self, commit=False):
-        self.instance.email = self.cleaned_data['email']
-        return super(CustomerChangeForm, self).save(commit)
 
 
 class CustomerListFilter(admin.SimpleListFilter):
