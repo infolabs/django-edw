@@ -85,7 +85,7 @@ class NotificationAdmin(admin.ModelAdmin):
         sender, target = obj.transition_target.split(':')
         Model = self.get_senders()[sender]
         return Model.get_transition_name(target)
-    transition.short_description = _("Event")
+    transition.short_description = _("Status")
 
     def num_attachments(self, obj):
         return obj.notificationattachment_set.count()
