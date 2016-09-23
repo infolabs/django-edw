@@ -166,8 +166,8 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     def get_potential_terms_ids(self, instance):
         request = self.context['request']
-        tree = getattr(request.GET, '_initial_filter_meta')
-        initial_queryset = getattr(request.GET, '_initial_queryset')
+        tree = request.GET['_initial_filter_meta']
+        initial_queryset = request.GET['_initial_queryset']
 
         # todo: add cache logic
 

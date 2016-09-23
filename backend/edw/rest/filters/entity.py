@@ -15,6 +15,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from edw.models.entity import BaseEntity
+from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 
@@ -33,10 +34,18 @@ class EntityFilter(filters.FilterSet):
         model = BaseEntity
         fields = ['active']
 
-    def __init__(self, *args, **kwargs):
-        super(EntityFilter, self).__init__(*args, **kwargs)
-        self.data._initial_queryset = self.queryset
-        self.data._initial_filter_meta = {}
+    def __init__(self, data, **kwargs):
+        try:
+            data['_mutable'] = True
+        except AttributeError:
+            data = data.copy()
+        tree = TermModel.cached_decompress([], fix_it=True)
+        data.update({
+            '_initial_queryset': kwargs['queryset'],
+            '_initial_filter_meta': tree,
+            '_terms_filter_meta': tree
+        })
+        super(EntityFilter, self).__init__(data, **kwargs)
 
     @cached_property
     @get_from_underscore_or_data('terms', [], lambda value: value.split(","))
@@ -83,15 +92,15 @@ class EntityFilter(filters.FilterSet):
         if self.data_mart_id is None:
             return queryset
 
-        self.data._initial_queryset = initial_queryset = self.queryset.semantic_filter(
+        self.data['_initial_queryset'] = initial_queryset = self.queryset.semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
-        self.data._initial_filter_meta = initial_queryset.semantic_filter_meta
+        self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
 
         if 'terms' in self.data:
             return queryset
 
         queryset = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
-        self.data._terms_filter_meta = queryset.semantic_filter_meta
+        self.data['_terms_filter_meta'] = queryset.semantic_filter_meta
         return queryset
 
     def filter_terms(self, name, queryset, value):
@@ -101,7 +110,7 @@ class EntityFilter(filters.FilterSet):
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
         queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
-        self.data._terms_filter_meta = queryset.semantic_filter_meta
+        self.data['_terms_filter_meta'] = queryset.semantic_filter_meta
         return queryset
 
     @cached_property

@@ -113,6 +113,9 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
     def get_potential_terms_ids(self, tree): # todo: add serializer cache logic
         model_class = self.model
+
+        #tree_hash = tree.get_hash() if hasattr(tree, 'get_hash') else 'empty'
+
         key = model_class.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
         ids = cache.get(key, None)
         if ids is None:
