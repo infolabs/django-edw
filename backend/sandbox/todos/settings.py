@@ -156,7 +156,7 @@ TEMPLATES = [	{
             'django.template.context_processors.media',
             'django.template.context_processors.static',
             'django.template.context_processors.tz',
-    	    'django.template.context_processors.csrf',
+	    'django.template.context_processors.csrf',
             'django.template.context_processors.request',
             'django.contrib.messages.context_processors.messages',
             'sekizai.context_processors.sekizai',
@@ -164,8 +164,8 @@ TEMPLATES = [	{
             'edw.context_processors.version',
         ),
         'loaders': [
-	    'django.template.loaders.filesystem.Loader',
-	    'django.template.loaders.app_directories.Loader',
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
         ]
     }
 }]
@@ -376,7 +376,7 @@ HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
         'URL': 'http://localhost:9200/',
-	'INDEX_NAME': 'edw_todos',
+    'INDEX_NAME': 'edw_todos',
     }
 }
 
