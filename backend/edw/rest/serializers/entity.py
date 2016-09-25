@@ -164,14 +164,19 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
 
+    @staticmethod
+    def on_potential_terms_ids_cache_set(key):
+        buf = EntityModel.get_potential_terms_cache_buffer()
+        old_key = buf.record(key)
+        if old_key != buf.empty:
+            cache.delete(old_key)
+
     def get_potential_terms_ids(self, instance):
         request = self.context['request']
         tree = request.GET['_initial_filter_meta']
         initial_queryset = request.GET['_initial_queryset']
-
-        # todo: add cache logic
-
-        return initial_queryset.get_potential_terms_ids(tree)
+        return initial_queryset.get_potential_terms_ids(tree).cache(on_cache_set=self.on_potential_terms_ids_cache_set,
+                                                                    timeout=EntityModel.POTENTIAL_TERMS_IDS_CACHE_TIMEOUT)
 
     def get_real_terms_ids(self, instance):
         return []

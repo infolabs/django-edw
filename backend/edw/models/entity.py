@@ -56,10 +56,15 @@ def get_polymorphic_ancestors_models(ChildModel):
 #==============================================================================
 class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
-    @add_cache_key('active')
+    @add_cache_key('actv')
     def active(self):
         return self.filter(active=True)
 
+    @add_cache_key('unactv')
+    def unactive(self):
+        return self.filter(active=False)
+
+    @add_cache_key('sf') # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
     def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         tree = decompress(value, fix_it=True)
@@ -111,21 +116,12 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
         return result
 
-    def get_potential_terms_ids(self, tree): # todo: add serializer cache logic
-        model_class = self.model
+    def get_potential_terms_ids(self, tree):
+        return self.model.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
-        #tree_hash = tree.get_hash() if hasattr(tree, 'get_hash') else 'empty'
-
-        key = model_class.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
-        ids = cache.get(key, None)
-        if ids is None:
-            ids = tree.trim(self.get_terms_ids()).keys()
-            cache.set(key, ids, model_class.POTENTIAL_TERMS_IDS_CACHE_TIMEOUT)
-            buf = model_class.get_potential_cache_buffer()
-            old_key = buf.record(key)
-            if not old_key is None:
-                cache.delete(old_key)
-        return ids
+    @add_cache_key(get_potential_terms_ids)
+    def get_potential_terms_ids(self, tree):
+        return self.prepare_for_cache(tree.trim(self.get_terms_ids()).keys())
 
     # def stored_request(self, request):
     #     """
@@ -138,6 +134,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
     #         'remote_ip': get_ip(request),
     #         'user_agent': request.META.get('HTTP_USER_AGENT'),
     #     }
+
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
     """
@@ -451,8 +448,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
     """
-    SHORT_CHARACTERISTICS_MAX_COUNT = 3 # todo: move to settings
-    SHORT_MARKS_MAX_COUNT = 5 # todo: move to settings
+    SHORT_CHARACTERISTICS_MAX_COUNT = 3
+    SHORT_MARKS_MAX_COUNT = 5
 
     POTENTIAL_TERMS_BUFFER_CACHE_KEY = 'ptl_t_bf'
     POTENTIAL_TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_potential_terms_ids']
@@ -715,13 +712,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return result
 
     @staticmethod
-    def get_potential_cache_buffer():
+    def get_potential_terms_cache_buffer():
         return RingBuffer.factory(BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_KEY,
                                   max_size=BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_SIZE)
 
     @staticmethod
-    def clear_potential_cache_buffer():
-        buf = BaseEntity.get_potential_cache_buffer()
+    def clear_potential_terms_cache_buffer():
+        buf = BaseEntity.get_potential_terms_cache_buffer()
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)

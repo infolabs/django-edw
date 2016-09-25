@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.db.models.signals import m2m_changed
+
+from django.db.models.signals import (
+    m2m_changed,
+    pre_delete,
+    post_save
+)
 from django.dispatch import receiver
 
 from edw.signals import make_dispatch_uid
@@ -43,9 +48,28 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
             del instance._during_terms_validation
 
 
+def invalidate_entity_after_save(sender, instance, **kwargs):
+    # Clear potential terms ids and real terms ids buffers
+    EntityModel.clear_potential_terms_cache_buffer()
+    # EntityModel.clear_real_terms_buffer()
+
+
+def invalidate_entity_before_delete(sender, instance, **kwargs):
+    invalidate_entity_after_save(sender, instance, **kwargs)
+
+
 #==============================================================================
+# Connect all subclasses of base content item too
+#   &
 # Term model validation
 #==============================================================================
 Model = EntityModel.materialized
 for clazz in [Model] + Model.__subclasses__():
+
+    pre_delete.connect(invalidate_entity_before_delete, clazz,
+                       dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_delete, clazz))
+
+    post_save.connect(invalidate_entity_after_save, clazz,
+                      dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_save, clazz))
+
     clazz.validate_term_model()

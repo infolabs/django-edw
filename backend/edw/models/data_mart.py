@@ -35,7 +35,7 @@ from .. import settings as edw_settings
 
 class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
-    @add_cache_key('active')
+    @add_cache_key('actv')
     def active(self):
         return self.filter(active=True)
 
@@ -45,7 +45,7 @@ class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
     def delete(self):
         return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
-    @add_cache_key('toplevel')
+    @add_cache_key('toplvl')
     def toplevel(self):
         """
         Return all nodes which have no parent.

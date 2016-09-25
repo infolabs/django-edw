@@ -24,7 +24,7 @@ class EntityFilter(filters.FilterSet):
     """
     EntityFilter
     """
-    #active = filters.BooleanFilter()
+    active = filters.MethodFilter()
     terms = filters.MethodFilter(widget=CSVWidget())
     data_mart_pk = filters.MethodFilter()
     subj = filters.MethodFilter(widget=CSVWidget())
@@ -32,7 +32,7 @@ class EntityFilter(filters.FilterSet):
 
     class Meta:
         model = BaseEntity
-        fields = ['active']
+        fields = []
 
     def __init__(self, data, **kwargs):
         try:
@@ -54,6 +54,27 @@ class EntityFilter(filters.FilterSet):
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
         '''
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
+
+    @cached_property
+    @get_from_underscore_or_data('active', None)
+    def is_active(self, value):
+        '''
+        :return: `is_active` value parse from `self._active` or
+            `self.data['active']`, default: None
+        '''
+        return serializers.BooleanField().to_internal_value(value)
+
+    def filter_active(self, name, queryset, value):
+        self._is_active = value
+        if self.is_active is None:
+            return queryset
+        if self.is_active:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].active()
+            queryset = queryset.active()
+        else:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].unactive()
+            queryset = queryset.unactive()
+        return queryset
 
     @cached_property
     @get_from_underscore_or_data('use_cached_decompress', True)
@@ -92,7 +113,7 @@ class EntityFilter(filters.FilterSet):
         if self.data_mart_id is None:
             return queryset
 
-        self.data['_initial_queryset'] = initial_queryset = self.queryset.semantic_filter(
+        self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
 

@@ -23,9 +23,9 @@ def get_children_keys(sender, parent_id):
         sender._meta.object_name.lower(),
         sender.CHILDREN_CACHE_KEY_PATTERN.format(parent_id=parent_id)
         if parent_id is not None else
-        "toplevel"
+        "toplvl"
     ])
-    return [key, ":".join([key, "active"])]
+    return [key, ":".join([key, "actv"])]
 
 
 def get_data_mart_all_active_terms_keys():

@@ -14,6 +14,7 @@ from edw.signals.mptt import (
 
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.entity import EntityModel
 
 
 def get_children_keys(sender, parent_id):
@@ -21,9 +22,9 @@ def get_children_keys(sender, parent_id):
         sender._meta.object_name.lower(),
         sender.CHILDREN_CACHE_KEY_PATTERN.format(parent_id=parent_id)
         if parent_id is not None else
-        "toplevel"
+        "toplvl"
     ])
-    return [key, ":".join([key, "active"])]
+    return [key, ":".join([key, "actv"])]
 
 
 def _get_attribute_ancestors_key(sender, id, attribute_mode):
@@ -108,6 +109,10 @@ def invalidate_term_after_save(sender, instance, **kwargs):
             keys = get_children_keys(sender, instance.parent_id)
             cache.delete_many(keys)
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
+
+    # Clear potential terms ids and real terms ids buffers
+    EntityModel.clear_potential_terms_cache_buffer()
+    # EntityModel.clear_real_terms_buffer()
 
 
 def invalidate_term_before_delete(sender, instance, **kwargs):

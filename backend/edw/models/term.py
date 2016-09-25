@@ -37,7 +37,7 @@ from .. import settings as edw_settings
 #==============================================================================
 class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
-    @add_cache_key('active')
+    @add_cache_key('actv')
     def active(self):
         return self.filter(active=True)
 
@@ -47,7 +47,7 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
     def delete(self):
         return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
-    @add_cache_key('toplevel')
+    @add_cache_key('toplvl')
     def toplevel(self):
         """
         :return: all nodes which have no parent
