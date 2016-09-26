@@ -44,10 +44,13 @@ def get_polymorphic_ancestors_models(ChildModel):
     """
     ancestors = []
     for Model in ChildModel.mro():
-        if isinstance(Model, PolymorphicModelBase) and not Model._meta.abstract:
-            ancestors.append(Model)
+        if isinstance(Model, PolymorphicModelBase):
+            if not Model._meta.abstract:
+                ancestors.append(Model)
+            else:
+                break
         else:
-            break
+            continue
     return reversed(ancestors)
 
 
@@ -591,14 +594,18 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @classmethod
     def validate_term_model(cls):
+        print "\n=============== validate_term_model ===============", cls
         if EntityModel.materialized.__subclasses__():
             parent = None
             for Model in get_polymorphic_ancestors_models(cls):
+                print "\n========= for ", Model
                 slug = Model.__name__.lower()
                 try:
                     if parent is None:
+                        print "Parent None"
                         term = TermModel.objects.get(slug=slug, parent=parent)
                     else:
+                        print "Parent not None"
                         term = TermModel.objects.get(slug=slug, id__in=list(
                             parent.get_descendants(include_self=False).values_list('id', flat=True)))
                 except TermModel.DoesNotExist:

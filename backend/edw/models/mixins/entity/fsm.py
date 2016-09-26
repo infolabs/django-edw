@@ -4,10 +4,9 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.term import TermModel
-from edw.models.mixins import ModelMixin
 
 
-class FSMMixin(ModelMixin):
+class FSMMixin(object):
 
     @classmethod
     def get_transition_name(cls, target):

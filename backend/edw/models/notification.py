@@ -31,7 +31,7 @@ class Notification(models.Model):
         ordering = ('transition_target', 'mail_to')
 
     def get_recipient(self, entity):
-        if self.mail_to is None or not hasattr(entity, 'customer'):
+        if self.mail_to is None or not hasattr(entity, 'customer') or entity.customer is None:
             return None
         if self.mail_to == 0:
             return entity.customer.email
