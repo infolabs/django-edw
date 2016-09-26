@@ -49,9 +49,8 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
 
 
 def invalidate_entity_after_save(sender, instance, **kwargs):
-    # Clear potential terms ids and real terms ids buffers
-    EntityModel.clear_potential_terms_cache_buffer()
-    # EntityModel.clear_real_terms_buffer()
+    # Clear terms ids buffer
+    EntityModel.clear_terms_cache_buffer()
 
 
 def invalidate_entity_before_delete(sender, instance, **kwargs):
