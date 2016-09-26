@@ -66,8 +66,11 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         # when rendering emails, we require an absolute URI, so that media can be accessed from
         # the mail client
         absolute_base_uri = request.build_absolute_uri('/').rstrip('/')
-        context = RequestContext(request, {'entity': entity, 'ABSOLUTE_BASE_URI': absolute_base_uri})
-        content = strip_spaces_between_tags(template.render(context).strip())
+        context = {
+            'entity': entity,
+            'ABSOLUTE_BASE_URI': absolute_base_uri
+        }
+        content = strip_spaces_between_tags(template.render(context, request).strip())
         cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['entity_html_snippet'])
         return mark_safe(content)
 
