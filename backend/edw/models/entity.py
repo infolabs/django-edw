@@ -82,7 +82,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         result.semantic_filter_meta = tree
         return result
 
-    def get_terms_ids(self):
+    def _get_raw_terms_ids(self):
         """
         # Pythonic, but working to slow, use connection.ops.quote_name monkey-path
         result = self.model.terms.through.objects.filter(**{
@@ -119,16 +119,16 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
         return result
 
-    def get_potential_terms_ids(self, tree):
-        return self.model.POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
+    def get_terms_ids_cache_key(self, tree):
 
-    @add_cache_key(get_potential_terms_ids)
-    def get_potential_terms_ids(self, tree):
-        return self.prepare_for_cache(tree.trim(self.get_terms_ids()).keys())
+        #print '===[KEYS]===', tree.keys()
 
+        return self.model.TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
-    #def get_real_terms_ids(self, tree):
-    #    pass
+    @add_cache_key(get_terms_ids_cache_key)
+    def get_terms_ids(self, tree):
+        return self.prepare_for_cache(tree.trim(self._get_raw_terms_ids()).keys())
+
 
     """
     def get_real_rubrics_ids(self):
@@ -488,10 +488,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
 
-    POTENTIAL_TERMS_BUFFER_CACHE_KEY = 'ptl_t_bf'
-    POTENTIAL_TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_potential_terms_ids']
-    POTENTIAL_TERMS_IDS_CACHE_KEY_PATTERN = 'ptl_t_ids:{tree_hash}s'
-    POTENTIAL_TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_potential_terms_ids']
+    TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
+    TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']
+    TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}s'
+    TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_terms_ids']
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms"""))
@@ -753,13 +753,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return result
 
     @staticmethod
-    def get_potential_terms_cache_buffer():
-        return RingBuffer.factory(BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_KEY,
-                                  max_size=BaseEntity.POTENTIAL_TERMS_BUFFER_CACHE_SIZE)
+    def get_terms_cache_buffer():
+        return RingBuffer.factory(BaseEntity.TERMS_BUFFER_CACHE_KEY,
+                                  max_size=BaseEntity.TERMS_BUFFER_CACHE_SIZE)
 
     @staticmethod
-    def clear_potential_terms_cache_buffer():
-        buf = BaseEntity.get_potential_terms_cache_buffer()
+    def clear_terms_cache_buffer():
+        buf = BaseEntity.get_terms_cache_buffer()
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)

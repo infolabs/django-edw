@@ -110,9 +110,8 @@ def invalidate_term_after_save(sender, instance, **kwargs):
             cache.delete_many(keys)
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
 
-    # Clear potential terms ids and real terms ids buffers
-    EntityModel.clear_potential_terms_cache_buffer()
-    # EntityModel.clear_real_terms_buffer()
+    # Clear terms ids buffer
+    EntityModel.clear_terms_cache_buffer()
 
 
 def invalidate_term_before_delete(sender, instance, **kwargs):
