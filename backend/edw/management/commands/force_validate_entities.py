@@ -14,7 +14,7 @@ from edw.models.entity import EntityModel
 
 
 class Command(NoArgsCommand):
-    help = "Run this manually to resave all entities"
+    help = "Run this manually to save all entities with force validate"
 
     def handle_noargs(self, **options):
         print "Save all entities with force validate terms"
