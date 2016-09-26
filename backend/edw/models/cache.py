@@ -5,6 +5,8 @@ from functools import wraps
 
 from django.core.cache import cache
 
+from edw.utils.hash_helpers import create_hash
+
 
 DEFAULT_CACHE_KEY_ATTR = '_cache_key'
 DEFAULT_CACHE_TIMEOUT = 300  # 5 minutes
@@ -33,6 +35,8 @@ def _parse_cache_key(self, cache_key, *args, **kwargs):
 def add_cache_key(cache_key,
                   contact_key_pattern='{prev}:{next}',
                   new_key_pattern='{model}:{new}',
+                  trim_key_pattern='{model}:…{hash}',
+                  key_max_len=50,
                   **dkwargs):
     def add_cache_key_decorator(func):
         @wraps(func)
@@ -40,21 +44,22 @@ def add_cache_key(cache_key,
             cache_key_attr = dkwargs.get('cache_key_attr', getattr(self, '_cache_key_attr', DEFAULT_CACHE_KEY_ATTR))
             result = func(self, *args, **kwargs)
             setattr(result, '_cache_key_attr', cache_key_attr)
-
-            if hasattr(self, cache_key_attr):
-                setattr(result, cache_key_attr, contact_key_pattern.format(**{
-                    'prev': getattr(self, cache_key_attr),
-                    'next': _parse_cache_key(self, cache_key, *args, **kwargs)
-                }))
-            else:
-                model_class = result.model if hasattr(result, 'model') else (
-                    self.model if hasattr(self, 'model') else self.__class__
-                )
-
-                setattr(result, cache_key_attr, new_key_pattern.format(**{
-                    'new':_parse_cache_key(self, cache_key, *args, **kwargs),
+            model_class = result.model if hasattr(result, 'model') else (
+                self.model if hasattr(self, 'model') else self.__class__
+            )
+            key = contact_key_pattern.format(**{
+                'prev': getattr(self, cache_key_attr),
+                'next': _parse_cache_key(self, cache_key, *args, **kwargs)
+            }) if hasattr(self, cache_key_attr) else new_key_pattern.format(**{
+                'new': _parse_cache_key(self, cache_key, *args, **kwargs),
+                'model': model_class._meta.object_name.lower()
+            })
+            if len(key) > key_max_len:
+                key = trim_key_pattern.format(**{
+                    'hash': create_hash(key),
                     'model': model_class._meta.object_name.lower()
-                }))
+                })
+            setattr(result, cache_key_attr, key)
             return result
         return func_wrapper
     return add_cache_key_decorator

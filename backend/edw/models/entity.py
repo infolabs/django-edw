@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import types
+
+from operator import __or__ as OR
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
@@ -32,6 +33,7 @@ from .related import (
 )
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
+from ..utils.hash_helpers import hash_unsorted_list
 from .. import settings as edw_settings
 
 
@@ -82,7 +84,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         result.semantic_filter_meta = tree
         return result
 
-    def _get_raw_terms_ids(self):
+    def get_related_terms_ids(self):
         """
         # Pythonic, but working to slow, use connection.ops.quote_name monkey-path
         result = self.model.terms.through.objects.filter(**{
@@ -119,15 +121,22 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 
         return result
 
-    def get_terms_ids_cache_key(self, tree):
-
-        #print '===[KEYS]===', tree.keys()
-
+    def _get_terms_ids_cache_key(self, tree):
         return self.model.TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
-    @add_cache_key(get_terms_ids_cache_key)
+    @add_cache_key(_get_terms_ids_cache_key)
+    # @add_cache_key(_get_terms_ids_cache_key, key_max_len=100)
     def get_terms_ids(self, tree):
-        return self.prepare_for_cache(tree.trim(self._get_raw_terms_ids()).keys())
+        return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
+
+    def _get_subj_cache_key(self, subj_ids):
+        return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj=(hash_unsorted_list(subj_ids) if subj_ids else ''))
+
+    @add_cache_key(_get_subj_cache_key)
+    def subj(self, subj_ids):
+        q_lst = [models.Q(models.Q(forward_relations__to_entity__in=subj_ids)),
+                 models.Q(backward_relations__from_entity__in=subj_ids)]
+        return self.filter(reduce(OR, q_lst)).distinct()
 
 
     """
@@ -140,9 +149,9 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         set_tree_info = self.meta_set["tree_info"]
         key = Product.REAL_RUBRICS_IDS_CACHE_KEY_PATTERN % {
             'tree_hash': create_hash('.'.join([
-                set_tree_info.get_hash(),
+                #set_tree_info.get_hash(),
                 hash_unsorted_list(price_range),
-                hash_list(self.subj),
+                #hash_list(self.subj),
                 hash_list(self.rel["b"]),
                 hash_list(self.rel["f"]),
                 hash_list(self.rel["r"])
@@ -488,9 +497,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
 
+    SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj}'
+
     TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
     TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']
-    TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}s'
+    TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}'
     TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_terms_ids']
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,

@@ -58,21 +58,21 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         return self.filter(Q(attributes=self.model.attributes.is_characteristic) |
                            Q(attributes=self.model.attributes.is_mark))
 
-    def get_attribute_filter_cache_key(self, attribute_mode):
+    def _get_attribute_filter_cache_key(self, attribute_mode):
         return self.model.ATTRIBUTE_FILTER_CACHE_KEY_PATTERN.format(
             mode=int(attribute_mode)
         )
 
-    @add_cache_key(get_attribute_filter_cache_key)
+    @add_cache_key(_get_attribute_filter_cache_key)
     def attribute_filter(self, attribute_mode):
         return self.filter(attributes=attribute_mode)
 
-    def get_select_related_cache_key(self, *fields):
+    def _get_select_related_cache_key(self, *fields):
         return self.model.SELECT_RELATED_CACHE_KEY_PATTERN.format(
             fields=':'.join(fields)
         )
 
-    @add_cache_key(get_select_related_cache_key)
+    @add_cache_key(_get_select_related_cache_key)
     def select_related(self, *fields):
         return super(BaseTermQuerySet, self).select_related(*fields)
 

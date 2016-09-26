@@ -146,9 +146,7 @@ class EntityFilter(filters.FilterSet):
         self._subj_ids = value
         if not self.subj_ids or 'rel' in self.data:
             return queryset
-        q_lst = [models.Q(models.Q(forward_relations__to_entity__in=self.subj_ids)),
-                 models.Q(backward_relations__from_entity__in=self.subj_ids)]
-        return queryset.filter(reduce(OR, q_lst)).distinct()
+        return queryset.subj(self.subj_ids)
 
     @staticmethod
     def _separate_rel_by_key(rel, key, lst):
