@@ -70,3 +70,26 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         if data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
+
+    def get_serializer_context(self):
+
+        #print "Get CONTEXT!!!"
+
+        context = super(EntityViewSet, self).get_serializer_context()
+        context.update(self.queryset_context)
+
+        return context
+
+    def filter_queryset(self, queryset):
+
+        #print "FILTER QS!!"
+
+        queryset = super(EntityViewSet, self).filter_queryset(queryset)
+        self.queryset_context = {
+            "initial_filter_meta": self.request.GET['_initial_filter_meta'],
+            "initial_queryset": self.request.GET['_initial_queryset'],
+            "terms_filter_meta": self.request.GET['_terms_filter_meta'],
+            "filter_queryset": queryset
+        }
+
+        return queryset

@@ -164,6 +164,8 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
 
+
+
     @staticmethod
     def on_potential_terms_ids_cache_set(key):
         buf = EntityModel.get_potential_terms_cache_buffer()
@@ -172,13 +174,31 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             cache.delete(old_key)
 
     def get_potential_terms_ids(self, instance):
-        request = self.context['request']
-        tree = request.GET['_initial_filter_meta']
-        initial_queryset = request.GET['_initial_queryset']
+        # request = self.context['request']
+
+        tree = self.context['initial_filter_meta']
+        # tree = request.GET['_initial_filter_meta']
+
+        initial_queryset = self.context['initial_queryset']
+        # initial_queryset = request.GET['_initial_queryset']
+
         return initial_queryset.get_potential_terms_ids(tree).cache(on_cache_set=self.on_potential_terms_ids_cache_set,
                                                                     timeout=EntityModel.POTENTIAL_TERMS_IDS_CACHE_TIMEOUT)
 
     def get_real_terms_ids(self, instance):
+        # request = self.context['request']
+
+        #tree = self.context['terms_filter_meta']
+
+        filter_queryset = self.context['filter_queryset']
+
+
+
+        # print "*** get_real_terms_ids ***", getattr(filter_queryset, '_cache_key', None)
+
+        # print "\n\n==========================", instance.query
+        # print "\n\n--------------------------", dir(instance)
+
         return []
 
 
@@ -189,3 +209,8 @@ class EntityTotalSummarySerializer(serializers.Serializer):
     def __new__(cls, *args, **kwargs):
         kwargs['many'] = False
         return super(EntityTotalSummarySerializer, cls).__new__(cls, *args, **kwargs)
+
+
+    # def to_representation(self, data):
+    #     print ">>>>>>>> to_representation <<<<<<<", data.__class__, dir(data)
+    #     return super(EntityTotalSummarySerializer, self).to_representation(data)

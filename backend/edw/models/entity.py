@@ -123,6 +123,40 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
     def get_potential_terms_ids(self, tree):
         return self.prepare_for_cache(tree.trim(self.get_terms_ids()).keys())
 
+
+    #def get_real_terms_ids(self, tree):
+    #    pass
+
+    """
+    def get_real_rubrics_ids(self):
+
+        def hash_list(lst):
+            return hash_unsorted_list(lst) if lst else ''
+
+        price_range = self.ranges['price']['value']
+        set_tree_info = self.meta_set["tree_info"]
+        key = Product.REAL_RUBRICS_IDS_CACHE_KEY_PATTERN % {
+            'tree_hash': create_hash('.'.join([
+                set_tree_info.get_hash(),
+                hash_unsorted_list(price_range),
+                hash_list(self.subj),
+                hash_list(self.rel["b"]),
+                hash_list(self.rel["f"]),
+                hash_list(self.rel["r"])
+                ]))
+        }
+        rubrics_ids = cache.get(key, None)
+        if rubrics_ids is None:
+            rubrics_ids = set_tree_info.trim(self.real_collection.get_real_rubrics_ids()).keys()
+            cache.set(key, rubrics_ids, Product.CACHE_TIMEOUT)
+            buf = Product.get_real_rubrics_buffer()
+            old_key = buf.record(key)
+            if not old_key is None:
+                cache.delete(old_key)
+        return rubrics_ids
+    """
+
+
     # def stored_request(self, request):
     #     """
     #     Extract useful information about the request to be used for emulating a Django request
