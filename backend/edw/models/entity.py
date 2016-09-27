@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 import types
 
 from operator import __or__ as OR
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models, connections
@@ -296,6 +297,17 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         except AttributeError:
             msg = "Class `{}` must provide a model field or property implementing `entity_name`"
             raise NotImplementedError(msg.format(Model.__name__))
+
+        for baseclass in Model.mro():
+            if not isinstance(baseclass, PolymorphicModelBase) or baseclass._meta.abstract:
+                required_fields = getattr(baseclass, 'REQUIRED_FIELDS', None)
+                if required_fields is not None:
+                    for required_field in required_fields:
+                        try:
+                            Model._meta.get_field(required_field)
+                        except FieldDoesNotExist:
+                            msg = "Class `{}` must provide a model field `{}`"
+                            raise NotImplementedError(msg.format(Model.__name__, required_field))
 
         #if not callable(getattr(Model, 'get_price', None)):
         #    msg = "Class `{}` must provide a method implementing `get_price(request)`"

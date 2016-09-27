@@ -6,7 +6,17 @@ from django.utils.translation import ugettext_lazy as _
 from edw.models.term import TermModel
 
 
+_default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
+                                     TermModel.system_flags.change_parent_restriction |
+                                     TermModel.system_flags.change_slug_restriction |
+                                     TermModel.system_flags.change_semantic_rule_restriction |
+                                     TermModel.system_flags.has_child_restriction |
+                                     TermModel.system_flags.external_tagging_restriction)
+
+
 class FSMMixin(object):
+
+    REQUIRED_FIELDS = ('status',)
 
     @classmethod
     def get_transition_name(cls, target):
@@ -23,14 +33,7 @@ class FSMMixin(object):
     @classmethod
     def validate_term_model(cls):
         super(FSMMixin, cls).validate_term_model()
-        system_flags = (
-            TermModel.system_flags.delete_restriction |
-            TermModel.system_flags.change_parent_restriction |
-            TermModel.system_flags.change_slug_restriction |
-            TermModel.system_flags.change_semantic_rule_restriction |
-            TermModel.system_flags.has_child_restriction |
-            TermModel.system_flags.external_tagging_restriction
-        )
+        system_flags = _default_system_flags_restriction
 
         # Get original entity model class term
         original_model_class_term = cls.get_entities_types()[cls.__name__.lower()]
