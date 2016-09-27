@@ -11,6 +11,6 @@ from edw.signals import make_dispatch_uid
 def customer_registered_handler(sender, **kwargs):
     pass
 
-@receiver(user_activated, dispatch_uid=make_dispatch_uid(customer_registered, 'user_activated_auto_login_handler'))
-def user_activated_auto_login_handler(sender, **kwargs):
+@receiver(user_activated, dispatch_uid=make_dispatch_uid(user_activated, 'user_activated_handler'))
+def user_activated_handler(sender, **kwargs):
     pass

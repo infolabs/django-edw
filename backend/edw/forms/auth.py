@@ -79,7 +79,7 @@ class RegisterUserForm(ModelForm):
             self._send_activation_email(request, customer.user)
             logout(request)
 
-        customer_registered.send_robust(sender=self.__class__, customer=customer, request=request) #todo: поправить
+        customer_registered.send_robust(sender=self.__class__, customer=customer, request=request)
 
         msg = _("A customer ‘{email}’ success registered.\n"
                 "To complete the registration, click the link that was sent to you by e-mail")
