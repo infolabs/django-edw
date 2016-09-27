@@ -38,7 +38,7 @@ class FSMMixin(object):
 
         # Compose new entity model class term slug
         new_model_class_term_slug = "{}_wrapper".format(cls.__name__.lower())
-        if original_model_class_term_parent.slug <> new_model_class_term_slug:
+        if original_model_class_term_parent.slug != new_model_class_term_slug:
             try:  # get or create model class root term
                 model_root_term = TermModel.objects.get(slug=new_model_class_term_slug,
                                                         parent=original_model_class_term_parent)
@@ -84,7 +84,7 @@ class FSMMixin(object):
             state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
-        if origin is None or origin.status <> self.status:
+        if origin is None or origin.status != self.status:
             do_validate = kwargs["context"]["validate_entity_state"] = True
         else:
             do_validate = False
