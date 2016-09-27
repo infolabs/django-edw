@@ -125,49 +125,65 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         return self.model.TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
     @add_cache_key(_get_terms_ids_cache_key)
-    # @add_cache_key(_get_terms_ids_cache_key, key_max_len=100)
     def get_terms_ids(self, tree):
         return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
 
     def _get_subj_cache_key(self, subj_ids):
-        return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj=(hash_unsorted_list(subj_ids) if subj_ids else ''))
+        return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=(hash_unsorted_list(subj_ids) if subj_ids else ''))
 
     @add_cache_key(_get_subj_cache_key)
     def subj(self, subj_ids):
+        """
+        :param subj_ids: subjects ids
+        :return:
+        """
         q_lst = [models.Q(models.Q(forward_relations__to_entity__in=subj_ids)),
                  models.Q(backward_relations__from_entity__in=subj_ids)]
         return self.filter(reduce(OR, q_lst)).distinct()
 
+    def _get_rel_cache_key(self, rel_f_ids, rel_r_ids):
+        _hash = "{rel_f_ids}:{rel_r_ids}".format(
+            rel_f_ids=hash_unsorted_list(rel_f_ids) if rel_f_ids else '',
+            rel_r_ids=hash_unsorted_list(rel_r_ids) if rel_r_ids else ''
+        )
+        return self.model.RELATION_CACHE_KEY_PATTERN.format(rel_hash=_hash)
 
-    """
-    def get_real_rubrics_ids(self):
+    @add_cache_key(_get_rel_cache_key)
+    def rel(self, rel_f_ids, rel_r_ids):
+        """
+        :param rel_f_ids: forward relations ids
+        :param rel_r_ids: backward (reverse) relations ids
+        :return:
+        """
+        q_lst = []
+        if rel_f_ids:
+            q_lst.append(models.Q(forward_relations__term__in=rel_f_ids))
+        if rel_r_ids:
+            q_lst.append(models.Q(backward_relations__term__in=rel_r_ids))
+        return self.filter(reduce(OR, q_lst)).distinct()
 
-        def hash_list(lst):
-            return hash_unsorted_list(lst) if lst else ''
+    def _get_subj_and_rel_cache_key(self, subj_ids, *rel_ids):
+        return "{subj_key}:{rel_key}".format(
+            subj_key=self._get_subj_cache_key(subj_ids),
+            rel_key=self._get_rel_cache_key(*rel_ids)
+        )
 
-        price_range = self.ranges['price']['value']
-        set_tree_info = self.meta_set["tree_info"]
-        key = Product.REAL_RUBRICS_IDS_CACHE_KEY_PATTERN % {
-            'tree_hash': create_hash('.'.join([
-                #set_tree_info.get_hash(),
-                hash_unsorted_list(price_range),
-                #hash_list(self.subj),
-                hash_list(self.rel["b"]),
-                hash_list(self.rel["f"]),
-                hash_list(self.rel["r"])
-                ]))
-        }
-        rubrics_ids = cache.get(key, None)
-        if rubrics_ids is None:
-            rubrics_ids = set_tree_info.trim(self.real_collection.get_real_rubrics_ids()).keys()
-            cache.set(key, rubrics_ids, Product.CACHE_TIMEOUT)
-            buf = Product.get_real_rubrics_buffer()
-            old_key = buf.record(key)
-            if not old_key is None:
-                cache.delete(old_key)
-        return rubrics_ids
-    """
-
+    @add_cache_key(_get_subj_and_rel_cache_key)
+    def subj_and_rel(self, subj_ids, rel_f_ids, rel_r_ids):
+        """
+        :param subj_ids: subjects ids
+        :param rel_f_ids: forward relations ids
+        :param rel_r_ids: backward (reverse) relations ids
+        :return:
+        """
+        q_lst = []
+        if rel_r_ids:
+            q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
+                         models.Q(forward_relations__term__in=rel_r_ids))
+        if rel_f_ids:
+            q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
+                         models.Q(backward_relations__term__in=rel_f_ids))
+        return self.filter(reduce(OR, q_lst)).distinct()
 
     # def stored_request(self, request):
     #     """
@@ -497,7 +513,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
 
-    SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj}'
+    SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj_hash}'
+    RELATION_CACHE_KEY_PATTERN = 'rel:{rel_hash}'
 
     TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
     TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']

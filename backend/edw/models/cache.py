@@ -35,7 +35,7 @@ def _parse_cache_key(self, cache_key, *args, **kwargs):
 def add_cache_key(cache_key,
                   contact_key_pattern='{prev}:{next}',
                   new_key_pattern='{model}:{new}',
-                  trim_key_pattern='{model}:…{hash}',
+                  trim_key_pattern='{model}:~{hash}',
                   key_max_len=50,
                   **dkwargs):
     def add_cache_key_decorator(func):
