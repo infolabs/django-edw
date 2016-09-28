@@ -18,6 +18,17 @@ class FSMMixin(object):
 
     REQUIRED_FIELDS = ('status',)
 
+    STATE_ROOT_TERM_SLUG = "state"
+
+    '''
+    Example:
+    TRANSITION_TARGETS = {
+        'new': "Default state",
+        ...
+    }
+    '''
+    TRANSITION_TARGETS = {}
+
     @classmethod
     def get_transition_name(cls, target):
         """Return the human readable name for a given transition target"""
@@ -67,7 +78,7 @@ class FSMMixin(object):
             states_parent_term = TermModel(
                 slug=cls.STATE_ROOT_TERM_SLUG,
                 parent=model_root_term,
-                name=_('State'),
+                name=cls._meta.get_field('status').verbose_name,
                 semantic_rule=TermModel.XOR_RULE,
                 system_flags=system_flags
             )
