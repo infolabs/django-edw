@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from edw.models.related import (
     BaseAdditionalEntityCharacteristicOrMark,
     BaseEntityRelation,
+    BaseEntityRelatedDataMart,
     BaseEntityImage
 )
 
@@ -18,6 +19,12 @@ class AdditionalEntityCharacteristicOrMark(BaseAdditionalEntityCharacteristicOrM
 class EntityRelation(BaseEntityRelation):
     """Materialize many-to-many relation with entities"""
     class Meta(BaseEntityRelation.Meta):
+        abstract = False
+
+
+class EntityRelatedDataMart(BaseEntityRelatedDataMart):
+    """Materialize many-to-many relation with data marts"""
+    class Meta(BaseEntityRelatedDataMart.Meta):
         abstract = False
 
 

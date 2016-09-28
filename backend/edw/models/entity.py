@@ -30,7 +30,8 @@ from .term import TermModel
 from .data_mart import DataMartModel
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
-    EntityRelationModel
+    EntityRelationModel,
+    EntityRelatedDataMartModel
 )
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
@@ -547,6 +548,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
 
+    related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
+                                                  through_fields=('entity', 'data_mart'))
+
     class Meta:
         abstract = True
         verbose_name = _("Entity")
@@ -587,20 +591,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         msg = "Method get_price() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
-
-    def get_availability(self, request):
-        """
-        Hook for checking the availability of a object. It returns a list of tuples with this
-        notation:
-        - Number of items available for this object until the specified period expires.
-          If this value is ``True``, then infinitely many items are available.
-        - Until which timestamp, in UTC, the specified number of items are available.
-        This function can return more than one tuple. If the list is empty, then the object is
-        considered as not available.
-        Use the `request` object to vary the availability according to the logged in user,
-        its country code or language.
-        """
-        return [(True, datetime.max)]  # Infinite number of objects available until eternity
 
     def is_in_cart(self, cart, watched=False, **kwargs):
         """

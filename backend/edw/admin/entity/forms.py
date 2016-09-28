@@ -9,7 +9,11 @@ from salmonella.widgets import SalmonellaIdWidget
 
 from edw.models.term import BaseTerm, TermModel
 from edw.models.entity import EntityModel
-from edw.models.related import EntityRelationModel
+from edw.models.data_mart import DataMartModel
+from edw.models.related import (
+    EntityRelationModel,
+    EntityRelatedDataMartModel
+)
 
 from edw.admin.term.widgets import TermTreeWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
@@ -45,3 +49,12 @@ class EntityRelationInlineForm(forms.ModelForm):
     to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target'),
                                        widget=SalmonellaIdWidget(
                                            EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
+
+
+#==============================================================================
+# EntityRelatedDataMartInlineForm
+#==============================================================================
+class EntityRelatedDataMartInlineForm(forms.ModelForm):
+    data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Target'),
+                                       widget=SalmonellaIdWidget(
+                                           EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))
