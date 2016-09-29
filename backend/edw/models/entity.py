@@ -545,10 +545,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
                                                                    through=AdditionalEntityCharacteristicOrMarkModel)
 
-    relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
+    _relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
 
-    related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
+    _related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
                                                   through_fields=('entity', 'data_mart'))
 
     class Meta:

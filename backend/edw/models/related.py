@@ -78,7 +78,7 @@ class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, model
     """
     Entity related data marts
     """
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='related_data_marts')
+    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity')) #, related_name='+'
     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
 
     class Meta:

@@ -16,6 +16,7 @@ from rest_framework import serializers
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
+# from edw.rest.serializers.data_mart import DataMartDetailSerializer
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -117,6 +118,16 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
 
+    #related_data_marts = DataMartDetailSerializer(many=True, read_only=True)
+    #related_data_marts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    # related_data_marts = serializers.SerializerMethodField() #????
+    #
+    # def get_related_data_marts(self, entity):
+    #     print ">>>>>>>>", entity
+    #     return []
+
+
     _meta_cache = {}
 
     @staticmethod
@@ -158,9 +169,13 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
 
 class EntityDetailSerializer(EntityDetailSerializerBase):
+    media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
+
+    def get_media(self, entity):
+        return self.render_html(entity, 'media')
 
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
@@ -194,4 +209,3 @@ class EntityTotalSummarySerializer(serializers.Serializer):
     def __new__(cls, *args, **kwargs):
         kwargs['many'] = False
         return super(EntityTotalSummarySerializer, cls).__new__(cls, *args, **kwargs)
-

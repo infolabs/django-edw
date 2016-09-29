@@ -44,6 +44,12 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
     pk_set = kwargs.pop('pk_set', None)
     action = kwargs.pop('action', None)
 
+    if action in ["pre_remove", "pre_add"]:
+        if instance.system_flags.change_terms_restriction:
+            # disable updating terms set on change restriction
+            pk_set.clear()
+            return
+
     if action == "pre_add":
         # normalize terms set
         origin_pk_set = set(instance.terms.values_list('id', flat=True))
@@ -60,7 +66,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
             instance.terms.remove(*list(pk_set_difference))
             del instance._during_terms_validation
 
-    elif action == 'post_add' or action == 'post_remove':
+    elif action in ['post_add', 'post_remove']:
         # clear cache
         keys = get_data_mart_all_active_terms_keys()
         cache.delete_many(keys)
