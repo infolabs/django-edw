@@ -231,7 +231,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
     accessing its model manager. Since polymoriphic object classes, normally are materialized
     by more than one model, this metaclass finds the most generic one and associates its
     MaterializedModel with it.
-    For instance,``EntityModel.objects.all()`` returns all available objects from the shop.
+    For instance,``EntityModel.objects.all()`` returns all available objects from the edw.
     """
     def __new__(cls, name, bases, attrs):
 
