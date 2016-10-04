@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-04 16:55+0300\n"
-"PO-Revision-Date: 2016-10-04 16:56+0300\n"
+"POT-Creation-Date: 2016-10-04 17:16+0300\n"
+"PO-Revision-Date: 2016-10-04 17:17+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -156,11 +156,15 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: forms/auth.py:62
+#: forms/auth.py:60
+msgid "Expected last and first name"
+msgstr "Введите фамилию и имя"
+
+#: forms/auth.py:69
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: forms/auth.py:96
+#: forms/auth.py:103
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -240,7 +244,6 @@ msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
 #: models/data_mart.py:162
-#| msgid "Change slug restriction"
 msgid "Change terms restriction"
 msgstr "Ограничение на изменение терминов"
 

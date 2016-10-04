@@ -51,8 +51,15 @@ class RegisterUserForm(ModelForm):
             msg = _("A customer with the e-mail address ‘{email}’ already exists.\n"
                     "If you have used this address previously, try to reset the password.")
             raise ValidationError(msg.format(**self.cleaned_data))
-
         return self.cleaned_data['email']
+
+    def clean_fio(self):
+        # check for fio
+        fio = self.cleaned_data['fio'].split(' ')
+        if len(fio) < 2:
+            msg = _("Expected last and first name")
+            raise ValidationError(msg)
+        return self.cleaned_data['fio']
 
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
