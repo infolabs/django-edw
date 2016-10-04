@@ -5,6 +5,7 @@ from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
 from django.core import signing
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,6 +34,7 @@ class AuthFormsView(GenericAPIView):
     serializer_class = None
     form_class = None
 
+    @csrf_exempt
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
             request.customer = CustomerModel.objects.get_or_create_from_request(request)
@@ -59,6 +61,10 @@ class LoginView(OriginalLoginView):
         super(LoginView, self).login()  # this rotates the session_key
         if dead_user and dead_user.is_active is False:
             dead_user.delete()  # to keep the database clean
+
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        super(LoginView, self).post(request, *args, **kwargs)
 
 
 class LogoutView(APIView):
