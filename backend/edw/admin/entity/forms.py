@@ -9,10 +9,10 @@ from salmonella.widgets import SalmonellaIdWidget
 
 from edw.models.term import BaseTerm, TermModel
 from edw.models.entity import EntityModel
-from edw.models.data_mart import DataMartModel
+# from edw.models.data_mart import DataMartModel
 from edw.models.related import (
     EntityRelationModel,
-    EntityRelatedDataMartModel
+    # EntityRelatedDataMartModel
 )
 
 from edw.admin.term.widgets import TermTreeWidget
@@ -54,7 +54,7 @@ class EntityRelationInlineForm(forms.ModelForm):
 #==============================================================================
 # EntityRelatedDataMartInlineForm
 #==============================================================================
-class EntityRelatedDataMartInlineForm(forms.ModelForm):
-    data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Target'),
-                                       widget=SalmonellaIdWidget(
-                                           EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))
+# class EntityRelatedDataMartInlineForm(forms.ModelForm):
+#     data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Target'),
+#                                        widget=SalmonellaIdWidget(
+#                                            EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))

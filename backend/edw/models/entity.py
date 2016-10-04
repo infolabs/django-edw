@@ -31,7 +31,7 @@ from .data_mart import DataMartModel
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
-    EntityRelatedDataMartModel
+    # EntityRelatedDataMartModel
 )
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
@@ -548,8 +548,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     _relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
 
-    _related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
-                                                  through_fields=('entity', 'data_mart'))
+    # _related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
+    #                                               through_fields=('entity', 'data_mart'))
 
     class Meta:
         abstract = True

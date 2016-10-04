@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.core import exceptions
 from django.core.cache import cache
-from django.template import RequestContext
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
