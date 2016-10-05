@@ -10,7 +10,6 @@ export default class Root extends Component {
       <Provider store={store}>
         <div>
           <TodoApp />
-          <DevTools />
         </div>
       </Provider>
     );
