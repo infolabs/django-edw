@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, pagination
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework import pagination
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
@@ -35,6 +36,12 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         'list':  EntityTotalSummarySerializer,
         'retrieve':  EntityDetailSerializer,
     }
+
+    template_name = None
+    data_mart_pk = None
+    format = None
+
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
@@ -66,9 +73,19 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         else:
             return Response({})
 
+    def get_format_suffix(self, **kwargs):
+        """
+        Determine if the request includes a '.json' style format suffix
+        """
+        if self.format is not None:
+            kwargs[self.settings.FORMAT_SUFFIX_KWARG] = self.format
+        return super(EntityViewSet, self).get_format_suffix(**kwargs)
+
     def list(self, request, data_mart_pk=None, *args, **kwargs):
+        if self.data_mart_pk is not None:
+           data_mart_pk = self.data_mart_pk
         if data_mart_pk is not None:
-            request.GET.setdefault('data_mart_pk', data_mart_pk)
+            request.GET['data_mart_pk'] = data_mart_pk
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
     def get_serializer_context(self):
