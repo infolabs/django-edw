@@ -19,6 +19,8 @@ _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
 
 class BaseAddedDateTermsValidationMixin(object):
 
+    REQUIRED_FIELDS = ('created_at',)
+
     def need_terms_validation_after_save(self, origin, **kwargs):
         if origin is None or origin.created_at != self.created_at:
             do_validate = kwargs["context"]["validate_added_date"] = True

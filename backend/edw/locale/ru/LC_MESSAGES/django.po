@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-22 22:26+0300\n"
-"PO-Revision-Date: 2016-09-22 22:26+0300\n"
+"POT-Creation-Date: 2016-10-04 17:16+0300\n"
+"PO-Revision-Date: 2016-10-04 17:17+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -61,7 +61,7 @@ msgstr "Дата последнего входа"
 msgid "Unexpired"
 msgstr "Неистекающий"
 
-#: admin/customer/__init__.py:118 admin/notification/forms.py:15
+#: admin/customer/__init__.py:118 admin/notification.py:23
 msgid "Customer"
 msgstr "Пользователь"
 
@@ -69,42 +69,41 @@ msgstr "Пользователь"
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:18 admin/entity/__init__.py:31
-#: admin/entity/forms.py:25 models/data_mart.py:179 models/entity.py:397
+#: admin/data_mart/forms.py:18 admin/entity/__init__.py:33
+#: admin/entity/forms.py:29 models/data_mart.py:181 models/entity.py:537
 msgid "Terms"
 msgstr "Термины"
 
-#: admin/entity/forms.py:34
+#: admin/entity/forms.py:38
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: admin/entity/forms.py:43 templates/edw/admin/mptt/_term_node.html:16
+#: admin/entity/forms.py:47 templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/forms.py:45
+#: admin/entity/forms.py:49 admin/entity/forms.py:58
 msgid "Target"
 msgstr "Цель"
 
-#: admin/notification/__init__.py:39 models/entity.py:413 models/related.py:25
-#: models/related.py:78
-msgid "Entity"
-msgstr "Объект"
-
-#: admin/notification/__init__.py:45 admin/notification/forms.py:55
-#: models/notification.py:24
-msgid "Event"
-msgstr "Событие"
-
-#: admin/notification/__init__.py:49 models/notification.py:56
-msgid "Attachments"
-msgstr "Вложения"
-
-#: admin/notification/__init__.py:59 admin/notification/forms.py:14
+#: admin/notification.py:22 admin/notification.py:102
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification/__init__.py:60 admin/notification/forms.py:59
+#: admin/notification.py:82 models/entity.py:556 models/related.py:25
+#: models/related.py:81 models/related.py:104
+msgid "Entity"
+msgstr "Объект"
+
+#: admin/notification.py:88
+msgid "Status"
+msgstr "Состояние"
+
+#: admin/notification.py:92 models/notification.py:52
+msgid "Attachments"
+msgstr "Вложения"
+
+#: admin/notification.py:103
 msgid "Recipient"
 msgstr "Получатель"
 
@@ -113,35 +112,43 @@ msgid "EDW"
 msgstr "Предметно-ориентированное хранилище данных"
 
 #: forms/auth.py:26
+msgid "Your fullname"
+msgstr "Полное имя"
+
+#: forms/auth.py:26
+msgid "Example: Ivanov Ivan Ivanovich"
+msgstr "Например: Иванов Иван Иванович"
+
+#: forms/auth.py:27
 msgid "Your e-mail address"
 msgstr "Ваш адрес электронной почты"
 
-#: forms/auth.py:27
+#: forms/auth.py:28
 msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
-#: forms/auth.py:29
+#: forms/auth.py:30
 msgid "Send a randomly generated password to your e-mail address."
 msgstr ""
 "Отправить случайно сгенерированный пароль на ваш адрес электронной почты."
 
-#: forms/auth.py:31
+#: forms/auth.py:32
 msgid "Choose a password"
 msgstr "Введите пароль"
 
-#: forms/auth.py:32
+#: forms/auth.py:33
 msgid "Minimum length is 6 characters."
 msgstr "Минимальная длина 6 символов"
 
-#: forms/auth.py:33
+#: forms/auth.py:34
 msgid "Repeat password"
 msgstr "Повторить пароль"
 
-#: forms/auth.py:34
+#: forms/auth.py:35
 msgid "Confirm password."
 msgstr "Подтверждение пароля"
 
-#: forms/auth.py:50
+#: forms/auth.py:51
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -149,11 +156,15 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: forms/auth.py:61
+#: forms/auth.py:60
+msgid "Expected last and first name"
+msgstr "Введите фамилию и имя"
+
+#: forms/auth.py:69
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: forms/auth.py:84
+#: forms/auth.py:103
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -232,49 +243,53 @@ msgstr "Ограничение на изменение синонима"
 msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
-#: models/data_mart.py:163 models/term.py:304
+#: models/data_mart.py:162
+msgid "Change terms restriction"
+msgstr "Ограничение на изменение терминов"
+
+#: models/data_mart.py:164 models/term.py:304
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
-#: models/data_mart.py:174 models/term.py:318
+#: models/data_mart.py:176 models/term.py:318
 msgid "Parent"
 msgstr "Родитель"
 
-#: models/data_mart.py:175 models/notification.py:23 models/term.py:319
+#: models/data_mart.py:177 models/notification.py:20 models/term.py:319
 msgid "Name"
 msgstr "Название"
 
-#: models/data_mart.py:176 models/term.py:320
+#: models/data_mart.py:178 models/term.py:320
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/data_mart.py:176 models/term.py:320
+#: models/data_mart.py:178 models/term.py:320
 msgid "Used for URLs, auto-generated from name if blank"
 msgstr "Используется авто-генерация URL, если это поле пустое"
 
-#: models/data_mart.py:177 models/term.py:321
+#: models/data_mart.py:179 models/term.py:321
 msgid "Path"
 msgstr "Путь"
 
-#: models/data_mart.py:180 models/entity.py:398
+#: models/data_mart.py:182 models/entity.py:538
 msgid "Use \"ctrl\" key for choose multiple terms"
 msgstr "Используйте клавишу \"ctrl\" для выбора нескольких Терминов"
 
-#: models/data_mart.py:182 models/entity.py:400 models/term.py:328
+#: models/data_mart.py:184 models/entity.py:540 models/term.py:328
 msgid "Created at"
 msgstr "Дата создания"
 
-#: models/data_mart.py:183 models/entity.py:401 models/term.py:329
+#: models/data_mart.py:185 models/entity.py:541 models/term.py:329
 msgid "Updated at"
 msgstr "Дата обновления"
 
-#: models/data_mart.py:184 models/related.py:27 models/term.py:330
+#: models/data_mart.py:186 models/related.py:27 models/term.py:330
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
-#: models/data_mart.py:185
+#: models/data_mart.py:187
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "data mart."
@@ -282,30 +297,30 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: models/data_mart.py:186 models/term.py:332
+#: models/data_mart.py:188 models/term.py:332
 msgid "Description"
 msgstr "Описание"
 
-#: models/data_mart.py:187 models/entity.py:402 models/term.py:333
+#: models/data_mart.py:189 models/entity.py:542 models/term.py:333
 #: templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
 msgstr "Активен"
 
-#: models/data_mart.py:188
+#: models/data_mart.py:190
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: models/data_mart.py:190 models/term.py:336
+#: models/data_mart.py:192 models/term.py:336
 msgid "system flags"
 msgstr "системные флаги"
 
-#: models/data_mart.py:199 models/defaults/data_mart.py:22
-#: templates/edw/admin/mptt/_datamart_node.html:9
+#: models/data_mart.py:201 models/defaults/data_mart.py:22
+#: models/related.py:82 templates/edw/admin/mptt/_datamart_node.html:9
 msgid "Data mart"
 msgstr "Витрина данных"
 
-#: models/data_mart.py:200 models/defaults/data_mart.py:23
+#: models/data_mart.py:202 models/defaults/data_mart.py:23
 msgid "Data marts"
 msgstr "Витрины данных"
 
@@ -322,15 +337,15 @@ msgstr "Термин"
 msgid "Topic model"
 msgstr "Тематическая модель"
 
-#: models/entity.py:403
+#: models/entity.py:543
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
-#: models/entity.py:414
+#: models/entity.py:557
 msgid "Entities"
 msgstr "Объекты"
 
-#: models/entity.py:424
+#: models/entity.py:567
 msgid "Entity type"
 msgstr "Тип объекта"
 
@@ -346,40 +361,47 @@ msgstr "Узел не может быть дочерним сам себе"
 msgid "Unknown parent value."
 msgstr "Неизвестное значение родителя."
 
-#: models/mixins/entity/add_date_terms_validation.py:46
+#: models/mixins/entity/add_date_terms_validation.py:48
 msgid "Added day"
 msgstr "Дни"
 
-#: models/mixins/entity/add_date_terms_validation.py:120
+#: models/mixins/entity/add_date_terms_validation.py:122
 msgid "Added month"
 msgstr "Месяца"
 
-#: models/mixins/entity/add_date_terms_validation.py:177
+#: models/mixins/entity/add_date_terms_validation.py:179
 msgid "Added year"
 msgstr "Года"
 
-#: models/mixins/entity/fsm.py:12
-msgid "Status"
-msgstr "Состояние"
+#: models/mixins/entity/fsm.py:71
+msgid "Type"
+msgstr "Тип"
 
-#: models/notification.py:25
+#: models/mixins/entity/notification.py:13
+msgid "Parts of the Request objects on the moment of submit."
+msgstr "Request-объект на момент отправки"
+
+#: models/notification.py:21
+msgid "Event"
+msgstr "Событие"
+
+#: models/notification.py:22
 msgid "Mail to"
 msgstr "Получатель"
 
-#: models/notification.py:27
+#: models/notification.py:24
 msgid "Template"
 msgstr "Шаблон"
 
-#: models/notification.py:33
+#: models/notification.py:29
 msgid "Notification"
 msgstr "Уведомление"
 
-#: models/notification.py:34
+#: models/notification.py:30
 msgid "Notifications"
 msgstr "Уведомления"
 
-#: models/notification.py:55
-#| msgid "Attachments"
+#: models/notification.py:47 models/notification.py:51
 msgid "Attachment"
 msgstr "Вложение"
 
@@ -419,15 +441,23 @@ msgstr "Отношение"
 msgid "Entity Relations"
 msgstr "Отношения"
 
-#: models/related.py:77
+#: models/related.py:86
+msgid "Related data mart"
+msgstr "Связанная витрина данных"
+
+#: models/related.py:87
+msgid "Entity related data marts"
+msgstr "Связанные витрины данных"
+
+#: models/related.py:103
 msgid "Image"
 msgstr "Изображение"
 
-#: models/related.py:83
+#: models/related.py:109
 msgid "Entity Image"
 msgstr "Изображение"
 
-#: models/related.py:84
+#: models/related.py:110
 msgid "Entity Images"
 msgstr "Изображения"
 
@@ -633,29 +663,29 @@ msgstr "Подробно"
 msgid "Loading search results"
 msgstr "Загрузка результатов поиска"
 
-#: views/auth.py:78
+#: views/auth.py:77
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
-#: views/auth.py:103
+#: views/auth.py:102
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
-#: views/auth.py:162
+#: views/auth.py:161
 msgid "Password has been reset with the new password."
 msgstr "Пароль был сброшен."
 
-#: views/auth.py:175
+#: views/auth.py:174
 msgid "New password has been saved."
 msgstr "Новый пароль установлен."
 
-#: views/auth.py:195
+#: views/auth.py:194
 msgid "Error validate account. Validate link wrong or expired validate code."
 msgstr ""
 "Ошибка активации аккаунта. Либо код активации неверно указан, либо он был "
 "просрочен."
 
-#: views/auth.py:202
+#: views/auth.py:201
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
 

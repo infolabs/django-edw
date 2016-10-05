@@ -49,7 +49,6 @@ class AuthFormsView(GenericAPIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-
 class LoginView(OriginalLoginView):
     def login(self):
         """

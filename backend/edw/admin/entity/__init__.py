@@ -11,12 +11,14 @@ from adminsortable2.admin import SortableInlineAdminMixin
 from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
+    # EntityRelatedDataMartModel,
     EntityImageModel
 )
 
 from edw.admin.entity.forms import (
     EntityCharacteristicOrMarkInlineForm,
-    EntityRelationInlineForm
+    EntityRelationInlineForm,
+    # EntityRelatedDataMartInlineForm
 )
 
 from edw.rest.filters.entity import EntityFilter
@@ -107,3 +109,12 @@ class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = EntityImageModel
     extra = 1
     ordering = ('order',)
+
+
+#===========================================================================================
+# EntityRelatedDataMartInline
+#===========================================================================================
+# class EntityRelatedDataMartInline(admin.TabularInline):
+#     model = EntityRelatedDataMartModel
+#     extra = 1
+#     form = EntityRelatedDataMartInlineForm

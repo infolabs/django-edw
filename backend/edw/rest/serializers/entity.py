@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.core import exceptions
 from django.core.cache import cache
-from django.template import RequestContext
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -16,6 +15,7 @@ from rest_framework import serializers
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
+# from edw.rest.serializers.data_mart import DataMartDetailSerializer
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -117,6 +117,16 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
 
+    #related_data_marts = DataMartDetailSerializer(many=True, read_only=True)
+    #related_data_marts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    # related_data_marts = serializers.SerializerMethodField() #????
+    #
+    # def get_related_data_marts(self, entity):
+    #     print ">>>>>>>>", entity
+    #     return []
+
+
     _meta_cache = {}
 
     @staticmethod
@@ -158,9 +168,13 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
 
 class EntityDetailSerializer(EntityDetailSerializerBase):
+    media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
+
+    def get_media(self, entity):
+        return self.render_html(entity, 'media')
 
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
@@ -169,9 +183,6 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     @staticmethod
     def on_terms_ids_cache_set(key):
-
-        # print "*** on_terms_ids_cache_set ----->", key
-
         buf = EntityModel.get_terms_cache_buffer()
         old_key = buf.record(key)
         if old_key != buf.empty:
@@ -180,18 +191,12 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     def get_potential_terms_ids(self, instance):
         tree = self.context['initial_filter_meta']
         initial_queryset = self.context['initial_queryset']
-
-        # print "*** get_potential_terms_ids ***", getattr(initial_queryset, '_cache_key', None)
-
         return initial_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                           timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
 
     def get_real_terms_ids(self, instance):
         tree = self.context['terms_filter_meta']
         filter_queryset = self.context['filter_queryset']
-
-        # print "*** get_real_terms_ids ***", getattr(filter_queryset, '_cache_key', None)
-
         return filter_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                          timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
 
@@ -203,4 +208,3 @@ class EntityTotalSummarySerializer(serializers.Serializer):
     def __new__(cls, *args, **kwargs):
         kwargs['many'] = False
         return super(EntityTotalSummarySerializer, cls).__new__(cls, *args, **kwargs)
-

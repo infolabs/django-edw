@@ -164,7 +164,7 @@ class CustomerManager(models.Manager):
 @python_2_unicode_compatible
 class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    Base class for shop customers.
+    Base class for edw customers.
 
     Customer is a profile model that extends
     the django User model if a customer is authenticated. On checkout, a User

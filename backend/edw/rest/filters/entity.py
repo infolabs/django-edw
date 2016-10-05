@@ -2,9 +2,6 @@
 from __future__ import unicode_literals
 
 
-from operator import __or__ as OR
-
-from django.db import models
 from django.utils.functional import cached_property
 
 from django_filters.widgets import CSVWidget
@@ -146,6 +143,7 @@ class EntityFilter(filters.FilterSet):
         self._subj_ids = value
         if not self.subj_ids or 'rel' in self.data:
             return queryset
+        self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
         return queryset.subj(self.subj_ids)
 
     @staticmethod
@@ -182,22 +180,14 @@ class EntityFilter(filters.FilterSet):
             rel_r_ids.extend(rel_b_ids)
         return rel_f_ids, rel_r_ids
 
-    def filter_rel(self, name, queryset, value): # todo: move logic to model
+    def filter_rel(self, name, queryset, value):
         self._rel_ids = value
         if self.rel_ids is None:
             return queryset
-        rel_f_ids, rel_r_ids = self.rel_ids
-        q_lst = []
+
         if self.subj_ids:
-            if rel_r_ids:
-                q_lst.append(models.Q(forward_relations__to_entity__in=self.subj_ids) &
-                             models.Q(forward_relations__term__in=rel_r_ids))
-            if rel_f_ids:
-                q_lst.append(models.Q(backward_relations__from_entity__in=self.subj_ids) &
-                             models.Q(backward_relations__term__in=rel_f_ids))
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.subj_ids, *self.rel_ids)
+            return queryset.subj_and_rel(self.subj_ids, *self.rel_ids)
         else:
-            if rel_f_ids:
-                q_lst.append(models.Q(forward_relations__term__in=rel_f_ids))
-            if rel_r_ids:
-                q_lst.append(models.Q(backward_relations__rubric__in=rel_r_ids))
-        return queryset.filter(reduce(OR, q_lst)).distinct()
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
+            return queryset.rel(*self.rel_ids)

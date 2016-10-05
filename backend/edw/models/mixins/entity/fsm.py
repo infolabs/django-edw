@@ -6,7 +6,28 @@ from django.utils.translation import ugettext_lazy as _
 from edw.models.term import TermModel
 
 
+_default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
+                                     TermModel.system_flags.change_parent_restriction |
+                                     TermModel.system_flags.change_slug_restriction |
+                                     TermModel.system_flags.change_semantic_rule_restriction |
+                                     TermModel.system_flags.has_child_restriction |
+                                     TermModel.system_flags.external_tagging_restriction)
+
+
 class FSMMixin(object):
+
+    REQUIRED_FIELDS = ('status',)
+
+    STATE_ROOT_TERM_SLUG = "state"
+
+    '''
+    Example:
+    TRANSITION_TARGETS = {
+        'new': "Default state",
+        ...
+    }
+    '''
+    TRANSITION_TARGETS = {}
 
     @classmethod
     def get_transition_name(cls, target):
@@ -23,14 +44,7 @@ class FSMMixin(object):
     @classmethod
     def validate_term_model(cls):
         super(FSMMixin, cls).validate_term_model()
-        system_flags = (
-            TermModel.system_flags.delete_restriction |
-            TermModel.system_flags.change_parent_restriction |
-            TermModel.system_flags.change_slug_restriction |
-            TermModel.system_flags.change_semantic_rule_restriction |
-            TermModel.system_flags.has_child_restriction |
-            TermModel.system_flags.external_tagging_restriction
-        )
+        system_flags = _default_system_flags_restriction
 
         # Get original entity model class term
         original_model_class_term = cls.get_entities_types()[cls.__name__.lower()]
@@ -38,7 +52,7 @@ class FSMMixin(object):
 
         # Compose new entity model class term slug
         new_model_class_term_slug = "{}_wrapper".format(cls.__name__.lower())
-        if original_model_class_term_parent.slug <> new_model_class_term_slug:
+        if original_model_class_term_parent.slug != new_model_class_term_slug:
             try:  # get or create model class root term
                 model_root_term = TermModel.objects.get(slug=new_model_class_term_slug,
                                                         parent=original_model_class_term_parent)
@@ -64,7 +78,7 @@ class FSMMixin(object):
             states_parent_term = TermModel(
                 slug=cls.STATE_ROOT_TERM_SLUG,
                 parent=model_root_term,
-                name=_('State'),
+                name=cls._meta.get_field('status').verbose_name,
                 semantic_rule=TermModel.XOR_RULE,
                 system_flags=system_flags
             )
@@ -84,7 +98,7 @@ class FSMMixin(object):
             state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
-        if origin is None or origin.status <> self.status:
+        if origin is None or origin.status != self.status:
             do_validate = kwargs["context"]["validate_entity_state"] = True
         else:
             do_validate = False

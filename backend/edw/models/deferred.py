@@ -51,7 +51,7 @@ class ForeignKeyBuilder(ModelBase):
     counterpart.
     If the main application stores its models in its own directory, add to settings.py:
     EDW_APP_LABEL = 'myedw'
-    so that the models are created inside your own shop instatiation.
+    so that the models are created inside your own edw instatiation.
     """
     _materialized_models = {}
     _pending_mappings = []

@@ -23,6 +23,7 @@ from edw.signals.auth import customer_registered
 class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
 
+    fio = fields.CharField(label=_("Your fullname"), help_text=_("Example: Ivanov Ivan Ivanovich"), max_length=255)
     email = fields.EmailField(label=_("Your e-mail address"))
     preset_password = fields.BooleanField(required=False, label=_("Preset password"),
         widget=widgets.CheckboxInput(),
@@ -35,7 +36,7 @@ class RegisterUserForm(ModelForm):
 
     class Meta:
         model = CustomerModel
-        fields = ('email', 'password1', 'password2',)
+        fields = ('fio', 'email', 'password1', 'password2',)
 
     def __init__(self, data=None, instance=None, *args, **kwargs):
         if data and data.get('preset_password', False):
@@ -50,8 +51,15 @@ class RegisterUserForm(ModelForm):
             msg = _("A customer with the e-mail address ‘{email}’ already exists.\n"
                     "If you have used this address previously, try to reset the password.")
             raise ValidationError(msg.format(**self.cleaned_data))
-
         return self.cleaned_data['email']
+
+    def clean_fio(self):
+        # check for fio
+        fio = self.cleaned_data['fio'].split(' ')
+        if len(fio) < 2:
+            msg = _("Expected last and first name")
+            raise ValidationError(msg)
+        return self.cleaned_data['fio']
 
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
@@ -62,12 +70,23 @@ class RegisterUserForm(ModelForm):
                 raise ValidationError(msg)
         return cleaned_data
 
+    def _parce_fio_to_fullname(self, user, fio):
+        if len(fio) > 0:
+            parts = fio.split(' ')
+            if len(parts) == 2:
+                user.last_name = parts[0]
+                user.first_name = parts[1]
+            else:
+                user.last_name = parts[0]
+                user.first_name = parts[1] + ' ' + parts[2]
+
     def save(self, request=None, commit=True):
         do_activation = edw_settings.REGISTRATION_PROCESS['do_activation']
         self.instance.recognize_as_registered()
         self.instance.user.is_active = do_activation
         self.instance.user.email = self.cleaned_data['email']
         self.instance.user.set_password(self.cleaned_data['password1'])
+        self._parce_fio_to_fullname(self.instance.user, self.cleaned_data['fio'])
         customer = super(RegisterUserForm, self).save(commit)
         password = self.cleaned_data['password1']
         if self.cleaned_data['preset_password']:
@@ -79,7 +98,7 @@ class RegisterUserForm(ModelForm):
             self._send_activation_email(request, customer.user)
             logout(request)
 
-        customer_registered.send_robust(sender=self.__class__, customer=customer, request=request) #todo: поправить
+        customer_registered.send_robust(sender=self.__class__, customer=customer, request=request)
 
         msg = _("A customer ‘{email}’ success registered.\n"
                 "To complete the registration, click the link that was sent to you by e-mail")

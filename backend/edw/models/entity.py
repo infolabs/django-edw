@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 import types
 
 from operator import __or__ as OR
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models, connections
@@ -29,7 +30,8 @@ from .term import TermModel
 from .data_mart import DataMartModel
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
-    EntityRelationModel
+    EntityRelationModel,
+    # EntityRelatedDataMartModel
 )
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
@@ -125,49 +127,65 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         return self.model.TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
     @add_cache_key(_get_terms_ids_cache_key)
-    # @add_cache_key(_get_terms_ids_cache_key, key_max_len=100)
     def get_terms_ids(self, tree):
         return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
 
     def _get_subj_cache_key(self, subj_ids):
-        return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj=(hash_unsorted_list(subj_ids) if subj_ids else ''))
+        return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=(hash_unsorted_list(subj_ids) if subj_ids else ''))
 
     @add_cache_key(_get_subj_cache_key)
     def subj(self, subj_ids):
+        """
+        :param subj_ids: subjects ids
+        :return:
+        """
         q_lst = [models.Q(models.Q(forward_relations__to_entity__in=subj_ids)),
                  models.Q(backward_relations__from_entity__in=subj_ids)]
         return self.filter(reduce(OR, q_lst)).distinct()
 
+    def _get_rel_cache_key(self, rel_f_ids, rel_r_ids):
+        _hash = "{rel_f_ids}:{rel_r_ids}".format(
+            rel_f_ids=hash_unsorted_list(rel_f_ids) if rel_f_ids else '',
+            rel_r_ids=hash_unsorted_list(rel_r_ids) if rel_r_ids else ''
+        )
+        return self.model.RELATION_CACHE_KEY_PATTERN.format(rel_hash=_hash)
 
-    """
-    def get_real_rubrics_ids(self):
+    @add_cache_key(_get_rel_cache_key)
+    def rel(self, rel_f_ids, rel_r_ids):
+        """
+        :param rel_f_ids: forward relations ids
+        :param rel_r_ids: backward (reverse) relations ids
+        :return:
+        """
+        q_lst = []
+        if rel_f_ids:
+            q_lst.append(models.Q(forward_relations__term__in=rel_f_ids))
+        if rel_r_ids:
+            q_lst.append(models.Q(backward_relations__term__in=rel_r_ids))
+        return self.filter(reduce(OR, q_lst)).distinct()
 
-        def hash_list(lst):
-            return hash_unsorted_list(lst) if lst else ''
+    def _get_subj_and_rel_cache_key(self, subj_ids, *rel_ids):
+        return "{subj_key}:{rel_key}".format(
+            subj_key=self._get_subj_cache_key(subj_ids),
+            rel_key=self._get_rel_cache_key(*rel_ids)
+        )
 
-        price_range = self.ranges['price']['value']
-        set_tree_info = self.meta_set["tree_info"]
-        key = Product.REAL_RUBRICS_IDS_CACHE_KEY_PATTERN % {
-            'tree_hash': create_hash('.'.join([
-                #set_tree_info.get_hash(),
-                hash_unsorted_list(price_range),
-                #hash_list(self.subj),
-                hash_list(self.rel["b"]),
-                hash_list(self.rel["f"]),
-                hash_list(self.rel["r"])
-                ]))
-        }
-        rubrics_ids = cache.get(key, None)
-        if rubrics_ids is None:
-            rubrics_ids = set_tree_info.trim(self.real_collection.get_real_rubrics_ids()).keys()
-            cache.set(key, rubrics_ids, Product.CACHE_TIMEOUT)
-            buf = Product.get_real_rubrics_buffer()
-            old_key = buf.record(key)
-            if not old_key is None:
-                cache.delete(old_key)
-        return rubrics_ids
-    """
-
+    @add_cache_key(_get_subj_and_rel_cache_key)
+    def subj_and_rel(self, subj_ids, rel_f_ids, rel_r_ids):
+        """
+        :param subj_ids: subjects ids
+        :param rel_f_ids: forward relations ids
+        :param rel_r_ids: backward (reverse) relations ids
+        :return:
+        """
+        q_lst = []
+        if rel_r_ids:
+            q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
+                         models.Q(forward_relations__term__in=rel_r_ids))
+        if rel_f_ids:
+            q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
+                         models.Q(backward_relations__term__in=rel_f_ids))
+        return self.filter(reduce(OR, q_lst)).distinct()
 
     # def stored_request(self, request):
     #     """
@@ -213,7 +231,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
     accessing its model manager. Since polymoriphic object classes, normally are materialized
     by more than one model, this metaclass finds the most generic one and associates its
     MaterializedModel with it.
-    For instance,``EntityModel.objects.all()`` returns all available objects from the shop.
+    For instance,``EntityModel.objects.all()`` returns all available objects from the edw.
     """
     def __new__(cls, name, bases, attrs):
 
@@ -280,6 +298,17 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
         except AttributeError:
             msg = "Class `{}` must provide a model field or property implementing `entity_name`"
             raise NotImplementedError(msg.format(Model.__name__))
+
+        for baseclass in Model.mro():
+            if not isinstance(baseclass, PolymorphicModelBase) or baseclass._meta.abstract:
+                required_fields = getattr(baseclass, 'REQUIRED_FIELDS', None)
+                if required_fields is not None:
+                    for required_field in required_fields:
+                        try:
+                            Model._meta.get_field(required_field)
+                        except FieldDoesNotExist:
+                            msg = "Class `{}` must provide a model field `{}`"
+                            raise NotImplementedError(msg.format(Model.__name__, required_field))
 
         #if not callable(getattr(Model, 'get_price', None)):
         #    msg = "Class `{}` must provide a method implementing `get_price(request)`"
@@ -497,7 +526,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
 
-    SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj}'
+    SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj_hash}'
+    RELATION_CACHE_KEY_PATTERN = 'rel:{rel_hash}'
 
     TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
     TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']
@@ -515,8 +545,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
                                                                    through=AdditionalEntityCharacteristicOrMarkModel)
 
-    relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
+    _relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
+
+    # _related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
+    #                                               through_fields=('entity', 'data_mart'))
 
     class Meta:
         abstract = True
@@ -558,20 +591,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         msg = "Method get_price() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
-
-    def get_availability(self, request):
-        """
-        Hook for checking the availability of a object. It returns a list of tuples with this
-        notation:
-        - Number of items available for this object until the specified period expires.
-          If this value is ``True``, then infinitely many items are available.
-        - Until which timestamp, in UTC, the specified number of items are available.
-        This function can return more than one tuple. If the list is empty, then the object is
-        considered as not available.
-        Use the `request` object to vary the availability according to the logged in user,
-        its country code or language.
-        """
-        return [(True, datetime.max)]  # Infinite number of objects available until eternity
 
     def is_in_cart(self, cart, watched=False, **kwargs):
         """

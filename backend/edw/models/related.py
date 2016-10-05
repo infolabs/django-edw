@@ -70,6 +70,32 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
 EntityRelationModel = deferred.MaterializedModel(BaseEntityRelation)
 
 
+#==============================================================================
+# BaseEntityRelatedDataMart
+#==============================================================================
+# @python_2_unicode_compatible
+# class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+#     """
+#     Entity related data marts
+#     """
+#     entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity')) #, related_name='+'
+#     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
+#
+#     class Meta:
+#         abstract = True
+#         verbose_name = _("Related data mart")
+#         verbose_name_plural = _("Entity related data marts")
+#
+#     def __str__(self):
+#         return "{} → {}".format(self.entity.entity_name, self.data_mart.name)
+#
+#
+# EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMart)
+
+
+#==============================================================================
+# BaseEntityImage
+#==============================================================================
 class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
     ManyToMany relation from the polymorphic Entity to a set of images.

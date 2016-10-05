@@ -159,6 +159,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         'change_parent_restriction': _('Change parent restriction'),
         'change_slug_restriction': _('Change slug restriction'),
         'has_child_restriction': _('Has child restriction'),
+        'change_terms_restriction': _('Change terms restriction'),
 
         'parent_not_active': _('Parent node not active')
     }
@@ -167,7 +168,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         0: ('delete_restriction', messages['delete_restriction']),
         1: ('change_parent_restriction', messages['change_parent_restriction']),
         2: ('change_slug_restriction', messages['change_slug_restriction']),
-        3: ('has_child_restriction', messages['has_child_restriction'])
+        3: ('has_child_restriction', messages['has_child_restriction']),
+        4: ('change_terms_restriction', messages['change_terms_restriction'])
     }
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,

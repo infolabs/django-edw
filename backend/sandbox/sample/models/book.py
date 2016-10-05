@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet, ApiReferenceMixin
 from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
+from edw.models.mixins.entity.fsm import FSMMixin
 from edw.models.defaults.mapping import EntityImage
 
 
