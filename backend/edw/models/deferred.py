@@ -17,7 +17,7 @@ class DeferredRelatedField(object):
             assert isinstance(to, six.string_types), "%s(%r) is invalid. First parameter must be either a model or a model name" % (self.__class__.__name__, to)
             self.abstract_model = to
         else:
-            assert to._meta.abstract, "%s can only define a relation with abstract class %s" % (self.__class__.__name__, to._meta.entity_name)
+            assert to._meta.abstract, "%s can only define a relation with abstract class %s" % (self.__class__.__name__, to._meta.object_name)
         self.options = kwargs
 
 

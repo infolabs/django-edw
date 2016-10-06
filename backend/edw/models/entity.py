@@ -535,7 +535,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_terms_ids']
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
-                                     help_text=_("""Use "ctrl" key for choose multiple terms"""))
+                                     help_text=_("""Use "ctrl" key for choose multiple terms""")) # todo: fix help_text
 
     created_at = models.DateTimeField(default=datetime.now, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
@@ -545,11 +545,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
                                                                    through=AdditionalEntityCharacteristicOrMarkModel)
 
-    _relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
+    relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
 
     # _related_data_marts = deferred.ManyToManyField('BaseDataMart', through=EntityRelatedDataMartModel,
     #                                               through_fields=('entity', 'data_mart'))
+
+    # related_data_marts = models.ManyToManyField(DataMartModel, related_name='+', blank=True,
+    #                                             verbose_name=_("Related data marts"))
+
+    # related_data_marts = deferred.ManyToManyField('BaseDataMart', related_name='+', blank=True,
+    #                                             verbose_name=_("Related data marts"))
 
     class Meta:
         abstract = True
