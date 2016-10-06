@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component, PropTypes } from 'react';
-import * as RubricatorActions from '../actions/RubricatorActions';
-import RubricatorItem from './RubricatorItem';
+import * as RubricatorActions from '../actions/RubricatorActions'; //TermsTreeActions
+import RubricatorItem from './RubricatorItem'; //TermsTreeItem
 
 class Rubricator extends Component {
 
@@ -30,7 +30,7 @@ class Rubricator extends Component {
     <div>
       <ul>
         {terms_tree.map(term =>
-          <RubricatorItem key={term.id}
+          <RubricatorItem key={term.id} //TermsTreeItem
                           term={term}
                           actions={actions}
                           />

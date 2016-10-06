@@ -10,12 +10,22 @@ class TermModel {
     this.slug = '';
     this.tagged = false;
     // Method must be "hierarchy", "facet" or "determinant"
-    this.method = 'determinant';
-    this.branch = false;
-    this.trunk = false;
-    this.has_extra = false;
-    this.short_description = null;
-    this.tags = null;
+
+    // SEMANTIC_RULE_XOR=20, SEMANTIC_RULE_AND=30, SEMANTIC_RULE_OR=10 - вынести в константы
+
+    this.method = 'determinant'; // SEMANTIC_RULE_AND
+    this.branch = false; // Использовать `structure`
+    this.trunk = false; // --//--
+    this.has_extra = false; // Использовать `specification_mode`
+
+    // Было бы круто что-то типа
+    // Object.assign(this, {
+    // "slug": '',
+    // "name": ''...})
+
+
+    this.short_description = null; // todo: Яровому допилить в сериалайзер
+    this.tags = null; // теперь `view_class`
     this.description = null;
     this.currentState = 'ex-state-default';
     this.parent = {};
@@ -97,10 +107,10 @@ class TermModel {
 }
 
 
-function json2tree(json, parent = {}, selected = []) {
+function json2tree(json, parent = {}, selected = []) { // hash_table={}
   let tree = [];
   json.forEach(function (child) {
-    let item = new TermModel();
+    let item = new TermModel(); // item = TermModel({ id = id, ...  вообщем чтобы модно и молодежно на ES6})
     item.id = child.id;
     item.name = child.name;
     item.slug = child.slug;
@@ -108,7 +118,7 @@ function json2tree(json, parent = {}, selected = []) {
       item.tagged = true;
     switch (child.semantic_rule) {
       case 10:
-        item.method = 'facet';
+        item.method = 'facet'; // Брать из констант
         break;
       case 20:
         item.method = 'determinant';
@@ -117,17 +127,20 @@ function json2tree(json, parent = {}, selected = []) {
         item.method = 'hierarchy';
         break;
     }
-    item.branch = child.is_leaf;
+    item.branch = child.is_leaf; //  Использовать `structure`
     item.trunk = !child.is_leaf;
     item.parent = parent;
-    item.children = json2tree(child.children, item, selected);
+    item.children = json2tree(child.children, item, selected); // hash_table
     tree.push(item);
   });
   return tree;
 }
 
 
-function findItemById(tree, item_id) {
+function findItemById(tree, item_id) { // Сохраняй общий список пар ключ:объект в hash_table при парсе json2tree
+// ... храни в tree.hash_table
+ // return tree.hash_table[item_id] // -1 не нужен, вернет Undefined
+
   for (let i = 0; i < tree.length; i++) {
     let child = tree[i],
         ret = -1;

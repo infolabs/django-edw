@@ -12,13 +12,15 @@ export default class RubricatorItem extends Component {
     let inp_type = false;
 
     switch (term.method) {
-      case 'facet':
+      case 'facet': // Взять из константов
         inp_type = 'radio';
         break;
       case 'hierarchy':
         inp_type = 'checkbox';
         break;
     }
+// В любом случаи за образец надо взять этот коде...
+// https://github.com/Excentrics/publication-backbone/blob/master/publication_backbone/templates/publication_backbone/rubricator/partials/rubric.html
 
     let list_item = <a href="#">{term.name}</a>;
 
@@ -33,7 +35,7 @@ export default class RubricatorItem extends Component {
 
     let parent_idx = term.id;
     return (
-      <li onClick={e => {
+      <li onClick={e => { // Так делать не стоит, пусть будет в виде onClick={::this.handleClick}
                           e.preventDefault()
                           e.stopPropagation()
                           actions.toggle(term)
