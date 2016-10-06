@@ -2,21 +2,23 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Header from '../components/Header';
+import Rubricator from '../components/Rubricator';
 import MainSection from '../components/MainSection';
 import * as TodoActions from '../actions/TodoActions';
 
 class TodoApp extends Component {
-  
+
   componentDidMount() {
     this.props.actions.getTodos();
   }
-  
+
   render() {
     const { todos, actions } = this.props;
 
     return (
       <div>
         <Header addTodo={actions.addTodo} />
+        <Rubricator />
         <MainSection todos={todos} actions={actions} />
       </div>
     );
