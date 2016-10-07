@@ -13,12 +13,12 @@ module.exports = {
   output: {
     path: path.resolve('../backend/edw/static/js/'),
     filename: "bundle.js",
-    publicPath: 'http://192.168.122.220:3000/assets/bundles/',
+    publicPath: 'http://192.168.122.220:3000/assets/bundles/'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
-    new BundleTracker({filename: './webpack-stats.json'}),
+    new BundleTracker({filename: './webpack-stats.json'})
   ],
   resolve: {
     alias: {
@@ -43,6 +43,10 @@ module.exports = {
       test: /\.css?$/,
       loaders: ['style', 'raw'],
       include: __dirname
+    }, {
+      test: /\.less?$/,
+      loaders: ["less", "css"],
+      include: path.join(__dirname, 'less')
     }]
   }
 };
