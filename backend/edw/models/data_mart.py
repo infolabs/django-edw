@@ -101,6 +101,7 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
             # refer to it via its materialized Entity model.
             if not isinstance(baseclass, cls):
                 continue
+            basename = baseclass.__name__
             try:
                 if issubclass(baseclass._materialized_model, Model):
                     # as the materialized model, use the most generic one
@@ -110,8 +111,10 @@ class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
                         "with a model {}, which is different or not a submodel of {}."
                         .format(name, Model, baseclass._materialized_model))
             except (AttributeError, TypeError):
+                deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
+                # remember the materialized model mapping in the base class for further usage
                 baseclass._materialized_model = Model
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
+            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
 
         # search for deferred foreign fields in our Model
         for attrname in dir(Model):

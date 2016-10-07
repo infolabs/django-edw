@@ -251,6 +251,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
             # refer to it via its materialized Entity model.
             if not isinstance(baseclass, cls):
                 continue
+            basename = baseclass.__name__
             try:
                 if issubclass(baseclass._materialized_model, Model):
                     # as the materialized model, use the most generic one
@@ -260,8 +261,10 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                         "with a model {}, which is different or not a submodel of {}."
                         .format(name, Model, baseclass._materialized_model))
             except (AttributeError, TypeError):
+                deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
+                # remember the materialized model mapping in the base class for further usage
                 baseclass._materialized_model = Model
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, baseclass.__name__)
+            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
 
         # search for deferred foreign fields in our Model
         for attrname in dir(Model):
@@ -554,8 +557,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     # related_data_marts = models.ManyToManyField(DataMartModel, related_name='+', blank=True,
     #                                             verbose_name=_("Related data marts"))
 
-    # related_data_marts = deferred.ManyToManyField('BaseDataMart', related_name='+', blank=True,
-    #                                             verbose_name=_("Related data marts"))
+    related_data_marts = deferred.ManyToManyField('BaseDataMart', related_name='+', blank=True,
+                                                verbose_name=_("Related data marts"))
 
     class Meta:
         abstract = True
