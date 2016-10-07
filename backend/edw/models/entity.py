@@ -586,9 +586,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         raise NotImplementedError(msg.format(self.__class__.__name__))
 
     @classmethod
-    def get_subclasses(cls):
+    def get_all_subclasses(cls):
         for subclass in cls.__subclasses__():
-            for subsubclass in subclass.get_subclasses():
+            for subsubclass in subclass.get_all_subclasses():
                 yield subsubclass
             yield subclass
 
