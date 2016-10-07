@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-04 17:16+0300\n"
-"PO-Revision-Date: 2016-10-04 17:17+0300\n"
+"POT-Creation-Date: 2016-10-07 17:49+0300\n"
+"PO-Revision-Date: 2016-10-07 17:50+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -70,7 +70,7 @@ msgid "Customers"
 msgstr "Пользователи"
 
 #: admin/data_mart/forms.py:18 admin/entity/__init__.py:33
-#: admin/entity/forms.py:29 models/data_mart.py:181 models/entity.py:537
+#: admin/entity/forms.py:29 models/data_mart.py:184 models/entity.py:540
 msgid "Terms"
 msgstr "Термины"
 
@@ -82,15 +82,21 @@ msgstr "Характеристика или метка"
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/forms.py:49 admin/entity/forms.py:58
+#: admin/entity/forms.py:49
 msgid "Target"
 msgstr "Цель"
+
+#: admin/entity/forms.py:58 models/data_mart.py:204
+#: models/defaults/data_mart.py:22 models/related.py:82
+#: templates/edw/admin/mptt/_datamart_node.html:9
+msgid "Data mart"
+msgstr "Витрина данных"
 
 #: admin/notification.py:22 admin/notification.py:102
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification.py:82 models/entity.py:556 models/related.py:25
+#: admin/notification.py:82 models/entity.py:561 models/related.py:25
 #: models/related.py:81 models/related.py:104
 msgid "Entity"
 msgstr "Объект"
@@ -227,69 +233,69 @@ msgstr "Обозначает распознанное состояние пол�
 msgid "Extra information about this customer"
 msgstr "Расширенная информация по пользователю"
 
-#: models/data_mart.py:158 models/term.py:297
+#: models/data_mart.py:161 models/term.py:297
 msgid "Delete restriction"
 msgstr "Ограничение на удаление"
 
-#: models/data_mart.py:159 models/term.py:298
+#: models/data_mart.py:162 models/term.py:298
 msgid "Change parent restriction"
 msgstr "Ограничение на изменение родителя"
 
-#: models/data_mart.py:160 models/term.py:299
+#: models/data_mart.py:163 models/term.py:299
 msgid "Change slug restriction"
 msgstr "Ограничение на изменение синонима"
 
-#: models/data_mart.py:161 models/term.py:301
+#: models/data_mart.py:164 models/term.py:301
 msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
-#: models/data_mart.py:162
+#: models/data_mart.py:165
 msgid "Change terms restriction"
 msgstr "Ограничение на изменение терминов"
 
-#: models/data_mart.py:164 models/term.py:304
+#: models/data_mart.py:167 models/term.py:304
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
-#: models/data_mart.py:176 models/term.py:318
+#: models/data_mart.py:179 models/term.py:318
 msgid "Parent"
 msgstr "Родитель"
 
-#: models/data_mart.py:177 models/notification.py:20 models/term.py:319
+#: models/data_mart.py:180 models/notification.py:20 models/term.py:319
 msgid "Name"
 msgstr "Название"
 
-#: models/data_mart.py:178 models/term.py:320
+#: models/data_mart.py:181 models/term.py:320
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/data_mart.py:178 models/term.py:320
+#: models/data_mart.py:181 models/term.py:320
 msgid "Used for URLs, auto-generated from name if blank"
 msgstr "Используется авто-генерация URL, если это поле пустое"
 
-#: models/data_mart.py:179 models/term.py:321
+#: models/data_mart.py:182 models/term.py:321
 msgid "Path"
 msgstr "Путь"
 
-#: models/data_mart.py:182 models/entity.py:538
+#: models/data_mart.py:185 models/entity.py:541
 msgid "Use \"ctrl\" key for choose multiple terms"
 msgstr "Используйте клавишу \"ctrl\" для выбора нескольких Терминов"
 
-#: models/data_mart.py:184 models/entity.py:540 models/term.py:328
+#: models/data_mart.py:187 models/entity.py:543 models/term.py:328
 msgid "Created at"
 msgstr "Дата создания"
 
-#: models/data_mart.py:185 models/entity.py:541 models/term.py:329
+#: models/data_mart.py:188 models/entity.py:544 models/term.py:329
 msgid "Updated at"
 msgstr "Дата обновления"
 
-#: models/data_mart.py:186 models/related.py:27 models/term.py:330
+#: models/data_mart.py:189 models/related.py:27 models/term.py:330
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
-#: models/data_mart.py:187
+#: models/data_mart.py:190
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "data mart."
@@ -297,30 +303,25 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: models/data_mart.py:188 models/term.py:332
+#: models/data_mart.py:191 models/term.py:332
 msgid "Description"
 msgstr "Описание"
 
-#: models/data_mart.py:189 models/entity.py:542 models/term.py:333
+#: models/data_mart.py:192 models/entity.py:545 models/term.py:333
 #: templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
 msgstr "Активен"
 
-#: models/data_mart.py:190
+#: models/data_mart.py:193
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: models/data_mart.py:192 models/term.py:336
+#: models/data_mart.py:195 models/term.py:336
 msgid "system flags"
 msgstr "системные флаги"
 
-#: models/data_mart.py:201 models/defaults/data_mart.py:22
-#: models/related.py:82 templates/edw/admin/mptt/_datamart_node.html:9
-msgid "Data mart"
-msgstr "Витрина данных"
-
-#: models/data_mart.py:202 models/defaults/data_mart.py:23
+#: models/data_mart.py:205 models/defaults/data_mart.py:23
 msgid "Data marts"
 msgstr "Витрины данных"
 
@@ -337,15 +338,19 @@ msgstr "Термин"
 msgid "Topic model"
 msgstr "Тематическая модель"
 
-#: models/entity.py:543
+#: models/entity.py:546
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
 #: models/entity.py:557
+msgid "Related data marts"
+msgstr "Связанные витрины данных"
+
+#: models/entity.py:562
 msgid "Entities"
 msgstr "Объекты"
 
-#: models/entity.py:567
+#: models/entity.py:572
 msgid "Entity type"
 msgstr "Тип объекта"
 
@@ -442,6 +447,7 @@ msgid "Entity Relations"
 msgstr "Отношения"
 
 #: models/related.py:86
+#| msgid "Related data marts"
 msgid "Related data mart"
 msgstr "Связанная витрина данных"
 
