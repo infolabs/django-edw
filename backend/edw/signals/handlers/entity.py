@@ -65,11 +65,8 @@ def invalidate_entity_before_delete(sender, instance, **kwargs):
 #==============================================================================
 Model = EntityModel.materialized
 for clazz in itertools.chain([Model], Model.get_all_subclasses()):
-# for clazz in [Model] + Model.__subclasses__():
-
     pre_delete.connect(invalidate_entity_before_delete, clazz,
                        dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_delete, clazz))
-
     post_save.connect(invalidate_entity_after_save, clazz,
                       dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_save, clazz))
 

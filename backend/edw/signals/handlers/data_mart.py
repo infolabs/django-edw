@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import itertools
+
 from django.core.cache import cache
 from django.db.models import F
 from django.db.models.signals import (
@@ -123,7 +125,7 @@ def invalidate_data_mart_after_move(sender, instance, target, position, prev_par
 
 
 Model = DataMartModel.materialized
-for clazz in [Model] + Model.__subclasses__():
+for clazz in itertools.chain([Model], Model.get_all_subclasses()):
     pre_save.connect(invalidate_data_mart_before_save, sender=clazz,
                      dispatch_uid=make_dispatch_uid(
                          pre_save,

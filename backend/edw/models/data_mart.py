@@ -210,6 +210,13 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_all_subclasses(cls):
+        for subclass in cls.__subclasses__():
+            for subsubclass in subclass.get_all_subclasses():
+                yield subsubclass
+            yield subclass
+
     @cached_property
     def ancestors_list(self):
         return list(self.parent.get_ancestors(include_self=True)) if self.parent else []
