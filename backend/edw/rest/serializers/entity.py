@@ -15,7 +15,7 @@ from rest_framework import serializers
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
-# from edw.rest.serializers.data_mart import DataMartDetailSerializer
+from edw.rest.serializers.data_mart import DataMartDetailSerializer
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -116,16 +116,7 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
-
-    #related_data_marts = DataMartDetailSerializer(many=True, read_only=True)
-    #related_data_marts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-    # related_data_marts = serializers.SerializerMethodField() #????
-    #
-    # def get_related_data_marts(self, entity):
-    #     print ">>>>>>>>", entity
-    #     return []
-
+    related_data_marts = DataMartDetailSerializer(many=True, read_only=True)
 
     _meta_cache = {}
 
@@ -171,7 +162,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks')
+        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', 'relations', 'terms')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
@@ -193,7 +184,6 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         initial_queryset = self.context['initial_queryset']
         return initial_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                           timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
-
     def get_real_terms_ids(self, instance):
         tree = self.context['terms_filter_meta']
         filter_queryset = self.context['filter_queryset']
