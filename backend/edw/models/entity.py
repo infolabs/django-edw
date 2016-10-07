@@ -585,6 +585,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         msg = "Method get_absolute_url() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
 
+    @classmethod
+    def get_subclasses(cls):
+        for subclass in cls.__subclasses__():
+            for subsubclass in subclass.get_subclasses():
+                yield subsubclass
+            yield subclass
+
     '''
     def get_price(self, request):
         """

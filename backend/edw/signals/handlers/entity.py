@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 
 from django.db.models.signals import (
     m2m_changed,
@@ -63,6 +64,7 @@ def invalidate_entity_before_delete(sender, instance, **kwargs):
 # Term model validation
 #==============================================================================
 Model = EntityModel.materialized
+# for clazz in itertools.chain([Model], Model.get_subclasses()):
 for clazz in [Model] + Model.__subclasses__():
 
     pre_delete.connect(invalidate_entity_before_delete, clazz,
