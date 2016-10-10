@@ -142,9 +142,17 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
         cls._update_meta(it, instance)
         return it
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, instance, **kwargs):
         kwargs.setdefault('label', 'detail')
-        super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+        remove_fields = instance._rest_meta.exclude
+        super(EntityDetailSerializerBase, self).__init__(instance, **kwargs)
+        if remove_fields:
+            # for multiple fields in a list
+            for field_name in remove_fields:
+
+                # print "<->", instance, field_name
+
+                self.fields.pop(field_name)
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
