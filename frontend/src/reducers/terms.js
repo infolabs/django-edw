@@ -136,7 +136,7 @@ class TermTreeItemModel {
 
   toggle_tree() {
     if (this.tagged) {
-      if (this.semantic_rule == SEMANTIC_RULE_OR) {
+      if (this.parent.semantic_rule == SEMANTIC_RULE_OR) {
         this.getSiblings().forEach(function (item) {
             item.unTag();
         });
