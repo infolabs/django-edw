@@ -103,7 +103,7 @@ class EntityRelationInline(admin.TabularInline):
 
 
 #===========================================================================================
-# EntityRelationInline
+# EntityImageInline
 #===========================================================================================
 class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = EntityImageModel

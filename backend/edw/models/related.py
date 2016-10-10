@@ -110,5 +110,8 @@ class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         verbose_name_plural = _("Entity Images")
         ordering = ('order',)
 
+    def __unicode__(self):
+        return "%s" % self.image
+
 
 EntityImageModel = deferred.MaterializedModel(BaseEntityImage)

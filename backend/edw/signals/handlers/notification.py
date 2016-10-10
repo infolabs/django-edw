@@ -51,20 +51,13 @@ def entity_event_notification(sender, instance=None, target=None, **kwargs):
             continue
 
         # emulate a request object which behaves similar to that one, when the customer submitted its order
-        if instance.stored_request:
-            emulated_request = EmulateHttpRequest(instance.customer, instance.stored_request)
-            entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
-            language = instance.stored_request.get('language')
-            absolute_uri = emulated_request.build_absolute_uri().rstrip('/')
-        else:
-            entity_serializer = EntityDetailSerializer(instance)
-            language = settings.LANGUAGE_CODE
-            absolute_uri = instance.get_absolute_url()
-
+        emulated_request = EmulateHttpRequest(instance.customer, instance.stored_request)
+        entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
+        language = instance.stored_request.get('language')
         context = {
             'customer': CustomerSerializer(instance.customer).data,
             'data': entity_serializer.data,
-            'ABSOLUTE_BASE_URI': absolute_uri,
+            'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
             'render_language': language,
         }
         try:
