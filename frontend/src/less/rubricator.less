@@ -1,0 +1,433 @@
+/*
+==================== РУБРИКАТОР ====================
+*/
+
+.ex-catalog-filter {
+  background: @rubricatorBackground;
+  border-radius: @rubricatorBorderRadius;
+  font-size: 13px;
+  line-height: @line-height-base;
+  color: @rubricatorTextColor;
+  margin-bottom: 20px;
+  border: 1px solid @rubricatorBorderColor;
+
+  & > ul {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    vertical-align: top;
+    list-style: none;
+  }
+
+  .ex-catalog-filter-item:first-child, .ex-catalog-filter-item-block:first-child {
+    background-image: none;
+    border-radius: @rubricatorBorderRadius @rubricatorBorderRadius 0 0;
+  }
+
+  .ex-catalog-filter-item:last-child, .ex-catalog-filter-item-block:last-child {
+    border-radius: 0 0 @rubricatorBorderRadius @rubricatorBorderRadius;
+  }
+
+}
+
+
+.ex-catalog-filter .ex-catalog-filter-item,
+.ex-rubricator li[data-has-children="true"][data-branch] {
+  padding: 10px 18px;
+}
+
+
+.ex-catalog-filter .ex-catalog-filter-item:hover,
+.ex-rubricator li[data-has-children][data-branch]:hover {
+  background: @rubricatorBackgroundHover;
+  border-radius: @rubricatorBorderRadius;
+  color: @rubricatorTextColorHover;
+}
+
+.ex-catalog-filter-item,
+.ex-rubricator li[data-has-children][data-branch] {
+  -moz-transition: background-color .25s ease,color .35s ease,border .25s ease;
+  -webkit-transition: background-color .25s ease,color .35s ease,border .25s ease;
+  transition: background-color .25s ease,color .35s ease,border .25s ease;
+}
+/*
+.ex-price-range {
+  height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.ex-price-range.ex-state-enabled {
+  height: inherit;
+  overflow: inherit;
+  position: inherit;
+}
+*/
+.ex-date-range {
+  height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.ex-date-range.ex-state-enabled {
+  height: inherit;
+  overflow: inherit;
+  position: inherit;
+}
+
+.ex-rubricator-content {
+  font-size: 13px;
+}
+
+.ex-details {
+  padding: 0;
+  margin: 0;
+}
+
+.ex-state-collapsed .ex-details {
+  display: none;
+}
+
+.ex-details li {
+  list-style-type: none;
+  position: relative;
+}
+
+li[data-has-children][data-branch] {
+  border-bottom: 1px solid @rubricatorDivider;
+}
+
+li[data-branch] .ex-title {
+  border-bottom: 1px dotted @rubricatorTextColor;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+li[data-method="determinant"] > .ex-title {
+  border-bottom: 1px dotted @rubricatorTextColor;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: inherit;
+}
+
+.ex-catalog-filter .ex-catalog-filter-item:hover li[data-branch] .ex-title,
+.ex-catalog-filter .ex-catalog-filter-item:hover li[data-method="determinant"] > .ex-title,
+.ex-rubricator li[data-has-children][data-branch]:hover li[data-branch] .ex-title,
+.ex-rubricator li[data-has-children][data-branch]:hover li[data-method="determinant"] > .ex-title {
+  border-bottom: 1px dotted @rubricatorTextColorHover;
+}
+
+li[data-method="determinant"] > .ex-ico-details {
+  position: absolute;
+  top: 3px;
+}
+
+.ex-price-block > div {
+  text-transform: uppercase;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+li[data-slug] > .ex-details {
+   padding-left: 20px;
+}
+
+li[data-method="determinant"] > .ex-details {
+  padding-left: 0px;
+  margin-bottom: 20px;
+  margin-top: 5px;
+  margin-left: 12px;
+}
+
+li[data-trunk] > .ex-details {
+  padding-left: 0px;
+  margin-left: 0px;
+}
+
+li[data-has-children] > .ex-details {
+  margin-bottom: 5px;
+}
+
+li[data-has-children][data-trunk] > .ex-details {
+    margin-bottom: 0;
+}
+
+li[data-branch] > .ex-details { /* visual rubricator root level */
+  margin-top: 5px;
+  margin-left: 12px;
+}
+
+.ex-details .ex-label {
+  margin-bottom: 0;
+  cursor: pointer;
+  position: relative;
+  display: inline;
+  line-height: 22px;
+}
+
+.ex-details .ex-label:before {
+  content: "";
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  left: -19px;
+  top: 0;
+  background: @rubricatorInputBackground;
+  border: 1px solid @rubricatorInputBorderColor;
+}
+
+li[data-is-checked="true"] > .ex-label {
+  font-weight: bold;
+}
+
+.ex-rubricator .ex-label:before {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+}
+
+li[data-method="hierarchy"] > .ex-details > li > .ex-label:before { /* radio */
+    border-radius: 8px;
+}
+
+li[data-method="facet"] > .ex-details > li > .ex-label:before { /* checkbox */
+	border-radius: 4px;
+}
+
+li[data-method="hierarchy"] > .ex-details > li[data-is-checked="true"] > .ex-label:before {
+    content: "\f111";
+    /*color: @rubricatorInputTextColor;*/
+    font-size: 6px;
+    text-align: center;
+    line-height: 13px;
+    text-shadow: @rubricatorInputTextShadow;
+}
+
+li[data-method="facet"] > .ex-details > li[data-is-checked="true"] > .ex-label:before {
+	content: "\f00c";
+	text-shadow: @rubricatorInputTextShadow;
+	font-size: 11px;
+	/*color: @rubricatorInputTextColor;*/
+	text-align: center;
+    line-height: 13px;
+}
+
+li[data-method="facet"][data-is-children-checked="false"] > .ex-details > li > .ex-label:before {
+    content: "\f0c8";
+    color: @rubricatorInputDotDefaultColor;
+    text-shadow: @rubricatorInputDotDefaultShadow;
+    font-size: 6px;
+    text-align: center;
+    line-height: 13px;
+}
+
+/* ========== Selection Assistant ========= */
+li {
+  & > .ex-label {
+    .ex-opacity(1);
+    transition: opacity 0.2s linear;
+  }
+
+  &[data-is-real="false"] > .ex-label {
+    .ex-opacity(.55);
+  }
+  &[data-is-potential="false"] > .ex-label {
+    .ex-opacity(.15);
+    text-decoration: line-through;
+  }
+}
+
+
+
+/* ========== Всплывающая подсказка ========== */
+.ex-rubricator {
+
+  .ex-description-wrapper {
+    position: relative;
+    border-bottom: 0!important;
+
+    .ex-baloon {
+      display: none;
+      position: absolute;
+      top: -9px;
+      left: 30px;
+      z-index: 1010;
+      width: 250px;
+      background-color: @baloonBackground;
+      border: 1px solid @baloonBorderColor;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+      background-clip: padding-box;
+      line-height: 15px;
+      padding: 10px;
+      color: @baloonTextColor;
+      border-radius: @baloonBorderRadius;
+      font-size: 11px;
+
+      p {
+        margin: 0;
+        padding-right: 15px;
+        text-transform: none;
+        font-weight: normal;
+        font-size: 11px;
+      }
+    }
+
+  }
+
+  .ex-state-description > .ex-description-wrapper .ex-baloon {
+    display: block;
+  }
+
+  .ex-baloon {
+    button.ex-close {
+      margin-right: -10px;
+      margin-top: -10px;
+
+      &:hover {
+        .ex-opacity(1);
+        text-decoration: none;
+        border-bottom: 0;
+      }
+    }
+
+    .ex-arrow {
+      left: -7px;
+      top: 10px;
+      border-right-color: @baloonArrowColor;
+      border-width: 7px 7px 7px 0px;
+
+      &, &:after {
+        position: absolute;
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+      }
+
+      &:after {
+        z-index: -1;
+        content: "";
+        border-right-color: @baloonArrowBackColor;
+        border-width: 9px 9px 9px 0;
+        bottom: -9px;
+        left: -2px;
+      }
+    }
+
+  }
+}
+
+
+/* ========== Свернуто / развернуто ========== */
+
+.ex-icon-details {
+  position: absolute;
+  top: 3px;
+  left: -7px;
+}
+
+.ex-rubricator li[data-has-children][data-branch] > .ex-icon-details {
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.ex-state-collapsed .ex-details {
+  display: none;
+}
+
+/* ========== Цвета меток ========== */
+
+.ex-rubricator {
+
+  .ex-label-color(@color) {
+    background-color: @color;
+    border-color: darken(@color, 25%);
+    color: contrast(@color);
+  }
+
+
+  li[data-tags~="beige"] > .ex-label:before {
+    .ex-label-color(#F5F5DC);
+  }
+  li[data-tags~="orange"] > .ex-label:before {
+    .ex-label-color(@orange);
+  }
+  li[data-tags~="yellow"] > .ex-label:before {
+    .ex-label-color(@yellow);
+  }
+  li[data-tags~="green"] > .ex-label:before {
+    .ex-label-color(@green);
+  }
+  li[data-tags~="skyblue"] > .ex-label:before {
+    .ex-label-color(lighten(@blue, 20%));
+  }
+  li[data-tags~="blue"] > .ex-label:before {
+    .ex-label-color(darken(@blueDark, 10%));
+  }
+  li[data-tags~="gray"] > .ex-label:before {
+    .ex-label-color(@gray);
+  }
+  li[data-tags~="purple"] > .ex-label:before {
+    .ex-label-color(@purple);
+  }
+  li[data-tags~="pink"] > .ex-label:before {
+    .ex-label-color(lighten(@pink, 20%));
+  }
+  li[data-tags~="lightgreen"] > .ex-label:before {
+    .ex-label-color(#7CFC00);
+  }
+  li[data-tags~="fuchsia"] > .ex-label:before {
+    .ex-label-color(#FF1493);
+  }
+  li[data-tags~="brown"] > .ex-label:before {
+    .ex-label-color(#8B4513);
+  }
+  li[data-tags~="white"] > .ex-label:before {
+    .ex-label-color(@white);
+  }
+  li[data-tags~="black"] > .ex-label:before {
+    .ex-label-color(@black);
+  }
+  li[data-tags~="red"] > .ex-label:before {
+    .ex-label-color(@red);
+  }
+  li[data-tags~="turquoise"] > .ex-label:before {
+    .ex-label-color(#40E0D0);
+  }
+  li[data-tags~="darkorchid"] > .ex-label:before {
+    .ex-label-color(#9966CC);
+  }
+  li[data-tags~="greenyellow"] > .ex-label:before {
+    .ex-label-color(#ADFF2F);
+  }
+
+  li[data-tags~="multicolor"] > .ex-label:before {
+
+    border-color: darken(@gray, 10%);
+    color: contrast(@red);
+
+    .ex-gradient(@color: @ex-red; @start: @ex-purple; @stop: @ex-red; @stop1: @ex-blue; @stop2: @ex-green; @stop3: @ex-yellow; @stop4: @ex-orange);
+  }
+
+}
+
+
+/*
+==================== ЗАГРУЗЧИК ====================
+*/
+
+
+.ex-rubricator {
+  .ex-opacity(1);
+  transition: opacity 0.6s linear;
+
+  &.ex-state-loading {
+    .ex-opacity(.3);
+  }
+}

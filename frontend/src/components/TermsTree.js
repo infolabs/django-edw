@@ -1,21 +1,21 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component, PropTypes } from 'react';
-import * as RubricatorActions from '../actions/RubricatorActions'; //TermsTreeActions
-import RubricatorItem from './RubricatorItem'; //TermsTreeItem
+import * as TermsTreeActions from '../actions/TermsTreeActions'; //TermsTreeActions
+import { TOGGLE } from '../constants/TermsTree';
+import TermsTreeItem from './TermsTreeItem'; //TermsTreeItem
 
-class Rubricator extends Component {
+class TermsTree extends Component {
 
   componentDidMount() {
     this.props.actions.toggle();
-    //this.props.actions.getTermsTree();
   }
 
   componentWillReceiveProps(nextProps) {
     //subscribe fetch to props change
-    if (nextProps.terms && nextProps.terms.aux == 'toggle') {
-      this.props.dispatch(RubricatorActions.getTermsTree(
-          nextProps.terms.tagged_ids
+    if (nextProps.terms && nextProps.terms.action_type == TOGGLE) {
+      this.props.dispatch(TermsTreeActions.getTermsTree(
+          nextProps.terms.terms_tree.selected
       ));
     }
   }
@@ -24,13 +24,13 @@ class Rubricator extends Component {
     const { terms, actions } = this.props;
     let terms_tree = [];
     if (typeof terms.terms_tree !== 'undefined')
-      terms_tree = terms.terms_tree
+      terms_tree = terms.terms_tree.tree
 
     return (
     <div>
       <ul>
         {terms_tree.map(term =>
-          <RubricatorItem key={term.id} //TermsTreeItem
+          <TermsTreeItem key={term.id} //TermsTreeItem
                           term={term}
                           actions={actions}
                           />
@@ -49,10 +49,10 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators(RubricatorActions, dispatch),
+    actions: bindActionCreators(TermsTreeActions, dispatch),
     dispatch: dispatch
   };
 }
 
-export default connect(mapState, mapDispatch)(Rubricator);
+export default connect(mapState, mapDispatch)(TermsTree);
 

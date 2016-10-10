@@ -1,0 +1,213 @@
+
+
+/* ========== ПРОМОБЛОК (Лидеры продаж) ========== */
+
+.ex-promotion-list {
+  margin: 0;
+  padding: 0;
+
+
+  .ex-status, .ex-cart-btn-block, .ex-group-description, .ex-gradient {
+    display: none;
+  }
+
+}
+
+
+/*
+==================== Паджинация в промоблоке ====================
+*/
+
+.ex-promotion {
+   margin: 10px 0 30px;
+
+  header {
+    margin-bottom: @ex-catalog-item-vertical-gap;
+    overflow: hidden;
+  }
+
+  .ex-pagination {
+    margin: 0;
+
+    & > li {
+      display: none;
+      &.ex-prev, &.ex-next {
+        display: inherit;
+      }
+    }
+  }
+}
+
+/* Телефон */
+@media (max-width: @ex-screen-xs-max) {
+
+ .ex-promotion-pagination {
+    position: relative;
+    display: inline-block;
+    width: 100%!important;
+    text-align: left!important;
+    margin-top: 8px;
+  }
+}
+
+
+/*
+==================== КОЛИЧЕСТВО ТОВАРОВ КАТАЛОГ ====================
+*/
+
+.ex-catalog .ex-statistic {
+  top: 6px;
+  position: relative;
+  text-align: right;
+}
+
+.ex-promotion-title {
+  position: relative;
+  display: inline-block;
+  width: 60%;
+  float: left;
+
+  h3 {
+    margin: 5px 0 0 0;
+  }
+
+  .ex-divider {
+    padding: 0 floor((@padding-small-horizontal * 0.5));
+    color: @breadcrumbDividerColor;
+
+    &:before {
+      content: "/";
+    }
+  }
+
+}
+
+.ex-promotion-statistic {
+  position: relative;
+  display: inline-block;
+  width: 25%;
+  float: left;
+  text-align: right;
+  padding-top: 8px;
+}
+
+.ex-promotion-pagination {
+  position: relative;
+  display: inline-block;
+  width: 15%;
+  text-align: right;
+}
+
+.ex-promotion-list {
+  clear: both;
+  float: none;
+}
+
+/* ========== Описание товара ========== */
+
+.ex-publication-desc .ex-price {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 20px;
+}
+
+.ex-publication-desc .ex-price span {
+  font-size: 30px;
+}
+
+.ex-publication-desc .ex-quantity {
+  display: block;
+  margin: 5px 0;
+}
+
+.ex-publication-desc .ex-cart {
+  position: relative;
+  padding-left: 45px;
+  font-size: 14px;
+}
+
+
+.ex-publication-desc form {
+	margin: 10px 0 0 0;
+}
+
+.ex-publication-desc .ex-label {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 14px;
+  color: @ex-catalog-item-add-to-cart-btn-badge-color;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  vertical-align: baseline;
+  background-color: @ex-catalog-item-add-to-cart-btn-badge-bg;
+}
+
+
+.ex-panel {
+  margin-bottom: 20px;
+  background-color: @ex-catalog-item-bg;
+  border: 1px solid @ex-catalog-item-border;
+  border-radius: @ex-border-radius-base;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.ex-panel-body {
+  padding: 20px;
+}
+
+.ex-icons-content {
+  padding: 0px 20px;
+}
+
+/*
+.ex-publication-relations {
+  list-style: outside none;
+  padding: 0;
+  & > li {
+    margin-bottom: 10px;
+
+    &[data-tags~="hidden"] {
+      display: none;
+    }
+  }
+  ul {
+    list-style: outside none;
+  }
+}
+*/
+
+/*================= Category SEO ===================*/
+.ex-seo-wrapper {
+
+  .ex-seo-detail {
+    position: relative;
+    border-bottom: 1px dashed;
+    cursor: pointer;
+    .ex-icon-details {
+      left: -10px;
+    }
+  }
+
+  &.ex-state-collapsed {
+    .ex-icon-details {
+      left: -7px;
+    }
+    .ex-seo-content{
+        max-height: 0;
+        overflow: hidden;
+        position: relative;
+      /*display: none;*/
+    }
+  }
+
+  h3 {
+    padding-bottom: 0;
+  }
+
+  .ex-catalog-items {
+    margin-top: 10px;
+  }
+
+}

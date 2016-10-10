@@ -14,6 +14,7 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language_from_request
 
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
@@ -22,7 +23,7 @@ from polymorphic.base import PolymorphicModelBase
 
 from datetime import datetime
 
-#from ipware.ip import get_ip #todo: поставить и включить в зависимости
+from ipware import ip
 
 from . import deferred
 from .cache import add_cache_key, QuerySetCachedResultMixin
@@ -188,17 +189,17 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
                          models.Q(backward_relations__term__in=rel_f_ids))
         return self.filter(reduce(OR, q_lst)).distinct()
 
-    # def stored_request(self, request):
-    #     """
-    #     Extract useful information about the request to be used for emulating a Django request
-    #     during offline rendering.
-    #     """
-    #     return {
-    #         'language': get_language_from_request(request),
-    #         'absolute_base_uri': request.build_absolute_uri('/'),
-    #         'remote_ip': get_ip(request),
-    #         'user_agent': request.META.get('HTTP_USER_AGENT'),
-    #     }
+    def stored_request(self, request):
+        """
+        Extract useful information about the request to be used for emulating a Django request
+        during offline rendering.
+        """
+        return {
+            'language': get_language_from_request(request),
+            'absolute_base_uri': request.build_absolute_uri('/'),
+            'remote_ip': ip.get_ip(request),
+            'user_agent': request.META.get('HTTP_USER_AGENT'),
+        }
 
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
