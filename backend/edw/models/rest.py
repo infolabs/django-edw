@@ -33,19 +33,16 @@ class RESTOptions(object):
         return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
 
 
-# class RESTModelBaseMixin(object):
 class RESTModelBase(ModelBase):
     """
     Metaclass for REST models
     """
-    def __new__(mcs, name, bases, attrs):
+    def __new__(cls, name, bases, attrs):
         """
         Create subclasses of Model. This:
          - adds the RESTMeta fields to the class
         """
-
-
-        new = super(RESTModelBase, mcs).__new__(mcs, name, bases, attrs)
+        new = super(RESTModelBase, cls).__new__(cls, name, bases, attrs)
         # Grab `Model.RESTMeta`, and rename it `_rest_meta`
         RESTMeta = attrs.pop('RESTMeta', None)
         if not RESTMeta:
