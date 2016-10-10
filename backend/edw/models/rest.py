@@ -53,7 +53,6 @@ class RESTModelBase(ModelBase):
 
         # extend RESTMeta from base classes
         for base in bases:
-            print "BASE", base
             if hasattr(base, '_rest_meta'):
                 for name, value in base._rest_meta:
                     if name not in initial_options:
