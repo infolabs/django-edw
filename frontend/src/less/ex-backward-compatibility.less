@@ -1,0 +1,206 @@
+
+//
+// Variables
+// --------------------------------------------------
+
+@cartBadgeColor:          @_ex-brand-primary; @ex-brand-primary: @cartBadgeColor; // Цвет brand-primary вычисляем по цвету cartBadgeColor
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+@font-size-base:          @_ex-font-size-base; @ex-font-size-base: @font-size-base; // ~14px
+@font-size-large:         @_ex-font-size-large; @ex-font-size-large: @font-size-large; // ~18px
+@font-size-small:         @_ex-font-size-small; @ex-font-size-small: @font-size-small; // ~12px
+
+
+//** Unit-less `line-height` for use in components like buttons.
+@line-height-base:        @_ex-line-height-base; @ex-line-height-base: @line-height-base; // 20/14
+//** Computed "line-height" (`font-size` * `line-height`) for use with `margin`, `padding`, etc.
+@line-height-computed:    @_ex-line-height-computed; @ex-line-height-computed: @line-height-computed; // ~20px
+
+
+//== Components
+//
+//## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
+
+@padding-base-vertical:     @_ex-padding-base-vertical; @ex-padding-base-vertical: @padding-base-vertical;
+@padding-base-horizontal:   @_ex-padding-base-horizontal; @ex-padding-base-horizontal: @padding-base-horizontal;
+
+@padding-small-vertical:    @_ex-padding-small-vertical; @ex-padding-small-vertical: @padding-small-vertical;
+@padding-small-horizontal:  @_ex-padding-small-horizontal; @ex-padding-small-horizontal: @padding-small-horizontal;
+
+@border-radius-base:        @_ex-border-radius-base; @ex-border-radius-base: @border-radius-base;
+
+
+// Grays
+// -------------------------
+@black:                           @_ex-black; @ex-black: @black;
+@white:                           @_ex-white; @ex-white: @white;
+@grayDarker:                      @_ex-gray-darker; @ex-gray-darker: @grayDarker;
+@grayDark:                        @_ex-gray-dark; @ex-gray-dark: @grayDark;
+@gray:                            @_ex-gray; @ex-gray: @gray;
+@grayLight:                       @_ex-gray-light; @ex-gray-light: @grayLight;
+@grayLighter:                     @_ex-gray-lighter; @ex-gray-lighter: @grayLighter;
+
+
+// Accent colors
+// -------------------------
+@blue:                            @_ex-skyblue; @ex-skyblue: @blue;
+@blueDark:                        @_ex-blue; @ex-blue: @blueDark;
+@green:                           @_ex-green; @ex-green: @green;
+@red:                             @_ex-red; @ex-red: @red;
+@yellow:                          @_ex-yellow; @ex-yellow: @yellow;
+@orange:                          @_ex-orange; @ex-orange: @orange;
+@pink:                            @_ex-pink; @ex-pink: @pink;
+@purple:                          @_ex-purple; @ex-purple: @purple;
+
+
+
+// Navbar
+// -------------------------
+@navbarBackgroundLight:           @_ex-category-navbar-bg; @ex-category-navbar-bg: @navbarBackgroundLight;              // Цвет фона меню (нижний)
+@navbarBackgroundLightTopColor:   @navbarBackgroundLight;              // Цвет фона меню (верхний)
+@navbarBorderRadius:              @_ex-category-navbar-border-radius; @ex-category-navbar-border-radius: @navbarBorderRadius;                  // Скругление углов
+@navbarLinkColor:                 @_ex-category-navbar-item-color; @ex-category-navbar-item-color: @navbarLinkColor;           // Цвет ссылки пункта меню
+@navbarBackgroundHighlight:       @_ex-category-navbar-item-hover-bg; @ex-category-navbar-item-hover-bg: @navbarBackgroundHighlight;            // Цвет фона ссылки первого уровня при наведении
+@navbarLinkColorHover:            @_ex-category-navbar-item-hover-color; @ex-category-navbar-item-hover-color: @navbarLinkColorHover;               // Цвет ссылки пункта меню при наведении
+@navbarLinkColorActive:           @_ex-category-navbar-item-active-color; @ex-category-navbar-item-active-color: @navbarLinkColorActive;// Цвет ссылки активного пункта меню
+@navbarLinkBackgroundActive:      @_ex-category-navbar-item-active-bg; @ex-category-navbar-item-active-bg: @navbarLinkBackgroundActive;            // Цвет фона активного пункта меню
+@navbarLinkBackgroundActiveTop:   @navbarLinkBackgroundActive;            // Цвет фона активного пункта меню (верхний)
+
+@navbarLinkColorLight:            @_ex-category-navbar-item-color; @ex-category-navbar-item-color: @navbarLinkColorLight;              // Цвет ссылки пункта меню
+@navbarLinkColorLightHover:       @_ex-category-navbar-item-hover-color; @ex-category-navbar-item-hover-color: @navbarLinkColorLightHover;              // Цвет ссылки пункта меню при наведении
+
+@vetricalDividerColorLight:       @_ex-category-navbar-divider; @ex-category-navbar-divider: @vetricalDividerColorLight;              // Цвет разделителя
+@dropdownDividerColorLight:       @_ex-category-navbar-subitems-divider; @ex-category-navbar-subitems-divider: @dropdownDividerColorLight;              // Цвет горизонтального разделителя
+
+
+// navbar subitems
+// -------------------------
+@dropdownBackground:              @_ex-category-navbar-subitems-bg; @ex-category-navbar-subitems-bg: @dropdownBackground;               // Цвет выпадающего меню
+@dropdownBorder:                  @_ex-category-navbar-subitems-border; @ex-category-navbar-subitems-border: @dropdownBorder; // Цвет границы
+
+@dropdownLinkColor:               @_ex-category-navbar-subitem-color; @ex-category-navbar-subitem-color: @dropdownLinkColor;            // Цвет ссылок подменю
+@dropdownLinkColorHover:          @_ex-category-navbar-subitem-hover-color; @ex-category-navbar-subitem-hover-color: @dropdownLinkColorHover;               // Цвет ссылок подменю при наведении
+
+@dropdownLinkBackgroundHover:     @_ex-category-navbar-subitem-hover-bg; @ex-category-navbar-subitem-hover-bg: @dropdownLinkBackgroundHover;            // Цвет фона текущего пункта меню
+@dropdownLinkBackgroundActive:    @_ex-category-navbar-subitem-active-bg; @ex-category-navbar-subitem-active-bg: @dropdownLinkBackgroundActive;            // Цвет фона активного пункта
+
+
+// Breadcrumbs
+// -------------------------
+@breadcrumbBackground:            #f5f5f5;              // Цвет фона
+@breadcrumbBorderRadius:          @border-radius-base;                  // Скругление углов
+@breadcrumbLinkColorActive:       #333333;              // Цвет активного пункта
+@breadcrumbDividerColor:          #cccccc;              // Цвет разделителя
+@breadcrumbLinkActiveSize:        28px;                 // Размер шрифта заголовка
+@breadcrumbLinkActiveLineHeight:  28px;                 // Высота строки
+
+
+
+
+// Buttons
+// -------------------------
+
+@btnDefaultBackground:            @_ex-btn-default-bg; @ex-btn-default-bg: @btnDefaultBackground;               // Цвет фона кнопки
+@btnDefaultBorder:                @_ex-btn-default-border; @ex-btn-default-border: @btnDefaultBorder;              // Цвет бордера кнопки
+@btnDefaultTextColor:             @_ex-btn-default-color; @ex-btn-default-color: @btnDefaultTextColor;              // Цвет текста
+@btnDefaultBackgroundHover:       @_ex-btn-default-hover-bg; @ex-btn-default-hover-bg: @btnDefaultBackgroundHover;              // Цвет фона кнопки
+@btnDefaultBorderHover:           @_ex-btn-default-hover-border; @ex-btn-default-hover-border: @btnDefaultBorderHover;              // Цвет бордера кнопки
+@btnDefaultTextColorHover:        @_ex-btn-default-hover-color; @ex-btn-default-hover-color: @btnDefaultTextColorHover;              // Цвет текста
+
+
+@btnPrimaryBackground:            @_ex-btn-primary-bg; @ex-btn-primary-bg: @btnPrimaryBackground;              // Цвет фона кнопки
+@btnPrimaryBorder:                @_ex-btn-primary-border; @ex-btn-primary-border: @btnPrimaryBorder;              // Цвет бордера кнопки
+@btnPrimaryTextColor:             @_ex-btn-primary-color; @ex-btn-primary-color: @btnPrimaryTextColor;               // Цвет текста
+@btnPrimaryBackgroundHover:       @_ex-btn-primary-hover-bg; @ex-btn-primary-hover-bg: @btnPrimaryBackgroundHover;              // Цвет фона кнопки
+@btnPrimaryBorderHover:           @_ex-btn-primary-hover-border; @ex-btn-primary-hover-border: @btnPrimaryBorderHover;              // Цвет бордера кнопки
+@btnPrimaryTextColorHover:        @_ex-btn-primary-hover-color; @ex-btn-primary-hover-color: @btnPrimaryTextColorHover;               // Цвет текста
+
+
+@btnSecondaryBackground:          @orange;              // Цвет фона кнопки (нижний)
+@btnSecondaryBackgroundTop:       @orange;              // Цвет фона кнопки (верхний)
+@btnSecondaryBorder:              @orange;              // Цвет бордера кнопки
+@btnSecondaryTextColor:           @white;               // Цвет текста
+
+@btnSecondaryBackgroundHover:     @orange;              // Цвет фона кнопки (нижний)
+@btnSecondaryBackgroundTopHover:  @orange;              // Цвет фона кнопки (верхний)
+@btnSecondaryBorderHover:         @orange;              // Цвет бордера кнопки
+@btnSecondaryTextColorHover:      @white;               // Цвет текста
+
+
+// Rubricator
+// -------------------------
+@rubricatorBackground:            #ffffff;              // Цвет фона #f5f5f5
+@rubricatorTextColor:             @black;               // Цвет текста #000
+@rubricatorDivider:               #dddddd;
+
+@rubricatorBackgroundHover:       #f5f5f5;              // Цвет фона при наведении #eaeaea
+@rubricatorTextColorHover:        @black;               // Цвет текста при наведении #000
+
+@rubricatorBorderRadius:          @border-radius-base;                  // Скругление углов
+@rubricatorBorderColor:           #dddddd;
+
+@rubricatorInputBackground:       #ffffff;                 // Цвет фона инпута
+@rubricatorInputBorderColor:      #888888;
+@rubricatorInputTextColor:        #333333;              // Цвет текста инпута
+@rubricatorInputTextShadow:       1px 1px 1px rgba(0, 0, 0, .2);  // Цвет тени 1px 1px 1px rgba(0, 0, 0, .2)
+
+@rubricatorInputDotDefaultColor:  rgba(0,0,0,0.2); // Цвет точки по-умолчанию
+@rubricatorInputDotDefaultShadow: 1px 1px 1px rgba(0, 0, 0, 0); // Цвет тени 1px 1px 1px rgba(0, 0, 0, .2)
+
+
+// Baloon
+// -------------------------
+@baloonBackground:                @_ex-catalog-item-characteristics-bg; @ex-catalog-item-characteristics-bg: @baloonBackground;               // Цвет фона #fff
+@baloonTextColor:                 @_ex-catalog-item-characteristics-color; @ex-catalog-item-characteristics-color: @baloonTextColor;               // Цвет текста
+
+@baloonBorderRadius:              @_ex-catalog-item-characteristics-border-radius; @ex-catalog-item-characteristics-border-radius: @baloonBorderRadius;                  // Скругление углов
+
+@baloonArrowColor:                @_ex-catalog-item-characteristics-arrow-bg; @ex-catalog-item-characteristics-arrow-bg: @baloonArrowColor;               // Цвет стрелочки #fff
+@baloonArrowBackColor:            @_ex-catalog-item-characteristics-arrow-border; @ex-catalog-item-characteristics-arrow-border: @baloonArrowBackColor;                 // Цвет тени стрелочки
+@baloonBorderColor:               @_ex-catalog-item-characteristics-border; @ex-catalog-item-characteristics-border: @baloonBorderColor;                 // Цвет бордера #eee
+
+
+// Publications
+// -------------------------
+@publicationBackground:               @_ex-catalog-item-bg; @ex-catalog-item-bg: @publicationBackground;    // Цвет фона
+@publicationBackgroundHover:          @_ex-catalog-item-hover-bg; @ex-catalog-item-hover-bg: @publicationBackgroundHover;              // Цвет фона при наведении
+@publicationBorder:                   @_ex-catalog-item-border; @ex-catalog-item-border: @publicationBorder;              // Цвет бордера
+@publicationBorderHover:              @_ex-catalog-item-hover-border; @ex-catalog-item-hover-border: @publicationBorderHover;              // Цвет бордера при наведении
+
+@publicationBorderRadius:             @_ex-catalog-item-border-radius; @ex-catalog-item-border-radius: @publicationBorderRadius;  // Скругление углов
+@publicationDigitBackground:          @_ex-catalog-item-variants-badge-bg; @ex-catalog-item-variants-badge-bg: @publicationDigitBackground;
+
+@ex-delivery:                     @_ex-catalog-item-delivery-color; @ex-catalog-item-delivery-color: @ex-delivery;           // Цвет под заказ
+@ex-in-stock:                     @_ex-catalog-item-in-stock-color; @ex-catalog-item-in-stock-color: @ex-in-stock;               // Цвет в наличии
+@ex-sold-out:                     @_ex-catalog-item-sold-out-color; @ex-catalog-item-sold-out-color: @ex-sold-out;                 // Цвет нет в наличии
+@ex-unit-divider:                 @_ex-catalog-item-unit-divider-color; @ex-catalog-item-unit-divider-color: @ex-unit-divider;           // Цвет разделителя
+
+// Pagination
+// -------------------------
+@paginationBackground:            @white;               // Цвет фона
+@paginationBackgroundHover:       #eee;                 // Цвет фона при наведении
+@paginationBorder:                #eee;                 // Цвет бордера
+@paginationBorderRadius:          @border-radius-base;                  // Скругление углов
+
+@paginationBackgroundActive:      @blueDark;            // Цвет фона активной страницы
+@paginationBorderActive:          @blueDark;            // Цвет бордера активной страницы
+@paginationTextColorActive:       @white;               // Цвет текста активной страницы
+
+@paginationBackgroundDisabled:    @white;               // Цвет фона неактивной стрелки
+@paginationBorderDisabled:        #ddd;                 // Цвет бордера неактивной стрелки
+@paginationTextColorDisabled:     @grayLight;                 // Цвет неактивной стрелки
+
+
+// Tabs
+// -------------------------
+@tabsBorderColor:                 #ddd;
+@tabsBorderRadius:                @border-radius-base;
+
+@tabsLinkHoverBorderColor:        @grayLighter;
+
+@tabsActiveLinkHoverBg:           #eeeeee;
+@tabsActiveLinkHoverColor:        @gray;
+@tabsActiveLinkHoverBorderColor:  #ddd;
+

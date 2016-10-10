@@ -1,0 +1,408 @@
+
+/*
+==================== ОБЩИЕ СТИЛИ ====================
+*/
+
+.footer .dev {
+  text-align: right;
+  .ex-opacity(.5);
+  color: #ababab;
+}
+
+.footer .dev:hover {
+  .ex-opacity(1);
+}
+
+.excentrics-link {
+  top: -8px;
+  position: relative;
+  display: inline-block;
+}
+
+*, *:before, *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+ul.ex-inline, ol.ex-inline {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+ul.ex-inline > li, ol.ex-inline > li {
+  display: inline-block;
+  padding: 0;
+}
+
+.ex-close {
+  float: right;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #000;
+  background: transparent;
+  .ex-opacity(.2);
+
+  text-decoration: none;
+  border: 0;
+  outline: 0;
+}
+
+.ex-dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.ex-collapse {
+  height: 0;
+  overflow: hidden;
+  position: relative;
+  /* transition: height 0.35s ease 0s; */
+}
+
+.ex-disabled, .ex-disabled:hover, .ex-disabled:focus {
+  color: @paginationTextColorDisabled;
+  cursor: not-allowed;
+  background-color: @paginationBackgroundDisabled;
+  border-color: @paginationBorderDisabled;
+}
+
+/* ========== Таблицы ========== */
+
+.ex-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-color: #808080;
+}
+
+.ex-table>thead>tr>th, .ex-table>tbody>tr>th, .ex-table>tfoot>tr>th {
+  vertical-align: top;
+  border-bottom: 1px solid #DDD;
+  padding: 8px;
+  line-height: 1.4;
+}
+
+.ex-table>thead>tr>td, .ex-table>tbody>tr>td, .ex-table>tfoot>tr>td {
+  padding: 8px;
+  line-height: 1.42;
+  vertical-align: middle;
+  border-top: 1px solid #DDD;
+}
+
+th {
+  text-align: left;
+  font-weight: bold;
+}
+
+.ex-table>thead:first-child>tr:first-child>th {
+  border-top: 0;
+}
+
+.ex-table tbody + tbody { border-top: 0; }
+
+.ex-tab-chars {
+  width: 70%;
+}
+
+/* ========== Иконки ========== */
+
+[class^="ex-icon-"]:before, [class*=" ex-icon-"]:before {
+  display: inline-block;
+  text-decoration: inherit;
+}
+
+[class^="ex-icon-"], [class*=" ex-icon-"] {
+  background-image: none;
+  background-position: 0 0;
+  background-repeat: repeat;
+  display: inline;
+  height: auto;
+  line-height: normal;
+  margin-top: 0;
+  vertical-align: baseline;
+  width: auto;
+}
+
+[class^="ex-icon-"], [class*=" ex-icon-"] {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+}
+
+.ex-icon-caret-down:before,
+.ex-icon-details.ex-expand:before {
+  content: "";
+}
+
+.ex-icon-caret-right:before,
+.ex-icon-caret:before,
+.ex-icon-details:before,
+.ex-state-collapsed .ex-icon-details:before {
+  content: "";
+}
+
+.ex-icon-cart:before {
+  content: "\f07a";
+}
+
+.ex-icon-group:before {
+  content: "\f07c";
+}
+
+.ex-icon-question:before {
+  content: "\f05a";
+}
+
+.ex-icon-question {
+  cursor: pointer;
+  .ex-opacity(.5);
+}
+
+.ex-icon-question:hover {
+  cursor: pointer;
+  .ex-opacity(1);
+}
+
+.ex-icon-chevron-left:before {
+  content: "\f053";
+}
+
+.ex-icon-chevron-right:before {
+  content: "\f054";
+}
+
+.ex-icon-minus:before {
+  content: "\f068";
+}
+
+.ex-icon-plus:before {
+  content: "\f067";
+}
+
+.ex-icon-arrow-right:before {
+  content: "\f061";
+}
+
+.ex-icon-reset:before {
+  content: "\f057";
+}
+
+.ex-icon-reset {
+  cursor: pointer;
+  .ex-opacity(.5);
+}
+
+.ex-icon-reset:hover {
+  cursor: pointer;
+  .ex-opacity(1);
+}
+
+.captcha {
+  display: block;
+  padding: 4px;
+  margin-top: 5px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.up-button {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  background: #F5F5F5;
+  padding: 1px 7px 3px;
+  cursor: pointer;
+  color: @black;
+  border: 1px solid #ddd;
+  display: none;
+}
+
+.up-button:hover, .up-button:focus {
+  text-decoration: none;
+}
+
+.form-search {
+  .input-group {
+    #query-input {
+      padding-right: 30px;
+    }
+    .erase {
+      cursor: pointer;
+      opacity: 0.6;
+      position: absolute;
+      right: 10px;
+      top: 4px;
+      z-index: 3;
+      &:hover {
+        opacity: 1;
+      }
+      &.hide {
+        display: none;
+      }
+    }
+  }
+  .ac-results {
+    display: block;
+    &.hide {
+      display: none;
+    }
+    max-height: 400px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    top: 33px;
+    left: 0;
+    z-index: @ex-zindex-catalog-item-characteristics;
+    border: 1px solid @dropdownBorder;
+    background: @dropdownBackground;
+    .result-wrapper {
+      &:last-child {
+        border-bottom: 0 none;
+      }
+      width: 100%;
+      font-size: 12px;
+      line-height: 14px;
+      padding: 3px 7px;
+      border-bottom: 1px dashed @dropdownBorder;
+      color: @dropdownLinkColor;
+      a {
+        color: @dropdownLinkColor;
+      }
+      &:hover {
+        color: @dropdownLinkColorHover;
+        background: @dropdownLinkBackgroundHover;
+        a {
+          color: @dropdownLinkColorHover;
+        }
+      }
+    }
+  }
+}
+
+.search-result {
+  .highlight {
+    border-bottom: 1px dashed;
+  }
+}
+
+.flexslider .cut-img-center {
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+
+.flexslider .slides img, .flexslider .cut-img {
+  display: inline!important;
+  width: auto!important;
+  max-width: 100%;
+}
+
+div[itemtype="http://schema.org/Article"], div[itemtype="http://schema.org/WebSite"], div[itemtype="http://schema.org/WebPage"] {
+  width: 100%;
+  overflow: hidden;
+}
+
+// hack for pluso
+body>iframe {
+  position: absolute;
+}
+
+.form-search-result .input-group-addon {
+  padding: 5px 12px;
+  select {
+    background: #eeeeee;
+    border: 0 none;
+  }
+}
+
+
+/**
+ * Interview
+ */
+.interview-info {
+  .panel {
+    margin-top: 15px;
+    margin-bottom: 5px;
+  }
+}
+
+/**
+ * Quiz
+ */
+
+.quiz-wrapper {
+  &.ex-state-default {
+    .quiz {
+      display: none;
+    }
+  }
+
+  .quiz {
+    .panel {
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    h3 {
+      margin-top: 10px;
+    }
+  }
+
+  .dev {
+    opacity: 0.5;
+    font-size: 12px;
+    margin-bottom: 20px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    .excentrics-link {
+      top: -12px;
+      left: 8px;
+      position: relative;
+      display: inline-block;
+
+      a {
+        color: #333333;
+      }
+    }
+
+    .excentrics-power {
+      top: -12px;
+      left: 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    .excentrics-logo {
+      display: inline-block;
+      margin-left: 9px;
+    }
+  }
+
+  .label {
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    display: inline-block;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 39px 15px;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+}

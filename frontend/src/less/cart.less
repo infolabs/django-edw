@@ -1,0 +1,138 @@
+/*
+==================== КОРЗИНА ====================
+*/
+
+
+/* ========== Страница корзины ========== */
+
+
+.ex-line-total, .ex-line-extra-price {
+  font-size: 11px;
+}
+
+.ex-line-total td {
+  border: 0;
+  padding: 0 8px 8px 8px;
+}
+
+.ex-line-extra-price td {
+  border: 0;
+  padding: 0 8px 0 8px;
+}
+
+
+.ex-cart-form {
+  .ex-delete {
+    margin-top: -2px;
+    float: right;
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 20px;
+    color: #000;
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0);
+    border: 0;
+    outline: 0;
+    .ex-opacity(.2);
+  }
+
+  .ex-delete:hover {
+    color: #F00;
+    text-decoration: none;
+    border-bottom: 0;
+    .ex-opacity(1);
+  }
+}
+
+
+/*
+.ex-cart-form .ex-price *:first-child, .ex-cart-form .ex-step {
+  margin-right: floor((@padding-xs-horizontal * 0.5));
+}
+*/
+
+.ex-cart-form .ex-price .ex-divider {
+  padding-left: floor((@padding-small-horizontal * 0.5));
+  padding-right: floor((@padding-small-horizontal * 0.5));
+  color: @ex-unit-divider;
+  font-size: @font-size-small;
+}
+
+.ex-cart-form .ex-price .ex-divider:before {
+  content: "/";
+}
+
+.ex-cart-form td img {
+  max-width: 80px;
+  min-width: 60px;
+}
+
+.ex-cart-form .ex-input-mini {
+  max-width: 50px;
+}
+
+.ex-btn-toolbar {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.ex-input-append, .ex-input-prepend {
+  margin-bottom: 0;
+}
+
+.ex-order-address {
+  white-space: pre-wrap;
+}
+
+.ex-input-append input, .ex-input-prepend input {
+  position: relative;
+  margin-bottom: 0;
+  vertical-align: top;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+}
+
+.ex-input-append, .ex-input-prepend {
+  display: inline-block;
+  font-size: 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ex-input-mini {
+  width: 60px;
+}
+
+.ex-input-append .ex-btn {
+  margin-left: -1px;
+}
+
+.ex-input-prepend.ex-input-append input {
+  border-radius: 0;
+}
+
+.ex-input-prepend.ex-input-append .ex-btn:first-child {
+  margin-right: -1px;
+  border-radius: 4px 0 0 4px;
+}
+
+.ex-input-prepend.ex-input-append .ex-btn:last-child {
+  margin-left: -1px;
+  border-radius: 0 4px 4px 0;
+}
+
+.ex-btn.ex-disabled, .ex-btn.ex-disabled:hover, .ex-btn.ex-disabled:focus {
+  color: @paginationTextColorDisabled;
+  cursor: not-allowed;
+  background-color: @paginationBackgroundDisabled;
+  border-color: @paginationBorderDisabled;
+}
+
+.ex-input-prepend.ex-input-append .ex-btn {
+  font-size: 13px;
+}
+
+.ex-input-prepend.ex-input-append input[type="text"] {
+  padding: 7px 6px 7px;
+}

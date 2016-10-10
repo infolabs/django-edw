@@ -1,0 +1,33 @@
+/*
+==================== ХЛЕБНЫЕ КРОШКИ ====================
+*/
+
+.ex-breadcrumb {
+  padding: 8px 15px;
+  margin-bottom: 20px;
+  margin-left: 0;
+  list-style: none;
+  background-color: @breadcrumbBackground;
+  border-radius: @breadcrumbBorderRadius;
+  font-size: 12px;
+
+  & > li {
+    display: inline-block;
+    & > .ex-divider {
+      padding: 0 floor((@padding-small-horizontal * 0.5));
+      color: @breadcrumbDividerColor;
+
+      &:before {
+        content: "/";
+      }
+    }
+  }
+
+  & > .ex-active {
+    color: @breadcrumbLinkColorActive;
+    display: block;
+    font-size: @breadcrumbLinkActiveSize;
+    line-height: @breadcrumbLinkActiveLineHeight;
+  }
+
+}

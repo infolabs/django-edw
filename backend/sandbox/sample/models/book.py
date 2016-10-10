@@ -37,6 +37,9 @@ class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
         verbose_name = _("Book")
         verbose_name_plural = _("Books")
 
+    class RESTMeta:
+          exclude = ['images']
+
     objects = BookManager()
 
     # filter expression used to lookup for a book item using the Select2 widget
@@ -68,7 +71,7 @@ class ChildBook(Book):
         verbose_name_plural = _("Child books")
 
     class RESTMeta:
-        exclude = ['age']
+        exclude = ['age', 'images']
 
 
 class AdultBook(Book):
@@ -83,3 +86,6 @@ class AdultBook(Book):
     class Meta:
         verbose_name = _("Adult book")
         verbose_name_plural = _("Adult books")
+
+    class RESTMeta:
+        exclude = ['genre', 'images']
