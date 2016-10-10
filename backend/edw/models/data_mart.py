@@ -181,8 +181,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank"))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
 
-    terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True,
-                                     help_text=_("""Use "ctrl" key for choose multiple terms"""))
+    terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
