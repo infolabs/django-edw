@@ -280,7 +280,7 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase):
                 field.contribute_to_class(Model, attrname)
             else:
                 deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
-        cls.perform_model_checks(Model)
+        Model.perform_model_checks(Model)
         return Model
 
     @classmethod

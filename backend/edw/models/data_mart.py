@@ -80,7 +80,7 @@ class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuery
 
 class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
     """
-    The BaseTerm class must refer to their materialized model definition, for instance when
+    The BaseDataMart class must refer to their materialized model definition, for instance when
     accessing its model manager.
     """
     def __new__(cls, name, bases, attrs):

@@ -67,6 +67,9 @@ class ChildBook(Book):
         verbose_name = _("Child book")
         verbose_name_plural = _("Child books")
 
+    class RESTMeta:
+        exclude = ['age']
+
 
 class AdultBook(Book):
     GENRES = (
