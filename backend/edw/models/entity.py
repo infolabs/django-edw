@@ -33,6 +33,7 @@ from .related import (
     EntityRelationModel,
     EntityRelatedDataMartModel
 )
+from .rest import RESTModelBase
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
 from ..utils.hash_helpers import hash_unsorted_list
@@ -225,7 +226,7 @@ class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
         return self.active()
 
 
-class PolymorphicEntityMetaclass(PolymorphicModelBase):
+class PolymorphicEntityMetaclass(PolymorphicModelBase, RESTModelBase):
     """
     The BaseEntity class must refer to their materialized model definition, for instance when
     accessing its model manager. Since polymoriphic object classes, normally are materialized
