@@ -426,3 +426,5 @@ WEBPACK_LOADER = {
         'IGNORE': ['.+\.hot-update.js', '.+\.map']
     }
 }
+
+JS_REVERSE_JS_MINIFY = False
