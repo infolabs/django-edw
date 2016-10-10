@@ -1,35 +1,89 @@
-import { GET_TERMS_TREE, TOGGLE, TAG_TREE } from '../constants/RubricatorActionTypes';
-import { getTermsTree } from '../actions/RubricatorActions';
+import { GET_TERMS_TREE, 
+         TOGGLE,
+         TAG_TREE,
+         SEMANTIC_RULE_OR,
+         SEMANTIC_RULE_XOR,
+         SEMANTIC_RULE_AND,
+         STANDARD_SPECIFICATION,
+         } from '../constants/TermsTree';
+import { getTermsTree } from '../actions/TermsTreeActions';
 
 
-class TermModel {
+class TermTreeModel {
 
-  constructor() {
+  constructor(json, selected = []) {
+    this.json = json;
+    this.hash_table = {};
+    this.selected = selected;
+    this.tree = this.json2tree(json, {}, this);
+  }
+
+  json2tree(json, parent = {}, self) {
+    let tree = [];
+    json.forEach(function (child) {
+      let item = new TermTreeItemModel(
+        {"id": child.id,
+         "name": child.name,
+         "slug": child.slug,
+         "tagged": (self.selected.indexOf(child.id) > -1),
+         "semantic_rule": child.semantic_rule,
+         "is_leaf": child.is_leaf,
+         "parent": parent,
+        }
+      );
+      item.children = self.json2tree(child.children, item, self);
+      self.hash_table[item.id] = item;
+      tree.push(item);
+    });
+    return tree;
+  }
+
+  toggle(toggled_item_id = -1) {
+    let tree = this.tree;
+    if (tree && tree.length > 0 && toggled_item_id && toggled_item_id > 0) {
+      let item = this.hash_table[toggled_item_id];
+      if(item)
+        item.toggle();
+    }
+    this.selected = this.taggedIds(tree);
+    return tree;
+  }
+
+  taggedIds(tree = []) {
+    let ids = [];
+    for (let i = 0; i < tree.length; i++) {
+      let child = tree[i];
+      if (child.tagged)
+        ids.push(child.id);
+      ids = [...ids, ...this.taggedIds(child.getChildren())];
+    }
+    return ids;
+  }
+}
+
+class TermTreeItemModel {
+
+  constructor(options) {
     this.id = -1;
     this.name = '';
     this.slug = '';
     this.tagged = false;
-    // Method must be "hierarchy", "facet" or "determinant"
-
-    // SEMANTIC_RULE_XOR=20, SEMANTIC_RULE_AND=30, SEMANTIC_RULE_OR=10 - вынести в константы
-
-    this.method = 'determinant'; // SEMANTIC_RULE_AND
-    this.branch = false; // Использовать `structure`
-    this.trunk = false; // --//--
-    this.has_extra = false; // Использовать `specification_mode`
-
-    // Было бы круто что-то типа
-    // Object.assign(this, {
-    // "slug": '',
-    // "name": ''...})
-
-
-    this.short_description = null; // todo: Яровому допилить в сериалайзер
-    this.tags = null; // теперь `view_class`
-    this.description = null;
+    this.semantic_rule = SEMANTIC_RULE_AND;
+    this.specification_mode = STANDARD_SPECIFICATION;
+    this.is_leaf = true;
+    this.short_description = '';
     this.currentState = 'ex-state-default';
+    this.view_class = '';
+    this.description = '';
     this.parent = {};
-    this.children = [];
+    this.children = {};
+
+    //this.short_description = null; // todo: Яровому допилить в сериалайзер
+    //this.branch = false; // Использовать `structure`
+    //this.trunk = false; // --//-- НЕТ ТАКОГО ПОЛЯ
+
+    Object.assign(this, options);
+
   }
 
   getParent() {
@@ -62,7 +116,7 @@ class TermModel {
     if ( typeof this._isChildrenTaggedCache === 'undefined' ) {
       let children = this.getChildren();
 
-      if (this.method == 'determinant') {
+      if (this.semantic_rule == SEMANTIC_RULE_XOR) {
         children.forEach(function (child) {
           return child.tagged && child.isChildrenTagged();
         });
@@ -82,7 +136,7 @@ class TermModel {
 
   toggle_tree() {
     if (this.tagged) {
-      if (this.method == 'facet') {
+      if (this.semantic_rule == SEMANTIC_RULE_OR) {
         this.getSiblings().forEach(function (item) {
             item.unTag();
         });
@@ -107,96 +161,26 @@ class TermModel {
 }
 
 
-function json2tree(json, parent = {}, selected = []) { // hash_table={}
-  let tree = [];
-  json.forEach(function (child) {
-    let item = new TermModel(); // item = TermModel({ id = id, ...  вообщем чтобы модно и молодежно на ES6})
-    item.id = child.id;
-    item.name = child.name;
-    item.slug = child.slug;
-    if (selected.indexOf(item.id) > -1)
-      item.tagged = true;
-    switch (child.semantic_rule) {
-      case 10:
-        item.method = 'facet'; // Брать из констант
-        break;
-      case 20:
-        item.method = 'determinant';
-        break;
-      case 30:
-        item.method = 'hierarchy';
-        break;
-    }
-    item.branch = child.is_leaf; //  Использовать `structure`
-    item.trunk = !child.is_leaf;
-    item.parent = parent;
-    item.children = json2tree(child.children, item, selected); // hash_table
-    tree.push(item);
-  });
-  return tree;
-}
-
-
-function findItemById(tree, item_id) { // Сохраняй общий список пар ключ:объект в hash_table при парсе json2tree
-// ... храни в tree.hash_table
- // return tree.hash_table[item_id] // -1 не нужен, вернет Undefined
-
-  for (let i = 0; i < tree.length; i++) {
-    let child = tree[i],
-        ret = -1;
-    if (child.id == item_id)
-      return child;
-    else
-      ret = findItemById(child.getChildren(), item_id);
-    if (ret != -1)
-      return ret;
-  }
-  return -1;
-}
-
-
-function toggleTree(tree = [], toggled_item_id = -1) {
-  if (tree && tree.length > 0 && toggled_item_id && toggled_item_id > 0) {
-    let item = findItemById(tree, toggled_item_id);
-    if (item != -1) {
-      item.toggle();
-    }
-  }
-  return tree;
-}
-
-function taggedIds(tree = []) {
-  let ids = [];
-  for (let i = 0; i < tree.length; i++) {
-    let child = tree[i];
-    if (child.tagged)
-      ids.push(child.id);
-    ids = [...ids, ...taggedIds(child.getChildren())];
-  }
-  return ids;
-}
-
 const initialState = {};
 
 export default function terms(state = initialState, action) {
   switch (action.type) {
 
   case GET_TERMS_TREE:
-    let tree1 = json2tree([...action.json], {}, action.selected),
-        tagged_ids1 = taggedIds(tree1);
     return {
-      terms_tree: tree1,
-      aux: 'get_tree',
-      tagged_ids: tagged_ids1,
+      terms_tree: new TermTreeModel(action.json, action.selected),
+      action_type: GET_TERMS_TREE,
     };
 
   case TOGGLE:
-    let tree2 = [...toggleTree(state.terms_tree, action.term.id)],
-        tagged_ids2 = taggedIds(tree2);
+    let tree = {tree: [], selected: []};
+    if (state.terms_tree) {
+      tree = state.terms_tree;
+      tree.toggle(action.term.id);
+    }
     return {
-      terms_tree: tree2,
-      aux: 'toggle',
-      tagged_ids: tagged_ids2,
+      terms_tree: tree,
+      action_type: TOGGLE
     };
 
   default:

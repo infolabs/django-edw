@@ -1,0 +1,481 @@
+//
+// Variables
+// --------------------------------------------------
+
+
+//== Colors
+//
+//## Gray, Black, White
+
+@ex-black:                  @_ex-black; @_ex-black: #000;
+@ex-white:                  @_ex-white; @_ex-white: #fff;
+
+@ex-gray-base:              @ex-black;
+
+@ex-gray-darker:            @_ex-gray-darker; @_ex-gray-darker: lighten(@ex-gray-base, 13.5%); // #222
+@ex-gray-dark:              @_ex-gray-dark; @_ex-gray-dark: lighten(@ex-gray-base, 20%);   // #333
+@ex-gray:                   @_ex-gray; @_ex-gray: lighten(@ex-gray-base, 33.5%); // #555
+@ex-gray-light:             @_ex-gray-light; @_ex-gray-light: lighten(@ex-gray-base, 46.7%); // #777
+@ex-gray-lighter:           @_ex-gray-lighter; @_ex-gray-lighter: lighten(@ex-gray-base, 93.5%); // #eee
+
+//## Palette
+@ex-red:                    @_ex-red; @_ex-red: #be0007;
+@ex-brown:                  @_ex-brown; @_ex-brown: #8B4513;
+@ex-beige:                  @_ex-beige; @_ex-beige: #F5F5DC;
+@ex-yellow:                 @_ex-yellow; @_ex-yellow: #ffc40d;
+@ex-orange:                 @_ex-orange; @_ex-orange: #f57f25;
+@ex-lightgreen:             @_ex-lightgreen; @_ex-lightgreen: #7CFC00;
+@ex-green:                  @_ex-green; @_ex-green: #46a546;
+@ex-skyblue:                @_ex-skyblue; @_ex-skyblue: #2a9dd6;
+@ex-blue:                   @_ex-blue; @_ex-blue: #0064cd;
+@ex-fuchsia:                @_ex-fuchsia; @_ex-fuchsia: #FF1493;
+@ex-pink:                   @_ex-pink; @_ex-pink: #c3325f;
+@ex-purple:                 @_ex-purple; @_ex-purple: #7a43b6;
+
+
+
+//## Brand colors
+
+@ex-brand-primary:         @_ex-brand-primary; @_ex-brand-primary: #337ab7;
+@ex-brand-accent:          darken(@ex-brand-primary, 15%);
+
+
+
+@ex-brand-success:         #5cb85c;
+
+/*
+@ex-brand-info:            #5bc0de;
+
+@ex-brand-warning:         #f0ad4e;
+*/
+
+@ex-brand-danger:          #d9534f;
+
+
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+/*
+@font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+//** Default monospace fonts for `<code>`, `<kbd>`, and `<pre>`.
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+@font-family-base:        @font-family-sans-serif;
+*/
+
+@ex-font-size-base:       @_ex-font-size-base; @_ex-font-size-base: 14px;
+@ex-font-size-large:      @_ex-font-size-large; @_ex-font-size-large: ceil((@ex-font-size-base * 1.25)); // ~18px
+@ex-font-size-small:      @_ex-font-size-small; @_ex-font-size-small: ceil((@ex-font-size-base * 0.85)); // ~12px
+@ex-font-size-xs:         @_ex-font-size-xs; @_ex-font-size-xs: ceil((@ex-font-size-base * 0.75)); // ~10px
+
+/*
+@ex-font-size-h1:            floor((@ex-font-size-base * 2.6)); // ~36px
+@ex-font-size-h2:            floor((@ex-font-size-base * 2.15)); // ~30px
+@ex-font-size-h3:            ceil((@ex-font-size-base * 1.7)); // ~24px
+@ex-font-size-h4:            ceil((@ex-font-size-base * 1.25)); // ~18px
+@ex-font-size-h5:            @ex-font-size-base;
+@ex-font-size-h6:            ceil((@ex-font-size-base * 0.85)); // ~12px
+*/
+
+//** Unit-less `line-height` for use in components like buttons.
+@ex-line-height-base:     @_ex-line-height-base; @_ex-line-height-base: 1.428571429; // 20/14
+//** Computed "line-height" (`font-size` * `line-height`) for use with `margin`, `padding`, etc.
+@ex-line-height-computed: @_ex-line-height-computed; @_ex-line-height-computed: floor((@ex-font-size-base * @ex-line-height-base)); // ~20px
+
+/*
+//** By default, this inherits from the `<body>`.
+@headings-font-family:    inherit;
+@headings-font-weight:    500;
+@headings-line-height:    1.1;
+@headings-color:          inherit;
+*/
+
+
+//== Components
+//
+//## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
+
+
+@ex-padding-base-vertical:     @_ex-padding-base-vertical; @_ex-padding-base-vertical: 6px;
+@ex-padding-base-horizontal:   @_ex-padding-base-horizontal; @_ex-padding-base-horizontal: 12px;
+
+//@ex-padding-large-vertical:    10px;
+@ex-padding-large-horizontal:  16px;
+
+@ex-padding-small-vertical:    @_ex-padding-small-vertical; @_ex-padding-small-vertical: 5px;
+@ex-padding-small-horizontal:  @_ex-padding-small-horizontal; @_ex-padding-small-horizontal: 10px;
+
+@ex-padding-xs-vertical:       1px;
+@ex-padding-xs-horizontal:     5px;
+
+@ex-padding-xxs-horizontal:    2px;
+
+/*
+@ex-line-height-large:         1.3333333; // extra decimals for Win 8.1 Chrome
+@ex-line-height-small:         1.5;
+*/
+
+@ex-border-radius-base:        @_ex-border-radius-base; @_ex-border-radius-base: 4px;
+
+
+//== Media queries breakpoints
+//
+//## Define the breakpoints at which your layout will change, adapting to different screen sizes.
+
+// Extra small screen / phone
+
+// Small screen / tablet
+@ex-screen-sm-min:             768px;
+
+// Medium screen / desktop
+@ex-screen-md-min:             992px;
+
+// Large screen / wide desktop
+@ex-screen-lg-min:             1200px;
+
+// So media queries don't overlap when required, provide a maximum
+@ex-screen-xs-max:             (@ex-screen-sm-min - 1);
+@ex-screen-sm-max:             (@ex-screen-md-min - 1);
+@ex-screen-md-max:             (@ex-screen-lg-min - 1);
+
+
+//== Grid system
+//
+//## Define your custom responsive grid.
+
+//** Padding between columns. Gets divided in half for the left and right.
+@ex-grid-gutter-width:                         30px;
+
+
+//** Disabled cursor for form controls and buttons.
+@ex-cursor-disabled:                           not-allowed;
+
+
+//== Buttons
+//
+//## For each of buttons, define text, background and border color.
+
+@ex-btn-font-weight:             normal;
+
+
+@ex-btn-default-bg:              @_ex-btn-default-bg; @_ex-btn-default-bg: @ex-white;
+@ex-btn-default-color:           @_ex-btn-default-color; @_ex-btn-default-color: screen(contrast(@ex-btn-default-bg, @ex-black, @ex-white, 50%), @ex-gray-dark);
+@ex-btn-default-border:          @_ex-btn-default-border; @_ex-btn-default-border: darken(@ex-btn-default-bg, 20%);
+@ex-btn-default-hover-bg:        @_ex-btn-default-hover-bg; @_ex-btn-default-hover-bg: darken(@ex-btn-default-bg, 10%);
+@ex-btn-default-hover-color:     @_ex-btn-default-hover-color; @_ex-btn-default-hover-color: @ex-btn-default-color;
+@ex-btn-default-hover-border:    @_ex-btn-default-hover-border; @_ex-btn-default-hover-border: darken(@ex-btn-default-border, 12%);
+
+@ex-btn-primary-bg:              @_ex-btn-primary-bg; @_ex-btn-primary-bg: @ex-brand-primary;
+@ex-btn-primary-color:           @_ex-btn-primary-color; @_ex-btn-primary-color: contrast(@ex-brand-primary, @ex-black, @ex-white, 50%);
+@ex-btn-primary-border:          @_ex-btn-primary-border; @_ex-btn-primary-border: darken(@ex-btn-primary-bg, 5%);
+@ex-btn-primary-hover-bg:        @_ex-btn-primary-hover-bg; @_ex-btn-primary-hover-bg: @ex-brand-accent;
+@ex-btn-primary-hover-color:     @_ex-btn-primary-hover-color; @_ex-btn-primary-hover-color: contrast(@ex-brand-accent, @ex-black, @ex-white, 50%);
+@ex-btn-primary-hover-border:    @_ex-btn-primary-hover-border; @_ex-btn-primary-hover-border: darken(@ex-brand-accent, 12%);
+
+/*
+@btn-success-color:              #fff;
+@btn-success-bg:                 @brand-success;
+@btn-success-border:             darken(@btn-success-bg, 5%);
+
+@btn-info-color:                 #fff;
+@btn-info-bg:                    @brand-info;
+@btn-info-border:                darken(@btn-info-bg, 5%);
+
+@btn-warning-color:              #fff;
+@btn-warning-bg:                 @brand-warning;
+@btn-warning-border:             darken(@btn-warning-bg, 5%);
+
+@btn-danger-color:               #fff;
+@btn-danger-bg:                  @brand-danger;
+@btn-danger-border:              darken(@btn-danger-bg, 5%);
+
+@btn-link-disabled-color:        @gray-light;
+*/
+
+// Allows for customizing button radius independently from global border radius
+@ex-btn-border-radius-base:      @ex-border-radius-base;
+
+/*
+@btn-border-radius-large:        @border-radius-large;
+@btn-border-radius-small:        @border-radius-small;
+*/
+
+//== Badges
+//
+//##
+@ex-badge-font-weight:                         bold;
+@ex-badge-line-height:                         1;
+@ex-badge-border-radius:                       10px;
+
+
+//== Category navbar
+//
+//##
+
+// Basics of a category navbar
+@ex-category-navbar-bg:                        @_ex-category-navbar-bg; @_ex-category-navbar-bg: #f8f8f8;
+@ex-category-navbar-subitems-bg:               @_ex-category-navbar-subitems-bg; @_ex-category-navbar-subitems-bg: @ex-white;
+
+@ex-category-navbar-height:                    50px;
+
+@ex-category-navbar-text-transform:            inherit;
+@ex-category-navbar-font-weight:               inherit;
+@ex-category-navbar-font-size:                 @ex-font-size-base;
+
+@ex-category-navbar-line-height:               floor((@ex-category-navbar-font-size * @ex-line-height-base));
+
+@ex-category-navbar-subitems-text-transform:   inherit;
+@ex-category-navbar-subitems-font-weight:      inherit;
+@ex-category-navbar-subitems-font-size:        @ex-font-size-small;
+
+@ex-category-navbar-subitems-line-height:      floor((@ex-category-navbar-subitems-font-size * @ex-line-height-base));
+
+@ex-category-navbar-border:                    @_ex-category-navbar-border; @_ex-category-navbar-border: darken(@ex-category-navbar-bg, 6.5%);
+@ex-category-navbar-subitems-border:           @_ex-category-navbar-subitems-border; @_ex-category-navbar-subitems-border: darken(@ex-category-navbar-subitems-bg, 10%);
+
+@ex-category-navbar-border-radius:             @_ex-category-navbar-border-radius; @_ex-category-navbar-border-radius: @ex-border-radius-base;
+@ex-category-navbar-subitems-border-radius:    @ex-border-radius-base;
+
+@ex-category-navbar-padding-horizontal:        floor((@ex-grid-gutter-width / 2));
+@ex-category-navbar-padding-vertical:          ceil((@ex-category-navbar-height - @ex-category-navbar-line-height) / 2);
+
+@ex-category-navbar-subitems-padding-horizontal: floor((@ex-grid-gutter-width / 2));
+@ex-category-navbar-subitems-padding-vertical: @ex-padding-small-vertical;
+
+// Category navbar links
+@ex-category-navbar-item-color:                @_ex-category-navbar-item-color; @_ex-category-navbar-item-color: screen(contrast(@ex-category-navbar-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+@ex-category-navbar-item-hover-color:          @_ex-category-navbar-item-hover-color; @_ex-category-navbar-item-hover-color: multiply(screen(contrast(@ex-category-navbar-bg, @ex-black, @ex-white, 50%), @ex-gray-dark), darken(@ex-category-navbar-bg, 20%));
+@ex-category-navbar-item-hover-bg:             @_ex-category-navbar-item-hover-bg; @_ex-category-navbar-item-hover-bg: transparent;
+@ex-category-navbar-item-active-color:         @_ex-category-navbar-item-active-color; @_ex-category-navbar-item-active-color: screen(contrast(darken(@ex-category-navbar-bg, 6.5%), @ex-black, @ex-white, 50%), @ex-gray);
+@ex-category-navbar-item-active-bg:            @_ex-category-navbar-item-active-bg; @_ex-category-navbar-item-active-bg: darken(@ex-category-navbar-bg, 6.5%);
+
+@ex-category-navbar-subitem-color:             @_ex-category-navbar-subitem-color; @_ex-category-navbar-subitem-color: screen(contrast(@ex-category-navbar-subitems-bg, @ex-black, @ex-white, 50%), @ex-gray);
+@ex-category-navbar-subitem-hover-color:       @_ex-category-navbar-subitem-hover-color; @_ex-category-navbar-subitem-hover-color: @ex-brand-accent;
+@ex-category-navbar-subitem-hover-bg:          @_ex-category-navbar-subitem-hover-bg; @_ex-category-navbar-subitem-hover-bg: screen(@ex-brand-primary, @ex-gray-lighter);
+@ex-category-navbar-subitem-active-color:      @ex-brand-primary;
+@ex-category-navbar-subitem-active-bg:         @_ex-category-navbar-subitem-active-bg; @_ex-category-navbar-subitem-active-bg: desaturate(screen(@ex-brand-primary, @ex-gray-lighter), 100%);
+
+// Category navbar dividers
+@ex-category-navbar-divider:                   @_ex-category-navbar-divider; @_ex-category-navbar-divider: @ex-category-navbar-border;
+@ex-category-navbar-subitems-divider:          @_ex-category-navbar-subitems-divider; @_ex-category-navbar-subitems-divider: @ex-category-navbar-subitems-border;
+
+
+//== Mini Cart
+//
+//##
+
+// Basics of a mini cart
+@ex-mini-cart-bg:                              #f8f8f8;
+@ex-mini-cart-detail-bg:                       @ex-white;
+
+@ex-mini-cart-height:                          50px;
+
+@ex-mini-cart-text-transform:                  inherit;
+@ex-mini-cart-font-weight:                     inherit;
+@ex-mini-cart-font-size:                       @ex-font-size-base;
+
+@ex-mini-cart-title-line-height:               floor((@ex-mini-cart-font-size * @ex-line-height-base));
+
+@ex-mini-cart-title-padding-horizontal:        floor((@ex-grid-gutter-width / 2));
+@ex-mini-cart-title-padding-vertical:          ceil((@ex-mini-cart-height - @ex-mini-cart-title-line-height) / 2);
+
+@ex-mini-cart-detail-padding-horizontal:       floor((@ex-grid-gutter-width / 2));
+@ex-mini-cart-detail-padding-vertical:         @ex-padding-small-vertical;
+
+@ex-mini-cart-detail-text-transform:           inherit;
+@ex-mini-cart-detail-font-weight:              inherit;
+@ex-mini-cart-detail-font-size:                @ex-font-size-small;
+
+@ex-mini-cart-border:                          darken(@ex-mini-cart-bg, 6.5%);
+@ex-mini-cart-detail-border:                   darken(@ex-mini-cart-detail-bg, 10%);
+
+@ex-mini-cart-border-radius:                   @ex-border-radius-base;
+@ex-mini-cart-detail-border-radius:            @ex-border-radius-base;
+
+
+@ex-mini-cart-title-color:                     screen(contrast(@ex-mini-cart-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+@ex-mini-cart-detail-title-color:              screen(contrast(@ex-mini-cart-detail-bg, @ex-black, @ex-white, 50%), @ex-gray);
+
+@ex-mini-cart-badge-bg:                        @_ex-mini-cart-badge-bg; @_ex-mini-cart-badge-bg: @ex-brand-primary;
+@ex-mini-cart-detail-badge-bg:                 screen(contrast(@ex-mini-cart-detail-bg, @ex-black, @ex-white, 50%), @ex-gray);
+
+@ex-mini-cart-badge-color:                     screen(contrast(@ex-mini-cart-badge-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+@ex-mini-cart-detail-badge-color:              @ex-mini-cart-detail-bg;
+
+@ex-mini-cart-detail-color:                    screen(contrast(@ex-mini-cart-detail-bg, @ex-black, @ex-white, 50%), @ex-gray);
+@ex-mini-cart-detail-title-color:              @ex-brand-primary;
+@ex-mini-cart-detail-title-hover-color:        @ex-brand-accent;
+@ex-mini-cart-detail-title-hover-decoration:   underline;
+@ex-mini-cart-detail-additional-color:         multiply(screen(@ex-mini-cart-detail-color, @ex-gray-light), lighten(desaturate(@ex-mini-cart-detail-bg, 100%), 50%));
+@ex-mini-cart-detail-item-delete-color:        @ex-brand-accent;
+
+
+// Mini cart divider
+@ex-mini-cart-detail-divider:                  @ex-mini-cart-detail-border;
+
+// Mini cart checkout button
+@ex-mini-cart-checkout-btn-bg:                 @ex-btn-primary-bg;
+@ex-mini-cart-checkout-btn-color:              @ex-btn-primary-color;
+@ex-mini-cart-checkout-btn-border:             @ex-btn-primary-border;
+@ex-mini-cart-checkout-btn-hover-bg:           @ex-btn-primary-hover-bg;
+@ex-mini-cart-checkout-btn-hover-color:        @ex-btn-primary-hover-color;
+@ex-mini-cart-checkout-btn-hover-border:       @ex-btn-primary-hover-border;
+
+@ex-mini-cart-checkout-btn-font-size:          @ex-font-size-base;
+@ex-mini-cart-checkout-btn-line-height:        floor((@ex-mini-cart-checkout-btn-font-size * @ex-line-height-base));
+@ex-mini-cart-checkout-btn-font-weight:        @ex-btn-font-weight;
+@ex-mini-cart-checkout-btn-text-transform:     inherit;
+@ex-mini-cart-checkout-btn-border-radius:      @ex-btn-border-radius-base;
+@ex-mini-cart-checkout-btn-padding-vertical:   @ex-padding-base-vertical;
+@ex-mini-cart-checkout-btn-padding-horizontal: @ex-padding-base-horizontal;
+
+
+//== Publication
+//
+//##
+
+
+//** Number of columns in the grid.
+@ex-catalog-default-grid-columns:              3;
+@ex-catalog-screen-xs-grid-columns:            2;
+
+@ex-catalog-item-horizontal-gap:               2%;
+@ex-catalog-item-vertical-gap:                 @ex-line-height-computed;
+
+@ex-catalog-default-item-width:                percentage(floor((100 - @ex-catalog-default-grid-columns * unit(@ex-catalog-item-horizontal-gap)) / @ex-catalog-default-grid-columns) / 100);
+
+@ex-catalog-item-padding:                      floor((@ex-padding-small-horizontal + @ex-padding-small-vertical) / 2);
+@ex-catalog-item-padding-horizontal:           @ex-catalog-item-padding;
+@ex-catalog-item-padding-vertical:             @ex-catalog-item-padding;
+
+// Basics of a publication
+@ex-catalog-item-bg:                           @_ex-catalog-item-bg; @_ex-catalog-item-bg: @ex-white;
+@ex-catalog-item-border:                       @_ex-catalog-item-border; @_ex-catalog-item-border: darken(@ex-catalog-item-bg, 10%);
+@ex-catalog-item-hover-bg:                     @_ex-catalog-item-hover-bg; @_ex-catalog-item-hover-bg: screen(@ex-brand-primary, @ex-gray-lighter);
+@ex-catalog-item-hover-border:                 @_ex-catalog-item-hover-border; @_ex-catalog-item-hover-border: @ex-brand-primary;
+
+@ex-catalog-item-border-radius:                @_ex-catalog-item-border-radius; @_ex-catalog-item-border-radius: @ex-border-radius-base;
+
+@ex-catalog-item-color:                        screen(contrast(@ex-catalog-item-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+@ex-catalog-item-hover-color:                  screen(contrast(@ex-catalog-item-hover-bg, @ex-black, @ex-white, 50%), @ex-gray);
+
+// Publication title
+@ex-catalog-item-title-color:                  @ex-catalog-item-color;
+@ex-catalog-item-hover-title-color:            @ex-brand-primary;
+@ex-catalog-item-hover-title-hover-color:      @ex-brand-accent;
+@ex-catalog-item-hover-title-hover-decoration: underline;
+
+@ex-catalog-item-title-lines:                  2;
+@ex-catalog-item-title-padding-vertical:       @ex-padding-base-vertical;
+
+@ex-catalog-item-title-text-transform:         inherit;
+@ex-catalog-item-title-font-weight:            inherit;
+@ex-catalog-item-title-font-size:              @ex-font-size-base;
+
+@ex-catalog-item-title-line-height:            ceil((@ex-catalog-item-title-font-size * @ex-line-height-base));
+@ex-catalog-item-title-height:                 ceil((@ex-catalog-item-title-line-height * @ex-catalog-item-title-lines + @ex-catalog-item-title-padding-vertical));
+
+// Publication price
+@ex-catalog-item-price-color:                  screen(contrast(@ex-catalog-item-bg, @ex-black, @ex-white, 50%), @ex-gray);
+@ex-catalog-item-hover-price-color:            @ex-catalog-item-hover-color;
+
+@ex-catalog-item-price-font-size:              @ex-font-size-large;
+@ex-catalog-item-price-line-height:            floor((@ex-catalog-item-price-font-size * @ex-line-height-base));
+
+@ex-catalog-item-unit-divider-color:           @_ex-catalog-item-unit-divider-color; @_ex-catalog-item-unit-divider-color: multiply(screen(@ex-catalog-item-price-color, @ex-gray-light), lighten(desaturate(@ex-catalog-item-bg, 100%), 50%));
+@ex-catalog-item-unit-divider-hover-color:     multiply(screen(@ex-catalog-item-hover-price-color, @ex-gray-light), lighten(desaturate(@ex-catalog-item-hover-bg, 100%), 50%));
+@ex-catalog-item-unit-divider-font-size:       @ex-font-size-small;
+
+@ex-catalog-item-unit-font-size:               @ex-font-size-base;
+
+// Publication status and cart button lines
+@ex-catalog-item-additional-lines:             4;
+@ex-catalog-item-additional-font-size:         @ex-font-size-small;
+@ex-catalog-item-additional-line-height:       floor((@ex-catalog-item-additional-font-size * @ex-line-height-base));
+
+@ex-catalog-item-additional-text-transform:    inherit;
+@ex-catalog-item-additional-font-weight:       inherit;
+
+// Publication status
+@ex-catalog-item-sold-out-color:               @_ex-catalog-item-sold-out-color; @_ex-catalog-item-sold-out-color: spin(difference(@ex-brand-danger, @ex-catalog-item-bg), 180);
+@ex-catalog-item-sold-out-hover-color:         spin(difference(@ex-brand-danger, @ex-catalog-item-hover-bg), 180);
+@ex-catalog-item-in-stock-color:               @_ex-catalog-item-in-stock-color; @_ex-catalog-item-in-stock-color: spin(difference(@ex-brand-success, @ex-catalog-item-bg), 180);
+@ex-catalog-item-in-stock-hover-color:         spin(difference(@ex-brand-success, @ex-catalog-item-hover-bg), 180);
+@ex-catalog-item-delivery-color:               @_ex-catalog-item-delivery-color; @_ex-catalog-item-delivery-color: @ex-catalog-item-color;
+@ex-catalog-item-delivery-hover-color:         @ex-catalog-item-hover-color;
+
+//** Publication variants
+@ex-catalog-item-variants-bg:                  @_ex-catalog-item-variants-bg; @_ex-catalog-item-variants-bg: @ex-catalog-item-bg;
+
+//** Publication variants badge
+@ex-catalog-item-variants-badge-bg:            @_ex-catalog-item-variants-badge-bg; @_ex-catalog-item-variants-badge-bg: @ex-brand-primary;
+@ex-catalog-item-variants-badge-color:         screen(contrast(@ex-catalog-item-variants-badge-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+@ex-catalog-item-variants-badge-hover-bg:      @ex-brand-accent;
+@ex-catalog-item-variants-badge-hover-color:   screen(contrast(@ex-catalog-item-variants-badge-hover-bg, @ex-black, @ex-white, 50%), @ex-gray-light);
+
+//** Publication ribbons
+@ex-catalog-item-ribbon-default-bg:            @ex-brand-primary;
+@ex-catalog-item-ribbon-font-size:             @ex-font-size-small;
+@ex-catalog-item-ribbon-text-transform:        uppercase;
+@ex-catalog-item-ribbon-font-weight:           inherit;
+
+//** Publication characteristics
+@ex-catalog-item-characteristics-bg:           @_ex-catalog-item-characteristics-bg; @_ex-catalog-item-characteristics-bg: @ex-white;
+@ex-catalog-item-characteristics-color:        @_ex-catalog-item-characteristics-color; @_ex-catalog-item-characteristics-color: screen(contrast(@ex-catalog-item-characteristics-bg, @ex-black, @ex-white, 50%), @ex-gray-dark);
+
+@ex-catalog-item-characteristics-border:       @_ex-catalog-item-characteristics-border; @_ex-catalog-item-characteristics-border: @ex-brand-primary;
+@ex-catalog-item-characteristics-border-radius: @_ex-catalog-item-characteristics-border-radius; @_ex-catalog-item-characteristics-border-radius: @ex-border-radius-base;
+@ex-catalog-item-characteristics-min-width:    250px;
+
+@ex-catalog-item-characteristics-font-size:    @ex-font-size-xs;
+@ex-catalog-item-characteristics-text-transform: inherit;
+@ex-catalog-item-characteristics-font-weight:  inherit;
+@ex-catalog-item-characteristics-line-height:  floor((@ex-catalog-item-characteristics-font-size * @ex-line-height-base));
+
+@ex-catalog-item-characteristics-padding-horizontal: @ex-padding-base-horizontal;
+@ex-catalog-item-characteristics-padding-vertical: @ex-padding-base-vertical;
+@ex-catalog-item-characteristics-item-padding-vertical: floor(@ex-catalog-item-characteristics-padding-vertical / 2);
+
+@ex-catalog-item-characteristics-arrow-bg:     @_ex-catalog-item-characteristics-arrow-bg; @_ex-catalog-item-characteristics-arrow-bg: @ex-catalog-item-characteristics-bg;
+@ex-catalog-item-characteristics-arrow-border: @_ex-catalog-item-characteristics-arrow-border; @_ex-catalog-item-characteristics-arrow-border: @ex-catalog-item-characteristics-border;
+
+//** Add to cart button and badge (default and description states)
+@ex-catalog-item-add-to-cart-btn-font-size:          @ex-font-size-base;
+@ex-catalog-item-add-to-cart-btn-line-height:        floor((@ex-catalog-item-add-to-cart-btn-font-size * @ex-line-height-base));
+@ex-catalog-item-add-to-cart-btn-font-weight:        @ex-btn-font-weight;
+@ex-catalog-item-add-to-cart-btn-text-transform:     inherit;
+@ex-catalog-item-add-to-cart-btn-border-radius:      @ex-btn-border-radius-base;
+@ex-catalog-item-add-to-cart-btn-padding-vertical:   @ex-padding-base-vertical;
+@ex-catalog-item-add-to-cart-btn-padding-horizontal: @ex-padding-base-horizontal;
+
+@ex-catalog-item-add-to-cart-btn-bg:                 @ex-btn-primary-bg;
+@ex-catalog-item-add-to-cart-btn-color:              @ex-btn-primary-color;
+@ex-catalog-item-add-to-cart-btn-border:             @ex-btn-primary-border;
+@ex-catalog-item-add-to-cart-btn-hover-bg:           @ex-btn-primary-hover-bg;
+@ex-catalog-item-add-to-cart-btn-hover-color:        @ex-btn-primary-hover-color;
+@ex-catalog-item-add-to-cart-btn-hover-border:       @ex-btn-primary-hover-border;
+
+@ex-catalog-item-add-to-cart-btn-badge-color:        @ex-catalog-item-add-to-cart-btn-hover-color;
+@ex-catalog-item-add-to-cart-btn-badge-bg:           @ex-catalog-item-add-to-cart-btn-hover-bg;
+@ex-catalog-item-add-to-cart-btn-hover-badge-color:  @ex-catalog-item-add-to-cart-btn-badge-color;
+@ex-catalog-item-add-to-cart-btn-hover-badge-bg:     darken(@ex-catalog-item-add-to-cart-btn-badge-bg, 15%);
+
+@ex-catalog-item-hover-add-to-cart-btn-bg:           @ex-catalog-item-add-to-cart-btn-bg;
+@ex-catalog-item-hover-add-to-cart-btn-color:        @ex-catalog-item-add-to-cart-btn-color;
+@ex-catalog-item-hover-add-to-cart-btn-border:       @ex-catalog-item-add-to-cart-btn-border;
+@ex-catalog-item-hover-add-to-cart-btn-hover-bg:     @ex-catalog-item-add-to-cart-btn-hover-bg;
+@ex-catalog-item-hover-add-to-cart-btn-hover-color:  @ex-catalog-item-add-to-cart-btn-hover-color;
+@ex-catalog-item-hover-add-to-cart-btn-hover-border: @ex-catalog-item-add-to-cart-btn-hover-border;
+
+@ex-catalog-item-hover-add-to-cart-btn-badge-color:  @ex-catalog-item-add-to-cart-btn-badge-color;
+@ex-catalog-item-hover-add-to-cart-btn-badge-bg:     @ex-catalog-item-add-to-cart-btn-badge-bg;
+@ex-catalog-item-hover-add-to-cart-btn-hover-badge-color: @ex-catalog-item-hover-add-to-cart-btn-badge-color;
+@ex-catalog-item-hover-add-to-cart-btn-hover-badge-bg: darken(@ex-catalog-item-hover-add-to-cart-btn-badge-bg, 15%);
+
+//-- Z-index master list
+//
+@ex-zindex-catalog-item-characteristics:       1010;
+@ex-zindex-category-navbar-subitems:           1000;
+@ex-zindex-mini-cart-title:                    990;
+@ex-zindex-mini-cart-detail:                   980;

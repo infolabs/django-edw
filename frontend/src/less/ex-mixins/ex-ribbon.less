@@ -1,0 +1,42 @@
+//
+// Ribbon
+// -------------------------
+
+
+
+.ex-ribbon-color(@ribbon-bg; @ribbon-color: contrast(@ribbon-bg)) {
+  background-color: @ribbon-bg;
+  color: @ribbon-color;
+  &:after {
+    border-color: darken(@ribbon-bg, 20%) darken(@ribbon-bg, 20%) transparent transparent;
+  }
+}
+
+
+
+.ex-ribbon (@ribbon-bg: @ex-gray-light; @ribbon-color: contrast(@ribbon-bg); @ex-ribbon-font-size: @ex-font-size-small; @ex-ribbon-font-weight: inherit; @ex-ribbon-text-transform: uppercase) {
+
+  .ex-ribbon-color(@ribbon-bg; @ribbon-color);
+
+  padding: @ex-padding-base-vertical @ex-padding-large-horizontal;
+  display: inline-block;
+  font-size: @ex-ribbon-font-size;
+  position: relative;
+  right: 0;
+  white-space: nowrap;
+  line-height: floor((@ex-ribbon-font-size * @ex-line-height-base));
+  text-transform: @ex-ribbon-text-transform;
+  font-weight: @ex-ribbon-font-weight;
+
+  &:after {
+    left: 0;
+    top: 100%;
+    border-width: 3px 3px;
+    border-style: solid;
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+}
+

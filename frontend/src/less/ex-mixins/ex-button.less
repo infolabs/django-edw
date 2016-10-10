@@ -1,0 +1,142 @@
+//
+// Buttons
+//
+// --------------------------------------------------
+
+
+// Button variants
+//
+// Easily pump out default styles, as well as :hover, :focus, :active,
+// and disabled options for all buttons
+
+.ex-button-variant(@btn-color: @ex-btn-default-color; @btn-bg: @ex-btn-default-bg; @btn-border: @ex-btn-default-border;
+    @btn-hover-color: @btn-color; @btn-hover-bg: darken(@btn-bg, 10%); @btn-hover-border: darken(@btn-border, 12%)) {
+  color: @btn-color;
+  background-color: @btn-bg;
+  border-color: @btn-border;
+
+  &:hover {
+    color: @btn-hover-color;
+    background-color: @btn-hover-bg;
+    border-color: @btn-hover-border;
+  }
+
+  @btn-focus-color: @btn-hover-color;
+  @btn-focus-bg: @btn-hover-bg;
+  @btn-focus-border: darken(@btn-hover-border, 13%);
+
+  &:focus, &.focus {
+    color: @btn-focus-color;
+    background-color: @btn-focus-bg;
+    border-color: @btn-focus-border;
+  }
+
+  @btn-active-color: @btn-hover-color;
+  @btn-active-bg: @btn-hover-bg;
+  @btn-active-border: @btn-hover-border;
+
+  &:active, &.active {
+    color: @btn-active-color;
+    background-color: @btn-active-bg;
+    border-color: @btn-active-border;
+
+    background-image: none;
+
+    &:hover, &:focus, &.focus {
+      color: @btn-active-color;
+      background-color: darken(@btn-active-bg, 7%);
+      border-color: darken(@btn-active-border, 13%);
+    }
+  }
+
+  &.disabled, &[disabled], fieldset[disabled] & {
+    &,
+    &:hover,
+    &:focus,
+    &.focus,
+    &:active,
+    &.active {
+      background-color: @btn-bg;
+      border-color: @btn-border;
+    }
+  }
+
+  /*
+  .ex-badge {
+    color: @btn-bg;
+    background-color: @btn-color;
+  }
+  */
+}
+
+// Button sizes
+.ex-button-size(@padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
+  padding: @padding-vertical @padding-horizontal;
+  font-size: @font-size;
+  line-height: @line-height;
+  border-radius: @border-radius;
+}
+
+// Base styles
+// --------------------------------------------------
+
+.ex-btn (@ex-btn-font-size: @ex-font-size-base; @ex-btn-line-height: floor((@ex-btn-font-size * @ex-line-height-base));
+    @ex-btn-font-weight: @ex-btn-font-weight; @ex-btn-text-transform: inherit; @ex-btn-border-radius: @ex-btn-border-radius-base;
+    @ex-btn-padding-vertical: @ex-padding-base-vertical; @ex-btn-padding-horizontal: @ex-padding-base-horizontal) {
+  display: inline-block;
+  margin-bottom: 0; // For input.btn
+  font-weight: @ex-btn-font-weight;
+  text-transform: @ex-btn-text-transform;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  transition: all 0.2s ease-in 0s;
+  transition-property: color, background-color, border-color;
+
+  .ex-button-size(@ex-btn-padding-vertical; @ex-btn-padding-horizontal; @ex-btn-font-size; @ex-btn-line-height; @ex-btn-border-radius);
+  .ex-user-select(none);
+
+  &,
+  &:active,
+  &.active {
+    &:focus,
+    &.focus {
+      .ex-tab-focus();
+    }
+  }
+
+  &:hover,
+  &:focus,
+  &.focus {
+    color: @ex-btn-default-color;
+    text-decoration: none;
+  }
+
+  &:active,
+  &.active {
+    outline: 0;
+    background-image: none;
+    .ex-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+  }
+
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    cursor: @ex-cursor-disabled;
+    .ex-opacity(.65);
+    .ex-box-shadow(none);
+  }
+
+  a& {
+    &.disabled,
+    fieldset[disabled] & {
+      pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
+    }
+  }
+}
+

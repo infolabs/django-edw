@@ -1,0 +1,308 @@
+/*---------------------------------------------------
+    Common mixins
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+
+
+.ex-gradient(@color: #F5F5F5; @start: #EEE; @stop: #FFF; @stop1: transparent; @stop2: transparent; @stop3: transparent; @stop4: transparent) {
+
+  background: @color;
+
+  .foo-gradient() when not (@stop4 = transparent)  {
+    background: -webkit-gradient(linear,
+                                 left bottom,
+                                 left top,
+                                 color-stop(0%, @start),
+                                 color-stop(20%, @stop1),
+                                 color-stop(38%, @stop2),
+                                 color-stop(59%, @stop3),
+                                 color-stop(79%, @stop4),
+                                 color-stop(100%, @stop));
+    background: -ms-linear-gradient(bottom,
+                                    @start 0%,
+                                    @stop1 20%,
+                                    @stop2 38%,
+                                    @stop3 59%,
+                                    @stop4 79%,
+                                    @stop 100%);
+    background: -moz-linear-gradient(center bottom,
+                                     @start 0%,
+                                     @stop1 20%,
+                                     @stop2 38%,
+                                     @stop3 59%,
+                                     @stop4 79%,
+                                     @stop 100%);
+    background: -o-linear-gradient(@stop 0%,
+                                   @stop4 20%,
+                                   @stop3 38%,
+                                   @stop2 59%,
+                                   @stop1 79%,
+                                   @start 100%);
+  }
+  .foo-gradient() when not (@stop3 = transparent) and (@stop4 = transparent) {
+    background: -webkit-gradient(linear,
+                                 left bottom,
+                                 left top,
+                                 color-stop(0%, @start),
+                                 color-stop(25%, @stop1),
+                                 color-stop(50%, @stop2),
+                                 color-stop(75%, @stop3),
+                                 color-stop(100%, @stop));
+    background: -ms-linear-gradient(bottom,
+                                    @start 0%,
+                                    @stop1 25%,
+                                    @stop2 50%,
+                                    @stop3 75%,
+                                    @stop 100%);
+    background: -moz-linear-gradient(center bottom,
+                                     @start 0%,
+                                     @stop1 25%,
+                                     @stop2 50%,
+                                     @stop3 75%,
+                                     @stop 100%);
+    background: -o-linear-gradient(@stop 0%,
+                                   @stop3 25%,
+                                   @stop2 50%,
+                                   @stop1 75%,
+                                   @start 100%);
+  }
+  .foo-gradient() when not (@stop2 = transparent) and (@stop3 = transparent) {
+    background: -webkit-gradient(linear,
+                                 left bottom,
+                                 left top,
+                                 color-stop(0%, @start),
+                                 color-stop(33%, @stop1),
+                                 color-stop(66%, @stop2),
+                                 color-stop(100%, @stop));
+    background: -ms-linear-gradient(bottom,
+                                    @start 0%,
+                                    @stop1 33%,
+                                    @stop2 66%,
+                                    @stop 100%);
+    background: -moz-linear-gradient(center bottom,
+                                     @start 0%,
+                                     @stop1 33%,
+                                     @stop2 66%,
+                                     @stop 100%);
+    background: -o-linear-gradient(@stop 0%,
+                                   @stop2 33%,
+                                   @stop1 66%,
+                                   @start 100%);
+  }
+  .foo-gradient() when not (@stop1 = transparent) and (@stop2 = transparent) {
+    background: -webkit-gradient(linear,
+                                 left bottom,
+                                 left top,
+                                 color-stop(0%, @start),
+                                 color-stop(50%, @stop1),
+                                 color-stop(100%, @stop));
+    background: -ms-linear-gradient(bottom,
+                                    @start 0%,
+                                    @stop1 50%,
+                                    @stop 100%);
+    background: -moz-linear-gradient(center bottom,
+                                     @start 0%,
+                                     @stop1 50%,
+                                     @stop 100%);
+    background: -o-linear-gradient(@stop 0%,
+                                   @stop1 50%,
+                                   @start 100%);
+  }
+  .foo-gradient() when (default()) {
+    background: -webkit-gradient(linear,
+                                 left bottom,
+                                 left top,
+                                 color-stop(0%, @start),
+                                 color-stop(100%, @stop));
+    background: -ms-linear-gradient(bottom,
+                                    @start,
+                                    @stop);
+    background: -moz-linear-gradient(center bottom,
+                                     @start 0%,
+                                     @stop 100%);
+    background: -o-linear-gradient(@stop,
+                                   @start);
+  }
+  .foo-gradient();
+
+
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+}
+
+/*
+.bw-gradient(@color: #F5F5F5, @start: 0, @stop: 255) {
+  background: @color;
+  background: -webkit-gradient(linear,
+                               left bottom,
+                               left top,
+                               color-stop(0, rgb(@start,@start,@start)),
+                               color-stop(1, rgb(@stop,@stop,@stop)));
+  background: -ms-linear-gradient(bottom,
+                                  rgb(@start,@start,@start) 0%,
+                                  rgb(@stop,@stop,@stop) 100%);
+  background: -moz-linear-gradient(center bottom,
+                                   rgb(@start,@start,@start) 0%,
+                                   rgb(@stop,@stop,@stop) 100%);
+  background: -o-linear-gradient(rgb(@stop,@stop,@stop),
+                                 rgb(@start,@start,@start));
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",rgb(@stop,@stop,@stop),rgb(@start,@start,@start)));
+}
+.bordered(@top-color: #EEE, @right-color: #EEE, @bottom-color: #EEE, @left-color: #EEE) {
+  border-top: solid 1px @top-color;
+  border-left: solid 1px @left-color;
+  border-right: solid 1px @right-color;
+  border-bottom: solid 1px @bottom-color;
+}
+.drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
+  -webkit-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  -moz-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+}
+.rounded(@radius: 2px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+*/
+
+.ex-border-top-right-radius(@topright: 0) {
+  -webkit-border-top-right-radius: @topright;
+  -moz-border-radius-topright: @topright;
+  border-top-right-radius: @topright;
+}
+
+.ex-border-bottom-right-radius(@bottomright: 0) {
+  -webkit-border-bottom-right-radius: @bottomright;
+  -moz-border-radius-bottomright: @bottomright;
+  border-bottom-right-radius: @bottomright;
+}
+
+.ex-border-bottom-left-radius(@bottomleft: 0) {
+  -webkit-border-bottom-left-radius: @bottomleft;
+  -moz-border-radius-bottomleft: @bottomleft;
+  border-bottom-left-radius: @bottomleft;
+}
+
+.ex-border-top-left-radius(@topleft: 0) {
+  -webkit-border-top-left-radius: @topleft;
+  -moz-border-radius-topleft: @topleft;
+  border-top-left-radius: @topleft;
+}
+
+.ex-border-radius(@topright: 0, @bottomright: 0, @bottomleft: 0, @topleft: 0) {
+  .ex-border-top-right-radius(@topright);
+  .ex-border-bottom-right-radius(@bottomright);
+  .ex-border-bottom-left-radius(@bottomleft);
+  .ex-border-top-left-radius(@topleft);
+  .ex-background-clip(padding-box);
+}
+
+.ex-border-radius(@radius) {
+  .ex-border-radius(@radius, @radius, @radius, @radius);
+}
+
+.ex-opacity(@opacity: 0.5) {
+  -moz-opacity: @opacity;
+  -khtml-opacity: @opacity;
+  -webkit-opacity: @opacity;
+  opacity: @opacity;
+  @opperc: @opacity * 100;
+  -ms-filter: ~"progid:DXImageTransform.Microsoft.Alpha(opacity=@{opperc})";
+  filter: ~"alpha(opacity=@{opperc})";
+}
+
+/*
+.transition-duration(@duration: 0.2s) {
+  -moz-transition-duration: @duration;
+  -webkit-transition-duration: @duration;
+  -o-transition-duration: @duration;
+  transition-duration: @duration;
+}
+*/
+
+.ex-transform(...) {
+  -webkit-transform: @arguments;
+  -moz-transform: @arguments;
+  -o-transform: @arguments;
+  -ms-transform: @arguments;
+  transform: @arguments;
+}
+
+.ex-rotation(@deg:5deg){
+  .ex-transform(rotate(@deg));
+}
+
+.ex-scale(@ratio:1.5){
+  .ex-transform(scale(@ratio));
+}
+
+
+.ex-transition(...) {
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
+}
+
+/*
+.ex-inner-shadow(@horizontal:0, @vertical:1px, @blur:2px, @alpha: 0.4) {
+  -webkit-box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+  -moz-box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+  box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+}
+*/
+
+.ex-box-shadow(@arguments: 0 6px 12px rgba(0, 0, 0, 0.175);) {
+  -webkit-box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  box-shadow: @arguments;
+}
+
+.ex-box-sizing(@sizing: border-box) {
+  -ms-box-sizing: @sizing;
+  -moz-box-sizing: @sizing;
+  -webkit-box-sizing: @sizing;
+  box-sizing: @sizing;
+}
+
+.ex-user-select(@argument: none) {
+  -webkit-user-select: @argument;
+  -moz-user-select: @argument;
+  -ms-user-select: @argument;
+  user-select: @argument;
+}
+
+/*
+.columns(@colwidth: 250px, @colcount: 0, @colgap: 50px, @columnRuleColor: #EEE, @columnRuleStyle: solid, @columnRuleWidth: 1px) {
+  -moz-column-width: @colwidth;
+  -moz-column-count: @colcount;
+  -moz-column-gap: @colgap;
+  -moz-column-rule-color: @columnRuleColor;
+  -moz-column-rule-style: @columnRuleStyle;
+  -moz-column-rule-width: @columnRuleWidth;
+  -webkit-column-width: @colwidth;
+  -webkit-column-count: @colcount;
+  -webkit-column-gap: @colgap;
+  -webkit-column-rule-color: @columnRuleColor;
+  -webkit-column-rule-style: @columnRuleStyle;
+  -webkit-column-rule-width: @columnRuleWidth;
+  column-width: @colwidth;
+  column-count: @colcount;
+  column-gap: @colgap;
+  column-rule-color: @columnRuleColor;
+  column-rule-style: @columnRuleStyle;
+  column-rule-width: @columnRuleWidth;
+}
+.translate(@x:0, @y:0) {
+  .ex-transform(translate(@x, @y));
+}
+*/
+
+.ex-background-clip(@argument: padding-box) {
+  -moz-background-clip: @argument;
+  -webkit-background-clip: @argument;
+  background-clip: @argument;
+}
+
