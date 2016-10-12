@@ -4,9 +4,10 @@
 <html>
   <head>
     <title>Redux TodoMVC in Django</title>
-    <script src="{% url 'js_reverse' %}" type="text/javascript"></script>
+    <link type="text/css" href="{% static 'edw/lib/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
   </head>
   <body>
+    <script src="{% url 'js_reverse' %}" type="text/javascript"></script>
     <div>Served from Django.</div>
     <div class="todoapp" id="root"></div>
     {% render_bundle 'main' 'js' %}
