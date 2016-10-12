@@ -94,6 +94,45 @@ EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMar
 
 
 #==============================================================================
+# BaseDataMartRelation
+#==============================================================================
+# @python_2_unicode_compatible
+# class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+#     """
+#     Entity related data marts
+#     """
+#     RELATION_BIDIRECTIONAL = "b"
+#     RELATION_FORWARD = "f"
+#     RELATION_REVERSE = "r"
+#
+#     RELATION_DIRECTIONS = (
+#         (RELATION_BIDIRECTIONAL, _('bidirectional')),
+#         (RELATION_FORWARD, _('forward')),
+#         (RELATION_REVERSE, _('reverse')),
+#     )
+#
+#     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
+#     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+')
+#     direction = models.CharField(_("Relation direction"), max_length=1,
+#                                           choices=RELATION_DIRECTIONS, default=RELATION_BIDIRECTIONAL,
+#                                           help_text=_(
+#                                               'Defines the direction of relation on which selection is carried out'))
+#
+#     class Meta:
+#         abstract = True
+#         verbose_name = _("Data mart relation")
+#         verbose_name_plural = _("Data mart relations")
+#
+#     def __str__(self):
+#         # return "{} → {}".format(self.entity.entity_name, self.data_mart.name)
+#         return "+++"
+#
+#
+# DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
+#
+
+
+#==============================================================================
 # BaseEntityImage
 #==============================================================================
 class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
