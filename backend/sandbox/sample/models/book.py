@@ -5,9 +5,11 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from rest_framework import serializers
+
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet, ApiReferenceMixin
 from edw.models.mixins.entity.add_date_terms_validation import AddedDateTermsValidationMixin
-from edw.models.mixins.entity.fsm import FSMMixin
+#from edw.models.mixins.entity.fsm import FSMMixin
 from edw.models.defaults.mapping import EntityImage
 
 
@@ -57,6 +59,7 @@ class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
         return self.images.first()
 
 
+
 class ChildBook(Book):
     AGES = (
         (1, "0-6 month"),
@@ -72,6 +75,13 @@ class ChildBook(Book):
 
     class RESTMeta:
         exclude = ['age', 'images']
+        include = {
+            'my_age': serializers.SerializerMethodField()
+        }
+
+        def get_my_age(serializer, entity):
+            ages = dict(ChildBook.AGES)
+            return ages[entity.age]
 
 
 class AdultBook(Book):
