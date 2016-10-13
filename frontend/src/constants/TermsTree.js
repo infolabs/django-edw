@@ -1,6 +1,6 @@
 export const GET_TERMS_TREE = 'GET_TERMS_TREE';
 export const TOGGLE = 'RUBRICATOR_TOGGLE';
-export const TAG_TREE = 'TAG_TERMS_TREE';
+export const RESET_ITEM = 'RESET_ITEM';
 export const SEMANTIC_RULE_OR = 20;
 export const SEMANTIC_RULE_XOR = 10;
 export const SEMANTIC_RULE_AND = 30;

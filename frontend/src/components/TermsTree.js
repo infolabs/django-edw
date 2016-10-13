@@ -27,8 +27,8 @@ class TermsTree extends Component {
       terms_tree = terms.terms_tree.tree
 
     return (
-    <div>
-      <ul>
+    <div className="terms-tree-container">
+      <ul className="terms-tree">
         {terms_tree.map(term =>
           <TermsTreeItem key={term.id} //TermsTreeItem
                           term={term}

@@ -1,6 +1,6 @@
 import { GET_TERMS_TREE, 
          TOGGLE,
-         TAG_TREE,
+         RESET_ITEM,
          SEMANTIC_RULE_OR,
          SEMANTIC_RULE_XOR,
          SEMANTIC_RULE_AND,
@@ -25,6 +25,7 @@ class TermTreeModel {
         {"id": child.id,
          "name": child.name,
          "slug": child.slug,
+         "short_description": child.short_description,
          "tagged": (self.selected.indexOf(child.id) > -1),
          "semantic_rule": child.semantic_rule,
          "is_leaf": child.is_leaf,
@@ -38,12 +39,23 @@ class TermTreeModel {
     return tree;
   }
 
-  toggle(toggled_item_id = -1) {
+  toggle(item_id = -1) {
     let tree = this.tree;
-    if (tree && tree.length > 0 && toggled_item_id && toggled_item_id > 0) {
-      let item = this.hash_table[toggled_item_id];
+    if (tree && tree.length > 0 && item_id && item_id > 0) {
+      let item = this.hash_table[item_id];
       if(item)
         item.toggle();
+    }
+    this.selected = this.taggedIds(tree);
+    return tree;
+  }
+
+  resetItem(item_id = -1) {
+    let tree = this.tree;
+    if (tree && tree.length > 0 && item_id && item_id > 0) {
+      let item = this.hash_table[item_id];
+      if(item)
+        item.untagChildren();
     }
     this.selected = this.taggedIds(tree);
     return tree;
@@ -113,20 +125,13 @@ class TermTreeItemModel {
   }
 
   isChildrenTagged() {
-    if ( typeof this._isChildrenTaggedCache === 'undefined' ) {
-      let children = this.getChildren();
-
-      if (this.semantic_rule == SEMANTIC_RULE_XOR) {
-        children.forEach(function (child) {
-          return child.tagged && child.isChildrenTagged();
-        });
-      } else {
-        children.forEach(function (child) {
-          gthis._isChildrenTaggedCache = child.isChildrenTagged();
-        });
-      }
+    let children = this.getChildren();
+    for (let i = 0; i < children.length; i++) {
+      let child = children[i];
+      if (child.tagged)
+        return true;
     }
-    return this._isChildrenTaggedCache;
+    return false;
   }
 
   toggle() {
@@ -153,6 +158,12 @@ class TermTreeItemModel {
     });
   }
 
+  untagChildren() {
+    this.getChildren().forEach(function (child) {
+      child.unTag();
+    });
+  }
+
   unsetChildren() {
     this.getChildren().forEach(function (child) {
       child.tagged = false;
@@ -173,13 +184,21 @@ export default function terms(state = initialState, action) {
     };
 
   case TOGGLE:
-    let tree = {tree: [], selected: []};
+    let tree_toggle = {tree: [], selected: []};
     if (state.terms_tree) {
-      tree = state.terms_tree;
-      tree.toggle(action.term.id);
+      tree_toggle = state.terms_tree;
+      tree_toggle.toggle(action.term.id);
     }
     return {
-      terms_tree: tree,
+      terms_tree: tree_toggle,
+      action_type: TOGGLE
+    };
+
+  case RESET_ITEM:
+    let tree_reset = state.terms_tree;
+    tree_reset.resetItem(action.term.id);
+    return {
+      terms_tree: tree_reset,
       action_type: TOGGLE
     };
 
