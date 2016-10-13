@@ -1,0 +1,117 @@
+@import "variables.less";
+
+body,
+.new-todo,
+.todoapp,
+.footer:before,
+.main,
+{
+  background-color: #000;
+  box-shadow: none;
+  border: none;
+}
+
+.terms-tree-container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 50px;
+  background-color: #111;
+  color: #eee;
+}
+
+.terms-tree ul,
+.terms-tree {
+  list-style: none;
+  line-height: 1.9em;
+  padding-left: 20px;
+}
+
+.terms-tree li,
+.terms-tree ul li {
+  cursor: pointer;
+}
+
+[class^="ex-icon-"]:before, [class*=" ex-icon-"]:before {
+  display: inline-block;
+  text-decoration: inherit;
+}
+
+[class^="ex-icon-"], [class*=" ex-icon-"] {
+  background-image: none;
+  background-position: 0 0;
+  background-repeat: repeat;
+  display: inline;
+  width: auto;
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+[class^="ex-icon-"], [class*=" ex-icon-"] {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+}
+
+[class^="ex-icon-checkbox-"], [class*=" ex-icon-checkbox-"] {
+    border: @ex-control-icons-border;
+    border-radius: 3px;
+}
+
+[class^="ex-icon-radio-"]:before,
+[class*=" ex-icon-radio-"]:before,
+[class^="ex-icon-checkbox-"]:before,
+[class*=" ex-icon-checkbox-"]:before {
+  width: 14px;
+  height: 14px;
+}
+
+[class^="ex-icon-caret-"]:before,
+[class*=" ex-icon-caret-"]:before {
+  text-align: center;
+  width: 9px;
+  height: 14px;
+}
+
+[class^="ex-icon-radio-"]:before,
+[class*=" ex-icon-radio-"]:before {
+  font-size: 11px;
+  text-align: center;
+  vertical-align: 1px;
+}
+
+[class^="ex-icon-radio-"],
+[class*=" ex-icon-radio-"] {
+  border: @ex-control-icons-border;
+  border-radius: 9px;
+}
+
+.ex-icon-checkbox-on:before {
+  content: "\f00c";
+}
+.ex-icon-checkbox-off:before {
+  content: " ";
+}
+.ex-icon-radio-on:before {
+  content: "\f111";
+}
+.ex-icon-radio-off:before {
+  content: " ";
+}
+.ex-icon-caret-on:before {
+  content: "";
+}
+.ex-icon-caret-off:before {
+  content: "";
+}
+
+.ex-icon-info:before {
+  content: "\f05a";
+}
+.ex-icon-reset:before {
+  content: "\f057";
+}
+
+.ex-baloon {
+  display: none;
+}

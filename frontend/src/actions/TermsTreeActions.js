@@ -29,3 +29,10 @@ export function toggle(term = {}) {
     term: term,
   };
 }
+
+export function resetItem(term = {}) {
+  return {
+    type: types.RESET_ITEM,
+    term: term,
+  };
+}
