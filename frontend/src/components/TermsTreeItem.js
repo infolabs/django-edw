@@ -5,6 +5,8 @@ import {
          SEMANTIC_RULE_AND,
        } from '../constants/TermsTree';
 
+import TermsTreeIteaInfo from './TermsTreeItemInfo';
+
 // https://github.com/Excentrics/publication-backbone/blob/master/publication_backbone/templates/publication_backbone/rubricator/partials/rubric.html
 
 export default class TermsTreeItem extends Component {
@@ -15,16 +17,16 @@ export default class TermsTreeItem extends Component {
 
   handleItemClick(e) {
     const { term, actions } = this.props;
-    e.preventDefault()
-    e.stopPropagation()
-    actions.toggle(term)
+    e.preventDefault();
+    e.stopPropagation();
+    actions.toggle(term);
   }
 
   handleResetClick(e) {
     const { term, actions } = this.props;
-    e.preventDefault()
-    e.stopPropagation()
-    actions.resetItem(term)
+    e.preventDefault();
+    e.stopPropagation();
+    actions.resetItem(term);
   }
 
   render() {
@@ -68,14 +70,7 @@ export default class TermsTreeItem extends Component {
     let description = "";
     if (term.short_description) {
       description = (
-        <span className="ex-description-wrapper">
-          <i className="ex-icon-info" title="Info"></i>
-          <div className="ex-baloon">
-            <div className="ex-arrow"></div>
-            <button type="button" className="ex-close">×</button>
-              {term.short_description}
-          </div>
-        </span>
+        <TermsTreeIteaInfo description={term.short_description}/>
       )
     }
 

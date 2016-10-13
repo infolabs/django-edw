@@ -105,13 +105,36 @@ body,
   content: "";
 }
 
-.ex-icon-info:before {
-  content: "\f05a";
-}
 .ex-icon-reset:before {
   content: "\f057";
 }
 
+.ex-description-wrapper {
+  position: relative;
+}
+
+.ex-icon-info:before {
+  content: "\f05a";
+}
+
 .ex-baloon {
+  position: absolute;
+  padding: 7px;
+  left: 10;
+  top: 10;
+  background-color: #222;
+  cursor: default;
+}
+
+.ex-close {
+  float: right;
+  cursor: pointer;
+}
+
+.ex-baloon-show {
+  display: block;
+}
+
+.ex-baloon-hide {
   display: none;
 }
