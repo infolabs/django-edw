@@ -550,7 +550,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',
                                                                    through=AdditionalEntityCharacteristicOrMarkModel)
 
-    relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
+    _relations = deferred.ManyToManyField('BaseEntity', through=EntityRelationModel,
                                          through_fields=('from_entity', 'to_entity'))
 
     related_data_marts = deferred.ManyToManyField('BaseDataMart', related_name='+', blank=True,
@@ -762,6 +762,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         Return all marks objects of current entity
         """
+        print ">>>>>>>>>>>>>========", hasattr(self, 'rel')
+
+
         return self.marks_getter.all()
 
     @cached_property

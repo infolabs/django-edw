@@ -21,8 +21,8 @@ class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKe
     """
     ManyToMany relation from the polymorphic Entity to a set of Terms.
     """
-    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), db_index=True)
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
+    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
+    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='+')
     value = models.CharField(_("Value"), max_length=255)
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
                                   help_text=
@@ -61,7 +61,7 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
         abstract = True
         verbose_name = _("Entity Relation")
         verbose_name_plural = _("Entity Relations")
-        unique_together = ('term', 'from_entity', 'to_entity',)
+        unique_together = (('term', 'from_entity', 'to_entity'),)
 
     def __str__(self):
         return "{} → {} → {}".format(self.from_entity.entity_name, self.term.name, self.to_entity.entity_name)
@@ -96,40 +96,40 @@ EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMar
 #==============================================================================
 # BaseDataMartRelation
 #==============================================================================
-# @python_2_unicode_compatible
-# class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
-#     """
-#     Entity related data marts
-#     """
-#     RELATION_BIDIRECTIONAL = "b"
-#     RELATION_FORWARD = "f"
-#     RELATION_REVERSE = "r"
-#
-#     RELATION_DIRECTIONS = (
-#         (RELATION_BIDIRECTIONAL, _('bidirectional')),
-#         (RELATION_FORWARD, _('forward')),
-#         (RELATION_REVERSE, _('reverse')),
-#     )
-#
-#     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
-#     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+')
-#     direction = models.CharField(_("Relation direction"), max_length=1,
-#                                           choices=RELATION_DIRECTIONS, default=RELATION_BIDIRECTIONAL,
-#                                           help_text=_(
-#                                               'Defines the direction of relation on which selection is carried out'))
-#
-#     class Meta:
-#         abstract = True
-#         verbose_name = _("Data mart relation")
-#         verbose_name_plural = _("Data mart relations")
-#
-#     def __str__(self):
-#         # return "{} → {}".format(self.entity.entity_name, self.data_mart.name)
-#         return "+++"
-#
-#
-# DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
-#
+@python_2_unicode_compatible
+class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+    """
+    Entity related data marts
+    """
+    RELATION_BIDIRECTIONAL = "b"
+    RELATION_FORWARD = "f"
+    RELATION_REVERSE = "r"
+
+    RELATION_DIRECTIONS = (
+        (RELATION_BIDIRECTIONAL, _('Bidirectional')),
+        (RELATION_FORWARD, _('Forward')),
+        (RELATION_REVERSE, _('Reverse')),
+    )
+
+    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='relations')
+    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+')
+    direction = models.CharField(_("Relation direction"), max_length=1,
+                                          choices=RELATION_DIRECTIONS, default=RELATION_BIDIRECTIONAL,
+                                          help_text=_(
+                                              'Defines the direction of relation on which selection is carried out'))
+
+    class Meta:
+        abstract = True
+        verbose_name = _("Data mart relation")
+        verbose_name_plural = _("Data mart relations")
+        unique_together = (('data_mart', 'term'),)
+
+    def __str__(self):
+        relation_directions = dict(self.RELATION_DIRECTIONS)
+        return "{} ← {}: {}".format(self.data_mart.name, relation_directions[self.direction], self.term.name)
+
+
+DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
 
 
 #==============================================================================

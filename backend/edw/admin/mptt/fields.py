@@ -40,7 +40,7 @@ class FullPathTreeNodeChoiceFieldMixin(object):
         generating option labels.
         """
         ancestors = list(obj.get_ancestors(include_self=True))
-        return mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in ancestors]))
+        return mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in ancestors])) # todo: limit label length
 
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
