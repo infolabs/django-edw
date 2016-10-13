@@ -15,6 +15,7 @@ class RESTOptions(object):
     """
 
     exclude = []
+    include = {}
 
     def __init__(self, opts=None, **kwargs):
         # Override defaults with options provided

@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 
+import types
+
 from django.core import exceptions
 from django.core.cache import cache
 from django.template import TemplateDoesNotExist
@@ -145,14 +147,18 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     def __init__(self, instance, **kwargs):
         kwargs.setdefault('label', 'detail')
         remove_fields = instance._rest_meta.exclude
+        include_fields = instance._rest_meta.include
         super(EntityDetailSerializerBase, self).__init__(instance, **kwargs)
-        if remove_fields:
-            # for multiple fields in a list
-            for field_name in remove_fields:
-
-                # print "<->", instance, field_name
-
-                self.fields.pop(field_name)
+        # for multiple fields in a list
+        for field_name in remove_fields:
+            self.fields.pop(field_name)
+        for field_name, field in include_fields.items():
+            if isinstance(field, serializers.SerializerMethodField):
+                default_method_name = 'get_{field_name}'.format(field_name=field_name)
+                method_name = default_method_name if field.method_name is None else field.method_name
+                method = getattr(instance._rest_meta, method_name)
+                setattr(self, method_name, types.MethodType(method, self, self.__class__))
+            self.fields[field_name] = field
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
