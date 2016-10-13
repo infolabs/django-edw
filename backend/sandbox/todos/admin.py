@@ -18,7 +18,10 @@ from edw.models.term import TermModel
 from edw.admin.term import TermAdmin
 
 from edw.models.data_mart import DataMartModel
-from edw.admin.data_mart import DataMartAdmin
+from edw.admin.data_mart import (
+    DataMartAdmin as OriginalDataMartAdmin,
+    DataMartRelationInline
+)
 
 from edw.admin.entity import (
     TermsTreeFilter,
@@ -88,6 +91,11 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
 
 
     render_text_index.short_description = _("Text Index")
+
+
+class DataMartAdmin(OriginalDataMartAdmin):
+
+    inlines = [DataMartRelationInline]
 
 
 admin.site.register(CustomerProxy, CustomerAdmin)

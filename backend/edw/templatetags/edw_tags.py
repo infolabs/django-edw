@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-#from collections import OrderedDict
-from datetime import datetime
+
 from django import template
 from django.conf import settings
-#from django.template.loader import select_template
 from django.utils import formats
-from django.utils.safestring import mark_safe
 from django.utils.dateformat import format, time_format
-#from classytags.helpers import InclusionTag
-#from edw import settings as edw_settings
+
+from datetime import datetime
 
 register = template.Library()
 
@@ -21,6 +18,9 @@ def from_iso8601(value):
         return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
 
 
+#==============================================================================
+# Common
+#==============================================================================
 @register.filter(expects_localtime=True, is_safe=False)
 def date(value, arg=None):
     """
@@ -62,21 +62,6 @@ def time(value, arg=None):
         except AttributeError:
             return ''
 
-'''
-@register.filter
-def rest_json(value, arg=None):
-    """
-    Renders a `ReturnDict` as used by the REST framework into a safe JSON string.
-    """
-    if not value:
-        return mark_safe('{}')
-    if not isinstance(value, (dict, OrderedDict, list, tuple)):
-        msg = "Given value must be of type dict, OrderedDict, list or tuple but it is {}."
-        raise ValueError(msg.format(value.__class__.__name__))
-    data = JSONRenderer().render(value)
-    return mark_safe(data)
-'''
-
 #==============================================================================
 # String utils
 #==============================================================================
@@ -94,3 +79,4 @@ def split(value, separator):
 @register.filter
 def bitwise_and(value, arg):
     return bool(value & arg)
+
