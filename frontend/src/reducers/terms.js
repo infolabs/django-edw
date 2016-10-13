@@ -50,12 +50,12 @@ class TermTreeModel {
     return tree;
   }
 
-  untagItem(item_id = -1) {
+  resetItem(item_id = -1) {
     let tree = this.tree;
     if (tree && tree.length > 0 && item_id && item_id > 0) {
       let item = this.hash_table[item_id];
       if(item)
-        item.unTag();
+        item.untagChildren();
     }
     this.selected = this.taggedIds(tree);
     return tree;
@@ -158,6 +158,12 @@ class TermTreeItemModel {
     });
   }
 
+  untagChildren() {
+    this.getChildren().forEach(function (child) {
+      child.unTag();
+    });
+  }
+
   unsetChildren() {
     this.getChildren().forEach(function (child) {
       child.tagged = false;
@@ -190,7 +196,7 @@ export default function terms(state = initialState, action) {
 
   case RESET_ITEM:
     let tree_reset = state.terms_tree;
-    tree_reset.untagItem(action.term.id);
+    tree_reset.resetItem(action.term.id);
     return {
       terms_tree: tree_reset,
       action_type: TOGGLE
