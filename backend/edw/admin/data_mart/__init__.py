@@ -1,8 +1,12 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import (
+    messages,
+    admin
+)
 
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
@@ -12,8 +16,12 @@ from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 from salmonella.admin import SalmonellaMixin
 
-from edw.admin.data_mart.forms import DataMartAdminForm
+from edw.admin.data_mart.forms import (
+    DataMartAdminForm,
+    DataMartRelationInlineForm
+)
 from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
+from edw.models.related import DataMartRelationModel
 
 
 class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
@@ -69,3 +77,13 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
+
+#===========================================================================================
+# EntityRelatedDataMartInline
+#===========================================================================================
+class DataMartRelationInline(admin.TabularInline):
+    model = DataMartRelationModel
+    fields=['term', 'direction']
+    fk_name = 'data_mart'
+    extra = 1
+    form = DataMartRelationInlineForm

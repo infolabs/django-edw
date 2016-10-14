@@ -14,7 +14,10 @@ from edw.models.term import TermModel
 from edw.admin.term import TermAdmin
 
 from edw.models.data_mart import DataMartModel
-from edw.admin.data_mart import DataMartAdmin
+from edw.admin.data_mart import (
+    DataMartAdmin,
+    DataMartRelationInline
+)
 
 from edw.admin.entity import (
     TermsTreeFilter,
@@ -175,5 +178,13 @@ admin.site.register(CustomerProxy, CustomerAdmin)
 admin.site.register(TermModel, TermAdmin)
 
 
-admin.site.register(DataMartModel, DataMartAdmin)
+class SampleDataMartAdmin(DataMartAdmin):
+
+    inlines = [DataMartRelationInline]
+
+
+admin.site.register(DataMartModel, SampleDataMartAdmin)
+
+
+
 

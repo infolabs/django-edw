@@ -4,10 +4,11 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from edw.models.term import TermModel, BaseTerm
+from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 
 from edw.admin.term.widgets import TermTreeWidget
+from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
 
 #==============================================================================
@@ -20,3 +21,12 @@ class DataMartAdminForm(forms.ModelForm):
     class Meta:
         model = DataMartModel
         exclude = ()
+
+
+#==============================================================================
+# DataMartRelationInlineForm
+#==============================================================================
+class DataMartRelationInlineForm(forms.ModelForm):
+
+    term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
+                                       joiner=' / ', label=_('Relation'))

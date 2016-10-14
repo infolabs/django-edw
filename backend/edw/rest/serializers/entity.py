@@ -176,7 +176,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', 'relations', 'terms')
+        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')

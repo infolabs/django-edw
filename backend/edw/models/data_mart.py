@@ -24,6 +24,7 @@ from bitfield import BitField
 
 from . import deferred
 from .term import TermModel
+from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug
@@ -192,6 +193,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                                  help_text=_("Is this data mart active."))
 
     system_flags = BitField(flags=SYSTEM_FLAGS, verbose_name=_('system flags'), null=True, default=None)
+
+    _relations = deferred.ManyToManyField('BaseTerm', through=DataMartRelationModel,
+                                         through_fields=('data_mart', 'term'))
 
     objects = BaseDataMartManager()
 

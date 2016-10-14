@@ -6,6 +6,7 @@ from edw.models.related import (
     BaseAdditionalEntityCharacteristicOrMark,
     BaseEntityRelation,
     BaseEntityRelatedDataMart,
+    BaseDataMartRelation,
     BaseEntityImage
 )
 
@@ -25,6 +26,12 @@ class EntityRelation(BaseEntityRelation):
 class EntityRelatedDataMart(BaseEntityRelatedDataMart):
     """Materialize many-to-many relation with data marts"""
     class Meta(BaseEntityRelatedDataMart.Meta):
+        abstract = False
+
+
+class DataMartRelation(BaseDataMartRelation):
+    """Materialize many-to-many data_mart with relations"""
+    class Meta(BaseDataMartRelation.Meta):
         abstract = False
 
 
