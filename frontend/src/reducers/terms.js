@@ -5,20 +5,23 @@ import { GET_TERMS_TREE,
          SEMANTIC_RULE_XOR,
          SEMANTIC_RULE_AND,
          STANDARD_SPECIFICATION,
+         EXPANDED_SPECIFICATION,
+         REDUCED_SPECIFICATION,
          } from '../constants/TermsTree';
 import { getTermsTree } from '../actions/TermsTreeActions';
 
 
 class TermTreeModel {
 
-  constructor(json, selected = []) {
+  constructor(json, selected = [], tagged = []) {
     this.json = json;
     this.hash_table = {};
+    this.tagged = tagged;
     this.selected = selected;
-    this.tree = this.json2tree(json, {}, this);
+    this.tree = this.json2tree(json, false, this);
   }
 
-  json2tree(json, parent = {}, self) {
+  json2tree(json, parent = false, self) {
     let tree = [];
     json.forEach(function (child) {
       let item = new TermTreeItemModel(
@@ -26,14 +29,24 @@ class TermTreeModel {
          "name": child.name,
          "slug": child.slug,
          "short_description": child.short_description,
-         "tagged": (self.selected.indexOf(child.id) > -1),
+         "tagged": (self.tagged.indexOf(child.id) > -1),
+         "selected": (self.selected.indexOf(child.id) > -1),
          "semantic_rule": child.semantic_rule,
+         "specification_mode": child.specification_mode,
          "is_leaf": child.is_leaf,
          "parent": parent,
         }
       );
+
       item.children = self.json2tree(child.children, item, self);
       self.hash_table[item.id] = item;
+
+      // fix for root elements with unloaded children
+      if (item.specification_mode == STANDARD_SPECIFICATION
+          && parent == false && !item.selected && !item.children.length) {
+        item.tagged = true;
+      }
+
       tree.push(item);
     });
     return tree;
@@ -43,10 +56,14 @@ class TermTreeModel {
     let tree = this.tree;
     if (tree && tree.length > 0 && item_id && item_id > 0) {
       let item = this.hash_table[item_id];
-      if(item)
+      if(item) {
         item.toggle();
+        if (!item.children.length && this.selected.indexOf(item_id) == -1)
+          this.selected.push(item_id);
+        this.tagged = this.taggedIds(tree);
+      }
     }
-    this.selected = this.taggedIds(tree);
+
     return tree;
   }
 
@@ -57,7 +74,6 @@ class TermTreeModel {
       if(item)
         item.untagChildren();
     }
-    this.selected = this.taggedIds(tree);
     return tree;
   }
 
@@ -79,7 +95,8 @@ class TermTreeItemModel {
     this.id = -1;
     this.name = '';
     this.slug = '';
-    this.tagged = false;
+    this.tagged = false; // tagged by user
+    this.selected = false; // selected by server
     this.semantic_rule = SEMANTIC_RULE_AND;
     this.specification_mode = STANDARD_SPECIFICATION;
     this.is_leaf = true;
@@ -87,8 +104,8 @@ class TermTreeItemModel {
     this.currentState = 'ex-state-default';
     this.view_class = '';
     this.description = '';
-    this.parent = {};
-    this.children = {};
+    this.parent = false;
+    this.children = [];
 
     //this.short_description = null; // todo: Яровому допилить в сериалайзер
     //this.branch = false; // Использовать `structure`
@@ -169,6 +186,25 @@ class TermTreeItemModel {
       child.tagged = false;
     });
   }
+
+  // TODO: Solve logic if childrens aren't loaded by default;
+
+  isExpanded() {
+    let mode = this.specification_mode;
+    if (mode == STANDARD_SPECIFICATION && !this.parent && !this.tagged) {
+      return true;
+    }
+    if (mode == STANDARD_SPECIFICATION && this.parent && this.tagged) {
+      return true;
+    }
+    if (mode == EXPANDED_SPECIFICATION && !this.tagged) {
+      return true;
+    }
+    if (mode == REDUCED_SPECIFICATION && this.tagged) {
+      return true;
+    }
+    return false;
+  }
 }
 
 
@@ -179,19 +215,28 @@ export default function terms(state = initialState, action) {
 
   case GET_TERMS_TREE:
     return {
-      terms_tree: new TermTreeModel(action.json, action.selected),
-      action_type: GET_TERMS_TREE,
+      terms_tree: new TermTreeModel(action.json, action.selected, action.tagged),
+      do_request: false,
     };
 
   case TOGGLE:
-    let tree_toggle = {tree: [], selected: []};
+    let tree_toggle = {tree: [], selected: [], tagged: []},
+    do_request_toggle = true;
     if (state.terms_tree) {
       tree_toggle = state.terms_tree;
+
+      do_request_toggle = false;
+      // check if we need to send server request for new data:
+      let old_selected = tree_toggle.selected.slice();
       tree_toggle.toggle(action.term.id);
+      let new_selected = tree_toggle.selected;
+      if (old_selected.toString() != new_selected.toString())
+        do_request_toggle = true;
+
     }
     return {
       terms_tree: tree_toggle,
-      action_type: TOGGLE
+      do_request: do_request_toggle,
     };
 
   case RESET_ITEM:
@@ -199,7 +244,7 @@ export default function terms(state = initialState, action) {
     tree_reset.resetItem(action.term.id);
     return {
       terms_tree: tree_reset,
-      action_type: TOGGLE
+      do_request: false,
     };
 
   default:

@@ -13,9 +13,10 @@ class TermsTree extends Component {
 
   componentWillReceiveProps(nextProps) {
     //subscribe fetch to props change
-    if (nextProps.terms && nextProps.terms.action_type == TOGGLE) {
+    if (nextProps.terms && nextProps.terms.do_request) {
       this.props.dispatch(TermsTreeActions.getTermsTree(
-          nextProps.terms.terms_tree.selected
+          nextProps.terms.terms_tree.selected,
+          nextProps.terms.terms_tree.tagged
       ));
     }
   }
