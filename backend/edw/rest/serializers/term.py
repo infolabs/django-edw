@@ -88,7 +88,6 @@ class _TermsFilterMixin(object):
             )
         )
 
-    @cached_property
     def is_expanded_specification(self):
         '''
         :return: `True` if parent node specification mode is `expanded`
@@ -107,13 +106,12 @@ class _TermsFilterMixin(object):
         '''
         return serializers.IntegerField().to_internal_value(value)
 
-    @cached_property
-    def depth(self):
+    def get_depth(self):
         '''
         :return: recursion depth
         '''
         raise NotImplementedError(
-            '{cls}.depth must be implemented.'.format(
+            '{cls}.get_depth must be implemented.'.format(
                 cls=self.__class__.__name__
             )
         )
@@ -140,12 +138,12 @@ class _TermsFilterMixin(object):
             return data.prepare_for_cache(data)
 
     def to_representation(self, data):
-        next_depth = self.depth + 1
+        next_depth = self.get_depth() + 1
         if self.max_depth is not None and next_depth > self.max_depth:
             terms = []
         else:
             selected_terms = self.get_selected_terms()
-            if self.is_expanded_specification or selected_terms is not None:
+            if self.is_expanded_specification() or selected_terms is not None:
                 terms = self.prepare_data(self.active_only_filter(data))
                 for term in terms:
                     term._depth = next_depth
@@ -166,12 +164,10 @@ class TermTreeListField(_TermsFilterMixin, serializers.ListField):
         term_info = self.parent._selected_term_info
         return None if term_info is None else term_info.get_children_dict()
 
-    @cached_property
     def is_expanded_specification(self):
         return self.parent._is_expanded_specification
 
-    @cached_property
-    def depth(self):
+    def get_depth(self):
         return self.parent._depth
 
 
@@ -207,7 +203,6 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         return tree.root.get_children_dict()
 
-    @cached_property
     def is_expanded_specification(self):
         return True
 
@@ -260,8 +255,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         return serializers.CharField().to_internal_value(value)
 
-    @cached_property
-    def depth(self):
+    def get_depth(self):
         return 0
 
 
