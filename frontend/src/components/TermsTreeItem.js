@@ -33,12 +33,13 @@ export default class TermsTreeItem extends Component {
 
     const { term, actions } = this.props;
     const semantic_rule = term.getParent().semantic_rule || SEMANTIC_RULE_AND;
+    const expanded = term.isExpanded();
 
     let list_item = "";
     if (!term.is_leaf && semantic_rule == SEMANTIC_RULE_AND) {
       list_item = (
         <span onClick={e => { ::this.handleItemClick(e)}}>
-          <i className={term.children.length ? "ex-icon-caret-on" : "ex-icon-caret-off"}></i>
+          <i className={expanded ? "ex-icon-caret-on" : "ex-icon-caret-off"}></i>
           {term.name}
         </span>
       )
@@ -46,21 +47,21 @@ export default class TermsTreeItem extends Component {
       if (semantic_rule == SEMANTIC_RULE_XOR) {
         list_item = (
           <span onClick={e => { ::this.handleItemClick(e)}}>
-            <i className={term.tagged ? "ex-icon-checkbox-on" : "ex-icon-checkbox-off"}></i>
+            <i className={expanded ? "ex-icon-checkbox-on" : "ex-icon-checkbox-off"}></i>
             {term.name}
           </span>
         )
       } else if (semantic_rule == SEMANTIC_RULE_AND) {
         list_item = (
             <span onClick={e => { ::this.handleItemClick(e)}}>
-              <i className={term.tagged ? "ex-icon-caret-on" : "ex-icon-caret-off"}></i>
+              <i className={expanded ? "ex-icon-caret-on" : "ex-icon-caret-off"}></i>
               {term.name}
             </span>
         )
       } else if (semantic_rule == SEMANTIC_RULE_OR) {
         list_item = (
           <span onClick={e => { ::this.handleItemClick(e)}}>
-            <i className={term.tagged ? "ex-icon-radio-on" : "ex-icon-radio-off"}></i>
+            <i className={expanded ? "ex-icon-radio-on" : "ex-icon-radio-off"}></i>
             {term.name}
           </span>
         )
@@ -75,7 +76,7 @@ export default class TermsTreeItem extends Component {
     }
 
     let reset_icon = "";
-    if (term.children.length) {
+    if (expanded && term.children.length) {
       reset_icon = (
         <i onClick={e => { ::this.handleResetClick(e)}}
            className="ex-icon-reset" title="Reset filter"></i>
@@ -94,9 +95,9 @@ export default class TermsTreeItem extends Component {
       )
     }
 
-    return (
-      <li>
-        {list_item}{description}{reset_icon}
+    let term_children = ""
+    if (expanded) {
+      term_children = (
         <ul>
           {reset_item}
           {term.children.map(term =>
@@ -106,6 +107,13 @@ export default class TermsTreeItem extends Component {
                             />
           )}
         </ul>
+      )
+    }
+
+    return (
+      <li>
+        {list_item}{description}{reset_icon}
+        {term_children}
       </li>
     )
   }
