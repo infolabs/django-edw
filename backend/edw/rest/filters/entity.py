@@ -105,10 +105,32 @@ class EntityFilter(filters.FilterSet):
     def data_mart_term_ids(self):
         return list(self.data_mart.terms.active().values_list('id', flat=True)) if self.data_mart else []
 
+    # @cached_property
+    # def data_mart_rel_ids(self):
+    #     return ['{}{}'.format(relation.term_id, relation.direction) for relation in
+    #             self.data_mart.relations.all()] if self.data_mart else []
+
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
+
+        # =======
+        #
+        # print "*** filter_data_mart_pk ***"
+        # # todo: find rels data_mart relations
+        #
+        # if 'rel' not in self.data:
+        #
+        #     rel_ids = self.data_mart_rel_ids
+        #     print ">>> rel_ids <<<", rel_ids
+        #     if rel_ids:
+        #         #self._rel_ids = rel_ids
+        #
+        #         pass
+        #
+
+        # =======
 
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
@@ -141,10 +163,15 @@ class EntityFilter(filters.FilterSet):
 
     def filter_subj(self, name, queryset, value):
         self._subj_ids = value
-        if not self.subj_ids or 'rel' in self.data:
+        if not self.subj_ids:
             return queryset
-        self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
-        return queryset.subj(self.subj_ids)
+
+        if self.rel_ids is None:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
+            return queryset.subj(self.subj_ids)
+        else:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.subj_ids, *self.rel_ids)
+            return queryset.subj_and_rel(self.subj_ids, *self.rel_ids)
 
     @staticmethod
     def _separate_rel_by_key(rel, key, lst):
@@ -182,12 +209,13 @@ class EntityFilter(filters.FilterSet):
 
     def filter_rel(self, name, queryset, value):
         self._rel_ids = value
-        if self.rel_ids is None:
+
+        # ===============
+        # print "+++ filter_rel +++"
+        # ===============
+
+        if self.rel_ids is None or 'subj' in self.data:
             return queryset
 
-        if self.subj_ids:
-            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.subj_ids, *self.rel_ids)
-            return queryset.subj_and_rel(self.subj_ids, *self.rel_ids)
-        else:
-            self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
-            return queryset.rel(*self.rel_ids)
+        self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
+        return queryset.rel(*self.rel_ids)
