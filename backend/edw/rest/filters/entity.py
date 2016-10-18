@@ -126,7 +126,9 @@ class EntityFilter(filters.FilterSet):
         #     print ">>> rel_ids <<<", rel_ids
         #     if rel_ids:
         #         #self._rel_ids = rel_ids
+        #         filter_rel(...rel_ids)
         #
+        # todo: test subj or not ^
         #         pass
         #
 
@@ -208,7 +210,7 @@ class EntityFilter(filters.FilterSet):
         return rel_f_ids, rel_r_ids
 
     def filter_rel(self, name, queryset, value):
-        self._rel_ids = value
+        self._rel_ids = value # todo: test `name` or make filter_rel
 
         # ===============
         # print "+++ filter_rel +++"
