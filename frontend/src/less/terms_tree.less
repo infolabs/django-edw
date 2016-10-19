@@ -58,6 +58,13 @@ body,
     border-radius: 3px;
 }
 
+.ex-icon-checkbox-dot:before {
+  font-size: 6px;
+  text-align: center;
+  vertical-align: 3px;
+  opacity: 0.5;
+}
+
 [class^="ex-icon-radio-"]:before,
 [class*=" ex-icon-radio-"]:before,
 [class^="ex-icon-checkbox-"]:before,
@@ -91,6 +98,9 @@ body,
 }
 .ex-icon-checkbox-off:before {
   content: " ";
+}
+.ex-icon-checkbox-dot:before {
+  content: "\f111";
 }
 .ex-icon-radio-on:before {
   content: "\f111";
@@ -137,4 +147,8 @@ body,
 
 .ex-baloon-hide {
   display: none;
+}
+
+.ex-dim {
+  opacity: 0.5;
 }

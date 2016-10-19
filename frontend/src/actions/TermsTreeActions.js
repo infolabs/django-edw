@@ -2,13 +2,14 @@ import * as types from '../constants/TermsTree';
 
 
 export function getTermsTree(selected = [], tagged = []) {
-  // let url = Urls['edw:data-mart-terms-tree'](1, 'json')
-  // console.log(Urls)
-  // console.log(Urls['edw:datamart_tree'](1, 'json'))
-  // nothing!
-  let url = '/edw/api/data-marts/1/terms/tree.json'
+
+  // edw/api/data-marts/1/terms/tree.json
+  // console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
+
+  let url = Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1"
+
   if (selected && selected.length > 0)
-    url += '?selected=' + selected.join()
+    url += '&selected=' + selected.join()
   return fetch(url, {
     method: 'get',
     headers: {

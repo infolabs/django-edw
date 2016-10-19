@@ -7,6 +7,10 @@ import { GET_TERMS_TREE,
          STANDARD_SPECIFICATION,
          EXPANDED_SPECIFICATION,
          REDUCED_SPECIFICATION,
+         STRUCTURE_TRUNK,
+         STRUCTURE_LIMB,
+         STRUCTURE_BRANCH,
+         STRUCTURE_NULL,
          } from '../constants/TermsTree';
 import { getTermsTree } from '../actions/TermsTreeActions';
 
@@ -33,6 +37,7 @@ class TermTreeModel {
          "selected": (self.selected.indexOf(child.id) > -1),
          "semantic_rule": child.semantic_rule,
          "specification_mode": child.specification_mode,
+         "structure": child.structure,
          "is_leaf": child.is_leaf,
          "parent": parent,
         }
@@ -72,7 +77,7 @@ class TermTreeModel {
     if (tree && tree.length > 0 && item_id && item_id > 0) {
       let item = this.hash_table[item_id];
       if(item)
-        item.untagChildren();
+        item.untag();
     }
     return tree;
   }
@@ -99,6 +104,7 @@ class TermTreeItemModel {
     this.selected = false; // selected by server
     this.semantic_rule = SEMANTIC_RULE_AND;
     this.specification_mode = STANDARD_SPECIFICATION;
+    this.structure = false;
     this.is_leaf = true;
     this.short_description = '';
     this.currentState = 'ex-state-default';
@@ -141,7 +147,7 @@ class TermTreeItemModel {
     return this._levelCache;
   }
 
-  isChildrenTagged() {
+  areChildrenTagged() {
     let children = this.getChildren();
     for (let i = 0; i < children.length; i++) {
       let child = children[i];
@@ -160,24 +166,24 @@ class TermTreeItemModel {
     if (this.tagged) {
       if (this.parent.semantic_rule == SEMANTIC_RULE_OR) {
         this.getSiblings().forEach(function (item) {
-            item.unTag();
+            item.untag();
         });
       }
     } else {
-      this.unTag();
+      this.untag();
     }
   }
 
-  unTag() {
+  untag() {
     this.tagged = false;
     this.getChildren().forEach(function (child) {
-      child.unTag();
+      child.untag();
     });
   }
 
   untagChildren() {
     this.getChildren().forEach(function (child) {
-      child.unTag();
+      child.untag();
     });
   }
 
@@ -187,14 +193,24 @@ class TermTreeItemModel {
     });
   }
 
-  // TODO: Solve logic if childrens aren't loaded by default;
+  isLimbLine() {
+    if (this.structure == STRUCTURE_LIMB)
+      return true;
+    let parent = this.getParent();
+    if (parent) {
+      if (parent.structure == STRUCTURE_LIMB)
+        return true;
+      return parent.isLimbLine();
+    }
+    return false;
+  }
 
   isExpanded() {
     let mode = this.specification_mode;
-    if (mode == STANDARD_SPECIFICATION && !this.parent && !this.tagged) {
+    if (mode == STANDARD_SPECIFICATION && this.structure == STRUCTURE_LIMB && !this.tagged) {
       return true;
     }
-    if (mode == STANDARD_SPECIFICATION && this.parent && this.tagged) {
+    if (mode == STANDARD_SPECIFICATION && this.structure != STRUCTURE_LIMB&& this.tagged) {
       return true;
     }
     if (mode == EXPANDED_SPECIFICATION && !this.tagged) {
