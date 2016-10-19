@@ -155,7 +155,13 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
         for field_name, field in include_fields.items():
             if isinstance(field, serializers.SerializerMethodField):
                 default_method_name = 'get_{field_name}'.format(field_name=field_name)
-                method_name = default_method_name if field.method_name is None else field.method_name
+                if field.method_name is None:
+                    method_name = default_method_name
+                else:
+                    method_name = field.method_name
+                    # hack for SerializerMethodField.bind method
+                    if field.method_name == default_method_name:
+                        field.method_name = None
                 method = getattr(instance._rest_meta, method_name)
                 setattr(self, method_name, types.MethodType(method, self, self.__class__))
             self.fields[field_name] = field

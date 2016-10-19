@@ -762,9 +762,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         Return all marks objects of current entity
         """
-        print ">>>>>>>>>>>>>========", hasattr(self, 'rel')
-
-
         return self.marks_getter.all()
 
     @cached_property

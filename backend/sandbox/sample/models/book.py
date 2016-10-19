@@ -76,7 +76,7 @@ class ChildBook(Book):
     class RESTMeta:
         exclude = ['age', 'images']
         include = {
-            'my_age': serializers.SerializerMethodField()
+            'my_age': serializers.SerializerMethodField(),
         }
 
         def get_my_age(serializer, entity):
