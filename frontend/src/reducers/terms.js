@@ -2,22 +2,22 @@ import { GET_TERMS_TREE,
          TOGGLE,
          RESET_ITEM,
          SEMANTIC_RULE_OR,
-         SEMANTIC_RULE_XOR,
+         // SEMANTIC_RULE_XOR,
          SEMANTIC_RULE_AND,
          STANDARD_SPECIFICATION,
          EXPANDED_SPECIFICATION,
          REDUCED_SPECIFICATION,
-         STRUCTURE_TRUNK,
+         // STRUCTURE_TRUNK,
          STRUCTURE_LIMB,
-         STRUCTURE_BRANCH,
-         STRUCTURE_NULL,
+         // STRUCTURE_BRANCH,
+         // STRUCTURE_NULL,
          } from '../constants/TermsTree';
 import { getTermsTree } from '../actions/TermsTreeActions';
 
 
 class TermTreeModel {
 
-  constructor(json, selected = [], tagged = []) {
+  constructor(json, selected=[], tagged=[]) {
     this.json = json;
     this.hash_table = {};
     this.tagged = tagged; // todo: selected vs tagged?
@@ -207,7 +207,7 @@ class TermTreeItemModel {
     if (mode == STANDARD_SPECIFICATION && this.structure == STRUCTURE_LIMB && !this.tagged) {
       return true;
     }
-    if (mode == STANDARD_SPECIFICATION && this.structure != STRUCTURE_LIMB&& this.tagged) {
+    if (mode == STANDARD_SPECIFICATION && this.structure != STRUCTURE_LIMB && this.tagged) {
       return true;
     }
     if (mode == EXPANDED_SPECIFICATION && !this.tagged) {
@@ -234,7 +234,7 @@ export default function terms(state = initialState, action) {
 
   case TOGGLE:
     let tree_toggle = {tree: [], selected: [], tagged: []},
-    do_request_toggle = true;
+      do_request_toggle = true;
     if (state.terms_tree) {
       tree_toggle = state.terms_tree;
 
