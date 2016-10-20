@@ -20,7 +20,7 @@ class TermTreeModel {
   constructor(json, selected = [], tagged = []) {
     this.json = json;
     this.hash_table = {};
-    this.tagged = tagged;
+    this.tagged = tagged; // todo: selected vs tagged?
     this.selected = selected;
     this.tree = this.json2tree(json, false, this);
   }
@@ -39,7 +39,7 @@ class TermTreeModel {
          "specification_mode": child.specification_mode,
          "structure": child.structure,
          "is_leaf": child.is_leaf,
-         "parent": parent,
+         "parent": parent, // todo: <-- ', ' not python
         }
       );
 
@@ -113,9 +113,6 @@ class TermTreeItemModel {
     this.parent = false;
     this.children = [];
 
-    //this.short_description = null; // todo: Яровому допилить в сериалайзер
-    //this.branch = false; // Использовать `structure`
-    //this.trunk = false; // --//-- НЕТ ТАКОГО ПОЛЯ
 
     Object.assign(this, options);
 
