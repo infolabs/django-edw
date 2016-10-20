@@ -105,34 +105,20 @@ class EntityFilter(filters.FilterSet):
     def data_mart_term_ids(self):
         return list(self.data_mart.terms.active().values_list('id', flat=True)) if self.data_mart else []
 
-    # @cached_property
-    # def data_mart_rel_ids(self):
-    #     return ['{}{}'.format(relation.term_id, relation.direction) for relation in
-    #             self.data_mart.relations.all()] if self.data_mart else []
+    @cached_property
+    def data_mart_rel_ids(self):
+        return ['{}{}'.format(relation.term_id, relation.direction) for relation in
+                self.data_mart.relations.all()] if self.data_mart else []
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
 
-        # =======
-        #
-        # print "*** filter_data_mart_pk ***"
-        # # todo: find rels data_mart relations
-        #
-        # if 'rel' not in self.data:
-        #
-        #     rel_ids = self.data_mart_rel_ids
-        #     print ">>> rel_ids <<<", rel_ids
-        #     if rel_ids:
-        #         #self._rel_ids = rel_ids
-        #         filter_rel(...rel_ids)
-        #
-        # todo: test subj or not ^
-        #         pass
-        #
-
-        # =======
+        if 'rel' not in self.data:
+            rel_ids = self.data_mart_rel_ids
+            if rel_ids:
+                queryset = self.filter_rel(name, queryset, rel_ids)
 
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
@@ -210,11 +196,7 @@ class EntityFilter(filters.FilterSet):
         return rel_f_ids, rel_r_ids
 
     def filter_rel(self, name, queryset, value):
-        self._rel_ids = value # todo: test `name` or make filter_rel
-
-        # ===============
-        # print "+++ filter_rel +++"
-        # ===============
+        self._rel_ids = value
 
         if self.rel_ids is None or 'subj' in self.data:
             return queryset
