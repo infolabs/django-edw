@@ -268,7 +268,7 @@ export default function terms(state = initialState, action) {
 
 /* Набросал структуру данных для редусера */
 
-
+/*
 {
 
     tree: { // Объект 'tree' заполняется после получения данных с сервера и не меняется непосредственно пользователем,
@@ -343,3 +343,4 @@ export default function terms(state = initialState, action) {
 
 
 }
+*/
