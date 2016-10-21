@@ -264,3 +264,69 @@ export default function terms(state = initialState, action) {
     return state;
   }
 }
+
+
+/* Набросал структуру данных для редусера */
+
+/*
+{
+  tree_state: {
+      tree: { // Объект 'tree' заполняется после получения данных с сервера и не меняется непосредственно пользователем,
+            // поэтому редусер после клика пользователя может просто копировать ссылку на обьект
+            // результат будет pure, новый экземпляр создается только после ответа с сервера
+
+          'root': { // Виртуалный корневой узел создается после парсинга результата, точка входа tree['root'],
+                    // узлы также содержат логику рекурсивного описания работы модели например: переключение узла (toggle) selected['term_id'],
+                          // каскадный сброс или установка selected
+              parent: null,
+              children: [
+                <указатель на term_1>,
+                ...
+          },
+          1: {
+              id: 1,
+              parent: <указатель на parent_term>, // используется для оптимизации работы функционала selected,
+                                                  // null если верхний уровень
+              name: 'term 1 blabla',
+              view_class = '',
+              structure: null, // trunk, limb, branch или null
+              short_description: 'some text', // на акшон showDescription(<id>)
+                                              // если short_description != '' && descriptions[<term_id_1>] == ''
+                                              // запрос на сервер detail нода и врезультате вызов setDescription(<id>, <description>)
+              children: [
+                <указатель на children_term_1>,
+                <указатель на children_term_2>,
+                ...
+              ]
+
+          },
+          <children_term_1> : {
+             ...
+          }
+
+      },
+      // для акшонов типа toggle('term_id') или unsetChildren('term_id')
+      selected: { //  Содержит состояние выбранных терминов, изначально заполняется через
+                // _.map(tree.keys(), obj => { return (obj.structure != null )} )
+                  //  меняется акшонами, нужно всегда создавать новый экземпляр
+          '1': true,
+          <children_term_1>: false,
+          <children_term_2>: true,
+          ...
+      }
+    },
+    // для акшонов типа showDescription('term_id')
+    descriptions_state: {
+      show: <id>, // ID нода дескриптион которого отображается или null вслучае когда не отображаем дескриптион
+      descriptions: {
+        1: 'description1',
+        <children_term_2>: 'description2',
+          ...
+      }
+    },
+
+    // далее добавятся сткруктуры для potential_terms и real_terms...
+
+
+}
+*/
