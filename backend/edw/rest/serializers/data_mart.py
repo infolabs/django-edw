@@ -37,9 +37,14 @@ class DataMartDetailSerializer(DataMartSerializer):
     """
     DataMartDetailSerializer
     """
+    rel = serializers.SerializerMethodField()
+
     class Meta(DataMartSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'url', 'view_class', 'created_at', 'updated_at', 'level',
-                  'active', 'description')
+                  'active', 'rel', 'description')
+
+    def get_rel(self, instance):
+        return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
 
 
 class DataMartSummarySerializer(DataMartSerializer):
