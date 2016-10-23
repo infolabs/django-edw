@@ -1,3 +1,4 @@
+import { combineReducers } from 'redux';
 import _ from 'underscore';
 import * as consts from '../constants/TermsTree';
 
@@ -24,9 +25,10 @@ class Tree {
         'structure': child.structure,
         'is_leaf': child.is_leaf,
         'parent': parent,
-        'children': this.json2tree(child, parent).children
       };
-      parent.children.push(new Item(options));
+      let item = new Item(options);
+      item.children = this.json2tree(child.children, item).children;
+      parent.children.push(item);
     }
     return parent;
   }
@@ -35,7 +37,7 @@ class Tree {
 
 class Item {
   constructor(options) {
-    defaults = {
+    let defaults = {
       'id': -1,
       'name': '',
       'slug': '',
@@ -68,29 +70,74 @@ class Item {
       return [];
     }
   }
+
+  isLimbDescendant() {
+    if (this.structure == consts.STRUCTURE_LIMB)
+      return true;
+    let parent = this.getParent();
+    if (parent != false) {
+      if (parent.structure == consts.STRUCTURE_LIMB)
+        return true;
+      return parent.isLimbDescendant();
+    }
+    return false;
+  }
+
+  isLimbAndLeaf() {
+    return (
+      this.structure == consts.STRUCTURE_LIMB && this.is_leaf
+    )
+  }
 }
 
-
-class RequestedState extends Array {
+class Tagged extends Array {
   constructor() {
     super();
   }
 }
 
-class ToggledState extends Array {
+class Requested extends Array {
   constructor() {
     super();
   }
 }
 
-class ExpandedState extends Array {
+class ExpandedChildren extends Array {
   constructor() {
     super();
   }
 }
 
-class InfoState extends Array {
+class ExpandedInfo extends Array {
   constructor() {
     super();
   }
 }
+
+const initialState = {};
+
+function tree(state = initialState, action) {
+  switch (action.type) {
+    case consts.GET_TERMS_TREE:
+      return new Tree(action.json);
+    default:
+      return state;
+  }
+}
+
+function tagged(state = initialState, action) {
+  switch (action.type) {
+    case consts.TOGGLE:
+      return new Tagged();
+    default:
+      return state;
+  }
+}
+
+const terms = combineReducers({
+    tree: tree,
+    tagged: tagged
+})
+
+export default terms;
+

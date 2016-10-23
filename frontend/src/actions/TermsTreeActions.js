@@ -6,7 +6,7 @@ export function getTermsTree(selected = [], tagged = []) {
   // edw/api/data-marts/1/terms/tree.json
   // console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
 
-  let url = Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1"
+  let url = Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=2"
 
   if (selected && selected.length > 0)
     url += '&selected=' + selected.join()
