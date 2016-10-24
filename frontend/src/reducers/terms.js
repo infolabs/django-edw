@@ -2,10 +2,12 @@ import { combineReducers } from 'redux';
 import _ from 'underscore';
 import * as consts from '../constants/TermsTree';
 
+/* Tree Data Structures */
 
 class Tree {
   constructor(json) {
     this.json = json;
+    this.hash = {};
     this.root = this.json2tree(json);
   }
 
@@ -30,10 +32,10 @@ class Tree {
       item.children = this.json2tree(child.children, item).children;
       parent.children.push(item);
     }
+    this.hash[parent.id] = parent;
     return parent;
   }
 }
-
 
 class Item {
   constructor(options) {
@@ -86,49 +88,177 @@ class Item {
   isLimbAndLeaf() {
     return (
       this.structure == consts.STRUCTURE_LIMB && this.is_leaf
-    )
+    );
   }
 }
 
-class Tagged extends Array {
+/* Tagged Data Structures */
+
+class TaggedItems {
+
+  toggle(item) {
+    if (this[item.id] == true) {
+      this.untag(item);
+    } else {
+      this[item.id] = true;
+      let parent = item.getParent();
+      if (parent && parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
+        this.untagSiblings(item);
+      }
+    }
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  resetItem(item) {
+    this.untag(item);
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  untag(item) {
+    this[item.id] = false;
+    let children = item.getChildren();
+    for (let i = 0; i < children.length; i++) {
+      this.untag(children[i]);
+    }
+  }
+
+  untagSiblings(item) {
+    let siblings = item.getSiblings();
+    for (let i = 0; i < siblings.length; i++) {
+      this.untag(siblings[i]);
+    }
+  }
+
+  isAnyTagged(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (this[arr[i].id] == true)
+        return true;
+    }
+    return false;
+  }
+}
+
+/* Expanded Data Structures */
+
+class ExpandedItems {
+
+  constructor(json) {
+    this.json2items(json)
+  }
+
+  json2items(json) {
+    for (let i = 0; i < json.length; i++) {
+      let child = json[i];
+
+      let mode = child.specification_mode,
+          is_standard = mode == consts.STANDARD_SPECIFICATION,
+          is_expanded = mode == consts.EXPANDED_SPECIFICATION,
+          is_leaf = child.is_leaf,
+          is_limb = child.structure == consts.STRUCTURE_LIMB;
+
+      this[child.id] = false;
+      if ((is_standard && is_limb && !is_leaf) || is_expanded)
+        this[child.id] = true;
+
+      this.json2items(child.children);
+    }
+  }
+
+  toggle(item) {
+    this[item.id] = !this[item.id];
+    return Object.assign(new ExpandedItems([]), this);
+  }
+
+  reload(json) {
+    return Object.assign(new ExpandedItems(json), this);
+  }
+}
+
+/* Requested Data Structures */
+
+class Requested {
+
   constructor() {
-    super();
+    this.array = [];
+  }
+
+  toggle(item) {
+    if (this[item.id] != true &&
+        !item.is_leaf &&
+        !item.getChildren().length) {
+      this[item.id] = true;
+      this.array.push(item.id);
+      return Object.assign(new Requested(), this);
+    } else {
+      return this;
+    }
   }
 }
 
-class Requested extends Array {
-  constructor() {
-    super();
+/* Expanded Info Structures */
+
+class ExpandedInfoItems {
+  show(item) {
+    let ei = new ExpandedInfoItems();
+    ei[item.id] = true;
+    return ei;
+  }
+
+  hide(item) {
+    return new ExpandedInfoItems(); 
   }
 }
 
-class ExpandedChildren extends Array {
-  constructor() {
-    super();
-  }
-}
-
-class ExpandedInfo extends Array {
-  constructor() {
-    super();
-  }
-}
-
-const initialState = {};
-
-function tree(state = initialState, action) {
+function tree(state = new Tree([]), action) {
   switch (action.type) {
-    case consts.GET_TERMS_TREE:
+    case consts.LOAD_TREE:
+      return new Tree(action.json);
+    case consts.RELOAD_TREE:
       return new Tree(action.json);
     default:
       return state;
   }
 }
 
-function tagged(state = initialState, action) {
+function requested(state = new Requested(), action) {
   switch (action.type) {
-    case consts.TOGGLE:
-      return new Tagged();
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    default:
+      return state;
+  }
+}
+
+function tagged(state = new TaggedItems(), action) {
+  switch (action.type) {
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    case consts.RESET_ITEM:
+      return state.resetItem(action.term);
+    default:
+      return state;
+  }
+}
+
+function expanded(state = new ExpandedItems([]), action) {
+  switch (action.type) {
+    case consts.LOAD_TREE:
+      return new ExpandedItems(action.json);
+    case consts.RELOAD_TREE:
+      return state.reload(action.json);
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    default:
+      return state;
+  }
+}
+
+function infoExpanded(state = new ExpandedInfoItems(), action) {
+  switch (action.type) {
+    case consts.SHOW_INFO:
+      return state.show(action.term);
+    case consts.HIDE_INFO:
+      return state.hide(action.term);
     default:
       return state;
   }
@@ -136,7 +266,10 @@ function tagged(state = initialState, action) {
 
 const terms = combineReducers({
     tree: tree,
-    tagged: tagged
+    requested: requested,
+    tagged: tagged,
+    expanded: expanded,
+    info_expanded: infoExpanded
 })
 
 export default terms;
