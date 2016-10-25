@@ -1,46 +1,53 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import React, { Component, PropTypes } from 'react';
-import * as TermsTreeActions from '../actions/TermsTreeActions'; //TermsTreeActions
-import { TOGGLE } from '../constants/TermsTree';
-import TermsTreeItem from './TermsTreeItem'; //TermsTreeItem
+import React, { Component } from 'react';
+import _ from 'underscore';
+import * as TermsTreeActions from '../actions/TermsTreeActions';
+import TermsTreeItem from './TermsTreeItem';
+
 
 class TermsTree extends Component {
-
   componentDidMount() {
-    this.props.actions.toggle();
+    this.props.actions.loadTree();
   }
 
   componentWillReceiveProps(nextProps) {
-    //subscribe fetch to props change
-    if (nextProps.terms && nextProps.terms.do_request) {
-      this.props.dispatch(TermsTreeActions.getTermsTree(
-          nextProps.terms.terms_tree.selected,
-          nextProps.terms.terms_tree.tagged
-      ));
+    const req_curr = this.props.terms.requested,
+          req_next = nextProps.terms.requested;
+    if (req_curr != req_next) {
+      this.props.actions.reloadTree(req_next.array);
+      console.log("OLOLO")
     }
   }
 
   render() {
-    const { terms, actions } = this.props;
-    let terms_tree = [];
-    if (typeof terms.terms_tree !== 'undefined')
-      terms_tree = terms.terms_tree.tree
+    const { terms, actions } = this.props,
+          term = terms.tree.root,
+          tagged = terms.tagged,
+          expanded = terms.expanded,
+          info_expanded = terms.info_expanded;
 
+    let tree = "";
+    if (!_.isUndefined(term)) {
+      tree = (
+        <TermsTreeItem key={term.id}
+                       term={term}
+                       tagged={tagged}
+                       expanded={expanded}
+                       info_expanded={info_expanded}
+                       actions={actions}/>
+      );
+    }
     return (
-    <div className="terms-tree-container">
-      <ul className="terms-tree">
-        {terms_tree.map(term =>
-          <TermsTreeItem key={term.id} //TermsTreeItem
-                          term={term}
-                          actions={actions}
-                          />
-        )}
-      </ul>
-    </div>
+      <div className="terms-tree-container">
+        <ul className="terms-tree">
+          {tree}
+        </ul>
+      </div>
     )
   }
 }
+
 
 function mapState(state) {
   return {
@@ -48,12 +55,14 @@ function mapState(state) {
   };
 }
 
+
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(TermsTreeActions, dispatch),
     dispatch: dispatch
   };
 }
+
 
 export default connect(mapState, mapDispatch)(TermsTree);
 

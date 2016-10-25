@@ -1,35 +1,37 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 
 export default class TermsTreeItemInfo extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {'baloon': false };
-  }
-
   handleIconClick(e) {
+    const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
-    this.setState({'baloon': true });
+    console.log("OLOLO")
+    actions.showInfo(term);
   }
 
   handleCloseClick(e) {
+    const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
-    this.setState({'baloon': false });
+    actions.hideInfo(term);
   }
 
   render() {
+
+    const { term, info_expanded, actions } = this.props;
+
+
     return (
       <span className="ex-description-wrapper">
         <i className="ex-icon-info"
            title="Info"
            onClick={e => { ::this.handleIconClick(e)}}></i>
-        <div className={this.state.baloon ? "ex-baloon ex-baloon-show" : "ex-baloon ex-baloon-hide"}>
+        <div className={info_expanded[term.id] == true ? "ex-baloon ex-baloon-show" : "ex-baloon ex-baloon-hide"}>
         <button type="button"
                 className="ex-close"
                 onClick={e => { ::this.handleCloseClick(e)}}>×</button>
-            {this.props.description}
+            {term.short_description}
         </div>
       </span>
     )

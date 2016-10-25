@@ -1,7 +1,6 @@
 import * as types from '../constants/TermsTree';
 
-
-export function getTermsTree(selected = [], tagged = []) {
+function getTermsTree(type, selected = []) {
 
   // edw/api/data-marts/1/terms/tree.json
   // console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
@@ -17,17 +16,22 @@ export function getTermsTree(selected = [], tagged = []) {
       'Content-Type': 'application/json'
     },
   }).then(response => response.json()).then(json => ({
-    type: types.GET_TERMS_TREE,
+    type: type,
     json: json,
-    selected: selected,
-    tagged: tagged,
   }));
 }
 
+export function loadTree() {
+  return getTermsTree(types.LOAD_TREE);
+}
+
+export function reloadTree(selected = []) {
+  return getTermsTree(types.RELOAD_TREE, selected);
+}
 
 export function toggle(term = {}) {
   return {
-    type: types.TOGGLE,
+    type: types.TOGGLE_ITEM,
     term: term,
   };
 }
@@ -35,6 +39,20 @@ export function toggle(term = {}) {
 export function resetItem(term = {}) {
   return {
     type: types.RESET_ITEM,
+    term: term,
+  };
+}
+
+export function showInfo(term = {}) {
+  return {
+    type: types.SHOW_INFO,
+    term: term,
+  };
+}
+
+export function hideInfo(term = {}) {
+  return {
+    type: types.HIDE_INFO,
     term: term,
   };
 }

@@ -1,121 +1,58 @@
-import { GET_TERMS_TREE, 
-         TOGGLE,
-         RESET_ITEM,
-         SEMANTIC_RULE_OR,
-         // SEMANTIC_RULE_XOR,
-         SEMANTIC_RULE_AND,
-         STANDARD_SPECIFICATION,
-         EXPANDED_SPECIFICATION,
-         REDUCED_SPECIFICATION,
-         // STRUCTURE_TRUNK,
-         STRUCTURE_LIMB,
-         // STRUCTURE_BRANCH,
-         // STRUCTURE_NULL,
-         } from '../constants/TermsTree';
-import { getTermsTree } from '../actions/TermsTreeActions';
+import { combineReducers } from 'redux';
+import _ from 'underscore';
+import * as consts from '../constants/TermsTree';
 
+/* Tree Data Structures */
 
-class TermTreeModel {
-
-  constructor(json, selected=[], tagged=[]) {
+class Tree {
+  constructor(json) {
     this.json = json;
-    this.hash_table = {};
-    this.tagged = tagged; // todo: selected vs tagged?
-    this.selected = selected;
-    this.tree = this.json2tree(json, false, this);
+    this.hash = {};
+    this.root = this.json2tree(json);
   }
 
-  json2tree(json, parent = false, self) {
-    let tree = [];
-    json.forEach(function (child) {
-      let item = new TermTreeItemModel(
-        {"id": child.id,
-         "name": child.name,
-         "slug": child.slug,
-         "short_description": child.short_description,
-         "tagged": (self.tagged.indexOf(child.id) > -1),
-         "selected": (self.selected.indexOf(child.id) > -1),
-         "semantic_rule": child.semantic_rule,
-         "specification_mode": child.specification_mode,
-         "structure": child.structure,
-         "is_leaf": child.is_leaf,
-         "parent": parent, // todo: <-- ', ' not python
-        }
-      );
-
-      item.children = self.json2tree(child.children, item, self);
-      self.hash_table[item.id] = item;
-
-      // fix for root elements with unloaded children
-      if (item.specification_mode == STANDARD_SPECIFICATION
-          && parent == false && !item.selected && !item.children.length) {
-        item.tagged = true;
-      }
-
-      tree.push(item);
-    });
-    return tree;
-  }
-
-  toggle(item_id = -1) {
-    let tree = this.tree;
-    if (tree && tree.length > 0 && item_id && item_id > 0) {
-      let item = this.hash_table[item_id];
-      if(item) {
-        item.toggle();
-        if (!item.children.length && this.selected.indexOf(item_id) == -1)
-          this.selected.push(item_id);
-        this.tagged = this.taggedIds(tree);
-      }
+  json2tree(json, parent = false) {
+    if (parent == false) {
+      parent = new Item();
     }
-
-    return tree;
-  }
-
-  resetItem(item_id = -1) {
-    let tree = this.tree;
-    if (tree && tree.length > 0 && item_id && item_id > 0) {
-      let item = this.hash_table[item_id];
-      if(item)
-        item.untag();
+    for (let i = 0; i < json.length; i++) {
+      let child = json[i];
+      let options = {
+        'id': child.id,
+        'name': child.name,
+        'slug': child.slug,
+        'short_description': child.short_description,
+        'semantic_rule': child.semantic_rule,
+        'specification_mode': child.specification_mode,
+        'structure': child.structure,
+        'is_leaf': child.is_leaf,
+        'parent': parent,
+      };
+      let item = new Item(options);
+      item.children = this.json2tree(child.children, item).children;
+      parent.children.push(item);
     }
-    return tree;
-  }
-
-  taggedIds(tree = []) {
-    let ids = [];
-    for (let i = 0; i < tree.length; i++) {
-      let child = tree[i];
-      if (child.tagged)
-        ids.push(child.id);
-      ids = [...ids, ...this.taggedIds(child.getChildren())];
-    }
-    return ids;
+    this.hash[parent.id] = parent;
+    return parent;
   }
 }
 
-class TermTreeItemModel {
-
+class Item {
   constructor(options) {
-    this.id = -1;
-    this.name = '';
-    this.slug = '';
-    this.tagged = false; // tagged by user
-    this.selected = false; // selected by server
-    this.semantic_rule = SEMANTIC_RULE_AND;
-    this.specification_mode = STANDARD_SPECIFICATION;
-    this.structure = false;
-    this.is_leaf = true;
-    this.short_description = '';
-    this.currentState = 'ex-state-default';
-    this.view_class = '';
-    this.description = '';
-    this.parent = false;
-    this.children = [];
-
-
+    let defaults = {
+      'id': -1,
+      'name': '',
+      'slug': '',
+      'short_description': '',
+      'semantic_rule': consts.SEMANTIC_RULE_AND,
+      'specification_mode': consts.STANDARD_SPECIFICATION,
+      'structure': consts.STRUCTURE_NULL,
+      'is_leaf': true,
+      'parent': false,
+      'children': []
+    }
+    Object.assign(this, defaults);
     Object.assign(this, options);
-
   }
 
   getParent() {
@@ -128,7 +65,7 @@ class TermTreeItemModel {
 
   getSiblings() {
     let parent = this.getParent();
-    if (typeof parent.getChildren !== 'undefined' ) {
+    if (!_.isUndefined(parent.getChildren)) {
       let siblings = parent.getChildren();
       return siblings.filter(item => item.id != this.id);
     } else {
@@ -136,211 +73,204 @@ class TermTreeItemModel {
     }
   }
 
-  getLevel() {
-    if ( typeof this._levelCache === 'undefined' ) {
-      let parent = this.getParent();
-      this._levelCache = (parent) ? parent.getLevel() + 1 : 0;
-    }
-    return this._levelCache;
-  }
-
-  areChildrenTagged() {
-    let children = this.getChildren();
-    for (let i = 0; i < children.length; i++) {
-      let child = children[i];
-      if (child.tagged)
-        return true;
-    }
-    return false;
-  }
-
-  toggle() {
-    this.tagged = !this.tagged;
-    this.toggle_tree();
-  }
-
-  toggle_tree() {
-    if (this.tagged) {
-      if (this.parent.semantic_rule == SEMANTIC_RULE_OR) {
-        this.getSiblings().forEach(function (item) {
-            item.untag();
-        });
-      }
-    } else {
-      this.untag();
-    }
-  }
-
-  untag() {
-    this.tagged = false;
-    this.getChildren().forEach(function (child) {
-      child.untag();
-    });
-  }
-
-  untagChildren() {
-    this.getChildren().forEach(function (child) {
-      child.untag();
-    });
-  }
-
-  unsetChildren() {
-    this.getChildren().forEach(function (child) {
-      child.tagged = false;
-    });
-  }
-
-  isLimbLine() {
-    if (this.structure == STRUCTURE_LIMB)
+  isLimbDescendant() {
+    if (this.structure == consts.STRUCTURE_LIMB)
       return true;
     let parent = this.getParent();
-    if (parent) {
-      if (parent.structure == STRUCTURE_LIMB)
+    if (parent != false) {
+      if (parent.structure == consts.STRUCTURE_LIMB)
         return true;
-      return parent.isLimbLine();
+      return parent.isLimbDescendant();
     }
     return false;
   }
 
-  isExpanded() {
-    let mode = this.specification_mode;
-    if (mode == STANDARD_SPECIFICATION && this.structure == STRUCTURE_LIMB && !this.tagged) {
-      return true;
+  isLimbAndLeaf() {
+    return (
+      this.structure == consts.STRUCTURE_LIMB && this.is_leaf
+    );
+  }
+}
+
+/* Tagged Data Structures */
+
+class TaggedItems {
+
+  toggle(item) {
+    if (this[item.id] == true) {
+      this.untag(item);
+    } else {
+      this[item.id] = true;
+      let parent = item.getParent();
+      if (parent && parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
+        this.untagSiblings(item);
+      }
     }
-    if (mode == STANDARD_SPECIFICATION && this.structure != STRUCTURE_LIMB && this.tagged) {
-      return true;
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  resetItem(item) {
+    this.untag(item);
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  untag(item) {
+    this[item.id] = false;
+    let children = item.getChildren();
+    for (let i = 0; i < children.length; i++) {
+      this.untag(children[i]);
     }
-    if (mode == EXPANDED_SPECIFICATION && !this.tagged) {
-      return true;
+  }
+
+  untagSiblings(item) {
+    let siblings = item.getSiblings();
+    for (let i = 0; i < siblings.length; i++) {
+      this.untag(siblings[i]);
     }
-    if (mode == REDUCED_SPECIFICATION && this.tagged) {
-      return true;
+  }
+
+  isAnyTagged(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (this[arr[i].id] == true)
+        return true;
     }
     return false;
   }
 }
 
+/* Expanded Data Structures */
 
-const initialState = {};
+class ExpandedItems {
 
-export default function terms(state = initialState, action) {
+  constructor(json) {
+    this.json2items(json)
+  }
+
+  json2items(json) {
+    for (let i = 0; i < json.length; i++) {
+      let child = json[i];
+
+      let mode = child.specification_mode,
+          is_standard = mode == consts.STANDARD_SPECIFICATION,
+          is_expanded = mode == consts.EXPANDED_SPECIFICATION,
+          is_leaf = child.is_leaf,
+          is_limb = child.structure == consts.STRUCTURE_LIMB;
+
+      this[child.id] = false;
+      if ((is_standard && is_limb && !is_leaf) || is_expanded)
+        this[child.id] = true;
+
+      this.json2items(child.children);
+    }
+  }
+
+  toggle(item) {
+    this[item.id] = !this[item.id];
+    return Object.assign(new ExpandedItems([]), this);
+  }
+
+  reload(json) {
+    return Object.assign(new ExpandedItems(json), this);
+  }
+}
+
+/* Requested Data Structures */
+
+class Requested {
+
+  constructor() {
+    this.array = [];
+  }
+
+  toggle(item) {
+    if (this[item.id] != true &&
+        !item.is_leaf &&
+        !item.getChildren().length) {
+      this[item.id] = true;
+      this.array.push(item.id);
+      return Object.assign(new Requested(), this);
+    } else {
+      return this;
+    }
+  }
+}
+
+/* Expanded Info Structures */
+
+class ExpandedInfoItems {
+  show(item) {
+    let ei = new ExpandedInfoItems();
+    ei[item.id] = true;
+    return ei;
+  }
+
+  hide(item) {
+    return new ExpandedInfoItems(); 
+  }
+}
+
+function tree(state = new Tree([]), action) {
   switch (action.type) {
-
-  case GET_TERMS_TREE:
-    return {
-      terms_tree: new TermTreeModel(action.json, action.selected, action.tagged),
-      do_request: false,
-    };
-
-  case TOGGLE:
-    let tree_toggle = {tree: [], selected: [], tagged: []},
-      do_request_toggle = true;
-    if (state.terms_tree) {
-      tree_toggle = state.terms_tree;
-
-      do_request_toggle = false;
-      // check if we need to send server request for new data:
-      let old_selected = tree_toggle.selected.slice();
-      tree_toggle.toggle(action.term.id);
-      let new_selected = tree_toggle.selected;
-      if (old_selected.toString() != new_selected.toString())
-        do_request_toggle = true;
-
-    }
-    return {
-      terms_tree: tree_toggle,
-      do_request: do_request_toggle,
-    };
-
-  case RESET_ITEM:
-    let tree_reset = state.terms_tree;
-    tree_reset.resetItem(action.term.id);
-    return {
-      terms_tree: tree_reset,
-      do_request: false,
-    };
-
-  default:
-    return state;
+    case consts.LOAD_TREE:
+      return new Tree(action.json);
+    case consts.RELOAD_TREE:
+      return new Tree(action.json);
+    default:
+      return state;
   }
 }
 
-
-/* Набросал структуру данных для редусера */
-
-/*
-{
-
-    tree: { // Объект 'tree' заполняется после получения данных с сервера и не меняется непосредственно пользователем,
-            // поэтому редусер после клика пользователя может просто копировать ссылку на текущий обьект
-            // результат будет pure, новый экземпляр создается только после ответа с сервера
-
-        'root': { // Виртуалный корневой узел создается после парсинга результата, точка входа tree['root'],
-                  // узлы также содержат логику рекурсивного описания работы модели например: переключение узла (toggle) selected_state['term_id'],
-                        // каскадный сброс или установка selected_state
-            parent: null,
-            children: [
-              <указатель на term_1>,
-              ...
-        },
-        1: {
-            id: 1,
-            parent: <указатель на parent_term>, // используется для оптимизации работы функционала c selected_state,
-                                                // null если верхний уровень
-            name: 'term 1 blabla',
-            view_class: '',
-            semantic_rule: 10,
-            structure: null, // trunk, limb, branch или null
-            short_description: 'some text', // на акшон showDescription(<id>)
-                                            // если short_description != '' && descriptions[<term_id_1>] == ''
-                                            // запрос на сервер detail нода и врезультате вызов setDescription(<id>, <description>)
-            children: [
-              <указатель на children_term_1>,
-              <указатель на children_term_2>,
-              ...
-            ]
-
-        },
-        <children_term_1> : {
-           ...
-        }
-
-    },
-
-
-    // для акшонов типа toggle('term_id') или unsetChildren('term_id')
-    selected_state: { //  Содержит состояние выбранных терминов, изначально заполняется через
-              // _.map(tree, (key, obj) => { return (obj.structure != null )} )
-                //  меняется акшонами, нужно всегда создавать новый экземпляр
-        '1': true,
-        <children_term_1>: false,
-        <children_term_2>: true,
-        ...
-
-    },
-
-    // для акшонов типа showDescription('term_id')
-    descriptions_state: {
-      show: <id>, // ID нода дескриптион которого отображается или null вслучае когда не отображаем дескриптион
-      descriptions: {
-        1: 'description1',
-        <children_term_2>: 'description2',
-          ...
-      }
-    },
-
-    // для акшонов типа excpand('term_id') и collapce('term_id')
-    // изначально заполняется через что-то типа
-    // _.map(tree, (key, obj) => { return (obj.structure != null && obj.specification_mode != REDUCED_SPECIFICATION )} )
-    collapsed_state: {
-      1: true,
-      <children_term_2>: false, ...
-      }
-
-    //
-
-    // далее добавятся сткруктуры для potential_terms и real_terms...
-
-
+function requested(state = new Requested(), action) {
+  switch (action.type) {
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    default:
+      return state;
+  }
 }
-*/
+
+function tagged(state = new TaggedItems(), action) {
+  switch (action.type) {
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    case consts.RESET_ITEM:
+      return state.resetItem(action.term);
+    default:
+      return state;
+  }
+}
+
+function expanded(state = new ExpandedItems([]), action) {
+  switch (action.type) {
+    case consts.LOAD_TREE:
+      return new ExpandedItems(action.json);
+    case consts.RELOAD_TREE:
+      return state.reload(action.json);
+    case consts.TOGGLE_ITEM:
+      return state.toggle(action.term);
+    default:
+      return state;
+  }
+}
+
+function infoExpanded(state = new ExpandedInfoItems(), action) {
+  switch (action.type) {
+    case consts.SHOW_INFO:
+      return state.show(action.term);
+    case consts.HIDE_INFO:
+      return state.hide(action.term);
+    default:
+      return state;
+  }
+}
+
+const terms = combineReducers({
+    tree: tree,
+    requested: requested,
+    tagged: tagged,
+    expanded: expanded,
+    info_expanded: infoExpanded
+})
+
+export default terms;
+

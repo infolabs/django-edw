@@ -1,20 +1,9 @@
-import React, { Component, PropTypes } from 'react';
-import {
-         SEMANTIC_RULE_OR,
-         SEMANTIC_RULE_XOR,
-         SEMANTIC_RULE_AND,
-         STRUCTURE_LIMB,
-       } from '../constants/TermsTree';
+import React, { Component } from 'react';
+import * as consts from '../constants/TermsTree';
+import TermsTreeItemInfo from './TermsTreeItemInfo';
 
-import TermsTreeIteaInfo from './TermsTreeItemInfo';
-
-// https://github.com/Excentrics/publication-backbone/blob/master/publication_backbone/templates/publication_backbone/rubricator/partials/rubric.html
 
 export default class TermsTreeItem extends Component {
-
-  static propTypes = {
-    term: PropTypes.object.isRequired
-  };
 
   handleItemClick(e) {
     const { term, actions } = this.props;
@@ -32,103 +21,120 @@ export default class TermsTreeItem extends Component {
 
   render() {
 
-    const { term, actions } = this.props;
-    const semantic_rule = term.getParent().semantic_rule || SEMANTIC_RULE_AND;
-    const siblings_tagged = term.getParent().areChildrenTagged && term.getParent().areChildrenTagged();
-    const expanded = term.isExpanded();
+    const { term, actions, tagged, expanded, info_expanded} = this.props,
+          term_children = term.getChildren();
 
-    let list_item = "";
-    if (!term.isLimbLine()
-        || (term.structure == STRUCTURE_LIMB && term.is_leaf)
-        ) {
-      list_item = "";
-    } else {
-      if (semantic_rule == SEMANTIC_RULE_XOR) {
-        list_item = (
-          <span onClick={e => { ::this.handleItemClick(e)}} className={expanded ? "" : siblings_tagged ? "ex-dim" : ""}>
-            <i className={expanded ? "ex-icon-checkbox-on" : siblings_tagged ? "ex-icon-checkbox-off" : "ex-icon-checkbox-dot"}></i>
-            {term.name}
-          </span>
-        )
-      } else if (semantic_rule == SEMANTIC_RULE_AND || term.structure == STRUCTURE_LIMB) {
-        list_item = (
-            <span onClick={e => { ::this.handleItemClick(e)}}>
-              <i className={expanded ? "ex-icon-caret-on" : "ex-icon-caret-off"}></i>
-              {term.name}
+    let render_item = "",
+        reset_icon = "",
+        reset_item = "",
+        info = "";
+
+    if (term.getParent() != false &&
+        term.isLimbDescendant() &&
+        !term.isLimbAndLeaf()) {
+
+      const parent = term.getParent(),
+            rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
+            siblings = term.getSiblings();
+
+      let i_class_name = "";
+      switch (rule) {
+        case consts.SEMANTIC_RULE_AND:
+          i_class_name = "ex-icon-caret";
+          break;
+        case consts.SEMANTIC_RULE_OR:
+          i_class_name = "ex-icon-radio";
+          break;
+        case consts.SEMANTIC_RULE_XOR:
+          i_class_name = "ex-icon-checkbox";
+          break;
+      }
+
+      if ((rule == consts.SEMANTIC_RULE_AND && expanded[term.id] == true) ||
+          (rule != consts.SEMANTIC_RULE_AND && tagged[term.id] == true))
+        i_class_name += '-on';
+      else if (rule == consts.SEMANTIC_RULE_XOR
+               && !tagged.isAnyTagged(siblings))
+        i_class_name += '-dot';
+      else
+        i_class_name += '-off';
+
+      let span_class_name = false;
+      if (rule != consts.SEMANTIC_RULE_AND
+          && tagged[term.id] != true
+          && tagged.isAnyTagged(siblings))
+        span_class_name = 'ex-dim';
+
+      render_item = (
+        <span onClick={e => { ::this.handleItemClick(e) } }
+              className={span_class_name}>
+          <i className={i_class_name}></i>
+          {term.name}
+        </span>
+      );
+
+      if (term.semantic_rule == consts.SEMANTIC_RULE_OR &&
+          expanded[term.id]) {
+        let any_tagged = tagged.isAnyTagged(term_children),
+            r_span_class_name = any_tagged ? "ex-dim" : "",
+            r_i_class_name = any_tagged ? "ex-icon-radio-off" : "ex-icon-radio-on";
+
+        reset_item = (
+          <li>
+            <span onClick={e => { ::this.handleResetClick(e) } }
+                  className={r_span_class_name}>
+              <i className={r_i_class_name}></i>
+              All (TODO: React Perevod)
             </span>
-        )
-      } else if (semantic_rule == SEMANTIC_RULE_OR) {
-        list_item = (
-          <span onClick={e => { ::this.handleItemClick(e)}} className={expanded ? "" : siblings_tagged ? "ex-dim" : ""}>
-            <i className={expanded ? "ex-icon-radio-on" : "ex-icon-radio-off"}></i>
-            {term.name}
-          </span>
-        )
-      }
-    }
-
-    let description = "";
-    if (term.short_description) {
-      description = (
-        <TermsTreeIteaInfo description={term.short_description}/>
-      );
-    }
-
-    let reset_icon = "";
-    if (expanded && term.areChildrenTagged()) {
-      reset_icon = (
-        <i onClick={e => { ::this.handleResetClick(e)}}
-           className="ex-icon-reset" title="Reset filter"></i>
-      );
-    }
-
-    let reset_item = "";
-    if (term.children.length && term.semantic_rule == SEMANTIC_RULE_OR) {
-      reset_item = (
-        <li>
-          <span onClick={e => { ::this.handleResetClick(e)}} className={term.areChildrenTagged() ? "ex-dim" : ""}>
-          <i className={term.areChildrenTagged() ? "ex-icon-radio-off" : "ex-icon-radio-on"}></i>
-          All (TODO: React Perevod)
-          </span>
-        </li>
-      );
-    }
-
-    let term_children = (
-    <frag>
-      {term.children.map(term =>
-            <TermsTreeItem key={term.id}
-                           term={term}
-                           actions={actions}
-                           />
-      )}
-    </frag>
-    );
-
-    let final_render = "";
-    if (list_item == "") {
-      final_render = term_children;
-    } else {
-      if (term.isExpanded()) {
-        term_children = (
-          <ul>
-            {reset_item}
-            {term_children}
-          </ul>
+          </li>
         );
-      } else {
-        term_children = "";
       }
 
-      final_render = (
-        <li>
-          {list_item}{description}{reset_icon}
-          {term_children}
-        </li>
-      )
+      if (term_children.length &&
+          tagged.isAnyTagged(term_children)) {
+        reset_icon = (
+          <i onClick={e => { ::this.handleResetClick(e) } }
+             className="ex-icon-reset"></i>
+        );
+      }
+
+      if (term.short_description) {
+        info = (
+          <TermsTreeItemInfo term={term}
+                             info_expanded={info_expanded}
+                             actions={actions}/>
+        );
+      }
     }
 
-    return final_render;
+    let render_children = (term_children.map(child =>
+      <TermsTreeItem key={child.id}
+                     term={child}
+                     tagged={tagged}
+                     expanded={expanded}
+                     info_expanded={info_expanded}
+                     actions={actions}/>)
+    )
+
+    let ret = "";
+    if (render_item == "") {
+      ret = <span>{render_children}</span>;
+    } else {
+      if (expanded[term.id] == true)
+        render_children = <ul>{reset_item}{render_children}</ul>;
+      else
+        render_children = ""
+      ret = (
+        <li>
+          {render_item}
+          {info}
+          {reset_icon}
+          {render_children}
+        </li>
+      );
+    }
+
+    return ret;
   }
 }
 
