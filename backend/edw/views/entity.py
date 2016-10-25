@@ -81,9 +81,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             kwargs[self.settings.FORMAT_SUFFIX_KWARG] = self.format
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
-
-
-
     def list(self, request, data_mart_pk=None, *args, **kwargs):
 
         if self.data_mart_pk is not None:
