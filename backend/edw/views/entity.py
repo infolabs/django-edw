@@ -81,7 +81,11 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             kwargs[self.settings.FORMAT_SUFFIX_KWARG] = self.format
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
+
+
+
     def list(self, request, data_mart_pk=None, *args, **kwargs):
+
         if self.data_mart_pk is not None:
            data_mart_pk = self.data_mart_pk
         if data_mart_pk is not None:
@@ -102,3 +106,14 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "filter_queryset": queryset
         }
         return queryset
+
+
+class EntitySubjectViewSet(EntityViewSet):
+
+    def dispatch(self, request, *args, **kwargs):
+        subj = kwargs.get('entity_pk', None)
+        if subj is not None:
+            del kwargs['entity_pk']
+            request.GET = request.GET.copy()
+            request.GET.setdefault('subj', subj)
+        return super(EntityViewSet, self).dispatch(request, *args, **kwargs)
