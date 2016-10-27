@@ -11,22 +11,12 @@ class Tree {
     this.root = this.json2tree(json);
   }
 
-  // json2tree(json, parent = false) {
-
   json2tree(json, parent) {
-    // if (parent == false) {
     if ( !parent ) {
       parent = new Item();
     }
 
-    // заменить на
-    // for (let property in object) {
-    //   statement
-    // }
-    // или _.each(...
-
-    for (let i = 0; i < json.length; i++) {
-      let child = json[i];
+    for (const child of json) {
       let options = {
         'id': child.id,
         'name': child.name,
@@ -36,7 +26,7 @@ class Tree {
         'specification_mode': child.specification_mode,
         'structure': child.structure,
         'is_leaf': child.is_leaf,
-        'parent': parent,
+        'parent': parent
       };
       let item = new Item(options);
       item.children = this.json2tree(child.children, item).children;
@@ -58,55 +48,29 @@ class Item {
       'specification_mode': consts.STANDARD_SPECIFICATION,
       'structure': consts.STRUCTURE_NULL,
       'is_leaf': true,
-      'parent': false, // todo: null?
+      'parent': null,
       'children': []
     }
-    // Object.assign(this, defaults);
-    // Object.assign(this, options);
-    Object.assign(this, _.extend(defaults, options));
+    Object.assign(this, defaults, options);
   }
 
-  getParent() { // todo: Зачем этот метод? Можно напрямую обращатся к this.parent а не через this.getParent()
-    return this.parent;
-  }
-
-  getChildren() {
-    return this.children;
-  }
-
-  getSiblings() {
-    let parent = this.getParent();
-    // if ( !_.isUndefined(parent.getChildren) ) {
-    //   let siblings = parent.getChildren();
-    //   return siblings.filter(item => item.id != this.id);
-    // } else {
-    //   return [];
-    // }
-
-    return _.isFunction(parent.getChildren) ? parent.getChildren().filter(item => item.id != this.id) : [];
-    // todo: Если обращатся к this.parent можно еще проще написать
-    // return this.parent && this.parent.children ? this.parent.children.filter(item => item.id != this.id) : [];
+  get siblings() {
+    return this.parent && this.parent.children ?
+           this.parent.children.filter(item => item.id != this.id) : [];
   }
 
   isLimbDescendant() {
-    if (this.structure == consts.STRUCTURE_LIMB)
-      return true; // <-- так плохо
-    let parent = this.getParent(); // --//--
-    if (parent != false) { // <-- так плохо
-      if (parent.structure == consts.STRUCTURE_LIMB)
-        return true; // <-- так плохо
-      return parent.isLimbDescendant();
+    let ret = this.structure == consts.STRUCTURE_LIMB
+    if (!ret && this.parent) {
+      ret = this.parent.structure == consts.STRUCTURE_LIMB
+      if (!ret)
+        ret = this.parent.isLimbDescendant();
     }
-    return false; // <-- так плохо
+    return ret;
   }
 
   isLimbAndLeaf() {
-    // return (
-    //   this.structure == consts.STRUCTURE_LIMB && this.is_leaf
-    // );
-
-    return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;  // <-- так хорошо
-
+    return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
   }
 }
 
@@ -115,14 +79,12 @@ class Item {
 class TaggedItems {
 
   toggle(item) {
-    if (this[item.id] == true) { // <-- плохо, лучьше if ( this[item.id] ) {...
+    if (this[item.id]) {
       this.untag(item);
     } else {
       this[item.id] = true;
-      let parent = item.getParent(); // --//--
-      if (parent && parent.semantic_rule == consts.SEMANTIC_RULE_OR) { // <-- хорошо
+      if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
         this.untagSiblings(item);
-      }
     }
     return Object.assign(new TaggedItems(), this);
   }
@@ -134,28 +96,20 @@ class TaggedItems {
 
   untag(item) {
     this[item.id] = false;
-    // _.each(...
-    let children = item.getChildren();
-    for (let i = 0; i < children.length; i++) {
-      this.untag(children[i]);
+    for (const child of item.children) {
+      this.untag(child);
     }
   }
 
   untagSiblings(item) {
-    // _.each(...
-    let siblings = item.getSiblings();
-    for (let i = 0; i < siblings.length; i++) {
-      this.untag(siblings[i]);
+    for (const sib of item.siblings) {
+      this.untag(sib);
     }
   }
 
   isAnyTagged(arr) {
-    // замени на _.filter(... лучьше на return _.find(...
-    for (let i = 0; i < arr.length; i++) {
-      if (this[arr[i].id] == true) // if ( this[arr[i].id] ) {...
-        return true;
-    }
-    return false;
+    let self = this;
+    return arr.some(el => !!self[el.id]);
   }
 }
 
@@ -168,22 +122,13 @@ class ExpandedItems {
   }
 
   json2items(json) {
-    // заменить на _.each(...
-
-    for (let i = 0; i < json.length; i++) {
-      let child = json[i];
-
+    for (const child of json) {
       let mode = child.specification_mode,
           is_standard = mode == consts.STANDARD_SPECIFICATION,
           is_expanded = mode == consts.EXPANDED_SPECIFICATION,
           is_leaf = child.is_leaf,
           is_limb = child.structure == consts.STRUCTURE_LIMB;
 
-      /*
-      this[child.id] = false;
-      if ((is_standard && is_limb && !is_leaf) || is_expanded)
-        this[child.id] = true;
-      */
       this[child.id] = ((is_standard && is_limb && !is_leaf) || is_expanded);
 
       this.json2items(child.children);
@@ -211,7 +156,7 @@ class Requested {
   toggle(item) {
     if (this[item.id] != true &&
         !item.is_leaf &&
-        !item.getChildren().length) {
+        !item.children.length) {
       this[item.id] = true;
       this.array.push(item.id);
       return Object.assign(new Requested(), this);
@@ -234,18 +179,6 @@ class ExpandedInfoItems {
   static hide(item) {
     return new ExpandedInfoItems();
   }
-
-  /*
-  show(item) {
-    let ei = new ExpandedInfoItems();
-    ei[item.id] = true;
-    return ei;
-  }
-
-  hide(item) {
-    return new ExpandedInfoItems(); 
-  }
-  */
 }
 
 function tree(state = new Tree([]), action) {

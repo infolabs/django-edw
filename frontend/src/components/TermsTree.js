@@ -16,7 +16,6 @@ class TermsTree extends Component {
           req_next = nextProps.terms.requested;
     if (req_curr != req_next) {
       this.props.actions.reloadTree(req_next.array);
-      console.log("OLOLO")
     }
   }
 

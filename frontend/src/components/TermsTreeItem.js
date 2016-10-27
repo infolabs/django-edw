@@ -22,22 +22,22 @@ export default class TermsTreeItem extends Component {
   render() {
 
     const { term, actions, tagged, expanded, info_expanded} = this.props,
-          term_children = term.getChildren();
+          children = term.children,
+          parent = term.parent;
 
     let render_item = "",
         reset_icon = "",
         reset_item = "",
         info = "";
 
-    if (term.getParent() != false &&
-        term.isLimbDescendant() &&
-        !term.isLimbAndLeaf()) {
+    if (parent != false && term.isLimbDescendant() && !term.isLimbAndLeaf()) {
 
-      const parent = term.getParent(),
+      const parent = term.parent,
             rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
-            siblings = term.getSiblings();
+            siblings = term.siblings;
 
       let i_class_name = "";
+
       switch (rule) {
         case consts.SEMANTIC_RULE_AND:
           i_class_name = "ex-icon-caret";
@@ -75,7 +75,7 @@ export default class TermsTreeItem extends Component {
 
       if (term.semantic_rule == consts.SEMANTIC_RULE_OR &&
           expanded[term.id]) {
-        let any_tagged = tagged.isAnyTagged(term_children),
+        let any_tagged = tagged.isAnyTagged(children),
             r_span_class_name = any_tagged ? "ex-dim" : "",
             r_i_class_name = any_tagged ? "ex-icon-radio-off" : "ex-icon-radio-on";
 
@@ -90,8 +90,8 @@ export default class TermsTreeItem extends Component {
         );
       }
 
-      if (term_children.length &&
-          tagged.isAnyTagged(term_children)) {
+      if (children.length &&
+          tagged.isAnyTagged(children)) {
         reset_icon = (
           <i onClick={e => { ::this.handleResetClick(e) } }
              className="ex-icon-reset"></i>
@@ -107,7 +107,7 @@ export default class TermsTreeItem extends Component {
       }
     }
 
-    let render_children = (term_children.map(child =>
+    let render_children = (children.map(child =>
       <TermsTreeItem key={child.id}
                      term={child}
                      tagged={tagged}
