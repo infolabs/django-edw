@@ -35,9 +35,13 @@ data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name
 #==============================================================================
 # urls
 #==============================================================================
-urlpatterns = (
-    url(r'^', include(router.urls, namespace='edw')),
-    url(r'^', include(format_suffix_patterns(data_mart_nested_router.urls), namespace='edw')),
-    url(r'^', include(format_suffix_patterns(entity_nested_router.urls), namespace='edw')),
-    url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls), namespace='edw')),
-)
+edw_patterns = ([
+    url(r'^', include(router.urls)),
+    url(r'^', include(format_suffix_patterns(data_mart_nested_router.urls))),
+    url(r'^', include(format_suffix_patterns(entity_nested_router.urls))),
+    url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))
+], 'edw')
+
+urlpatterns = [
+    url(r'^', include(edw_patterns)),
+]

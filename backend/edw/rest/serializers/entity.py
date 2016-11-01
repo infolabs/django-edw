@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
@@ -101,7 +102,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     """
     Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
     """
-    entity_url = serializers.URLField(source='get_absolute_url', read_only=True)
+    entity_url = serializers.SerializerMethodField()
     entity_type = serializers.CharField(read_only=True)
 
     short_characteristics = AttributeSerializer(read_only=True, many=True)
@@ -111,6 +112,34 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
+    def get_entity_url(self, instance):
+        request = self.context.get('request', None)
+        format = self.context.get('format', None)
+        return instance.get_absolute_url(request=request, format=format)
+
+
+class RelatedDataMartSerializer(DataMartDetailSerializer):
+    endpoint_url = serializers.SerializerMethodField()
+
+    view_name = "edw:data-mart-entity-by-subject-list"
+
+    class Meta(DataMartDetailSerializer.Meta):
+        fields = ('endpoint_url',) + DataMartDetailSerializer.Meta.fields
+
+    def get_endpoint_url(self, instance):
+
+        request = self.context.get('request', None)
+        kwargs = {
+            'data_mart_pk': instance.id,
+            'entity_pk': self.entity_pk,
+        }
+        format = self.context.get('format', None)
+        return reverse(self.view_name, request=request, kwargs=kwargs, format=format)
+
+    @property
+    def entity_pk(self):
+        return self.context.get('_entity_pk')
+
 
 class EntityDetailSerializerBase(EntityCommonSerializer):
     """
@@ -118,7 +147,7 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
-    related_data_marts = DataMartDetailSerializer(many=True, read_only=True)
+    related_data_marts = RelatedDataMartSerializer(many=True, read_only=True)
 
     _meta_cache = {}
 
@@ -165,6 +194,13 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
                 method = getattr(instance._rest_meta, method_name)
                 setattr(self, method_name, types.MethodType(method, self, self.__class__))
             self.fields[field_name] = field
+
+    def to_representation(self, data):
+        """
+        Prepare some data for serialization
+        """
+        self.context['_entity_pk'] = data.id
+        return super(EntityDetailSerializerBase, self).to_representation(data)
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
