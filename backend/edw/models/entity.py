@@ -8,7 +8,6 @@ from operator import __or__ as OR
 
 from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.db import models, connections
 from django.utils import six
 from django.utils.functional import cached_property
@@ -22,6 +21,8 @@ from polymorphic.query import PolymorphicQuerySet
 from polymorphic.base import PolymorphicModelBase
 
 from datetime import datetime
+
+from rest_framework.reverse import reverse
 
 from ipware import ip
 
@@ -580,7 +581,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return self.polymorphic_ctype.model
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, request=None, format=None):
         """
         Hook for returning the canonical Django URL of this object.
         """
@@ -812,8 +813,9 @@ class ApiReferenceMixin(object):
     """
     Add this mixin to Entity classes to add a ``get_absolute_url()`` method.
     """
-    def get_absolute_url(self):
+    def get_absolute_url(self, request=None, format=None):
         """
         Return the absolute URL of a entity
         """
-        return reverse('edw:{}-detail'.format(EntityModel._meta.model_name), kwargs={'pk': self.pk})
+        return reverse('edw:{}-detail'.format(EntityModel._meta.model_name), kwargs={'pk': self.pk}, request=request,
+                       format=format)
