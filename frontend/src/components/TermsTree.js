@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import _ from 'underscore';
 import * as TermsTreeActions from '../actions/TermsTreeActions';
 import TermsTreeItem from './TermsTreeItem';
 
@@ -27,7 +26,7 @@ class TermsTree extends Component {
           info_expanded = terms.info_expanded;
 
     let tree = "";
-    if (!_.isUndefined(term)) {
+    if ( !!term ) {
       tree = (
         <TermsTreeItem key={term.id}
                        term={term}

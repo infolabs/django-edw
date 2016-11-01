@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import _ from 'underscore';
 import * as consts from '../constants/TermsTree';
 
 /* Tree Data Structures */
