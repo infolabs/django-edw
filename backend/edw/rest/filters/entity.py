@@ -41,7 +41,8 @@ class EntityFilter(filters.FilterSet):
             '_initial_queryset': kwargs['queryset'],
             '_initial_filter_meta': tree,
             '_terms_filter_meta': tree,
-            '_data_mart': None
+            '_data_mart': None,
+            '_subj_ids': []
         })
         super(EntityFilter, self).__init__(data, **kwargs)
 
@@ -156,6 +157,8 @@ class EntityFilter(filters.FilterSet):
         self._subj_ids = value
         if not self.subj_ids:
             return queryset
+
+        self.data['_subj_ids'] = self.subj_ids
 
         if self.rel_ids is None:
             self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)

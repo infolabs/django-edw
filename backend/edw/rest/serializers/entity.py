@@ -226,6 +226,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
+    subj_ids = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
 
@@ -253,6 +254,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             serializer = DataMartDetailSerializer(data_mart, context=self.context)
             return serializer.data
         return None
+
+    def get_subj_ids(self, instance):
+        return self.context['subj_ids']
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):

@@ -83,7 +83,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
     def list(self, request, data_mart_pk=None, *args, **kwargs):
-
         if self.data_mart_pk is not None:
            data_mart_pk = self.data_mart_pk
         if data_mart_pk is not None:
@@ -102,6 +101,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "initial_queryset": self.request.GET['_initial_queryset'],
             "terms_filter_meta": self.request.GET['_terms_filter_meta'],
             "data_mart": self.request.GET['_data_mart'],
+            "subj_ids": self.request.GET['_subj_ids'],
             "filter_queryset": queryset
         }
         return queryset
