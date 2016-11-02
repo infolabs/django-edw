@@ -26,7 +26,7 @@ class DataMartAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DataMartAdminForm, self).__init__(*args, **kwargs)
-        self.fields['ordering'].choices = self.Meta.model.ORDERING_MODES
+        self.fields['ordering'].choices = self.Meta.model.ENTITIES_ORDERING_MODES
 
 
 #==============================================================================
