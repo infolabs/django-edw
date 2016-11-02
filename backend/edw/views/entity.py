@@ -45,7 +45,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     filter_class = EntityFilter
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    ordering_fields = ('created_at',)
+    # ordering_fields = ('created_at',)
+    ordering_fields = '__all__'
 
     pagination_class = pagination.LimitOffsetPagination
 
@@ -100,6 +101,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "initial_filter_meta": self.request.GET['_initial_filter_meta'],
             "initial_queryset": self.request.GET['_initial_queryset'],
             "terms_filter_meta": self.request.GET['_terms_filter_meta'],
+            "data_mart": self.request.GET['_data_mart'],
             "filter_queryset": queryset
         }
         return queryset

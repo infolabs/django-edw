@@ -40,7 +40,8 @@ class EntityFilter(filters.FilterSet):
         data.update({
             '_initial_queryset': kwargs['queryset'],
             '_initial_filter_meta': tree,
-            '_terms_filter_meta': tree
+            '_terms_filter_meta': tree,
+            '_data_mart': None
         })
         super(EntityFilter, self).__init__(data, **kwargs)
 
@@ -114,6 +115,8 @@ class EntityFilter(filters.FilterSet):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
+
+        self.data['_data_mart'] = self.data_mart
 
         if 'rel' not in self.data:
             rel_ids = self.data_mart_rel_ids

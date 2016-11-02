@@ -225,6 +225,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
 
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
+    data_mart = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
 
@@ -245,6 +246,13 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         filter_queryset = self.context['filter_queryset']
         return filter_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                          timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
+
+    def get_data_mart(self, instance):
+        data_mart = self.context['data_mart']
+        if data_mart is not None:
+            serializer = DataMartDetailSerializer(data_mart, context=self.context)
+            return serializer.data
+        return None
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):
