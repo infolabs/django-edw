@@ -15,6 +15,14 @@ class DataMart(BaseDataMart):
     """
     Default materialized model for DataMart containing common fields
     """
+    ORDER_BY_NAME_ASC = 'name'
+    # ORDER_BY_NAME_DESC = '-name'
+
+    ORDERING_MODES = (
+        (ORDER_BY_NAME_ASC, _('Alphabetical')),
+        # (ORDER_BY_NAME_DESC, _('Alphabetical: descending')),
+    ) + BaseDataMart.ORDERING_MODES
+
     objects = DataMartManager()
 
     class Meta:

@@ -168,6 +168,14 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         'parent_not_active': _('Parent node not active')
     }
 
+    # ORDER_BY_CREATED_AT_ASC = 'created_at'
+    ORDER_BY_CREATED_AT_DESC = '-created_at'
+
+    ORDERING_MODES = (
+        # (ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
+        (ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
+    )
+
     SYSTEM_FLAGS = {
         0: ('delete_restriction', messages['delete_restriction']),
         1: ('change_parent_restriction', messages['change_parent_restriction']),
@@ -179,13 +187,18 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255)
-    slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank"))
+    slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
+
+    ordering = models.CharField(verbose_name=_('Ordering'), max_length=50, choices=ORDERING_MODES,
+                                default=ORDER_BY_CREATED_AT_DESC,
+                                help_text=_('Default data mart entities ordering mode.'))
+
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
                                   help_text=_('Space delimited class attribute, specifies one or more classnames for an data mart.'))
     description = models.TextField(verbose_name=_('Description'), null=True, blank=True)
