@@ -18,7 +18,7 @@ from edw.rest.serializers.entity import (
 )
 
 from edw.models.entity import EntityModel
-from edw.rest.filters.entity import EntityFilter
+from edw.rest.filters.entity import EntityFilter, EntityOrderingFilter
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 
@@ -44,7 +44,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
     # ordering_fields = ('created_at',)
     ordering_fields = '__all__'
 
@@ -96,12 +96,14 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     def filter_queryset(self, queryset):
         queryset = super(EntityViewSet, self).filter_queryset(queryset)
+        query_params = self.request.GET
         self.queryset_context = {
-            "initial_filter_meta": self.request.GET['_initial_filter_meta'],
-            "initial_queryset": self.request.GET['_initial_queryset'],
-            "terms_filter_meta": self.request.GET['_terms_filter_meta'],
-            "data_mart": self.request.GET['_data_mart'],
-            "subj_ids": self.request.GET['_subj_ids'],
+            "initial_filter_meta": query_params['_initial_filter_meta'],
+            "initial_queryset": query_params['_initial_queryset'],
+            "terms_filter_meta": query_params['_terms_filter_meta'],
+            "data_mart": query_params['_data_mart'],
+            "subj_ids": query_params['_subj_ids'],
+            "ordering": query_params['_ordering'],
             "filter_queryset": queryset
         }
         return queryset

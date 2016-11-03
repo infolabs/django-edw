@@ -168,12 +168,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         'parent_not_active': _('Parent node not active')
     }
 
-    # ORDER_BY_CREATED_AT_ASC = 'created_at'
-    ORDER_BY_CREATED_AT_DESC = '-created_at'
+    # ENTITIES_ORDER_BY_CREATED_AT_ASC = 'created_at'
+    ENTITIES_ORDER_BY_CREATED_AT_DESC = '-created_at'
 
-    ORDERING_MODES = (
-        # (ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
-        (ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
+    ENTITIES_ORDERING_MODES = (
+        # (ENTITIES_ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
+        (ENTITIES_ORDER_BY_CREATED_AT_DESC, _('Created at: "new first')),
     )
 
     SYSTEM_FLAGS = {
@@ -195,8 +195,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
 
-    ordering = models.CharField(verbose_name=_('Ordering'), max_length=50, choices=ORDERING_MODES,
-                                default=ORDER_BY_CREATED_AT_DESC,
+    ordering = models.CharField(verbose_name=_('Ordering'), max_length=50,
+                                default=ENTITIES_ORDER_BY_CREATED_AT_DESC,
                                 help_text=_('Default data mart entities ordering mode.'))
 
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,

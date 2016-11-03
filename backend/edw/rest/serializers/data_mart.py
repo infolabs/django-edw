@@ -37,11 +37,15 @@ class DataMartDetailSerializer(DataMartSerializer):
     """
     DataMartDetailSerializer
     """
+    entities_ordering_modes = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
 
     class Meta(DataMartSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'url', 'view_class', 'created_at', 'updated_at', 'level',
-                  'active', 'rel', 'description')
+                  'active', 'entities_ordering_modes', 'rel', 'description')
+
+    def get_entities_ordering_modes(self, instance):
+        return dict(instance.ENTITIES_ORDERING_MODES)
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
