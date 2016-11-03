@@ -817,5 +817,5 @@ class ApiReferenceMixin(object):
         """
         Return the absolute URL of a entity
         """
-        return reverse('edw:{}-detail'.format(EntityModel._meta.model_name), kwargs={'pk': self.pk}, request=request,
+        return reverse('edw:{}-detail'.format(EntityModel._meta.model_name.lower()), kwargs={'pk': self.pk}, request=request,
                        format=format)
