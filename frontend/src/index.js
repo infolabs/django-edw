@@ -9,7 +9,9 @@ var css = require("!style!raw!less!./less/styles.less");
 
 const store = configureStore();
 
-console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
+//console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
+
+console.log(Urls['edw:data-mart-entity-list'](1, 'json'));
 
 render(
   <Root store={store} />,
