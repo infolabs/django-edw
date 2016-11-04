@@ -58,9 +58,9 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         if content:
             return mark_safe(content)
         params = [
-            (app_label, self.label, entity.entity_model, postfix),
-            (app_label, self.label, 'entity', postfix),
-            ('edw', self.label, 'entity', postfix),
+            (app_label.lower(), self.label.lower(), entity.entity_model.lower(), postfix),
+            (app_label.lower(), self.label.lower(), 'entity', postfix),
+            ('edw', self.label.lower(), 'entity', postfix),
         ]
         try:
             template = select_template(['{0}/entities/{1}-{2}-{3}.html'.format(*p) for p in params])
