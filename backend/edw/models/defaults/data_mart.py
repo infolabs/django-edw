@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 """
 """
-from edw.models.data_mart import BaseDataMart, BaseDataMartManager
+from edw.models.data_mart import BaseDataMart, BaseDataMartManager, ApiReferenceMixin
 
 
 class DataMartManager(BaseDataMartManager):
     pass
 
 
-class DataMart(BaseDataMart):
+class DataMart(ApiReferenceMixin, BaseDataMart):
     """
     Default materialized model for DataMart containing common fields
     """

@@ -22,6 +22,8 @@ from polymorphic.query import PolymorphicQuerySet
 
 from bitfield import BitField
 
+from rest_framework.reverse import reverse
+
 from . import deferred
 from .term import TermModel
 from .related import DataMartRelationModel
@@ -226,6 +228,27 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def __str__(self):
         return self.name
 
+    def data_mart_type(self):
+        """
+        Returns the polymorphic type of the object.
+        """
+        return force_text(self.polymorphic_ctype)
+    data_mart_type.short_description = _("Data mart type")
+
+    @property
+    def data_mart_model(self):
+        """
+        Returns the polymorphic model name of the object's class.
+        """
+        return self.polymorphic_ctype.model
+
+    def get_absolute_url(self, request=None, format=None):
+        """
+        Hook for returning the canonical Django URL of this object.
+        """
+        msg = "Method get_absolute_url() must be implemented by subclass: `{}`"
+        raise NotImplementedError(msg.format(self.__class__.__name__))
+
     @classmethod
     def get_all_subclasses(cls):
         for subclass in cls.__subclasses__():
@@ -385,3 +408,15 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)
+
+
+class ApiReferenceMixin(object):
+    """
+    Add this mixin to DataMart classes to add a ``get_absolute_url()`` method.
+    """
+    def get_absolute_url(self, request=None, format=None):
+        """
+        Return the absolute URL of a entity
+        """
+        return reverse('edw:{}-detail'.format(DataMartModel._meta.model_name), kwargs={'pk': self.pk}, request=request,
+                       format=format)

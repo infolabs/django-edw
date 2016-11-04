@@ -113,20 +113,18 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
     def get_entity_url(self, instance):
-        request = self.context.get('request', None)
-        format = self.context.get('format', None)
-        return instance.get_absolute_url(request=request, format=format)
+        return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
 
 class RelatedDataMartSerializer(DataMartDetailSerializer):
-    endpoint_url = serializers.SerializerMethodField()
+    entities_url = serializers.SerializerMethodField()
 
     view_name = "edw:data-mart-entity-by-subject-list"
 
-    class Meta(DataMartDetailSerializer.Meta):
-        fields = ('endpoint_url',) + DataMartDetailSerializer.Meta.fields
+    # class Meta(DataMartDetailSerializer.Meta):
+    #     fields = ('entities_url',) + DataMartDetailSerializer.Meta.fields
 
-    def get_endpoint_url(self, instance):
+    def get_entities_url(self, instance):
 
         request = self.context.get('request', None)
         kwargs = {
@@ -143,7 +141,7 @@ class RelatedDataMartSerializer(DataMartDetailSerializer):
 
 class EntityDetailSerializerBase(EntityCommonSerializer):
     """
-    Serialize all fields of the Product model, for the products detail view.
+    Serialize all fields of the Entity model, for the entities detail view.
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
@@ -168,32 +166,37 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
             cls._meta_cache[key] = meta_class = EntityDetailSerializerBase._get_meta_class(it.Meta, model_class)
         setattr(it, 'Meta', meta_class)
 
-    def __new__(cls, instance, *args, **kwargs):
-        it = super(EntityDetailSerializerBase, cls).__new__(cls, instance, *args, **kwargs)
-        cls._update_meta(it, instance)
+    def __new__(cls, *args, **kwargs):
+        it = super(EntityDetailSerializerBase, cls).__new__(cls, *args, **kwargs)
+        if args:
+            cls._update_meta(it, args[0])
         return it
 
-    def __init__(self, instance, **kwargs):
+    def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
-        remove_fields = instance._rest_meta.exclude
-        include_fields = instance._rest_meta.include
-        super(EntityDetailSerializerBase, self).__init__(instance, **kwargs)
-        # for multiple fields in a list
-        for field_name in remove_fields:
-            self.fields.pop(field_name)
-        for field_name, field in include_fields.items():
-            if isinstance(field, serializers.SerializerMethodField):
-                default_method_name = 'get_{field_name}'.format(field_name=field_name)
-                if field.method_name is None:
-                    method_name = default_method_name
-                else:
-                    method_name = field.method_name
-                    # hack for SerializerMethodField.bind method
-                    if field.method_name == default_method_name:
-                        field.method_name = None
-                method = getattr(instance._rest_meta, method_name)
-                setattr(self, method_name, types.MethodType(method, self, self.__class__))
-            self.fields[field_name] = field
+        instance = args[0] if args else None
+        if instance is not None and hasattr(instance, '_rest_meta'):
+            remove_fields = instance._rest_meta.exclude
+            include_fields = instance._rest_meta.include
+            super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+            # for multiple fields in a list
+            for field_name in remove_fields:
+                self.fields.pop(field_name)
+            for field_name, field in include_fields.items():
+                if isinstance(field, serializers.SerializerMethodField):
+                    default_method_name = 'get_{field_name}'.format(field_name=field_name)
+                    if field.method_name is None:
+                        method_name = default_method_name
+                    else:
+                        method_name = field.method_name
+                        # hack for SerializerMethodField.bind method
+                        if field.method_name == default_method_name:
+                            field.method_name = None
+                    method = getattr(instance._rest_meta, method_name)
+                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
+                self.fields[field_name] = field
+        else:
+            super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def to_representation(self, data):
         """
@@ -217,7 +220,8 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
-    class Meta(EntityCommonSerializer.Meta):
+    class Meta(EntityCommonSerializer.Meta): #todo: url!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
 
     def get_media(self, entity):

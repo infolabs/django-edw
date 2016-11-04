@@ -16,6 +16,7 @@ a password reset, so that they can log into their account at a later time. The d
 CACHE_DURATIONS = {
     'data_mart_children': 3600,
     'data_mart_all_active_terms': 3600,
+    'data_mart_html_snippet': 86400,
 
     'term_decompress': 3600,
     'term_children': 3600,

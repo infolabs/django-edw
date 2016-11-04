@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.data_mart import (
-    DataMartSerializer,
+    DataMartCommonSerializer,
     DataMartSummarySerializer,
     DataMartDetailSerializer,
     DataMartTreeSerializer,
@@ -26,7 +26,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
         `tree` - retrieve tree action. `GET /edw/api/data-marts/tree/`
     """
     queryset = DataMartModel.objects.all()
-    serializer_class = DataMartSerializer
+    serializer_class = DataMartCommonSerializer
     custom_serializer_classes = {
         'list':  DataMartSummarySerializer,
         'retrieve':  DataMartDetailSerializer,
