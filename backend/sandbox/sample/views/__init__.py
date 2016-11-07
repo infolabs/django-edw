@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-'''
+
 from django.views.generic import DetailView
-from sample.models import Book
+from sample.models.book import Book
 
 
 class BookDetailView(DetailView):
-    context_object_name="event"
+    # context_object_name="event"
     template_name="sample/book_detail.html"
 
     def __init__(self, **kwargs):
@@ -22,7 +22,3 @@ class BookDetailView(DetailView):
         context.update(kwargs)
         return super(BookDetailView, self).get_context_data(**context)
 
-    def render_to_response(self, context, **response_kwargs):
-        response = DetailView.render_to_response(self, context)
-        return response
-'''

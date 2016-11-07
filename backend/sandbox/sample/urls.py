@@ -5,7 +5,7 @@ from django.conf.urls import url, patterns, include
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.http import HttpResponse
-#from .views import BookDetailView
+from .views import BookDetailView
 
 def render_robots(request):
     permission = 'noindex' in settings.ROBOTS_META_TAGS and 'Disallow' or 'Allow'
@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     url(r'^robots\.txt$', render_robots),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^edw/', include('edw.urls')),
-    #url(r'^book/(?P<slug>[0-9A-Za-z_.-]+)/$', BookDetailView.as_view(), name="book_detail"),
+    url(r'^book/(?P<pk>[0-9A-Za-z_.-]+)/$', BookDetailView.as_view(), name="book_detail"),
     )
 
 
