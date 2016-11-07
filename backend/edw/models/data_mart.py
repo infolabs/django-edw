@@ -25,6 +25,7 @@ from bitfield import BitField
 from rest_framework.reverse import reverse
 
 from . import deferred
+from .rest import RESTModelBase
 from .term import TermModel
 from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
@@ -81,7 +82,7 @@ class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuery
     '''
 
 
-class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase):
+class BaseDataMartMetaclass(MPTTModelBase, PolymorphicModelBase, RESTModelBase):
     """
     The BaseDataMart class must refer to their materialized model definition, for instance when
     accessing its model manager.

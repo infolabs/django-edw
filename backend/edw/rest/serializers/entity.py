@@ -176,9 +176,12 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
         kwargs.setdefault('label', 'detail')
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
-            remove_fields = instance._rest_meta.exclude
-            include_fields = instance._rest_meta.include
-            super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+            rest_meta = instance._rest_meta
+        else:
+            rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+        super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+        if rest_meta:
+            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
             # for multiple fields in a list
             for field_name in remove_fields:
                 self.fields.pop(field_name)
@@ -192,11 +195,9 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
                         # hack for SerializerMethodField.bind method
                         if field.method_name == default_method_name:
                             field.method_name = None
-                    method = getattr(instance._rest_meta, method_name)
+                    method = getattr(rest_meta, method_name)
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
                 self.fields[field_name] = field
-        else:
-            super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def to_representation(self, data):
         """
