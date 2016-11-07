@@ -10,8 +10,6 @@ from edw.models.data_mart import BaseDataMart, BaseDataMartManager, ApiReference
 class DataMartManager(BaseDataMartManager):
     pass
 
-#=================
-from rest_framework import serializers
 
 class DataMart(ApiReferenceMixin, BaseDataMart):
     """
