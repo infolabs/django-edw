@@ -18,7 +18,7 @@ class DataMartAdminForm(forms.ModelForm):
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, widget=TermTreeWidget(),
                                            label=_("Terms"))
 
-    ordering = forms.ChoiceField(choices=(), required=True)
+    ordering = forms.ChoiceField(choices=(), required=True, label=_("Ordering"))
 
     class Meta:
         model = DataMartModel
