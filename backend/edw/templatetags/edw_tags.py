@@ -103,6 +103,8 @@ class RetrieveDataMixin(object):
     queryset = None
     serializer_class = None
 
+    #format_kwarg = 'format'
+
     lookup_field = 'pk'
 
     # The filter backend classes to use for queryset filtering
@@ -144,10 +146,13 @@ class RetrieveDataMixin(object):
             "'%s' `.render()` method parameter `context` should include a `queryset` attribute."
             % self.__class__.__name__
         )
-        return super(RetrieveDataMixin, self).render(context)
+        items = self.kwargs.items()
+        kwargs = dict([(key, value.resolve(context)) for key, value in items])
+        kwargs.update(self.blocks)
 
-    def render_tag(self, context, **kwargs):
-        return super(RetrieveDataMixin, self).render_tag(context, **kwargs)
+        self.kwargs = kwargs
+
+        return self.render_tag(context, **kwargs)
 
     def get_queryset(self):
         """
@@ -181,14 +186,8 @@ class RetrieveDataMixin(object):
         """
         queryset = self.filter_queryset(self.get_queryset())
 
-
         # Perform the lookup filtering.
         filter_kwargs = {self.lookup_field: self.kwargs[self.lookup_field]}
-        # todo: fix it!!!!
-
-        print ">>>>>>>", queryset.query
-        print self.kwargs
-
 
         obj = get_object_or_404(queryset, **filter_kwargs)
 
