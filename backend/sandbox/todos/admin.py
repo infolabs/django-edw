@@ -66,6 +66,7 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
         }
         js = (
             '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/jquery.compat.js',
             '/static/edw/js/admin/tree.jquery.js'
         )
 
