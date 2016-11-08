@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-11-08 12:56+0300\n"
-"PO-Revision-Date: 2016-11-08 13:00+0300\n"
+"PO-Revision-Date: 2016-11-08 13:37+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -260,7 +260,7 @@ msgstr "Родительский узел неактивен"
 
 #: models/data_mart.py:179
 #| msgid "Created at"
-msgid "Created at: \"new first"
+msgid "Created at: new first"
 msgstr "По дате добавления: сначала новые"
 
 #: models/data_mart.py:191 models/term.py:318

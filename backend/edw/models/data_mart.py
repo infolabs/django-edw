@@ -176,7 +176,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     ENTITIES_ORDERING_MODES = (
         # (ENTITIES_ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
-        (ENTITIES_ORDER_BY_CREATED_AT_DESC, _('Created at: "new first')),
+        (ENTITIES_ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
     )
 
     SYSTEM_FLAGS = {
