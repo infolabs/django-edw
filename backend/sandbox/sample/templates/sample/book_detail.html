@@ -1,3 +1,4 @@
+{% load edw_tags %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -6,6 +7,7 @@
   </head>
 
   <body>
-    Hello world!!! {{ object.id }}
+    <h1>Hello world!!! {{ object.id }}</h1>
+    <pre>{% get_entity object.id data_mart_pk=1 subj='13,12' indent=4 %}</pre>
   </body>
 </html>
