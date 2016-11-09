@@ -676,14 +676,25 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             term = self.get_entities_types()[self.__class__.__name__.lower()]
             self.terms.add(term)
 
+    def pre_save_entity(self, origin, *args, **kwargs):
+        '''
+        Normally not needed.
+        This function call before `.save()` method.
+        :param origin:
+        :return:
+        '''
+
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
+
+        self.pre_save_polymorphic()
         if not force_update:
             model_class = self.__class__
             try:
                 origin = model_class._default_manager.get(pk=self.pk)
             except model_class.DoesNotExist:
                 origin = None
+            self.pre_save_entity(origin, *args, **kwargs)
             force_validate_terms = kwargs.pop('force_validate_terms', False)
             result = super(BaseEntity, self).save(*args, **kwargs)
             validation_context = {
