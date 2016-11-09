@@ -12,12 +12,17 @@ from datetime import datetime
 from classytags.core import Options, Tag
 from classytags.arguments import MultiKeywordArgument, Argument
 
+from rest_framework.request import Request
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.settings import api_settings
 
 from edw.models.entity import EntityModel
+from edw.rest.serializers.entity import (
+    # EntityTotalSummarySerializer,
+    EntityDetailSerializer
+)
 
 
 register = template.Library()
@@ -103,8 +108,6 @@ class RetrieveDataMixin(object):
     queryset = None
     serializer_class = None
 
-    #format_kwarg = 'format'
-
     lookup_field = 'pk'
 
     # The filter backend classes to use for queryset filtering
@@ -114,6 +117,18 @@ class RetrieveDataMixin(object):
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
+
+    def get_format_suffix(self, **kwargs):
+        """
+        Determine if the request includes a '.json' style format suffix
+        """
+
+        #         print "++++++++++++++++++++"
+        # print kwargs
+
+
+        if api_settings.FORMAT_SUFFIX_KWARG:
+            return kwargs.get(api_settings.FORMAT_SUFFIX_KWARG)
 
     def permission_denied(self, request, message=None):
         """
@@ -141,16 +156,37 @@ class RetrieveDataMixin(object):
                 )
 
     def render(self, context):
-        self.request = context.get('request', None)
-        assert self.request is not None, (
+        origin_request = context.get('request', None)
+        assert origin_request is not None, (
             "'%s' `.render()` method parameter `context` should include a `queryset` attribute."
             % self.__class__.__name__
         )
+        request = Request(origin_request)
+        request.GET = {}
+
         items = self.kwargs.items()
         kwargs = dict([(key, value.resolve(context)) for key, value in items])
         kwargs.update(self.blocks)
 
-        self.kwargs = kwargs
+        #self.kwargs = self.request.GET.copy()
+        self.kwargs = kwargs.copy()
+
+        # self.kwargs.update(kwargs)
+
+        inner_kwargs = kwargs.get('kwargs', None)
+        if inner_kwargs is not None:
+            del self.kwargs['kwargs']
+            self.kwargs.update(inner_kwargs)
+
+        self.format_kwarg = self.get_format_suffix(**self.kwargs)
+
+        #--------------- clean suffix format
+        # todo: pop_format_suffix
+
+        #print ">>>>>>>>>>>", self.kwargs
+
+        request.GET.update(self.kwargs)
+        self.request = request
 
         return self.render_tag(context, **kwargs)
 
@@ -171,6 +207,37 @@ class RetrieveDataMixin(object):
             # Ensure queryset is re-evaluated on each request.
             queryset = queryset.all()
         return queryset
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance.
+        """
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer.
+        Defaults to using `self.serializer_class`.
+        """
+        assert self.serializer_class is not None, (
+            "'%s' should either include a `serializer_class` attribute, "
+            "or override the `get_serializer_class()` method."
+            % self.__class__.__name__
+        )
+
+        return self.serializer_class
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
 
     def filter_queryset(self, queryset):
         """
@@ -200,6 +267,7 @@ class RetrieveDataMixin(object):
 class GetEntity(RetrieveDataMixin, Tag):
     name = 'get_entity'
     queryset = EntityModel.objects.all()
+    serializer_class = EntityDetailSerializer
 
     options = Options(
         Argument('pk', resolve=True),
@@ -209,24 +277,28 @@ class GetEntity(RetrieveDataMixin, Tag):
     )
 
     def render_tag(self, context, pk, kwargs, varname):
-        #entity = get_object_or_404(EntityModel.objects, pk=pk)
 
-        entity = self.get_object()
-        print ">>>>>>>>>>>", entity
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
 
 
-        data = {
-            'Get_entity': "<{}, {}>".format(pk, varname),
-            'kwargs': kwargs
-        }
-        print "+++++++++++++++++++++++"
-        print kwargs
+        # data = {
+        #     'Get_entity': "<{}, {}>".format(pk, varname),
+        #     'kwargs': kwargs
+        # }
+        #
+        #
+
+        # print "+++++++++++++++++++++++"
+        # print kwargs
+        #
+
         if varname:
             context[varname] = data
             return ''
         else:
             return JSONRenderer().render(data, renderer_context={'indent': kwargs.get('indent', None)})
-
 
 
 

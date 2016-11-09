@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf import settings
 
-from rest_framework import viewsets, filters, pagination
+from rest_framework import viewsets, pagination
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
@@ -12,7 +11,6 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.rest.serializers.entity import (
     EntityCommonSerializer,
-    # EntitySummarySerializer,
     EntityTotalSummarySerializer,
     EntityDetailSerializer
 )
