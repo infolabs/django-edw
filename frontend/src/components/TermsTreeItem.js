@@ -21,7 +21,13 @@ export default class TermsTreeItem extends Component {
 
   render() {
 
-    const { term, actions, tagged, expanded, info_expanded} = this.props,
+    const props = this.props,
+          term = props.term,
+          details = props.details,
+          actions = props.actions,
+          tagged = props.tagged,
+          expanded = props.expanded,
+          info_expanded = props.info_expanded,
           children = term.children,
           parent = term.parent;
 
@@ -37,10 +43,13 @@ export default class TermsTreeItem extends Component {
             siblings = term.siblings;
 
       let i_class_name = "";
+      let span_class_name = "";
+      let t_span_class_name = "";
 
       switch (rule) {
         case consts.SEMANTIC_RULE_AND:
           i_class_name = "ex-icon-caret";
+          t_span_class_name = "ex-expandable";
           break;
         case consts.SEMANTIC_RULE_OR:
           i_class_name = "ex-icon-radio";
@@ -51,15 +60,16 @@ export default class TermsTreeItem extends Component {
       }
 
       if ((rule == consts.SEMANTIC_RULE_AND && expanded[term.id] == true) ||
-          (rule != consts.SEMANTIC_RULE_AND && tagged[term.id] == true))
+          (rule != consts.SEMANTIC_RULE_AND && tagged[term.id] == true)) {
         i_class_name += '-on';
-      else if (rule == consts.SEMANTIC_RULE_XOR
-               && !tagged.isAnyTagged(siblings))
+        t_span_class_name == "" && (t_span_class_name = "ex-tagged");
+      } else if (rule == consts.SEMANTIC_RULE_XOR
+                 && !tagged.isAnyTagged(siblings)) {
         i_class_name += '-dot';
-      else
+      } else {
         i_class_name += '-off';
+      }
 
-      let span_class_name = false;
       if (rule != consts.SEMANTIC_RULE_AND
           && tagged[term.id] != true
           && tagged.isAnyTagged(siblings))
@@ -69,7 +79,7 @@ export default class TermsTreeItem extends Component {
         <span onClick={e => { ::this.handleItemClick(e) } }
               className={span_class_name}>
           <i className={i_class_name}></i>
-          {term.name}
+          <span className={t_span_class_name}>{term.name}</span>
         </span>
       );
 
@@ -77,6 +87,7 @@ export default class TermsTreeItem extends Component {
           expanded[term.id]) {
         let any_tagged = tagged.isAnyTagged(children),
             r_span_class_name = any_tagged ? "ex-dim" : "",
+            r_t_span_class_name = any_tagged ? "" : "ex-tagged",
             r_i_class_name = any_tagged ? "ex-icon-radio-off" : "ex-icon-radio-on";
 
         reset_item = (
@@ -84,13 +95,13 @@ export default class TermsTreeItem extends Component {
             <span onClick={e => { ::this.handleResetClick(e) } }
                   className={r_span_class_name}>
               <i className={r_i_class_name}></i>
-              All (TODO: React Perevod)
+              <span className={r_t_span_class_name}>All (TODO: React Perevod)</span>
             </span>
           </li>
         );
       }
 
-      if (children.length &&
+      if (children.length && !tagged.isAncestorTagged(term) &&
           tagged.isAnyTagged(children)) {
         reset_icon = (
           <i onClick={e => { ::this.handleResetClick(e) } }
@@ -102,6 +113,7 @@ export default class TermsTreeItem extends Component {
         info = (
           <TermsTreeItemInfo term={term}
                              info_expanded={info_expanded}
+                             details={details}
                              actions={actions}/>
         );
       }
@@ -110,6 +122,7 @@ export default class TermsTreeItem extends Component {
     let render_children = (children.map(child =>
       <TermsTreeItem key={child.id}
                      term={child}
+                     details={details}
                      tagged={tagged}
                      expanded={expanded}
                      info_expanded={info_expanded}

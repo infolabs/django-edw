@@ -6,6 +6,8 @@ function getTermsTree(type, selected = []) {
   // console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
 
   let url = Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1"
+  console.log(Urls)
+  url = Urls['edw:data-mart-term-tree'](1, 'json');
 
   if (selected && selected.length > 0)
     url += '&selected=' + selected.join()
@@ -19,6 +21,25 @@ function getTermsTree(type, selected = []) {
     type: type,
     json: json,
   }));
+}
+
+export function getTermsItem(url) {
+  return fetch(url, {
+    method: 'get',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+  }).then(response => response.json()).then(json => ({
+    type: types.LOAD_ITEM,
+    json: json,
+  }));
+}
+
+export function notifyLoading() {
+  return {
+    type: types.NOTIFY_LOADING,
+  };
 }
 
 export function loadTree() {

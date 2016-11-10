@@ -686,8 +686,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
-
-        self.pre_save_polymorphic()
         if not force_update:
             model_class = self.__class__
             try:

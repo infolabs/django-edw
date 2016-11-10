@@ -14,6 +14,7 @@ class TermsTree extends Component {
     const req_curr = this.props.terms.requested,
           req_next = nextProps.terms.requested;
     if (req_curr != req_next) {
+      this.props.actions.notifyLoading();
       this.props.actions.reloadTree(req_next.array);
     }
   }
@@ -21,15 +22,18 @@ class TermsTree extends Component {
   render() {
     const { terms, actions } = this.props,
           term = terms.tree.root,
+          details = terms.details,
           tagged = terms.tagged,
           expanded = terms.expanded,
-          info_expanded = terms.info_expanded;
+          info_expanded = terms.info_expanded,
+          loading = terms.tree.loading;
 
     let tree = "";
     if ( !!term ) {
       tree = (
         <TermsTreeItem key={term.id}
                        term={term}
+                       details={details}
                        tagged={tagged}
                        expanded={expanded}
                        info_expanded={info_expanded}
