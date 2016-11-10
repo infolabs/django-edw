@@ -9,10 +9,11 @@
   <body>
     <h1>Hello world!!! {{ object.id }}</h1>
 
-    {% comment %}
+{% comment %}
     <pre>{% get_entity object.id indent=4 format='json' %}</pre>
-    {% endcomment %}
+{% endcomment %}
 
-    <pre>{% get_entities terms='15,108' data_mart_pk=9 limit=10 indent=4 %}</pre>
+    <pre>{% get_entities data_mart_pk=9 terms='102,100' subj='49,48' ordering='-name' limit=2 indent=4 %}</pre>
+
   </body>
 </html>

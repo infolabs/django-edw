@@ -13,6 +13,7 @@ from classytags.core import Options
 from classytags.arguments import MultiKeywordArgument, Argument
 
 from rest_framework_filters.backends import DjangoFilterBackend
+from rest_framework import pagination
 
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
@@ -135,6 +136,8 @@ class GetEntities(BaseRetrieveDataTag):
 
     filter_class = EntityFilter
     filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
+
+    pagination_class = pagination.LimitOffsetPagination
 
     options = Options(
         MultiKeywordArgument('kwargs', required=False),
