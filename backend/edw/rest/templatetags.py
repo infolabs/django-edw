@@ -1,15 +1,45 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.utils.functional import cached_property
 from django.db.models.query import QuerySet
+from django.http import QueryDict
+
 from classytags.core import Tag
 
-from rest_framework.request import Request
+from rest_framework import request
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.settings import api_settings
 from rest_framework.renderers import JSONRenderer
+
+
+def _get_count(queryset):
+    """
+    Determine an object count, supporting either querysets or regular lists.
+    """
+    try:
+        return queryset.count()
+    except (AttributeError, TypeError):
+        return len(queryset)
+
+
+class Request(request.Request):
+
+    def __init__(self, request, query_params=None, *args, **kwargs):
+        self._query_params = query_params
+        super(Request, self).__init__(request, *args, **kwargs)
+
+    @cached_property
+    def query_params(self):
+        """
+        More semantically correct name for request.GET.
+        """
+        return self._query_params if self._query_params is not None else self._request.GET
+
+    @property
+    def GET(self):
+        return self.query_params
 
 
 class BaseRetrieveDataTag(Tag):
@@ -54,7 +84,8 @@ class BaseRetrieveDataTag(Tag):
                 )
 
     def initialize(self, origin_request, tag_kwargs):
-        request = Request(origin_request)
+        request = Request(origin_request, query_params=QueryDict('', mutable=True))
+
         initial_kwargs = tag_kwargs.copy()
 
         inner_kwargs = initial_kwargs.pop('kwargs', None)
@@ -67,7 +98,7 @@ class BaseRetrieveDataTag(Tag):
         for key in self.disallow_kwargs:
             initial_kwargs.pop(key, None)
 
-        request.GET = initial_kwargs
+        request.query_params.update(initial_kwargs)
         self.initial_kwargs = initial_kwargs
 
         self.request = request
@@ -158,6 +189,42 @@ class BaseRetrieveDataTag(Tag):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+    @property
+    def paginator(self):
+        """
+        The paginator instance associated with the templatetag, or `None`.
+        """
+        if not hasattr(self, '_paginator'):
+            if self.pagination_class is None:
+                self._paginator = None
+            else:
+                self._paginator = self.pagination_class()
+        return self._paginator
+
+    def paginate_queryset(self, queryset):
+        """
+        Return a single page of results, or `None` if pagination is disabled.
+        """
+        if self.paginator is None:
+            return None
+
+        self._queryset_count = _get_count(queryset)
+        page = self.paginator.paginate_queryset(queryset, self.request, view=self)
+        self._page_len = len(page)
+        return page
+
+    def get_paginated_data(self, data):
+        """
+        Return a paginated style data object for the given output data.
+        """
+        assert self.paginator is not None
+
+        return {
+            "count": self._queryset_count,
+            "is_paginated": self._page_len < self._queryset_count,
+            "results": data
+        }
 
     def to_json(self, data):
         return JSONRenderer().render(data, renderer_context={'indent': self.indent})

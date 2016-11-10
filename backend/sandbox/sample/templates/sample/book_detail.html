@@ -8,6 +8,11 @@
 
   <body>
     <h1>Hello world!!! {{ object.id }}</h1>
-    <pre>{% get_entity object.id data_mart_pk=1 subj='13,12' indent=4 format='json' %}</pre>
+
+    {% comment %}
+    <pre>{% get_entity object.id indent=4 format='json' %}</pre>
+    {% endcomment %}
+
+    <pre>{% get_entities terms='15,108' data_mart_pk=9 limit=1 indent=4 format='json' %}</pre>
   </body>
 </html>

@@ -12,10 +12,13 @@ from datetime import datetime
 from classytags.core import Options
 from classytags.arguments import MultiKeywordArgument, Argument
 
+from rest_framework_filters.backends import DjangoFilterBackend
+
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
+from edw.rest.filters.entity import EntityFilter, EntityOrderingFilter
 from edw.rest.serializers.entity import (
-    # EntityTotalSummarySerializer,
+    EntityTotalSummarySerializer,
     EntityDetailSerializer
 )
 
@@ -123,3 +126,57 @@ class GetEntity(BaseRetrieveDataTag):
             return self.to_json(data)
 
 register.tag(GetEntity)
+
+
+class GetEntities(BaseRetrieveDataTag):
+    name = 'get_entities'
+    queryset = EntityModel.objects.all()
+    serializer_class = EntityTotalSummarySerializer
+
+    filter_class = EntityFilter
+    filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
+
+    options = Options(
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, kwargs, varname):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = self.get_paginated_data(serializer.data)
+            context["{}_paginator".format(varname)] = self.paginator
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            data = serializer.data
+
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+    def get_serializer_context(self):
+        context = super(GetEntities, self).get_serializer_context()
+        context.update(self.queryset_context)
+        return context
+
+    def filter_queryset(self, queryset):
+        queryset = super(GetEntities, self).filter_queryset(queryset)
+        query_params = self.request.GET
+        self.queryset_context = {
+            "initial_filter_meta": query_params['_initial_filter_meta'],
+            "initial_queryset": query_params['_initial_queryset'],
+            "terms_filter_meta": query_params['_terms_filter_meta'],
+            "data_mart": query_params['_data_mart'],
+            "subj_ids": query_params['_subj_ids'],
+            "ordering": query_params['_ordering'],
+            "filter_queryset": queryset
+        }
+        return queryset
+
+register.tag(GetEntities)
