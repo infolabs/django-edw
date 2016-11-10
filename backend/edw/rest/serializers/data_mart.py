@@ -32,8 +32,9 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
     #active = serializers.BooleanField()
     #description = serializers.CharField(read_only=True)
     #view_class = serializers.CharField(read_only=True)
-    data_mart_model = serializers.CharField(read_only=True)
     parent_id = serializers.SerializerMethodField()
+    data_mart_model = serializers.CharField(read_only=True)
+    data_mart_url = serializers.SerializerMethodField()
 
     class Meta:
         model = DataMartModel
@@ -77,6 +78,9 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
 
     def get_parent_id(self, instance):
         return instance.parent_id
+
+    def get_data_mart_url(self, instance):
+        return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
@@ -135,9 +139,12 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
         kwargs.setdefault('label', 'detail')
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
-            remove_fields = instance._rest_meta.exclude
-            include_fields = instance._rest_meta.include
-            super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
+            rest_meta = instance._rest_meta
+        else:
+            rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+        super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
+        if rest_meta:
+            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
             # for multiple fields in a list
             for field_name in remove_fields:
                 self.fields.pop(field_name)
@@ -151,11 +158,9 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
                         # hack for SerializerMethodField.bind method
                         if field.method_name == default_method_name:
                             field.method_name = None
-                    method = getattr(instance._rest_meta, method_name)
+                    method = getattr(rest_meta, method_name)
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
                 self.fields[field_name] = field
-        else:
-            super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def get_entities_ordering_modes(self, instance):
         return dict(instance.ENTITIES_ORDERING_MODES)
@@ -167,8 +172,8 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
 class DataMartDetailSerializer(DataMartDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
-    class Meta(DataMartCommonSerializer.Meta): #todo: url!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        exclude = ('active', 'polymorphic_ctype', '_relations', 'terms') #todo: remove tree_id and e.t.!!!!!!
+    class Meta(DataMartCommonSerializer.Meta):
+        exclude = ('active', 'polymorphic_ctype', '_relations', 'terms', 'parent', "lft", "rght", "tree_id", "level")
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
@@ -178,15 +183,11 @@ class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, 
     """
     Serialize a summary of the polymorphic DataMart model.
     """
-    data_mart_url = serializers.SerializerMethodField()
     data_mart_type = serializers.CharField(read_only=True)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'summary')
         super(DataMartSummarySerializerBase, self).__init__(*args, **kwargs)
-
-    def get_data_mart_url(self, instance):
-        return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
 
 class DataMartSummarySerializer(DataMartSummarySerializerBase):
@@ -198,6 +199,15 @@ class DataMartSummarySerializer(DataMartSummarySerializerBase):
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
+
+
+class DataMartTreeSerializerBase(DataMartCommonSerializer):
+    """
+    Serialize a tree summary of the polymorphic DataMart model.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label', 'tree')
+        super(DataMartTreeSerializerBase, self).__init__(*args, **kwargs)
 
 
 class _DataMartFilterMixin(object):
@@ -289,15 +299,19 @@ class _DataMartTreeRootSerializer(_DataMartFilterMixin, serializers.ListSerializ
         return 0
 
 
-class DataMartTreeSerializer(DataMartCommonSerializer): # todo: may be summury????!!!!!
+class DataMartTreeSerializer(DataMartTreeSerializerBase):
     """
     Data Mart Tree Serializer
     """
+    media = serializers.SerializerMethodField()
     children = DataMartTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
-    class Meta(DataMartCommonSerializer.Meta):
-        fields = ('id', 'name', 'slug', 'active', 'view_class', 'children') #todo: url!!!!!!!!!!!!!!!!!!!!!
+    class Meta(DataMartTreeSerializerBase.Meta):
+        fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'media', 'children')
         list_serializer_class = _DataMartTreeRootSerializer
+
+    def get_media(self, data_mart):
+        return self.render_html(data_mart, 'media')
 
     def to_representation(self, data):
         """
@@ -305,3 +319,4 @@ class DataMartTreeSerializer(DataMartCommonSerializer): # todo: may be summury??
         """
         self._depth = data._depth
         return super(DataMartTreeSerializer, self).to_representation(data)
+

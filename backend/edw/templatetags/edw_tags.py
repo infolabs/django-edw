@@ -2,11 +2,23 @@
 from __future__ import unicode_literals
 
 from django import template
+
 from django.conf import settings
 from django.utils import formats
 from django.utils.dateformat import format, time_format
 
 from datetime import datetime
+
+from classytags.core import Options
+from classytags.arguments import MultiKeywordArgument, Argument
+
+from edw.rest.templatetags import BaseRetrieveDataTag
+from edw.models.entity import EntityModel
+from edw.rest.serializers.entity import (
+    # EntityTotalSummarySerializer,
+    EntityDetailSerializer
+)
+
 
 register = template.Library()
 
@@ -62,6 +74,7 @@ def time(value, arg=None):
         except AttributeError:
             return ''
 
+
 #==============================================================================
 # String utils
 #==============================================================================
@@ -73,6 +86,7 @@ def split(value, separator):
     """
     return value.split(separator)
 
+
 #==============================================================================
 # Logical utils
 #==============================================================================
@@ -80,3 +94,32 @@ def split(value, separator):
 def bitwise_and(value, arg):
     return bool(value & arg)
 
+
+#==============================================================================
+# Entities utils
+#==============================================================================
+
+class GetEntity(BaseRetrieveDataTag):
+    name = 'get_entity'
+    queryset = EntityModel.objects.all()
+    serializer_class = EntityDetailSerializer
+
+    options = Options(
+        Argument('pk', resolve=True),
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, pk, kwargs, varname):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+register.tag(GetEntity)

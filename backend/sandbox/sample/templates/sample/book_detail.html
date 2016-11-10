@@ -1,14 +1,13 @@
-{% load render_bundle from webpack_loader %}
+{% load edw_tags %}
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Example</title>
+    <title>Example: {{ title }}</title>
   </head>
 
   <body>
-    <div id="react-app"></div>
-    {% render_bundle 'app' %}
-    {% render_bundle 'vendor' %}
+    <h1>Hello world!!! {{ object.id }}</h1>
+    <pre>{% get_entity object.id data_mart_pk=1 subj='13,12' indent=4 format='json' %}</pre>
   </body>
 </html>
