@@ -75,6 +75,12 @@ class Item {
   isLimbAndLeaf() {
     return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
   }
+
+  isLimbOrAnd(item) {
+    return ((this.parent &&
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      this.structure == consts.STRUCTURE_LIMB)
+  }
 }
 
 /* Tagged Data Structures */
@@ -88,7 +94,7 @@ class TaggedItems {
   }
 
   toggle(item) {
-    if (!this.isTaggable(item))
+    if (item.isLimbOrAnd())
       return this;
 
     if (this[item.id]) {
@@ -163,8 +169,14 @@ class ExpandedItems {
   }
 
   toggle(item) {
-    this[item.id] = !this[item.id];
-    return Object.assign(new ExpandedItems([]), this);
+    let ret = this
+    let spec = item.specification_mode,
+        is_expanded_spec = spec == consts.EXPANDED_SPECIFICATION;
+    if (!(!item.isLimbOrAnd() && is_expanded_spec)) {
+      this[item.id] = !this[item.id];
+      ret =Object.assign(new ExpandedItems([]), this); 
+    }
+    return ret;
   }
 
   reload(json) {
