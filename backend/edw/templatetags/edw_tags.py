@@ -102,7 +102,6 @@ def bitwise_and(value, arg):
 #==============================================================================
 # Entities utils
 #==============================================================================
-
 class GetEntity(BaseRetrieveDataTag):
     name = 'get_entity'
     queryset = EntityModel.objects.all()
@@ -119,7 +118,6 @@ class GetEntity(BaseRetrieveDataTag):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-
         if varname:
             context[varname] = data
             return ''
@@ -136,6 +134,7 @@ class GetEntities(BaseRetrieveDataTag):
 
     filter_class = EntityFilter
     filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
+    ordering_fields = '__all__'
 
     pagination_class = pagination.LimitOffsetPagination
 
@@ -147,7 +146,6 @@ class GetEntities(BaseRetrieveDataTag):
 
     def render_tag(self, context, kwargs, varname):
         queryset = self.filter_queryset(self.get_queryset())
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -156,7 +154,6 @@ class GetEntities(BaseRetrieveDataTag):
         else:
             serializer = self.get_serializer(queryset, many=True)
             data = serializer.data
-
         if varname:
             context[varname] = data
             return ''

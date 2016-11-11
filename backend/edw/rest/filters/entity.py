@@ -204,7 +204,6 @@ class EntityFilter(filters.FilterSet):
 
     def filter_rel(self, name, queryset, value):
         self._rel_ids = value
-
         if self.rel_ids is None or 'subj' in self.data:
             return queryset
 
