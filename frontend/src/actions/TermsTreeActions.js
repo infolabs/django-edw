@@ -5,12 +5,10 @@ function getTermsTree(type, selected = []) {
   // edw/api/data-marts/1/terms/tree.json
   // console.log(Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1");
 
-  let url = Urls['edw:term\u002Dtree']('json') + "?data_mart_pk=1"
-  console.log(Urls)
-  url = Urls['edw:data-mart-term-tree'](1, 'json');
+  let url = Urls['edw:data-mart-term-tree'](1, 'json');
 
   if (selected && selected.length > 0)
-    url += '&selected=' + selected.join()
+    url += '?selected=' + selected.join()
   return fetch(url, {
     method: 'get',
     headers: {
