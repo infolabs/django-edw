@@ -84,7 +84,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         if self.data_mart_pk is not None:
            data_mart_pk = self.data_mart_pk
         if data_mart_pk is not None:
-            request.GET['data_mart_pk'] = data_mart_pk
+            request.GET.setdefault('data_mart_pk', data_mart_pk)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
     def get_serializer_context(self):

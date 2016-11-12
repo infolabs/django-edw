@@ -52,9 +52,9 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         context = {
             "request": request
         }
+        data_mart_pk = request.GET.get('data_mart_pk', data_mart_pk)
         if data_mart_pk is not None:
             context["data_mart_pk"] = data_mart_pk
-
         queryset = TermModel.objects.toplevel()
         serializer = TermTreeSerializer(queryset, many=True, context=context)
         return Response(serializer.data)

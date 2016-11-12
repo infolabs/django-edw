@@ -35,6 +35,7 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
     parent_id = serializers.SerializerMethodField()
     data_mart_model = serializers.CharField(read_only=True)
     data_mart_url = serializers.SerializerMethodField()
+    is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = DataMartModel
@@ -81,6 +82,9 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
 
     def get_data_mart_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
+
+    def get_is_leaf(self, instance):
+        return instance.is_leaf_node()
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
@@ -194,7 +198,7 @@ class DataMartSummarySerializer(DataMartSummarySerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(DataMartCommonSerializer.Meta):
-        fields = ('id', 'parent_id', 'name', 'slug', 'data_mart_url', 'data_mart_model',
+        fields = ('id', 'parent_id', 'name', 'slug', 'data_mart_url', 'data_mart_model', 'is_leaf',
                   'active', 'view_class', 'media')
 
     def get_media(self, data_mart):
@@ -307,7 +311,8 @@ class DataMartTreeSerializer(DataMartTreeSerializerBase):
     children = DataMartTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
     class Meta(DataMartTreeSerializerBase.Meta):
-        fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'data_mart_model', 'media', 'children')
+        fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'data_mart_model', 'media',
+                  'is_leaf', 'children')
         list_serializer_class = _DataMartTreeRootSerializer
 
     def get_media(self, data_mart):
