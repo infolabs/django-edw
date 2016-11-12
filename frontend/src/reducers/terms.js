@@ -8,6 +8,7 @@ class Tree {
     this.json = json;
     this.hash = {};
     this.root = this.json2tree(json);
+    this.loading = false;
   }
 
   json2tree(json, parent) {
@@ -20,6 +21,7 @@ class Tree {
         'id': child.id,
         'name': child.name,
         'slug': child.slug,
+        'url': child.url,
         'short_description': child.short_description,
         'semantic_rule': child.semantic_rule,
         'specification_mode': child.specification_mode,
@@ -42,7 +44,9 @@ class Item {
       'id': -1,
       'name': '',
       'slug': '',
+      'url': '',
       'short_description': '',
+      'description': '',
       'semantic_rule': consts.SEMANTIC_RULE_AND,
       'specification_mode': consts.STANDARD_SPECIFICATION,
       'structure': consts.STRUCTURE_NULL,
@@ -71,17 +75,32 @@ class Item {
   isLimbAndLeaf() {
     return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
   }
+
+  isLimbOrAnd(item) {
+    return ((this.parent &&
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      this.structure == consts.STRUCTURE_LIMB)
+  }
 }
 
 /* Tagged Data Structures */
 
 class TaggedItems {
 
+  isTaggable(item) {
+    return !((item.parent &&
+      item.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      item.structure == consts.STRUCTURE_LIMB)
+  }
+
   toggle(item) {
+    if (item.isLimbOrAnd())
+      return this;
+
     if (this[item.id]) {
       this.untag(item);
     } else {
-      this[item.id] = true;
+      this.tag(item);
       if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
         this.untagSiblings(item);
     }
@@ -91,6 +110,11 @@ class TaggedItems {
   resetItem(item) {
     this.untag(item);
     return Object.assign(new TaggedItems(), this);
+  }
+
+  tag(item) {
+    this[item.id] = true;
+    item.parent && this.tag(item.parent);
   }
 
   untag(item) {
@@ -109,6 +133,16 @@ class TaggedItems {
   isAnyTagged(arr) {
     let self = this;
     return arr.some(el => !!self[el.id]);
+  }
+
+  isAncestorTagged(item) {
+    if (item.structure != consts.STRUCTURE_LIMB && item.parent) {
+      if (this[item.parent.id])
+        return true;
+      else
+        return this.isAncestorTagged(item.parent);
+    }
+    return false;
   }
 }
 
@@ -135,8 +169,14 @@ class ExpandedItems {
   }
 
   toggle(item) {
-    this[item.id] = !this[item.id];
-    return Object.assign(new ExpandedItems([]), this);
+    let ret = this
+    let spec = item.specification_mode,
+        is_expanded_spec = spec == consts.EXPANDED_SPECIFICATION;
+    if (!(!item.isLimbOrAnd() && is_expanded_spec)) {
+      this[item.id] = !this[item.id];
+      ret =Object.assign(new ExpandedItems([]), this); 
+    }
+    return ret;
   }
 
   reload(json) {
@@ -168,14 +208,13 @@ class Requested {
 /* Expanded Info Structures */
 
 class ExpandedInfoItems {
-
-  static show(item) {
+  show(item) {
     let ei = new ExpandedInfoItems();
     ei[item.id] = true;
     return ei;
   }
 
-  static hide(item) {
+  hide(item) {
     return new ExpandedInfoItems();
   }
 }
@@ -186,6 +225,19 @@ function tree(state = new Tree([]), action) {
       return new Tree(action.json);
     case consts.RELOAD_TREE:
       return new Tree(action.json);
+    case consts.NOTIFY_LOADING:
+      return Object.assign(state, {'loading': true});
+    default:
+      return state;
+  }
+}
+
+function details(state = {}, action) {
+  switch (action.type) {
+    case consts.LOAD_ITEM:
+      const item = action.json;
+      state[item.id] = item;
+      return Object.assign({}, state);
     default:
       return state;
   }
@@ -237,6 +289,7 @@ function infoExpanded(state = new ExpandedInfoItems(), action) {
 
 const terms = combineReducers({
     tree: tree,
+    details: details,
     requested: requested,
     tagged: tagged,
     expanded: expanded,
