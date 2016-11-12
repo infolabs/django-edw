@@ -295,9 +295,11 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase, RESTModelBase):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseEntityManager"
             raise NotImplementedError(msg.format(Model.__name__))
 
+        """
         if not isinstance(getattr(Model, 'lookup_fields', None), (list, tuple)):
             msg = "Class `{}` must provide a tuple of `lookup_fields` so that we can easily lookup for Entities"
             raise NotImplementedError(msg.format(Model.__name__))
+        """
 
         try:
             Model().entity_name
