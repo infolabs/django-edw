@@ -307,7 +307,7 @@ class DataMartTreeSerializer(DataMartTreeSerializerBase):
     children = DataMartTreeListField(child=RecursiveField(), source='get_children', read_only=True)
 
     class Meta(DataMartTreeSerializerBase.Meta):
-        fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'media', 'children')
+        fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'data_mart_model', 'media', 'children')
         list_serializer_class = _DataMartTreeRootSerializer
 
     def get_media(self, data_mart):

@@ -37,6 +37,7 @@ class EntityCommonSerializer(serializers.ModelSerializer):
     EntityDetailSerializer.
     """
     entity_model = serializers.CharField(read_only=True)
+    entity_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = EntityModel
@@ -221,7 +222,7 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
-    class Meta(EntityCommonSerializer.Meta): #todo: url!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    class Meta(EntityCommonSerializer.Meta):
 
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
 

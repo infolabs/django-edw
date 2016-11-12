@@ -40,7 +40,7 @@ class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
         verbose_name_plural = _("Books")
 
     class RESTMeta:
-          exclude = ['images']
+          exclude = ['images', 'name']
 
     objects = BookManager()
 
@@ -74,7 +74,7 @@ class ChildBook(Book):
         verbose_name_plural = _("Child books")
 
     class RESTMeta:
-        exclude = ['age', 'images']
+        exclude = ['age', 'images', 'name']
         include = {
             'my_age': serializers.SerializerMethodField(),
         }
@@ -98,4 +98,4 @@ class AdultBook(Book):
         verbose_name_plural = _("Adult books")
 
     class RESTMeta:
-        exclude = ['genre', 'images']
+        exclude = ['genre', 'images', 'name']
