@@ -36,6 +36,8 @@ export default class TermsTreeItem extends Component {
         reset_item = "",
         info = "";
 
+    const show_children = !term.isLimbOrAnd() && tagged[term.id] || expanded[term.id];
+
     if (parent != false && term.isLimbDescendant() && !term.isLimbAndLeaf()) {
 
       const parent = term.parent,
@@ -83,8 +85,7 @@ export default class TermsTreeItem extends Component {
         </span>
       );
 
-      if (term.semantic_rule == consts.SEMANTIC_RULE_OR &&
-          expanded[term.id]) {
+      if (term.semantic_rule == consts.SEMANTIC_RULE_OR && show_children) {
         let any_tagged = tagged.isAnyTagged(children),
             r_span_class_name = any_tagged ? "ex-dim" : "",
             r_t_span_class_name = any_tagged ? "" : "ex-tagged",
@@ -133,7 +134,7 @@ export default class TermsTreeItem extends Component {
     if (render_item == "") {
       ret = <span>{render_children}</span>;
     } else {
-      if (expanded[term.id] == true)
+      if (show_children)
         render_children = <ul>{reset_item}{render_children}</ul>;
       else
         render_children = ""

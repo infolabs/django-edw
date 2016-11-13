@@ -169,14 +169,10 @@ class ExpandedItems {
   }
 
   toggle(item) {
-    let ret = this
-    let spec = item.specification_mode,
-        is_expanded_spec = spec == consts.EXPANDED_SPECIFICATION;
-    if (!(!item.isLimbOrAnd() && is_expanded_spec)) {
-      this[item.id] = !this[item.id];
-      ret =Object.assign(new ExpandedItems([]), this); 
-    }
-    return ret;
+    if (!item.isLimbOrAnd())
+      return this;
+    this[item.id] = !this[item.id];
+    return Object.assign(new ExpandedItems([]), this); 
   }
 
   reload(json) {
