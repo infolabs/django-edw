@@ -180,6 +180,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     Term Tree Root Serializer
     """
     def get_selected_terms(self):
+
+
+        print "selected++++", self.selected
+
         selected = self.selected[:]
         has_selected = bool(selected)
 
