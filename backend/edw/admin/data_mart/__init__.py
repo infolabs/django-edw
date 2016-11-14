@@ -16,6 +16,10 @@ from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 from salmonella.admin import SalmonellaMixin
 
+from adminsortable2.admin import SortableInlineAdminMixin
+
+from edw.models.related import DataMartImageModel
+
 from edw.admin.data_mart.forms import (
     DataMartAdminForm,
     DataMartRelationInlineForm
@@ -76,6 +80,15 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             from django.views.i18n import null_javascript_catalog as javascript_catalog
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
+
+
+# ===========================================================================================
+# EntityImageInline
+# ===========================================================================================
+class DataMartImageInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = DataMartImageModel
+    extra = 1
+    ordering = ('order',)
 
 
 #===========================================================================================
