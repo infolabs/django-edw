@@ -205,9 +205,10 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
                 else:
                     x.attrs['structure'] = 'trunk'
 
-        # todo: fix here!!!
+        root_pk = self.context.get('root_pk', None)
+        root = tree.pop(root_pk, tree.root)
 
-        return tree.root.get_children_dict()
+        return root.get_children_dict()
 
     @property
     def is_expanded_specification(self):
