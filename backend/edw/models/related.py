@@ -160,6 +160,7 @@ EntityImageModel = deferred.MaterializedModel(BaseEntityImage)
 #==============================================================================
 # BaseBaseDataMartImage
 #==============================================================================
+@python_2_unicode_compatible
 class BaseDataMartImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
     ManyToMany relation from the polymorphic Datamart to a set of images.
