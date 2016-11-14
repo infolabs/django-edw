@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 
 from rest_framework import viewsets, filters
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
+from rest_framework import serializers
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
@@ -42,29 +44,20 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
         return super(DataMartViewSet, self).initialize_request(*args, **kwargs)
 
     @list_route(filter_backends=())
-    def tree(self, request, format=None):
-        queryset = DataMartModel.objects.toplevel()
+    def tree(self, request, data_mart_pk=None, *args, **kwargs):
+        if data_mart_pk is not None:
+            request.GET.setdefault('parent_id', data_mart_pk)
+        parent_id = request.query_params.get('parent_id', None)
+        if parent_id is not None:
+            parent = get_object_or_404(DataMartModel.objects.all(),
+                                       pk=serializers.IntegerField().to_internal_value(parent_id))
+            queryset = parent.get_children()
+        else:
+            queryset = DataMartModel.objects.toplevel()
         serializer = DataMartTreeSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
-    @detail_route()
-    def children(self, request, pk, format=None, **kwargs):
-        '''
-        Retrieve children nodes, just adding `parent_id` filter
-        :param request:
-        :param pk:
-        :param format:
-        :return:
-        '''
-        request.GET['parent_id'] = pk
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        context = {
-            "request": request
-        }
-        serializer_class = self.custom_serializer_classes['list']
-        if page is not None:
-            serializer = serializer_class(page, context=context, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = serializer_class(queryset, context=context, many=True)
-        return Response(serializer.data)
+    def list(self, request, data_mart_pk=None, *args, **kwargs):
+        if data_mart_pk is not None:
+            request.GET.setdefault('parent_id', data_mart_pk)
+        return super(DataMartViewSet, self).list(request, *args, **kwargs)

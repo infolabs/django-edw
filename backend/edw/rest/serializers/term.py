@@ -205,6 +205,8 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
                 else:
                     x.attrs['structure'] = 'trunk'
 
+        # todo: fix here!!!
+
         return tree.root.get_children_dict()
 
     @property

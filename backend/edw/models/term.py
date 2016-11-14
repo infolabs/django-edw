@@ -473,11 +473,11 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return super(BaseTerm, self).get_ancestors(ascending, include_self)
     
     @staticmethod
-    def decompress(value=None, fix_it=False):
+    def decompress(*args, **kwars):
         """
         Shortcut to TermInfo.decompress method
         """
-        return TermInfo.decompress(TermModel, value, fix_it)
+        return TermInfo.decompress(TermModel, *args, **kwars)
 
     @staticmethod
     def get_decompress_buffer():
@@ -499,7 +499,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         })
         tree = cache.get(key, None)
         if tree is None:
-            tree = BaseTerm.decompress(value, fix_it)
+            tree = BaseTerm.decompress(value=value, fix_it=fix_it)
             cache.set(key, tree, BaseTerm.DECOMPRESS_CACHE_TIMEOUT)
             buf = BaseTerm.get_decompress_buffer()
             old_key = buf.record(key)

@@ -135,6 +135,7 @@ DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
 #==============================================================================
 # BaseEntityImage
 #==============================================================================
+@python_2_unicode_compatible
 class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
     ManyToMany relation from the polymorphic Entity to a set of images.
@@ -149,8 +150,33 @@ class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         verbose_name_plural = _("Entity Images")
         ordering = ('order',)
 
-    def __unicode__(self):
-        return "%s" % self.image
+    def __str__(self):
+        return "{}".format(self.image)
 
 
 EntityImageModel = deferred.MaterializedModel(BaseEntityImage)
+
+
+#==============================================================================
+# BaseBaseDataMartImage
+#==============================================================================
+@python_2_unicode_compatible
+class BaseDataMartImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+    """
+    ManyToMany relation from the polymorphic Datamart to a set of images.
+    """
+    image = image.FilerImageField(verbose_name=_('Image'))
+    datamart = deferred.ForeignKey('BaseDataMart', verbose_name=_('DataMart'))
+    order = models.SmallIntegerField(default=0, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+        verbose_name = _("DataMart Image")
+        verbose_name_plural = _("DataMart Images")
+        ordering = ('order',)
+
+    def __str__(self):
+        return "{}".format(self.image)
+
+
+DataMartImageModel = deferred.MaterializedModel(BaseDataMartImage)
