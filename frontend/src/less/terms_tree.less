@@ -16,7 +16,7 @@ body,
   padding-bottom: 20px;
   margin-bottom: 50px;
   background-color: #111;
-  color: #eee;
+  color: @ex-term-color;
 }
 
 .terms-tree ul,
@@ -127,26 +127,10 @@ body,
   content: "\f05a";
 }
 
-.ex-baloon {
-  position: absolute;
-  padding: 7px;
-  left: 10;
-  top: 10;
-  background-color: #222;
-  cursor: default;
-}
-
 .ex-close {
+  font-size: 15px;
   float: right;
   cursor: pointer;
-}
-
-.ex-baloon-show {
-  display: block;
-}
-
-.ex-baloon-hide {
-  display: none;
 }
 
 .ex-dim {
@@ -159,5 +143,63 @@ body,
 
 .ex-expandable {
   font-weight: bold;
-  border-bottom: 1px dotted #fff;
+  border-bottom: 1px dotted @ex-term-color;
+}
+
+.ex-baloon-show {
+  display: block;
+}
+
+.ex-baloon-hide {
+  display: none;
+}
+
+.ex-baloon {
+  position: absolute;
+  top: -10px;
+  left: 30px;
+  z-index: 1010;
+  width: 250px;
+  background-color: @baloonBackground;
+  border: 1px solid @baloonBorderColor;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  background-clip: padding-box;
+  line-height: 15px;
+  padding: 10px;
+  color: @baloonTextColor;
+  border-radius: @baloonBorderRadius;
+  font-size: 12px;
+
+  p {
+    margin: 0;
+    padding-right: 15px;
+    text-transform: none;
+    font-weight: normal;
+    font-size: 11px;
+  }
+}
+
+.ex-baloon .ex-arrow {
+  left: -7px;
+  top: 10px;
+  border-right-color: @baloonArrowColor;
+  border-width: 7px 7px 7px 0px;
+
+  &, &:after {
+    position: absolute;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+  }
+
+  &:after {
+    z-index: -1;
+    content: "";
+    border-right-color: @baloonArrowBackColor;
+    border-width: 9px 9px 9px 0;
+    bottom: -9px;
+    left: -2px;
+  }
 }
