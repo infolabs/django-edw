@@ -698,18 +698,11 @@ class TermInfo(list):
         return result
 
     @staticmethod
-    def decompress(model_class, value=None, fix_it=False): # todo: root_pk=None
+    def decompress(model_class, value=None, fix_it=False):
         if value is None:
             value = []
         value = uniq(value)
-
-        # todo: make soft root
-        # ____________________
-
         root = TermInfo(term=model_class(semantic_rule=model_class.ROOT_RULE, active=True))
-
-        # ____________________
-
         tree = TermTreeInfo(root)
         for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
             if not term.id in tree:

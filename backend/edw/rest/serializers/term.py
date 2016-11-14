@@ -180,7 +180,6 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     Term Tree Root Serializer
     """
     def get_selected_terms(self):
-
         selected = self.selected[:]
         has_selected = bool(selected)
 
@@ -205,6 +204,8 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
                     x.attrs['structure'] = 'limb'
                 else:
                     x.attrs['structure'] = 'trunk'
+
+        # todo: fix here!!!
 
         return tree.root.get_children_dict()
 
