@@ -30,6 +30,7 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
 
     parent_id = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
+    short_description = serializers.SerializerMethodField()
 
     class Meta:
         model = TermModel
@@ -40,6 +41,13 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_is_leaf(self, instance):
         return instance.is_leaf_node()
+
+    def get_short_description(self, instance):
+        if not instance.description:
+            return ''
+        return mark_safe(
+            Truncator(Truncator(instance.description).words(10, truncate=" ...")).chars(80, truncate="..."))
+
 
 
 class TermDetailSerializer(TermSerializer):
@@ -57,7 +65,7 @@ class TermSummarySerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'view_class', 'attributes', 'is_leaf')
+                  'view_class', 'attributes', 'is_leaf', 'short_description')
 
 
 class _TermsFilterMixin(object):
@@ -274,7 +282,6 @@ class TermTreeSerializer(TermSerializer):
     """
     children = TermTreeListField(child=RecursiveField(), source='get_children', read_only=True)
     structure = serializers.SerializerMethodField()
-    short_description = serializers.SerializerMethodField()
 
     class Meta(TermSerializer.Meta):
         fields = ('id', 'name', 'slug', 'semantic_rule', 'specification_mode', 'url', 'active',
@@ -294,9 +301,3 @@ class TermTreeSerializer(TermSerializer):
         if self._selected_term_info is not None:
             return self._selected_term_info.attrs.get('structure', 'branch')
         return None  # 'twig', node not selected
-
-    def get_short_description(self, instance):
-        if not instance.description:
-            return ''
-        return mark_safe(
-            Truncator(Truncator(instance.description).words(10, truncate=" ...")).chars(80, truncate="..."))

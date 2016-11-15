@@ -13,6 +13,7 @@ from django.utils.six import with_metaclass
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
+from django.utils.text import Truncator
 
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
@@ -36,6 +37,7 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
     data_mart_model = serializers.CharField(read_only=True)
     data_mart_url = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
+    short_description = serializers.SerializerMethodField()
 
     class Meta:
         model = DataMartModel
@@ -85,6 +87,12 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
 
     def get_is_leaf(self, instance):
         return instance.is_leaf_node()
+
+    def get_short_description(self, instance):
+        if not instance.description:
+            return ''
+        return mark_safe(
+            Truncator(Truncator(instance.description).words(10, truncate=" ...")).chars(80, truncate="..."))
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
@@ -177,7 +185,8 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(DataMartCommonSerializer.Meta):
-        exclude = ('active', 'polymorphic_ctype', '_relations', 'terms', 'parent', "lft", "rght", "tree_id", "level")
+        exclude = ('active', 'polymorphic_ctype', '_relations', 'terms', 'parent', 'lft', 'rght', 'tree_id', 'level',
+                   'short_description')
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
@@ -199,7 +208,7 @@ class DataMartSummarySerializer(DataMartSummarySerializerBase):
 
     class Meta(DataMartCommonSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'data_mart_url', 'data_mart_model', 'is_leaf',
-                  'active', 'view_class', 'media')
+                  'active', 'view_class', 'short_description', 'media')
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
