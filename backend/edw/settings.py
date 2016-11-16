@@ -42,6 +42,18 @@ CACHE_BUFFERS_SIZES = {
 CACHE_BUFFERS_SIZES.update(getattr(settings, 'EDW_CACHE_BUFFERS_SIZES', {}))
 
 
+REST_PAGINATION = {
+    'data_mart_default_limit': 12,
+    'data_mart_max_limit': 500,
+
+    'term_default_limit': 12,
+    'term_max_limit': 500,
+
+    'entity_default_limit': 12,
+    'entity_max_limit': 500,
+}
+REST_PAGINATION.update(getattr(settings, 'EDW_REST_PAGINATION', {}))
+
 
 REGISTRATION_PROCESS = {
     'registration_salt': 'registration',
