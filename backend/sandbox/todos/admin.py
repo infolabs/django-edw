@@ -27,6 +27,7 @@ from edw.admin.entity import (
     TermsTreeFilter,
     EntityCharacteristicOrMarkInline,
     EntityRelationInline,
+    EntityRelatedDataMartInline,
     EntityImageInline
 )
 from edw.admin.entity.forms import EntityAdminForm
@@ -76,7 +77,7 @@ class TodoAdmin(SortableAdminBase, admin.ModelAdmin):
     list_per_page = 250
     list_max_show_all = 1000
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityImageInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline, EntityImageInline]
 
     def save_model(self, request, obj, form, change):
         if not change:
