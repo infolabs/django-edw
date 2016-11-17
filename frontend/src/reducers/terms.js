@@ -118,7 +118,8 @@ class TaggedItems {
 
   tag(item) {
     this[item.id] = true;
-    item.id > -1 && this.array.push(item.id);
+    let index = this.array.indexOf(item.id);
+    index < 0 && item.id > -1 && this.array.push(item.id);
     item.parent && this.tag(item.parent);
   }
 
