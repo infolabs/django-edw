@@ -3,6 +3,8 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import * as TermsTreeActions from '../actions/TermsTreeActions';
 import Entity from './Entity';
+import HowMany from './HowMany';
+import Paginator from './Paginator';
 
 
 class Entities extends Component {
@@ -30,13 +32,19 @@ class Entities extends Component {
       entities = "";
     }
 
-    return <div className="entities">{entities}</div>;
+    return (
+      <div>
+        <HowMany />
+        <div className="entities">{entities}</div>
+        <Paginator />
+      </div>
+    );
   }
 }
 
 function mapState(state) {
   return {
-    terms: state.terms,
+    terms: state.terms
   };
 }
 
