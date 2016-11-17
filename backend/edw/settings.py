@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+
 from django.conf import settings
 
+from rest_framework.settings import api_settings
 
 APP_LABEL = settings.EDW_APP_LABEL  # mandatory setting without default
 
@@ -43,13 +46,13 @@ CACHE_BUFFERS_SIZES.update(getattr(settings, 'EDW_CACHE_BUFFERS_SIZES', {}))
 
 
 REST_PAGINATION = {
-    'data_mart_default_limit': 12,
+    'data_mart_default_limit': api_settings.PAGE_SIZE,
     'data_mart_max_limit': 500,
 
-    'term_default_limit': 12,
+    'term_default_limit': api_settings.PAGE_SIZE,
     'term_max_limit': 500,
 
-    'entity_default_limit': 12,
+    'entity_default_limit': api_settings.PAGE_SIZE,
     'entity_max_limit': 500,
 }
 REST_PAGINATION.update(getattr(settings, 'EDW_REST_PAGINATION', {}))

@@ -19,6 +19,7 @@ from edw.rest.serializers.data_mart import (
 from edw.rest.filters.data_mart import DataMartFilter
 from edw.models.data_mart import DataMartModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.pagination import DataMartPagination
 
 
 class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
@@ -38,6 +39,8 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
     filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
+
+    pagination_class = DataMartPagination
 
     @remove_empty_params_from_request
     def initialize_request(self, *args, **kwargs):

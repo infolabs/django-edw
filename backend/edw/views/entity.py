@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-from rest_framework import viewsets, pagination
+from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
@@ -19,6 +19,7 @@ from edw.models.entity import EntityModel
 from edw.rest.filters.entity import EntityFilter, EntityOrderingFilter
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.pagination import EntityPagination
 
 
 class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
@@ -46,7 +47,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     # ordering_fields = ('created_at',)
     ordering_fields = '__all__'
 
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = EntityPagination
 
     @remove_empty_params_from_request
     def initialize_request(self, *args, **kwargs):

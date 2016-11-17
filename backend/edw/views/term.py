@@ -18,6 +18,7 @@ from edw.rest.serializers.term import (
 from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.pagination import TermPagination
 
 
 class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
@@ -37,6 +38,8 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter,)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
+
+    pagination_class = TermPagination
 
     @remove_empty_params_from_request
     def initialize_request(self, *args, **kwargs):
