@@ -200,6 +200,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
             'absolute_base_uri': request.build_absolute_uri('/'),
             'remote_ip': ip.get_ip(request),
             'user_agent': request.META.get('HTTP_USER_AGENT'),
+            'username': request.user.username if request.user else None,
         }
 
 
