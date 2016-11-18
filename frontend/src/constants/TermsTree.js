@@ -1,4 +1,4 @@
-// Actions
+// Tree Actions
 export const LOAD_TREE = 'LOAD_TERMS_TREE';
 export const LOAD_ITEM = 'LOAD_TERMS_ITEM';
 export const RELOAD_TREE = 'RELOAD_TERMS_TREE';
@@ -7,6 +7,8 @@ export const RESET_ITEM = 'TERM_RESET';
 export const SHOW_INFO = 'SHOW_TERM_INFO';
 export const HIDE_INFO = 'HIDE_TERM_INFO';
 export const NOTIFY_LOADING = 'NOTIFY_LOADING';
+// Entities Actions
+export const LOAD_ENTITIES = 'LOAD_ENTITIES';
 // Semantic rules
 export const SEMANTIC_RULE_XOR = 10;
 export const SEMANTIC_RULE_OR = 20;
