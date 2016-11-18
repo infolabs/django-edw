@@ -57,6 +57,7 @@ export function getEntities(options = {}) {
   }).then(response => response.json()).then(json => ({
     type: types.LOAD_ENTITIES,
     json: json,
+    request_options: options
   }));
 }
 

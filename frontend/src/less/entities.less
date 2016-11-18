@@ -76,6 +76,10 @@ ul.ex-inline > li, ol.ex-inline > li {
   display: block;
 }
 
+.ex-catalog-pagination {
+  display: block;
+}
+
 .ex-pagination {
   display: inline-block;
   padding-left: 0;
@@ -104,6 +108,10 @@ ul.ex-inline > li, ol.ex-inline > li {
   text-decoration: none;
   background-color: @paginationBackground;
   border: 1px solid @paginationBorder;
+}
+
+.ex-pagination>li>a {
+  color: @paginationLinkColor;
 }
 
 .ex-pagination>li>a:hover,
@@ -143,6 +151,14 @@ ul.ex-inline > li, ol.ex-inline > li {
   background-color: @paginationBackgroundDisabled;
   border-color: @paginationBorderDisabled;
 }
+
+.ex-disabled, .ex-disabled:hover, .ex-disabled:focus {
+  color: @paginationTextColorDisabled;
+  cursor: not-allowed;
+  background-color: @paginationBackgroundDisabled;
+  border-color: @paginationBorderDisabled;
+}
+
 
 .ex-btn (@ex-btn-font-size: @ex-font-size-base; @ex-btn-line-height: floor((@ex-btn-font-size * @ex-line-height-base));
     @ex-btn-font-weight: @ex-btn-font-weight; @ex-btn-text-transform: inherit; @ex-btn-border-radius: @ex-btn-border-radius-base;

@@ -226,15 +226,24 @@ class ExpandedInfoItems {
 /* Entities */
 
 class EtitiesManager {
-  constructor(json) {
+  constructor(json, request_options) {
     this.objects = this.json2objects(json);
+    this.meta = this.json2meta(json, request_options);
   }
 
   json2objects(json) {
-    let objects = json.objects;
-    if (!objects && json.results)
-      objects = json.results.objects;
-    return objects || [];
+    return json.results && json.results.objects || [];
+  }
+
+  json2meta(json, request_options) {
+    let meta = json.results && json.results.meta || {};
+    meta.count = json.count;
+    meta.limit = json.limit;
+    meta.offset = json.offset;
+    meta.next = json.next;
+    meta.previous = json.previous;
+    meta.request_options = request_options;
+    return meta;
   }
 }
 
@@ -318,10 +327,10 @@ function infoExpanded(state = new ExpandedInfoItems(), action) {
   }
 }
 
-function entities(state = [], action) {
+function entities(state = new EtitiesManager({}, {}), action) {
   switch (action.type) {
     case consts.LOAD_ENTITIES:
-      return new EtitiesManager(action.json).objects;
+      return new EtitiesManager(action.json, action.request_options);
     default:
       return state;
   }

@@ -17,17 +17,18 @@ class Entities extends Component {
           req_next = nextProps.terms.tagged;
     if (req_curr != req_next) {
       this.props.actions.notifyLoading();
-      this.props.actions.getEntities({'terms': req_next.array});
+      this.props.actions.getEntities({'terms': req_next.array, 'limit': 1});
     }
   }
 
   render() {
     const { terms, actions } = this.props;
 
-    let entities = terms.entities;
+    let entities = terms.entities.objects || [],
+        meta = terms.entities.meta;
 
     if (entities.length) {
-      entities = entities.map(child => <Entity key={child.id} entity={child}/>);
+      entities = entities.map((child, i) => <Entity key={i} entity={child}/>);
     } else {
       entities = "";
     }
@@ -36,7 +37,7 @@ class Entities extends Component {
       <div>
         <HowMany />
         <div className="entities">{entities}</div>
-        <Paginator />
+        <Paginator meta={meta} actions={actions}/>
       </div>
     );
   }
