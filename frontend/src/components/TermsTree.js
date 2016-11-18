@@ -41,11 +41,9 @@ class TermsTree extends Component {
       );
     }
     return (
-      <div className="terms-tree-container">
         <ul className="terms-tree">
           {tree}
         </ul>
-      </div>
     )
   }
 }

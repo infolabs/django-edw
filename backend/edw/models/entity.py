@@ -200,6 +200,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
             'absolute_base_uri': request.build_absolute_uri('/'),
             'remote_ip': ip.get_ip(request),
             'user_agent': request.META.get('HTTP_USER_AGENT'),
+            'username': request.user.username if request.user else None,
         }
 
 
@@ -686,6 +687,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         :return:
         '''
 
+    def post_save_entity(self, origin, *args, **kwargs):
+        '''
+        Normally not needed.
+        This function call before `.save()` method.
+        :param origin:
+        :return:
+        '''
+
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
         if not force_update:
@@ -697,6 +706,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             self.pre_save_entity(origin, *args, **kwargs)
             force_validate_terms = kwargs.pop('force_validate_terms', False)
             result = super(BaseEntity, self).save(*args, **kwargs)
+            self.post_save_entity(origin, *args, **kwargs)
             validation_context = {
                 "force_validate_terms": force_validate_terms
             }

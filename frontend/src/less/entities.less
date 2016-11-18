@@ -1,4 +1,24 @@
-/* todo: need refactoring */
+@import "variables.less";
+
+.entities {
+  color: #fff;
+}
+
+.entities > div {
+  margin-bottom: 10px;
+}
+
+ul.ex-inline, ol.ex-inline {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+ul.ex-inline > li, ol.ex-inline > li {
+  display: inline-block;
+  padding: 0;
+}
+
 .ex-order-by, .ex-statistic, .ex-pagination {
   margin-bottom: @ex-catalog-item-vertical-gap;
 }
@@ -48,10 +68,6 @@
   background-color: @dropdownLinkBackgroundHover;
 }
 
-/*
-==================== СОРТИРОВКА ТОВАРОВ ====================
-*/
-
 .ex-sort-dropdown {
   position: relative;
 }
@@ -60,9 +76,9 @@
   display: block;
 }
 
-/*
-==================== ПАДЖИНАЦИЯ ====================
-*/
+.ex-catalog-pagination {
+  display: block;
+}
 
 .ex-pagination {
   display: inline-block;
@@ -92,6 +108,10 @@
   text-decoration: none;
   background-color: @paginationBackground;
   border: 1px solid @paginationBorder;
+}
+
+.ex-pagination>li>a {
+  color: @paginationLinkColor;
 }
 
 .ex-pagination>li>a:hover,
@@ -130,5 +150,73 @@
   cursor: not-allowed;
   background-color: @paginationBackgroundDisabled;
   border-color: @paginationBorderDisabled;
+}
+
+.ex-disabled, .ex-disabled:hover, .ex-disabled:focus {
+  color: @paginationTextColorDisabled;
+  cursor: not-allowed;
+  background-color: @paginationBackgroundDisabled;
+  border-color: @paginationBorderDisabled;
+}
+
+
+.ex-btn (@ex-btn-font-size: @ex-font-size-base; @ex-btn-line-height: floor((@ex-btn-font-size * @ex-line-height-base));
+    @ex-btn-font-weight: @ex-btn-font-weight; @ex-btn-text-transform: inherit; @ex-btn-border-radius: @ex-btn-border-radius-base;
+    @ex-btn-padding-vertical: @ex-padding-base-vertical; @ex-btn-padding-horizontal: @ex-padding-base-horizontal) {
+  display: inline-block;
+  margin-bottom: 0; // For input.btn
+  font-weight: @ex-btn-font-weight;
+  text-transform: @ex-btn-text-transform;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  transition: all 0.2s ease-in 0s;
+  transition-property: color, background-color, border-color;
+
+  .ex-button-size(@ex-btn-padding-vertical; @ex-btn-padding-horizontal; @ex-btn-font-size; @ex-btn-line-height; @ex-btn-border-radius);
+  .ex-user-select(none);
+
+  &,
+  &:active,
+  &.active {
+    &:focus,
+    &.focus {
+      .ex-tab-focus();
+    }
+  }
+
+  &:hover,
+  &:focus,
+  &.focus {
+    color: @ex-btn-default-color;
+    text-decoration: none;
+  }
+
+  &:active,
+  &.active {
+    outline: 0;
+    background-image: none;
+    .ex-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+  }
+
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    cursor: @ex-cursor-disabled;
+    .ex-opacity(.65);
+    .ex-box-shadow(none);
+  }
+
+  a& {
+    &.disabled,
+    fieldset[disabled] & {
+      pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
+    }
+  }
 }
 

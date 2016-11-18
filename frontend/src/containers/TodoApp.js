@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Header from '../components/Header';
 import TermsTree from '../components/TermsTree';
+import Entities from '../components/Entities';
 import MainSection from '../components/MainSection';
 import * as TodoActions from '../actions/TodoActions';
 
@@ -17,8 +18,12 @@ class TodoApp extends Component {
 
     return (
       <div>
+        <div className="terms-tree-container">
+          <TermsTree />
+          <Entities />
+        </div>
+
         <Header addTodo={actions.addTodo} />
-        <TermsTree />
         <MainSection todos={todos} actions={actions} />
       </div>
     );

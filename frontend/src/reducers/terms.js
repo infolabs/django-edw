@@ -87,6 +87,10 @@ class Item {
 
 class TaggedItems {
 
+  constructor(json) {
+    this.array = [];
+  }
+
   isTaggable(item) {
     return !((item.parent &&
       item.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
@@ -114,11 +118,15 @@ class TaggedItems {
 
   tag(item) {
     this[item.id] = true;
+    let index = this.array.indexOf(item.id);
+    index < 0 && item.id > -1 && this.array.push(item.id);
     item.parent && this.tag(item.parent);
   }
 
   untag(item) {
     this[item.id] = false;
+    let index = this.array.indexOf(item.id);
+    index > -1 && this.array.splice(index, 1);
     for (const child of item.children) {
       this.untag(child);
     }
@@ -215,6 +223,31 @@ class ExpandedInfoItems {
   }
 }
 
+/* Entities */
+
+class EtitiesManager {
+  constructor(json, request_options) {
+    this.objects = this.json2objects(json);
+    this.meta = this.json2meta(json, request_options);
+  }
+
+  json2objects(json) {
+    return json.results && json.results.objects || [];
+  }
+
+  json2meta(json, request_options) {
+    let meta = json.results && json.results.meta || {};
+    meta.count = json.count;
+    meta.limit = json.limit;
+    meta.offset = json.offset;
+    meta.next = json.next;
+    meta.previous = json.previous;
+    meta.request_options = request_options;
+    return meta;
+  }
+}
+
+
 function tree(state = new Tree([]), action) {
   switch (action.type) {
     case consts.LOAD_TREE:
@@ -283,13 +316,34 @@ function infoExpanded(state = new ExpandedInfoItems(), action) {
   }
 }
 
+function infoExpanded(state = new ExpandedInfoItems(), action) {
+  switch (action.type) {
+    case consts.SHOW_INFO:
+      return state.show(action.term);
+    case consts.HIDE_INFO:
+      return state.hide(action.term);
+    default:
+      return state;
+  }
+}
+
+function entities(state = new EtitiesManager({}, {}), action) {
+  switch (action.type) {
+    case consts.LOAD_ENTITIES:
+      return new EtitiesManager(action.json, action.request_options);
+    default:
+      return state;
+  }
+}
+
 const terms = combineReducers({
     tree: tree,
     details: details,
     requested: requested,
     tagged: tagged,
     expanded: expanded,
-    info_expanded: infoExpanded
+    info_expanded: infoExpanded,
+    entities: entities
 })
 
 export default terms;
