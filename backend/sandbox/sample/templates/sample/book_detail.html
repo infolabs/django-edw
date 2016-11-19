@@ -1,19 +1,53 @@
-{% load edw_tags %}
+{% load staticfiles edw_tags %}
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>Example: {{ title }}</title>
+      <meta charset="UTF-8">
+      <script src="{% static 'edw/lib/dropzone/dropzone.js' %}"></script>
+      <link href="{% static 'edw/lib/dropzone/dropzone.css' %}" type="text/css" rel="stylesheet"/>
+      <title>Example: {{ title }}</title>
   </head>
 
   <body>
     <h1>Hello world!!! {{ object.id }}</h1>
 
-{% comment %}
+    <form action="/book-images/" class="dropzone" id="my-awesome-dropzone">
+        {% csrf_token %}
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+    </form>
+
+
+<script type="text/javascript">
+    // "myAwesomeDropzone" is the camelized version of the HTML element's ID
+    Dropzone.options.myAwesomeDropzone = {
+      paramName: "image", // The name that will be used to transfer the file
+      maxFilesize: 2, // MB
+      params: {
+          entity: "{{ object.id }}"
+      }
+      /*
+      accept: function(file, done) {
+        if (file.name == "justinbieber.jpg") {
+          done("Naha, you don't.");
+        }
+        else { done(); }
+      }
+      */
+    };
+</script>
+
+
+    <hr>
+
+
+
+
     <pre>{% get_entity object.id indent=4 format='json' %}</pre>
-{% endcomment %}
 
+{% comment %}
     <pre>{% get_entities data_mart_pk=9 terms='102,100' subj='49,48' ordering='-name' limit=2 indent=4 %}</pre>
-
+{% endcomment %}
   </body>
 </html>
