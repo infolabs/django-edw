@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
+from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url, include
 
 from rest_framework_nested import routers
@@ -36,6 +38,28 @@ data_mart_entity_nested_router = routers.NestedSimpleRouter(data_mart_nested_rou
 data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='data-mart-entity-by-subject')
 
 
+extra_url = []
+
+try:
+    from edw.models.related import DataMartImageModel
+    DataMartImageModel()
+
+    print ">>>>>> Add DataMartImage router >>>>>>>>", DataMartImageModel
+
+except ImproperlyConfigured:
+    pass
+
+
+try:
+    from edw.models.related import EntityImageModel
+    EntityImageModel()
+
+    print ">>>>>> Add EntityImage router >>>>>>>>", EntityImageModel
+
+except ImproperlyConfigured:
+    pass
+
+
 #==============================================================================
 # urls
 #==============================================================================
@@ -45,7 +69,7 @@ edw_patterns = ([
     url(r'^', include(format_suffix_patterns(term_nested_router.urls))),
     url(r'^', include(format_suffix_patterns(entity_nested_router.urls))),
     url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))
-], 'edw')
+] + extra_url, 'edw')
 
 urlpatterns = [
     url(r'^', include(edw_patterns)),

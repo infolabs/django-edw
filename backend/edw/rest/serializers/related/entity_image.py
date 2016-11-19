@@ -20,5 +20,5 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EntityImageModel
-        #extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
+        # extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
         fields = '__all__'
