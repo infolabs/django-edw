@@ -6,6 +6,7 @@ from django.views.generic import DetailView
 from rest_framework import viewsets
 from rest_framework_filters.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+from rest_framework import  permissions
 
 from sample.models.book import Book
 
@@ -34,6 +35,8 @@ class BookDetailView(DetailView):
 
 
 class BookImageViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,) # IsOwnerOrReadOnly
 
     queryset = EntityImage.objects.all()
     serializer_class = EntityImageSerializer

@@ -12,11 +12,13 @@ def render_robots(request):
     return HttpResponse('User-Agent: *\n%s: /\n' % permission, content_type='text/plain')
 
 
+# ---------------
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
 
 router.register(r'book-images', BookImageViewSet)
+# ---------------
 
         
 i18n_urls = (
