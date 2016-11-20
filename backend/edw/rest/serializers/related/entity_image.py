@@ -11,7 +11,6 @@ from edw.models.related import EntityImageModel
 from edw.rest.serializers.filer_fields import FilerImageField
 
 
-
 class EntityImageSerializer(serializers.ModelSerializer):
     """
     Common serializer for the EntityImage model.
@@ -20,5 +19,5 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EntityImageModel
-        # extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
+        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
         fields = '__all__'

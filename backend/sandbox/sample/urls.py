@@ -5,20 +5,11 @@ from django.conf.urls import url, patterns, include
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.http import HttpResponse
-from .views import BookDetailView, BookImageViewSet
+from .views import BookDetailView
 
 def render_robots(request):
     permission = 'noindex' in settings.ROBOTS_META_TAGS and 'Disallow' or 'Allow'
     return HttpResponse('User-Agent: *\n%s: /\n' % permission, content_type='text/plain')
-
-
-# ---------------
-from rest_framework_nested import routers
-
-router = routers.DefaultRouter()
-
-router.register(r'book-images', BookImageViewSet)
-# ---------------
 
         
 i18n_urls = (
@@ -28,9 +19,6 @@ i18n_urls = (
 
 
 urlpatterns = patterns('',
-
-    url(r'^', include(router.urls)),
-
     url(r'^robots\.txt$', render_robots),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^edw/', include('edw.urls')),

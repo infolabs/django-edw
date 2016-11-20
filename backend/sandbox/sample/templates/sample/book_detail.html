@@ -11,7 +11,8 @@
   <body>
     <h1>Hello world!!! {{ object.id }}</h1>
 
-    <form action="/book-images/" class="dropzone" id="my-awesome-dropzone">
+    <!--<form action="{% url 'edw:entityimage-list' %}" class="dropzone" id="my-awesome-dropzone">-->
+    <form action="{% url 'edw:entity-images-list' object.id %}" class="dropzone" id="my-awesome-dropzone">
         {% csrf_token %}
         <div class="fallback">
             <input name="file" type="file" multiple />
@@ -25,7 +26,7 @@
       paramName: "image", // The name that will be used to transfer the file
       maxFilesize: 2, // MB
       params: {
-          entity: "{{ object.id }}"
+//          entity: "{{ object.id }}"
       }
       /*
       accept: function(file, done) {

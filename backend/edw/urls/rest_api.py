@@ -37,24 +37,25 @@ entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='entity-b
 data_mart_entity_nested_router = routers.NestedSimpleRouter(data_mart_nested_router, r'entities', lookup='entity')
 data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='data-mart-entity-by-subject')
 
-
 extra_url = []
 
 try:
     from edw.models.related import DataMartImageModel
-    DataMartImageModel()
+    DataMartImageModel() # Test pass if model materialized
 
-    print ">>>>>> Add DataMartImage router >>>>>>>>", DataMartImageModel
+    # todo: need some code
 
 except ImproperlyConfigured:
     pass
 
-
 try:
     from edw.models.related import EntityImageModel
-    EntityImageModel()
+    EntityImageModel() # Test pass if model materialized
 
-    print ">>>>>> Add EntityImage router >>>>>>>>", EntityImageModel
+    from edw.views.related.entity_image import EntityImageViewSet
+
+    router.register(r'entities-images', EntityImageViewSet)
+    entity_nested_router.register(r'images', EntityImageViewSet, base_name='entity-images')
 
 except ImproperlyConfigured:
     pass
