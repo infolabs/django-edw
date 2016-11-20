@@ -12,7 +12,7 @@
     <h1>Hello world!!! {{ object.id }}</h1>
 
     <!--<form action="{% url 'edw:entityimage-list' %}" class="dropzone" id="my-awesome-dropzone">-->
-    <form action="{% url 'edw:entity-images-list' object.id %}" class="dropzone" id="my-awesome-dropzone">
+    <form action="{% url 'edw:entity-image-list' object.id %}" class="dropzone" id="my-awesome-dropzone">
         {% csrf_token %}
         <div class="fallback">
             <input name="file" type="file" multiple />

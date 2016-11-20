@@ -32,7 +32,7 @@ class Book(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
     order = models.PositiveIntegerField(verbose_name=_("Sort by"), db_index=True, default=1)
 
     # images
-    images = models.ManyToManyField('filer.Image', through=EntityImage)
+    images = models.ManyToManyField('filer.Image', through=EntityImage, through_fields=('entity', 'image'),)
 
     class Meta:
         ordering = ('order',)

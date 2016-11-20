@@ -7,7 +7,7 @@ from rest_framework import permissions
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from edw.models.defaults.entity_image import EntityImage
+from edw.models.related import EntityImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.entity_image import EntityImageFilter
 from edw.rest.serializers.related.entity_image import EntityImageSerializer
@@ -17,7 +17,7 @@ class EntityImageViewSet(viewsets.ModelViewSet):
 
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,) # IsOwnerOrReadOnly
 
-    queryset = EntityImage.objects.all()
+    queryset = EntityImageModel.objects.all()
     serializer_class = EntityImageSerializer
     filter_class = EntityImageFilter
     filter_backends = (DjangoFilterBackend,)

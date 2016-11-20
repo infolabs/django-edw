@@ -87,6 +87,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 # ===========================================================================================
 class DataMartImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = DataMartImageModel
+    fk_name = 'data_mart'
     extra = 1
     ordering = ('order',)
 

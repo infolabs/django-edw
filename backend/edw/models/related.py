@@ -166,7 +166,7 @@ class BaseDataMartImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)
     ManyToMany relation from the polymorphic Datamart to a set of images.
     """
     image = image.FilerImageField(verbose_name=_('Image'))
-    datamart = deferred.ForeignKey('BaseDataMart', verbose_name=_('DataMart'))
+    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('DataMart'))
     order = models.SmallIntegerField(default=0, blank=False, null=False)
 
     class Meta:

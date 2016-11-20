@@ -37,14 +37,14 @@ entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='entity-b
 data_mart_entity_nested_router = routers.NestedSimpleRouter(data_mart_nested_router, r'entities', lookup='entity')
 data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='data-mart-entity-by-subject')
 
-extra_url = []
-
 try:
     from edw.models.related import DataMartImageModel
     DataMartImageModel() # Test pass if model materialized
 
-    # todo: need some code
+    from edw.views.related.data_mart_image import DataMartImageViewSet
 
+    router.register(r'data-marts-images', DataMartImageViewSet)
+    data_mart_nested_router.register(r'images', DataMartImageViewSet, base_name='entity-image')
 except ImproperlyConfigured:
     pass
 
@@ -55,8 +55,7 @@ try:
     from edw.views.related.entity_image import EntityImageViewSet
 
     router.register(r'entities-images', EntityImageViewSet)
-    entity_nested_router.register(r'images', EntityImageViewSet, base_name='entity-images')
-
+    entity_nested_router.register(r'images', EntityImageViewSet, base_name='entity-image')
 except ImproperlyConfigured:
     pass
 
@@ -70,7 +69,7 @@ edw_patterns = ([
     url(r'^', include(format_suffix_patterns(term_nested_router.urls))),
     url(r'^', include(format_suffix_patterns(entity_nested_router.urls))),
     url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))
-] + extra_url, 'edw')
+], 'edw')
 
 urlpatterns = [
     url(r'^', include(edw_patterns)),
