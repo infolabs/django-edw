@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'underscore';
 
 
 export default class Paginator extends Component {
@@ -35,6 +34,16 @@ export default class Paginator extends Component {
   }
 
   render() {
+
+    let range = function(start = 0, stop, step = 1) {
+      let ret = []
+      let cur = (stop === undefined) ? 0 : start;
+      let max = (stop === undefined) ? start : stop;
+      for (let i = cur; step < 0 ? i > max : i < max; i += step)
+        ret.push(i);
+      return ret;
+    }
+
     // Digg-style pagination settings
     const leadingPageRangeDisplayed = 8,
           trailingPageRangeDisplayed = 8,
@@ -50,43 +59,43 @@ export default class Paginator extends Component {
 
     let inLeadingRange = false,
         inTrailingRange = false,
-        pagesOutsideLeadingRange = _.range(0),
-        pagesOutsideTrailingRange = _.range(0),
+        pagesOutsideLeadingRange = range(0),
+        pagesOutsideTrailingRange = range(0),
         currentPage = Math.floor(offset / limit) + 1,
         numPages = Math.ceil(count / limit),
         pageNumbers;
 
     if ( numPages <= leadingPageRangeDisplayed + numPagesOutsideRange + 1 ) {
       inLeadingRange = inTrailingRange = true;
-      pageNumbers = _.filter(_.range(1, numPages + 1), function(n){
-        return n > 0 && n <= numPages;
-      });
+      pageNumbers = range(1, numPages + 1).filter(
+        n => n > 0 && n <= numPages
+      );
     } else if ( currentPage <= leadingPageRange ) {
       inLeadingRange = true;
-      pageNumbers = _.filter(_.range(1, leadingPageRangeDisplayed + 1), function(n){
-        return n > 0 && n <= numPages;
-      });
-      pagesOutsideLeadingRange = _.map(_.range(0, -1 * numPagesOutsideRange, -1), function(n){
-        return n + numPages;
-      });
+      pageNumbers = range(1, leadingPageRangeDisplayed + 1).filter(
+        n => n > 0 && n <= numPages
+      );
+      pagesOutsideLeadingRange = range(0, -1 * numPagesOutsideRange, -1).map(
+        n => n + numPages
+      );
     } else if ( currentPage > numPages - trailingPageRange ) {
       inTrailingRange = true;
-      pageNumbers = _.filter(_.range(numPages - trailingPageRangeDisplayed + 1, numPages + 1), function(n){
-        return n > 0 && n <= numPages;
-      });
-      pagesOutsideTrailingRange = _.map(_.range(0, numPagesOutsideRange), function(n){
-        return n + 1;
-      });
+      pageNumbers = range(numPages - trailingPageRangeDisplayed + 1, numPages + 1).filter(
+        n => n > 0 && n <= numPages
+      );
+      pagesOutsideTrailingRange = range(0, numPagesOutsideRange).map(
+        n => n + 1
+      );
     } else {
-      pageNumbers = _.filter(_.range(currentPage - adjacentPages, currentPage + adjacentPages + 1), function(n){
-        return n > 0 && n <= numPages;
-      });
-      pagesOutsideLeadingRange = _.map(_.range(0, -1 * numPagesOutsideRange, -1), function(n){
-        return n + numPages;
-      });
-      pagesOutsideTrailingRange = _.map(_.range(0, numPagesOutsideRange), function(n){
-        return n + 1;
-      });
+      pageNumbers = range(currentPage - adjacentPages, currentPage + adjacentPages + 1).filter(
+        n => n > 0 && n <= numPages
+      );
+      pagesOutsideLeadingRange = range(0, -1 * numPagesOutsideRange, -1).map(
+        n => n + numPages
+      );
+      pagesOutsideTrailingRange = range(0, numPagesOutsideRange).map(
+        n => n + 1
+      );
     }
 
     let hasNext = currentPage < numPages,
@@ -95,13 +104,13 @@ export default class Paginator extends Component {
     let previous = "";
     if (hasPrevious) {
       previous = (
-        <li onClick={e => { ::this.handlePrevClick(e)}}>
+        <li key='prev' onClick={e => { ::this.handlePrevClick(e)}}>
           <a href="#"><i className="ex-icon-chevron-left"></i></a>
         </li>
       );
     } else {
       previous = (
-        <li className="ex-disabled">
+        <li key='prev' className="ex-disabled">
           <a href="#"><i className="ex-icon-chevron-left"></i></a>
         </li>
       );
@@ -111,7 +120,7 @@ export default class Paginator extends Component {
 
     let pages = [];
     if ( !inLeadingRange ) {
-      _.each(pagesOutsideTrailingRange, function(n) {
+      pagesOutsideTrailingRange.forEach(function(n) {
         pages.push(
           <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
             <a href="#">{n}</a>
@@ -119,18 +128,18 @@ export default class Paginator extends Component {
         );
       });
       pages.push(
-        <li><span className="ex-separator">…</span></li>
+        <li key='lead-sep'><span className="ex-separator">…</span></li>
       );
     }
 
-    _.each(pageNumbers, function(n) {
+    pageNumbers.forEach(function(n) {
       if (currentPage == n) {
         pages.push(
           <li key={n} className="ex-active"><span>{n}</span></li>
         );
       } else {
         pages.push(
-          <li onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
             <a href="#">{n}</a>
           </li>
         );
@@ -139,9 +148,9 @@ export default class Paginator extends Component {
 
     if ( !inTrailingRange ) {
       pages.push(
-        <li><span className="ex-separator">…</span></li>
+        <li key='trail-sep'><span className="ex-separator">…</span></li>
       );
-      _.each(pagesOutsideLeadingRange.reverse(), function(n) {
+      pagesOutsideLeadingRange.reverse().forEach(function(n) {
         pages.push(
           <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
             <a href="#">{n}</a>
@@ -153,13 +162,13 @@ export default class Paginator extends Component {
     let next = "";
     if (hasNext) {
       next = (
-        <li onClick={e => { ::this.handleNextClick(e)}}>
+        <li key='next' onClick={e => { ::this.handleNextClick(e)}}>
           <a href="#"><i className="ex-icon-chevron-right"></i></a>
         </li>
       );
     } else {
       next = (
-        <li className="ex-disabled">
+        <li key='next' className="ex-disabled">
           <a href="#"><i className="ex-icon-chevron-right"></i></a>
         </li>
       );
