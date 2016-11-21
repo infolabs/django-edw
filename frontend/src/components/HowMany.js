@@ -1,35 +1,19 @@
 import React, { Component } from 'react';
+import Dropdown from './Dropdown';
 
 export default class HowMany extends Component {
   render() {
+    let sort_selected = "дате: сначала новыe",
+        sort_options = ["дате: сначала старые", "алфавиту по-убыванию", "алфавиту"],
+        quantity_selected = "12",
+        quantity_options = ["24", "60", "120"];
     return (
       <div className="row">
         <div className="col-sm-6 ex-order-by ex-dropdown js-orderby-publication-app ex-state-closed">
           <ul className="ex-inline">
             <li><span>Сортировать по&nbsp;</span></li>
             <li>
-              <div className="ex-sort-dropdown">
-                <a href="#" className="ex-btn ex-btn-default ex-js-dropdown-toggle">
-                  дате: сначала новые&nbsp;<span className="ex-icon-caret-down"></span>
-                </a>
-                <ul className="ex-dropdown-menu2">
-                  <li>
-                    <a href="#" className="ex-js-order-by" data-algorithm="date_added_asc">
-                      дате: сначала старые
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="ex-js-order-by" data-algorithm="name_desc">
-                      алфавиту по-убыванию
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="ex-js-order-by" data-algorithm="name_asc">
-                      алфавиту
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              <Dropdown selected={sort_selected} options={sort_options}/>
             </li>
           </ul>
         </div>
@@ -40,25 +24,7 @@ export default class HowMany extends Component {
               <span>Количество&nbsp;</span>&nbsp;
             </li>
             <li>
-              <div className="ex-sort-dropdown">
-                <a href="#" className="ex-btn ex-btn-default js-dropdown-toggle">
-                  12&nbsp;<span className="ex-icon-caret-down"></span>
-                </a>
-                <ul className="ex-dropdown-menu2">
-                  <li>
-                    <a href="#" className="js-howmany" data-range="24">24</a>
-                  </li>
-                  <li>
-                    <a href="#" className="js-howmany" data-range="60">60</a>
-                  </li>
-                  <li>
-                    <a href="#" className="js-howmany" data-range="120">120</a>
-                  </li>
-                  <li>
-                    <a href="#" className="js-howmany" data-range="240">240</a>
-                  </li>
-                </ul>
-              </div>
+              <Dropdown selected={quantity_selected} options={quantity_options}/>
             </li>
           </ul>
         </div>

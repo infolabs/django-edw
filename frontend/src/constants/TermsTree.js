@@ -9,7 +9,9 @@ export const HIDE_INFO = 'HIDE_TERM_INFO';
 export const NOTIFY_LOADING = 'NOTIFY_LOADING';
 // Entities Actions
 export const LOAD_ENTITIES = 'LOAD_ENTITIES';
-// Semantic rules
+// Dropdown Actions
+export const TOGGLE_DROPDOWN = 'TOGGLE_DROPDOWN';
+// Semantic Rules
 export const SEMANTIC_RULE_XOR = 10;
 export const SEMANTIC_RULE_OR = 20;
 export const SEMANTIC_RULE_AND = 30;
