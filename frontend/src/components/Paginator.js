@@ -113,7 +113,7 @@ export default class Paginator extends Component {
     if ( !inLeadingRange ) {
       _.each(pagesOutsideTrailingRange, function(n) {
         pages.push(
-          <li onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
             <a href="#">{n}</a>
           </li>
         );
@@ -126,7 +126,7 @@ export default class Paginator extends Component {
     _.each(pageNumbers, function(n) {
       if (currentPage == n) {
         pages.push(
-          <li className="ex-active"><span>{n}</span></li>
+          <li key={n} className="ex-active"><span>{n}</span></li>
         );
       } else {
         pages.push(
@@ -143,7 +143,7 @@ export default class Paginator extends Component {
       );
       _.each(pagesOutsideLeadingRange.reverse(), function(n) {
         pages.push(
-          <li onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
             <a href="#">{n}</a>
           </li>
         );

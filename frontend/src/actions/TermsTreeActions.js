@@ -102,3 +102,18 @@ export function hideInfo(term = {}) {
     term: term,
   };
 }
+
+export function toggleDropdown(dropdown_name = "") {
+  return {
+    type: types.TOGGLE_DROPDOWN,
+    dropdown_name: dropdown_name
+  };
+}
+
+export function selectDropdown(dropdown_name = "", selected = "") {
+  return {
+    type: types.SELECT_DROPDOWN,
+    dropdown_name: dropdown_name,
+    selected: selected
+  };
+}

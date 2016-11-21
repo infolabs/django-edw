@@ -11,6 +11,7 @@ export const NOTIFY_LOADING = 'NOTIFY_LOADING';
 export const LOAD_ENTITIES = 'LOAD_ENTITIES';
 // Dropdown Actions
 export const TOGGLE_DROPDOWN = 'TOGGLE_DROPDOWN';
+export const SELECT_DROPDOWN = 'SELECT_DROPDOWN';
 // Semantic Rules
 export const SEMANTIC_RULE_XOR = 10;
 export const SEMANTIC_RULE_OR = 20;

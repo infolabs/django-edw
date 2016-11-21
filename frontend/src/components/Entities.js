@@ -25,7 +25,8 @@ class Entities extends Component {
     const { terms, actions } = this.props;
 
     let entities = terms.entities.objects || [],
-        meta = terms.entities.meta;
+        meta = terms.entities.meta,
+        dropdowns = terms.dropdowns || {};
 
     if (entities.length) {
       entities = entities.map((child, i) => <Entity key={i} entity={child}/>);
@@ -35,7 +36,7 @@ class Entities extends Component {
 
     return (
       <div>
-        <HowMany />
+        <HowMany meta={meta} dropdowns={dropdowns} actions={actions}/>
         <div className="entities">{entities}</div>
         <Paginator meta={meta} actions={actions}/>
       </div>
