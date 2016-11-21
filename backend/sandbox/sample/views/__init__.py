@@ -32,18 +32,3 @@ class BookDetailView(DetailView):
             })
         context.update(kwargs)
         return super(BookDetailView, self).get_context_data(**context)
-
-
-class BookImageViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,) # IsOwnerOrReadOnly
-
-    queryset = EntityImage.objects.all()
-    serializer_class = EntityImageSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_backends = (OrderingFilter,)
-    ordering_fields = '__all__'
-
-    @remove_empty_params_from_request
-    def initialize_request(self, *args, **kwargs):
-        return super(BookImageViewSet, self).initialize_request(*args, **kwargs)
