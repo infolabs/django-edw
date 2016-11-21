@@ -3,16 +3,7 @@ from __future__ import unicode_literals
 
 from django.views.generic import DetailView
 
-from rest_framework import viewsets
-from rest_framework_filters.backends import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
-from rest_framework import  permissions
-
 from sample.models.book import Book
-
-from edw.models.defaults.entity_image import EntityImage
-from edw.rest.serializers.related.entity_image import EntityImageSerializer
-from edw.rest.viewsets import remove_empty_params_from_request
 
 
 class BookDetailView(DetailView):
