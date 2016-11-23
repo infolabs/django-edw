@@ -31,9 +31,18 @@ export default class HowMany extends Component {
       )
     }
 
+    let statistics = "";
+    if (meta.count) {
+      statistics = (
+        <div className="col-sm-3 ex-statistic">
+          Элемент(ы) {meta.offset + 1} - {meta.limit} из {meta.count}
+        </div>
+      );
+    }
+
     return (
       <div className="row">
-        <div className="col-sm-6 ex-order-by ex-dropdown js-orderby-publication-app ex-state-closed">
+        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
               <span>Сортировать по &nbsp; </span>
@@ -44,7 +53,7 @@ export default class HowMany extends Component {
           </ul>
         </div>
 
-        <div className="col-sm-3 ex-howmany-items ex-dropdown js-howmany-publication-app ex-state-closed">
+        <div className="col-sm-3 ex-howmany-items ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
               <span>Количество &nbsp; </span>
@@ -54,10 +63,8 @@ export default class HowMany extends Component {
             </li>
           </ul>
         </div>
-      <div className="col-sm-3 ex-statistic js-statistic-publication-app">
-        Элемент(ы) {meta.offset + 1} - {meta.limit} из {meta.count}
+        {statistics}
       </div>
-    </div>
     );
   }
 }
