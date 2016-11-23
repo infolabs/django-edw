@@ -223,6 +223,26 @@ class ExpandedInfoItems {
   }
 }
 
+/* Real and Potetnrial items */
+
+class RealPotentialItems {
+  constructor(json) {
+    const meta = json && json.results && json.results.meta,
+      pots = meta && meta.potential_terms_ids || [],
+      rils = meta && meta.real_terms_ids || [];
+    this.has_metadata = !!meta;
+    this.pots = {};
+    this.rils = {};
+    if (!this.has_metadata)
+      return;
+    for (let pot of pots)
+      this.pots[pot] = true;
+    for (let ril of rils)
+      this.rils[ril] = true;
+  }
+}
+
+
 /* Entities */
 
 class EtitiesManager {
@@ -243,7 +263,7 @@ class EtitiesManager {
     meta.next = json.next;
     meta.previous = json.previous;
     meta.request_options = request_options;
-    return meta;
+      return meta;
   }
 }
 
@@ -386,12 +406,10 @@ function infoExpanded(state = new ExpandedInfoItems(), action) {
   }
 }
 
-function infoExpanded(state = new ExpandedInfoItems(), action) {
+function realPotential(state = new RealPotentialItems({}), action) {
   switch (action.type) {
-    case consts.SHOW_INFO:
-      return state.show(action.term);
-    case consts.HIDE_INFO:
-      return state.hide(action.term);
+    case consts.LOAD_ENTITIES:
+      return new RealPotentialItems(action.json);
     default:
       return state;
   }
@@ -426,6 +444,7 @@ const terms = combineReducers({
     tagged: tagged,
     expanded: expanded,
     info_expanded: infoExpanded,
+    real_potential: realPotential,
     entities: entities,
     dropdowns: dropdowns
 })

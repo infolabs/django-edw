@@ -26,7 +26,8 @@ class TermsTree extends Component {
           tagged = terms.tagged,
           expanded = terms.expanded,
           info_expanded = terms.info_expanded,
-          loading = terms.tree.loading;
+          loading = terms.tree.loading,
+          real_potential = terms.real_potential;
 
     let tree = "";
     if ( !!term ) {
@@ -37,6 +38,7 @@ class TermsTree extends Component {
                        tagged={tagged}
                        expanded={expanded}
                        info_expanded={info_expanded}
+                       real_potential={real_potential}
                        actions={actions}/>
       );
     }
