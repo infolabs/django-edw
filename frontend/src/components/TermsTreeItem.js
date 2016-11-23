@@ -28,6 +28,7 @@ export default class TermsTreeItem extends Component {
           tagged = props.tagged,
           expanded = props.expanded,
           info_expanded = props.info_expanded,
+          real_potential = props.real_potential,
           children = term.children,
           parent = term.parent;
 
@@ -127,8 +128,14 @@ export default class TermsTreeItem extends Component {
                      tagged={tagged}
                      expanded={expanded}
                      info_expanded={info_expanded}
+                     real_potential={real_potential}
                      actions={actions}/>)
     )
+
+    let li_clasname = "";
+    if (real_potential.has_metadata && !real_potential.rils[term.id]) {
+      li_clasname = !real_potential.pots[term.id] ? "ex-no-potential" : "ex-no-real"
+    }
 
     let ret = "";
     if (render_item == "") {
@@ -139,7 +146,7 @@ export default class TermsTreeItem extends Component {
       else
         render_children = ""
       ret = (
-        <li>
+        <li className={li_clasname}>
           {render_item}
           {info}
           {reset_icon}

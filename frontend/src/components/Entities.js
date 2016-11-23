@@ -8,36 +8,27 @@ import Paginator from './Paginator';
 
 
 class Entities extends Component {
+
   componentDidMount() {
     this.props.actions.getEntities();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const req_curr = this.props.terms.tagged,
-          req_next = nextProps.terms.tagged;
-    if (req_curr != req_next) {
-      this.props.actions.notifyLoading();
-      this.props.actions.getEntities({'terms': req_next.array, 'limit': 1});
-    }
-  }
-
   render() {
-    const { terms, actions } = this.props;
+    const { entities, actions } = this.props;
 
-    let entities = terms.entities.objects || [],
-        meta = terms.entities.meta,
-        dropdowns = terms.dropdowns || {};
+    let items = entities.items.objects || [],
+        meta = entities.items.meta,
+        dropdowns = entities.dropdowns || {};
 
-    if (entities.length) {
-      entities = entities.map((child, i) => <Entity key={i} entity={child}/>);
-    } else {
-      entities = "";
+    let render_entities = "";
+    if (items.length) {
+      render_entities = items.map((child, i) => <Entity key={i} entity={child}/>);
     }
 
     return (
       <div>
         <HowMany meta={meta} dropdowns={dropdowns} actions={actions}/>
-        <div className="entities">{entities}</div>
+        <div className="entities">{render_entities}</div>
         <Paginator meta={meta} actions={actions}/>
       </div>
     );
@@ -46,7 +37,7 @@ class Entities extends Component {
 
 function mapState(state) {
   return {
-    terms: state.terms
+    entities: state.entities,
   };
 }
 
