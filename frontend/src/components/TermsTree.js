@@ -11,11 +11,20 @@ class TermsTree extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // Reload tree on new requested term
     const req_curr = this.props.terms.requested,
           req_next = nextProps.terms.requested;
     if (req_curr != req_next) {
       this.props.actions.notifyLoading();
       this.props.actions.reloadTree(req_next.array);
+    }
+
+    // Reload entires on toggled term
+    const tag_curr = this.props.terms.tagged,
+          tag_next = nextProps.terms.tagged;
+    if (tag_curr != tag_next) {
+      this.props.actions.notifyLoading();
+      this.props.actions.getEntities({'terms': tag_next.array});
     }
   }
 
