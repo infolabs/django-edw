@@ -1,7 +1,7 @@
---
--- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.1.31.0
+﻿--
+-- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.2.34.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 17.10.2016 14:01:29
+-- Дата скрипта: 24.11.2016 17:42:18
 -- Версия сервера: 5.6.28
 -- Версия клиента: 4.1
 --
@@ -15,22 +15,22 @@ CREATE DATABASE edw_todos_db
 	CHARACTER SET utf8
 	COLLATE utf8_general_ci;
 
---
+-- 
 -- Отключение внешних ключей
---
+-- 
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
---
+-- 
 -- Установить режим SQL (SQL mode)
---
+-- 
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
---
+-- 
 -- Установка кодировки, с использованием которой клиент будет посылать запросы на сервер
 --
 SET NAMES 'utf8';
 
---
+-- 
 -- Установка базы данных по умолчанию
 --
 USE edw_todos_db;
@@ -85,7 +85,7 @@ CREATE TABLE django_content_type (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 36
-AVG_ROW_LENGTH = 546
+AVG_ROW_LENGTH = 585
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -100,7 +100,7 @@ CREATE TABLE django_migrations (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 39
+AUTO_INCREMENT = 41
 AVG_ROW_LENGTH = 528
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
@@ -116,7 +116,7 @@ CREATE TABLE django_session (
   INDEX django_session_de54fa62 (expire_date)
 )
 ENGINE = INNODB
-AVG_ROW_LENGTH = 1820
+AVG_ROW_LENGTH = 963
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -244,7 +244,7 @@ CREATE TABLE todos_term (
     REFERENCES todos_term(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 74
+AUTO_INCREMENT = 76
 AVG_ROW_LENGTH = 224
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
@@ -265,7 +265,7 @@ CREATE TABLE auth_permission (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 104
-AVG_ROW_LENGTH = 180
+AVG_ROW_LENGTH = 192
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -327,7 +327,7 @@ CREATE TABLE django_admin_log (
     REFERENCES auth_user(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 93
+AUTO_INCREMENT = 103
 AVG_ROW_LENGTH = 264
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
@@ -365,7 +365,7 @@ CREATE TABLE filer_clipboard (
     REFERENCES auth_user(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -475,6 +475,8 @@ CREATE TABLE todos_datamart (
   level INT(10) UNSIGNED NOT NULL,
   parent_id INT(11) DEFAULT NULL,
   polymorphic_ctype_id INT(11) DEFAULT NULL,
+  ordering VARCHAR(50) NOT NULL,
+  `limit` INT(11) DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE INDEX path (path),
   INDEX todos_datamart_2dbcba41 (slug),
@@ -491,7 +493,7 @@ CREATE TABLE todos_datamart (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 4
-AVG_ROW_LENGTH = 4096
+AVG_ROW_LENGTH = 5461
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -534,8 +536,8 @@ CREATE TABLE todos_todo (
     REFERENCES django_content_type(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 20
-AVG_ROW_LENGTH = 2730
+AUTO_INCREMENT = 22
+AVG_ROW_LENGTH = 2340
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -734,7 +736,7 @@ CREATE TABLE todos_datamart_terms (
     REFERENCES todos_term(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 44
+AUTO_INCREMENT = 47
 AVG_ROW_LENGTH = 910
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
@@ -802,7 +804,7 @@ CREATE TABLE todos_entityrelation (
     REFERENCES todos_todo(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
+AUTO_INCREMENT = 2
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -821,8 +823,8 @@ CREATE TABLE todos_todo_terms (
     REFERENCES todos_todo(id) ON DELETE RESTRICT ON UPDATE RESTRICT
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 36
-AVG_ROW_LENGTH = 682
+AUTO_INCREMENT = 45
+AVG_ROW_LENGTH = 655
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
@@ -906,20 +908,20 @@ AUTO_INCREMENT = 1
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
---
+-- 
 -- Вывод данных для таблицы auth_group
 --
 
 -- Таблица edw_todos_db.auth_group не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы auth_user
 --
 INSERT INTO auth_user VALUES
 (2, 'pbkdf2_sha256$24000$j8BZRWW9cTmJ$lAAgSG+ElFUQAyLfpdPXFkQ3qRzwYXY2TJ/XTiWYf7o=', '2016-09-07 10:42:50.024774', 1, 'rufus', '', '', 'rebus_vs@mail.ru', 1, 1, '2016-09-05 11:46:49.287673'),
-(3, 'pbkdf2_sha256$24000$3ToDWlFvgMMx$AyDswC9ye4Bbkjlne3Q64SXadjALENj/72vl15Qe+So=', '2016-10-10 19:53:24.7249', 1, 'root', '', '', 'rebus.vs@gmail.com', 1, 1, '2016-09-05 11:49:20.436408');
+(3, 'pbkdf2_sha256$24000$3ToDWlFvgMMx$AyDswC9ye4Bbkjlne3Q64SXadjALENj/72vl15Qe+So=', '2016-11-16 16:09:33.24106', 1, 'root', '', '', 'rebus.vs@gmail.com', 1, 1, '2016-09-05 11:49:20.436408');
 
---
+-- 
 -- Вывод данных для таблицы django_content_type
 --
 INSERT INTO django_content_type VALUES
@@ -959,7 +961,7 @@ INSERT INTO django_content_type VALUES
 (24, 'todos', 'term'),
 (27, 'todos', 'todo');
 
---
+-- 
 -- Вывод данных для таблицы django_migrations
 --
 INSERT INTO django_migrations VALUES
@@ -1000,82 +1002,91 @@ INSERT INTO django_migrations VALUES
 (35, 'todos', '0005_auto_20160923_1628', '2016-09-23 13:28:10.807334'),
 (36, 'edw', '0002_delete_email', '2016-10-06 13:11:53.213634'),
 (37, 'todos', '0006_auto_20161006_1611', '2016-10-06 13:11:54.186523'),
-(38, 'todos', '0007_auto_20161017_1356', '2016-10-17 10:56:49.537821');
+(38, 'todos', '0007_auto_20161017_1356', '2016-10-17 10:56:49.537821'),
+(39, 'todos', '0008_auto_20161103_1424', '2016-11-03 11:25:11.223246'),
+(40, 'todos', '0009_datamart_limit', '2016-11-24 14:27:40.137321');
 
---
+-- 
 -- Вывод данных для таблицы django_session
 --
 INSERT INTO django_session VALUES
+('0fiiqjx59xp5zxy2zxytmdrfkiubs5ws', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-11-10 22:03:08.468971'),
+('25yfbhblxla5c7g6yoe4z1d63760nuzf', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-11-29 11:27:10.689821'),
 ('27jagi5qzhooehikacrqpqwtim4c7xps', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-16 12:05:15.518119'),
 ('buz9ekli1ancfjh2pndoxt5g06hwzlyc', 'OGFjNjIyN2YzZTViNDdhNGJjMGJiOWE3OTlkNjM2MmVmYjcyOGNkMjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=', '2016-09-15 22:40:13.198928'),
+('gjyi342j2zvr44dj5esr0ve5ev8ihrl9', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-11-25 12:07:28.587611'),
 ('ju0m8pxffc8061jff38vbjz9h98ac80b', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-10-07 13:28:48.81349'),
 ('k1oy8fqtcd0hee5mzxopxjs8lesjgmck', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-09-29 15:15:19.891232'),
 ('nddsbv1tcuhbd8j628h326vb2vy3dvq1', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-10-24 19:53:24.751095'),
 ('r2oeh1h22sngytlgwtyw4uwvbnobd38x', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-09-29 16:10:07.999228'),
+('rplvn0qws45s3arcrn4xkb26qju8phv1', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-11-30 16:09:33.252408'),
 ('sfx9ukrnsu1r3fyct63zm27ymqfrodm9', 'MWMxOTc5NTlmMDA4YzRjMWUwODNkZGNhZWNlODI5MTY2YjY0OGQ4Yjp7Il9hdXRoX3VzZXJfaGFzaCI6IjJjNDhmN2ZiYWY3MDRmOTMxZDg1ZDI3NWVmYTU1Mzc5ZTk3MTk1ZGUiLCJfYXV0aF91c2VyX2lkIjoiMSIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-15 23:14:14.483252'),
+('svr5ydvale0mcqpi5ocj8ruf32or0w0t', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-11-15 14:24:40.829167'),
 ('ue5q6ne5pofl4l493i5zx9mg7kvnpw9q', 'OWUzYmYxNDdmZWM2MDEwNDczZjAyYTliNTFiNTE2NTk3YTU1ODZkYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2lkIjoiMyIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-21 10:44:15.762082'),
 ('v15ar2uqd26xtzpdmcbwlym7xsrq474n', 'OWUzYmYxNDdmZWM2MDEwNDczZjAyYTliNTFiNTE2NTk3YTU1ODZkYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2lkIjoiMyIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-21 10:51:31.547616'),
+('xtww9h3lt8kk346a7davw3l8jxxfe68c', 'MDFjZGFkZGUwMmIyYTU2YmUxMWY3ZjQwMzhmNzcxMTlhNTdiYTdjYzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIzIn0=', '2016-10-31 14:29:57.704674'),
+('yqpqfn1t6tivot45mczv05lux8iayyd5', 'ODAzY2Q3NTg4ZDcxZTNkMThkMzFiZTI5OGJlODFiZTJhYjRhYWJjNzp7Il9hdXRoX3VzZXJfaGFzaCI6IjlkMGM5NmIwNWQzZGYwODRhZjNmODNmNTkzYmIxZGM4NWEyNDMyODIiLCJmaWxlcl9sYXN0X2ZvbGRlcl9pZCI6bnVsbCwiX2F1dGhfdXNlcl9pZCI6IjMiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCJ9', '2016-11-17 11:56:42.423208'),
 ('ytozfc2ylwakiuvqo4gt5yw7k076vehu', 'ZDQ1MGNjNjdiZTc0ZjRhNGQ2NTllNjYwYWVlYTJmY2RiZTNjNDhmODp7Il9hdXRoX3VzZXJfaGFzaCI6ImQyNzZjOWI1OThhM2RlNGM0NjIwOGY3MjgwMDRmNjZlNmFlOGU2M2EiLCJfYXV0aF91c2VyX2lkIjoiMyIsIl9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIn0=', '2016-09-20 19:11:20.867715');
 
---
+-- 
 -- Вывод данных для таблицы django_site
 --
 INSERT INTO django_site VALUES
 (1, 'example.com', 'example.com');
 
---
+-- 
 -- Вывод данных для таблицы easy_thumbnails_source
 --
 
 -- Таблица edw_todos_db.easy_thumbnails_source не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы filer_thumbnailoption
 --
 
 -- Таблица edw_todos_db.filer_thumbnailoption не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы post_office_attachment
 --
 
 -- Таблица edw_todos_db.post_office_attachment не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы post_office_emailtemplate
 --
 
 -- Таблица edw_todos_db.post_office_emailtemplate не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_term
 --
 INSERT INTO todos_term VALUES
-(1, 'Вид', 'vid', 'vid', 20, 1, 30, '2016-09-01 09:48:31.866896', '2016-10-10 19:53:45.784545', NULL, '', 1, 0, 1, 6, 1, 0, NULL),
+(1, 'Вид', 'vid', 'vid', 20, 1, 30, '2016-09-01 09:48:31.866896', '2016-11-11 13:04:55.817515', NULL, 'test___', 1, 0, 1, 6, 1, 0, NULL),
 (2, 'Рабочее', 'rabochee', 'vid/rabochee', 30, 0, 10, '2016-09-01 09:49:07.287624', '2016-09-01 09:55:15.498308', NULL, '', 1, 0, 2, 3, 1, 1, 1),
 (3, 'Личное', 'lichnoe', 'vid/lichnoe', 30, 0, 10, '2016-09-01 09:49:14.267012', '2016-09-01 09:55:21.978142', NULL, '', 1, 0, 4, 5, 1, 1, 1),
 (4, 'Направление', 'napravlenie', 'napravlenie', 10, 1, 10, '2016-09-01 09:49:30.998872', '2016-09-01 22:50:15.716412', 'direction', '', 1, 0, 1, 22, 3, 0, NULL),
 (5, 'Здоровье', 'zdorove', 'napravlenie/zdorove', 10, 0, 10, '2016-09-01 09:50:11.904556', '2016-09-01 09:53:51.103124', 'health', '', 1, 0, 2, 3, 3, 1, 4),
 (6, 'Семья', 'semya', 'napravlenie/semya', 10, 0, 10, '2016-09-01 09:50:28.052175', '2016-09-01 09:54:05.129704', 'family', '', 1, 0, 4, 5, 3, 1, 4),
-(7, 'Финансы', 'finansy', 'napravlenie/finansy', 30, 0, 10, '2016-09-01 09:50:56.260197', '2016-09-05 11:01:00.708719', 'finance', '', 1, 0, 6, 19, 3, 1, 4),
+(7, 'Финансы', 'finansy', 'napravlenie/finansy', 30, 0, 30, '2016-09-01 09:50:56.260197', '2016-11-11 12:53:32.474093', 'finance', 'Департамент городского хозяйства администрации города Белгорода доводит до сведения горожан официальное сообщение о проведении отбора дворовых территорий многоквартирных домов для формирования адресного перечня дворовых территорий на проведение работ по комплексному благоустройству дворовых территорий в городском округе «Город Белгород».', 1, 0, 6, 19, 3, 1, 4),
 (8, 'Хобби', 'hobbi', 'napravlenie/hobbi', 10, 0, 10, '2016-09-01 09:51:09.908891', '2016-09-01 09:54:20.580387', 'hobby', '', 1, 0, 20, 21, 3, 1, 4),
 (9, 'Приоритет', 'prioritet', 'prioritet', 20, 3, 10, '2016-09-01 09:51:33.267616', '2016-09-01 09:52:52.639264', 'priority', '', 1, 0, 1, 12, 2, 0, NULL),
 (10, 'Низкий', 'nizkij', 'prioritet/nizkij', 10, 0, 10, '2016-09-01 09:52:01.637618', '2016-09-01 09:53:00.597857', 'low', '', 1, 0, 2, 7, 2, 1, 9),
 (11, 'Средний', 'srednij', 'prioritet/srednij', 10, 0, 10, '2016-09-01 09:52:36.38551', '2016-09-01 09:53:07.775504', 'middle', '', 1, 0, 8, 9, 2, 1, 9),
 (12, 'Высокий', 'vysokij', 'prioritet/vysokij', 10, 0, 10, '2016-09-01 09:53:24.164271', '2016-09-01 09:53:24.164306', 'high', '', 1, 0, 10, 11, 2, 1, 9),
-(13, 'Состояние', 'sostoyanie', 'sostoyanie', 20, 3, 10, '2016-09-01 10:06:52.402104', '2016-09-01 10:07:58.103911', NULL, '', 1, 0, 1, 8, 4, 0, NULL),
+(13, 'Состояние', 'sostoyanie', 'sostoyanie', 20, 3, 30, '2016-09-01 10:06:52.402104', '2016-11-03 12:22:32.632364', NULL, '', 1, 0, 1, 8, 4, 0, NULL),
 (14, 'Запланированно', 'zaplanirovanno', 'sostoyanie/zaplanirovanno', 10, 0, 10, '2016-09-01 10:07:22.437182', '2016-09-01 10:07:50.467462', NULL, '', 1, 0, 2, 3, 4, 1, 13),
 (15, 'В процессе', 'v-processe', 'sostoyanie/v-processe', 10, 0, 10, '2016-09-01 10:07:33.700932', '2016-09-01 10:07:33.700965', NULL, '', 1, 0, 4, 5, 4, 1, 13),
 (16, 'Завершено', 'zaversheno', 'sostoyanie/zaversheno', 10, 0, 10, '2016-09-01 10:08:11.591613', '2016-09-01 10:08:11.59166', NULL, '', 1, 0, 6, 7, 4, 1, 13),
-(17, 'В течении недели', 'v-techenii-nedeli', 'prioritet/nizkij/v-techenii-nedeli', 10, 0, 10, '2016-09-02 09:35:07.26623', '2016-09-02 09:35:07.266273', NULL, '', 1, 0, 3, 4, 2, 2, 10),
+(17, 'В течении недели', 'v-techenii-nedeli', 'prioritet/nizkij/v-techenii-nedeli', 10, 0, 20, '2016-09-02 09:35:07.26623', '2016-11-03 12:23:03.392563', NULL, '', 1, 0, 3, 4, 2, 2, 10),
 (18, 'В течении месяца', 'v-techenii-mesyaca', 'prioritet/nizkij/v-techenii-mesyaca', 10, 0, 20, '2016-09-02 09:35:19.832931', '2016-10-10 19:53:58.821727', NULL, '', 1, 0, 5, 6, 2, 2, 10),
-(19, 'Бюджет', 'byudzhet', 'napravlenie/finansy/byudzhet', 20, 0, 10, '2016-09-05 11:00:41.048763', '2016-09-05 11:04:16.435857', NULL, '', 1, 0, 7, 12, 3, 2, 7),
+(19, 'Бюджет', 'byudzhet', 'napravlenie/finansy/byudzhet', 20, 0, 20, '2016-09-05 11:00:41.048763', '2016-11-03 12:23:34.095118', NULL, '', 1, 0, 7, 12, 3, 2, 7),
 (20, 'Доходы', 'dohody', 'napravlenie/finansy/byudzhet/dohody', 10, 0, 10, '2016-09-05 11:01:31.631699', '2016-09-05 11:01:31.631758', NULL, '', 1, 0, 8, 9, 3, 3, 19),
 (21, 'Расходы', 'rashody', 'napravlenie/finansy/rashody', 10, 0, 10, '2016-09-05 11:01:40.811848', '2016-09-05 11:01:40.811882', NULL, '', 1, 0, 10, 11, 3, 3, 19),
 (22, 'Вид', 'vid', 'napravlenie/finansy/vid', 10, 0, 10, '2016-09-05 11:02:23.030871', '2016-09-05 11:04:27.619063', NULL, '', 1, 0, 13, 18, 3, 2, 7),
 (23, 'Наличные', 'nalichnye', 'napravlenie/finansy/vid/nalichnye', 10, 0, 10, '2016-09-05 11:02:33.636101', '2016-09-05 11:02:33.636274', NULL, '', 1, 0, 14, 15, 3, 3, 22),
 (24, 'Безналичный расчет', 'beznalichnyj-raschet', 'napravlenie/finansy/vid/beznalichnyj-raschet', 10, 0, 10, '2016-09-05 11:02:44.095637', '2016-09-05 11:02:44.09567', NULL, '', 1, 0, 16, 17, 3, 3, 22),
-(25, 'Года', 'added-year', 'added-year', 20, 0, 10, '2016-09-23 13:28:00.554061', '2016-09-23 13:28:00.554107', NULL, NULL, 1, 63, 1, 2, 5, 0, NULL),
+(25, 'Года', 'added-year', 'added-year', 20, 0, 10, '2016-09-23 13:28:00.554061', '2016-09-23 13:28:00.554107', NULL, NULL, 1, 63, 1, 4, 5, 0, NULL),
 (26, 'Месяца', 'added-month', 'added-month', 10, 0, 10, '2016-09-23 13:28:00.631426', '2016-09-23 13:28:00.631487', NULL, NULL, 1, 63, 1, 26, 6, 0, NULL),
 (27, 'Январь', 'added-month-01', 'added-month/added-month-01', 10, 0, 10, '2016-09-23 13:28:00.653716', '2016-09-23 13:28:00.653768', NULL, NULL, 1, 63, 2, 3, 6, 1, 26),
 (28, 'Февраль', 'added-month-02', 'added-month/added-month-02', 10, 0, 10, '2016-09-23 13:28:00.679455', '2016-09-23 13:28:00.679498', NULL, NULL, 1, 63, 4, 5, 6, 1, 26),
@@ -1090,7 +1101,7 @@ INSERT INTO todos_term VALUES
 (37, 'Ноябрь', 'added-month-11', 'added-month/added-month-11', 10, 0, 10, '2016-09-23 13:28:00.92597', '2016-09-23 13:28:00.926061', NULL, NULL, 1, 63, 22, 23, 6, 1, 26),
 (38, 'Декабрь', 'added-month-12', 'added-month/added-month-12', 10, 0, 10, '2016-09-23 13:28:01.087545', '2016-09-23 13:28:01.08762', NULL, NULL, 1, 63, 24, 25, 6, 1, 26),
 (39, 'Дни', 'added-day', 'added-day', 10, 0, 10, '2016-09-23 13:28:01.111478', '2016-09-23 13:28:01.111558', NULL, NULL, 1, 63, 1, 70, 7, 0, NULL),
-(40, '1 - 10', 'added-day-01-10', 'added-day/added-day-01-10', 10, 0, 10, '2016-09-23 13:28:01.140287', '2016-10-17 10:56:45.135192', NULL, NULL, 1, 63, 2, 23, 7, 1, 39),
+(40, '1 - 10', 'added-day-01-10', 'added-day/added-day-01-10', 10, 0, 10, '2016-09-23 13:28:01.140287', '2016-11-24 14:27:39.610098', NULL, NULL, 1, 63, 2, 23, 7, 1, 39),
 (41, '01', 'added-day-01', 'added-day/added-day-01-10/added-day-01', 10, 0, 10, '2016-09-23 13:28:01.160351', '2016-09-23 13:28:01.160403', NULL, NULL, 1, 63, 3, 4, 7, 2, 40),
 (42, '02', 'added-day-02', 'added-day/added-day-01-10/added-day-02', 10, 0, 10, '2016-09-23 13:28:01.187035', '2016-09-23 13:28:01.187116', NULL, NULL, 1, 63, 5, 6, 7, 2, 40),
 (43, '03', 'added-day-03', 'added-day/added-day-01-10/added-day-03', 10, 0, 10, '2016-09-23 13:28:01.208977', '2016-09-23 13:28:01.209015', NULL, NULL, 1, 63, 7, 8, 7, 2, 40),
@@ -1101,7 +1112,7 @@ INSERT INTO todos_term VALUES
 (48, '08', 'added-day-08', 'added-day/added-day-01-10/added-day-08', 10, 0, 10, '2016-09-23 13:28:01.33147', '2016-09-23 13:28:01.331536', NULL, NULL, 1, 63, 17, 18, 7, 2, 40),
 (49, '09', 'added-day-09', 'added-day/added-day-01-10/added-day-09', 10, 0, 10, '2016-09-23 13:28:01.35968', '2016-09-23 13:28:01.359762', NULL, NULL, 1, 63, 19, 20, 7, 2, 40),
 (50, '10', 'added-day-10', 'added-day/added-day-01-10/added-day-10', 10, 0, 10, '2016-09-23 13:28:01.384093', '2016-09-23 13:28:01.384144', NULL, NULL, 1, 63, 21, 22, 7, 2, 40),
-(51, '11 - 20', 'added-day-11-20', 'added-day/added-day-11-20', 10, 0, 10, '2016-09-23 13:28:01.414127', '2016-10-17 10:56:45.174504', NULL, NULL, 1, 63, 24, 45, 7, 1, 39),
+(51, '11 - 20', 'added-day-11-20', 'added-day/added-day-11-20', 10, 0, 10, '2016-09-23 13:28:01.414127', '2016-11-24 14:27:39.699279', NULL, NULL, 1, 63, 24, 45, 7, 1, 39),
 (52, '11', 'added-day-11', 'added-day/added-day-11-20/added-day-11', 10, 0, 10, '2016-09-23 13:28:01.445561', '2016-09-23 13:28:01.445607', NULL, NULL, 1, 63, 25, 26, 7, 2, 51),
 (53, '12', 'added-day-12', 'added-day/added-day-11-20/added-day-12', 10, 0, 10, '2016-09-23 13:28:01.472874', '2016-09-23 13:28:01.472923', NULL, NULL, 1, 63, 27, 28, 7, 2, 51),
 (54, '13', 'added-day-13', 'added-day/added-day-11-20/added-day-13', 10, 0, 10, '2016-09-23 13:28:01.503398', '2016-09-23 13:28:01.503449', NULL, NULL, 1, 63, 29, 30, 7, 2, 51),
@@ -1112,7 +1123,7 @@ INSERT INTO todos_term VALUES
 (59, '18', 'added-day-18', 'added-day/added-day-11-20/added-day-18', 10, 0, 10, '2016-09-23 13:28:01.668426', '2016-09-23 13:28:01.668473', NULL, NULL, 1, 63, 39, 40, 7, 2, 51),
 (60, '19', 'added-day-19', 'added-day/added-day-11-20/added-day-19', 10, 0, 10, '2016-09-23 13:28:01.695856', '2016-09-23 13:28:01.695908', NULL, NULL, 1, 63, 41, 42, 7, 2, 51),
 (61, '20', 'added-day-20', 'added-day/added-day-11-20/added-day-20', 10, 0, 10, '2016-09-23 13:28:01.749978', '2016-09-23 13:28:01.750031', NULL, NULL, 1, 63, 43, 44, 7, 2, 51),
-(62, '21 - 31', 'added-day-21-31', 'added-day/added-day-21-31', 10, 0, 10, '2016-09-23 13:28:01.771803', '2016-10-17 10:56:45.212187', NULL, NULL, 1, 63, 46, 69, 7, 1, 39),
+(62, '21 - 31', 'added-day-21-31', 'added-day/added-day-21-31', 10, 0, 10, '2016-09-23 13:28:01.771803', '2016-11-24 14:27:39.719925', NULL, NULL, 1, 63, 46, 69, 7, 1, 39),
 (63, '21', 'added-day-21', 'added-day/added-day-21-31/added-day-21', 10, 0, 10, '2016-09-23 13:28:01.79194', '2016-09-23 13:28:01.792006', NULL, NULL, 1, 63, 47, 48, 7, 2, 62),
 (64, '22', 'added-day-22', 'added-day/added-day-21-31/added-day-22', 10, 0, 10, '2016-09-23 13:28:01.815635', '2016-09-23 13:28:01.815689', NULL, NULL, 1, 63, 49, 50, 7, 2, 62),
 (65, '23', 'added-day-23', 'added-day/added-day-21-31/added-day-23', 10, 0, 10, '2016-09-23 13:28:01.841799', '2016-09-23 13:28:01.841855', NULL, NULL, 1, 63, 51, 52, 7, 2, 62),
@@ -1123,9 +1134,11 @@ INSERT INTO todos_term VALUES
 (70, '28', 'added-day-28', 'added-day/added-day-21-31/added-day-28', 10, 0, 10, '2016-09-23 13:28:01.963936', '2016-09-23 13:28:01.963988', NULL, NULL, 1, 63, 61, 62, 7, 2, 62),
 (71, '29', 'added-day-29', 'added-day/added-day-21-31/added-day-29', 10, 0, 10, '2016-09-23 13:28:01.988332', '2016-09-23 13:28:01.988407', NULL, NULL, 1, 63, 63, 64, 7, 2, 62),
 (72, '30', 'added-day-30', 'added-day/added-day-21-31/added-day-30', 10, 0, 10, '2016-09-23 13:28:02.018269', '2016-09-23 13:28:02.01834', NULL, NULL, 1, 63, 65, 66, 7, 2, 62),
-(73, '31', 'added-day-31', 'added-day/added-day-21-31/added-day-31', 10, 0, 10, '2016-09-23 13:28:02.041645', '2016-09-23 13:28:02.04168', NULL, NULL, 1, 63, 67, 68, 7, 2, 62);
+(73, '31', 'added-day-31', 'added-day/added-day-21-31/added-day-31', 10, 0, 10, '2016-09-23 13:28:02.041645', '2016-09-23 13:28:02.04168', NULL, NULL, 1, 63, 67, 68, 7, 2, 62),
+(74, '2016', 'added-year-2016', 'added-year/added-year-2016', 10, 0, 10, '2016-11-15 11:20:37.920045', '2016-11-15 11:20:37.92012', NULL, NULL, 1, 63, 2, 3, 5, 1, 25),
+(75, 'Зависит', 'zavisit', 'zavisit', 10, 4, 10, '2016-11-15 12:03:31.065013', '2016-11-15 12:03:31.06509', NULL, '', 1, 0, 1, 2, 8, 0, NULL);
 
---
+-- 
 -- Вывод данных для таблицы auth_permission
 --
 INSERT INTO auth_permission VALUES
@@ -1233,19 +1246,19 @@ INSERT INTO auth_permission VALUES
 (102, 'Can change Data mart relation', 35, 'change_datamartrelation'),
 (103, 'Can delete Data mart relation', 35, 'delete_datamartrelation');
 
---
+-- 
 -- Вывод данных для таблицы auth_user_groups
 --
 
 -- Таблица edw_todos_db.auth_user_groups не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы authtoken_token
 --
 
 -- Таблица edw_todos_db.authtoken_token не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы django_admin_log
 --
 INSERT INTO django_admin_log VALUES
@@ -1313,122 +1326,131 @@ INSERT INTO django_admin_log VALUES
 (89, '2016-09-07 10:51:31.055902', '19', '1', 2, 'Изменен terms.', 27, 3),
 (90, '2016-09-15 16:12:22.348595', '15', 'Получить скидку', 2, 'Ни одно поле не изменено.', 27, 3),
 (91, '2016-10-10 19:53:45.789139', '1', 'Вид', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
-(92, '2016-10-10 19:53:58.823592', '18', 'В течении месяца', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3);
+(92, '2016-10-10 19:53:58.823592', '18', 'В течении месяца', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(93, '2016-11-03 11:28:17.474588', '7', 'Финансы', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(94, '2016-11-03 12:07:37.807683', '7', 'Финансы', 2, 'Changed attributes, description and system_flags.', 24, 3),
+(95, '2016-11-03 12:22:32.635179', '13', 'Состояние', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(96, '2016-11-03 12:23:03.394644', '17', 'В течении недели', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(97, '2016-11-03 12:23:34.097341', '19', 'Бюджет', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(98, '2016-11-11 12:53:32.47623', '7', 'Финансы', 2, 'Changed attributes, specification_mode and system_flags.', 24, 3),
+(99, '2016-11-11 13:04:55.819464', '1', 'Вид', 2, 'Changed attributes, description and system_flags.', 24, 3),
+(100, '2016-11-15 11:28:01.441133', '1', 'Срочные дела', 2, 'Changed system_flags and terms.', 25, 3),
+(101, '2016-11-15 12:03:31.0722', '75', 'Зависит', 1, 'Added.', 24, 3),
+(102, '2016-11-15 12:04:27.201002', '5', 'Сходить к стоматологу', 2, 'Added Entity Relation "Сходить к стоматологу → Зависит → Провести сверку по дебиторам".', 27, 3);
 
---
+-- 
 -- Вывод данных для таблицы easy_thumbnails_thumbnail
 --
 
 -- Таблица edw_todos_db.easy_thumbnails_thumbnail не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы filer_clipboard
 --
+INSERT INTO filer_clipboard VALUES
+(1, 3);
 
--- Таблица edw_todos_db.filer_clipboard не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы filer_folder
 --
 
 -- Таблица edw_todos_db.filer_folder не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы post_office_email
 --
 
 -- Таблица edw_todos_db.post_office_email не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_customer
 --
 INSERT INTO todos_customer VALUES
 (2, 2, 'na', '2016-09-07 10:43:27.883189', '{}', NULL),
-(3, 2, 'na', '2016-10-10 21:04:27.574094', '{}', NULL);
+(3, 2, 'na', '2016-11-16 16:15:30.297283', '{}', NULL);
 
---
+-- 
 -- Вывод данных для таблицы todos_datamart
 --
 INSERT INTO todos_datamart VALUES
-(1, 'Срочные дела', 'srochnye-dela', 'srochnye-dela', '2016-09-02 08:52:23.964205', '2016-09-02 08:52:23.964237', NULL, '', 1, 0, 1, 6, 1, 0, NULL, 25),
-(2, 'Личные', 'lichnye', 'srochnye-dela/lichnye', '2016-09-02 09:33:27.488956', '2016-09-05 20:06:01.796186', NULL, '', 1, 0, 2, 3, 1, 1, 1, 25),
-(3, 'Рабочие', 'rabochie', 'srochnye-dela/rabochie', '2016-09-02 09:34:26.813196', '2016-09-02 09:34:26.813235', NULL, '', 1, 0, 4, 5, 1, 1, 1, 25);
+(1, 'Срочные дела', 'srochnye-dela', 'srochnye-dela', '2016-09-02 08:52:23.964205', '2016-11-15 11:28:01.42219', NULL, '', 1, 0, 1, 6, 1, 0, NULL, 25, '-created_at', NULL),
+(2, 'Личные', 'lichnye', 'srochnye-dela/lichnye', '2016-09-02 09:33:27.488956', '2016-09-05 20:06:01.796186', NULL, '', 1, 0, 2, 3, 1, 1, 1, 25, '-created_at', NULL),
+(3, 'Рабочие', 'rabochie', 'srochnye-dela/rabochie', '2016-09-02 09:34:26.813196', '2016-09-02 09:34:26.813235', NULL, '', 1, 0, 4, 5, 1, 1, 1, 25, '-created_at', NULL);
 
---
+-- 
 -- Вывод данных для таблицы todos_notification
 --
 
 -- Таблица edw_todos_db.todos_notification не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_todo
 --
 INSERT INTO todos_todo VALUES
-(2, '2016-09-01 09:59:24.193448', '2016-09-06 18:57:18.059289', 1, 'Провести сверку по дебиторам', 0, 2, 3, '<p>Сделать до отчета сверку по всем дебиторам.&nbsp;</p>', 2, 27),
+(2, '2016-09-01 09:59:24.193448', '2016-11-15 11:22:12.63101', 1, 'Провести сверку по дебиторам', 0, 2, 3, '<p>Сделать до отчета сверку по всем дебиторам.&nbsp;</p>', 2, 27),
 (3, '2016-09-01 10:01:55.823774', '2016-09-02 08:01:14.896353', 1, 'Навести порядок на рабочем месте', 0, 1, NULL, '<p>Сдать в архив все закрытые сделки. Рассортировать всю текущую документацию по приоритетам. Всю&nbsp;документацию не нужную в текущей работе убрать или уничтожить при окончании срока хранения.</p>', 4, 27),
-(5, '2016-09-01 10:03:45.694074', '2016-09-01 23:35:56.409812', 1, 'Сходить к стоматологу', 0, 2, 1, '<p>Записаться и наконец сходить к зубному.</p>', 2, 27),
+(5, '2016-09-01 10:03:45', '2016-11-15 12:04:27.167853', 1, 'Сходить к стоматологу', 0, 2, 1, '<p>Записаться и наконец сходить к зубному.</p>', 2, 27),
 (6, '2016-09-01 10:04:45.71809', '2016-09-01 22:53:18.365563', 1, 'Помочь ребенку с подготовкой к экзамену', 1, 3, 2, '', 4, 27),
-(7, '2016-09-01 10:06:05.324555', '2016-10-06 13:27:13.532465', 1, 'Съездить на рыбалку в выходные', 0, 3, 4, '<p>Собрать всех своих к субботе.</p>', 3, 27),
-(15, '2016-09-01 23:50:52', '2016-10-06 13:27:52.326953', 1, 'Получить скидку', 1, 3, 3, '', 1, 27),
-(19, '2016-09-07 10:51:19.320076', '2016-09-07 10:51:31.047237', 1, '1', 0, NULL, NULL, '', 5, 27);
+(7, '2016-09-01 10:06:05.324555', '2016-11-03 11:21:26.724515', 1, 'Съездить на рыбалку в выходные', 0, 3, 4, '<p>Собрать всех своих к субботе.</p>', 3, 27),
+(15, '2016-09-01 23:50:52', '2016-11-15 11:22:13.513666', 1, 'Получить скидку', 0, 3, 3, '', 1, 27);
 
---
+-- 
 -- Вывод данных для таблицы auth_group_permissions
 --
 
 -- Таблица edw_todos_db.auth_group_permissions не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы auth_user_user_permissions
 --
 
 -- Таблица edw_todos_db.auth_user_user_permissions не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы easy_thumbnails_thumbnaildimensions
 --
 
 -- Таблица edw_todos_db.easy_thumbnails_thumbnaildimensions не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы filer_file
 --
 
 -- Таблица edw_todos_db.filer_file не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы filer_folderpermission
 --
 
 -- Таблица edw_todos_db.filer_folderpermission не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы post_office_attachment_emails
 --
 
 -- Таблица edw_todos_db.post_office_attachment_emails не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы post_office_log
 --
 
 -- Таблица edw_todos_db.post_office_log не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_additionalentitycharacteristicormark
 --
 
 -- Таблица edw_todos_db.todos_additionalentitycharacteristicormark не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_datamart_terms
 --
 INSERT INTO todos_datamart_terms VALUES
 (1, 1, 1),
 (5, 1, 4),
-(3, 1, 12),
-(4, 1, 14),
-(2, 1, 15),
+(44, 1, 9),
+(45, 1, 13),
+(46, 1, 25),
 (20, 2, 2),
 (38, 2, 5),
 (39, 2, 6),
@@ -1443,25 +1465,25 @@ INSERT INTO todos_datamart_terms VALUES
 (10, 3, 12),
 (13, 3, 13);
 
---
+-- 
 -- Вывод данных для таблицы todos_datamartrelation
 --
 
 -- Таблица edw_todos_db.todos_datamartrelation не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_entityrelateddatamart
 --
 
 -- Таблица edw_todos_db.todos_entityrelateddatamart не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_entityrelation
 --
+INSERT INTO todos_entityrelation VALUES
+(1, 5, 75, 2);
 
--- Таблица edw_todos_db.todos_entityrelation не содержит данных
-
---
+-- 
 -- Вывод данных для таблицы todos_todo_terms
 --
 INSERT INTO todos_todo_terms VALUES
@@ -1477,6 +1499,9 @@ INSERT INTO todos_todo_terms VALUES
 (12, 5, 5),
 (11, 5, 11),
 (13, 5, 14),
+(43, 5, 35),
+(44, 5, 41),
+(42, 5, 74),
 (23, 6, 3),
 (25, 6, 6),
 (24, 6, 12),
@@ -1488,40 +1513,38 @@ INSERT INTO todos_todo_terms VALUES
 (30, 15, 3),
 (33, 15, 7),
 (31, 15, 12),
-(32, 15, 14),
-(35, 19, 4),
-(34, 19, 9);
+(32, 15, 14);
 
---
+-- 
 -- Вывод данных для таблицы filer_clipboarditem
 --
 
 -- Таблица edw_todos_db.filer_clipboarditem не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы filer_image
 --
 
 -- Таблица edw_todos_db.filer_image не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_notificationattachment
 --
 
 -- Таблица edw_todos_db.todos_notificationattachment не содержит данных
 
---
+-- 
 -- Вывод данных для таблицы todos_entityimage
 --
 
 -- Таблица edw_todos_db.todos_entityimage не содержит данных
 
---
+-- 
 -- Восстановить предыдущий режим SQL (SQL mode)
---
+-- 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 
---
+-- 
 -- Включение внешних ключей
---
+-- 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
