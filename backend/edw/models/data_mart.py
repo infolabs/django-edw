@@ -334,6 +334,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             force_validate_terms = kwargs.get('force_validate_terms', False)
             validation_context = {}
             if force_validate_terms or self.need_terms_validation(origin, context=validation_context):
+                if hasattr(self, '_valid_pk_set'):
+                    del self._valid_pk_set
                 self._during_terms_validation = True
                 self.validate_terms(origin, context=validation_context)
                 del self._during_terms_validation
