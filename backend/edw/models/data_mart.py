@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 from six import with_metaclass
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.cache import cache
+from django.core.validators import MinValueValidator
 from django.db import models, IntegrityError, transaction
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
@@ -47,7 +48,8 @@ class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         return super(BaseDataMartQuerySet, self).delete()
 
     def delete(self):
-        return super(BaseDataMartQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
+        return super(BaseDataMartQuerySet,
+                     self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
     @add_cache_key('toplvl')
     def toplevel(self):
@@ -202,8 +204,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                                 default=ENTITIES_ORDER_BY_CREATED_AT_DESC,
                                 help_text=_('Default data mart entities ordering mode.'))
 
+    limit = models.IntegerField(verbose_name=_('Limit'), null=True, blank=True, validators=[MinValueValidator(1)],
+        help_text=_('Entities per page. Leave empty for default (by default: {}).').format(
+            edw_settings.REST_PAGINATION['entity_default_limit']))
+
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
-                                  help_text=_('Space delimited class attribute, specifies one or more classnames for an data mart.'))
+        help_text=_('Space delimited class attribute, specifies one or more classnames for an data mart.'))
     description = models.TextField(verbose_name=_('Description'), null=True, blank=True)
     active = models.BooleanField(default=True, verbose_name=_("Active"), db_index=True,
                                  help_text=_("Is this data mart active."))

@@ -119,8 +119,9 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
-    entities_ordering_modes = serializers.SerializerMethodField()
+    ordering_modes = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
+    limit = serializers.SerializerMethodField()
 
     _meta_cache = {}
 
@@ -174,11 +175,14 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
                 self.fields[field_name] = field
 
-    def get_entities_ordering_modes(self, instance):
+    def get_ordering_modes(self, instance):
         return dict(instance.ENTITIES_ORDERING_MODES)
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
+
+    def get_limit(self, instance):
+        return instance.limit if instance.limit is not None else edw_settings.REST_PAGINATION['entity_default_limit']
 
 
 class DataMartDetailSerializer(DataMartDetailSerializerBase):
