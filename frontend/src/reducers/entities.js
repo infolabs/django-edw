@@ -45,7 +45,7 @@ class Dropdowns {
       return;
 
     const data_mart = json.results.meta.data_mart,
-          modes = data_mart.entities_ordering_modes;
+          modes = data_mart.ordering_modes;
     const ordering_options = {
       'request_var': 'ordering',
       'selected': modes[json.results.meta.ordering],
