@@ -8,9 +8,13 @@ export default class Root extends Component {
     const { store } = this.props;
     return (
       <Provider store={store}>
-        <div className="terms-tree-container">
-          <TermsTree />
-          <Entities />
+        <div className="row">
+          <div className="col-sm-4 col-md-3 sidebar-filter">
+            <TermsTree />
+          </div>
+          <div className="col-sm-8 col-md-9">
+            <Entities />
+          </div>
         </div>
       </Provider>
     );
