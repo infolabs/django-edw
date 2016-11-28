@@ -52,11 +52,18 @@ class Dropdowns {
       'options': modes
     };
     this['ordering'] = new Dropdown(ordering_options);
+    const dl = data_mart.limit || 40; // default limit
+    const lopts = {}; // limit options
+    lopts[dl] = dl;
+    lopts[dl*2] = dl*2;
+    lopts[dl*5] = dl*5;
+    lopts[dl*10] = dl*10;
+    lopts[dl*20] = dl*20;
     const limit = json.limit;
     const limit_options = {
       'request_var': 'limit',
       'selected': limit,
-      'options': {limit: limit, 20: 20, 30: 30}
+      'options': lopts
     };
     this['limits'] = new Dropdown(limit_options);
   }
