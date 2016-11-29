@@ -17,8 +17,8 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 class DataMartAdminForm(forms.ModelForm):
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, widget=TermTreeWidget(),
                                            label=_("Terms"))
-
     ordering = forms.ChoiceField(choices=(), required=True, label=_("Ordering"))
+    view_component = forms.ChoiceField(choices=(), required=True, label=_("View component"))
 
     class Meta:
         model = DataMartModel
@@ -27,6 +27,7 @@ class DataMartAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(DataMartAdminForm, self).__init__(*args, **kwargs)
         self.fields['ordering'].choices = self.Meta.model.ENTITIES_ORDERING_MODES
+        self.fields['view_component'].choices = self.Meta.model.ENTITIES_VIEW_COMPONENTS
 
 
 #==============================================================================

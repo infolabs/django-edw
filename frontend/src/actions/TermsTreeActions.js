@@ -1,7 +1,9 @@
 import * as types from '../constants/TermsTree';
 
+const MART_ID = 1;
+
 function getTermsTree(type, selected = []) {
-  let url = Urls['edw:data-mart-term-tree'](4, 'json');
+  let url = Urls['edw:data-mart-term-tree'](MART_ID, 'json');
 
   if (selected && selected.length > 0)
     url += '?selected=' + selected.join()
@@ -45,7 +47,7 @@ function opts2gets(options = {}) {
 }
 
 export function getEntities(options = {}) {
-  let url = Urls['edw:data-mart-entity-list'](4, 'json');
+  let url = Urls['edw:data-mart-entity-list'](MART_ID, 'json');
   url += opts2gets(options);
 
   return fetch(url, {
