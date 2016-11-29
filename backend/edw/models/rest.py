@@ -68,8 +68,8 @@ class RESTModelBase(ModelBase):
 
 
 class DynamicFieldsSerializerMixin(object):
-    def __init__(self, *args, **kwargs):
 
+    def __init__(self, *args, **kwargs):
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
             rest_meta = instance._rest_meta
