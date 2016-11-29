@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 
-import types
-
 from django.core import exceptions
 from django.core.cache import cache
 from django.template import TemplateDoesNotExist
@@ -20,6 +18,7 @@ from rest_framework_recursive.fields import RecursiveField
 
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
+from edw.models.rest import DynamicFieldsSerializerMixin
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
@@ -115,7 +114,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 data_mart_summary_serializer_class = None
 
 
-class DataMartDetailSerializerBase(DataMartCommonSerializer):
+class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonSerializer):
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
@@ -150,30 +149,7 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
-        instance = args[0] if args else None
-        if instance is not None and hasattr(instance, '_rest_meta'):
-            rest_meta = instance._rest_meta
-        else:
-            rest_meta = getattr(self.Meta.model, '_rest_meta', None)
         super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
-        if rest_meta:
-            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
-            # for multiple fields in a list
-            for field_name in remove_fields:
-                self.fields.pop(field_name)
-            for field_name, field in include_fields.items():
-                if isinstance(field, serializers.SerializerMethodField):
-                    default_method_name = 'get_{field_name}'.format(field_name=field_name)
-                    if field.method_name is None:
-                        method_name = default_method_name
-                    else:
-                        method_name = field.method_name
-                        # hack for SerializerMethodField.bind method
-                        if field.method_name == default_method_name:
-                            field.method_name = None
-                    method = getattr(rest_meta, method_name)
-                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
-                self.fields[field_name] = field
 
     def get_ordering_modes(self, instance):
         return dict(instance.ENTITIES_ORDERING_MODES)
