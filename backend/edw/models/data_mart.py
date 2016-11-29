@@ -181,6 +181,14 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         (ENTITIES_ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
     )
 
+    ENTITIES_LIST_VIEW_COMPONENT = 'list'
+    ENTITIES_TILE_VIEW_COMPONENT = 'tile'
+
+    ENTITIES_VIEW_COMPONENTS = (
+        (ENTITIES_LIST_VIEW_COMPONENT, _('List view')),
+        (ENTITIES_TILE_VIEW_COMPONENT, _('Tile view')),
+    )
+
     SYSTEM_FLAGS = {
         0: ('delete_restriction', messages['delete_restriction']),
         1: ('change_parent_restriction', messages['change_parent_restriction']),
@@ -203,6 +211,10 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     ordering = models.CharField(verbose_name=_('Ordering'), max_length=50,
                                 default=ENTITIES_ORDER_BY_CREATED_AT_DESC,
                                 help_text=_('Default data mart entities ordering mode.'))
+
+    view_component = models.CharField(verbose_name=_('View component'), max_length=50,
+                                default=ENTITIES_LIST_VIEW_COMPONENT,
+                                help_text=_('Default data mart entities view component.'))
 
     limit = models.IntegerField(verbose_name=_('Limit'), null=True, blank=True, validators=[MinValueValidator(1)],
         help_text=_('Entities per page. Leave empty for default (by default: {}).').format(
