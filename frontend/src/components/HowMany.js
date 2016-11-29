@@ -7,27 +7,47 @@ export default class HowMany extends Component {
           { limits, ordering } = dropdowns;
 
     let ret_ordering = "";
-    if (ordering) {
+    if (ordering && Object.keys(ordering.options).length > 1) {
       ret_ordering = (
-        <Dropdown name='ordering'
-                  request_var={ordering.request_var}
-                  request_options={meta.request_options}
-                  open={ordering.open}
-                  actions={actions}
-                  selected={ordering.selected}
-                  options={ordering.options}/>
+        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
+          <ul className="ex-inline">
+            <li>
+              <span>Сортировать по &nbsp; </span>
+            </li>
+            <li>
+              <Dropdown name='ordering'
+                        request_var={ordering.request_var}
+                        request_options={meta.request_options}
+                        open={ordering.open}
+                        actions={actions}
+                        selected={ordering.selected}
+                        options={ordering.options}/>
+            </li>
+          </ul>
+        </div>
       )
     }
+
     let ret_limits = "";
-    if (limits) {
+    if (limits && Object.keys(limits.options).length > 1) {
       ret_limits = (
-        <Dropdown name='limits'
-                  request_var={limits.request_var}
-                  request_options={meta.request_options}
-                  open={limits.open}
-                  actions={actions}
-                  selected={limits.selected}
-                  options={limits.options}/>
+        <div className="col-sm-3 ex-howmany-items ex-dropdown ex-state-closed">
+          <ul className="ex-inline">
+            <li>
+              <span>Количество &nbsp; </span>
+            </li>
+            <li>
+              <Dropdown name='limits'
+                        request_var={limits.request_var}
+                        request_options={meta.request_options}
+                        open={limits.open}
+                        actions={actions}
+                        selected={limits.selected}
+                        options={limits.options}/>
+
+            </li>
+          </ul>
+        </div>
       )
     }
 
@@ -42,27 +62,8 @@ export default class HowMany extends Component {
 
     return (
       <div className="row">
-        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
-          <ul className="ex-inline">
-            <li>
-              <span>Сортировать по &nbsp; </span>
-            </li>
-            <li>
-              {ret_ordering}
-            </li>
-          </ul>
-        </div>
-
-        <div className="col-sm-3 ex-howmany-items ex-dropdown ex-state-closed">
-          <ul className="ex-inline">
-            <li>
-              <span>Количество &nbsp; </span>
-            </li>
-            <li>
-              {ret_limits}
-            </li>
-          </ul>
-        </div>
+        {ret_ordering}
+        {ret_limits}
         {statistics}
       </div>
     );

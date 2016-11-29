@@ -40,7 +40,7 @@ export default class Dropdown extends Component {
   render() {
     const { selected, options, open } = this.props;
 
-    return (
+    let ret = (
       <div className="ex-sort-dropdown">
         <a href="#"
            className="ex-btn ex-btn-default"
@@ -56,5 +56,6 @@ export default class Dropdown extends Component {
         </ul>
       </div>
     );
+    return ret;
   }
 }
