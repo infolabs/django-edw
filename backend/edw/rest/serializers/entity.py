@@ -269,6 +269,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     def get_ordering(self, instance):
         return self.context['ordering']
 
+    def get_view_component(self, instance):
+        return self.context['view_component']
+
 
 class EntityTotalSummarySerializer(serializers.Serializer):
     meta = EntitySummaryMetadataSerializer(source="*")

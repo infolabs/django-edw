@@ -120,6 +120,7 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
     ordering_modes = serializers.SerializerMethodField()
+    view_components = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
     limit = serializers.SerializerMethodField()
 
@@ -177,6 +178,9 @@ class DataMartDetailSerializerBase(DataMartCommonSerializer):
 
     def get_ordering_modes(self, instance):
         return dict(instance.ENTITIES_ORDERING_MODES)
+
+    def get_view_components(self, instance):
+        return dict(instance.ENTITIES_VIEW_COMPONENTS)
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
