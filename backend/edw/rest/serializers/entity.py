@@ -98,7 +98,8 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 entity_summary_serializer_class = None
 
 
-class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
+class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DynamicFieldsSerializerMixin,
+                                                 EntityCommonSerializer)):
     """
     Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
     """

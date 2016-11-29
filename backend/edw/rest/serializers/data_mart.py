@@ -176,7 +176,8 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
         return self.render_html(data_mart, 'media')
 
 
-class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DataMartCommonSerializer)):
+class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DynamicFieldsSerializerMixin,
+                                                   DataMartCommonSerializer)):
     """
     Serialize a summary of the polymorphic DataMart model.
     """

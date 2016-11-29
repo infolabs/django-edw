@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import types
 
 from django.db.models.base import ModelBase
+from django.utils.module_loading import import_string
 
 from rest_framework import serializers
 
@@ -69,6 +70,10 @@ class RESTModelBase(ModelBase):
 
 class DynamicFieldsSerializerMixin(object):
 
+    # def __new__(cls, *args, **kwargs):
+    #     cls.__many = kwargs.get('origin_many', kwargs.get('many', False))
+    #     return super(DynamicFieldsSerializerMixin, cls).__new__(cls, *args, **kwargs)
+
     def __init__(self, *args, **kwargs):
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
@@ -77,9 +82,22 @@ class DynamicFieldsSerializerMixin(object):
             rest_meta = getattr(self.Meta.model, '_rest_meta', None)
         super(DynamicFieldsSerializerMixin, self).__init__(*args, **kwargs)
         if rest_meta:
-            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
+            remove_fields, include_fields = (
+                rest_meta.exclude, rest_meta.include)
+
+            allowed = set(include_fields.keys()) - set(remove_fields)
+
+            # print "+++++++++++>>>>>>>>>>>", getattr(self, 'many', False), self.__class__
+            # print kwargs
+            #
+            # print "+++ allowed +++", allowed
+
             # for multiple fields in a list
-            for field_name, field in include_fields.items():
+            for field_name in allowed:
+                field = include_fields[field_name]
+            # for field_name, field in include_fields.items():
+                if isinstance(field, (tuple, list)):
+                    field = import_string(field[0])(**field[1])
                 if isinstance(field, serializers.SerializerMethodField):
                     default_method_name = 'get_{field_name}'.format(field_name=field_name)
                     if field.method_name is None:
@@ -93,4 +111,16 @@ class DynamicFieldsSerializerMixin(object):
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
                 self.fields[field_name] = field
             for field_name in remove_fields:
-                self.fields.pop(field_name)
+                self.fields.pop(field_name, None)
+
+    # def _get_list_serializer_class(self):
+    #     meta = getattr(self, 'Meta', None)
+    #
+    #     return getattr(meta, 'list_serializer_class', serializers.ListSerializer)
+
+    # @classmethod
+    # def many_init(cls, *args, **kwargs):
+    #
+    #     print "------------>>>>>>>>> many_init", cls
+    #
+    #     return super(DynamicFieldsSerializerMixin, cls).many_init(cls, *args, **kwargs)
