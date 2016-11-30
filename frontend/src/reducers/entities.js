@@ -4,9 +4,10 @@ import * as consts from '../constants/TermsTree';
 /* Entities */
 
 class EtitiesManager {
-  constructor(json, request_options) {
+  constructor(json = {}, request_options = {}) {
     this.objects = this.json2objects(json);
     this.meta = this.json2meta(json, request_options);
+    this.loading = false;
   }
 
   json2objects(json) {
@@ -102,8 +103,11 @@ class Dropdowns {
   }
 }
 
-function items(state = new EtitiesManager({}, {}), action) {
+function items(state = new EtitiesManager(), action) {
   switch (action.type) {
+    case consts.NOTIFY_LOADING_ENTITIES:
+      state.loading = true;
+      return Object.assign(new EtitiesManager(), state);
     case consts.LOAD_ENTITIES:
       return new EtitiesManager(action.json, action.request_options);
     default:
@@ -119,6 +123,17 @@ function dropdowns(state = new Dropdowns({}), action) {
       return state.toggle(action.dropdown_name);
     case consts.SELECT_DROPDOWN:
       return state.select(action.dropdown_name, action.selected);
+    default:
+      return state;
+  }
+}
+
+function loading(state = false, action) {
+  switch (action.type) {
+    case consts.NOTIFY_LOADING_ENTITIES:
+      return true;
+    case consts.LOAD_ENTITIES:
+      return false;
     default:
       return state;
   }

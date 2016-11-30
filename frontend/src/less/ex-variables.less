@@ -1,0 +1,241 @@
+//
+// Variables
+// --------------------------------------------------
+
+
+//== Colors
+//
+//## Gray, Black, White
+
+@ex-black:                  @_ex-black; @_ex-black: #000;
+@ex-white:                  @_ex-white; @_ex-white: #fff;
+
+@ex-gray-base:              @ex-black;
+
+@ex-gray-darker:            @_ex-gray-darker; @_ex-gray-darker: lighten(@ex-gray-base, 13.5%); // #222
+@ex-gray-dark:              @_ex-gray-dark; @_ex-gray-dark: lighten(@ex-gray-base, 20%);   // #333
+@ex-gray:                   @_ex-gray; @_ex-gray: lighten(@ex-gray-base, 33.5%); // #555
+@ex-gray-light:             @_ex-gray-light; @_ex-gray-light: lighten(@ex-gray-base, 46.7%); // #777
+@ex-gray-lighter:           @_ex-gray-lighter; @_ex-gray-lighter: lighten(@ex-gray-base, 93.5%); // #eee
+
+//## Palette
+@ex-red:                    @_ex-red; @_ex-red: #be0007;
+@ex-brown:                  @_ex-brown; @_ex-brown: #8B4513;
+@ex-beige:                  @_ex-beige; @_ex-beige: #F5F5DC;
+@ex-yellow:                 @_ex-yellow; @_ex-yellow: #ffc40d;
+@ex-orange:                 @_ex-orange; @_ex-orange: #f57f25;
+@ex-lightgreen:             @_ex-lightgreen; @_ex-lightgreen: #7CFC00;
+@ex-green:                  @_ex-green; @_ex-green: #46a546;
+@ex-skyblue:                @_ex-skyblue; @_ex-skyblue: #2a9dd6;
+@ex-blue:                   @_ex-blue; @_ex-blue: #0064cd;
+@ex-fuchsia:                @_ex-fuchsia; @_ex-fuchsia: #FF1493;
+@ex-pink:                   @_ex-pink; @_ex-pink: #c3325f;
+@ex-purple:                 @_ex-purple; @_ex-purple: #7a43b6;
+
+
+
+//## Brand colors
+
+@ex-brand-primary:         @_ex-brand-primary; @_ex-brand-primary: #337ab7;
+@ex-brand-accent:          darken(@ex-brand-primary, 15%);
+
+
+
+@ex-brand-success:         #5cb85c;
+
+/*
+@ex-brand-info:            #5bc0de;
+
+@ex-brand-warning:         #f0ad4e;
+*/
+
+@ex-brand-danger:          #d9534f;
+
+
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+/*
+@font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+//** Default monospace fonts for `<code>`, `<kbd>`, and `<pre>`.
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+@font-family-base:        @font-family-sans-serif;
+*/
+
+@ex-font-size-base:       @_ex-font-size-base; @_ex-font-size-base: 14px;
+@ex-font-size-large:      @_ex-font-size-large; @_ex-font-size-large: ceil((@ex-font-size-base * 1.25)); // ~18px
+@ex-font-size-small:      @_ex-font-size-small; @_ex-font-size-small: ceil((@ex-font-size-base * 0.85)); // ~12px
+@ex-font-size-xs:         @_ex-font-size-xs; @_ex-font-size-xs: ceil((@ex-font-size-base * 0.75)); // ~10px
+
+/*
+@ex-font-size-h1:            floor((@ex-font-size-base * 2.6)); // ~36px
+@ex-font-size-h2:            floor((@ex-font-size-base * 2.15)); // ~30px
+@ex-font-size-h3:            ceil((@ex-font-size-base * 1.7)); // ~24px
+@ex-font-size-h4:            ceil((@ex-font-size-base * 1.25)); // ~18px
+@ex-font-size-h5:            @ex-font-size-base;
+@ex-font-size-h6:            ceil((@ex-font-size-base * 0.85)); // ~12px
+*/
+
+//** Unit-less `line-height` for use in components like buttons.
+@ex-line-height-base:     @_ex-line-height-base; @_ex-line-height-base: 1.428571429; // 20/14
+//** Computed "line-height" (`font-size` * `line-height`) for use with `margin`, `padding`, etc.
+@ex-line-height-computed: @_ex-line-height-computed; @_ex-line-height-computed: floor((@ex-font-size-base * @ex-line-height-base)); // ~20px
+
+/*
+//** By default, this inherits from the `<body>`.
+@headings-font-family:    inherit;
+@headings-font-weight:    500;
+@headings-line-height:    1.1;
+@headings-color:          inherit;
+*/
+
+
+//== Components
+//
+//## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
+
+
+@ex-padding-base-vertical:     @_ex-padding-base-vertical; @_ex-padding-base-vertical: 6px;
+@ex-padding-base-horizontal:   @_ex-padding-base-horizontal; @_ex-padding-base-horizontal: 12px;
+
+//@ex-padding-large-vertical:    10px;
+@ex-padding-large-horizontal:  16px;
+
+@ex-padding-small-vertical:    @_ex-padding-small-vertical; @_ex-padding-small-vertical: 5px;
+@ex-padding-small-horizontal:  @_ex-padding-small-horizontal; @_ex-padding-small-horizontal: 10px;
+
+@ex-padding-xs-vertical:       1px;
+@ex-padding-xs-horizontal:     5px;
+
+@ex-padding-xxs-horizontal:    2px;
+
+/*
+@ex-line-height-large:         1.3333333; // extra decimals for Win 8.1 Chrome
+@ex-line-height-small:         1.5;
+*/
+
+@ex-border-radius-base:        @_ex-border-radius-base; @_ex-border-radius-base: 4px;
+
+
+//== Media queries breakpoints
+//
+//## Define the breakpoints at which your layout will change, adapting to different screen sizes.
+
+// Extra small screen / phone
+
+// Small screen / tablet
+@ex-screen-sm-min:             768px;
+
+// Medium screen / desktop
+@ex-screen-md-min:             992px;
+
+// Large screen / wide desktop
+@ex-screen-lg-min:             1200px;
+
+// So media queries don't overlap when required, provide a maximum
+@ex-screen-xs-max:             (@ex-screen-sm-min - 1);
+@ex-screen-sm-max:             (@ex-screen-md-min - 1);
+@ex-screen-md-max:             (@ex-screen-lg-min - 1);
+
+
+//== Grid system
+//
+//## Define your custom responsive grid.
+
+//** Padding between columns. Gets divided in half for the left and right.
+@ex-grid-gutter-width:                         30px;
+
+
+//** Disabled cursor for form controls and buttons.
+@ex-cursor-disabled:                           not-allowed;
+
+
+//== Buttons
+//
+//## For each of buttons, define text, background and border color.
+
+@ex-btn-font-weight:             normal;
+
+
+@ex-btn-default-bg:              @_ex-btn-default-bg; @_ex-btn-default-bg: @ex-white;
+@ex-btn-default-color:           @_ex-btn-default-color; @_ex-btn-default-color: screen(contrast(@ex-btn-default-bg, @ex-black, @ex-white, 50%), @ex-gray-dark);
+@ex-btn-default-border:          @_ex-btn-default-border; @_ex-btn-default-border: darken(@ex-btn-default-bg, 20%);
+@ex-btn-default-hover-bg:        @_ex-btn-default-hover-bg; @_ex-btn-default-hover-bg: darken(@ex-btn-default-bg, 10%);
+@ex-btn-default-hover-color:     @_ex-btn-default-hover-color; @_ex-btn-default-hover-color: @ex-btn-default-color;
+@ex-btn-default-hover-border:    @_ex-btn-default-hover-border; @_ex-btn-default-hover-border: darken(@ex-btn-default-border, 12%);
+
+@ex-btn-primary-bg:              @_ex-btn-primary-bg; @_ex-btn-primary-bg: @ex-brand-primary;
+@ex-btn-primary-color:           @_ex-btn-primary-color; @_ex-btn-primary-color: contrast(@ex-brand-primary, @ex-black, @ex-white, 50%);
+@ex-btn-primary-border:          @_ex-btn-primary-border; @_ex-btn-primary-border: darken(@ex-btn-primary-bg, 5%);
+@ex-btn-primary-hover-bg:        @_ex-btn-primary-hover-bg; @_ex-btn-primary-hover-bg: @ex-brand-accent;
+@ex-btn-primary-hover-color:     @_ex-btn-primary-hover-color; @_ex-btn-primary-hover-color: contrast(@ex-brand-accent, @ex-black, @ex-white, 50%);
+@ex-btn-primary-hover-border:    @_ex-btn-primary-hover-border; @_ex-btn-primary-hover-border: darken(@ex-brand-accent, 12%);
+
+/*
+@btn-success-color:              #fff;
+@btn-success-bg:                 @brand-success;
+@btn-success-border:             darken(@btn-success-bg, 5%);
+
+@btn-info-color:                 #fff;
+@btn-info-bg:                    @brand-info;
+@btn-info-border:                darken(@btn-info-bg, 5%);
+
+@btn-warning-color:              #fff;
+@btn-warning-bg:                 @brand-warning;
+@btn-warning-border:             darken(@btn-warning-bg, 5%);
+
+@btn-danger-color:               #fff;
+@btn-danger-bg:                  @brand-danger;
+@btn-danger-border:              darken(@btn-danger-bg, 5%);
+
+@btn-link-disabled-color:        @gray-light;
+*/
+
+// Allows for customizing button radius independently from global border radius
+@ex-btn-border-radius-base:      @ex-border-radius-base;
+
+/*
+@btn-border-radius-large:        @border-radius-large;
+@btn-border-radius-small:        @border-radius-small;
+*/
+
+// Pagination
+// -------------------------
+@paginationBackground:            @ex-white;               // Цвет фона
+@paginationBackgroundHover:       #eee;                 // Цвет фона при наведении
+@paginationBorder:                #eee;                 // Цвет бордера
+@paginationBorderRadius:          @ex-border-radius-base;                  // Скругление углов
+
+@paginationBackgroundActive:      @ex-blue;            // Цвет фона активной страницы
+@paginationBorderActive:          @ex-blue;            // Цвет бордера активной страницы
+@paginationTextColorActive:       @ex-white;               // Цвет текста активной страницы
+
+@paginationBackgroundDisabled:    @ex-white;               // Цвет фона неактивной стрелки
+@paginationBorderDisabled:        #ddd;                 // Цвет бордера неактивной стрелки
+@paginationTextColorDisabled:     @ex-gray-light;                 // Цвет неактивной стрелки
+
+@dropdownBackground: @ex-white;
+@dropdownBorder: #eee;
+@dropdownLinkColor: @ex-black;
+@dropdownLinkColorHover: @ex-white;
+@dropdownLinkBackgroundHover: @ex-blue;
+
+@ex-catalog-item-vertical-gap: 3px;
+@ex-control-icons-border: 2px solid #888;
+@ex-term-color: #333;
+@ex-entities-color: #333;
+@baloonArrowBackColor: #555;
+@baloonArrowColor: #555;
+@baloonBackground: #555;
+@baloonTextColor: #222;
+@baloonBorderRadius: 2px;
+@baloonBorderColor: #222;
+
+
+@font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+@font-family-base:        @font-family-sans-serif;
+

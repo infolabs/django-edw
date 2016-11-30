@@ -18,7 +18,10 @@ class Entities extends Component {
 
     let items = entities.items.objects || [],
         meta = entities.items.meta,
-        dropdowns = entities.dropdowns || {};
+        dropdowns = entities.dropdowns || {},
+        loading = entities.items.loading;
+
+    let ent_class = loading ? "entities ex-state-loading" : "entities";
 
     let render_entities = "";
     if (items.length) {
@@ -28,7 +31,7 @@ class Entities extends Component {
     return (
       <div>
         <HowMany meta={meta} dropdowns={dropdowns} actions={actions}/>
-        <div className="entities">{render_entities}</div>
+        <div className={ent_class}>{render_entities}</div>
         <Paginator meta={meta} actions={actions}/>
       </div>
     );

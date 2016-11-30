@@ -7,7 +7,7 @@ export default class HowMany extends Component {
           { limits, ordering } = dropdowns;
 
     let ret_ordering = "";
-    if (ordering && Object.keys(ordering.options).length > 1) {
+    if (ordering && Object.keys(ordering.options).length > 0) {
       ret_ordering = (
         <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">

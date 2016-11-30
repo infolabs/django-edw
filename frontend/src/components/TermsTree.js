@@ -23,7 +23,7 @@ class TermsTree extends Component {
     const tag_curr = this.props.terms.tagged,
           tag_next = nextProps.terms.tagged;
     if (tag_curr != tag_next) {
-      this.props.actions.notifyLoading();
+      this.props.actions.notifyLoadingEntities();
       this.props.actions.getEntities({'terms': tag_next.array});
     }
   }
@@ -51,8 +51,11 @@ class TermsTree extends Component {
                        actions={actions}/>
       );
     }
+
+    let ul_class = loading ? "terms-tree ex-state-loading" : "terms-tree";
+
     return (
-        <ul className="terms-tree">
+        <ul className={ul_class}>
           {tree}
         </ul>
     )

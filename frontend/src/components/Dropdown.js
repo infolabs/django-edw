@@ -11,9 +11,11 @@ export default class Dropdown extends Component {
     document.body.removeEventListener('click', this.handleBodyClick);
   }
 
-  handleBodyClick = (evt) => {
+  handleBodyClick = (e) => {
     const { actions, name, open } = this.props;
     if (open) {
+      e.preventDefault();
+      e.stopPropagation();
       this.props.actions.toggleDropdown(name);
     }
   }
@@ -33,8 +35,10 @@ export default class Dropdown extends Component {
   handleSelectedClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { actions, name } = this.props;
-    this.props.actions.toggleDropdown(name);
+    const { actions, name, open } = this.props;
+    if (!open) {
+      this.props.actions.toggleDropdown(name);
+    }
   }
 
   render() {
