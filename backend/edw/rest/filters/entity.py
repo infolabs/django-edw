@@ -10,7 +10,7 @@ import rest_framework_filters as filters
 
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
 from edw.models.entity import BaseEntity
 from edw.models.term import TermModel
@@ -209,6 +209,21 @@ class EntityFilter(filters.FilterSet):
 
         self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
         return queryset.rel(*self.rel_ids)
+
+
+class EntityMetaFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+
+        raw_view_component = request.GET.get('view_component', None)
+        if raw_view_component is None:
+            data_mart = request.GET['_data_mart']
+            view_component = data_mart.view_component if data_mart is not None else None
+        else:
+            view_component = serializers.CharField().to_internal_value(raw_view_component)
+        request.GET['_view_component'] = view_component
+
+        return queryset
 
 
 class EntityOrderingFilter(OrderingFilter):

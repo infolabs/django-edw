@@ -17,7 +17,7 @@ from rest_framework_filters.backends import DjangoFilterBackend
 from edw.rest.pagination import EntityPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
-from edw.rest.filters.entity import EntityFilter, EntityOrderingFilter
+from edw.rest.filters.entity import EntityFilter, EntityMetaFilter, EntityOrderingFilter
 from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
@@ -133,7 +133,7 @@ class GetEntities(BaseRetrieveDataTag):
     serializer_class = EntityTotalSummarySerializer
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityOrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = EntityPagination
@@ -175,6 +175,7 @@ class GetEntities(BaseRetrieveDataTag):
             "data_mart": query_params['_data_mart'],
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
+            "view_component": query_params['_view_component'],
             "filter_queryset": queryset
         }
         return queryset

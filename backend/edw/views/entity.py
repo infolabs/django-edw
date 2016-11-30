@@ -16,7 +16,7 @@ from edw.rest.serializers.entity import (
 )
 
 from edw.models.entity import EntityModel
-from edw.rest.filters.entity import EntityFilter, EntityOrderingFilter
+from edw.rest.filters.entity import EntityFilter, EntityMetaFilter, EntityOrderingFilter
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import EntityPagination
@@ -43,7 +43,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityOrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityOrderingFilter)
     # ordering_fields = ('created_at',)
     ordering_fields = '__all__'
 
@@ -103,7 +103,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "data_mart": query_params['_data_mart'],
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
-            #"view_component": query_params['_view_component'],
+            "view_component": query_params['_view_component'],
             "filter_queryset": queryset
         }
         return queryset

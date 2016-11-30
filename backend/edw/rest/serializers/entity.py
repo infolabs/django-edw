@@ -215,7 +215,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
     subj_ids = serializers.SerializerMethodField()
     ordering = serializers.SerializerMethodField()
-    #view_component = serializers.SerializerMethodField()
+    view_component = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
 
@@ -251,8 +251,8 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     def get_ordering(self, instance):
         return self.context['ordering']
 
-    #def get_view_component(self, instance):
-    #    return self.context['view_component']
+    def get_view_component(self, instance):
+        return self.context['view_component']
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):
