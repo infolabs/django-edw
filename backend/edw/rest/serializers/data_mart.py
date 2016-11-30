@@ -114,7 +114,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 data_mart_summary_serializer_class = None
 
 
-class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonSerializer):
+class DataMartDetailSerializerBase(DataMartCommonSerializer):
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
