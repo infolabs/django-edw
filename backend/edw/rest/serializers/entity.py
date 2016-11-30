@@ -108,12 +108,17 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     short_characteristics = AttributeSerializer(read_only=True, many=True)
     short_marks = AttributeSerializer(read_only=True, many=True)
 
+    extra = serializers.SerializerMethodField()
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
     def get_entity_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
+
+    def get_extra(self, instance):
+        return instance.get_summary_extra()
 
 
 class RelatedDataMartSerializer(DataMartDetailSerializer):
@@ -189,7 +194,7 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
     class Meta(EntityCommonSerializer.Meta):
         fields = ('id', 'entity_name', 'entity_url', 'entity_model',
-                  'short_characteristics', 'short_marks', 'media')
+                  'short_characteristics', 'short_marks', 'media', 'extra')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')

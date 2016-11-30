@@ -183,9 +183,16 @@ class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, 
     """
     data_mart_type = serializers.CharField(read_only=True)
 
+    extra = serializers.SerializerMethodField()
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'summary')
         super(DataMartSummarySerializerBase, self).__init__(*args, **kwargs)
+
+    def get_extra(self, instance):
+        return instance.get_summary_extra()
+
+
 
 
 class DataMartSummarySerializer(DataMartSummarySerializerBase):
@@ -203,9 +210,14 @@ class DataMartTreeSerializerBase(DataMartCommonSerializer):
     """
     Serialize a tree summary of the polymorphic DataMart model.
     """
+    extra = serializers.SerializerMethodField()
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'tree')
         super(DataMartTreeSerializerBase, self).__init__(*args, **kwargs)
+
+    def get_extra(self, instance):
+        return instance.get_tree_extra()
 
 
 class _DataMartFilterMixin(object):
@@ -306,7 +318,7 @@ class DataMartTreeSerializer(DataMartTreeSerializerBase):
 
     class Meta(DataMartTreeSerializerBase.Meta):
         fields = ('id', 'name', 'slug', 'active', 'view_class', 'data_mart_url', 'data_mart_model', 'media',
-                  'is_leaf', 'children')
+                  'is_leaf', 'children', 'extra')
         list_serializer_class = _DataMartTreeRootSerializer
 
     def get_media(self, data_mart):

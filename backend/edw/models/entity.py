@@ -819,6 +819,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         buf.clear()
         cache.delete_many(keys)
 
+    def get_summary_extra(self):
+        """
+        Return extra data for summary serializer
+        """
+        return None
+
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
 
