@@ -103,6 +103,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "data_mart": query_params['_data_mart'],
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
+            #"view_component": query_params['_view_component'],
             "filter_queryset": queryset
         }
         return queryset
