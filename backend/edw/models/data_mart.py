@@ -427,6 +427,18 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
 
+    def get_summary_extra(self):
+        """
+        Return extra data for summary serializer
+        """
+        return None
+
+    def get_tree_extra(self):
+        """
+        Return extra data for tree serializer
+        """
+        return None
+
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)
 

@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 
-import types
-
 from django.core import exceptions
 from django.core.cache import cache
 from django.template import TemplateDoesNotExist
@@ -18,6 +16,7 @@ from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
+from edw.models.rest import DynamicFieldsSerializerMixin
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 
 
@@ -109,12 +108,17 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     short_characteristics = AttributeSerializer(read_only=True, many=True)
     short_marks = AttributeSerializer(read_only=True, many=True)
 
+    extra = serializers.SerializerMethodField()
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
     def get_entity_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
+
+    def get_extra(self, instance):
+        return instance.get_summary_extra()
 
 
 class RelatedDataMartSerializer(DataMartDetailSerializer):
@@ -140,7 +144,7 @@ class RelatedDataMartSerializer(DataMartDetailSerializer):
         return self.context.get('_entity_pk')
 
 
-class EntityDetailSerializerBase(EntityCommonSerializer):
+class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSerializer):
     """
     Serialize all fields of the Entity model, for the entities detail view.
     """
@@ -175,30 +179,7 @@ class EntityDetailSerializerBase(EntityCommonSerializer):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
-        instance = args[0] if args else None
-        if instance is not None and hasattr(instance, '_rest_meta'):
-            rest_meta = instance._rest_meta
-        else:
-            rest_meta = getattr(self.Meta.model, '_rest_meta', None)
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
-        if rest_meta:
-            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
-            # for multiple fields in a list
-            for field_name in remove_fields:
-                self.fields.pop(field_name)
-            for field_name, field in include_fields.items():
-                if isinstance(field, serializers.SerializerMethodField):
-                    default_method_name = 'get_{field_name}'.format(field_name=field_name)
-                    if field.method_name is None:
-                        method_name = default_method_name
-                    else:
-                        method_name = field.method_name
-                        # hack for SerializerMethodField.bind method
-                        if field.method_name == default_method_name:
-                            field.method_name = None
-                    method = getattr(rest_meta, method_name)
-                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
-                self.fields[field_name] = field
 
     def to_representation(self, data):
         """
@@ -213,7 +194,7 @@ class EntitySummarySerializer(EntitySummarySerializerBase):
 
     class Meta(EntityCommonSerializer.Meta):
         fields = ('id', 'entity_name', 'entity_url', 'entity_model',
-                  'short_characteristics', 'short_marks', 'media')
+                  'short_characteristics', 'short_marks', 'media', 'extra')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
