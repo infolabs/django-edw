@@ -4,10 +4,10 @@ import Dropdown from './Dropdown';
 export default class HowMany extends Component {
   render() {
     const { dropdowns, actions, meta } = this.props,
-          { limits, ordering } = dropdowns;
+          { limits, ordering, view_components } = dropdowns;
 
     let ret_ordering = "";
-    if (ordering && Object.keys(ordering.options).length > 0) {
+    if (ordering && Object.keys(ordering.options).length > 1) {
       ret_ordering = (
         <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
@@ -22,6 +22,28 @@ export default class HowMany extends Component {
                         actions={actions}
                         selected={ordering.selected}
                         options={ordering.options}/>
+            </li>
+          </ul>
+        </div>
+      )
+    }
+
+    let ret_components = "";
+    if (ordering && Object.keys(view_components.options).length > 1) {
+      ret_components = (
+        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
+          <ul className="ex-inline">
+            <li>
+              <span>Компоненты &nbsp; </span>
+            </li>
+            <li>
+              <Dropdown name='view_components'
+                        request_var={view_components.request_var}
+                        request_options={meta.request_options}
+                        open={view_components.open}
+                        actions={actions}
+                        selected={view_components.selected}
+                        options={view_components.options}/>
             </li>
           </ul>
         </div>
@@ -63,6 +85,7 @@ export default class HowMany extends Component {
     return (
       <div className="row">
         {ret_ordering}
+        {ret_components}
         {ret_limits}
         {statistics}
       </div>

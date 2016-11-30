@@ -8,6 +8,8 @@ class EtitiesManager {
     this.objects = this.json2objects(json);
     this.meta = this.json2meta(json, request_options);
     this.loading = false;
+    if (json && json.results && json.results.meta)
+      this.component = json.results.meta.view_component;
   }
 
   json2objects(json) {
@@ -45,14 +47,18 @@ class Dropdowns {
     if (!(json && json.results))
       return;
 
-    const data_mart = json.results.meta.data_mart,
-          modes = data_mart.ordering_modes;
-    const ordering_options = {
-      'request_var': 'ordering',
-      'selected': modes[json.results.meta.ordering],
-      'options': modes
-    };
+    const data_mart = json.results.meta.data_mart;
+
+    // Ordering
+    const modes = data_mart.ordering_modes,
+          ordering_options = {
+            'request_var': 'ordering',
+            'selected': modes[json.results.meta.ordering],
+            'options': modes
+          };
     this['ordering'] = new Dropdown(ordering_options);
+
+    // Limits
     const dl = data_mart.limit || 40; // default limit
     const lopts = {}; // limit options
     lopts[dl] = dl;
@@ -67,6 +73,15 @@ class Dropdowns {
       'options': lopts
     };
     this['limits'] = new Dropdown(limit_options);
+
+    // ViewComponents
+    const components = data_mart.view_components,
+          component_options = {
+            'request_var': 'view_component',
+            'selected': components[json.results.meta.view_component],
+            'options': components
+          };
+    this['view_components'] = new Dropdown(component_options);
   }
 
   toggle(name) {
