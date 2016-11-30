@@ -12,8 +12,9 @@ export default class Dropdown extends Component {
   }
 
   handleBodyClick = (e) => {
-    const { actions, name, open } = this.props;
-    if (open) {
+    const area = ReactDOM.findDOMNode(this),
+          { actions, name, open } = this.props;
+    if (!area.contains(e.target) && open) {
       e.preventDefault();
       e.stopPropagation();
       this.props.actions.toggleDropdown(name);
@@ -28,7 +29,7 @@ export default class Dropdown extends Component {
     option[request_var] = value;
     let options = Object.assign(request_options, option);
     this.props.actions.selectDropdown(name, value);
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(options);
   }
 
@@ -36,9 +37,7 @@ export default class Dropdown extends Component {
     e.preventDefault();
     e.stopPropagation();
     const { actions, name, open } = this.props;
-    if (!open) {
-      this.props.actions.toggleDropdown(name);
-    }
+    this.props.actions.toggleDropdown(name);
   }
 
   render() {
