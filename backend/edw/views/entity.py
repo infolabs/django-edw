@@ -108,9 +108,41 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         }
         return queryset
 
-    def retrieve(self, request, *args, **kwargs):
-        print "+++"
-        return super(EntityViewSet, self).retrieve(request, *args, **kwargs)
+    # #
+    # # TEST
+    # #
+    #
+    # def retrieve(self, request, *args, **kwargs):
+    #
+    #     from rest_framework.generics import get_object_or_404
+    #
+    #     from edw.models.term import TermModel
+    #
+    #     from nash_region.models.person.responsible_person import ResponsiblePerson
+    #
+    #     pk = kwargs.get('pk')
+    #
+    #     qs = EntityModel.objects.all()
+    #     obj = get_object_or_404(qs, pk=pk)
+    #
+    #     print "Base object:", obj.id, obj
+    #
+    #     # queryset = EntityModel.objects.all()
+    #     # queryset = EntityModel.objects.exclude(pk=pk)
+    #     queryset = EntityModel.objects.instance_of(ResponsiblePerson).active()
+    #
+    #     # entity_terms_ids = obj.terms.active().values_list('id', flat=True)
+    #     entity_terms_ids = obj.terms.active().exclude(
+    #         system_flags=TermModel.system_flags.external_tagging_restriction).values_list('id', flat=True)
+    #
+    #     same = queryset.get_similar(entity_terms_ids)
+    #
+    #     print "Similar object:", same.id, same
+    #
+    #     return super(EntityViewSet, self).retrieve(request, *args, **kwargs)
+    #
+    # #
+    # #
 
 
 class EntitySubjectViewSet(EntityViewSet):
