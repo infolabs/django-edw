@@ -114,7 +114,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 data_mart_summary_serializer_class = None
 
 
-class DataMartDetailSerializerBase(DataMartCommonSerializer):
+class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonSerializer):
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
@@ -176,8 +176,7 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
         return self.render_html(data_mart, 'media')
 
 
-class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DynamicFieldsSerializerMixin,
-                                                   DataMartCommonSerializer)):
+class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DataMartCommonSerializer)):
     """
     Serialize a summary of the polymorphic DataMart model.
     """
