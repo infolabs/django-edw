@@ -807,6 +807,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             result = None
         return result
 
+    def get_similar(self, queryset):
+
+        print "*** GET SIMILAR ***", self
+        print "--------------------------"
+        print list(queryset)
+        print "--------------------------"
+        return None
+
     @staticmethod
     def get_terms_cache_buffer():
         return RingBuffer.factory(BaseEntity.TERMS_BUFFER_CACHE_KEY,

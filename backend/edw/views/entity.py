@@ -108,6 +108,10 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         }
         return queryset
 
+    def retrieve(self, request, *args, **kwargs):
+        print "+++"
+        return super(EntityViewSet, self).retrieve(request, *args, **kwargs)
+
 
 class EntitySubjectViewSet(EntityViewSet):
 
