@@ -1,0 +1,34 @@
+
+.entities {
+  color: @ex-entities-color;
+
+  .ex-opacity(1);
+  transition: opacity 0.6s linear;
+
+  &.ex-state-loading {
+    .ex-opacity(.3);
+  }
+}
+
+.entities > div {
+  margin-bottom: 10px;
+}
+
+ul.ex-inline, ol.ex-inline {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+ul.ex-inline > li, ol.ex-inline > li {
+  display: inline-block;
+  padding: 0;
+}
+
+.view_tile {
+  float: left;
+  margin: 10px;
+  width: 100px;
+  height: 100px;
+  background-color: @ex-gray-light;
+}

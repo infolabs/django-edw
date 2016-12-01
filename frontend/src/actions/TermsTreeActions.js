@@ -1,6 +1,6 @@
 import * as types from '../constants/TermsTree';
 
-const MART_ID = 1;
+const MART_ID = 4;
 
 function getTermsTree(type, selected = []) {
   let url = Urls['edw:data-mart-term-tree'](MART_ID, 'json');
@@ -66,6 +66,12 @@ export function getEntities(options = {}) {
 export function notifyLoading() {
   return {
     type: types.NOTIFY_LOADING,
+  };
+}
+
+export function notifyLoadingEntities() {
+  return {
+    type: types.NOTIFY_LOADING_ENTITIES,
   };
 }
 

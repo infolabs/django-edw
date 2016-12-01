@@ -18,17 +18,21 @@ class Entities extends Component {
 
     let items = entities.items.objects || [],
         meta = entities.items.meta,
-        dropdowns = entities.dropdowns || {};
+        dropdowns = entities.dropdowns || {},
+        loading = entities.items.loading,
+        component = entities.items.component;
+
+    let ent_class = loading ? "entities ex-state-loading" : "entities";
 
     let render_entities = "";
     if (items.length) {
-      render_entities = items.map((child, i) => <Entity key={i} entity={child}/>);
+      render_entities = items.map((child, i) => <Entity key={i} entity={child} component={component}/>);
     }
 
     return (
       <div>
         <HowMany meta={meta} dropdowns={dropdowns} actions={actions}/>
-        <div className="entities">{render_entities}</div>
+        <div className={ent_class}>{render_entities}</div>
         <Paginator meta={meta} actions={actions}/>
       </div>
     );

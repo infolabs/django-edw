@@ -1,39 +1,15 @@
-@import "button_mixin.less";
-
-.entities {
-  color: @ex-entities-color;
-}
-
-.entities > div {
-  margin-bottom: 10px;
-}
-
-ul.ex-inline, ol.ex-inline {
-  margin-left: 0;
-  padding-left: 0;
-  list-style: none;
-}
-
-ul.ex-inline > li, ol.ex-inline > li {
-  display: inline-block;
-  padding: 0;
-}
-
+/* todo: need refactoring */
 .ex-order-by, .ex-statistic, .ex-pagination {
   margin-bottom: @ex-catalog-item-vertical-gap;
 }
+
+
 
 .ex-order-by, .ex-order-by a,
 .ex-howmany-items, .ex-howmany-items a,
 .ex-statistic,
 .ex-pagination > li > a, .ex-pagination > li > span {
   font-size: 12px;
-}
-
-.ex-statistic {
-  top: 6px;
-  position: relative;
-  text-align: right;
 }
 
 .ex-dropdown-menu2 {
@@ -73,9 +49,9 @@ ul.ex-inline > li, ol.ex-inline > li {
   background-color: @dropdownLinkBackgroundHover;
 }
 
-.ex-dropdown-hide {
-  display: none;
-}
+/*
+==================== СОРТИРОВКА ТОВАРОВ ====================
+*/
 
 .ex-sort-dropdown {
   position: relative;
@@ -85,9 +61,9 @@ ul.ex-inline > li, ol.ex-inline > li {
   display: block;
 }
 
-.ex-catalog-pagination {
-  display: block;
-}
+/*
+==================== ПАДЖИНАЦИЯ ====================
+*/
 
 .ex-pagination {
   display: inline-block;
@@ -117,10 +93,6 @@ ul.ex-inline > li, ol.ex-inline > li {
   text-decoration: none;
   background-color: @paginationBackground;
   border: 1px solid @paginationBorder;
-}
-
-.ex-pagination>li>a {
-  color: @paginationLinkColor;
 }
 
 .ex-pagination>li>a:hover,
@@ -161,58 +133,12 @@ ul.ex-inline > li, ol.ex-inline > li {
   border-color: @paginationBorderDisabled;
 }
 
-.ex-disabled, .ex-disabled:hover, .ex-disabled:focus {
-  color: @paginationTextColorDisabled;
-  cursor: not-allowed;
-  background-color: @paginationBackgroundDisabled;
-  border-color: @paginationBorderDisabled;
+.ex-statistic {
+  top: 6px;
+  position: relative;
+  text-align: right;
 }
 
-.ex-user-select(@argument: none) {
-  -webkit-user-select: @argument;
-  -moz-user-select: @argument;
-  -ms-user-select: @argument;
-  user-select: @argument;
-}
-
-.ex-tab-focus() {
-  // Default
-  outline: thin dotted;
-  // WebKit
-  outline: 5px auto -webkit-focus-ring-color;
-  outline-offset: -2px;
-}
-
-.ex-box-shadow(@arguments: 0 6px 12px rgba(0, 0, 0, 0.175);) {
-  -webkit-box-shadow: @arguments;
-  -moz-box-shadow: @arguments;
-  box-shadow: @arguments;
-}
-
-.ex-button-size(@padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
-  padding: @padding-vertical @padding-horizontal;
-  font-size: @font-size;
-  line-height: @line-height;
-  border-radius: @border-radius;
-}
-
-.ex-opacity(@opacity: 0.5) {
-  -moz-opacity: @opacity;
-  -khtml-opacity: @opacity;
-  -webkit-opacity: @opacity;
-  opacity: @opacity;
-  @opperc: @opacity * 100;
-  -ms-filter: ~"progid:DXImageTransform.Microsoft.Alpha(opacity=@{opperc})";
-  filter: ~"alpha(opacity=@{opperc})";
-}
-
-
-.ex-btn {
-  .ex-btn();
-  text-decoration: none;
-}
-
-.ex-btn-default {
-  .ex-button-variant(@btn-color: @ex-btn-default-color; @btn-bg: @ex-btn-default-bg; @btn-border: @ex-btn-default-border;
-    @btn-hover-color: @ex-btn-default-hover-color; @btn-hover-bg: @ex-btn-default-hover-bg; @btn-hover-border: @ex-btn-default-hover-border);
+.ex-dropdown-hide {
+  display: none;
 }

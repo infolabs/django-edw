@@ -8,6 +8,7 @@ export const SHOW_INFO = 'SHOW_TERM_INFO';
 export const HIDE_INFO = 'HIDE_TERM_INFO';
 export const NOTIFY_LOADING = 'NOTIFY_LOADING';
 // Entities Actions
+export const NOTIFY_LOADING_ENTITIES = 'NOTIFY_LOADING_ENTITIES';
 export const LOAD_ENTITIES = 'LOAD_ENTITIES';
 // Dropdown Actions
 export const TOGGLE_DROPDOWN = 'TOGGLE_DROPDOWN';
