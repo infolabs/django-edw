@@ -133,6 +133,22 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
     def get_terms_ids(self, tree):
         return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
 
+    def get_similar(self, terms_ids):
+        """
+        Return similar entity from queryset
+        """
+        terms_tree = TermModel.decompress(terms_ids, fix_it=False)
+        crossing_terms_ids = terms_tree.trim(self.get_related_terms_ids()).keys()
+        expression = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
+        similar_entities = self.filter(terms__id__in=crossing_terms_ids).annotate(
+            num=models.Count('terms__id'), terms_avg_lvl=models.Avg(expression), terms_max_lvl=models.Max(expression)
+        ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', 'created_at')
+        try:
+            result = similar_entities[0]
+        except IndexError:
+            result = None
+        return result
+
     def _get_subj_cache_key(self, subj_ids):
         return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=(hash_unsorted_list(subj_ids) if subj_ids else ''))
 
