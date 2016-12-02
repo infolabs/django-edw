@@ -3,7 +3,7 @@ import Dropdown from './Dropdown';
 
 export default class HowMany extends Component {
   render() {
-    const { dropdowns, actions, meta } = this.props,
+    const { dropdowns, actions, meta, mart_id } = this.props,
           { limits, ordering, view_components } = dropdowns;
 
     let ret_ordering = "";
@@ -16,6 +16,7 @@ export default class HowMany extends Component {
             </li>
             <li>
               <Dropdown name='ordering'
+                        mart_id={mart_id}
                         request_var={ordering.request_var}
                         request_options={meta.request_options}
                         open={ordering.open}
@@ -40,6 +41,7 @@ export default class HowMany extends Component {
             <li>
               <Dropdown name='view_components'
                         request_var={view_components.request_var}
+                        mart_id={mart_id}
                         request_options={meta.request_options}
                         open={view_components.open}
                         actions={actions}
@@ -61,6 +63,7 @@ export default class HowMany extends Component {
             </li>
             <li>
               <Dropdown name='limits'
+                        mart_id={mart_id}
                         request_var={limits.request_var}
                         request_options={meta.request_options}
                         open={limits.open}

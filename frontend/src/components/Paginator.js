@@ -10,7 +10,7 @@ export default class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoading();
-    this.props.actions.getEntities(options);
+    this.props.actions.getEntities(this.props.mart_id, options);
   }
 
   handlePrevClick(e) {
@@ -20,7 +20,7 @@ export default class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoading();
-    this.props.actions.getEntities(options);
+    this.props.actions.getEntities(this.props.mart_id, options);
   }
 
   handlePageClick(e, n) {
@@ -30,7 +30,7 @@ export default class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoading();
-    this.props.actions.getEntities(options);
+    this.props.actions.getEntities(this.props.mart_id, options);
   }
 
   render() {

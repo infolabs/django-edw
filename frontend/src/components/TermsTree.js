@@ -7,7 +7,7 @@ import TermsTreeItem from './TermsTreeItem';
 
 class TermsTree extends Component {
   componentDidMount() {
-    this.props.actions.loadTree();
+    this.props.actions.loadTree(this.props.mart_id);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -16,7 +16,7 @@ class TermsTree extends Component {
           req_next = nextProps.terms.requested;
     if (req_curr != req_next) {
       this.props.actions.notifyLoading();
-      this.props.actions.reloadTree(req_next.array);
+      this.props.actions.reloadTree(this.props.mart_id, req_next.array);
     }
 
     // Reload entires on toggled term
@@ -24,7 +24,7 @@ class TermsTree extends Component {
           tag_next = nextProps.terms.tagged;
     if (tag_curr != tag_next) {
       this.props.actions.notifyLoadingEntities();
-      this.props.actions.getEntities({'terms': tag_next.array});
+      this.props.actions.getEntities(this.props.mart_id, {'terms': tag_next.array});
     }
   }
 

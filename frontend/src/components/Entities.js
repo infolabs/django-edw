@@ -10,11 +10,11 @@ import Paginator from './Paginator';
 class Entities extends Component {
 
   componentDidMount() {
-    this.props.actions.getEntities();
+    this.props.actions.getEntities(this.props.mart_id);
   }
 
   render() {
-    const { entities, actions } = this.props;
+    const { mart_id, entities, actions } = this.props;
 
     let items = entities.items.objects || [],
         meta = entities.items.meta,
@@ -31,9 +31,9 @@ class Entities extends Component {
 
     return (
       <div>
-        <HowMany meta={meta} dropdowns={dropdowns} actions={actions}/>
+        <HowMany mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
         <div className={ent_class}>{render_entities}</div>
-        <Paginator meta={meta} actions={actions}/>
+        <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
       </div>
     );
   }

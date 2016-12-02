@@ -2,8 +2,8 @@ import * as types from '../constants/TermsTree';
 
 const MART_ID = 4;
 
-function getTermsTree(type, selected = []) {
-  let url = Urls['edw:data-mart-term-tree'](MART_ID, 'json');
+function getTermsTree(type, mart_id, selected = []) {
+  let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
 
   if (selected && selected.length > 0)
     url += '?selected=' + selected.join()
@@ -46,8 +46,8 @@ function opts2gets(options = {}) {
   return gets;
 }
 
-export function getEntities(options = {}) {
-  let url = Urls['edw:data-mart-entity-list'](MART_ID, 'json');
+export function getEntities(mart_id, options = {}) {
+  let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
   url += opts2gets(options);
 
   return fetch(url, {
@@ -75,12 +75,12 @@ export function notifyLoadingEntities() {
   };
 }
 
-export function loadTree() {
-  return getTermsTree(types.LOAD_TREE);
+export function loadTree(mart_id) {
+  return getTermsTree(types.LOAD_TREE, mart_id);
 }
 
-export function reloadTree(selected = []) {
-  return getTermsTree(types.RELOAD_TREE, selected);
+export function reloadTree(mart_id, selected = []) {
+  return getTermsTree(types.RELOAD_TREE, mart_id, selected);
 }
 
 export function toggle(term = {}) {
