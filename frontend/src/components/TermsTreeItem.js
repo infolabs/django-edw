@@ -39,7 +39,7 @@ export default class TermsTreeItem extends Component {
 
     const show_children = !term.isLimbOrAnd() && tagged[term.id] || expanded[term.id];
 
-    if (parent != false && term.isLimbDescendant() && !term.isLimbAndLeaf()) {
+    if (term.isVisible()) {
 
       const parent = term.parent,
             rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,

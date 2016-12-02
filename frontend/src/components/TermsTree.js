@@ -12,8 +12,8 @@ class TermsTree extends Component {
 
   componentWillReceiveProps(nextProps) {
     // Reload tree on new requested term
-    const req_curr = this.props.terms.requested,
-          req_next = nextProps.terms.requested;
+    const req_curr = this.props.terms.tagged,
+          req_next = nextProps.terms.tagged;
     if (req_curr != req_next) {
       this.props.actions.notifyLoading();
       this.props.actions.reloadTree(this.props.mart_id, req_next.array);

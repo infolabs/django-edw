@@ -81,6 +81,11 @@ class Item {
       this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
       this.structure == consts.STRUCTURE_LIMB)
   }
+
+  isVisible() {
+    return this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf();
+  }
+
 }
 
 /* Tagged Data Structures */
