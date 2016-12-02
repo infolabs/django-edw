@@ -3,6 +3,17 @@ import ReactDOM from 'react-dom';
 
 export default class Dropdown extends Component {
 
+  fixOffset(options = {}) {
+    const total = this.props.count,
+          offset = options.offset,
+          limit = options.limit;
+    console.log('OTAL', total, offset, limit)
+    if (total && offset && limit && total < offset + limit) {
+        options.offset = total - limit - total % limit;
+    }
+    return options;
+  }
+
   componentDidMount() {
     document.body.addEventListener('click', this.handleBodyClick);
   }
@@ -30,7 +41,7 @@ export default class Dropdown extends Component {
     let options = Object.assign(request_options, option);
     this.props.actions.selectDropdown(name, value);
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(options);
+    this.props.actions.getEntities(this.fixOffset(options));
   }
 
   handleSelectedClick(e) {

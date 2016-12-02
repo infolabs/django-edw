@@ -28,6 +28,7 @@ export default class HowMany extends Component {
       )
     }
 
+
     let ret_components = "";
     if (ordering && Object.keys(view_components.options).length > 1) {
       ret_components = (
@@ -65,6 +66,7 @@ export default class HowMany extends Component {
                         open={limits.open}
                         actions={actions}
                         selected={limits.selected}
+                        count={meta.count}
                         options={limits.options}/>
 
             </li>
@@ -75,9 +77,16 @@ export default class HowMany extends Component {
 
     let statistics = "";
     if (meta.count) {
+      const total = meta.count,
+            offset = meta.offset,
+            limit = meta.limit;
+
+      let to = offset + limit;
+      to = total < to ? total : to;
+
       statistics = (
         <div className="col-sm-3 ex-statistic">
-          Элемент(ы) {meta.offset + 1} - {meta.limit} из {meta.count}
+          Элемент(ы) {offset + 1} - {to} из {total}
         </div>
       );
     }
