@@ -96,11 +96,16 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     def filter_queryset(self, queryset):
         queryset = super(EntityViewSet, self).filter_queryset(queryset)
         query_params = self.request.GET
+
+        data_mart = query_params['_data_mart']
+        if data_mart is not None:
+            query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
+
         self.queryset_context = {
             "initial_filter_meta": query_params['_initial_filter_meta'],
             "initial_queryset": query_params['_initial_queryset'],
             "terms_filter_meta": query_params['_terms_filter_meta'],
-            "data_mart": query_params['_data_mart'],
+            "data_mart": data_mart,
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
             "view_component": query_params['_view_component'],
