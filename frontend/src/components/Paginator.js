@@ -9,7 +9,7 @@ export default class Paginator extends Component {
     const { limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset + limit});
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(this.props.mart_id, options);
   }
 
@@ -19,7 +19,7 @@ export default class Paginator extends Component {
     const { limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset - limit});
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(this.props.mart_id, options);
   }
 
@@ -29,7 +29,7 @@ export default class Paginator extends Component {
     const { limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(this.props.mart_id, options);
   }
 
