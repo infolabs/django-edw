@@ -38,6 +38,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     template_name = None
     data_mart_pk = None
+    subj = None
     format = None
 
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
@@ -83,9 +84,17 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     def list(self, request, data_mart_pk=None, *args, **kwargs):
         if self.data_mart_pk is not None:
-           data_mart_pk = self.data_mart_pk
-        if data_mart_pk is not None:
+            request.GET['data_mart_pk'] = str(self.data_mart_pk)
+        elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
+
+        if self.subj is not None:
+            if hasattr(self.subj, '__call__'):
+                subj = self.subj(self, request) if hasattr(self, self.subj.__name__) else self.subj(request)
+            else:
+                subj = self.subj
+            request.GET['subj'] = ','.join([str(x) for x in subj]) if isinstance(subj, (list, tuple)) else str(subj)
+
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
     def get_serializer_context(self):
