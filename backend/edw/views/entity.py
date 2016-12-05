@@ -36,6 +36,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         'retrieve':  EntityDetailSerializer,
     }
 
+    extra = None
     template_name = None
     data_mart_pk = None
     subj = None
@@ -53,6 +54,11 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     @remove_empty_params_from_request
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
+
+    def initial(self, request, *args, **kwargs):
+        super(EntityViewSet, self).initial(request, *args, **kwargs)
+        if hasattr(self.extra, '__call__'):
+            self.extra = self.extra(self, request, *args, **kwargs)
 
     @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
@@ -87,14 +93,9 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
-
         if self.subj is not None:
-            if hasattr(self.subj, '__call__'):
-                subj = self.subj(self, request) if hasattr(self, self.subj.__name__) else self.subj(request)
-            else:
-                subj = self.subj
-            request.GET['subj'] = ','.join([str(x) for x in subj]) if isinstance(subj, (list, tuple)) else str(subj)
-
+            request.GET['subj'] = ','.join([str(x) for x in self.subj]) if isinstance(
+                self.subj, (list, tuple)) else str(self.subj)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
     def get_serializer_context(self):
@@ -111,6 +112,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.queryset_context = {
+            "extra": self.extra,
             "initial_filter_meta": query_params['_initial_filter_meta'],
             "initial_queryset": query_params['_initial_queryset'],
             "terms_filter_meta": query_params['_terms_filter_meta'],

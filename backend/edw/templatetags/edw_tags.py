@@ -174,6 +174,7 @@ class GetEntities(BaseRetrieveDataTag):
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.queryset_context = {
+            "extra": None,
             "initial_filter_meta": query_params['_initial_filter_meta'],
             "initial_queryset": query_params['_initial_queryset'],
             "terms_filter_meta": query_params['_terms_filter_meta'],

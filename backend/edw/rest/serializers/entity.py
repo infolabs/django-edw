@@ -218,6 +218,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     view_component = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
+    extra = serializers.SerializerMethodField()
 
     @staticmethod
     def on_terms_ids_cache_set(key):
@@ -253,6 +254,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     def get_view_component(self, instance):
         return self.context['view_component']
+
+    def get_extra(self, instance):
+        return self.context.get('extra', None)
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):
