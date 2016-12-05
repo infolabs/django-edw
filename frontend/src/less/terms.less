@@ -56,53 +56,85 @@
   display: none;
 }
 
-.ex-baloon {
-  position: absolute;
-  top: -10px;
-  left: 30px;
-  z-index: 1010;
-  width: 250px;
-  background-color: @baloonBackground;
-  border: 1px solid @baloonBorderColor;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-  background-clip: padding-box;
-  line-height: 15px;
-  padding: 10px;
-  color: @baloonTextColor;
-  border-radius: @baloonBorderRadius;
-  font-size: 12px;
+.ex-description-wrapper {
+  position: relative;
+  border-bottom: 0!important;
 
-  p {
-    margin: 0;
-    padding-right: 15px;
-    text-transform: none;
-    font-weight: normal;
-    font-size: 11px;
-  }
-}
-
-.ex-baloon .ex-arrow {
-  left: -7px;
-  top: 10px;
-  border-right-color: @baloonArrowColor;
-  border-width: 7px 7px 7px 0px;
-
-  &, &:after {
+  .ex-baloon {
     position: absolute;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-style: solid;
+    top: -9px;
+    left: 30px;
+    z-index: 1010;
+    width: 250px;
+    background-color: @baloonBackground;
+    border: 1px solid @baloonBorderColor;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+    line-height: 15px;
+    padding: 10px;
+    color: @baloonTextColor;
+    border-radius: @baloonBorderRadius;
+    font-size: 11px;
+
+    p {
+      margin: 0;
+      padding-right: 15px;
+      text-transform: none;
+      font-weight: normal;
+      font-size: 11px;
+    }
   }
 
-  &:after {
-    z-index: -1;
-    content: "";
-    border-right-color: @baloonArrowBackColor;
-    border-width: 9px 9px 9px 0;
-    bottom: -9px;
-    left: -2px;
+}
+
+.ex-baloon {
+  button.ex-close {
+    margin-right: -10px;
+    margin-top: -10px;
+
+    &:hover {
+      .ex-opacity(1);
+      text-decoration: none;
+      border-bottom: 0;
+    }
+  }
+
+  .ex-arrow {
+    left: -7px;
+    top: 10px;
+    border-right-color: @baloonArrowColor;
+    border-width: 7px 7px 7px 0px;
+
+    &, &:after {
+      position: absolute;
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-color: transparent;
+      border-style: solid;
+    }
+
+    &:after {
+      z-index: -1;
+      content: "";
+      border-right-color: @baloonArrowBackColor;
+      border-width: 9px 9px 9px 0;
+      bottom: -9px;
+      left: -2px;
+    }
   }
 }
 
+.ex-close {
+  float: right;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #000;
+  background: transparent;
+  .ex-opacity(.2);
+
+  text-decoration: none;
+  border: 0;
+  outline: 0;
+}
