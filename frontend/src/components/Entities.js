@@ -49,7 +49,7 @@ class Entities extends Component {
     return (
       <div>
         <HowMany mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
-        <div className={ent_class}>{render_entities}</div>
+        <ul className={ent_class}>{render_entities}</ul>
         <div className="row">
           <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
         </div>
