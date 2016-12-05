@@ -53,8 +53,26 @@ export default class HowMany extends Component {
       )
     }
 
-    let ret_limits = "";
-    if (limits && Object.keys(limits.options).length > 1) {
+    let ret_limits = "",
+        limit_options = {};
+
+    if (limits) {
+      // cut limits lower than count
+      let max_opt_value = 0,
+          max_value = 0;
+      for (const key of Object.keys(limits.options)) {
+        const value = limits.options[key]
+        max_opt_value = value > max_opt_value ? value : max_opt_value;
+        if (key == meta.selected || value <= meta.count) {
+          max_value = value > max_value ? value : max_value;
+          limit_options[key] = value;
+        }
+      }
+      if (max_value < meta.count && meta.count < max_opt_value)
+        limit_options[meta.count] = meta.count;
+    }
+
+    if (limits && Object.keys(limit_options).length > 1) {
       ret_limits = (
         <div className="col-sm-3 ex-howmany-items ex-dropdown ex-state-closed">
           <ul className="ex-inline">
@@ -70,7 +88,7 @@ export default class HowMany extends Component {
                         actions={actions}
                         selected={limits.selected}
                         count={meta.count}
-                        options={limits.options}/>
+                        options={limit_options}/>
 
             </li>
           </ul>
