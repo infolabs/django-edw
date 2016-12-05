@@ -7,9 +7,16 @@ import TermsTreeItem from './TermsTreeItem';
 
 class TermsTree extends Component {
   componentDidMount() {
-    const mart_id = this.props.dom_attrs.getNamedItem('data-data-mart-pk').value;
+    const dom_attrs = this.props.dom_attrs,
+          mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
+          terms_attr = dom_attrs.getNamedItem('terms');
+
+    let term_ids = [];
+    if (terms_attr && terms_attr.value)
+      term_ids = terms_attr.value.split(",");
+
     this.props.actions.notifyLoading();
-    this.props.actions.loadTree(mart_id);
+    this.props.actions.loadTree(mart_attr.value, term_ids);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -24,10 +31,14 @@ class TermsTree extends Component {
 
     // Reload entires on toggled term
     const tag_curr = this.props.terms.tagged,
-          tag_next = nextProps.terms.tagged;
+          tag_next = nextProps.terms.tagged,
+          meta = this.props.entities.items.meta;
     if (tag_curr != tag_next) {
+      let request_options = meta.request_options,
+          subj_ids = meta.subj_ids;
+      request_options['terms'] = tag_next.array;
       this.props.actions.notifyLoadingEntities();
-      this.props.actions.getEntities(mart_id, {'terms': tag_next.array});
+      this.props.actions.getEntities(mart_id, subj_ids, request_options);
     }
   }
 
@@ -69,6 +80,7 @@ class TermsTree extends Component {
 function mapState(state) {
   return {
     terms: state.terms,
+    entities: state.entities,
   };
 }
 

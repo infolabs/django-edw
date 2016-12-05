@@ -19,6 +19,7 @@ export default class HowMany extends Component {
                         mart_id={mart_id}
                         request_var={ordering.request_var}
                         request_options={meta.request_options}
+                        subj_ids={meta.subj_ids}
                         open={ordering.open}
                         actions={actions}
                         selected={ordering.selected}
@@ -42,6 +43,7 @@ export default class HowMany extends Component {
               <Dropdown name='view_components'
                         request_var={view_components.request_var}
                         mart_id={mart_id}
+                        subj_ids={meta.subj_ids}
                         request_options={meta.request_options}
                         open={view_components.open}
                         actions={actions}
@@ -84,6 +86,7 @@ export default class HowMany extends Component {
                         mart_id={mart_id}
                         request_var={limits.request_var}
                         request_options={meta.request_options}
+                        subj_ids={meta.subj_ids}
                         open={limits.open}
                         actions={actions}
                         selected={limits.selected}

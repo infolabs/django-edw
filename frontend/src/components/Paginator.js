@@ -6,31 +6,31 @@ export default class Paginator extends Component {
   handleNextClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { limit, offset, count, request_options } = this.props.meta;
+    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, options);
+    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
   }
 
   handlePrevClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { limit, offset, count, request_options } = this.props.meta;
+    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, options);
+    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
   }
 
   handlePageClick(e, n) {
     e.preventDefault();
     e.stopPropagation();
-    const { limit, offset, count, request_options } = this.props.meta;
+    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, options);
+    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
   }
 
   render() {

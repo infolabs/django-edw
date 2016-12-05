@@ -46,8 +46,12 @@ function opts2gets(options = {}) {
   return gets;
 }
 
-export function getEntities(mart_id, options = {}) {
+export function getEntities(mart_id, subj_ids=[], options = {}) {
   let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
+  if (subj_ids.length) {
+    subj_ids.join();
+    url = Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json');
+  }
   url += opts2gets(options);
 
   return fetch(url, {

@@ -10,9 +10,16 @@ import Paginator from './Paginator';
 class Entities extends Component {
 
   componentDidMount() {
-    const mart_id = this.props.dom_attrs.getNamedItem('data-data-mart-pk').value;
+    const dom_attrs = this.props.dom_attrs,
+          mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
+          subj_attr = dom_attrs.getNamedItem('data-subj');
+
+    let subj_ids = [];
+    if (subj_attr && subj_attr.value)
+      subj_ids = subj_attr.value.split(",");
+
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(mart_id);
+    this.props.actions.getEntities(mart_attr.value, subj_ids);
   }
 
   render() {
