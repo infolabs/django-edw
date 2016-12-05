@@ -3,7 +3,11 @@ import React, { Component } from 'react';
 class List extends Component {
   render() {
     let data = this.props.data;
-    return <div>{data.entity_name}</div>;
+    return (
+      <div>
+        <a href={data.entity_url}>{data.entity_name}</a>
+      </div>
+    );
   }
 }
 
