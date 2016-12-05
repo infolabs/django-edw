@@ -12,14 +12,21 @@ class Entities extends Component {
   componentDidMount() {
     const dom_attrs = this.props.dom_attrs,
           mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
-          subj_attr = dom_attrs.getNamedItem('data-subj');
+          subj_attr = dom_attrs.getNamedItem('data-subj'),
+          terms_attr = dom_attrs.getNamedItem('data-terms');
 
     let subj_ids = [];
     if (subj_attr && subj_attr.value)
       subj_ids = subj_attr.value.split(",");
 
+    let term_ids = [];
+    if (terms_attr && terms_attr.value)
+      term_ids = terms_attr.value.split(",");
+
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(mart_attr.value, subj_ids);
+    this.props.actions.getEntities(
+      mart_attr.value, subj_ids, {'terms': term_ids}
+    );
   }
 
   render() {

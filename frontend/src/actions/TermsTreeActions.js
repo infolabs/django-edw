@@ -16,6 +16,7 @@ function getTermsTree(type, mart_id, selected = []) {
   }).then(response => response.json()).then(json => ({
     type: type,
     json: json,
+    selected: selected,
   }));
 }
 
@@ -79,8 +80,8 @@ export function notifyLoadingEntities() {
   };
 }
 
-export function loadTree(mart_id) {
-  return getTermsTree(types.LOAD_TREE, mart_id);
+export function loadTree(mart_id, selected = []) {
+  return getTermsTree(types.LOAD_TREE, mart_id, selected);
 }
 
 export function reloadTree(mart_id, selected = []) {

@@ -92,8 +92,12 @@ class Item {
 
 class TaggedItems {
 
-  constructor(json) {
+  constructor(selected = []) {
     this.array = [];
+    for (const i of selected) {
+      this.array.push(parseInt(i));
+      this[i] = true;
+    }
   }
 
   isTaggable(item) {
@@ -285,6 +289,8 @@ function requested(state = new Requested(), action) {
 
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
+    case consts.LOAD_TREE:
+      return new TaggedItems(action.selected);
     case consts.TOGGLE_ITEM:
       return state.toggle(action.term);
     case consts.RESET_ITEM:
