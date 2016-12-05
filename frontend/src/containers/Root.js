@@ -7,16 +7,16 @@ import Entities from '../components/Entities';
 export default class Root extends Component {
 
   render() {
-    const { store, mart_id } = this.props;
+    const { store, dom_attrs } = this.props;
 
     return (
       <Provider store={store}>
         <div className="row">
           <div className="col-sm-4 col-md-3 sidebar-filter">
-            <TermsTree mart_id={mart_id} />
+            <TermsTree dom_attrs={dom_attrs} />
           </div>
           <div className="col-sm-8 col-md-9">
-            <Entities mart_id={mart_id} />
+            <Entities dom_attrs={dom_attrs} />
           </div>
         </div>
       </Provider>
