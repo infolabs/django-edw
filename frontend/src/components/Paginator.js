@@ -54,8 +54,6 @@ export default class Paginator extends Component {
 
     const { limit, offset, count } = this.props.meta;
 
-    if (!(limit && count))
-      return <div></div>;
 
     let inLeadingRange = false,
         inTrailingRange = false,
@@ -64,6 +62,9 @@ export default class Paginator extends Component {
         currentPage = Math.floor(offset / limit) + 1,
         numPages = Math.ceil(count / limit),
         pageNumbers;
+
+    if (!(limit && count) || numPages < 2)
+      return <div></div>;
 
     if ( numPages <= leadingPageRangeDisplayed + numPagesOutsideRange + 1 ) {
       inLeadingRange = inTrailingRange = true;
