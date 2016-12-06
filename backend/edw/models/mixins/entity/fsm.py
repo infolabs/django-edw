@@ -86,7 +86,7 @@ class FSMMixin(object):
         transition_states = cls.TRANSITION_TARGETS
         for state_key in transition_states.keys():
             try:
-                state = TermModel.objects.get(slug=state_key, parent=states_parent_term)
+                state = states_parent_term.get_descendants(include_self=False).get(slug=state_key)
             except TermModel.DoesNotExist:
                 state = TermModel(
                     slug=state_key,
