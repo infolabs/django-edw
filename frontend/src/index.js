@@ -5,7 +5,7 @@ import Root from './containers/Root';
 
 // => returns compiled css code from style.less, resolves imports and url(...)s
 
-var css = require("!style!raw!less!less/styles.less");
+var css = require("!style!raw!less!./less/styles.less");
 
 const store = configureStore(),
       root = document.getElementById('root'),

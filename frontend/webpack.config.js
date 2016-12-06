@@ -2,6 +2,10 @@ var path = require('path');
 var webpack = require('webpack');
 var BundleTracker = require('webpack-bundle-tracker');
 
+
+frontend_src_path = path.join(__dirname, 'src');
+templates_path = path.join(frontend_src_path, 'components/templates');
+
 module.exports = {
   context: __dirname,
   devtool: 'eval',
@@ -22,7 +26,8 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      'react': path.join(__dirname, 'node_modules', 'react')
+      'react': path.join(__dirname, 'node_modules', 'react'),
+      templates: templates_path
     },
     extensions: ['', '.js']
   },
@@ -38,7 +43,7 @@ module.exports = {
     }, {
       test: /\.js$/,
       loaders: ['react-hot', 'babel'],
-      include: path.join(__dirname, '../../src')
+      include: frontend_src_path
     }, {
       test: /\.css?$/,
       loaders: ['style', 'raw'],
@@ -47,6 +52,10 @@ module.exports = {
       test: /\.less?$/,
       loaders: ["less", "css"],
       include: path.join(__dirname, 'less')
+    }, {
+      test: /\.less?$/,
+      loaders: ["less", "css"],
+      include: path.join(frontend_src_path, 'less')
     }]
   }
 };

@@ -1,17 +1,6 @@
 import React, { Component } from 'react';
 
-class List extends Component {
-  render() {
-    let data = this.props.data;
-    return (
-      <li>
-        <a href={data.entity_url}>{data.entity_name}</a>
-      </li>
-    );
-  }
-}
-
-class Tile extends Component {
+export default class Tile extends Component {
   render() {
     let data = this.props.data;
 
@@ -64,9 +53,3 @@ class Tile extends Component {
     return ret;
   }
 }
-
-export const loader = {
-  'list': List,
-  'tile': Tile
-}
-

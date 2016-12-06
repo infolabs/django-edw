@@ -182,11 +182,11 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     )
 
     ENTITIES_LIST_VIEW_COMPONENT = 'list'
-    ENTITIES_TILE_VIEW_COMPONENT = 'tile'
+    # ENTITIES_TILE_VIEW_COMPONENT = 'tile'
 
     ENTITIES_VIEW_COMPONENTS = (
         (ENTITIES_LIST_VIEW_COMPONENT, _('List view')),
-        (ENTITIES_TILE_VIEW_COMPONENT, _('Tile view')),
+        # (ENTITIES_TILE_VIEW_COMPONENT, _('Tile view')),
     )
 
     SYSTEM_FLAGS = {
