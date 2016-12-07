@@ -22,9 +22,8 @@ export default class Tile extends Component {
             <div className="ex-wrap-img-container-inner">
               <div className="ex-wrap-img">
                 <a href={data.entity_url}
-                   title={data.entity_name}>
-                  {data.media}
-                </a>
+                   title={data.entity_name}
+                   dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}} />
               </div>
             </div>
           </div>
