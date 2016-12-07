@@ -64,7 +64,7 @@ export default class TermsTreeItem extends Component {
       }
 
       if ((term.isLimbOrAnd() && expanded[term.id] == true) ||
-          (term.isLimbOrAnd() && tagged[term.id] == true)) {
+          (!term.isLimbOrAnd() && tagged[term.id] == true)) {
         i_class_name += '-on';
         t_span_class_name == "" && (t_span_class_name = "ex-tagged");
       } else if (!term.isLimbOrAnd() && rule == consts.SEMANTIC_RULE_XOR
