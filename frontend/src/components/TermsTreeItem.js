@@ -97,7 +97,7 @@ export default class TermsTreeItem extends Component {
             <span onClick={e => { ::this.handleResetClick(e) } }
                   className={r_span_class_name}>
               <i className={r_i_class_name}></i>
-              <span className={r_t_span_class_name}>All (TODO: React Perevod)</span>
+              <span className={r_t_span_class_name}>{ gettext("All") }</span>
             </span>
           </li>
         );
