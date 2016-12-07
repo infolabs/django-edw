@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Dropdown from './Dropdown';
 
-export default class HowMany extends Component {
+export default class ToolBar extends Component {
   render() {
     const { dropdowns, actions, meta, mart_id } = this.props,
           { limits, ordering, view_components } = dropdowns;
@@ -12,7 +12,7 @@ export default class HowMany extends Component {
         <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
-              <span>Сортировать по &nbsp; </span>
+              <span>{gettext("Sort by")} &nbsp; </span>
             </li>
             <li>
               <Dropdown name='ordering'
@@ -37,7 +37,7 @@ export default class HowMany extends Component {
         <div className="col-sm-6 col-md-3 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
-              <span>Компоненты &nbsp; </span>
+              <span>{gettext("View as")} &nbsp; </span>
             </li>
             <li>
               <Dropdown name='view_components'
@@ -79,7 +79,7 @@ export default class HowMany extends Component {
         <div className="col-sm-3 col-md-2 ex-howmany-items ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
-              <span>Кол-во &nbsp; </span>
+              <span>{gettext("Quantity")} &nbsp; </span>
             </li>
             <li>
               <Dropdown name='limits'
@@ -110,7 +110,7 @@ export default class HowMany extends Component {
 
       statistics = (
         <div className="col-sm-3 col-md-3 ex-statistic">
-          Элемент(ы) {offset + 1} - {to} из {total}
+          {gettext("Element(s)")} {offset + 1} - {to} {gettext("from")} {total}
         </div>
       );
     }

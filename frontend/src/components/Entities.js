@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import * as TermsTreeActions from '../actions/TermsTreeActions';
 import Entity from './Entity';
-import HowMany from './HowMany';
+import ToolBar from './ToolBar';
 import Paginator from './Paginator';
 
 
@@ -48,7 +48,7 @@ class Entities extends Component {
 
     return (
       <div>
-        <HowMany mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
+        <ToolBar mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
         <ul className={ent_class}>{render_entities}</ul>
         <div className="row">
           <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
