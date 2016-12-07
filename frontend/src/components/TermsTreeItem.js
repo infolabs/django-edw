@@ -49,24 +49,25 @@ export default class TermsTreeItem extends Component {
       let span_class_name = "";
       let t_span_class_name = "";
 
-      switch (rule) {
-        case consts.SEMANTIC_RULE_AND:
-          i_class_name = "ex-icon-caret";
-          t_span_class_name = "ex-expandable";
-          break;
-        case consts.SEMANTIC_RULE_OR:
-          i_class_name = "ex-icon-radio";
-          break;
-        case consts.SEMANTIC_RULE_XOR:
-          i_class_name = "ex-icon-checkbox";
-          break;
+      if (term.isLimbOrAnd()) {
+        i_class_name = "ex-icon-caret";
+        t_span_class_name = "ex-expandable";
+      } else {
+        switch (rule) {
+          case consts.SEMANTIC_RULE_OR:
+            i_class_name = "ex-icon-radio";
+            break;
+          case consts.SEMANTIC_RULE_XOR:
+            i_class_name = "ex-icon-checkbox";
+            break;
+        }
       }
 
-      if ((rule == consts.SEMANTIC_RULE_AND && expanded[term.id] == true) ||
-          (rule != consts.SEMANTIC_RULE_AND && tagged[term.id] == true)) {
+      if ((term.isLimbOrAnd() && expanded[term.id] == true) ||
+          (term.isLimbOrAnd() && tagged[term.id] == true)) {
         i_class_name += '-on';
         t_span_class_name == "" && (t_span_class_name = "ex-tagged");
-      } else if (rule == consts.SEMANTIC_RULE_XOR
+      } else if (!term.isLimbOrAnd() && rule == consts.SEMANTIC_RULE_XOR
                  && !tagged.isAnyTagged(siblings)) {
         i_class_name += '-dot';
       } else {
