@@ -147,7 +147,7 @@ export default class TermsTreeItem extends Component {
       else
         render_children = ""
       ret = (
-        <li className={li_clasname}>
+        <li className={li_clasname} data-slug={term.slug}>
           {render_item}
           {info}
           {reset_icon}
