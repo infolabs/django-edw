@@ -1,12 +1,16 @@
 import * as types from '../constants/TermsTree';
 
-const MART_ID = 4;
+const TREE_RECACHE_RATE = 1;
+const ENTRIES_RECACHE_RATE = 60000;
 
 function getTermsTree(type, mart_id, selected = []) {
   let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
+  const recache = Math.round(new Date().getTime() / TREE_RECACHE_RATE)
 
+  url += '?_=' + recache
   if (selected && selected.length > 0)
-    url += '?selected=' + selected.join()
+    url += '&selected=' + selected.join();
+
   return fetch(url, {
     method: 'get',
     headers: {
@@ -48,12 +52,16 @@ function opts2gets(options = {}) {
 }
 
 export function getEntities(mart_id, subj_ids=[], options = {}) {
+  const recache = Math.round(new Date().getTime() / ENTRIES_RECACHE_RATE);
+  options['_'] = recache;
+
   let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
   if (subj_ids.length) {
     subj_ids.join();
     url = Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json');
   }
   url += opts2gets(options);
+
 
   return fetch(url, {
     method: 'get',
