@@ -41,9 +41,6 @@ export default class Tile extends Component {
               </a>
             </h4>
           </div>
-          <p className="date">
-            <i className="fa fa-calendar"></i>{data.short_marks.name}
-          </p>
         </div>
       </div>
     </li>
