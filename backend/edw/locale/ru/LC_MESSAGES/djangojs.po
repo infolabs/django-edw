@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-02 17:29+0300\n"
-"PO-Revision-Date: 2016-08-02 17:50+0300\n"
+"POT-Creation-Date: 2016-12-07 16:22+0300\n"
+"PO-Revision-Date: 2016-12-07 16:30+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,34 +19,44 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "X-Generator: Poedit 1.5.7\n"
 
-#: static/edw/js/admin/term.js:3
-msgid "Name"
-msgstr "Название"
-
-#: static/edw/js/admin/term.js:4
-msgid "System flags"
-msgstr "Системные флаги"
+#: static/edw/js/admin/term.js:5 static/edw/js/admin/term.js:6
+#: static/edw/js/admin/term.js:7
+msgid "Semantic Rule"
+msgstr "Семантическое правило"
 
 #: static/edw/js/admin/term.js:5
-msgid "Characteristic"
-msgstr "Характеристика"
+msgid "OR"
+msgstr "«ИЛИ»"
 
 #: static/edw/js/admin/term.js:6
-msgid "Mark"
-msgstr "Метка"
+msgid "XOR"
+msgstr "«Исключающее ИЛИ»"
 
 #: static/edw/js/admin/term.js:7
-msgid "Relation"
-msgstr "Отношение"
+msgid "AND"
+msgstr "«И»"
 
-#: static/edw/js/admin/term.js:8
-msgid "Active"
-msgstr "Активен"
+#~ msgid "Name"
+#~ msgstr "Название"
 
-#: static/edw/js/admin/term.js:9
-#| msgid "View class"
-msgid "View class"
-msgstr "Класс представления"
+#~ msgid "System flags"
+#~ msgstr "Системные флаги"
+
+#~ msgid "Characteristic"
+#~ msgstr "Характеристика"
+
+#~ msgid "Mark"
+#~ msgstr "Метка"
+
+#~ msgid "Relation"
+#~ msgstr "Отношение"
+
+#~ msgid "Active"
+#~ msgstr "Активен"
+
+#~| msgid "View class"
+#~ msgid "View class"
+#~ msgstr "Класс представления"
 
 #~ msgid "Title"
 #~ msgstr "Название"
