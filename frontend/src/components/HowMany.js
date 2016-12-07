@@ -9,7 +9,7 @@ export default class HowMany extends Component {
     let ret_ordering = "";
     if (ordering && Object.keys(ordering.options).length > 1) {
       ret_ordering = (
-        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
+        <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
               <span>Сортировать по &nbsp; </span>
@@ -34,7 +34,7 @@ export default class HowMany extends Component {
     let ret_components = "";
     if (ordering && Object.keys(view_components.options).length > 1) {
       ret_components = (
-        <div className="col-sm-6 ex-order-by ex-dropdown ex-state-closed">
+        <div className="col-sm-6 col-md-3 ex-order-by ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
               <span>Компоненты &nbsp; </span>
@@ -76,10 +76,10 @@ export default class HowMany extends Component {
 
     if (limits && Object.keys(limit_options).length > 1) {
       ret_limits = (
-        <div className="col-sm-3 ex-howmany-items ex-dropdown ex-state-closed">
+        <div className="col-sm-3 col-md-2 ex-howmany-items ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
-              <span>Количество &nbsp; </span>
+              <span>Кол-во &nbsp; </span>
             </li>
             <li>
               <Dropdown name='limits'
@@ -109,7 +109,7 @@ export default class HowMany extends Component {
       to = total < to ? total : to;
 
       statistics = (
-        <div className="col-sm-3 ex-statistic">
+        <div className="col-sm-3 col-md-3 ex-statistic">
           Элемент(ы) {offset + 1} - {to} из {total}
         </div>
       );
