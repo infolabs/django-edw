@@ -1,11 +1,33 @@
 import React, { Component } from 'react';
 
 export default class Tile extends Component {
+
+  handleMouseOver(e) {
+    const { data, actions, descriptions } = this.props;
+    e.preventDefault();
+    e.stopPropagation();
+    actions.showDescription(data.id);
+  }
+
+  handleMouseOut(e) {
+    const { data, actions, descriptions } = this.props;
+    e.preventDefault();
+    e.stopPropagation();
+    actions.hideDescription(data.id);
+  }
+
   render() {
-    let data = this.props.data;
+    const { data, descriptions } = this.props;
+
+    let li_class = "ex-catalog-item";
+    if (descriptions[data.id]) {
+      li_class += " ex-state-description";
+    }
 
     let ret = (
-    <li className="ex-catalog-item">
+    <li className={li_class}
+        onMouseOver={e => { ::this.handleMouseOver(e) } }
+        onMouseOut={e => { ::this.handleMouseOut(e) } }>
       <div className="ex-catalog-item-block">
         <div className="ex-description-wrapper">
           <div className="ex-baloon ex-baloon-hide">

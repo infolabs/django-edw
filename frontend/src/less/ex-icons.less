@@ -1,105 +1,194 @@
-[class^="ex-icon-"]:before, [class*=" ex-icon-"]:before {
-  display: inline-block;
-  text-decoration: inherit;
+.ex-label-icon {
+  &:before {
+    content: " ";
+    display: inline-block;
+
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: repeat;
+
+    margin-right: 4px;
+
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+  }
 }
 
-[class^="ex-icon-"], [class*=" ex-icon-"] {
-  background-image: none;
-  background-position: 0 0;
-  background-repeat: repeat;
-  display: inline;
-  width: auto;
-  margin-right: 4px;
-  margin-left: 4px;
+.ex-label-icon-radio {
+  .ex-label-icon;
+
+  &:before {
+    text-decoration: none;
+
+    width: 17px;
+    height: 17px;
+
+    border: @ex-control-icons-border;
+    border-radius: 9px;
+
+    font-size: 9px;
+    text-align: center;
+    line-height: 12px;
+    vertical-align: text-top;
+  }
 }
 
-[class^="ex-icon-"], [class*=" ex-icon-"] {
-  font-family: FontAwesome;
-  font-style: normal;
-  font-weight: normal;
-  text-decoration: inherit;
-}
+.ex-label-icon-checkbox {
+  .ex-label-icon;
 
-[class^="ex-icon-checkbox-"], [class*=" ex-icon-checkbox-"] {
+  &:before {
+    text-decoration: none;
+
+    width: 17px;
+    height: 17px;
+
     border: @ex-control-icons-border;
     border-radius: 3px;
+
+    font-size: 10px;
+    text-align: center;
+
+    line-height: 12px;
+    vertical-align: text-top;
+  }
 }
 
-.ex-icon-checkbox-dot:before {
-  font-size: 6px;
-  text-align: center;
-  vertical-align: 3px;
-  opacity: 0.5;
+.ex-label-icon-caret {
+  .ex-label-icon;
+
+  &:before {
+    text-decoration: none;
+
+    width: 17px;
+    height: 17px;
+
+    font-size: 15px;
+    text-align: center;
+
+    line-height: 12px;
+    vertical-align: baseline;
+  }
 }
 
-[class^="ex-icon-radio-"]:before,
-[class*=" ex-icon-radio-"]:before,
-[class^="ex-icon-checkbox-"]:before,
-[class*=" ex-icon-checkbox-"]:before {
-  width: 14px;
-  height: 14px;
+.ex-label-icon-radio-on {
+  .ex-label-icon-radio;
+
+  &:before {
+    content: "\f111";
+  }
+}
+.ex-label-icon-radio-off {
+  .ex-label-icon-radio;
+
+  &:before {
+    content: " ";
+  }
 }
 
-[class^="ex-icon-caret-"]:before,
-[class*=" ex-icon-caret-"]:before {
-  text-align: center;
-  width: 9px;
-  height: 14px;
+.ex-label-icon-checkbox-on {
+  .ex-label-icon-checkbox;
+
+  &:before {
+    content: "\f00c";
+  }
+}
+.ex-label-icon-checkbox-off {
+  .ex-label-icon-checkbox;
+
+  &:before {
+    content: " ";
+  }
 }
 
-[class^="ex-icon-radio-"]:before,
-[class*=" ex-icon-radio-"]:before {
-  font-size: 9px;
-  text-align: center;
-  vertical-align: 2px;
+.ex-label-icon-checkbox-dot {
+  .ex-label-icon-checkbox;
+
+  &:before {
+    font-size: 6px;
+    text-align: center;
+    opacity: 0.5;
+
+    content: "\f111";
+  }
 }
 
-[class^="ex-icon-radio-"],
-[class*=" ex-icon-radio-"] {
-  border: @ex-control-icons-border;
-  border-radius: 9px;
+.ex-label-icon-caret-on {
+  .ex-label-icon-caret;
+
+  &:before {
+    content: "";
+  }
 }
 
-.ex-icon-checkbox-on:before {
-  content: "\f00c";
-}
-.ex-icon-checkbox-off:before {
-  content: " ";
-}
-.ex-icon-checkbox-dot:before {
-  content: "\f111";
-}
-.ex-icon-radio-on:before {
-  content: "\f111";
-}
-.ex-icon-radio-off:before {
-  content: " ";
-}
-.ex-icon-caret-on:before {
-  content: "";
-}
-.ex-icon-caret-off:before {
-  content: "";
+.ex-label-icon-caret-off {
+  .ex-label-icon-caret;
+
+  &:before {
+    content: "";
+  }
 }
 
-.ex-icon-reset:before {
-  content: "\f057";
+
+.ex-icon {
+  &:before {
+    display: inline;
+
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: repeat;
+
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+  }
 }
 
-.ex-icon-chevron-left:before {
-  content: "\f053";
+.ex-icon-reset {
+  .ex-icon;
+  margin-left: 4px;
+  vertical-align: bottom;
+
+  &:before {
+    content: "\f057";
+  }
 }
 
-.ex-icon-chevron-right:before {
-  content: "\f054";
+.ex-icon-info {
+  .ex-icon;
+  margin-left: 4px;
+  vertical-align: bottom;
+
+  &:before {
+    content: "\f05a";
+  }
 }
 
-.ex-icon-caret-down:before,
-.ex-icon-details.ex-expand:before {
-  content: "";
+.ex-icon-chevron-left {
+  .ex-icon;
+  &:before {
+    content: "\f053";
+  }
 }
 
-.ex-icon-info:before {
-  content: "\f05a";
+.ex-icon-chevron-right {
+  .ex-icon;
+  &:before {
+    content: "\f054";
+  }
+}
+
+.ex-icon-caret-down,
+.ex-icon-details.ex-expand {
+  .ex-icon;
+
+  margin-left: 4px;
+  vertical-align: bottom;
+
+  &:before {
+    content: "";
+  }
 }
 

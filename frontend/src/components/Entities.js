@@ -37,13 +37,22 @@ class Entities extends Component {
         meta = entities.items.meta,
         dropdowns = entities.dropdowns || {},
         loading = entities.items.loading,
+        descriptions = entities.descriptions,
         component = entities.items.component;
 
     let ent_class = loading ? "entities ex-state-loading" : "entities";
 
     let render_entities = "";
     if (items.length) {
-      render_entities = items.map((child, i) => <Entity key={i} entity={child} component={component}/>);
+      render_entities = items.map(
+          (child, i) => (
+            <Entity key={i}
+                    entity={child}
+                    actions={actions}
+                    descriptions={descriptions}
+                    component={component}/>
+            )
+      );
     }
 
     return (

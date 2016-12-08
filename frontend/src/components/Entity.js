@@ -4,10 +4,12 @@ const templates = require('templates/entity').default();
 
 export default class Entity extends Component {
   render() {
-    const data = this.props.entity,
+    const { entity, descriptions, actions } = this.props,
           component = templates[this.props.component];
     //console.log(component)
-    return React.createElement(component, {data: data});
+    return React.createElement(
+      component, {data: entity, actions: actions, descriptions: descriptions}
+    );
   }
 }
 
