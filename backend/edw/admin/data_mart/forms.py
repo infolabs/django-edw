@@ -28,7 +28,7 @@ class DataMartAdminForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         super(DataMartAdminForm, self).__init__(*args, **kwargs)
         if instance is not None:
-            entity_model = instance.get_entities_model()
+            entity_model = instance.entities_model
         else:
             entity_model = DataMartModel.get_base_entity_model()
         self.fields['ordering'].choices = entity_model.ORDERING_MODES

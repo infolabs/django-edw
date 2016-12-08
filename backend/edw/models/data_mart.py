@@ -436,7 +436,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             DataMartModel._base_entity_model_cache = base_entity_model
         return base_entity_model
 
-    def get_entities_model(self):
+    @cached_property
+    def entities_model(self):
         """
         Return Data Mart entities collection Model
         """

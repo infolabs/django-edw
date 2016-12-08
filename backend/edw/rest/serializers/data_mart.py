@@ -153,7 +153,7 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def get_ordering_modes(self, instance):
-        return dict(instance.get_entities_model().ORDERING_MODES)
+        return dict(instance.entities_model.ORDERING_MODES)
 
     def get_view_components(self, instance):
         return dict(instance.ENTITIES_VIEW_COMPONENTS)
