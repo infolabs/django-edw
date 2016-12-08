@@ -66,10 +66,14 @@ class TileItem extends Component {
           <div className="ex-baloon">
             <div className="ex-arrow"></div>
             <ul className="ex-attrs">
+              <li className="lead">
+                {data.entity_name}
+              </li>
               {characteristics.map(
                 (child, i) =>
-                  <li key={i} className="lead">
-                    {child.name}
+                  <li key={i}>
+                    <strong>{child.name}: </strong>
+                    {child.values.join(",")}
                   </li>
               )}
             </ul>
