@@ -28,6 +28,7 @@ from rest_framework.reverse import reverse
 from . import deferred
 from .rest import RESTModelBase
 from .term import TermModel
+
 from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields import TreeForeignKey
@@ -173,13 +174,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         'parent_not_active': _('Parent node not active')
     }
 
-    # ENTITIES_ORDER_BY_CREATED_AT_ASC = 'created_at'
     ENTITIES_ORDER_BY_CREATED_AT_DESC = '-created_at'
-
-    ENTITIES_ORDERING_MODES = (
-        # (ENTITIES_ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
-        (ENTITIES_ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
-    )
 
     ENTITIES_LIST_VIEW_COMPONENT = 'list'
     # ENTITIES_TILE_VIEW_COMPONENT = 'tile'
@@ -426,6 +421,34 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 result[obj['id']] = obj['num']
             cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
+
+    @cached_property
+    def active_terms_ids(self):
+        return list(self.terms.active().values_list('id', flat=True))
+
+    @staticmethod
+    def get_base_entity_model():
+        base_entity_model = getattr(DataMartModel, "_base_entity_model_cache", None)
+        if base_entity_model is None:
+            from .entity import EntityModel
+
+            base_entity_model = EntityModel.materialized
+            DataMartModel._base_entity_model_cache = base_entity_model
+        return base_entity_model
+
+    @cached_property
+    def entities_model(self):
+        """
+        Return Data Mart entities collection Model
+        """
+        base_entity_model = self.get_base_entity_model()
+        entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
+        entities_types_terms_ids = entities_types.keys()
+        crossing_terms_ids = list(set(entities_types_terms_ids) & set(self.active_terms_ids))
+        try:
+            return entities_types[crossing_terms_ids[0]]._entity_model_class
+        except IndexError:
+            return base_entity_model
 
     def get_summary_extra(self):
         """

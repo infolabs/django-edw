@@ -50,7 +50,7 @@ class TermFilter(filters.FilterSet):
 
     @cached_property
     def data_mart_term_ids(self):
-        return list(self.data_mart.terms.active().values_list('id', flat=True)) if self.data_mart else []
+        return self.data_mart.active_terms_ids if self.data_mart else []
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
