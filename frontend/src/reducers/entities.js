@@ -118,6 +118,21 @@ class Dropdowns {
   }
 }
 
+
+class Descriptions {
+  show(id) {
+    let descs = new Descriptions();
+    descs[id] = true;
+    return descs;
+  }
+
+  hide(id) {
+    return new Descriptions();
+  }
+}
+
+
+
 function items(state = new EtitiesManager(), action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
@@ -154,9 +169,21 @@ function loading(state = false, action) {
   }
 }
 
+function descriptions(state = new Descriptions(), action) {
+  switch (action.type) {
+    case consts.SHOW_ENTITY_DESC:
+      return state.show(action.entity_id);
+    case consts.HIDE_ENTITY_DESC:
+      return state.hide(action.entity_id);
+    default:
+      return state;
+  }
+}
+
 const entities = combineReducers({
     items: items,
-    dropdowns: dropdowns
+    dropdowns: dropdowns,
+    descriptions: descriptions
 })
 
 export default entities;

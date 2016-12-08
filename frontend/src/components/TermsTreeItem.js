@@ -35,7 +35,9 @@ export default class TermsTreeItem extends Component {
     let render_item = "",
         reset_icon = "",
         reset_item = "",
-        info = "";
+        info = "",
+        semantic_class = "",
+        state_class = "";
 
     const show_children = !term.isLimbOrAnd() && tagged[term.id] || expanded[term.id];
 
@@ -45,61 +47,48 @@ export default class TermsTreeItem extends Component {
             rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
             siblings = term.siblings;
 
-      let i_class_name = "";
-      let span_class_name = "";
-      let t_span_class_name = "";
-
       if (term.isLimbOrAnd()) {
-        i_class_name = "ex-icon-caret";
-        t_span_class_name = "ex-expandable";
+        semantic_class = "ex-and";
       } else {
         switch (rule) {
           case consts.SEMANTIC_RULE_OR:
-            i_class_name = "ex-icon-radio";
+            semantic_class = "ex-or";
             break;
           case consts.SEMANTIC_RULE_XOR:
-            i_class_name = "ex-icon-checkbox";
+            semantic_class = "ex-xor";
             break;
         }
       }
 
       if ((term.isLimbOrAnd() && expanded[term.id] == true) ||
           (!term.isLimbOrAnd() && tagged[term.id] == true)) {
-        i_class_name += '-on';
-        t_span_class_name == "" && (t_span_class_name = "ex-tagged");
-      } else if (!term.isLimbOrAnd() && rule == consts.SEMANTIC_RULE_XOR
-                 && !tagged.isAnyTagged(siblings)) {
-        i_class_name += '-dot';
+        state_class = 'ex-on';
       } else {
-        i_class_name += '-off';
+        state_class = 'ex-off';
       }
 
       if (rule != consts.SEMANTIC_RULE_AND
           && tagged[term.id] != true
           && tagged.isAnyTagged(siblings))
-        span_class_name = 'ex-dim';
+        state_class = 'ex-other';
 
       render_item = (
-        <span onClick={e => { ::this.handleItemClick(e) } }
-              className={span_class_name}>
-          <i className={i_class_name}></i>
-          <span className={t_span_class_name}>{term.name}</span>
+        <span className="ex-label" onClick={e => { ::this.handleItemClick(e) } } >
+          <i className="ex-icon-slug"></i>
+          {term.name}
         </span>
       );
 
       if (term.semantic_rule == consts.SEMANTIC_RULE_OR && show_children) {
         let any_tagged = tagged.isAnyTagged(children),
-            r_span_class_name = any_tagged ? "ex-dim" : "",
-            r_t_span_class_name = any_tagged ? "" : "ex-tagged",
-            r_i_class_name = any_tagged ? "ex-icon-radio-off" : "ex-icon-radio-on";
+            reset_class = any_tagged ? "ex-or ex-off" : "ex-or ex-on";
 
         reset_item = (
-          <li>
-            <span onClick={e => { ::this.handleResetClick(e) } }
-                  className={r_span_class_name}>
-              <i className={r_i_class_name}></i>
-              <span className={r_t_span_class_name}>{ gettext("All") }</span>
-            </span>
+          <li className={reset_class}>
+              <span className="ex-label" onClick={e => { ::this.handleResetClick(e) } } >
+                <i className="ex-icon-slug"></i>
+                { gettext("All") }
+              </span>
           </li>
         );
       }
@@ -133,9 +122,9 @@ export default class TermsTreeItem extends Component {
                      actions={actions}/>)
     )
 
-    let li_clasname = "";
+    let li_clasname = semantic_class + " " + state_class + " ";
     if (real_potential.has_metadata && !real_potential.rils[term.id]) {
-      li_clasname = !real_potential.pots[term.id] ? "ex-no-potential" : "ex-no-real"
+      li_clasname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
     }
 
     let ret = "";
@@ -147,7 +136,10 @@ export default class TermsTreeItem extends Component {
       else
         render_children = ""
       ret = (
-        <li className={li_clasname} data-slug={term.slug}>
+        <li className={li_clasname}
+            data-structure={term.structure}
+            data-view-class={term.view_class}
+            data-slug={term.slug}>
           {render_item}
           {info}
           {reset_icon}

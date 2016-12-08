@@ -110,6 +110,21 @@ export function resetItem(term = {}) {
   };
 }
 
+
+export function showDescription(entity_id = null) {
+  return {
+    type: types.SHOW_ENTITY_DESC,
+    entity_id: entity_id,
+  };
+}
+
+export function hideDescription(entity_id = null) {
+  return {
+    type: types.HIDE_ENTITY_DESC,
+    entity_id: entity_id,
+  };
+}
+
 export function showInfo(term = {}) {
   return {
     type: types.SHOW_INFO,

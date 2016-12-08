@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 
 export default class List extends Component {
   render() {
-    let data = this.props.data;
+    const data = this.props.data,
+          url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
+
     return (
       <li>
-        <a href={data.entity_url}>{data.entity_name}</a>
+        <a href={url}>{data.entity_name}</a>
       </li>
     );
   }

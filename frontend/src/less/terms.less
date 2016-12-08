@@ -21,30 +21,6 @@
   cursor: pointer;
 }
 
-.ex-no-potential {
-  opacity: 0.5;
-  span {
-    text-decoration: line-through;
-  }
-}
-
-.ex-no-real {
-  opacity: 0.75;
-}
-
-.ex-dim {
-  opacity: 0.5;
-}
-
-.ex-tagged {
-  font-weight: bold;
-}
-
-.ex-expandable {
-  font-weight: bold;
-  border-bottom: 1px dotted @ex-term-color;
-}
-
 
 /* Baloon */
 
@@ -138,3 +114,148 @@
   border: 0;
   outline: 0;
 }
+
+
+/* Tree states */
+
+.ex-no-potential {
+  opacity: 0.5;
+  > span.ex-label {
+    text-decoration: line-through;
+  }
+}
+
+.ex-no-real {
+  opacity: 0.75;
+}
+
+li.ex-and,li.ex-or,li.ex-xor {
+  &.ex-on {
+    > span.ex-label > span {
+      font-weight: bold;
+    }
+  }
+  &.ex-other {
+    opacity: 0.5;
+  }
+}
+
+li.ex-and {
+  > span.ex-label > span {
+    border-bottom: 1px dotted @ex-term-color;
+  }
+  &.ex-on {
+    > span.ex-label {
+      .ex-label-icon-caret-on;
+    }
+  }
+  &.ex-other, &.ex-off {
+    > span.ex-label {
+      .ex-label-icon-caret-off;
+    }
+  }
+}
+
+li.ex-or {
+  &.ex-on {
+    > span.ex-label {
+      .ex-label-icon-radio-on;
+    }
+  }
+  &.ex-other, &.ex-off {
+    > span.ex-label {
+      .ex-label-icon-radio-off;
+    }
+  }
+}
+
+li.ex-xor {
+  &.ex-on {
+    > span.ex-label {
+      .ex-label-icon-checkbox-on;
+    }
+  }
+  &.ex-other {
+    > span.ex-label {
+      .ex-label-icon-checkbox-off;
+    }
+  }
+  &.ex-off {
+    > span.ex-label {
+      .ex-label-icon-checkbox-dot;
+    }
+  }
+}
+
+/* colored terms */
+
+.ex-label-color(@color) {
+  background-color: @color;
+  border-color: darken(@color, 25%);
+  color: contrast(@color);
+}
+
+li[data-view-class~="beige"] > .ex-label:before {
+  .ex-label-color(#F5F5DC);
+}
+li[data-view-class~="orange"] > .ex-label:before {
+  .ex-label-color(@ex-orange);
+}
+li[data-view-class~="yellow"] > .ex-label:before {
+  .ex-label-color(@ex-yellow);
+}
+li[data-view-class~="green"] > .ex-label:before {
+  .ex-label-color(@ex-green);
+}
+li[data-view-class~="skyblue"] > .ex-label:before {
+  .ex-label-color(@ex-skyblue);
+}
+li[data-view-class~="blue"] > .ex-label:before {
+  .ex-label-color(@ex-blue);
+}
+li[data-view-class~="gray"] > .ex-label:before {
+  .ex-label-color(@ex-gray);
+}
+li[data-view-class~="purple"] > .ex-label:before {
+  .ex-label-color(@ex-purple);
+}
+li[data-view-class~="pink"] > .ex-label:before {
+  .ex-label-color(lighten(@ex-pink, 20%));
+}
+li[data-view-class~="lightgreen"] > .ex-label:before {
+  .ex-label-color(#7CFC00);
+}
+li[data-view-class~="fuchsia"] > .ex-label:before {
+  .ex-label-color(#FF1493);
+}
+li[data-view-class~="brown"] > .ex-label:before {
+  .ex-label-color(#8B4513);
+}
+li[data-view-class~="white"] > .ex-label:before {
+  .ex-label-color(@ex-white);
+}
+li[data-view-class~="black"] > .ex-label:before {
+  .ex-label-color(@ex-black);
+}
+li[data-view-class~="red"] > .ex-label:before {
+  .ex-label-color(@ex-red);
+}
+li[data-view-class~="turquoise"] > .ex-label:before {
+  .ex-label-color(#40E0D0);
+}
+li[data-view-class~="darkorchid"] > .ex-label:before {
+  .ex-label-color(#9966CC);
+}
+li[data-view-class~="greenyellow"] > .ex-label:before {
+  .ex-label-color(#ADFF2F);
+}
+
+li[data-view-class~="multicolor"] > .ex-label:before {
+
+  border-color: darken(@ex-gray, 10%);
+  color: contrast(@ex-red);
+
+  .ex-gradient(@color: @ex-red; @start: @ex-purple; @stop: @ex-red; @stop1: @ex-blue; @stop2: @ex-green; @stop3: @ex-yellow; @stop4: @ex-orange);
+}
+
+
