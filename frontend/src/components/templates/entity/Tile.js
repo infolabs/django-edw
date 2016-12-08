@@ -49,7 +49,7 @@ class TileItem extends Component {
           infoRect = info.getBoundingClientRect(),
           window_width = window.innerWidth,
           width = 250,
-          left = areaRect.right;
+          left = infoRect.right;
 
     const h_pos = window_width < left + width ? "right" : "left";
     this.setState({"h_pos": h_pos});
