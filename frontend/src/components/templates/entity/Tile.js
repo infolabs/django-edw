@@ -8,7 +8,7 @@ export default class Tile extends Component {
     const { items, actions, descriptions } = this.props;
 
     return (
-      <ul>
+      <ul className="ex-catalog-grid-4-col">
         {items.map(
           (child, i) => 
           <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>

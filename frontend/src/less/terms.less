@@ -119,14 +119,16 @@
 /* Tree states */
 
 .ex-no-potential {
-  opacity: 0.5;
-  > span.ex-label {
+  .ex-icon-info, > span.ex-label {
+    opacity: 0.5;
     text-decoration: line-through;
   }
 }
 
 .ex-no-real {
-  opacity: 0.75;
+  .ex-icon-info, > span.ex-label {
+    opacity: 0.75;
+  }
 }
 
 li.ex-and,li.ex-or,li.ex-xor {
@@ -136,7 +138,9 @@ li.ex-and,li.ex-or,li.ex-xor {
     }
   }
   &.ex-other {
-    opacity: 0.5;
+    .ex-icon-info, > span.ex-label {
+      opacity: 0.5;
+    }
   }
 }
 
