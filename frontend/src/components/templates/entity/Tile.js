@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 // Container
 
@@ -8,7 +9,7 @@ export default class Tile extends Component {
     const { items, actions, descriptions } = this.props;
 
     return (
-      <ul className="ex-catalog-grid-4-col">
+      <ul className="ex-promotion-list ex-unstyled ex-catalog-grid-4-col">
         {items.map(
           (child, i) => 
           <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>
@@ -22,10 +23,15 @@ export default class Tile extends Component {
 
 class TileItem extends Component {
 
+  constructor() {
+    super();
+    this.state = {
+      h_pos: null,
+    };
+  }
+
   handleMouseOver(e) {
     const { data, actions, descriptions } = this.props;
-    e.preventDefault();
-    e.stopPropagation();
     actions.showDescription(data.id);
     if (!descriptions[data.id])
       actions.getEntityItem(data.entity_url);
@@ -33,9 +39,20 @@ class TileItem extends Component {
 
   handleMouseOut(e) {
     const { data, actions, descriptions } = this.props;
-    e.preventDefault();
-    e.stopPropagation();
     actions.hideDescription(data.id);
+  }
+
+  componentDidMount(x, y, z) {
+    const area = ReactDOM.findDOMNode(this),
+          info = area.getElementsByClassName("ex-description-wrapper")[0],
+          areaRect = area.getBoundingClientRect(),
+          infoRect = info.getBoundingClientRect(),
+          window_width = window.innerWidth,
+          width = 250,
+          left = areaRect.right;
+
+    const h_pos = window_width < left + width ? "right" : "left";
+    this.setState({"h_pos": h_pos});
   }
 
   render() {
@@ -58,7 +75,10 @@ class TileItem extends Component {
     }
 
     let ret = (
+
     <li className={li_class}
+        data-horizontal-position={this.state.h_pos}
+        data-vertical-position="center"
         onMouseOver={e => { ::this.handleMouseOver(e) } }
         onMouseOut={e => { ::this.handleMouseOut(e) } }>
       <div className="ex-catalog-item-block">
@@ -71,24 +91,28 @@ class TileItem extends Component {
               </li>
               {characteristics.map(
                 (child, i) =>
-                  <li key={i}>
-                    <strong>{child.name}: </strong>
+                  <li data-path={child.path} key={i}>
+                    <strong>{child.name}:</strong>&nbsp;
                     {child.values.join(",")}
                   </li>
               )}
             </ul>
           </div>
         </div>
+
         <div className="ex-action-wrapper">
           <div className="ex-wrap-img-container">
             <div className="ex-wrap-img-container-inner">
-              <div className="ex-wrap-img">
+              <div className="ex-wrap-img" style={{paddingTop: "75%"}}>
                 <a href={url}
                    title={data.entity_name}
-                   dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}} />
+                   style={{paddingTop: "6%"}}
+                   dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}>
+                </a>
               </div>
             </div>
           </div>
+
           <ul className="ex-ribbons">
             {marks.map(
               (child, i) =>
@@ -101,11 +125,11 @@ class TileItem extends Component {
                 </li>
             )}
           </ul>
+
           <div className="ex-wrap-title">
             <h4 className="ex-title">
               <a href={url}
-                 title={data.entity_name}
-                 className="ex-js-open">
+                 title={data.entity_name}>
                 {data.entity_name}
               </a>
             </h4>
