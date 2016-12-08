@@ -15,12 +15,6 @@ class DataMart(ApiReferenceMixin, BaseDataMart):
     """
     Default materialized model for DataMart containing common fields
     """
-    ENTITIES_ORDER_BY_NAME_ASC = 'name'
-
-    ENTITIES_ORDERING_MODES = (
-        (ENTITIES_ORDER_BY_NAME_ASC, _('Alphabetical')),
-    ) + BaseDataMart.ENTITIES_ORDERING_MODES
-
     ENTITIES_TILE_VIEW_COMPONENT = 'tile'
 
     ENTITIES_VIEW_COMPONENTS = (

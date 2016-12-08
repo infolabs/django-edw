@@ -25,8 +25,14 @@ class DataMartAdminForm(forms.ModelForm):
         exclude = ()
 
     def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
         super(DataMartAdminForm, self).__init__(*args, **kwargs)
-        self.fields['ordering'].choices = self.Meta.model.ENTITIES_ORDERING_MODES
+        if instance is not None:
+            entity_model = instance.get_entities_model()
+        else:
+            entity_model = DataMartModel.get_base_entity_model()
+        self.fields['ordering'].choices = entity_model.ORDERING_MODES
+
         self.fields['view_component'].choices = self.Meta.model.ENTITIES_VIEW_COMPONENTS
 
 

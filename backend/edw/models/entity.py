@@ -559,6 +559,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}'
     TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_terms_ids']
 
+    # ORDER_BY_CREATED_AT_ASC = 'created_at'
+    ORDER_BY_CREATED_AT_DESC = DataMartModel.ENTITIES_ORDER_BY_CREATED_AT_DESC
+
+    ORDERING_MODES = (
+        # (ORDER_BY_CREATED_AT_ASC, _('Created at: old first')),
+        (ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
+    )
+
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms""")) # todo: fix help_text
 
@@ -647,10 +655,18 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         entities_types = getattr(EntityModel, "_entities_types_cache", None)
         if entities_types is None:
             entities_types = {}
+            clazz = EntityModel.materialized
             try:
-                root = TermModel.objects.get(slug=EntityModel.materialized.__name__.lower(), parent=None)
+                root = TermModel.objects.get(slug=clazz.__name__.lower(), parent=None)
+                root._entity_model_class = clazz
+                entities_types[root.slug] = root
+                subclasses = dict(
+                    [(Model.__name__.lower(), Model) for Model in EntityModel.materialized.get_all_subclasses()])
                 for term in root.get_descendants(include_self=True):
-                    entities_types[term.slug] = term
+                    clazz = subclasses.get(term.slug, None)
+                    if clazz is not None:
+                        term._entity_model_class = clazz
+                        entities_types[term.slug] = term
             except TermModel.DoesNotExist:
                 pass
             EntityModel._entities_types_cache = entities_types
