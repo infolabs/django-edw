@@ -7,6 +7,8 @@ export default class Tile extends Component {
     e.preventDefault();
     e.stopPropagation();
     actions.showDescription(data.id);
+    if (!descriptions[data.id])
+      actions.getEntityItem(data.entity_url);
   }
 
   handleMouseOut(e) {
@@ -21,12 +23,19 @@ export default class Tile extends Component {
           url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
 
     let li_class = "ex-catalog-item";
-    if (descriptions[data.id]) {
+    if (descriptions.opened[data.id]) {
       li_class += " ex-state-description";
     }
 
-    const short_characteristics = data.short_characteristics || [],
-          short_marks = data.short_marks || [];
+    let characteristics = data.short_characteristics || [],
+        marks = data.short_marks || [];
+
+    let related_data_marts = []
+    if (descriptions[data.id]) {
+        characteristics = descriptions[data.id].characteristics || [];
+        marks = descriptions[data.id].marks || [];
+        related_data_marts = descriptions[data.id].marks || [];
+    }
 
     let ret = (
     <li className={li_class}
@@ -37,7 +46,7 @@ export default class Tile extends Component {
           <div className="ex-baloon">
             <div className="ex-arrow"></div>
             <ul className="ex-attrs">
-              {short_characteristics.map(
+              {characteristics.map(
                 (child, i) =>
                   <li key={i} className="lead">
                     {child.name}
@@ -57,7 +66,7 @@ export default class Tile extends Component {
             </div>
           </div>
           <ul className="ex-ribbons">
-            {short_marks.map(
+            {marks.map(
               (child, i) =>
                 <li className="ex-wrap-ribbon"
                     key={i}

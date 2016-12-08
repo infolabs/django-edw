@@ -120,18 +120,30 @@ class Dropdowns {
 
 
 class Descriptions {
+  constructor() {
+    this.opened = {};
+  }
+
   show(id) {
-    let descs = new Descriptions();
-    descs[id] = true;
-    return descs;
+    this.opened = {};
+    this.opened[id] = true;
+    return Object.assign(new Descriptions(), this);
   }
 
   hide(id) {
-    return new Descriptions();
+    var ret = this;
+    if (this.opened[id]) {
+      this.opened = {};
+      ret = Object.assign(new Descriptions(), this);
+    }
+    return ret;
+  }
+
+  load(json) {
+    this[json.id] = json;
+    return Object.assign(new Descriptions(), this);
   }
 }
-
-
 
 function items(state = new EtitiesManager(), action) {
   switch (action.type) {
@@ -175,6 +187,8 @@ function descriptions(state = new Descriptions(), action) {
       return state.show(action.entity_id);
     case consts.HIDE_ENTITY_DESC:
       return state.hide(action.entity_id);
+    case consts.LOAD_ENTITY_ITEM:
+      return state.load(action.json);
     default:
       return state;
   }

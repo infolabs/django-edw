@@ -37,6 +37,19 @@ export function getTermsItem(url) {
   }));
 }
 
+export function getEntityItem(url) {
+  return fetch(url, {
+    method: 'get',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+  }).then(response => response.json()).then(json => ({
+    type: types.LOAD_ENTITY_ITEM,
+    json: json,
+  }));
+}
+
 function opts2gets(options = {}) {
   let gets = '',
       i = 0;

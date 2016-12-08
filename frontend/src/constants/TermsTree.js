@@ -10,6 +10,7 @@ export const NOTIFY_LOADING = 'NOTIFY_LOADING';
 // Entities Actions
 export const NOTIFY_LOADING_ENTITIES = 'NOTIFY_LOADING_ENTITIES';
 export const LOAD_ENTITIES = 'LOAD_ENTITIES';
+export const LOAD_ENTITY_ITEM = 'LOAD_ENTITY_ITEM';
 export const SHOW_ENTITY_DESC = 'SHOW_ENTITY_DESC';
 export const HIDE_ENTITY_DESC = 'HIDE_ENTITY_DESC';
 // Dropdown Actions
