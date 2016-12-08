@@ -816,11 +816,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return self.marks_getter[:self.SHORT_MARKS_MAX_COUNT]
 
     @cached_property
+    def active_terms_ids(self):
+        return list(self.terms.active().values_list('id', flat=True))
+
+    @cached_property
     def data_mart(self):
         """
         Return entity data mart
         """
-        entity_terms_ids = self.terms.active().values_list('id', flat=True)
+        entity_terms_ids = self.active_terms_ids
         all_entity_terms_ids = TermModel.decompress(entity_terms_ids, fix_it=False).keys()
         all_data_mart_terms_ids = DataMartModel.get_all_active_terms_ids()
         crossing_terms_ids = list(set(all_entity_terms_ids) & set(all_data_mart_terms_ids))

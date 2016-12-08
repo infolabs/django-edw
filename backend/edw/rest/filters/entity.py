@@ -106,7 +106,7 @@ class EntityFilter(filters.FilterSet):
 
     @cached_property
     def data_mart_term_ids(self):
-        return list(self.data_mart.terms.active().values_list('id', flat=True)) if self.data_mart else []
+        return self.data_mart.active_terms_ids if self.data_mart else []
 
     @cached_property
     def data_mart_rel_ids(self):

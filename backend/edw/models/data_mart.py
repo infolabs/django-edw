@@ -422,6 +422,10 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
 
+    @cached_property
+    def active_terms_ids(self):
+        return list(self.terms.active().values_list('id', flat=True))
+
     @staticmethod
     def get_base_entity_model():
         base_entity_model = getattr(DataMartModel, "_base_entity_model_cache", None)
@@ -439,11 +443,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         base_entity_model = self.get_base_entity_model()
         entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
         entities_types_terms_ids = entities_types.keys()
-        terms_ids = self.terms.values_list('id', flat=True)
-        crossing_terms_ids = list(set(entities_types_terms_ids) & set(terms_ids))
-
-        print "*** get_entities_model ***", crossing_terms_ids
-
+        crossing_terms_ids = list(set(entities_types_terms_ids) & set(self.active_terms_ids))
         try:
             return entities_types[crossing_terms_ids[0]]._entity_model_class
         except IndexError:
