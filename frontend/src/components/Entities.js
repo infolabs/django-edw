@@ -2,10 +2,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import * as TermsTreeActions from '../actions/TermsTreeActions';
-import Entity from './Entity';
 import ToolBar from './ToolBar';
 import Paginator from './Paginator';
 
+const templates = require('templates/entity').default();
 
 class Entities extends Component {
 
@@ -33,32 +33,28 @@ class Entities extends Component {
     const { dom_attrs, entities, actions } = this.props;
     const mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
 
-    let items = entities.items.objects || [],
+    const items = entities.items.objects || [],
         meta = entities.items.meta,
         dropdowns = entities.dropdowns || {},
         loading = entities.items.loading,
-        descriptions = entities.descriptions,
-        component = entities.items.component;
+        descriptions = entities.descriptions;
 
-    let ent_class = loading ? "entities ex-state-loading" : "entities";
+    const ent_class = loading ? "entities ex-state-loading" : "entities";
 
-    let render_entities = "";
-    if (items.length) {
-      render_entities = items.map(
-          (child, i) => (
-            <Entity key={i}
-                    entity={child}
-                    actions={actions}
-                    descriptions={descriptions}
-                    component={component}/>
-            )
+    let entities_render = "";
+    if (entities.items && entities.items.component) {
+      const component = templates[entities.items.component];
+      entities_render = React.createElement(
+        component, {items: items,
+                    actions: actions,
+                    descriptions: descriptions}
       );
     }
 
     return (
       <div>
         <ToolBar mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
-        <ul className={ent_class}>{render_entities}</ul>
+        {entities_render}
         <div className="row">
           <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
         </div>

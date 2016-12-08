@@ -1,6 +1,26 @@
 import React, { Component } from 'react';
 
+// Container
+
 export default class Tile extends Component {
+
+  render() {
+    const { items, actions, descriptions } = this.props;
+
+    return (
+      <ul>
+        {items.map(
+          (child, i) => 
+          <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>
+        )}
+      </ul>
+    );
+  }
+}
+
+// Element
+
+class TileItem extends Component {
 
   handleMouseOver(e) {
     const { data, actions, descriptions } = this.props;
