@@ -32,8 +32,7 @@ class DataMartAdminForm(forms.ModelForm):
         else:
             entity_model = DataMartModel.get_base_entity_model()
         self.fields['ordering'].choices = entity_model.ORDERING_MODES
-
-        self.fields['view_component'].choices = self.Meta.model.ENTITIES_VIEW_COMPONENTS
+        self.fields['view_component'].choices = entity_model.VIEW_COMPONENTS
 
 
 #==============================================================================

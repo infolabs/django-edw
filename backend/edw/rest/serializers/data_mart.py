@@ -156,7 +156,7 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         return dict(instance.entities_model.ORDERING_MODES)
 
     def get_view_components(self, instance):
-        return dict(instance.ENTITIES_VIEW_COMPONENTS)
+        return dict(instance.entities_model.VIEW_COMPONENTS)
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]

@@ -567,6 +567,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         (ORDER_BY_CREATED_AT_DESC, _('Created at: new first')),
     )
 
+    VIEW_COMPONENT_LIST = DataMartModel.ENTITIES_VIEW_COMPONENT_LIST
+    # VIEW_COMPONENT_TILE = 'tile'
+    # VIEW_COMPONENT_TABLE = 'table'
+
+    VIEW_COMPONENTS = (
+        (VIEW_COMPONENT_LIST, _('List view')),
+        # (VIEW_COMPONENT_TILE, _('Tile view')),
+        # (VIEW_COMPONENT_TABLE, _('Table view')),
+    )
+
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms""")) # todo: fix help_text
 
