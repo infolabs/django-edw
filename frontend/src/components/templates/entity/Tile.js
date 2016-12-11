@@ -67,7 +67,7 @@ class TileItem extends Component {
     let characteristics = data.short_characteristics || [],
         marks = data.short_marks || [];
 
-    let related_data_marts = []
+    let related_data_marts = [];
     if (descriptions[data.id]) {
         characteristics = descriptions[data.id].characteristics || [];
         marks = descriptions[data.id].marks || [];
@@ -98,8 +98,7 @@ class TileItem extends Component {
         </div>
 
         <div className="ex-wrap-action">
-          <div className="ex-wrap-media-container"
-               dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}></div>
+          <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}></div>
 
           <ul className="ex-ribbons">
             {marks.map(
