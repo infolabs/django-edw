@@ -9,7 +9,7 @@ export default class Tile extends Component {
     const { items, actions, descriptions } = this.props;
 
     return (
-      <ul className="ex-promotion-list ex-unstyled ex-catalog-grid-4-col">
+      <ul className="ex-promotion-list ex-unstyled">
         {items.map(
           (child, i) => 
           <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>
@@ -90,25 +90,16 @@ class TileItem extends Component {
                 (child, i) =>
                   <li data-path={child.path} key={i}>
                     <strong>{child.name}:</strong>&nbsp;
-                    {child.values.join(",")}
+                    {child.values.join("; ")}
                   </li>
               )}
             </ul>
           </div>
         </div>
 
-        <div className="ex-action-wrapper">
-          <div className="ex-wrap-img-container">
-            <div className="ex-wrap-img-container-inner">
-              <div className="ex-wrap-img" style={{paddingTop: "75%"}}>
-                <a href={url}
-                   title={data.entity_name}
-                   style={{paddingTop: "6%"}}
-                   dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}>
-                </a>
-              </div>
-            </div>
-          </div>
+        <div className="ex-wrap-action">
+          <div className="ex-wrap-media-container"
+               dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}></div>
 
           <ul className="ex-ribbons">
             {marks.map(
@@ -118,17 +109,14 @@ class TileItem extends Component {
                     data-name={child.name}
                     data-path={child.path}
                     data-view-class={child.view_class.join(" ")}>
-                  <div className="ex-ribbon">{child.values.join(",")}</div>
+                  <div className="ex-ribbon">{child.values.join(", ")}</div>
                 </li>
             )}
           </ul>
 
           <div className="ex-wrap-title">
             <h4 className="ex-title">
-              <a href={url}
-                 title={data.entity_name}>
-                {data.entity_name}
-              </a>
+              <a href={url} title={data.entity_name}>{data.entity_name}</a>
             </h4>
           </div>
         </div>
