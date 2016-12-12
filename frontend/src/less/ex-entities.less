@@ -604,6 +604,9 @@
       .ex-ribbon(@ex-catalog-item-ribbon-default-bg, contrast(@ex-catalog-item-ribbon-default-bg), @ex-catalog-item-ribbon-font-size, @ex-catalog-item-ribbon-font-weight, @ex-catalog-item-ribbon-text-transform);
     }
 
+    &[data-view-class~="hidden"] .ex-ribbon {
+      display: none;
+    }
     &[data-view-class~="beige"] .ex-ribbon {
       .ex-ribbon-color(@ex-beige);
     }
