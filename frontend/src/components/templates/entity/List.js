@@ -7,7 +7,7 @@ export default class List extends Component {
     const { items, actions, descriptions } = this.props;
 
     return (
-      <ul>
+      <ul className='list-items'>
         {items.map(
           (child, i) => 
           <ListItem key={i} data={child} actions={actions} descriptions={descriptions}/>
