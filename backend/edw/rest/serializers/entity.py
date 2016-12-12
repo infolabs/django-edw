@@ -56,11 +56,6 @@ class EntityCommonSerializer(serializers.ModelSerializer):
                                                             postfix, get_language_from_request(request))
         content = cache.get(cache_key)
 
-        #
-        print "REMOVE CACHE ENTITY MEDIA CACHE!!!"
-        content = None
-        #
-
         if content:
             return mark_safe(content)
         params = [
