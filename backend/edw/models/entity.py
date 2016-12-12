@@ -734,7 +734,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         if not force_update:
             model_class = self.__class__
             try:
-                origin = model_class._default_manager.get(pk=self.pk)
+                origin = model_class._default_manager.get(pk=self.id)
             except model_class.DoesNotExist:
                 origin = None
             self.pre_save_entity(origin, *args, **kwargs)
