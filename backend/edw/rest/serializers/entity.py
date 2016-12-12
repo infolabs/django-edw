@@ -55,6 +55,12 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         cache_key = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'.format(entity.id, app_label, self.label, entity.entity_model,
                                                             postfix, get_language_from_request(request))
         content = cache.get(cache_key)
+
+        #
+        print "REMOVE CACHE ENTITY MEDIA CACHE!!!"
+        content = None
+        #
+
         if content:
             return mark_safe(content)
         params = [
