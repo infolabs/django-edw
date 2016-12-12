@@ -461,7 +461,13 @@ class EntityCharacteristicOrMarkGetter(object):
                                                                   getattr(attr, self.tree_opts.tree_id_attr),
                                                                   getattr(attr, self.tree_opts.left_attr)))
                     cnt += 1
-                if not (term.attributes & self.attribute_mode):
+                if term.attributes & self.attribute_mode:
+                    try:
+                        term = term.get_ancestors(ascending=True, include_self=False).exclude(
+                            attributes=self.attribute_mode)[0]
+                    except IndexError:
+                        term = None
+                if term is not None:
                     index = seen_attrs.get(attr0.id)
                     if index is None:
                         seen_attrs[attr0.id] = len(attrs0)
