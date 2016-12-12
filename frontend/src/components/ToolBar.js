@@ -76,7 +76,7 @@ export default class ToolBar extends Component {
 
     if (limits && Object.keys(limit_options).length > 1) {
       ret_limits = (
-        <div className="col-sm-3 col-md-2 ex-howmany-items ex-dropdown ex-state-closed">
+        <div className="col-sm-6 col-md-3 ex-howmany-items ex-dropdown ex-state-closed">
           <ul className="ex-inline">
             <li>
               <span>{gettext("Quantity")} &nbsp; </span>
@@ -109,8 +109,8 @@ export default class ToolBar extends Component {
       to = total < to ? total : to;
 
       statistics = (
-        <div className="col-sm-3 col-md-3 ex-statistic">
-          {gettext("Element(s)")} {offset + 1} - {to} {gettext("from")} {total}
+        <div className="col-sm-6 col-md-2 ex-statistic float-right">
+          {offset + 1} - {to} {gettext("from")} {total}
         </div>
       );
     }
