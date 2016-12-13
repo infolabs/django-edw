@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import calendar
 
-from datetime import datetime
+from django.utils import timezone
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -43,7 +43,7 @@ class FileSorterByDateMixin(object):
 
     def get_folder(self, data):
         root_folder = BaseFilerFileField.get_folder(self, data)
-        current_time = datetime.now()
+        current_time = timezone.now()
 
         year_folder = Folder.objects.get_or_create(parent=root_folder, name='{}'.format(current_time.year))[0]
         month_folder = Folder.objects.get_or_create(
