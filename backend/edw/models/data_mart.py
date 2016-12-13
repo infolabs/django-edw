@@ -271,7 +271,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def clean(self, *args, **kwargs):
         model_class = self.__class__
         try:
-            origin = model_class._default_manager.get(pk=self.pk)
+            origin = model_class._default_manager.get(pk=self.id)
         except model_class.DoesNotExist:
             origin = None
         if self.system_flags:
@@ -310,7 +310,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             model_class = self.__class__
             ancestors = self.ancestors_list
             try:
-                origin = model_class._default_manager.get(pk=self.pk)
+                origin = model_class._default_manager.get(pk=self.id)
             except model_class.DoesNotExist:
                 origin = None
             if not origin or origin.view_class != self.view_class:

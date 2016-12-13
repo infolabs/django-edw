@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import types
 
 from operator import __or__ as OR
@@ -14,6 +13,7 @@ from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import get_language_from_request
+from django.utils import timezone
 
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
@@ -461,7 +461,13 @@ class EntityCharacteristicOrMarkGetter(object):
                                                                   getattr(attr, self.tree_opts.tree_id_attr),
                                                                   getattr(attr, self.tree_opts.left_attr)))
                     cnt += 1
-                if not (term.attributes & self.attribute_mode):
+                if term.attributes & self.attribute_mode:
+                    try:
+                        term = term.get_ancestors(ascending=True, include_self=False).exclude(
+                            attributes=self.attribute_mode)[0]
+                    except IndexError:
+                        term = None
+                if term is not None:
                     index = seen_attrs.get(attr0.id)
                     if index is None:
                         seen_attrs[attr0.id] = len(attrs0)
@@ -580,7 +586,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
                                      help_text=_("""Use "ctrl" key for choose multiple terms""")) # todo: fix help_text
 
-    created_at = models.DateTimeField(default=datetime.now, verbose_name=_("Created at"))
+    created_at = models.DateTimeField(default=timezone.now, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
     active = models.BooleanField(default=True, verbose_name=_("Active"),
         help_text=_("Is this object publicly visible."))
@@ -734,7 +740,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         if not force_update:
             model_class = self.__class__
             try:
-                origin = model_class._default_manager.get(pk=self.pk)
+                origin = model_class._default_manager.get(pk=self.id)
             except model_class.DoesNotExist:
                 origin = None
             self.pre_save_entity(origin, *args, **kwargs)

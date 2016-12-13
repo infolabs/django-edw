@@ -231,7 +231,19 @@ class EntityOrderingFilter(OrderingFilter):
     def get_ordering(self, request, queryset, view):
         data_mart = request.GET['_data_mart']
         if data_mart is not None:
+            self._extra_ordering = data_mart.entities_model.ORDERING_MODES
             setattr(view, 'ordering', data_mart.ordering)
         result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
         request.GET['_ordering'] = result
         return result
+
+    def get_valid_fields(self, queryset, view):
+        result = super(EntityOrderingFilter, self).get_valid_fields(queryset, view)
+        extra_ordering = getattr(self, '_extra_ordering', None)
+        if extra_ordering is not None:
+            fields = dict(result)
+            fields.update(dict([(item[0].lstrip('-'), item[1]) for item in extra_ordering]))
+            result = fields.items()
+        return result
+
+

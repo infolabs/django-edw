@@ -56,7 +56,9 @@ class Entities extends Component {
         <ToolBar mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
         {entities_render}
         <div className="row">
-          <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
+          <div className="col-md-12">
+            <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
+          </div>
         </div>
       </div>
     );
