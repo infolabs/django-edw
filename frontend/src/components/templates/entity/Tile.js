@@ -88,7 +88,8 @@ class TileItem extends Component {
             <ul className="ex-attrs">
               {characteristics.map(
                 (child, i) =>
-                  <li data-path={child.path} key={i}>
+                  <li data-path={child.path} key={i}
+                    data-view-class={child.view_class.join(" ")}>
                     <strong>{child.name}:</strong>&nbsp;
                     {child.values.join("; ")}
                   </li>
