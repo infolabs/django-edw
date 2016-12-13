@@ -28,7 +28,7 @@ class TermsTree extends Component {
     // Reload tree on new requested term
     const req_curr = this.props.terms.tagged,
           req_next = nextProps.terms.tagged;
-    if (req_curr != req_next) {
+    if (req_curr != req_next && !req_next.isInCache(req_next.array)) {
       this.props.actions.notifyLoading();
       this.props.actions.reloadTree(mart_attr.value, req_next.array);
     }

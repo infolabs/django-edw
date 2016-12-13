@@ -11,11 +11,23 @@ class Tree {
     this.loading = false;
   }
 
+  merge(json) {
+    for (const child of json) {
+      const hashed = this.hash[child.id];
+      if(child.children.length &&
+         hashed && !hashed.children.length) {
+        this.hash[child.id].children = this.json2tree(child.children, this.hash[child.id]).children;
+      }
+      this.merge(child.children);
+    }
+    this.loading = false;
+    return Object.assign(new Tree([]), this);
+  }
+
   json2tree(json, parent) {
     if ( !parent ) {
       parent = new Item();
     }
-
     for (const child of json) {
       let options = {
         'id': child.id,
@@ -31,10 +43,10 @@ class Tree {
         'parent': parent
       };
       let item = new Item(options);
+      this.hash[item.id] = item;
       item.children = this.json2tree(child.children, item).children;
       parent.children.push(item);
     }
-    this.hash[parent.id] = parent;
     return parent;
   }
 }
@@ -100,6 +112,22 @@ class TaggedItems {
       this.array.push(parseInt(i));
       this[i] = true;
     }
+    this.requets = [];
+  }
+
+  isInCache(arr) {
+    arr.sort();
+    const cache = arr.join(),
+          index = this.requets.indexOf(cache);
+    return index > -1;
+  }
+
+  setCache(selected) {
+    if (!this.isInCache(selected)) {
+      selected.sort();
+      this.requets.push(selected.join());
+    }
+    return Object.assign(new TaggedItems(), this);
   }
 
   isTaggable(item) {
@@ -130,14 +158,18 @@ class TaggedItems {
   tag(item) {
     this[item.id] = true;
     let index = this.array.indexOf(item.id);
-    index < 0 && item.id > -1 && this.array.push(item.id);
+    if (index < 0 && item.id > -1) {
+      this.array.push(item.id);
+    }
     item.parent && this.tag(item.parent);
   }
 
   untag(item) {
     this[item.id] = false;
     let index = this.array.indexOf(item.id);
-    index > -1 && this.array.splice(index, 1);
+    if (index > -1) {
+      this.array.splice(index, 1);
+    }
     for (const child of item.children) {
       this.untag(child);
     }
@@ -209,7 +241,6 @@ class Requested {
 
   toggle(item) {
     if (this[item.id] != true &&
-        !item.is_leaf &&
         !item.children.length) {
       this[item.id] = true;
       this.array.push(item.id);
@@ -259,7 +290,7 @@ function tree(state = new Tree([]), action) {
     case consts.LOAD_TREE:
       return new Tree(action.json);
     case consts.RELOAD_TREE:
-      return new Tree(action.json);
+      return state.merge(action.json);
     case consts.NOTIFY_LOADING:
       return Object.assign(state, {'loading': true});
     default:
@@ -297,6 +328,10 @@ function tagged(state = new TaggedItems(), action) {
       return state.toggle(action.term);
     case consts.RESET_ITEM:
       return state.resetItem(action.term);
+    case consts.LOAD_TREE:
+      return state.setCache(action.selected);
+    case consts.RELOAD_TREE:
+      return state.setCache(action.selected);
     default:
       return state;
   }
