@@ -9,7 +9,7 @@ export default class Tile extends Component {
     const { items, actions, descriptions } = this.props;
 
     return (
-      <ul className="ex-promotion-list ex-unstyled">
+      <ul className="ex-tiles">
         {items.map(
           (child, i) => 
           <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>
