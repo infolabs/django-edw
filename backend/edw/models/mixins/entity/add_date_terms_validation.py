@@ -23,16 +23,9 @@ class BaseAddedDateTermsValidationMixin(object):
     REQUIRED_FIELDS = ('created_at',)
 
     def need_terms_validation_after_save(self, origin, **kwargs):
-        if origin is not None:
-            if is_naive(origin.created_at):
-                origin_created_at = make_aware(origin.created_at)
-            else:
-                origin_created_at = origin.created_at
-        if is_naive(self.created_at):
-            new_created_at = make_aware(self.created_at)
-        else:
-            new_created_at = self.created_at
-        if origin is None or origin_created_at != new_created_at:
+        if origin is None or (
+                make_aware(origin.created_at) if is_naive(origin.created_at) else origin.created_at) != (
+                make_aware(self.created_at) if is_naive(self.created_at) else self.created_at):
             do_validate = kwargs["context"]["validate_added_date"] = True
         else:
             do_validate = False
