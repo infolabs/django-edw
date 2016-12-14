@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as TermsTreeActions from '../actions/TermsTreeActions';
 
 
-export default class Paginator extends Component {
+class Paginator extends Component {
 
   handleNextClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
+    const meta = this.props.entities.items.meta;
+    const { subj_ids, limit, offset, count, request_options } = meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
@@ -16,7 +20,8 @@ export default class Paginator extends Component {
   handlePrevClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
+    const meta = this.props.entities.items.meta;
+    const { subj_ids, limit, offset, count, request_options } = meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
@@ -26,7 +31,8 @@ export default class Paginator extends Component {
   handlePageClick(e, n) {
     e.preventDefault();
     e.stopPropagation();
-    const { subj_ids, limit, offset, count, request_options } = this.props.meta;
+    const meta = this.props.entities.items.meta;
+    const { subj_ids, limit, offset, count, request_options } = meta;
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
@@ -34,6 +40,8 @@ export default class Paginator extends Component {
   }
 
   render() {
+
+    const meta = this.props.entities.items.meta;
 
     let range = function(start = 0, stop, step = 1) {
       let ret = []
@@ -52,7 +60,7 @@ export default class Paginator extends Component {
           numPagesOutsideRange = 2,
           adjacentPages = 2;
 
-    const { limit, offset, count } = this.props.meta;
+    const { limit, offset, count } = meta;
 
 
     let inLeadingRange = false,
@@ -189,3 +197,17 @@ export default class Paginator extends Component {
   }
 }
 
+function mapState(state) {
+  return {
+    entities: state.entities,
+  };
+}
+
+function mapDispatch(dispatch) {
+  return {
+    actions: bindActionCreators(TermsTreeActions, dispatch),
+    dispatch: dispatch
+  };
+}
+
+export default connect(mapState, mapDispatch)(Paginator);

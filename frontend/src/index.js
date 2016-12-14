@@ -7,11 +7,14 @@ import Root from './containers/Root';
 
 var css = require("!style!raw!less!./less/styles.less");
 
-const store = configureStore(),
-      root = document.getElementById('root'),
-      dom_attrs = root.attributes;
+const rubricators = document.getElementsByClassName('ex-rubricator');
 
-render(
-  <Root store={store} dom_attrs={dom_attrs} />,
-  root
-);
+for (const rubricator of rubricators) {
+  const store = configureStore(),
+        dom_attrs = rubricator.attributes;
+  render(
+    <Root store={store} dom_attrs={dom_attrs} />,
+    rubricator
+  );
+}
+

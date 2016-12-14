@@ -2,8 +2,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import * as TermsTreeActions from '../actions/TermsTreeActions';
-import ToolBar from './ToolBar';
-import Paginator from './Paginator';
 
 const templates = require('templates/entity').default();
 
@@ -30,8 +28,7 @@ class Entities extends Component {
   }
 
   render() {
-    const { dom_attrs, entities, actions } = this.props;
-    const mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
+    const { dom_attrs, entities, actions, mart_id } = this.props;
 
     const items = entities.items.objects || [],
         meta = entities.items.meta,
@@ -41,27 +38,17 @@ class Entities extends Component {
 
     const ent_class = loading ? "entities ex-state-loading" : "entities";
 
-    let entities_render = "";
+    let ret = <div></div>;
     if (entities.items && entities.items.component) {
       const component = templates[entities.items.component];
-      entities_render = React.createElement(
+      ret = React.createElement(
         component, {items: items,
                     actions: actions,
                     descriptions: descriptions}
       );
     }
 
-    return (
-      <div>
-        <ToolBar mart_id={mart_id} meta={meta} dropdowns={dropdowns} actions={actions}/>
-        {entities_render}
-        <div className="row">
-          <div className="col-md-12">
-            <Paginator mart_id={mart_id} meta={meta} actions={actions}/>
-          </div>
-        </div>
-      </div>
-    );
+    return ret;
   }
 }
 

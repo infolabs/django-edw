@@ -8,7 +8,7 @@ import TermsTreeItem from './TermsTreeItem';
 class TermsTree extends Component {
   componentDidMount() {
     const dom_attrs = this.props.dom_attrs,
-          mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
+          mart_id = this.props.mart_id,
           terms_attr = dom_attrs.getNamedItem('data-terms');
 
     let term_ids = [];
@@ -16,21 +16,20 @@ class TermsTree extends Component {
       term_ids = terms_attr.value.split(",");
 
     this.props.actions.notifyLoading();
-    this.props.actions.loadTree(mart_attr.value, term_ids);
+    this.props.actions.loadTree(mart_id, term_ids);
   }
 
   componentWillReceiveProps(nextProps) {
     const dom_attrs = this.props.dom_attrs,
-          mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
+          mart_id = this.props.mart_id,
           subj_attr = dom_attrs.getNamedItem('data-subj');
 
-    const mart_id = this.props.dom_attrs.getNamedItem('data-data-mart-pk').value;
     // Reload tree on new requested term
     const req_curr = this.props.terms.tagged,
           req_next = nextProps.terms.tagged;
     if (req_curr != req_next && !req_next.isInCache(req_next.array)) {
       this.props.actions.notifyLoading();
-      this.props.actions.reloadTree(mart_attr.value, req_next.array);
+      this.props.actions.reloadTree(mart_id, req_next.array);
     }
 
     // Reload entires on toggled term
@@ -47,7 +46,7 @@ class TermsTree extends Component {
 
       request_options['terms'] = tag_next.array;
       this.props.actions.notifyLoadingEntities();
-      this.props.actions.getEntities(mart_attr.value, subj_ids, request_options);
+      this.props.actions.getEntities(mart_id, subj_ids, request_options);
     }
   }
 
