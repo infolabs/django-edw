@@ -91,7 +91,10 @@ def invalidate_term_before_save(sender, instance, **kwargs):
 
                     cache.delete_many(keys)
 
-                if original.attributes != instance.attributes:
+                if original.attributes != instance.attributes or (
+                        instance.attributes & (
+                            instance.__class__.attributes.is_characteristic | instance.__class__.attributes.is_mark
+                        ) and (original.name != instance.name or original.view_class != instance.view_class)):
                     keys = get_attribute_ancestors_keys(sender, instance)
                     if not getattr(instance, '_all_active_attributes_descendants_validate', False):
                         keys.extend(get_all_active_attributes_descendants_keys(sender))
