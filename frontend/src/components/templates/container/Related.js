@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
+import Entities from '../../Entities';
 
 export default class Related extends Component {
   render() {
-    const { components,  dom_attrs, mart_id } = this.props,
-          { TermsTree, Entities, Paginator,
-            ViewComponents, Ordering, Limits, Statistics } = components;
+    const { components,  dom_attrs, mart_id } = this.props;
 
     return (
       <div className="row">
