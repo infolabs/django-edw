@@ -11,7 +11,7 @@ export default class Root extends Component {
           template_name_attr = dom_attrs.getNamedItem('data-template-name'),
           template_name = template_name_attr && template_name_attr.value || 'rubricator',
           component = templates[template_name],
-          mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
+          mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value,
           container_render = React.createElement(
             component,
             { dom_attrs: dom_attrs,
