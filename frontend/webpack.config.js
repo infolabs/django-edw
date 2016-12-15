@@ -4,7 +4,6 @@ var BundleTracker = require('webpack-bundle-tracker');
 
 
 frontend_src_path = path.join(__dirname, 'src');
-templates_path = path.join(frontend_src_path, 'components/templates');
 
 module.exports = {
   context: __dirname,
@@ -27,7 +26,6 @@ module.exports = {
   resolve: {
     alias: {
       'react': path.join(__dirname, 'node_modules', 'react'),
-      templates: templates_path
     },
     extensions: ['', '.js']
   },
