@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
 
+import Entities from '../../Entities';
+import TermsTree from '../../TermsTree';
+import Paginator from '../../Paginator';
+import ViewComponents from '../../ViewComponents';
+import Ordering from '../../Ordering';
+import Limits from '../../Limits';
+import Statistics from '../../Statistics';
+
+
 export default class Rubricator extends Component {
   render() {
-    const { components,  dom_attrs, mart_id } = this.props,
-          { TermsTree, Entities, Paginator,
-            ViewComponents, Ordering, Limits, Statistics } = components;
+    const { dom_attrs, mart_id } = this.props;
 
     return (
       <div className="row">
