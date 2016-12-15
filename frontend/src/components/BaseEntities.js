@@ -50,9 +50,6 @@ class BaseEntities extends Component {
     let ret = <div></div>;
     if (entities.items && entities.items.component) {
       const templates = this.get_templates();
-
-      console.log("*****", templates);
-
       const component = templates[entities.items.component];
       ret = React.createElement(
         component, {items: items,
