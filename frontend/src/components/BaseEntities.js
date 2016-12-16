@@ -3,8 +3,8 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import * as TermsTreeActions from 'actions/TermsTreeActions';
 
-import List from 'components/templates/entity/List';
-import Tile from 'components/templates/entity/Tile';
+import List from 'components/BaseEntities/List';
+import Tile from 'components/BaseEntities/Tile';
 
 
 class BaseEntities extends Component {

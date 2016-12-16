@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import DataMart from 'components/templates/container/DataMart';
-import Related from 'components/templates/container/Related';
+import DataMart from 'containers/BaseRoot/DataMart';
+import Related from 'containers/BaseRoot/Related';
 
 
 export default class BaseRoot extends Component {
