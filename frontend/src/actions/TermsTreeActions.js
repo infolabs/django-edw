@@ -1,4 +1,4 @@
-import * as types from '../constants/TermsTree';
+import * as types from 'constants/TermsTree';
 
 const TREE_RECACHE_RATE = 1;
 const ENTRIES_RECACHE_RATE = 60000;

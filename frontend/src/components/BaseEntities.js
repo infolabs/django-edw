@@ -29,13 +29,6 @@ class BaseEntities extends Component {
     );
   }
 
-  get_templates() {
-    return {
-        "tile": Tile,
-        "list": List
-    };
-  }
-
   render() {
     const { dom_attrs, entities, actions, mart_id } = this.props;
 
@@ -49,7 +42,7 @@ class BaseEntities extends Component {
 
     let ret = <div></div>;
     if (entities.items && entities.items.component) {
-      const templates = this.get_templates();
+      const templates = this.props.templates;
       const component = templates[entities.items.component];
       ret = React.createElement(
         component, {items: items,
@@ -61,6 +54,14 @@ class BaseEntities extends Component {
     return ret;
   }
 }
+
+BaseEntities.defaultProps = {
+  templates: {
+    "tile": Tile,
+    "list": List
+  }
+}
+
 
 function mapState(state) {
   return {

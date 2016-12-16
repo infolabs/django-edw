@@ -1,8 +1,8 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import promise from 'redux-promise';
 import { persistState } from 'redux-devtools';
-import rootReducer from '../reducers';
-import DevTools from '../containers/DevTools'
+import rootReducer from 'reducers';
+import DevTools from 'containers/DevTools'
 
 const enhancer = compose(
   applyMiddleware(promise),

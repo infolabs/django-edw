@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Entities from '../../Entities';
+import Entities from 'components/Entities';
 
 export default class Related extends Component {
   render() {

@@ -9,7 +9,7 @@ import Limits from 'components/Limits';
 import Statistics from 'components/Statistics';
 
 
-export default class Rubricator extends Component {
+export default class DataMart extends Component {
   render() {
     const { dom_attrs, mart_id } = this.props;
 
