@@ -8,6 +8,12 @@ import Tile from 'components/BaseEntities/Tile';
 
 
 class BaseEntities extends Component {
+  static defaultProps = {
+    get_templates: function(self) { return {
+      "tile": Tile,
+      "list": List
+    } }
+  }
 
   componentDidMount() {
     const dom_attrs = this.props.dom_attrs,
@@ -42,7 +48,7 @@ class BaseEntities extends Component {
 
     let ret = <div></div>;
     if (entities.items && entities.items.component) {
-      const templates = this.props.templates;
+      const templates = this.props.get_templates(this);
       const component = templates[entities.items.component];
       ret = React.createElement(
         component, {items: items,
@@ -55,20 +61,11 @@ class BaseEntities extends Component {
   }
 }
 
-BaseEntities.defaultProps = {
-  templates: {
-    "tile": Tile,
-    "list": List
-  }
-}
-
-
 function mapState(state) {
   return {
     entities: state.entities,
   };
 }
-
 
 function mapDispatch(dispatch) {
   return {
