@@ -128,12 +128,13 @@ export default class TermsTreeItem extends Component {
 
     let ret = "";
     if (render_item == "") {
-      ret = <span>{render_children}</span>;
+      ret = <li><ul>{render_children}</ul></li>;
     } else {
-      if (show_children)
+      if (show_children) {
         render_children = <ul>{reset_item}{render_children}</ul>;
-      else
-        render_children = ""
+      } else {
+        render_children = "";
+      }
       ret = (
         <li className={li_clasname}
             data-structure={term.structure}
