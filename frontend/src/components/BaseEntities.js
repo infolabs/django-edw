@@ -8,11 +8,20 @@ import Tile from 'components/BaseEntities/Tile';
 
 
 class BaseEntities extends Component {
-  static defaultProps = {
-    get_templates: function(self) { return {
+
+  static getTemplates() {
+    return {
       "tile": Tile,
       "list": List
-    } }
+    }
+  }
+
+  static defaultProps = {
+    getTemplates: BaseEntities.getTemplates
+  }
+
+  componentWillMount() {
+    this.templates = this.props.getTemplates();
   }
 
   componentDidMount() {
@@ -36,24 +45,25 @@ class BaseEntities extends Component {
   }
 
   render() {
-    const { dom_attrs, entities, actions, mart_id } = this.props;
+    const { entities, actions } = this.props;
 
     const items = entities.items.objects || [],
-        meta = entities.items.meta,
+        // meta = entities.items.meta,
         dropdowns = entities.dropdowns || {},
-        loading = entities.items.loading,
+        // loading = entities.items.loading,
         descriptions = entities.descriptions;
 
-    const ent_class = loading ? "entities ex-state-loading" : "entities";
+    // const ent_class = loading ? "entities ex-state-loading" : "entities";
 
     let ret = <div></div>;
     if (entities.items && entities.items.component) {
-      const templates = this.props.get_templates(this);
-      const component = templates[entities.items.component];
+      const component = this.templates[entities.items.component];
       ret = React.createElement(
-        component, {items: items,
-                    actions: actions,
-                    descriptions: descriptions}
+        component, {
+          items: items,
+          actions: actions,
+          descriptions: descriptions
+        }
       );
     }
 

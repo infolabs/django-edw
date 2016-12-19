@@ -1,7 +1,25 @@
 import BaseRoot from 'containers/BaseRoot';
 
-export default class Entities extends BaseRoot {
-  get_templates() {
-    return super.get_templates();
-  }
-}
+
+const Root = BaseRoot;
+export default Root;
+
+
+
+// import React, { Component } from 'react';
+// import BaseRoot from 'containers/BaseRoot';
+//
+//
+// export default class Root extends Component {
+//
+//     static getTemplates() {
+//         return BaseRoot.getTemplates();
+//     }
+//
+//     render() {
+//         return <BaseRoot {...this.props} getTemplates={Root.getTemplates}/>
+//     }
+// }
+
+
+

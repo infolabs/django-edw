@@ -6,11 +6,11 @@ import Root from 'containers/Root';
 // => returns compiled css code from style.less, resolves imports and url(...)s
 var css = require("!style!raw!less!./less/styles.less");
 
-const data_marts = document.getElementsByClassName('ex-data-mart');
+const dataMarts = document.getElementsByClassName('ex-data-mart');
 
-for (const data_mart of data_marts) {
+for (const dataMart of dataMarts) {
   const store = configureStore(),
-        dom_attrs = data_mart.attributes;
+        dom_attrs = dataMart.attributes;
   render(
     <Root store={store} dom_attrs={dom_attrs} />,
     data_mart
