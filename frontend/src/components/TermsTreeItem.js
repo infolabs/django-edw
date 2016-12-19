@@ -43,8 +43,7 @@ export default class TermsTreeItem extends Component {
 
     if (term.isVisible()) {
 
-      const parent = term.parent,
-            rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
+      const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
             siblings = term.siblings;
 
       if (term.isLimbOrAnd()) {
