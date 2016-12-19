@@ -3,6 +3,7 @@ export const LOAD_TREE = 'LOAD_TERMS_TREE';
 export const LOAD_ITEM = 'LOAD_TERMS_ITEM';
 export const RELOAD_TREE = 'RELOAD_TERMS_TREE';
 export const TOGGLE_ITEM = 'TERM_TOGGLE';
+export const RESET_BRANCH = 'BRANCH_RESET';
 export const RESET_ITEM = 'TERM_RESET';
 export const SHOW_INFO = 'SHOW_TERM_INFO';
 export const HIDE_INFO = 'HIDE_TERM_INFO';

@@ -12,12 +12,20 @@ export default class TermsTreeItem extends Component {
     actions.toggle(term);
   }
 
-  handleResetClick(e) {
+  handleResetItemClick(e) {
     const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
     actions.resetItem(term);
   }
+
+  handleResetBranchClick(e) {
+    const { term, actions } = this.props;
+    e.preventDefault();
+    e.stopPropagation();
+    actions.resetBranch(term);
+  }
+
 
   render() {
 
@@ -84,7 +92,7 @@ export default class TermsTreeItem extends Component {
 
         reset_item = (
           <li className={reset_class}>
-              <span className="ex-label" onClick={e => { ::this.handleResetClick(e) } } >
+              <span className="ex-label" onClick={e => { ::this.handleResetItemClick(e) } } >
                 <i className="ex-icon-slug"></i>
                 { gettext("All") }
               </span>
@@ -95,7 +103,7 @@ export default class TermsTreeItem extends Component {
       if (children.length && !tagged.isAncestorTagged(term) &&
           tagged.isAnyTagged(children)) {
         reset_icon = (
-          <i onClick={e => { ::this.handleResetClick(e) } }
+          <i onClick={e => { ::this.handleResetBranchClick(e) } }
              className="ex-icon-reset"></i>
         );
       }
@@ -126,9 +134,11 @@ export default class TermsTreeItem extends Component {
       li_clasname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
     }
 
-    let ret = "";
+    let ret = <li className="ex-empty"></li>;
     if (render_item == "") {
-      ret = <li><ul>{render_children}</ul></li>;
+      if (term.isLimbAncestor()) {
+        ret = <li className="ex-empty"><ul>{render_children}</ul></li>;
+      }
     } else {
       if (show_children) {
         render_children = <ul>{reset_item}{render_children}</ul>;

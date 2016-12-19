@@ -86,6 +86,16 @@ class Item {
     return ret;
   }
 
+  isLimbAncestor() {
+    let ret = this.structure == consts.STRUCTURE_LIMB
+    if (!ret) {
+      for (const child of this.children) {
+        return child.isLimbAncestor();
+      }
+    }
+    return ret;
+  }
+
   isLimbAndLeaf() {
     return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
   }
@@ -150,8 +160,15 @@ class TaggedItems {
     return Object.assign(new TaggedItems(), this);
   }
 
-  resetItem(item) {
+  resetBranch(item) {
     this.untag(item);
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  resetItem(item) {
+    for (const child of item.children) {
+      this.untag(child);
+    }
     return Object.assign(new TaggedItems(), this);
   }
 
@@ -328,6 +345,8 @@ function tagged(state = new TaggedItems(), action) {
       return state.toggle(action.term);
     case consts.RESET_ITEM:
       return state.resetItem(action.term);
+    case consts.RESET_BRANCH:
+      return state.resetBranch(action.term);
     case consts.LOAD_TREE:
       return state.setCache(action.selected);
     case consts.RELOAD_TREE:

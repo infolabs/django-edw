@@ -91,13 +91,13 @@ export function getEntities(mart_id, subj_ids=[], options = {}) {
 
 export function notifyLoading() {
   return {
-    type: types.NOTIFY_LOADING,
+    type: types.NOTIFY_LOADING
   };
 }
 
 export function notifyLoadingEntities() {
   return {
-    type: types.NOTIFY_LOADING_ENTITIES,
+    type: types.NOTIFY_LOADING_ENTITIES
   };
 }
 
@@ -112,43 +112,49 @@ export function reloadTree(mart_id, selected = []) {
 export function toggle(term = {}) {
   return {
     type: types.TOGGLE_ITEM,
-    term: term,
+    term: term
   };
 }
 
 export function resetItem(term = {}) {
   return {
     type: types.RESET_ITEM,
-    term: term,
+    term: term
   };
 }
 
+export function resetBranch(term = {}) {
+  return {
+    type: types.RESET_BRANCH,
+    term: term
+  };
+}
 
 export function showDescription(entity_id = null) {
   return {
     type: types.SHOW_ENTITY_DESC,
-    entity_id: entity_id,
+    entity_id: entity_id
   };
 }
 
 export function hideDescription(entity_id = null) {
   return {
     type: types.HIDE_ENTITY_DESC,
-    entity_id: entity_id,
+    entity_id: entity_id
   };
 }
 
 export function showInfo(term = {}) {
   return {
     type: types.SHOW_INFO,
-    term: term,
+    term: term
   };
 }
 
 export function hideInfo(term = {}) {
   return {
     type: types.HIDE_INFO,
-    term: term,
+    term: term
   };
 }
 
