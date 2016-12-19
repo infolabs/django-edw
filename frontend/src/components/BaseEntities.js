@@ -5,14 +5,15 @@ import * as TermsTreeActions from 'actions/TermsTreeActions';
 
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
-
+import Map from 'components/BaseEntities/Map';
 
 class BaseEntities extends Component {
 
   static getTemplates() {
     return {
       "tile": Tile,
-      "list": List
+      "list": List,
+      "map": Map
     }
   }
 
