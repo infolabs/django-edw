@@ -29,11 +29,12 @@
   "homepage": "https://github.com/gaearon/redux-devtools#readme",
   "dependencies": {
     "classnames": "^2.1.2",
-    "react": "^0.14.6",
-    "react-dom": "^0.14.6",
-    "react-redux": "^4.1.0",
-    "redux": "^3.1.1",
-    "redux-promise": "^0.5.3"
+    "react": "^0.14.8",
+    "react-dom": "^0.14.8",
+    "react-redux": "^5.0.1",
+    "redux": "^3.6.0",
+    "redux-promise": "^0.5.3",
+    "react-google-maps": "^6.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
