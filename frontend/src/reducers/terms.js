@@ -86,16 +86,6 @@ class Item {
     return ret;
   }
 
-  isLimbAncestor() {
-    let ret = this.structure == consts.STRUCTURE_LIMB
-    if (!ret) {
-      for (const child of this.children) {
-        return child.isLimbAncestor();
-      }
-    }
-    return ret;
-  }
-
   isLimbAndLeaf() {
     return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
   }

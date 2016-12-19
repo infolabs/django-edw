@@ -136,9 +136,7 @@ export default class TermsTreeItem extends Component {
 
     let ret = <li className="ex-empty"></li>;
     if (render_item == "") {
-      if (term.isLimbAncestor()) {
-        ret = <li className="ex-empty"><ul>{render_children}</ul></li>;
-      }
+      ret = <li className="ex-empty"><ul>{render_children}</ul></li>;
     } else {
       if (show_children) {
         render_children = <ul>{reset_item}{render_children}</ul>;
