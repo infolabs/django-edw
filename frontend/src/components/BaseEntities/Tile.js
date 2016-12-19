@@ -6,10 +6,12 @@ import ReactDOM from 'react-dom';
 export default class Tile extends Component {
 
   render() {
-    const { items, actions, descriptions } = this.props;
+    const { items, actions, loading, descriptions } = this.props;
+    let entities_class = "entities ex-tiles";
+    entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
     return (
-      <ul className="ex-tiles">
+      <ul className={entities_class}>
         {items.map(
           (child, i) => 
           <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>

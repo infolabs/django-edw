@@ -4,10 +4,12 @@ import React, { Component } from 'react';
 
 export default class List extends Component {
   render() {
-    const { items, actions, descriptions } = this.props;
+    const { items, actions, loading, descriptions } = this.props;
+    let entities_class = "entities list-items";
+    entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
     return (
-      <ul className='list-items'>
+      <ul className={entities_class}>
         {items.map(
           (child, i) => 
           <ListItem key={i} data={child} actions={actions} descriptions={descriptions}/>

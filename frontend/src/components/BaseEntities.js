@@ -48,12 +48,9 @@ class BaseEntities extends Component {
     const { entities, actions } = this.props;
 
     const items = entities.items.objects || [],
-        // meta = entities.items.meta,
         dropdowns = entities.dropdowns || {},
-        // loading = entities.items.loading,
+        loading = entities.items.loading,
         descriptions = entities.descriptions;
-
-    // const ent_class = loading ? "entities ex-state-loading" : "entities";
 
     let ret = <div></div>;
     if (entities.items && entities.items.component) {
@@ -62,6 +59,7 @@ class BaseEntities extends Component {
         component, {
           items: items,
           actions: actions,
+          loading: loading,
           descriptions: descriptions
         }
       );
