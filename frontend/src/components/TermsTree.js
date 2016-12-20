@@ -6,6 +6,7 @@ import TermsTreeItem from './TermsTreeItem';
 
 
 class TermsTree extends Component {
+
   componentDidMount() {
     const dom_attrs = this.props.dom_attrs,
           mart_id = this.props.mart_id,
