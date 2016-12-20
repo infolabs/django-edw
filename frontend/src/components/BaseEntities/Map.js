@@ -8,6 +8,7 @@ const ProblemMap = withGoogleMap(props => (
   <GoogleMap
     defaultZoom={props.zoom}
     defaultCenter={{ lat: props.lat, lng: props.lng }}
+    defaultOptions={{ streetViewControl: false, scrollwheel: false }}
   >
     {props.markers.map((marker, key) => (
       <Marker {...marker}
@@ -60,6 +61,30 @@ export default class Map extends Component {
     });
   }
 
+  getMarkerIcon(pinColor = "FE7569") {
+    let pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+      new google.maps.Size(21, 34),
+      new google.maps.Point(0,0),
+      new google.maps.Point(10, 34)
+    );
+    return pinImage;
+  }
+
+  getMarkerShadow() {
+    let pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+      new google.maps.Size(40, 37),
+      new google.maps.Point(0, 0),
+      new google.maps.Point(12, 35)
+    );
+    return pinShadow;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      markers: []
+    });
+  }
+
   render() {
     const { items, actions, loading, descriptions } = this.props;
     let entities_class = "entities";
@@ -71,7 +96,8 @@ export default class Map extends Component {
         min_lat = null,
         max_lng = null,
         max_lat = null,
-        markers = this.state.markers;
+        markers = this.state.markers,
+        shadow = this.getMarkerShadow();
 
     for (const item of geo_items) {
       const coords = item.extra.geoposition.split(','),
@@ -81,6 +107,15 @@ export default class Map extends Component {
       max_lng = max_lng != null && max_lng > lng ? max_lng : lng;
       min_lat = min_lat != null && min_lat < lat ? min_lat : lat;
       max_lat = max_lat != null && max_lat > lat ? max_lat : lat;
+
+      let pinColor = "FE7569";
+      if (item.short_marks.length && item.short_marks[0].view_class.length) {
+        for (const cl of item.short_marks[0].view_class) {
+          if(cl.startsWith("pin-color-")) {
+            pinColor = cl.replace("pin-color-", "").toUpperCase();
+          }
+        }
+      }
 
       const info = (
         <div>
@@ -101,7 +136,9 @@ export default class Map extends Component {
       markers.push(
         {
           position: {lat: lat, lng: lng},
-          info: info
+          info: info,
+          icon: this.getMarkerIcon(pinColor),
+          shadow: shadow
         }
       );
     }
@@ -114,7 +151,7 @@ export default class Map extends Component {
     if (angle < 0) {
       angle += 360;
     }
-    const pixelWidth = 400;
+    const pixelWidth = 320;
     const zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2);
 
     const map_lng = min_lng + (max_lng - min_lng) / 2,
