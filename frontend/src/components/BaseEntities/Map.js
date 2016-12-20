@@ -101,8 +101,7 @@ export default class Map extends Component {
       markers.push(
         {
           position: {lat: lat, lng: lng},
-          info: info,
-          defaultAnimation: 2
+          info: info
         }
       );
     }
