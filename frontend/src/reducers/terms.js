@@ -196,30 +196,11 @@ class TaggedItems {
   isORXORTagged(item) {
     let ret = false;
     if (item.parent && item.parent.parent &&
-        item.parent.parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
-      for (const child of item.parent.parent.children) {
-        if (!!this[child.id]) {
-          ret = this.isXORDescedantTagged(child);
-        }
-      }
+        item.parent.parent.semantic_rule &&
+        this.isTaggable(item)) {
+      ret = this.isAnyTagged(item.siblings);
       if (!ret) {
-        ret = this.isORXORTagged(item.parent)
-      }
-    }
-    return ret;
-  }
-
-  isXORDescedantTagged(item) {
-    let ret = false;
-    if (item.parent) {
-      if (item.parent.semantic_rule == consts.SEMANTIC_RULE_XOR) {
-        ret = this.isAnyTagged(item.parent.children);
-      }
-      if (!ret && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
-        for (const child of item.parent.children) {
-          if (!!this[child.id] && child.children.length)
-            return this.isXORDescedantTagged(child.children[0]);
-        }
+        ret = this.isORXORTagged(item.parent);
       }
     }
     return ret;
