@@ -144,8 +144,6 @@ class TaggedItems {
       this.untag(item);
     } else {
       this.tag(item);
-      if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
-        this.untagSiblings(item);
     }
     return Object.assign(new TaggedItems(), this);
   }
@@ -164,6 +162,8 @@ class TaggedItems {
 
   tag(item) {
     this[item.id] = true;
+    if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
+      this.untagSiblings(item);
     let index = this.array.indexOf(item.id);
     if (index < 0 && item.id > -1) {
       this.array.push(item.id);
@@ -191,6 +191,38 @@ class TaggedItems {
   isAnyTagged(arr) {
     let self = this;
     return arr.some(el => !!self[el.id]);
+  }
+
+  isORXORTagged(item) {
+    let ret = false;
+    if (item.parent && item.parent.parent &&
+        item.parent.parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
+      for (const child of item.parent.parent.children) {
+        if (!!this[child.id]) {
+          ret = this.isXORDescedantTagged(child);
+        }
+      }
+      if (!ret) {
+        ret = this.isORXORTagged(item.parent)
+      }
+    }
+    return ret;
+  }
+
+  isXORDescedantTagged(item) {
+    let ret = false;
+    if (item.parent) {
+      if (item.parent.semantic_rule == consts.SEMANTIC_RULE_XOR) {
+        ret = this.isAnyTagged(item.parent.children);
+      }
+      if (!ret && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR) {
+        for (const child of item.parent.children) {
+          if (!!this[child.id] && child.children.length)
+            return this.isXORDescedantTagged(child.children[0]);
+        }
+      }
+    }
+    return ret;
   }
 
   isAncestorTagged(item) {

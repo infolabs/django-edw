@@ -76,7 +76,7 @@ export default class TermsTreeItem extends Component {
 
       if (rule != consts.SEMANTIC_RULE_AND
           && tagged[term.id] != true
-          && tagged.isAnyTagged(siblings))
+          && (tagged.isAnyTagged(siblings) || tagged.isORXORTagged(term)))
         state_class = 'ex-other';
 
       render_item = (
