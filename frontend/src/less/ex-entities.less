@@ -1,31 +1,43 @@
 //
-// Publications in catalog & promo block
+// Entities in catalog & promo block
 // --------------------------------------------------
 
-//== Catalog & promo block list containers
-//
-//##
 
-//.ex-catalog-list, .ex-promotion-list {
-//  margin: 0;
-//  padding: 0;
-//  list-style: none;
-//  .ex-opacity(1);
-//  transition: opacity 0.6s linear;
-//
-//  &.ex-state-loading {
-//    .ex-opacity(.3);
-//  }
-//}
+.ex-inline {
+
+  ul&, ol& {
+
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+
+    & > li {
+      display: inline-block;
+      padding: 0;
+    }
+
+  }
+
+}
 
 
-//== Publication
+.entities {
+  .ex-opacity(1);
+  transition: opacity 0.6s linear;
+
+  &.ex-state-loading {
+    .ex-opacity(.3);
+  }
+}
+
+
+//== Catalog
 //
 //##
 
 .ex-catalog-item-block {
 
-  &, &.ex-catalog-item-variants > *, &.ex-catalog-item-variants > * > *,
+  &, /*&.ex-catalog-item-variants > *, &.ex-catalog-item-variants > * > *, */
   & .ex-title, & .ex-price, & .ex-price .ex-divider, & .ex-status,
   & .ex-gradient, & .ex-digit {
     transition: all 0.35s ease 0s;
