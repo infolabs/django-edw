@@ -6,8 +6,9 @@ import { withGoogleMap, GoogleMap, Marker, InfoWindow } from "react-google-maps"
 
 const ProblemMap = withGoogleMap(props => (
   <GoogleMap
-    defaultZoom={props.zoom}
-    defaultCenter={{ lat: props.lat, lng: props.lng }}
+    ref={props.onMapMounted}
+    zoom={props.zoom}
+    center={{ lat: props.lat, lng: props.lng }}
     defaultOptions={{ streetViewControl: false, scrollwheel: false }}
   >
     {props.markers.map((marker, key) => (
@@ -32,17 +33,19 @@ export default class Map extends Component {
 
   handleMarkerClick = this.handleMarkerClick.bind(this);
   handleMarkerClose = this.handleMarkerClose.bind(this);
+  handleMapMounted = this.handleMapMounted.bind(this);
 
   handleMarkerClick(targetMarker) {
     this.setState({
       markers: this.state.markers.map(marker => {
+        let showInfo = false;
         if (marker === targetMarker) {
-          return {
-            ...marker,
-            showInfo: true,
-          };
+          showInfo = true;
         }
-        return marker;
+        return {
+          ...marker,
+          showInfo: showInfo,
+        };
       }),
     });
   }
@@ -85,6 +88,10 @@ export default class Map extends Component {
     });
   }
 
+  handleMapMounted(map) {
+    this._map = map;
+  }
+
   render() {
     const { items, actions, loading, descriptions } = this.props;
     let entities_class = "entities";
@@ -97,6 +104,7 @@ export default class Map extends Component {
         max_lng = null,
         max_lat = null,
         markers = this.state.markers,
+        old_markers = this.state.markers.length,
         shadow = this.getMarkerShadow();
 
     for (const item of geo_items) {
@@ -117,9 +125,12 @@ export default class Map extends Component {
         }
       }
 
+      const url = item.extra.url ? item.extra.url : itemdata.entity_url,
+            marks = item.short_marks || [];
+
       const info = (
-        <div>
-          <h4>{item.entity_name}</h4>
+        <div className="ex-map-info">
+          <h5><a href={url}>{item.entity_name}</a></h5>
           <ul className="ex-attrs">
             {item.short_characteristics.map(
               (child, i) =>
@@ -130,6 +141,21 @@ export default class Map extends Component {
                 </li>
             )}
           </ul>
+          <span className="tags">
+            <small><i className="fa fa-tag"></i>&nbsp;
+              {marks.map(
+                (child, i) =>
+                  <span className="ex-wrap-ribbon"
+                      key={i}
+                      data-name={child.name}
+                      data-path={child.path}
+                      data-view-class={child.view_class.join(" ")}>
+                    <span className="ex-ribbon">{child.values.join(", ")}</span>
+                    &nbsp;
+                  </span>
+              )}
+            </small>
+          </span>
         </div>
       );
 
@@ -143,6 +169,9 @@ export default class Map extends Component {
       );
     }
 
+    let map_lng = false,
+        map_lat = false,
+        zoom = false;
 
     const GLOBE_WIDTH = 256, // a constant in Google's map projection
           west = min_lng,
@@ -152,10 +181,20 @@ export default class Map extends Component {
       angle += 360;
     }
     const pixelWidth = 320;
-    const zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2);
 
-    const map_lng = min_lng + (max_lng - min_lng) / 2,
-          map_lat = min_lat + (max_lat - min_lat) / 2;
+    zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2) + 1;
+    map_lng = min_lng + (max_lng - min_lng) / 2,
+    map_lat = min_lat + (max_lat - min_lat) / 2;
+
+    if ((!geo_items.length || old_markers) && this._map) {
+      zoom = this._map.getZoom();
+      const center = this._map.getCenter();
+      map_lat = center.lat();
+      map_lng = center.lng();
+    }
+
+    if (!zoom && !geo_items.length)
+      return <div></div>;
 
     return (
       <div className={entities_class}>
@@ -171,6 +210,7 @@ export default class Map extends Component {
                     }
                     onMarkerClick={this.handleMarkerClick}
                     onMarkerClose={this.handleMarkerClose}
+                    onMapMounted={this.handleMapMounted}
         />
       </div>
     );
