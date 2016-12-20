@@ -107,9 +107,6 @@ export default class Map extends Component {
         old_markers = this.state.markers.length,
         shadow = this.getMarkerShadow();
 
-    if (!geo_items.length)
-      return <div></div>;
-
     for (const item of geo_items) {
       const coords = item.extra.geoposition.split(','),
             lng = parseFloat(coords[1]),
@@ -189,12 +186,15 @@ export default class Map extends Component {
     map_lng = min_lng + (max_lng - min_lng) / 2,
     map_lat = min_lat + (max_lat - min_lat) / 2;
 
-    if (old_markers && this._map) {
+    if ((!geo_items.length || old_markers) && this._map) {
       zoom = this._map.getZoom();
       const center = this._map.getCenter();
       map_lat = center.lat();
       map_lng = center.lng();
     }
+
+    if (!zoom && !geo_items.length)
+      return <div></div>;
 
     return (
       <div className={entities_class}>
