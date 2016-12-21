@@ -46,6 +46,7 @@ class TermsTree extends Component {
         subj_ids = subj_attr.value.split(",");
 
       request_options['terms'] = tag_next.array;
+      request_options['offset'] = 0;
       this.props.actions.notifyLoadingEntities();
       this.props.actions.getEntities(mart_id, subj_ids, request_options);
     }
