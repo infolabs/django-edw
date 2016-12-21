@@ -142,7 +142,7 @@ export default class Map extends Component {
             )}
           </ul>
           <span className="tags">
-            <small><i className="fa fa-tag"></i>&nbsp;
+            <small>
               {marks.map(
                 (child, i) =>
                   <span className="ex-wrap-ribbon"
@@ -150,6 +150,7 @@ export default class Map extends Component {
                       data-name={child.name}
                       data-path={child.path}
                       data-view-class={child.view_class.join(" ")}>
+                    <i className="fa fa-tag"></i>&nbsp;
                     <span className="ex-ribbon">{child.values.join(", ")}</span>
                     &nbsp;
                   </span>
@@ -182,7 +183,8 @@ export default class Map extends Component {
     }
     const pixelWidth = 320;
 
-    zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2) + 1;
+    zoom = Math.round(Math.log(pixelWidth * 360 / angle / GLOBE_WIDTH) / Math.LN2);
+    zoom = zoom > 18 ? 18 : zoom;
     map_lng = min_lng + (max_lng - min_lng) / 2,
     map_lat = min_lat + (max_lat - min_lat) / 2;
 
