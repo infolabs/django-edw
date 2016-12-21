@@ -23,7 +23,7 @@ export default class DataMart extends Component {
             <div className="col-sm-6 col-md-3 ex-order-by ex-dropdown ex-state-closed">
               <ViewComponents dom_attrs={dom_attrs} mart_id={mart_id} />
             </div>
-            <div className="col-sm-6 col-md-3 ex-order-by ex-dropdown ex-state-closed">
+            <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
               <Ordering dom_attrs={dom_attrs} mart_id={mart_id} />
             </div>
             <div className="col-sm-6 col-md-3 ex-howmany-items ex-dropdown ex-state-closed">
