@@ -15,12 +15,12 @@ export default class Related extends Component {
       mart_name = data_mart_name_attr.value;
 
     return (
-      <div>
-        <div className="top-navigation">
-          <div className="title-block">
+      <div className="ex-related-datamart">
+        <div className="row">
+          <div className="col-md-9 ex-title">
             <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
           </div>
-          <div className="pager-block">
+          <div className="col-md-3 ex-paginator">
             <Paginator dom_attrs={dom_attrs}
                        mart_id={mart_id}
                        hide_page_numbers={true}/>
