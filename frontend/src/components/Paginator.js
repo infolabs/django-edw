@@ -183,6 +183,9 @@ class Paginator extends Component {
       );
     }
 
+    if (this.props.hide_page_numbers)
+      pages = "";
+
     let ret = (
       <div className="ex-catalog-pagination">
         <ul className="ex-pagination">
