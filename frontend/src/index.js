@@ -8,7 +8,7 @@ var css = require("!style!raw!less!./less/styles.less");
 
 const dataMarts = document.getElementsByClassName('ex-data-mart');
 
-for (const dataMart of dataMarts) {
+for (const dataMart of Array.from(dataMarts)) {
   const store = configureStore(),
         dom_attrs = dataMart.attributes;
   render(
