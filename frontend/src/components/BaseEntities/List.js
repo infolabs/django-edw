@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 
 export default class List extends Component {
   render() {
-    const { items, actions, loading, descriptions } = this.props;
+    const { items, actions, loading, descriptions, meta } = this.props;
     let entities_class = "entities list-items";
     entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
@@ -12,7 +12,7 @@ export default class List extends Component {
       <ul className={entities_class}>
         {items.map(
           (child, i) => 
-          <ListItem key={i} data={child} actions={actions} descriptions={descriptions}/>
+          <ListItem key={i} data={child} actions={actions} descriptions={descriptions} position={i} meta={meta}/>
         )}
       </ul>
     );
@@ -23,11 +23,12 @@ export default class List extends Component {
 
 class ListItem extends Component {
   render() {
-    const data = this.props.data,
-          url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
+    const { data, position, meta } = this.props,
+        url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
+        index = position + meta.offset;
 
     return (
-      <li>
+      <li data-index={index}>
         <a href={url}>{data.entity_name}</a>
       </li>
     );

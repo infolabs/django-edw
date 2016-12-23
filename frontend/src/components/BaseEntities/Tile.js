@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 export default class Tile extends Component {
 
   render() {
-    const { items, actions, loading, descriptions } = this.props;
+    const { items, actions, loading, descriptions, meta } = this.props;
     let entities_class = "entities ex-tiles";
     entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
@@ -14,7 +14,7 @@ export default class Tile extends Component {
       <ul className={entities_class}>
         {items.map(
           (child, i) => 
-          <TileItem key={i} data={child} actions={actions} descriptions={descriptions}/>
+          <TileItem key={i} data={child} actions={actions} descriptions={descriptions} position={i} meta={meta}/>
         )}
       </ul>
     );
@@ -47,10 +47,10 @@ class TileItem extends Component {
   componentDidMount(x, y, z) {
     const area = ReactDOM.findDOMNode(this),
           info = area.getElementsByClassName("ex-description-wrapper")[0],
-          areaRect = area.getBoundingClientRect(),
+          // areaRect = area.getBoundingClientRect(),
           infoRect = info.getBoundingClientRect(),
           window_width = window.innerWidth,
-          width = 250,
+          width = 250, // todo: calculate width
           left = infoRect.right;
 
     const h_pos = window_width < left + width ? "right" : "left";
@@ -58,8 +58,9 @@ class TileItem extends Component {
   }
 
   render() {
-    const { data, descriptions } = this.props,
-          url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
+    const { data, descriptions, position, meta } = this.props,
+        url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
+        index = position + meta.offset;
 
     let li_class = "ex-catalog-item";
     if (descriptions.opened[data.id]) {
@@ -69,11 +70,11 @@ class TileItem extends Component {
     let characteristics = data.short_characteristics || [],
         marks = data.short_marks || [];
 
-    let related_data_marts = [];
+    // let related_data_marts = [];
     if (descriptions[data.id]) {
         characteristics = descriptions[data.id].characteristics || [];
         marks = descriptions[data.id].marks || [];
-        related_data_marts = descriptions[data.id].marks || [];
+        // related_data_marts = descriptions[data.id].marks || [];
     }
 
     let ret = (
@@ -81,6 +82,7 @@ class TileItem extends Component {
     <li className={li_class}
         data-horizontal-position={this.state.h_pos}
         data-vertical-position="center"
+        data-index={index}
         onMouseOver={e => { ::this.handleMouseOver(e) } }
         onMouseOut={e => { ::this.handleMouseOut(e) } }>
       <div className="ex-catalog-item-block">
