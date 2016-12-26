@@ -34,9 +34,7 @@ export default class DataMart extends Component {
             </div>
           </div>
           <Entities dom_attrs={dom_attrs} mart_id={mart_id} />
-          <div className="row">
-            <Paginator dom_attrs={dom_attrs} mart_id={mart_id} />
-          </div>
+          <Paginator dom_attrs={dom_attrs} mart_id={mart_id} />
         </div>
       </div>
     );
