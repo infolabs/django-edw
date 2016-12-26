@@ -77,15 +77,9 @@ class TileItem extends Component {
         // related_data_marts = descriptions[data.id].marks || [];
     }
 
-    let ret = (
-
-    <li className={li_class}
-        data-horizontal-position={this.state.h_pos}
-        data-vertical-position="center"
-        data-index={index}
-        onMouseOver={e => { ::this.handleMouseOver(e) } }
-        onMouseOut={e => { ::this.handleMouseOut(e) } }>
-      <div className="ex-catalog-item-block">
+    let description_baloon = "";
+    if (characteristics.length) {
+      description_baloon = (
         <div className="ex-description-wrapper">
           <div className="ex-baloon">
             <div className="ex-arrow"></div>
@@ -101,7 +95,20 @@ class TileItem extends Component {
             </ul>
           </div>
         </div>
+      )
+    }
 
+    let ret = (
+
+    <li className={li_class}
+        data-horizontal-position={this.state.h_pos}
+        data-vertical-position="center"
+        data-index={index}
+        onMouseOver={e => { ::this.handleMouseOver(e) } }
+        onMouseOut={e => { ::this.handleMouseOut(e) } }>
+
+      <div className="ex-catalog-item-block">
+        {description_baloon}
         <div className="ex-wrap-action">
           <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}></div>
 
