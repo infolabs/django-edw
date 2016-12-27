@@ -741,3 +741,31 @@
     list-style-type: none;
   }
 }
+
+.list-items {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  h4 {
+    font-size: 15px;
+    margin-bottom: 0;
+
+    a {
+      text-decoration: underline;
+      &:hover {
+        text-decoration: none;
+        color: @ex-catalog-item-hover-title-color;
+      }
+    }
+  }
+  li {
+    margin-bottom: 5px;
+  }
+  .tags {
+    font-size: 15px;
+    color: darken(@ex-catalog-item-title-color, 20%);
+    opacity: 0.8;
+    margin-bottom: 15px;
+  }
+}
