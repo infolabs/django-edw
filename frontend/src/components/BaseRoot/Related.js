@@ -1,12 +1,19 @@
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
+import * as TermsTreeActions from 'actions/TermsTreeActions';
+
 import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
 
-export default class Related extends Component {
+class Related extends Component {
   render() {
-    const { components, dom_attrs, mart_id } = this.props,
+    const { entities, dom_attrs, mart_id } = this.props,
           data_mart_url_attr = dom_attrs.getNamedItem('data-data-mart-url'),
           data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name');
+
+    const count = entities.meta.count;
+
     let mart_url = "",
         mart_name = "";
     if (data_mart_url_attr)
@@ -15,7 +22,7 @@ export default class Related extends Component {
       mart_name = data_mart_name_attr.value;
 
     return (
-      <div className="ex-related-datamart">
+      <div className="ex-related-datamart" data-data-count={count}>
         <div className="row">
           <div className="col-md-9 ex-title">
             <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
@@ -33,3 +40,19 @@ export default class Related extends Component {
     );
   }
 }
+
+function mapState(state) {
+  return {
+    entities: state.entities.items,
+  };
+}
+
+function mapDispatch(dispatch) {
+  return {
+    actions: bindActionCreators(TermsTreeActions, dispatch),
+    dispatch: dispatch
+  };
+}
+
+
+export default connect(mapState, mapDispatch)(Related);
