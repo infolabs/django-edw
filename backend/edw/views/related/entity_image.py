@@ -11,11 +11,12 @@ from edw.models.related import EntityImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.entity_image import EntityImageFilter
 from edw.rest.serializers.related.entity_image import EntityImageSerializer
+from edw.rest.permissions import IsFilerFileOwnerOrReadOnly
 
 
 class EntityImageViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,) # IsOwnerOrReadOnly
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsFilerFileOwnerOrReadOnly)
 
     queryset = EntityImageModel.objects.all()
     serializer_class = EntityImageSerializer
