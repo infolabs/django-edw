@@ -11,11 +11,12 @@ from edw.models.related import DataMartImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.data_mart_image import DataMartImageFilter
 from edw.rest.serializers.related.data_mart_image import DataMartImageSerializer
+from edw.rest.permissions import IsFilerFileOwnerOrReadOnly
 
 
 class DataMartImageViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,) # IsOwnerOrReadOnly
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsFilerFileOwnerOrReadOnly)
 
     queryset = DataMartImageModel.objects.all()
     serializer_class = DataMartImageSerializer
