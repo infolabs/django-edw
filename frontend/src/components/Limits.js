@@ -14,6 +14,9 @@ class Limits extends Component {
     let ret = <div></div>,
         limit_options = {};
 
+    if (meta.count <= 1)
+      return ret;
+
     if (limits) {
       // cut limits lower than count
       let max_opt_value = 0,
