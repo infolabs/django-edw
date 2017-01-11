@@ -53,6 +53,12 @@ export default class Dropdown extends Component {
   render() {
     const { selected, options, open } = this.props;
 
+    let opts = {};
+    for (const opt of Object.keys(options)) {
+      if (options[opt] != selected)
+        opts[opt] = options[opt];
+    }
+
     let ret = (
       <div className="ex-sort-dropdown">
         <a href="#"
@@ -61,7 +67,7 @@ export default class Dropdown extends Component {
           {selected}<span className="ex-icon-caret-down"></span>
         </a>
         <ul className={open ? "ex-dropdown-menu2": "ex-dropdown-menu2 ex-dropdown-hide"}>
-          {Object.keys(options).map(
+          {Object.keys(opts).map(
             (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }>
               <a href="#" key={i}>{options[k]}</a>
             </li>

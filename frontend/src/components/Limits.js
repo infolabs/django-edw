@@ -27,7 +27,7 @@ class Limits extends Component {
         }
       }
       if (max_value < meta.count && meta.count < max_opt_value)
-        limit_options[meta.count] = meta.count;
+        limit_options[meta.count] = gettext("All");
     }
 
     if (limits && Object.keys(limit_options).length > 1) {
