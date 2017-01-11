@@ -120,7 +120,7 @@ class Paginator extends Component {
     } else {
       previous = (
         <li key='prev' className="ex-disabled">
-          <a href="#"><i className="ex-icon-chevron-left"></i></a>
+          <span><i className="ex-icon-chevron-left"></i></span>
         </li>
       );
     }
@@ -178,7 +178,7 @@ class Paginator extends Component {
     } else {
       next = (
         <li key='next' className="ex-disabled">
-          <a href="#"><i className="ex-icon-chevron-right"></i></a>
+          <span><i className="ex-icon-chevron-right"></i></span>
         </li>
       );
     }
