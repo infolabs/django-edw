@@ -8,6 +8,8 @@ from operator import __or__ as OR
 from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
+from django.db.models import Count
+
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible, force_text
@@ -19,8 +21,6 @@ from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from polymorphic.base import PolymorphicModelBase
-
-from datetime import datetime
 
 from rest_framework.reverse import reverse
 
@@ -876,6 +876,21 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return extra data for summary serializer
         """
         return None
+
+
+    # @classmethod
+    # def get_summary_annotate(cls, request=None):
+    #     """
+    #     Return annotate data for summary serializer.
+    #     Example:
+    #         return {
+    #             'num_terms': Count('terms')
+    #         }
+    #     """
+    #     # return None
+    #     return {
+    #         'num_terms': Count('terms')
+    #     }
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

@@ -211,10 +211,25 @@ class EntityFilter(filters.FilterSet):
         return queryset.rel(*self.rel_ids)
 
 
+from django.db.models import Count
+
 class EntityMetaFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
 
+        # data_mart = request.GET['_data_mart']
+        # data_mart = request.GET.get('_data_mart', None)
+
+        # get summary annotate
+        # todo: here!!!
+
+        # print "*** filter_queryset ***", data_mart
+
+        #queryset = queryset.annotate(num_terms=Count('terms'))
+
+        # print "----", view.action
+
+        # select view component
         raw_view_component = request.GET.get('view_component', None)
         if raw_view_component is None:
             data_mart = request.GET['_data_mart']
