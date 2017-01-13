@@ -227,6 +227,9 @@ class EntityMetaFilter(BaseFilterBackend):
 
         #queryset = queryset.annotate(num_terms=Count('terms'))
 
+        # print "----", view
+        # ---- <Tag: get_entities>
+        # ---- <edw.views.entity.EntityViewSet object at 0x7f8d98bbf4d0>
         # print "----", view.action
 
         # select view component
