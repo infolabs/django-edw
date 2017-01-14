@@ -878,19 +878,19 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return None
 
 
-    # @classmethod
-    # def get_summary_annotate(cls, request=None):
-    #     """
-    #     Return annotate data for summary serializer.
-    #     Example:
-    #         return {
-    #             'num_terms': Count('terms')
-    #         }
-    #     """
-    #     # return None
-    #     return {
-    #         'num_terms': Count('terms')
-    #     }
+    @classmethod
+    def get_summary_annotation(cls, request=None):
+        """
+        Return annotate data for summary serializer.
+        Example:
+            return {
+                'num_terms': Count('terms')
+            }
+        """
+        # return None
+        return {
+            'num_terms': Count('terms')
+        }
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

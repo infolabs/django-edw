@@ -106,6 +106,7 @@ class GetEntity(BaseRetrieveDataTag):
     name = 'get_entity'
     queryset = EntityModel.objects.all()
     serializer_class = EntityDetailSerializer
+    action = 'retrieve'
 
     options = Options(
         Argument('pk', resolve=True),
@@ -131,6 +132,7 @@ class GetEntities(BaseRetrieveDataTag):
     name = 'get_entities'
     queryset = EntityModel.objects.all()
     serializer_class = EntityTotalSummarySerializer
+    action = 'list'
 
     filter_class = EntityFilter
     filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityOrderingFilter)
@@ -182,6 +184,7 @@ class GetEntities(BaseRetrieveDataTag):
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
             "view_component": query_params['_view_component'],
+            "annotation_alias": query_params['_annotation_alias'],
             "filter_queryset": queryset
         }
         return queryset

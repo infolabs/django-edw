@@ -111,6 +111,10 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         if data_mart is not None:
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
+        # todo: Here!!!
+
+        print "*** annotation_alias ***", query_params['_annotation_alias']
+
         self.queryset_context = {
             "extra": self.extra,
             "initial_filter_meta": query_params['_initial_filter_meta'],
@@ -120,6 +124,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
             "view_component": query_params['_view_component'],
+            "annotation_alias": query_params['_annotation_alias'],
             "filter_queryset": queryset
         }
         return queryset

@@ -217,25 +217,21 @@ class EntityMetaFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
 
-        # data_mart = request.GET['_data_mart']
-        # data_mart = request.GET.get('_data_mart', None)
+        data_mart = request.GET['_data_mart']
 
-        # get summary annotate
-        # todo: here!!!
-
-        # print "*** filter_queryset ***", data_mart
-
-        #queryset = queryset.annotate(num_terms=Count('terms'))
-
-        # print "----", view
-        # ---- <Tag: get_entities>
-        # ---- <edw.views.entity.EntityViewSet object at 0x7f8d98bbf4d0>
-        # print "----", view.action
+        # annotation
+        annotation_alias = None
+        if view.action == 'list':
+            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            annotation = entity_model.get_summary_annotation(request)
+            if annotation is not None:
+                annotation_alias = annotation.keys()
+                queryset = queryset.annotate(**annotation)
+        request.GET['_annotation_alias'] = annotation_alias
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)
         if raw_view_component is None:
-            data_mart = request.GET['_data_mart']
             view_component = data_mart.view_component if data_mart is not None else None
         else:
             view_component = serializers.CharField().to_internal_value(raw_view_component)

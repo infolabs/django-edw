@@ -45,6 +45,7 @@ class Request(request.Request):
 class BaseRetrieveDataTag(Tag):
     queryset = None
     serializer_class = None
+    action = None
 
     lookup_field = 'pk'
 
