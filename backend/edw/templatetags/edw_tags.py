@@ -184,7 +184,8 @@ class GetEntities(BaseRetrieveDataTag):
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
             "view_component": query_params['_view_component'],
-            "annotation_alias": query_params['_annotation_alias'],
+            "annotation_meta": query_params['_annotation_meta'],
+            "aggregation_meta": query_params['_aggregation_meta'],
             "filter_queryset": queryset
         }
         return queryset

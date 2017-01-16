@@ -211,23 +211,29 @@ class EntityFilter(filters.FilterSet):
         return queryset.rel(*self.rel_ids)
 
 
-from django.db.models import Count
-
 class EntityMetaFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
 
         data_mart = request.GET['_data_mart']
 
-        # annotation
-        annotation_alias = None
+        # annotation & aggregation
+        annotation_meta = None
+        aggregation_meta = None
         if view.action == 'list':
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-            annotation = entity_model.get_summary_annotation(request)
+
+            annotation = entity_model.get_summary_annotation()
+            # annotation = entity_model.get_summary_annotation(request)
             if annotation is not None:
-                annotation_alias = annotation.keys()
+                annotation_meta = annotation.keys()
                 queryset = queryset.annotate(**annotation)
-        request.GET['_annotation_alias'] = annotation_alias
+
+            aggregation_meta = entity_model.get_summary_aggregation()
+            # aggregation_meta = entity_model.get_summary_aggregation(request)
+
+        request.GET['_annotation_meta'] = annotation_meta
+        request.GET['_aggregation_meta'] = aggregation_meta
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)

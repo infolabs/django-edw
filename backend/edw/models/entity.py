@@ -8,7 +8,6 @@ from operator import __or__ as OR
 from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
-from django.db.models import Count
 
 from django.utils import six
 from django.utils.functional import cached_property
@@ -877,21 +876,36 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return None
 
-
     @classmethod
-    def get_summary_annotation(cls, request=None):
+    def get_summary_annotation(cls):
+    # def get_summary_annotation(cls, request):
         """
         Return annotate data for summary serializer.
         Example:
+            from django.db.models import ExpressionWrapper, F
+            ...
             return {
-                'num_terms': Count('terms')
+                'duration': ExpressionWrapper(F('updated_at') - F('created_at'), output_field=models.DurationField())
             }
         """
-        # return None
-        return {
-            'num_terms': Count('terms')
-        }
+        return None
 
+    @classmethod
+    def get_summary_aggregation(cls):
+    # def get_summary_aggregation(cls, request):
+        """
+        Return aggregate data for summary serializer.
+        Example:
+            from django.db.models import ExpressionWrapper, Avg
+            ...
+            return {
+                'avg_duration': (
+                    ExpressionWrapper(Avg('duration'), output_field=models.DurationField()),
+                    _("Mean value of duration")
+                )
+            }
+        """
+        return None
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
 

@@ -119,7 +119,27 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
     def get_extra(self, instance):
-        return instance.get_summary_extra()
+
+        extra = instance.get_summary_extra()
+
+
+
+
+        annotation_meta = self.context['annotation_meta']
+
+        if annotation_meta is not None:
+            annotation = {}
+            for alias in annotation_meta:
+                annotation[alias] = getattr(instance, alias)
+
+            if extra is not None:
+                extra.update(annotation)
+            else:
+                extra = annotation
+
+        # print "*** get summary extra ***", extra
+
+        return extra
 
 
 class RelatedDataMartSerializer(DataMartDetailSerializer):
