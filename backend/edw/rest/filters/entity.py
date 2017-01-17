@@ -240,8 +240,23 @@ class EntityMetaFilter(BaseFilterBackend):
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
 
-
-            aggregation_meta = entity_model.get_summary_aggregation()
+            aggregation = entity_model.get_summary_aggregation()
+            if isinstance(aggregation, dict):
+                aggregation_meta = {}
+                for key, value in aggregation.items():
+                    assert isinstance(value, (tuple, list)), (
+                        "type of value getting from dictionary key '%s' should be `tuple` or `list`"
+                        % key
+                    )
+                    assert len(value) >= 2, (
+                        "length of `tuple` or `list` getting from dictionary key '%s' should be `2` or `3`"
+                        % key
+                    )
+                    aggregate, field = value[0], value[1]
+                    if isinstance(field, six.string_types):
+                        field = import_string(field)()
+                    name = value[2] if len(value) > 2 else None
+                    aggregation_meta[key] = (aggregate, field, name)
 
         request.GET['_annotation_meta'] = annotation_meta
         request.GET['_aggregation_meta'] = aggregation_meta

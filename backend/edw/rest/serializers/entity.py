@@ -133,8 +133,6 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
             else:
                 extra = annotation
 
-        # print "*** get summary extra ***", extra
-
         return extra
 
 
@@ -235,6 +233,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     view_component = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
+    aggregation = serializers.SerializerMethodField()
     extra = serializers.SerializerMethodField()
 
     @staticmethod
@@ -274,6 +273,20 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     def get_extra(self, instance):
         return self.context.get('extra', None)
+
+    def get_aggregation(self, instance):
+        aggregation_meta = self.context['aggregation_meta']
+        if aggregation_meta:
+            aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()])
+
+            queryset = self.context['filter_queryset']
+            print "*** aggregate_kwargs", aggregate_kwargs
+
+            aggregation = queryset.aggregate(**aggregate_kwargs)
+            print ">>>", aggregation
+
+        return None
+
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):

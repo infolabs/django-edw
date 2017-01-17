@@ -909,6 +909,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             return {
                 'avg_duration': (
                     ExpressionWrapper(Avg('duration'), output_field=models.DurationField()),
+                    'rest_framework.serializers.DurationField',
                     _("Mean value of duration")
                 )
             }
