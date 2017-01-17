@@ -3,12 +3,14 @@ from __future__ import unicode_literals
 
 
 from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
 
 from django_filters.widgets import CSVWidget
 
 import rest_framework_filters as filters
 
 from rest_framework import serializers
+from rest_framework.fields import Field
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
@@ -218,16 +220,26 @@ class EntityMetaFilter(BaseFilterBackend):
         data_mart = request.GET['_data_mart']
 
         # annotation & aggregation
-        annotation_meta = None
-        aggregation_meta = None
+        annotation_meta, aggregation_meta = None, None
         if view.action == 'list':
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
 
             annotation = entity_model.get_summary_annotation()
-            # annotation = entity_model.get_summary_annotation(request)
-            if annotation is not None:
-                annotation_meta = annotation.keys()
-                queryset = queryset.annotate(**annotation)
+            if isinstance(annotation, dict):
+                annotation_meta, annotate_kwargs = {}, {}
+                for key, value in annotation.items():
+                    if isinstance(value, (tuple, list)):
+                        annotate_kwargs[key] = value[0]
+                        if len(value) > 1:
+                            field = value[1]
+                            if not isinstance(field, Field):
+                                field = import_string(field)()
+                            annotation_meta[key] = field
+                    else:
+                        annotate_kwargs[key] = value
+                if annotate_kwargs:
+                    queryset = queryset.annotate(**annotate_kwargs)
+
 
             aggregation_meta = entity_model.get_summary_aggregation()
             # aggregation_meta = entity_model.get_summary_aggregation(request)

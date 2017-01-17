@@ -878,12 +878,21 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @classmethod
     def get_summary_annotation(cls):
-    # def get_summary_annotation(cls, request):
         """
         Return annotate data for summary serializer.
         Example:
             from django.db.models import ExpressionWrapper, F
             ...
+            return {
+                'duration': (
+                    ExpressionWrapper(F('updated_at') - F('created_at'),
+                                      output_field=models.DurationField()),
+                    'rest_framework.serializers.DurationField'
+                )
+            }
+
+            Or, if serialization not needed...
+
             return {
                 'duration': ExpressionWrapper(F('updated_at') - F('created_at'), output_field=models.DurationField())
             }

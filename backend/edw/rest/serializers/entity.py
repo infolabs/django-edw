@@ -119,18 +119,14 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
     def get_extra(self, instance):
-
         extra = instance.get_summary_extra()
 
-
-
-
         annotation_meta = self.context['annotation_meta']
-
-        if annotation_meta is not None:
+        if annotation_meta:
             annotation = {}
-            for alias in annotation_meta:
-                annotation[alias] = getattr(instance, alias)
+            for key, field in annotation_meta.items():
+                value = getattr(instance, key)
+                annotation[key] = field.to_representation(value) if value is not None else None
 
             if extra is not None:
                 extra.update(annotation)
