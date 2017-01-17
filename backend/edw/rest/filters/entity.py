@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 
+from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 
@@ -10,7 +11,6 @@ from django_filters.widgets import CSVWidget
 import rest_framework_filters as filters
 
 from rest_framework import serializers
-from rest_framework.fields import Field
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
@@ -232,7 +232,7 @@ class EntityMetaFilter(BaseFilterBackend):
                         annotate_kwargs[key] = value[0]
                         if len(value) > 1:
                             field = value[1]
-                            if not isinstance(field, Field):
+                            if isinstance(field, six.string_types):
                                 field = import_string(field)()
                             annotation_meta[key] = field
                     else:
@@ -242,7 +242,6 @@ class EntityMetaFilter(BaseFilterBackend):
 
 
             aggregation_meta = entity_model.get_summary_aggregation()
-            # aggregation_meta = entity_model.get_summary_aggregation(request)
 
         request.GET['_annotation_meta'] = annotation_meta
         request.GET['_aggregation_meta'] = aggregation_meta

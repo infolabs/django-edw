@@ -901,7 +901,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @classmethod
     def get_summary_aggregation(cls):
-    # def get_summary_aggregation(cls, request):
         """
         Return aggregate data for summary serializer.
         Example:
