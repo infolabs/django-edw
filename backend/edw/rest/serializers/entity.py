@@ -121,7 +121,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     def get_extra(self, instance):
         extra = instance.get_summary_extra()
 
-        annotation_meta = self.context['annotation_meta']
+        annotation_meta = self.context.get('annotation_meta', None)
         if annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
