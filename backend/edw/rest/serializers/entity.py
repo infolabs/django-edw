@@ -226,6 +226,11 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
         return self.render_html(entity, 'media')
 
 
+
+
+
+import datetime
+
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
     subj_ids = serializers.SerializerMethodField()
@@ -282,8 +287,24 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             queryset = self.context['filter_queryset']
             print "*** aggregate_kwargs", aggregate_kwargs
 
+            qs = queryset
+
+            print "====="
+            print qs.query
+
             aggregation = queryset.aggregate(**aggregate_kwargs)
+
+            # fn = aggregate_kwargs['avg_solution_duration']
+
+            # print ">>>", fn
+            # aggregation = queryset.aggregate(fn)
+            # aggregation = queryset.aggregate(Avg('solution_duration', output_field=models.DurationField()))
+            # aggregation = queryset.annotate(Avg('solution_duration', output_field=models.FloatField()))
             print ">>>", aggregation
+
+            # rez = str(datetime.timedelta(seconds=aggregation['avg_solution_duration']))
+            # print "|||", rez
+
 
         return None
 
