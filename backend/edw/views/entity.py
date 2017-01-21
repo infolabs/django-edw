@@ -128,6 +128,10 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "aggregation_meta": query_params['_aggregation_meta'],
             "filter_queryset": queryset
         }
+
+        # print "======================"
+        # print queryset.query
+
         return queryset
 
 
