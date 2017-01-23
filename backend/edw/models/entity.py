@@ -882,12 +882,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return annotate data for summary serializer.
         Example:
             from django.db.models import ExpressionWrapper, F
+            from edw.models.expressions import ToSeconds
             ...
             return {
                 'duration': (
-                    ExpressionWrapper(F('updated_at') - F('created_at'),
-                                      output_field=models.DurationField()),
-                    'rest_framework.serializers.DurationField'
+                    ExpressionWrapper(ToSeconds(F('updated_at')) - ToSeconds(F('created_at')),
+                                      output_field=models.BigIntegerField()),
+                    'rest_framework.serializers.IntegerField'
                 )
             }
 
@@ -908,8 +909,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             ...
             return {
                 'avg_duration': (
-                    ExpressionWrapper(Avg('duration'), output_field=models.DurationField()),
-                    'rest_framework.serializers.DurationField',
+                    ExpressionWrapper(Avg('duration'), output_field=models.FloatField()),
+                    'rest_framework.serializers.FloatField',
                     _("Mean value of duration")
                 )
             }
