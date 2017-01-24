@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.core import exceptions
 from django.core.cache import cache
+from django.db.models.expressions import BaseExpression
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -18,6 +19,7 @@ from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.rest import DynamicFieldsSerializerMixin
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
+from edw.rest.serializers.decorators import empty
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -125,6 +127,10 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         if annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
+
+                if field == field.root:
+                    field.root = self.root
+
                 value = getattr(instance, key)
                 annotation[key] = field.to_representation(value) if value is not None else None
 
@@ -231,9 +237,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     subj_ids = serializers.SerializerMethodField()
     ordering = serializers.SerializerMethodField()
     view_component = serializers.SerializerMethodField()
+    aggregation = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
-    aggregation = serializers.SerializerMethodField()
     extra = serializers.SerializerMethodField()
 
     @staticmethod
@@ -277,21 +283,31 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     def get_aggregation(self, instance):
         aggregation_meta = self.context['aggregation_meta']
         if aggregation_meta:
-            aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()])
+            aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()
+                                     if isinstance(value[0], BaseExpression)])
             queryset = self.context['filter_queryset']
             aggregation = queryset.aggregate(**aggregate_kwargs)
             result = {}
             name_field = serializers.CharField()
             for key, data in aggregation_meta.items():
-                value = aggregation[key]
-                field, name = data[1], data[2]
-                result[key] = {
-                    'value': field.to_representation(value) if value is not None else None,
-                    'name': name_field.to_representation(name)
-                }
+                field = data[1]
+                if field is not None:
+                    if field == field.root:
+                        field.root = self.root
+                    name = data[2]
+                    value = aggregation.get(key, empty)
+                    if value == empty:
+                        alias = data[0]
+                        value = [aggregation[x] for x in alias] if isinstance(alias, (tuple, list)
+                                                                              ) else aggregation[alias]
+                    result[key] = {
+                        'value': field.to_representation(value) if value is not None else None,
+                        'name': name_field.to_representation(name) if name is not None else None
+                    }
             return result
         else:
             return None
+
 
 class EntityTotalSummarySerializer(serializers.Serializer):
     meta = EntitySummaryMetadataSerializer(source="*")

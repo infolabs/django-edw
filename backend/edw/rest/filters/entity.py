@@ -248,14 +248,15 @@ class EntityMetaFilter(BaseFilterBackend):
                         "type of value getting from dictionary key '%s' should be `tuple` or `list`"
                         % key
                     )
-                    assert len(value) >= 2, (
-                        "length of `tuple` or `list` getting from dictionary key '%s' should be `2` or `3`"
-                        % key
-                    )
-                    aggregate, field = value[0], value[1]
-                    if isinstance(field, six.string_types):
-                        field = import_string(field)()
-                    name = value[2] if len(value) > 2 else None
+                    aggregate = value[0]
+                    n = len(value)
+                    if n > 1:
+                        field = value[1]
+                        if isinstance(field, six.string_types):
+                            field = import_string(field)()
+                        name = value[2] if n > 2 else None
+                    else:
+                        field, name = None, None
                     aggregation_meta[key] = (aggregate, field, name)
 
         request.GET['_annotation_meta'] = annotation_meta
