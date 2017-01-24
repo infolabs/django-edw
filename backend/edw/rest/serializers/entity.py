@@ -226,11 +226,6 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
         return self.render_html(entity, 'media')
 
 
-
-
-
-import datetime
-
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
     subj_ids = serializers.SerializerMethodField()
@@ -283,32 +278,20 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         aggregation_meta = self.context['aggregation_meta']
         if aggregation_meta:
             aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()])
-
             queryset = self.context['filter_queryset']
-            print "*** aggregate_kwargs", aggregate_kwargs
-
-            qs = queryset
-
-            print "====="
-            print qs.query
-
             aggregation = queryset.aggregate(**aggregate_kwargs)
-
-            # fn = aggregate_kwargs['avg_solution_duration']
-
-            # print ">>>", fn
-            # aggregation = queryset.aggregate(fn)
-            # aggregation = queryset.aggregate(Avg('solution_duration', output_field=models.DurationField()))
-            # aggregation = queryset.annotate(Avg('solution_duration', output_field=models.FloatField()))
-            print ">>>", aggregation
-
-            # rez = str(datetime.timedelta(seconds=aggregation['avg_solution_duration']))
-            # print "|||", rez
-
-
-        return None
-
-
+            result = {}
+            name_field = serializers.CharField()
+            for key, data in aggregation_meta.items():
+                value = aggregation[key]
+                field, name = data[1], data[2]
+                result[key] = {
+                    'value': field.to_representation(value) if value is not None else None,
+                    'name': name_field.to_representation(name)
+                }
+            return result
+        else:
+            return None
 
 class EntityTotalSummarySerializer(serializers.Serializer):
     meta = EntitySummaryMetadataSerializer(source="*")
