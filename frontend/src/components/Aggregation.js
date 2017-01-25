@@ -21,7 +21,7 @@ class Aggregation extends Component {
           <ul className="ex-aggregation-attrs">
             {Object.keys(aggr).map(
               (k, i) => <li key={i} data-slug={k}>
-                <strong>{ aggregation[k].name }</strong>&nbsp;
+                <strong>{ aggregation[k].name }:</strong>&nbsp;
                 { aggregation[k].value }
               </li>
             )}
