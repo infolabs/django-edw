@@ -42,6 +42,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     extra = None
     template_name = None
+    terms = None
     data_mart_pk = None
     subj = None
     format = None
@@ -97,6 +98,9 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
+        if self.terms is not None:
+            request.GET['terms'] = ','.join([str(x) for x in self.terms]) if isinstance(
+                self.terms, (list, tuple)) else str(self.terms)
         if self.subj is not None:
             request.GET['subj'] = ','.join([str(x) for x in self.subj]) if isinstance(
                 self.subj, (list, tuple)) else str(self.subj)
