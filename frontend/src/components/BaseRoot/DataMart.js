@@ -7,6 +7,7 @@ import ViewComponents from 'components/ViewComponents';
 import Ordering from 'components/Ordering';
 import Limits from 'components/Limits';
 import Statistics from 'components/Statistics';
+import Aggregation from 'components/Aggregation';
 
 
 export default class DataMart extends Component {
@@ -35,6 +36,7 @@ export default class DataMart extends Component {
           </div>
           <Entities dom_attrs={dom_attrs} mart_id={mart_id} />
           <Paginator dom_attrs={dom_attrs} mart_id={mart_id} />
+          <Aggregation dom_attrs={dom_attrs} mart_id={mart_id} />
         </div>
       </div>
     );
