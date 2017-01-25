@@ -612,6 +612,11 @@ class TermTreeInfo(dict):
         tree._expand()
         return tree._trim(ids)
 
+    def expand(self):
+        tree = self.deepcopy()
+        tree._expand()
+        return tree
+
     def _expand(self):
         terms = [x.term for x in self.values() if x.is_leaf]
         if terms:
