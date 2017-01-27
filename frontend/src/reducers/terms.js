@@ -106,11 +106,13 @@ class Item {
 
 class TaggedItems {
 
-  constructor(selected = []) {
+  constructor(json = [], selected = []) {
+    // mimic the tree to be able to traverse branches and to get ids
+    let tree = new Tree(json);
     this.array = [];
     for (const i of selected) {
-      this.array.push(parseInt(i));
-      this[i] = true;
+      let item = tree.hash[parseInt(i)];
+      this.toggle(item);
     }
     this.requets = [];
   }
@@ -343,7 +345,7 @@ function requested(state = new Requested(), action) {
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
     case consts.LOAD_TREE:
-      return new TaggedItems(action.selected);
+      return new TaggedItems(action.json, action.selected);
     case consts.TOGGLE_ITEM:
       return state.toggle(action.term);
     case consts.RESET_ITEM:
