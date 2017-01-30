@@ -154,7 +154,7 @@ class TaggedItems {
     return Object.assign(new TaggedItems(), this);
   }
 
-  isTaggable(item) {
+  static isTaggable(item) {
     return !((item.parent &&
       item.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
       item.structure == consts.STRUCTURE_LIMB)
@@ -222,7 +222,7 @@ class TaggedItems {
     let ret = false;
     if (item.parent && item.parent.parent &&
         item.parent.parent.semantic_rule &&
-        this.isTaggable(item)) {
+        this.constructor.isTaggable(item)) {
       ret = this.isAnyTagged(item.siblings);
       if (!ret) {
         ret = this.isORXORTagged(item.parent);
