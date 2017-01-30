@@ -38,7 +38,7 @@ class TermsTree extends Component {
           tag_next = nextProps.terms.tagged,
           meta = this.props.entities.items.meta;
 
-    if (tag_curr != tag_next) {
+    if (!(tag_next.init) && tag_curr != tag_next) {
       let request_options = meta.request_options,
           subj_ids = meta.subj_ids;
 

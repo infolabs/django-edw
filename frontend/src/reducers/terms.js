@@ -106,29 +106,51 @@ class Item {
 
 class TaggedItems {
 
-  constructor(json = [], selected = []) {
-    // mimic the tree to be able to traverse branches and to get ids
-    let tree = new Tree(json);
+  constructor(json = []) {
     this.array = [];
-    for (const i of selected) {
-      let item = tree.hash[parseInt(i)];
-      this.toggle(item);
+    this.cache = {};
+    this.json2tagged(json);
+    this.init = true;
+  }
+
+  json2tagged(json = []) {
+    for (const child of json) {
+      if (child.structure != null) {
+        const pk = parseInt(child.id);
+        this[pk] = true;
+        this.cache[pk] = true;
+        let index = this.array.indexOf(pk);
+        if (index < 0) {
+          this.array.push(pk);
+        }
+      }
+      this.json2tagged(child.children);
     }
-    this.requets = [];
+  }
+
+  json2cache(json = []) {
+    for (const child of json) {
+      const pk = parseInt(child.id);
+      if (child.structure != null) {
+        this.cache[pk] = true;
+      }
+      this.json2tagged(child.children);
+    }
   }
 
   isInCache(arr) {
-    arr.sort();
-    const cache = arr.join(),
-          index = this.requets.indexOf(cache);
-    return index > -1;
+    let ret = true;
+    for (const pk of arr) {
+      if (!this.cache[parseInt(pk)]) {
+        ret = false;
+        break;
+      }
+    }
+    return ret;
   }
 
-  setCache(selected) {
-    if (!this.isInCache(selected)) {
-      selected.sort();
-      this.requets.push(selected.join());
-    }
+  setCache(json) {
+    this.json2cache(json);
     return Object.assign(new TaggedItems(), this);
   }
 
@@ -147,6 +169,7 @@ class TaggedItems {
     } else {
       this.tag(item);
     }
+    this.init = false;
     return Object.assign(new TaggedItems(), this);
   }
 
@@ -345,17 +368,15 @@ function requested(state = new Requested(), action) {
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
     case consts.LOAD_TREE:
-      return new TaggedItems(action.json, action.selected);
+      return new TaggedItems(action.json);
+    case consts.RELOAD_TREE:
+      return state.setCache(action.json);
     case consts.TOGGLE_ITEM:
       return state.toggle(action.term);
     case consts.RESET_ITEM:
       return state.resetItem(action.term);
     case consts.RESET_BRANCH:
       return state.resetBranch(action.term);
-    case consts.LOAD_TREE:
-      return state.setCache(action.selected);
-    case consts.RELOAD_TREE:
-      return state.setCache(action.selected);
     default:
       return state;
   }

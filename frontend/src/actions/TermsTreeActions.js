@@ -20,7 +20,6 @@ function getTermsTree(type, mart_id, selected = []) {
   }).then(response => response.json()).then(json => ({
     type: type,
     json: json,
-    selected: selected,
   }));
 }
 
