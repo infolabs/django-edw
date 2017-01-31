@@ -110,7 +110,7 @@ class TaggedItems {
     this.array = [];
     this.cache = {};
     this.json2tagged(json);
-    this.init = true;
+    this.recache = true;
   }
 
   json2tagged(json = []) {
@@ -150,6 +150,7 @@ class TaggedItems {
   }
 
   setCache(json) {
+    this.recache = true;
     this.json2cache(json);
     return Object.assign(new TaggedItems(), this);
   }
@@ -169,7 +170,7 @@ class TaggedItems {
     } else {
       this.tag(item);
     }
-    this.init = false;
+    this.recache = false;
     return Object.assign(new TaggedItems(), this);
   }
 
