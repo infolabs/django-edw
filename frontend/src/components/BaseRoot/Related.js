@@ -25,7 +25,11 @@ class Related extends Component {
       <div className="ex-related-datamart" data-data-count={count}>
         <div className="row">
           <div className="col-md-9 ex-title">
+            { mart_url != '' ? (
             <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
+            ) : (
+            <h3>{mart_name}</h3>
+            )}
           </div>
           <div className="col-md-3 ex-paginator">
             <Paginator dom_attrs={dom_attrs}
