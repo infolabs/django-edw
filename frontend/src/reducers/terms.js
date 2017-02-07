@@ -152,7 +152,13 @@ class TaggedItems {
   setCache(json) {
     this.recache = true;
     this.json2cache(json);
-    return Object.assign(new TaggedItems(), this);
+    // return Object.assign(new TaggedItems(), this);
+
+    let ret = Object.assign(new TaggedItems(), this);
+
+    ret.array = this.array.slice();
+
+    return ret;
   }
 
   static isTaggable(item) {
@@ -165,13 +171,22 @@ class TaggedItems {
     if (item.isLimbOrAnd())
       return this;
 
-    if (this[item.id]) {
-      this.untag(item);
+    let ret = Object.assign(new TaggedItems(), this);
+
+    ret.array = this.array.slice();
+
+    if (ret[item.id]) {
+      ret.untag(item);
     } else {
-      this.tag(item);
+      ret.tag(item);
     }
-    this.recache = false;
-    return Object.assign(new TaggedItems(), this);
+    // this.recache = false;
+
+
+
+
+
+    return ret;
   }
 
   resetBranch(item) {
@@ -183,7 +198,12 @@ class TaggedItems {
     for (const child of item.children) {
       this.untag(child);
     }
-    return Object.assign(new TaggedItems(), this);
+
+    let ret = Object.assign(new TaggedItems(), this);
+
+    ret.array = this.array.slice();
+
+    return ret;
   }
 
   tag(item) {

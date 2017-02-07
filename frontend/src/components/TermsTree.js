@@ -5,6 +5,26 @@ import * as TermsTreeActions from '../actions/TermsTreeActions';
 import TermsTreeItem from './TermsTreeItem';
 
 
+
+function isArraysEqual(a, b) {
+  console.log("TEST", a, b);
+
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+
+  // If you don't care about the order of the elements inside
+  // the array, you should sort both arrays here.
+
+
+
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+
 class TermsTree extends Component {
 
   componentDidMount() {
@@ -38,7 +58,21 @@ class TermsTree extends Component {
           tag_next = nextProps.terms.tagged,
           meta = this.props.entities.items.meta;
 
-    if (!(tag_next.recache) && tag_curr != tag_next) {
+
+    console.log("==================");
+    console.log(tag_curr);
+    console.log("------------------");
+    console.log(tag_next);
+    console.log("******************");
+    console.log((tag_curr == tag_next));
+    console.log("==================");
+
+
+    if ( !isArraysEqual(tag_curr.array, tag_next.array) ) { //!(tag_next.recache) &&
+    // if (tag_curr != tag_next) { //!(tag_next.recache) &&
+
+      console.log('*** RECALL ***');
+
       let request_options = meta.request_options,
           subj_ids = meta.subj_ids;
 
