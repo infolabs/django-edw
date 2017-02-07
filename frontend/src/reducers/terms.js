@@ -107,10 +107,20 @@ class Item {
 class TaggedItems {
 
   constructor(json = []) {
-    this.array = [];
+    this.items = [];
     this.cache = {};
     this.json2tagged(json);
-    this.recache = true;
+  }
+
+  createFromJson(json = []) {
+    this.json2tagged(json)
+    return Object.assign(new TaggedItems(), this);
+  }
+
+  copy () {
+    let ret = Object.assign(new TaggedItems(), this); 
+    ret.items = this.items.slice();
+    return ret;
   }
 
   json2tagged(json = []) {
@@ -119,9 +129,9 @@ class TaggedItems {
         const pk = parseInt(child.id);
         this[pk] = true;
         this.cache[pk] = true;
-        let index = this.array.indexOf(pk);
+        let index = this.items.indexOf(pk);
         if (index < 0) {
-          this.array.push(pk);
+          this.items.push(pk);
         }
       }
       this.json2tagged(child.children);
@@ -138,9 +148,9 @@ class TaggedItems {
     }
   }
 
-  isInCache(arr) {
+  isInCache() {
     let ret = true;
-    for (const pk of arr) {
+    for (const pk of this.items) {
       if (!this.cache[parseInt(pk)]) {
         ret = false;
         break;
@@ -152,13 +162,7 @@ class TaggedItems {
   setCache(json) {
     this.recache = true;
     this.json2cache(json);
-    // return Object.assign(new TaggedItems(), this);
-
-    let ret = Object.assign(new TaggedItems(), this);
-
-    ret.array = this.array.slice();
-
-    return ret;
+    return Object.assign(new TaggedItems(), this);
   }
 
   static isTaggable(item) {
@@ -171,38 +175,27 @@ class TaggedItems {
     if (item.isLimbOrAnd())
       return this;
 
-    let ret = Object.assign(new TaggedItems(), this);
-
-    ret.array = this.array.slice();
+    let ret = this.copy();
 
     if (ret[item.id]) {
       ret.untag(item);
     } else {
       ret.tag(item);
     }
-    // this.recache = false;
-
-
-
-
-
     return ret;
   }
 
   resetBranch(item) {
-    this.untag(item);
-    return Object.assign(new TaggedItems(), this);
+    let ret = this.copy();
+    ret.untag(item);
+    return ret;
   }
 
   resetItem(item) {
+    let ret = this.copy();
     for (const child of item.children) {
-      this.untag(child);
+      ret.untag(child);
     }
-
-    let ret = Object.assign(new TaggedItems(), this);
-
-    ret.array = this.array.slice();
-
     return ret;
   }
 
@@ -210,18 +203,18 @@ class TaggedItems {
     this[item.id] = true;
     if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
       this.untagSiblings(item);
-    let index = this.array.indexOf(item.id);
+    let index = this.items.indexOf(item.id);
     if (index < 0 && item.id > -1) {
-      this.array.push(item.id);
+      this.items.push(item.id);
     }
     item.parent && this.tag(item.parent);
   }
 
   untag(item) {
     this[item.id] = false;
-    let index = this.array.indexOf(item.id);
+    let index = this.items.indexOf(item.id);
     if (index > -1) {
-      this.array.splice(index, 1);
+      this.items.splice(index, 1);
     }
     for (const child of item.children) {
       this.untag(child);
@@ -389,7 +382,7 @@ function requested(state = new Requested(), action) {
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
     case consts.LOAD_TREE:
-      return new TaggedItems(action.json);
+      return state.createFromJson(action.json);
     case consts.RELOAD_TREE:
       return state.setCache(action.json);
     case consts.TOGGLE_ITEM:

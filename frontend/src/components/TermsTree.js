@@ -5,18 +5,10 @@ import * as TermsTreeActions from '../actions/TermsTreeActions';
 import TermsTreeItem from './TermsTreeItem';
 
 
-
 function isArraysEqual(a, b) {
-  console.log("TEST", a, b);
-
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (a.length != b.length) return false;
-
-  // If you don't care about the order of the elements inside
-  // the array, you should sort both arrays here.
-
-
 
   for (let i = 0; i < a.length; ++i) {
     if (a[i] !== b[i]) return false;
@@ -43,43 +35,26 @@ class TermsTree extends Component {
   componentWillReceiveProps(nextProps) {
     const dom_attrs = this.props.dom_attrs,
           mart_id = this.props.mart_id,
-          subj_attr = dom_attrs.getNamedItem('data-subj');
-
-    // Reload tree on new requested term
-    const req_curr = this.props.terms.tagged,
-          req_next = nextProps.terms.tagged;
-    if (req_curr != req_next && !req_next.isInCache(req_next.array)) {
-      this.props.actions.notifyLoading();
-      this.props.actions.reloadTree(mart_id, req_next.array);
-    }
-
-    // Reload entires on toggled term
-    const tag_curr = this.props.terms.tagged,
-          tag_next = nextProps.terms.tagged,
+          subj_attr = dom_attrs.getNamedItem('data-subj'),
+          tagged_current = this.props.terms.tagged,
+          tagged_next = nextProps.terms.tagged,
           meta = this.props.entities.items.meta;
 
+    if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
+      // reload tree
+      if (!tagged_next.isInCache()) {
+        this.props.actions.notifyLoading();
+        this.props.actions.reloadTree(mart_id, tagged_next.items);
+      }
 
-    console.log("==================");
-    console.log(tag_curr);
-    console.log("------------------");
-    console.log(tag_next);
-    console.log("******************");
-    console.log((tag_curr == tag_next));
-    console.log("==================");
-
-
-    if ( !isArraysEqual(tag_curr.array, tag_next.array) ) { //!(tag_next.recache) &&
-    // if (tag_curr != tag_next) { //!(tag_next.recache) &&
-
-      console.log('*** RECALL ***');
-
+      // reload entities
       let request_options = meta.request_options,
           subj_ids = meta.subj_ids;
 
       if (!subj_ids && subj_attr && subj_attr.value)
         subj_ids = subj_attr.value.split(",");
 
-      request_options['terms'] = tag_next.array;
+      request_options['terms'] = tagged_next.items;
       request_options['offset'] = 0;
       this.props.actions.notifyLoadingEntities();
       this.props.actions.getEntities(mart_id, subj_ids, request_options);
