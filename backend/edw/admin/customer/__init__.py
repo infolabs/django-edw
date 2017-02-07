@@ -1,15 +1,17 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models.fields.related import OneToOneRel
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
-from edw.models.customer import CustomerModel
-from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
-
 from edw import settings as edw_settings
+
+from edw.models.customer import CustomerModel
 
 from .forms import CustomerChangeForm, CustomerCreationForm
 
@@ -69,6 +71,17 @@ class CustomerAdmin(UserAdmin):
             fieldsets[0][1]['fields'] = ('username', 'recognized', 'password',)
             fieldsets[3][1]['fields'] = ('date_joined', 'last_login', 'last_access',)
         return fieldsets
+
+    def to_field_allowed(self, request, to_field):
+        opts = self.model._meta
+        try:
+            field = opts.get_field(to_field)
+            if isinstance(field, OneToOneRel) and not hasattr(field, 'primary_key'):
+                setattr(field, 'attname', 'id')
+                setattr(field, 'primary_key', True)
+        except FieldDoesNotExist:
+            return False
+        return super(CustomerAdmin, self).to_field_allowed(request, to_field)
 
     def get_username(self, user):
         if hasattr(user, 'customer'):
