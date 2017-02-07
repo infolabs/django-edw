@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest
 from django.utils.six.moves.urllib.parse import urlparse
@@ -46,7 +45,7 @@ def entity_event_notification(sender, instance=None, target=None, **kwargs):
     if not isinstance(instance, EntityModel.materialized):
         return
     for notification in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
-        recipient = notification.get_recipient(instance)
+        recipient = instance.get_recipient(notification.mail_to)
         if recipient is None:
             continue
 

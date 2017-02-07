@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.term import TermModel
+from edw.models.customer import CustomerModel
+
 
 
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
@@ -33,6 +35,14 @@ class FSMMixin(object):
     def get_transition_name(cls, target):
         """Return the human readable name for a given transition target"""
         return target
+
+    def get_recipient(self, notification_recipient):
+        if notification_recipient is None or not hasattr(self, 'customer') or getattr(self, 'customer') is None:
+            return None
+        if notification_recipient == 0:
+            customer = getattr(self, 'customer')
+            return customer.email
+        return CustomerModel.objects.get(pk=notification_recipient).email
 
     def state_name(self):
         raise NotImplementedError(

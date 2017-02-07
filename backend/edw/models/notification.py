@@ -10,8 +10,6 @@ from post_office.models import EmailTemplate
 
 from edw.settings import APP_LABEL
 
-from edw.models.customer import CustomerModel
-
 
 class Notification(models.Model):
     """
@@ -19,7 +17,7 @@ class Notification(models.Model):
     """
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     transition_target = models.CharField(max_length=50, verbose_name=_("Event"))
-    mail_to = models.PositiveIntegerField(verbose_name=_("Mail to"), null=True,
+    mail_to = models.IntegerField(verbose_name=_("Mail to"), null=True,
                                           blank=True, default=None)
     mail_template = models.ForeignKey(EmailTemplate, verbose_name=_("Template"),
                             limit_choices_to=Q(language__isnull=True) | Q(language=''))
@@ -29,13 +27,6 @@ class Notification(models.Model):
         verbose_name = _("Notification")
         verbose_name_plural = _("Notifications")
         ordering = ('transition_target', 'mail_to')
-
-    def get_recipient(self, entity):
-        if self.mail_to is None or not hasattr(entity, 'customer') or entity.customer is None:
-            return None
-        if self.mail_to == 0:
-            return entity.customer.email
-        return CustomerModel.objects.get(pk=self.mail_to).email
 
     @staticmethod
     def get_transition_target(sender, target):
