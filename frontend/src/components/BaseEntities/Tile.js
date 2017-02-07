@@ -46,15 +46,16 @@ class TileItem extends Component {
 
   componentDidMount(x, y, z) {
     const area = ReactDOM.findDOMNode(this),
-          info = area.getElementsByClassName("ex-description-wrapper")[0],
+          info = area.getElementsByClassName("ex-description-wrapper")[0];
           // areaRect = area.getBoundingClientRect(),
-          infoRect = info.getBoundingClientRect(),
-          window_width = window.innerWidth,
-          width = 250, // todo: calculate width
-          left = infoRect.right;
-
-    const h_pos = window_width < left + width ? "right" : "left";
-    this.setState({"h_pos": h_pos});
+    if (info) {
+      const infoRect = info.getBoundingClientRect(),
+            window_width = window.innerWidth,
+            width = 250, // todo: calculate width
+            left = infoRect.right,
+            h_pos = window_width < left + width ? "right" : "left";
+      this.setState({"h_pos": h_pos});
+    }
   }
 
   render() {
