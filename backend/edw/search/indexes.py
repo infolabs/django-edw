@@ -10,7 +10,7 @@ from haystack import indexes
 from edw.models.entity import EntityModel
 
 
-class ProductIndex(indexes.SearchIndex):
+class EntityIndex(indexes.SearchIndex):
     """
     Abstract base class used to index all entities for this edw
     """
@@ -30,7 +30,7 @@ class ProductIndex(indexes.SearchIndex):
         if hasattr(entity, 'translations'):
             entity.set_current_language(self.language)
         with translation.override(self.language):
-            data = super(ProductIndex, self).prepare(entity)
+            data = super(EntityIndex, self).prepare(entity)
         return data
 
     def render_html(self, prefix, entity, postfix):
