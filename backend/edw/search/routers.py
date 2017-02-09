@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.conf import settings
 from django.utils.translation import get_language
+
 from haystack import routers
 from haystack.constants import DEFAULT_ALIAS
 

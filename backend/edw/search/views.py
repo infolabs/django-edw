@@ -18,6 +18,3 @@ class SearchView(ListModelMixin, HaystackGenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    def get_template_names(self):
-        return [self.request.current_page.get_template()]

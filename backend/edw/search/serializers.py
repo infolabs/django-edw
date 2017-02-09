@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from rest_framework import serializers
+
 from drf_haystack.serializers import HaystackSerializer
 
 
-class ProductSearchSerializer(HaystackSerializer):
+class EntitySearchSerializer(HaystackSerializer):
     """
     The base serializer to represent one or more product fields for being returned as a
     result list during searches.
     """
-    price = serializers.SerializerMethodField()
-
     class Meta:
-        fields = ('text', 'autocomplete', 'product_name', 'product_url', 'price',)
+        fields = ('text', 'autocomplete', 'entity_name', 'entity_url',)
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}
 
