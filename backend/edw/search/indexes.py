@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.conf import settings
 from django.template import Context
 from django.template.loader import select_template
 from django.utils import translation
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe
+
 from haystack import indexes
+
 from edw.models.entity import EntityModel
 
 
@@ -16,7 +19,7 @@ class EntityIndex(indexes.SearchIndex):
     """
     text = indexes.CharField(document=True, use_template=True)
     autocomplete = indexes.EdgeNgramField(use_template=True)
-    entity_name = indexes.CharField(stored=True, indexed=False, model_attr='entity_name')
+    entity_name = indexes.CharField(stored=True, indexed=True, model_attr='entity_name')
     entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
 
     def get_model(self):
