@@ -23,7 +23,7 @@ class EntityImageViewSet(viewsets.ModelViewSet):
     filter_class = EntityImageFilter
     filter_backends = (DjangoFilterBackend,)
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(EntityImageViewSet, self).initialize_request(*args, **kwargs)
 

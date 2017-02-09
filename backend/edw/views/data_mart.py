@@ -42,7 +42,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
 
     pagination_class = DataMartPagination
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(DataMartViewSet, self).initialize_request(*args, **kwargs)
 

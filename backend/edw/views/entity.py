@@ -56,7 +56,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     pagination_class = EntityPagination
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request(exclude=('active',))
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 
@@ -94,6 +94,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
     def list(self, request, data_mart_pk=None, *args, **kwargs):
+        request.GET.setdefault('active', True)
         if self.data_mart_pk is not None:
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
