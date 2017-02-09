@@ -41,7 +41,7 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
 
     pagination_class = TermPagination
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
 

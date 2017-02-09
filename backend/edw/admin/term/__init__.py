@@ -96,7 +96,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def term_select_json_view(self, request):
         node_id = request.GET.get('node')
         name = request.GET.get('name')

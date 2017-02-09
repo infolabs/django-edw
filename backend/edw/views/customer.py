@@ -19,7 +19,7 @@ class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('first_name', 'last_name')
     ordering_fields = ('first_name', )
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(CustomerViewSet, self).initialize_request(*args, **kwargs)
 

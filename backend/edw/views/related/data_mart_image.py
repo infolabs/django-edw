@@ -23,7 +23,7 @@ class DataMartImageViewSet(viewsets.ModelViewSet):
     filter_class = DataMartImageFilter
     filter_backends = (DjangoFilterBackend,)
 
-    @remove_empty_params_from_request
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(DataMartImageViewSet, self).initialize_request(*args, **kwargs)
 
