@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from rest_framework import serializers
+
 from drf_haystack.serializers import HaystackSerializer
 
 
@@ -12,7 +12,7 @@ class EntitySearchSerializer(HaystackSerializer):
     # price = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('text', 'autocomplete', 'product_name', 'product_url', 'price',)
+        fields = ('text', 'autocomplete', 'entity_name', 'entity_url',)
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}
 
