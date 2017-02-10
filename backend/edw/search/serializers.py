@@ -18,9 +18,10 @@ class EntitySearchSerializer(HaystackSerializer):
         index_classes = [EntityIndex]
 
         fields = ('text', 'autocomplete', 'entity_name', 'entity_url',)
+        '''
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}
-
+        '''
 
     '''
     def get_price(self, search_result):

@@ -15,17 +15,11 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
     """
     A generic view to be used for rendering the result list while searching.
     """
-    queryset = EntityModel.objects.all()
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
-    serializer_class = EntitySearchSerializer  # to be set by SearchView.as_view(serializer_class=...)
-
     index_models = [EntityModel]
 
-    def get_queryset(self):
-        result=super(EntitySearchViewSet, self).get_queryset()
-        print('================= result ===============', dir(result))
-        print(result.stats_results())
-        return result
+    #renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
+    serializer_class = EntitySearchSerializer  # to be set by SearchView.as_view(serializer_class=...)
+
 
     #def get(self, request, *args, **kwargs):
     #    return self.list(request, *args, **kwargs)
