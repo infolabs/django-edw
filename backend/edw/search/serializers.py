@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+#from rest_framework import serializers
 from drf_haystack.serializers import HaystackSerializer
+
+from edw.search.indexes import EntityIndex
 
 
 class EntitySearchSerializer(HaystackSerializer):
@@ -9,12 +12,15 @@ class EntitySearchSerializer(HaystackSerializer):
     The base serializer to represent one or more entity fields for being returned as a
     result list during searches.
     """
-    # price = serializers.SerializerMethodField()
+    #price = serializers.SerializerMethodField()
 
     class Meta:
+        index_classes = [EntityIndex]
+
         fields = ('text', 'autocomplete', 'entity_name', 'entity_url',)
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}
+
 
     '''
     def get_price(self, search_result):

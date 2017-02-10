@@ -6,12 +6,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url, include
 
 from rest_framework_nested import routers
+from rest_framework.urlpatterns import format_suffix_patterns
 
 from edw.views.term import TermViewSet
 from edw.views.data_mart import DataMartViewSet
 from edw.views.entity import EntityViewSet, EntitySubjectViewSet
-
-from rest_framework.urlpatterns import format_suffix_patterns
+from edw.search.views import EntitySearchViewSet
 
 
 #==============================================================================
@@ -22,6 +22,7 @@ router = routers.DefaultRouter()
 router.register(r'data-marts', DataMartViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'entities', EntityViewSet)
+router.register(r'search', EntitySearchViewSet, base_name='search')
 
 data_mart_nested_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
 data_mart_nested_router.register(r'children', DataMartViewSet, base_name='data-mart-children')

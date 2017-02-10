@@ -21,8 +21,6 @@ from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import EntityPagination
 
-
-
 from django.db.models import Avg, ExpressionWrapper, DurationField
 
 

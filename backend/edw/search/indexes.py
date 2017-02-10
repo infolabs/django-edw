@@ -2,18 +2,18 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.template import Context
-from django.template.loader import select_template
+#from django.template import Context
+#from django.template.loader import select_template
+#from django.utils.html import strip_spaces_between_tags
+#from django.utils.safestring import mark_safe
 from django.utils import translation
-from django.utils.html import strip_spaces_between_tags
-from django.utils.safestring import mark_safe
 
 from haystack import indexes
 
 from edw.models.entity import EntityModel
 
 
-class EntityIndex(indexes.SearchIndex):
+class EntityIndex(indexes.SearchIndex, indexes.Indexable):
     """
     Abstract base class used to index all entities for this edw
     """
@@ -36,6 +36,7 @@ class EntityIndex(indexes.SearchIndex):
             data = super(EntityIndex, self).prepare(entity)
         return data
 
+    '''
     def render_html(self, prefix, entity, postfix):
         """
         Render a HTML snippet to be stored inside the index database.
@@ -51,6 +52,7 @@ class EntityIndex(indexes.SearchIndex):
         context = Context({'entity': entity})
         content = strip_spaces_between_tags(template.render(context).strip())
         return mark_safe(content)
+    '''
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
@@ -58,4 +60,5 @@ class EntityIndex(indexes.SearchIndex):
             self.language = using
         else:
             self.language = settings.LANGUAGE_CODE
-        return self.get_model().objects.indexable()
+        return self.get_model().objects.all()
+
