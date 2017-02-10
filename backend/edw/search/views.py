@@ -16,8 +16,8 @@ class SearchView(ListModelMixin, HaystackGenericAPIView):
     renderer_classes = (BrowsableAPIRenderer)
     serializer_class = None  # to be set by SearchView.as_view(serializer_class=...)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def get_template_names(self):
-        return [self.request.current_page.get_template()]
+    # def get(self, request, *args, **kwargs):
+    #     return self.list(request, *args, **kwargs)
+    #
+    # def get_template_names(self):
+    #     return [self.request.current_page.get_template()]
