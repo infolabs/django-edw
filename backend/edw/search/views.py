@@ -4,14 +4,30 @@ from __future__ import unicode_literals
 from rest_framework.mixins import ListModelMixin
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
+
 from drf_haystack.generics import HaystackGenericAPIView
 from drf_haystack.viewsets import ViewSetMixin
+from drf_haystack.filters import BaseFilterBackend
+from drf_haystack.query import FilterQueryBuilder
+
+import operator
+
 
 from edw.models.entity import EntityModel
 from edw.search.serializers import EntitySearchSerializer
 
 
-class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
+class SearchFilter(BaseFilterBackend):
+
+    query_builder_class = FilterQueryBuilder
+    default_operator = operator.and_
+
+    def filter_queryset(self, request, queryset, view):
+        print('+++++++++++ FILTER ----------')
+        return super(SearchFilter, self).filter_queryset(request, queryset, view)
+
+
+class EntitySearchViewSet(ListModelMixin,ViewSetMixin, HaystackGenericAPIView):
     """
     A generic view to be used for rendering the result list while searching.
     """
@@ -19,6 +35,8 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
 
     #renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
     serializer_class = EntitySearchSerializer  # to be set by SearchView.as_view(serializer_class=...)
+
+    filter_backends = [SearchFilter]
 
 
     #def get(self, request, *args, **kwargs):
