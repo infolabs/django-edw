@@ -17,7 +17,7 @@ class EntitySearchSerializer(HaystackSerializer):
     class Meta:
         index_classes = [EntityIndex]
 
-        fields = ('text', 'autocomplete', 'entity_name', 'entity_url',)
+        fields = ('text', 'autocomplete', 'entity_name', 'entity_model', 'entity_url',)
         '''
         ignore_fields = ('text', 'autocomplete',)
         field_aliases = {'q': 'text'}

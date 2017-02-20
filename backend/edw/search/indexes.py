@@ -2,13 +2,12 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-#from django.template import Context
-#from django.template.loader import select_template
-#from django.utils.html import strip_spaces_between_tags
-#from django.utils.safestring import mark_safe
-from django.utils import translation
+from django.utils.encoding import force_text
 
 from haystack import indexes
+from haystack.constants import DJANGO_CT, DJANGO_ID, ID
+from haystack.fields import *
+from haystack.utils import get_identifier, get_model_ct
 
 from edw.models.entity import EntityModel
 
@@ -17,10 +16,13 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
     """
     Abstract base class used to index all entities for this edw
     """
-    text = indexes.CharField(document=True, use_template=True)
-    autocomplete = indexes.EdgeNgramField(use_template=True)
     entity_name = indexes.CharField(stored=True, indexed=True, model_attr='entity_name')
+    entity_model = indexes.CharField(stored=True, indexed=True, model_attr='entity_model')
     entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
+
+    text = indexes.CharField(document=True, use_template=True)
+
+    # autocomplete = indexes.EdgeNgramField(use_template=True)
 
     def get_model(self):
         """
@@ -29,12 +31,30 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
         """
         return EntityModel
 
-    def prepare(self, entity):
-        if hasattr(entity, 'translations'):
-            entity.set_current_language(self.language)
-        with translation.override(self.language):
-            data = super(EntityIndex, self).prepare(entity)
-        return data
+    def prepare(self, obj):
+        """
+        Fetches and adds/alters data before indexing.
+        """
+        self.prepared_data = {
+            ID: get_identifier(obj),
+            DJANGO_CT: get_model_ct(EntityModel()),
+            DJANGO_ID: force_text(obj.pk),
+        }
+
+        for field_name, field in self.fields.items():
+            # Use the possibly overridden name, which will default to the
+            # variable name of the field.
+            self.prepared_data[field.index_fieldname] = field.prepare(obj)
+
+            if hasattr(self, "prepare_%s" % field_name):
+                value = getattr(self, "prepare_%s" % field_name)(obj)
+                self.prepared_data[field.index_fieldname] = value
+
+        t = loader.select_template(('search/indexes/edw/entity_text.txt', ))
+
+        self.prepared_data['text'] = t.render(Context({'object': obj}))
+
+        return self.prepared_data
 
     '''
     def render_html(self, prefix, entity, postfix):
