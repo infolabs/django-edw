@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from rest_framework import serializers
+from rest_framework import serializers
 from drf_haystack.serializers import HaystackSerializer
 
 from edw.search.indexes import EntityIndex
@@ -12,24 +12,20 @@ class EntitySearchSerializer(HaystackSerializer):
     The base serializer to represent one or more entity fields for being returned as a
     result list during searches.
     """
-    #price = serializers.SerializerMethodField()
+    entity_url = serializers.SerializerMethodField()
 
     class Meta:
         index_classes = [EntityIndex]
 
-        fields = ('text', 'autocomplete', 'entity_name', 'entity_model', 'entity_url',)
-        '''
-        ignore_fields = ('text', 'autocomplete',)
-        field_aliases = {'q': 'text'}
-        '''
+        fields = ('entity_name', 'entity_model', 'entity_url', 'text', 'autocomplete')
+        ignore_fields = ('text', 'autocomplete')
 
-    '''
-    def get_price(self, search_result):
-        """
-        The price can't be stored inside the search index but must be fetched from the resolved
-        model. In case your product models have a fixed price, try to store it as
-        ``indexes.DecimalField`` and retrieve from the search index, because that's much faster.
-        """
+        field_aliases = {'q': 'text'}
+
+
+
+    def get_entity_url(self, search_result):
+
         if search_result.object:
-            return search_result.object.get_price(self.context['request'])
-    '''
+            return search_result.object.get_absolute_url(
+                request=self.context.get('request'), format=self.context.get('format'))

@@ -16,8 +16,13 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
     """
     entity_name = indexes.CharField(stored=True, indexed=True, model_attr='entity_name')
     entity_model = indexes.CharField(stored=True, indexed=True, model_attr='entity_model')
-    entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
+
+    # entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
+
+    terms = indexes.MultiValueField(stored=True, indexed=True, model_attr='active_terms_ids')
+
     text = indexes.CharField(document=True, use_template=True)
+
     autocomplete = indexes.EdgeNgramField(use_template=True)
 
     def get_model(self):
@@ -35,6 +40,11 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
         prepared_data.update({
             DJANGO_CT: get_model_ct(EntityModel())
         })
+
+        print '-----------------------------'
+        print prepared_data
+        print '-----------------------------'
+
         return prepared_data
 
     '''

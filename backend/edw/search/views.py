@@ -2,23 +2,13 @@
 from __future__ import unicode_literals
 
 from rest_framework.mixins import ListModelMixin
-from rest_framework.filters import SearchFilter
 
 from drf_haystack.generics import HaystackGenericAPIView
 from drf_haystack.viewsets import ViewSetMixin
-from drf_haystack.filters import BaseHaystackFilterBackend
-from drf_haystack.query import FilterQueryBuilder
-
-import operator
 
 from edw.models.entity import EntityModel
 from edw.search.serializers import EntitySearchSerializer
-
-
-class SearchFilter(BaseHaystackFilterBackend):
-
-    query_builder_class = FilterQueryBuilder
-    default_operator = operator.and_
+from edw.search.filters import HaystackTermFilter
 
 
 class EntitySearchViewSet(ListModelMixin,ViewSetMixin, HaystackGenericAPIView):
@@ -30,7 +20,7 @@ class EntitySearchViewSet(ListModelMixin,ViewSetMixin, HaystackGenericAPIView):
     #renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
     serializer_class = EntitySearchSerializer  # to be set by SearchView.as_view(serializer_class=...)
 
-    filter_backends = [SearchFilter]
+    filter_backends = [HaystackTermFilter]
 
 
     #def get(self, request, *args, **kwargs):
