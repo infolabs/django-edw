@@ -19,14 +19,12 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
     entity_name = indexes.CharField(stored=True, indexed=True, model_attr='entity_name')
     entity_model = indexes.CharField(stored=True, indexed=True, model_attr='entity_model')
     entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
-
     text = indexes.CharField(document=True, use_template=True)
-
-    # autocomplete = indexes.EdgeNgramField(use_template=True)
+    autocomplete = indexes.EdgeNgramField(use_template=True)
 
     def get_model(self):
         """
-        Hook to refer to the used Product model. Override this to create indices of
+        Hook to refer to the used Entity model. Override this to create indices of
         specialized entity models.
         """
         return EntityModel
@@ -35,26 +33,13 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
         """
         Fetches and adds/alters data before indexing.
         """
-        self.prepared_data = {
+        prepared_data = super(EntityIndex, self).prepare(obj)
+        prepared_data.update({
             ID: get_identifier(obj),
             DJANGO_CT: get_model_ct(EntityModel()),
             DJANGO_ID: force_text(obj.pk),
-        }
-
-        for field_name, field in self.fields.items():
-            # Use the possibly overridden name, which will default to the
-            # variable name of the field.
-            self.prepared_data[field.index_fieldname] = field.prepare(obj)
-
-            if hasattr(self, "prepare_%s" % field_name):
-                value = getattr(self, "prepare_%s" % field_name)(obj)
-                self.prepared_data[field.index_fieldname] = value
-
-        t = loader.select_template(('search/indexes/edw/entity_text.txt', ))
-
-        self.prepared_data['text'] = t.render(Context({'object': obj}))
-
-        return self.prepared_data
+        })
+        return prepared_data
 
     '''
     def render_html(self, prefix, entity, postfix):
