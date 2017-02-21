@@ -2,12 +2,10 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.utils.encoding import force_text
 
 from haystack import indexes
-from haystack.constants import DJANGO_CT, DJANGO_ID, ID
-from haystack.fields import *
-from haystack.utils import get_identifier, get_model_ct
+from haystack.constants import DJANGO_CT
+from haystack.utils import get_model_ct
 
 from edw.models.entity import EntityModel
 
@@ -35,9 +33,7 @@ class EntityIndex(indexes.SearchIndex, indexes.Indexable):
         """
         prepared_data = super(EntityIndex, self).prepare(obj)
         prepared_data.update({
-            ID: get_identifier(obj),
-            DJANGO_CT: get_model_ct(EntityModel()),
-            DJANGO_ID: force_text(obj.pk),
+            DJANGO_CT: get_model_ct(EntityModel())
         })
         return prepared_data
 
