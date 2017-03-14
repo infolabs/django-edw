@@ -67,7 +67,7 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         cache_key = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'.format(entity.id, app_label, self.label, entity.entity_model,
                                                             postfix, get_language_from_request(request))
 
-        # todo: test `cache_html_snippet` or cache_timeout? context['extra']?
+        # todo: test `cache_html_snippet` or cache_timeout? context?
 
         content = cache.get(cache_key)
 
