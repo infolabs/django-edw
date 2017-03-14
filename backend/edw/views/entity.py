@@ -63,8 +63,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         # if hasattr(self.extra, '__call__'):
         #     self.extra = self.extra(self, request, *args, **kwargs)
-        if hasattr(self.serializer_context, '__call__'):
-            self.serializer_context = self.serializer_context(self, request, *args, **kwargs)
+        if hasattr(self.extra_serializer_context, '__call__'):
+            self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)
 
     @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
