@@ -39,6 +39,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     }
 
     extra = None
+    serializer_context = None
     template_name = None
     terms = None
     data_mart_pk = None
@@ -62,6 +63,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         if hasattr(self.extra, '__call__'):
             self.extra = self.extra(self, request, *args, **kwargs)
+        if hasattr(self.serializer_context, '__call__'):
+            self.serializer_context = self.serializer_context(self, request, *args, **kwargs)
 
     @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
@@ -108,6 +111,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     def get_serializer_context(self):
         context = super(EntityViewSet, self).get_serializer_context()
         context.update(self.queryset_context)
+        if self.serializer_context is not None:
+            context.update(self.serializer_context)
         return context
 
     def filter_queryset(self, queryset):

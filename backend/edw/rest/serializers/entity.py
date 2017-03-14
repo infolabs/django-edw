@@ -44,6 +44,16 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         model = EntityModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
+
+    # @cached_property
+    # @get_from_context_or_request('cache_html_snippet', True)
+    # def cache_html_snippet(self, value):
+    #     '''
+    #     :return: `cache_html_snippet` value in context or request, default: True
+    #     '''
+    #     return serializers.BooleanField().to_internal_value(value)
+
+
     def render_html(self, entity, postfix):
         """
         Return a HTML snippet containing a rendered summary for this entity.
@@ -56,6 +66,9 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         request = self.context['request']
         cache_key = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'.format(entity.id, app_label, self.label, entity.entity_model,
                                                             postfix, get_language_from_request(request))
+
+        # todo: test `cache_html_snippet` or cache_timeout? context['extra']?
+
         content = cache.get(cache_key)
 
         if content:
