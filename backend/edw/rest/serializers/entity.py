@@ -66,11 +66,15 @@ class EntityCommonSerializer(serializers.ModelSerializer):
         request = self.context['request']
         cache_key = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'.format(entity.id, app_label, self.label, entity.entity_model,
                                                             postfix, get_language_from_request(request))
-
-        # todo: test `cache_html_snippet` or cache_timeout? context?
-
-        content = cache.get(cache_key)
-
+        cache_duration = self.context.get('entity_html_snippet_cache_duration', empty)
+        if cache_duration == empty:
+            cache_duration = edw_settings.CACHE_DURATIONS['entity_html_snippet']
+            content = cache.get(cache_key)
+        elif cache_duration is None:
+            cache_duration = edw_settings.CACHE_DURATIONS['entity_html_snippet']
+            content = None
+        else:
+            content = cache.get(cache_key)
         if content:
             return mark_safe(content)
         params = [
@@ -90,7 +94,7 @@ class EntityCommonSerializer(serializers.ModelSerializer):
             'ABSOLUTE_BASE_URI': absolute_base_uri
         }
         content = strip_spaces_between_tags(template.render(context, request).strip())
-        cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['entity_html_snippet'])
+        cache.set(cache_key, content, cache_duration)
         return mark_safe(content)
 
 

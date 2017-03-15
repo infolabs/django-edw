@@ -38,7 +38,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
         'retrieve':  EntityDetailSerializer,
     }
 
-    # extra = None
     extra_serializer_context = None
     template_name = None
     terms = None
@@ -61,8 +60,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     def initial(self, request, *args, **kwargs):
         super(EntityViewSet, self).initial(request, *args, **kwargs)
-        # if hasattr(self.extra, '__call__'):
-        #     self.extra = self.extra(self, request, *args, **kwargs)
         if hasattr(self.extra_serializer_context, '__call__'):
             self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)
 
@@ -124,7 +121,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.queryset_context = {
-            # "extra": self.extra,
             "initial_filter_meta": query_params['_initial_filter_meta'],
             "initial_queryset": query_params['_initial_queryset'],
             "terms_filter_meta": query_params['_terms_filter_meta'],
