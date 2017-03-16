@@ -1,6 +1,9 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
+import urllib
+
 from django.contrib import admin
 
 from django.utils.translation import ugettext_lazy as _
@@ -62,7 +65,7 @@ class TermsTreeFilter(admin.ListFilter):
     def choices(self, cl):
         value = self.value()
         if value:
-            values = value.split(',')
+            values = urllib.unquote(value).decode('utf8').split(',')
         else:
             values = list()
 

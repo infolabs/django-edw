@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 
+import urllib
+
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
-
-from django_filters.widgets import CSVWidget
 
 import rest_framework_filters as filters
 
@@ -18,6 +18,7 @@ from edw.models.entity import BaseEntity
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
+from edw.rest.filters.widgets import CSVWidget
 
 
 class BaseEntityFilter(filters.FilterSet):
@@ -44,7 +45,7 @@ class BaseEntityFilter(filters.FilterSet):
         })
 
     @cached_property
-    @get_from_underscore_or_data('terms', [], lambda value: value.split(","))
+    @get_from_underscore_or_data('terms', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def term_ids(self, value):
         '''
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
@@ -171,7 +172,7 @@ class EntityFilter(BaseEntityFilter):
         return queryset
 
     @cached_property
-    @get_from_underscore_or_data('subj', [], lambda value: value.split(","))
+    @get_from_underscore_or_data('subj', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def subj_ids(self, value):
         '''
         :return: `subj_ids` value parse from `self._subj_ids` or `self.data['subj']`, default: []
@@ -202,7 +203,7 @@ class EntityFilter(BaseEntityFilter):
             return False
 
     @cached_property
-    @get_from_underscore_or_data('rel', None, lambda value: value.split(","))
+    @get_from_underscore_or_data('rel', None, lambda value: urllib.unquote(value).decode('utf8').split(","))
     def rel_ids(self, value):
         """
         `value` - raw relations list
