@@ -56,10 +56,10 @@ class RegisterUserForm(ModelForm):
 
     def clean_fio(self):
         # check for fio
-        fio = self.cleaned_data['fio'].split(' ')
-        if len(fio) < 2:
-            msg = _("Expected last and first name")
-            raise ValidationError(msg)
+        #fio = self.cleaned_data['fio'].split(' ')
+        #if len(fio) < 2:
+        #    msg = _("Expected last and first name")
+        #    raise ValidationError(msg)
         return self.cleaned_data['fio']
 
     def clean(self):
@@ -74,12 +74,14 @@ class RegisterUserForm(ModelForm):
     def _parce_fio_to_fullname(self, user, fio):
         if len(fio) > 0:
             parts = fio.split(' ')
-            if len(parts) == 2:
-                user.last_name = parts[0]
-                user.first_name = parts[1]
+            if len(parts) >= 2:
+                user.first_name = parts[0] + ' ' + parts[2]
+                user.last_name = parts[1]
+            elif len(parts) == 2:
+                user.first_name = parts[2]
+                user.last_name = parts[1]
             else:
-                user.last_name = parts[0]
-                user.first_name = parts[1] + ' ' + parts[2]
+                user.first_name = parts[0]
 
     def save(self, request=None, commit=True):
         do_activation = edw_settings.REGISTRATION_PROCESS['do_activation']
