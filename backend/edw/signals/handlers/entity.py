@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+
 import itertools
 
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models.signals import (
     m2m_changed,
     pre_delete,
@@ -12,6 +17,15 @@ from edw.signals import make_dispatch_uid
 
 from edw.models.term import TermModel
 from edw.models.entity import EntityModel
+from edw.rest.serializers.entity import EntityCommonSerializer
+
+
+def get_HTML_snippets_keys(sender):
+    app_label = sender._meta.app_label.lower()
+    languages = getattr(settings, 'LANGUAGES', ())
+    return [EntityCommonSerializer.HTML_SNIPPET_CACHE_KEY_PATTERN.format(
+        sender.id, app_label, label, sender.entity_model, 'media', language[0])
+        for label in ('summary', 'detail') for language in languages]
 
 
 #==============================================================================
@@ -65,6 +79,10 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
 def invalidate_entity_after_save(sender, instance, **kwargs):
     # Clear terms ids buffer
     EntityModel.clear_terms_cache_buffer()
+
+    # Clear HTML snippets
+    keys = get_HTML_snippets_keys(instance)
+    cache.delete_many(keys)
 
 
 def invalidate_entity_before_delete(sender, instance, **kwargs):

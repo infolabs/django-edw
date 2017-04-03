@@ -42,6 +42,8 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
         model = DataMartModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
+    HTML_SNIPPET_CACHE_KEY_PATTERN = 'data_mart:{0}|{1}-{2}-{3}-{4}-{5}'
+
     def render_html(self, data_mart, postfix):
         """
         Return a HTML snippet containing a rendered summary for this data mart.
@@ -52,7 +54,7 @@ class DataMartCommonSerializer(serializers.ModelSerializer):
             raise exceptions.ImproperlyConfigured(msg)
         app_label = data_mart._meta.app_label.lower()
         request = self.context['request']
-        cache_key = 'data_mart:{0}|{1}-{2}-{3}-{4}-{5}'.format(data_mart.id, app_label, self.label,
+        cache_key = self.HTML_SNIPPET_CACHE_KEY_PATTERN.format(data_mart.id, app_label, self.label,
                                                                data_mart.data_mart_model,
                                                                postfix, get_language_from_request(request))
         content = cache.get(cache_key)

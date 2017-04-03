@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+
 import itertools
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F
 from django.db.models.signals import (
@@ -19,6 +23,8 @@ from edw.signals.mptt import (
 from edw.models.data_mart import DataMartModel
 from edw.models.term import TermModel
 
+from edw.rest.serializers.data_mart import DataMartCommonSerializer
+
 
 def get_children_keys(sender, parent_id):
     key = ":".join([
@@ -32,6 +38,14 @@ def get_children_keys(sender, parent_id):
 
 def get_data_mart_all_active_terms_keys():
     return [DataMartModel.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, DataMartModel.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
+
+
+def get_HTML_snippets_keys(sender):
+    app_label = sender._meta.app_label.lower()
+    languages = getattr(settings, 'LANGUAGES', ())
+    return [DataMartCommonSerializer.HTML_SNIPPET_CACHE_KEY_PATTERN.format(
+        sender.id, app_label, label, sender.data_mart_model, 'media', language[0])
+        for label in ('summary', 'detail') for language in languages]
 
 
 #==============================================================================
@@ -118,9 +132,14 @@ def invalidate_data_mart_before_save(sender, instance, **kwargs):
 
 
 def invalidate_data_mart_after_save(sender, instance, **kwargs):
-    if instance.id is not None and not getattr(instance, '_parent_id_validate', False) :
-        keys = get_children_keys(sender, instance.parent_id)
+    if instance.id is not None:
+        # Clear HTML snippets
+        keys = get_HTML_snippets_keys(instance)
         cache.delete_many(keys)
+
+        if not getattr(instance, '_parent_id_validate', False):
+            keys = get_children_keys(sender, instance.parent_id)
+            cache.delete_many(keys)
 
 
 def invalidate_data_mart_before_delete(sender, instance, **kwargs):
