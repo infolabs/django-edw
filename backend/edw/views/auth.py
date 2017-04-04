@@ -68,7 +68,11 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            request.user.auth_token.delete()
+            import re
+            http_authorization = request.META.get('HTTP_AUTHORIZATION', None)
+            if http_authorization is not None:
+                if re.search('Token ', http_authorization):
+                    request.user.auth_token.delete()
         except:
             pass
         logout(request)
