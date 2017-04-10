@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.db.utils import ProgrammingError
 
 try:
     from . import (
@@ -8,6 +9,7 @@ try:
         auth,
         notification
     )
-except AttributeError as e:
+except (AttributeError, ProgrammingError) as e:
     # initial migrations hack
+    print("*** INITIAL MIGRATIONS HACK ***")
     print e.args
