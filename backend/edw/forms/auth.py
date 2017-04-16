@@ -73,15 +73,7 @@ class RegisterUserForm(ModelForm):
 
     def _parce_fio_to_fullname(self, user, fio):
         if len(fio) > 0:
-            parts = fio.split(' ')
-            if len(parts) >= 2:
-                user.first_name = parts[0] + ' ' + parts[2]
-                user.last_name = parts[1]
-            elif len(parts) == 2:
-                user.first_name = parts[2]
-                user.last_name = parts[1]
-            else:
-                user.first_name = parts[0]
+            user.first_name = fio
 
     def save(self, request=None, commit=True):
         do_activation = edw_settings.REGISTRATION_PROCESS['do_activation']
