@@ -1,3 +1,6 @@
 include LICENSE.txt
 include README.md
 include setup.py
+recursive-include edw/templates *.*
+recursive-include edw/static *.*
+recursive-include edw/locale *.po *.mo

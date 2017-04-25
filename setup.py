@@ -50,7 +50,7 @@ setup(
     author="InfoLabs LLC",
     author_email="team@infolabs.ru",
     name="django-edw",
-    version='0.1.0',
+    version='0.2.0',
     description="A RESTful Django Enterprise Data Warehouse",
     long_description=convert('README.md', 'rst'),
     url='https://bitbucket.org/info-labs/django-edw.git',
@@ -73,5 +73,6 @@ setup(
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
+        'django-polymorphic==1.1',
     ],
 )
