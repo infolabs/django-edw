@@ -7,11 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('post_office', '0010_auto_20160820_0052'),
-        ('edw', '0024_delete_email'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Email',

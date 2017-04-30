@@ -9,12 +9,6 @@ import filer.fields.file
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('post_office', '0010_auto_20160820_0052'),
-        ('filer', '0006_auto_20160623_1627'),
-        ('edw', '0017_particularproblem_state'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Notification',
