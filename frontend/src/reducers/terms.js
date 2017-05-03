@@ -92,7 +92,7 @@ class Item {
 
   isLimbOrAnd(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
       this.structure == consts.STRUCTURE_LIMB)
   }
 
@@ -167,7 +167,7 @@ class TaggedItems {
 
   static isTaggable(item) {
     return !((item.parent &&
-      item.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      item.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
       item.structure == consts.STRUCTURE_LIMB)
   }
 

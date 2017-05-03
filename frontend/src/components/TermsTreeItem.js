@@ -54,7 +54,7 @@ export default class TermsTreeItem extends Component {
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
             siblings = term.siblings;
 
-      if (term.isLimbOrAnd()) {
+      if (term.structure == consts.STRUCTURE_LIMB || term.parent.semantic_rule == consts.SEMANTIC_RULE_AND) {
         semantic_class = "ex-and";
       } else {
         switch (rule) {
