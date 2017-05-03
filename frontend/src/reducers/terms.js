@@ -177,6 +177,13 @@ class TaggedItems {
 
     let ret = this.copy();
 
+    // no need to reload entities
+    if (item.parent.semantic_rule == consts.SEMANTIC_RULE_AND && !this.is_leaf)
+      ret.entities_ignore = true;
+    else
+      ret.entities_ignore = false;
+
+
     if (ret[item.id]) {
       ret.untag(item);
     } else {

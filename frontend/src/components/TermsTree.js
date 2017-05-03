@@ -48,16 +48,18 @@ class TermsTree extends Component {
       }
 
       // reload entities
-      let request_options = meta.request_options,
-          subj_ids = meta.subj_ids;
+      if (!tagged_next.entities_ignore) {
+        let request_options = meta.request_options,
+            subj_ids = meta.subj_ids;
 
-      if (!subj_ids && subj_attr && subj_attr.value)
-        subj_ids = subj_attr.value.split(",");
+        if (!subj_ids && subj_attr && subj_attr.value)
+          subj_ids = subj_attr.value.split(",");
 
-      request_options['terms'] = tagged_next.items;
-      request_options['offset'] = 0;
-      this.props.actions.notifyLoadingEntities();
-      this.props.actions.getEntities(mart_id, subj_ids, request_options);
+        request_options['terms'] = tagged_next.items;
+        request_options['offset'] = 0;
+        this.props.actions.notifyLoadingEntities();
+        this.props.actions.getEntities(mart_id, subj_ids, request_options);
+      }
     }
   }
 
