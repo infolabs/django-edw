@@ -6,6 +6,7 @@ new WebpackDevServer(webpack(config), {
   publicPath: config.output.publicPath,
   hot: true,
   historyApiFallback: true,
+  disableHostCheck: true,
   headers: { "Access-Control-Allow-Origin": "*" },
   stats: {
     colors: true
@@ -14,6 +15,5 @@ new WebpackDevServer(webpack(config), {
   if (err) {
     console.log(err)
   }
-
   console.log('Listening at 0.0.0.0:3000')
 });
