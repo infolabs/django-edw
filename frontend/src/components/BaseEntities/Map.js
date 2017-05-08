@@ -110,6 +110,7 @@ export default class Map extends Component {
   }
 
   calculateZoom(west, east, south, north) {
+
     const div = this.state.div;
     let width = 600,
         height = 400;
@@ -120,7 +121,7 @@ export default class Map extends Component {
     }
 
     const WORLD_DIM = { height: 256, width: 256 },
-          ZOOM_MAX = 18;
+          ZOOM_MAX = 16;
 
     const latFraction = (latRad(north) - latRad(south)) / Math.PI,
           lngDiff = east - west,
