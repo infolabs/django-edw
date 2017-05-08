@@ -35,6 +35,7 @@
     "redux": "^3.6.0",
     "redux-promise": "^0.5.3",
     "react-google-maps": "^6.0.1",
+    "singleton-js-es6": "^1.0.0",
     "whatwg-fetch": "^2.0.1"
   },
   "devDependencies": {
