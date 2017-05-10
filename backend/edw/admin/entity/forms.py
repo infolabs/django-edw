@@ -58,3 +58,20 @@ class EntityRelatedDataMartInlineForm(forms.ModelForm):
     data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Data mart'),
                                        widget=SalmonellaIdWidget(
                                            EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))
+
+
+#==============================================================================
+# EntitiesUpdateTermsAdminForm
+#==============================================================================
+class EntitiesUpdateTermsAdminForm(forms.Form):
+    to_set = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to set"),
+                                            widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
+    to_unset = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to unset"),
+                                              widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
+
+    # def __init__(self, *args, **kwargs):
+    #     super(EntitiesSetTermsAdminForm, self).__init__(*args, **kwargs)
+    #
+    #     # change a widget attribute:
+    #     # self.fields['rubrics_set'].widget.attrs["size"] = 40
+    #     # self.fields['rubrics_unset'].widget.attrs["size"] = 40
