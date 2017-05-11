@@ -47,6 +47,7 @@ def update_terms(modeladmin, request, queryset):
     #                 product.rubrics.remove(rubric)
     #     product.save()
 
+
     def update_terms(entity, to_set, to_unset):
         print ("+++ UPDATE +++", entity, to_set, to_unset)
 
@@ -56,7 +57,6 @@ def update_terms(modeladmin, request, queryset):
 
     if request.POST.get('post'):
         form = EntitiesUpdateTermsAdminForm(request.POST)
-
 
         if form.is_valid():
             to_set = form.cleaned_data['to_set']
@@ -86,11 +86,12 @@ def update_terms(modeladmin, request, queryset):
         "title": title,
         'form': form,
         "objects_name": objects_name,
-        "to_proceed": [to_proceed],
+        "to_proceed": to_proceed,
         'queryset': queryset,
         "opts": opts,
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        'media': modeladmin.media,
     }
     # Display the confirmation page
     return TemplateResponse(request, "edw/admin/entities/actions/update_terms.html",

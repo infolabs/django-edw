@@ -69,9 +69,3 @@ class EntitiesUpdateTermsAdminForm(forms.Form):
     to_unset = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to unset"),
                                               widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
 
-    # def __init__(self, *args, **kwargs):
-    #     super(EntitiesSetTermsAdminForm, self).__init__(*args, **kwargs)
-    #
-    #     # change a widget attribute:
-    #     # self.fields['rubrics_set'].widget.attrs["size"] = 40
-    #     # self.fields['rubrics_unset'].widget.attrs["size"] = 40
