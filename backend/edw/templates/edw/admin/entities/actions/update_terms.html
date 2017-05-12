@@ -40,11 +40,11 @@
                             </tr>
                         </tbody>
                     </table>
-                    <h2>{% trans 'Updated entities' %} <sup>{% trans 'Count:' %} {{ to_proceed|length }}</sup></h2>
+                    <h2>{% trans 'Updated entities' %} <sup>{% trans 'Count:' %} {{ queryset|length }}</sup></h2>
                     <p>
-                    {% for object in to_proceed|slice:":20" %}
-                    {% if forloop.last and forloop.counter == 20 %}...<br>{% endif %}
-                        {{ object|safe }}<br>
+                    {% for obj in queryset|slice:":20" %}
+                        {% if forloop.last %}{% if forloop.counter == 20 %} ... {% endif %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;
+                        {% else %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;, {% endif %}
                     {% endfor %}
                     </p>
                 </fieldset>
