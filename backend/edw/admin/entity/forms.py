@@ -69,3 +69,20 @@ class EntitiesUpdateTermsAdminForm(forms.Form):
     to_unset = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to unset"),
                                               widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
 
+
+
+#==============================================================================
+# EntitiesUpdateRelationAdminForm
+#==============================================================================
+class EntitiesUpdateRelationAdminForm(forms.Form):
+
+    term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
+                                       joiner=' / ', label=_('Relation'))
+
+    to_set_to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to set'),
+                                              required=False, widget=SalmonellaIdWidget(
+            EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
+
+    to_unset_to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to unset'),
+                                                required=False, widget=SalmonellaIdWidget(
+            EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
