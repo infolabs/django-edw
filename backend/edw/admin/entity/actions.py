@@ -14,7 +14,6 @@ from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import quote, model_ngettext
 
-# from celery import signature
 from celery import chain
 
 from edw.tasks import update_entities_terms
@@ -26,7 +25,7 @@ def update_terms(modeladmin, request, queryset):
     """
     Update terms for multiple entities
     """
-    CHUNK_SIZE = 20
+    CHUNK_SIZE = 100 # todo: import from settings
 
     opts = modeladmin.model._meta
     app_label = opts.app_label
@@ -44,10 +43,6 @@ def update_terms(modeladmin, request, queryset):
                           admin_url,
                           escape(obj)))
 
-    # def chunk_update_terms(entities_ids, to_set_ids, to_unset_ids):
-    #     print ("+++ UPDATE +++", entities_ids, to_set_ids, to_unset_ids)
-    #     print()
-
     if request.POST.get('post'):
         form = EntitiesUpdateTermsAdminForm(request.POST)
 
@@ -60,20 +55,13 @@ def update_terms(modeladmin, request, queryset):
                 tasks = []
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
-
                     for obj in chunk:
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
-
-                    print('+++ SLICE: ', i, i + CHUNK_SIZE, len(chunk))
-
-                    # chunk_update_terms(set([x.id for x in chunk]), to_set, to_unset)
-
                     tasks.append(update_entities_terms.si([x.id for x in chunk], to_set, to_unset))
-
                     i += CHUNK_SIZE
 
-                res = chain(reduce(OR, tasks)).apply_async() # todo: add logger
+                chain(reduce(OR, tasks)).apply_async()
 
                 modeladmin.message_user(request, _("Successfully proceed %(count)d %(items)s.") % {
                     "count": n, "items": model_ngettext(modeladmin.opts, n)
