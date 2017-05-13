@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import types
 
 from operator import __or__ as OR
+from functools import reduce
 
 from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
