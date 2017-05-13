@@ -2,6 +2,11 @@
 {% load i18n l10n admin_urls static %}
 
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript" src="{% static 'salmonella/js/salmonella.js' %}"></script>
+{% endblock %}
+
+
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
@@ -22,12 +27,14 @@
             <div class="inline-related ">
                 <fieldset class="module aligned">
 
+                    <h2>{% trans 'Select relation' %}</h2>
 
 
+                    {{ form.term }}
 
                     <h2>{% trans 'Make youre choice' %}</h2>
 
-                    {{ form.term }}
+
 
                     <table style="width: 100%;">
                         <thead>
