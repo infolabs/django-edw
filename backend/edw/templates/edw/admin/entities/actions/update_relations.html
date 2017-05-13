@@ -25,13 +25,17 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>{% trans 'Relation' %}</th>
+                                    <th style="width: 50%">{% trans 'Relation to set' %}</th>
+                                    <th style="width: 50%">{% trans 'Relation to unset' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
-                                        {{ form.term }}
+                                        {{ form.to_set_term }}
+                                    </td>
+                                    <td>
+                                        {{ form.to_unset_term }}
                                     </td>
                                 </tr>
                         </table>
