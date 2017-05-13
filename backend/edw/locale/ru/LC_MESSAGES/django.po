@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-11 23:46+0300\n"
-"PO-Revision-Date: 2017-05-12 00:00+0300\n"
+"POT-Creation-Date: 2017-05-13 15:36+0300\n"
+"PO-Revision-Date: 2017-05-13 15:36+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -19,6 +19,10 @@ msgstr ""
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+
+#: __init__.py:7
+msgid "edw"
+msgstr "предметно-ориентированное хранилище данных"
 
 #: admin/customer/__init__.py:32
 msgctxt "customer"
@@ -83,25 +87,36 @@ msgid "View component"
 msgstr "Компонент представления"
 
 #: admin/data_mart/forms.py:44 admin/entity/forms.py:47
+#: admin/entity/forms.py:80
+#: templates/edw/admin/entities/actions/update_relations.html:27
 #: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/actions.py:73
+#: admin/entity/actions.py:49 admin/entity/actions.py:163
 #, python-format
-#| msgid "Successfully logged out."
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: admin/entity/actions.py:86
-#: templates/edw/admin/entities/actions/update_terms.html:31
+#: admin/entity/actions.py:62
+#: templates/edw/admin/entities/actions/update_terms.html:10
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
-#: admin/entity/actions.py:102
+#: admin/entity/actions.py:77
 #, python-format
 msgid "Set or unset terms for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать термины для выбранных %(verbose_name_plural)s"
+
+#: admin/entity/actions.py:176
+#: templates/edw/admin/entities/actions/update_relations.html:13
+msgid "Update relations for multiple entities"
+msgstr "Обновление связей списка объектов"
+
+#: admin/entity/actions.py:191
+#, python-format
+msgid "Set or unset relation for selected %(verbose_name_plural)s"
+msgstr "Установить или убрать связи для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/forms.py:38
 msgid "Characteristic or mark"
@@ -124,6 +139,16 @@ msgstr "Термины для установки"
 #: admin/entity/forms.py:69
 msgid "Terms to unset"
 msgstr "Термины для снятия"
+
+#: admin/entity/forms.py:82
+#: templates/edw/admin/entities/actions/update_relations.html:40
+msgid "Target to set"
+msgstr "Цель для установки"
+
+#: admin/entity/forms.py:86
+#: templates/edw/admin/entities/actions/update_relations.html:41
+msgid "Target to unset"
+msgstr "Цель для снятия"
 
 #: admin/notification.py:22 admin/notification.py:102
 msgid "Nobody"
@@ -657,30 +682,33 @@ msgstr "Изображения объектов"
 msgid "Save"
 msgstr "Записать"
 
-#: templates/edw/admin/entities/actions/update_terms.html:28
+#: templates/edw/admin/entities/actions/update_relations.html:10
+#: templates/edw/admin/entities/actions/update_terms.html:7
 msgid "Home"
 msgstr "Начало"
 
-#: templates/edw/admin/entities/actions/update_terms.html:47
+#: templates/edw/admin/entities/actions/update_relations.html:23
+#: templates/edw/admin/entities/actions/update_terms.html:24
 msgid "Make youre choice"
-msgstr "Выберите термины"
+msgstr "Выберите"
 
-#: templates/edw/admin/entities/actions/update_terms.html:51
-msgid "Select terms to set:"
-msgstr "Термины для установки:"
-
-#: templates/edw/admin/entities/actions/update_terms.html:52
-msgid "Select terms to unset:"
-msgstr "Термины для снятия:"
-
-#: templates/edw/admin/entities/actions/update_terms.html:86
-#| msgid "Updated at"
+#: templates/edw/admin/entities/actions/update_relations.html:59
+#: templates/edw/admin/entities/actions/update_terms.html:43
 msgid "Updated entities"
 msgstr "Выбранные объекты"
 
-#: templates/edw/admin/entities/actions/update_terms.html:86
+#: templates/edw/admin/entities/actions/update_relations.html:59
+#: templates/edw/admin/entities/actions/update_terms.html:43
 msgid "Count:"
 msgstr "Количество:"
+
+#: templates/edw/admin/entities/actions/update_terms.html:28
+msgid "Select terms to set:"
+msgstr "Термины для установки:"
+
+#: templates/edw/admin/entities/actions/update_terms.html:29
+msgid "Select terms to unset:"
+msgstr "Термины для снятия:"
 
 #: templates/edw/admin/mptt/_datamart_node.html:6
 #: templates/edw/admin/mptt/_term_node.html:15
