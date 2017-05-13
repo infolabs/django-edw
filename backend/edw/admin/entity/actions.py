@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from operator import __or__ as OR
 
+from django.conf import settings
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
@@ -21,7 +22,7 @@ def update_terms(modeladmin, request, queryset):
     """
     Update terms for multiple entities
     """
-    CHUNK_SIZE = 100 # todo: import from settings
+    CHUNK_SIZE = getattr(settings, 'EDW_ACTION_CHUNK_SIZE', 100)
 
     opts = modeladmin.model._meta
     app_label = opts.app_label
