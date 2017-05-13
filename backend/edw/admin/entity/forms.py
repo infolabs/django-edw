@@ -79,10 +79,10 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
 
-    to_set_to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to set'),
+    to_set_target = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to set'),
                                               required=False, widget=SalmonellaIdWidget(
             EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
 
-    to_unset_to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to unset'),
+    to_unset_target = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target to unset'),
                                                 required=False, widget=SalmonellaIdWidget(
             EntityRelationModel._meta.get_field("to_entity").rel, admin.site))

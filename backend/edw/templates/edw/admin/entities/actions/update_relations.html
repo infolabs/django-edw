@@ -3,7 +3,6 @@
 
 {% block extrahead %}
     {{ block.super }}
-    {{ media }}
     <script type="text/javascript" src="{% static 'salmonella/js/salmonella.js' %}"></script>
 {% endblock %}
 
@@ -46,10 +45,10 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        {{ form.to_set_to_entity }}
+                                        {{ form.to_set_target }}
                                     </td>
                                     <td>
-                                        {{ form.to_unset_to_entity }}
+                                        {{ form.to_unset_target }}
                                     </td>
                                 </tr>
                             </tbody>
