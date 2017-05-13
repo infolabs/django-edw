@@ -11,8 +11,16 @@
 {% endblock %}
 
 {% block content %}
+
+
     <div class="container-fluid">
         <form action="" method="post">{% csrf_token %}
+            {% if form.errors %}
+                <p class="errornote">
+                    {% trans "Please correct the errors below." %}
+                </p>
+                {{ form.non_field_errors }}
+            {% endif %}
             <div class="inline-group" id="choose-terms-group">
                 <div class="inline-related tabular">
                     <fieldset class="module">
