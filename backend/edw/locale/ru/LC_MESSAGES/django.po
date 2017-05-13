@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-13 15:36+0300\n"
-"PO-Revision-Date: 2017-05-13 15:36+0300\n"
+"POT-Creation-Date: 2017-05-13 17:52+0300\n"
+"PO-Revision-Date: 2017-05-13 17:57+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -87,33 +87,31 @@ msgid "View component"
 msgstr "Компонент представления"
 
 #: admin/data_mart/forms.py:44 admin/entity/forms.py:47
-#: admin/entity/forms.py:80
-#: templates/edw/admin/entities/actions/update_relations.html:27
 #: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/actions.py:49 admin/entity/actions.py:163
+#: admin/entity/actions.py:50 admin/entity/actions.py:144
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: admin/entity/actions.py:62
-#: templates/edw/admin/entities/actions/update_terms.html:10
+#: admin/entity/actions.py:65
+#: templates/edw/admin/entities/actions/update_terms.html:9
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
-#: admin/entity/actions.py:77
+#: admin/entity/actions.py:80
 #, python-format
 msgid "Set or unset terms for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/actions.py:176
-#: templates/edw/admin/entities/actions/update_relations.html:13
+#: admin/entity/actions.py:161
+#: templates/edw/admin/entities/actions/update_relations.html:14
 msgid "Update relations for multiple entities"
 msgstr "Обновление связей списка объектов"
 
-#: admin/entity/actions.py:191
+#: admin/entity/actions.py:176
 #, python-format
 msgid "Set or unset relation for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать связи для выбранных %(verbose_name_plural)s"
@@ -133,22 +131,54 @@ msgid "Data mart"
 msgstr "Витрина данных"
 
 #: admin/entity/forms.py:67
+#: templates/edw/admin/entities/actions/update_terms.html:31
 msgid "Terms to set"
 msgstr "Термины для установки"
 
 #: admin/entity/forms.py:69
+#: templates/edw/admin/entities/actions/update_terms.html:32
 msgid "Terms to unset"
 msgstr "Термины для снятия"
 
-#: admin/entity/forms.py:82
-#: templates/edw/admin/entities/actions/update_relations.html:40
+#: admin/entity/forms.py:80
+#| msgid "Select terms to unset:"
+msgid "Select terms for set or unset"
+msgstr "Выберите термины для установки или снятия"
+
+#: admin/entity/forms.py:91
+#: templates/edw/admin/entities/actions/update_relations.html:34
+#| msgid "Relation"
+msgid "Relation to set"
+msgstr "Отношение для установки"
+
+#: admin/entity/forms.py:93
+#: templates/edw/admin/entities/actions/update_relations.html:51
 msgid "Target to set"
 msgstr "Цель для установки"
 
-#: admin/entity/forms.py:86
-#: templates/edw/admin/entities/actions/update_relations.html:41
+#: admin/entity/forms.py:98
+#: templates/edw/admin/entities/actions/update_relations.html:35
+#| msgid "Target to unset"
+msgid "Relation to unset"
+msgstr "Отношение для снятия"
+
+#: admin/entity/forms.py:100
+#: templates/edw/admin/entities/actions/update_relations.html:52
 msgid "Target to unset"
 msgstr "Цель для снятия"
+
+#: admin/entity/forms.py:114
+#| msgid "Select terms to unset:"
+msgid "Select relation for set or unset"
+msgstr "Выберите отношение для установки или снятия"
+
+#: admin/entity/forms.py:119
+msgid "Select relation and target for set"
+msgstr "Выберите отношение и цель для установки"
+
+#: admin/entity/forms.py:124
+msgid "Select relation and target for unset"
+msgstr "Выберите отношение и цель для снятия"
 
 #: admin/notification.py:22 admin/notification.py:102
 msgid "Nobody"
@@ -440,6 +470,8 @@ msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
 #: models/entity.py:607
+#: templates/edw/admin/entities/actions/update_relations.html:76
+#: templates/edw/admin/entities/actions/update_terms.html:56
 msgid "Entities"
 msgstr "Объекты"
 
@@ -682,33 +714,30 @@ msgstr "Изображения объектов"
 msgid "Save"
 msgstr "Записать"
 
-#: templates/edw/admin/entities/actions/update_relations.html:10
-#: templates/edw/admin/entities/actions/update_terms.html:7
+#: templates/edw/admin/entities/actions/update_relations.html:11
+#: templates/edw/admin/entities/actions/update_terms.html:6
 msgid "Home"
 msgstr "Начало"
 
 #: templates/edw/admin/entities/actions/update_relations.html:23
-#: templates/edw/admin/entities/actions/update_terms.html:24
+#: templates/edw/admin/entities/actions/update_terms.html:20
+msgid "Please correct the errors below."
+msgstr "Пожалуйста, исправьте ошибки ниже."
+
+#: templates/edw/admin/entities/actions/update_relations.html:30
+#: templates/edw/admin/entities/actions/update_terms.html:27
 msgid "Make youre choice"
 msgstr "Выберите"
 
-#: templates/edw/admin/entities/actions/update_relations.html:59
-#: templates/edw/admin/entities/actions/update_terms.html:43
+#: templates/edw/admin/entities/actions/update_relations.html:72
+#: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Updated entities"
 msgstr "Выбранные объекты"
 
-#: templates/edw/admin/entities/actions/update_relations.html:59
-#: templates/edw/admin/entities/actions/update_terms.html:43
+#: templates/edw/admin/entities/actions/update_relations.html:72
+#: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Count:"
 msgstr "Количество:"
-
-#: templates/edw/admin/entities/actions/update_terms.html:28
-msgid "Select terms to set:"
-msgstr "Термины для установки:"
-
-#: templates/edw/admin/entities/actions/update_terms.html:29
-msgid "Select terms to unset:"
-msgstr "Термины для снятия:"
 
 #: templates/edw/admin/mptt/_datamart_node.html:6
 #: templates/edw/admin/mptt/_term_node.html:15
@@ -846,6 +875,9 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
+
+#~ msgid "Select terms to set:"
+#~ msgstr "Термины для установки:"
 
 #~ msgid "Expected last and first name"
 #~ msgstr "Введите фамилию и имя"
