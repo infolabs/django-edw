@@ -8,7 +8,6 @@ from edw.models.term import TermModel
 from edw.models.customer import CustomerModel
 
 
-
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
                                      TermModel.system_flags.change_parent_restriction |
                                      TermModel.system_flags.change_slug_restriction |
