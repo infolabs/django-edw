@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_text
 
 from edw.models.term import TermModel
 from edw.models.customer import CustomerModel
@@ -57,7 +58,7 @@ class FSMMixin(object):
         system_flags = _default_system_flags_restriction
 
         # Get original entity model class term
-        original_model_class_term = cls.get_entities_types()[cls.__name__.lower()]
+        original_model_class_term = cls.get_entities_types(cached=False)[cls.__name__.lower()]
         original_model_class_term_parent = original_model_class_term.parent
 
         # Compose new entity model class term slug
@@ -69,13 +70,12 @@ class FSMMixin(object):
             except TermModel.DoesNotExist:
                 model_root_term = TermModel(
                     slug=new_model_class_term_slug,
-                    parent=original_model_class_term_parent,
-                    name=cls._meta.verbose_name,
+                    parent_id=original_model_class_term_parent.id,
+                    name=force_text(cls._meta.verbose_name),
                     semantic_rule=TermModel.AND_RULE,
                     system_flags=system_flags
                 )
                 model_root_term.save()
-
             # set original entity model class term to new parent
             original_model_class_term.parent = model_root_term
             original_model_class_term.name = _("Type")
@@ -87,8 +87,8 @@ class FSMMixin(object):
         except TermModel.DoesNotExist:
             states_parent_term = TermModel(
                 slug=cls.STATE_ROOT_TERM_SLUG,
-                parent=model_root_term,
-                name=cls._meta.get_field('status').verbose_name,
+                parent_id=model_root_term.id,
+                name=force_text(cls._meta.get_field('status').verbose_name),
                 semantic_rule=TermModel.XOR_RULE,
                 system_flags=system_flags
             )
@@ -100,8 +100,8 @@ class FSMMixin(object):
             except TermModel.DoesNotExist:
                 state = TermModel(
                     slug=state_key,
-                    parent=states_parent_term,
-                    name=transition_states[state_key],
+                    parent_id=states_parent_term.id,
+                    name=force_text(transition_states[state_key]),
                     semantic_rule=TermModel.OR_RULE,
                     system_flags=system_flags
                 )

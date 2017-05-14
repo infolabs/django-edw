@@ -61,7 +61,7 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
             except TermModel.DoesNotExist:
                 added_day_range = TermModel(
                     slug=day_range_key,
-                    parent=added_day,
+                    parent_id=added_day.id,
                     name="{} - {}".format(r[0], r[1] - 1),
                     semantic_rule=TermModel.OR_RULE,
                     system_flags=system_flags
@@ -74,7 +74,7 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                 except TermModel.DoesNotExist:
                     day = TermModel(
                         slug=day_key,
-                        parent=added_day_range,
+                        parent_id=added_day_range.id,
                         name="{:02d}".format(i),
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=system_flags
@@ -132,7 +132,7 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                 TermModel.objects.get(slug=month_key, parent=added_month)
             except TermModel.DoesNotExist:
                 month = TermModel(slug=month_key,
-                                  parent=added_month,
+                                  parent_id=added_month.id,
                                   name=_(calendar.month_name[i]),
                                   semantic_rule=TermModel.OR_RULE,
                                   system_flags=system_flags)
@@ -213,7 +213,7 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                     system_flags = _default_system_flags_restriction
                     term = TermModel(
                         slug=year_key,
-                        parent=root,
+                        parent_id=root.id,
                         name="{}".format(year),
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=system_flags
