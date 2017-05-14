@@ -64,7 +64,8 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
         unique_together = (('term', 'from_entity', 'to_entity'),)
 
     def __str__(self):
-        return "{} → {} → {}".format(self.from_entity.entity_name, self.term.name, self.to_entity.entity_name)
+        return "{} → {} → {}".format(self.from_entity.get_real_instance().entity_name, self.term.name,
+                                     self.to_entity.get_real_instance().entity_name)
 
 
 EntityRelationModel = deferred.MaterializedModel(BaseEntityRelation)
@@ -87,7 +88,7 @@ class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, model
         verbose_name_plural = _("Entity related data marts")
 
     def __str__(self):
-        return "{} → {}".format(self.entity.entity_name, self.data_mart.name)
+        return "{} → {}".format(self.entity.get_real_instance().entity_name, self.data_mart.name)
 
 
 EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMart)

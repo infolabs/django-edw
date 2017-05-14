@@ -11,14 +11,17 @@ class EdwConfig(AppConfig):
     verbose_name = _("EDW")
 
     def ready(self):
+        # Monkey patches
+        from edw import patches
 
+        # Signals handlers
         from edw.signals import handlers
 
         '''
         # Monkey patches for Django-1.X
         if get_tuple_version()[:2] < (1, 9):
             from django.utils import foo_fn
-            from edw.patches import foo_fn as patched_foo_fn
+            from edw.patches.django_lt_1_9 import foo_fn as patched_foo_fn
             foo_fn.fn = patched_foo_fn.fn
         '''
 

@@ -186,6 +186,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         4: ('change_terms_restriction', messages['change_terms_restriction'])
     }
 
+    TERMS_M2M_VERBOSE_NAME = _("Data mart term")
+    TERMS_M2M_VERBOSE_NAME_PLURAL = _("Data marts terms")
+
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255)

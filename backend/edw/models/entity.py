@@ -583,8 +583,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         # (VIEW_COMPONENT_TABLE, _('Table view')),
     )
 
-    terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True,
-                                     help_text=_("""Use "ctrl" key for choose multiple terms""")) # todo: fix help_text
+    TERMS_M2M_VERBOSE_NAME = _("Entity term")
+    TERMS_M2M_VERBOSE_NAME_PLURAL = _("Entities terms")
+
+    terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True)
 
     created_at = models.DateTimeField(default=timezone.now, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
