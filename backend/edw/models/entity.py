@@ -667,9 +667,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     '''
 
     @staticmethod
-    def get_entities_types(cached=True):
+    def get_entities_types(from_cache=True):
         entities_types = getattr(EntityModel, "_entities_types_cache", None)
-        if entities_types is None or not cached:
+        if entities_types is None or not from_cache:
             entities_types = {}
             clazz = EntityModel.materialized
             try:

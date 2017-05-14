@@ -58,7 +58,7 @@ class FSMMixin(object):
         system_flags = _default_system_flags_restriction
 
         # Get original entity model class term
-        original_model_class_term = cls.get_entities_types(cached=False)[cls.__name__.lower()]
+        original_model_class_term = cls.get_entities_types(from_cache=False)[cls.__name__.lower()]
         original_model_class_term_parent = original_model_class_term.parent
 
         # Compose new entity model class term slug
