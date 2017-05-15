@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-13 17:52+0300\n"
-"PO-Revision-Date: 2017-05-13 17:57+0300\n"
+"POT-Creation-Date: 2017-05-15 12:12+0300\n"
+"PO-Revision-Date: 2017-05-15 12:14+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -74,15 +74,15 @@ msgid "Customers"
 msgstr "Пользователи"
 
 #: admin/data_mart/forms.py:19 admin/entity/__init__.py:36
-#: admin/entity/forms.py:29 models/data_mart.py:195 models/entity.py:585
+#: admin/entity/forms.py:29 models/data_mart.py:198 models/entity.py:589
 msgid "Terms"
 msgstr "Термины"
 
-#: admin/data_mart/forms.py:20 models/data_mart.py:200
+#: admin/data_mart/forms.py:20 models/data_mart.py:203
 msgid "Ordering"
 msgstr "Порядок сортировки"
 
-#: admin/data_mart/forms.py:21 models/data_mart.py:204
+#: admin/data_mart/forms.py:21 models/data_mart.py:207
 msgid "View component"
 msgstr "Компонент представления"
 
@@ -91,27 +91,27 @@ msgstr "Компонент представления"
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/actions.py:50 admin/entity/actions.py:144
+#: admin/entity/actions.py:51 admin/entity/actions.py:120
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: admin/entity/actions.py:65
+#: admin/entity/actions.py:66
 #: templates/edw/admin/entities/actions/update_terms.html:9
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
-#: admin/entity/actions.py:80
+#: admin/entity/actions.py:81
 #, python-format
 msgid "Set or unset terms for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/actions.py:161
+#: admin/entity/actions.py:137
 #: templates/edw/admin/entities/actions/update_relations.html:14
 msgid "Update relations for multiple entities"
 msgstr "Обновление связей списка объектов"
 
-#: admin/entity/actions.py:176
+#: admin/entity/actions.py:152
 #, python-format
 msgid "Set or unset relation for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать связи для выбранных %(verbose_name_plural)s"
@@ -124,8 +124,8 @@ msgstr "Характеристика или метка"
 msgid "Target"
 msgstr "Цель"
 
-#: admin/entity/forms.py:58 models/data_mart.py:230
-#: models/defaults/data_mart.py:28 models/related.py:82 models/related.py:114
+#: admin/entity/forms.py:58 models/data_mart.py:233
+#: models/defaults/data_mart.py:28 models/related.py:83 models/related.py:115
 #: templates/edw/admin/mptt/_datamart_node.html:9
 msgid "Data mart"
 msgstr "Витрина данных"
@@ -141,13 +141,11 @@ msgid "Terms to unset"
 msgstr "Термины для снятия"
 
 #: admin/entity/forms.py:80
-#| msgid "Select terms to unset:"
 msgid "Select terms for set or unset"
 msgstr "Выберите термины для установки или снятия"
 
 #: admin/entity/forms.py:91
 #: templates/edw/admin/entities/actions/update_relations.html:34
-#| msgid "Relation"
 msgid "Relation to set"
 msgstr "Отношение для установки"
 
@@ -158,7 +156,6 @@ msgstr "Цель для установки"
 
 #: admin/entity/forms.py:98
 #: templates/edw/admin/entities/actions/update_relations.html:35
-#| msgid "Target to unset"
 msgid "Relation to unset"
 msgstr "Отношение для снятия"
 
@@ -168,7 +165,6 @@ msgid "Target to unset"
 msgstr "Цель для снятия"
 
 #: admin/entity/forms.py:114
-#| msgid "Select terms to unset:"
 msgid "Select relation for set or unset"
 msgstr "Выберите отношение для установки или снятия"
 
@@ -184,8 +180,8 @@ msgstr "Выберите отношение и цель для снятия"
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification.py:82 models/entity.py:606 models/related.py:25
-#: models/related.py:81 models/related.py:144
+#: admin/notification.py:82 models/entity.py:609 models/related.py:25
+#: models/related.py:82 models/related.py:145
 msgid "Entity"
 msgstr "Объект"
 
@@ -345,59 +341,69 @@ msgstr "Ограничение на изменение терминов"
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
-#: models/data_mart.py:190 models/term.py:253
+#: models/data_mart.py:189
+#| msgid "Data mart type"
+msgid "Data mart term"
+msgstr "Термин витрины данных"
+
+#: models/data_mart.py:190
+#| msgid "Data mart type"
+msgid "Data marts terms"
+msgstr "Термины витрины данных"
+
+#: models/data_mart.py:193 models/term.py:253
 msgid "Parent"
 msgstr "Родитель"
 
-#: models/data_mart.py:191 models/notification.py:18 models/term.py:254
+#: models/data_mart.py:194 models/notification.py:18 models/term.py:254
 msgid "Name"
 msgstr "Название"
 
-#: models/data_mart.py:192 models/term.py:255
+#: models/data_mart.py:195 models/term.py:255
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/data_mart.py:192 models/term.py:255
+#: models/data_mart.py:195 models/term.py:255
 msgid "Used for URLs, auto-generated from name if blank."
 msgstr "Используется авто-генерация URL, если это поле пустое"
 
-#: models/data_mart.py:193 models/term.py:256
+#: models/data_mart.py:196 models/term.py:256
 msgid "Path"
 msgstr "Путь"
 
-#: models/data_mart.py:197 models/entity.py:588 models/term.py:263
+#: models/data_mart.py:200 models/entity.py:591 models/term.py:263
 msgid "Created at"
 msgstr "Дата создания"
 
-#: models/data_mart.py:198 models/entity.py:589 models/term.py:264
+#: models/data_mart.py:201 models/entity.py:592 models/term.py:264
 msgid "Updated at"
 msgstr "Дата обновления"
 
-#: models/data_mart.py:202
+#: models/data_mart.py:205
 msgid "Default data mart entities ordering mode."
 msgstr "Порядок сортировки объектов витрины данных по-умолчанию"
 
-#: models/data_mart.py:206
+#: models/data_mart.py:209
 msgid "Default data mart entities view component."
 msgstr "Компонент представления объектов витрины данных по-умолчанию"
 
-#: models/data_mart.py:208
+#: models/data_mart.py:211
 msgid "Limit"
 msgstr "Предел"
 
-#: models/data_mart.py:209
+#: models/data_mart.py:212
 msgid "Entities per page. Leave empty for default (by default: {})."
 msgstr ""
 "Объектов на странице. Оставьте пустым для установки значения по-умолчанию "
 "(по-умолчанию: {})."
 
-#: models/data_mart.py:212 models/related.py:27 models/term.py:265
+#: models/data_mart.py:215 models/related.py:27 models/term.py:265
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
-#: models/data_mart.py:213
+#: models/data_mart.py:216
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "data mart."
@@ -405,29 +411,29 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: models/data_mart.py:214 models/term.py:267
+#: models/data_mart.py:217 models/term.py:267
 msgid "Description"
 msgstr "Описание"
 
-#: models/data_mart.py:215 models/entity.py:590 models/term.py:268
+#: models/data_mart.py:218 models/entity.py:593 models/term.py:268
 #: templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
 msgstr "Активен"
 
-#: models/data_mart.py:216
+#: models/data_mart.py:219
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: models/data_mart.py:218 models/term.py:271
+#: models/data_mart.py:221 models/term.py:271
 msgid "system flags"
 msgstr "системные флаги"
 
-#: models/data_mart.py:231 models/defaults/data_mart.py:29
+#: models/data_mart.py:234 models/defaults/data_mart.py:29
 msgid "Data marts"
 msgstr "Витрины данных"
 
-#: models/data_mart.py:244
+#: models/data_mart.py:247
 msgid "Data mart type"
 msgstr "Тип витрины данных"
 
@@ -440,7 +446,7 @@ msgid "Tile view"
 msgstr "Плитка"
 
 #: models/defaults/term.py:22 models/related.py:24 models/related.py:58
-#: models/related.py:115 models/term.py:280
+#: models/related.py:116 models/term.py:280
 #: templates/edw/admin/mptt/_term_node.html:25
 msgid "Term"
 msgstr "Термин"
@@ -449,33 +455,39 @@ msgstr "Термин"
 msgid "Topic model"
 msgstr "Тематическая модель"
 
-#: models/entity.py:572
+#: models/entity.py:573
 msgid "Created at: new first"
 msgstr "По дате ↑"
 
-#: models/entity.py:580
+#: models/entity.py:581
 msgid "List view"
 msgstr "Список"
 
 #: models/entity.py:586
-msgid "Use \"ctrl\" key for choose multiple terms"
-msgstr "Используйте клавишу \"ctrl\" для выбора нескольких Терминов"
+#| msgid "Entity type"
+msgid "Entity term"
+msgstr "Термин объекта"
 
-#: models/entity.py:591
+#: models/entity.py:587
+#| msgid "Entities images"
+msgid "Entities terms"
+msgstr "Термины объекта"
+
+#: models/entity.py:594
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
-#: models/entity.py:602
+#: models/entity.py:605
 msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
-#: models/entity.py:607
+#: models/entity.py:610
 #: templates/edw/admin/entities/actions/update_relations.html:76
 #: templates/edw/admin/entities/actions/update_terms.html:56
 msgid "Entities"
 msgstr "Объекты"
 
-#: models/entity.py:617
+#: models/entity.py:620
 msgid "Entity type"
 msgstr "Тип объекта"
 
@@ -503,7 +515,7 @@ msgstr "Месяца"
 msgid "Added year"
 msgstr "Года"
 
-#: models/mixins/entity/fsm.py:81
+#: models/mixins/entity/fsm.py:80
 msgid "Type"
 msgstr "Тип"
 
@@ -571,63 +583,63 @@ msgstr "Отношение"
 msgid "Entity Relations"
 msgstr "Отношения"
 
-#: models/related.py:86
+#: models/related.py:87
 msgid "Related data mart"
 msgstr "Связанная витрина данных"
 
-#: models/related.py:87
+#: models/related.py:88
 msgid "Entity related data marts"
 msgstr "Связанные витрины данных"
 
-#: models/related.py:109
+#: models/related.py:110
 msgid "Bidirectional"
 msgstr "двунаправленная"
 
-#: models/related.py:110
+#: models/related.py:111
 msgid "Forward"
 msgstr "прямая"
 
-#: models/related.py:111
+#: models/related.py:112
 msgid "Reverse"
 msgstr "обратная"
 
-#: models/related.py:116
+#: models/related.py:117
 msgid "Relation direction"
 msgstr "тип направления связи"
 
-#: models/related.py:119
+#: models/related.py:120
 msgid "Defines the direction of relation on which selection is carried out"
 msgstr "Определяет направление связи по которому осуществляется отбор"
 
-#: models/related.py:123
+#: models/related.py:124
 msgid "Data mart relation"
 msgstr "Отношение"
 
-#: models/related.py:124
+#: models/related.py:125
 msgid "Data mart relations"
 msgstr "Отношения"
 
-#: models/related.py:143 models/related.py:168
+#: models/related.py:144 models/related.py:169
 msgid "Image"
 msgstr "Изображение"
 
-#: models/related.py:149
+#: models/related.py:150
 msgid "Entity Image"
 msgstr "Изображение"
 
-#: models/related.py:150
+#: models/related.py:151
 msgid "Entity Images"
 msgstr "Изображения"
 
-#: models/related.py:169
+#: models/related.py:170
 msgid "DataMart"
 msgstr "Витрина данных"
 
-#: models/related.py:174
+#: models/related.py:175
 msgid "DataMart Image"
 msgstr "Изображение"
 
-#: models/related.py:175
+#: models/related.py:176
 msgid "DataMart Images"
 msgstr "Изображения"
 
@@ -875,6 +887,9 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
+
+#~ msgid "Use \"ctrl\" key for choose multiple terms"
+#~ msgstr "Используйте клавишу \"ctrl\" для выбора нескольких Терминов"
 
 #~ msgid "Select terms to set:"
 #~ msgstr "Термины для установки:"
