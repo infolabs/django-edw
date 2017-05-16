@@ -102,8 +102,11 @@ def update_entities_images(entities_ids, to_set_ids, to_unset_ids):
         except EntityModel.DoesNotExist:
             does_not_exist.append(entity_id)
         else:
-            real_instance = entity.get_real_instance()
-            image_fields = [f for f in real_instance._meta.fields if isinstance(f, image.FilerImageField)]
+            qs = EntityModel.objects.filter(id=entity_id)
+            real_instances = EntityModel.objects.get_real_instances(qs)
+            image_fields = [f for f in entity._meta.fields if isinstance(f, image.FilerImageField)]
+            print("META FIELDS", real_instances[0]._meta.fields)
+            print("FIELDS", image_fields)
             if len(image_fields) < 1:
                 does_not_exist_image_field.append(entity_id)
             else:

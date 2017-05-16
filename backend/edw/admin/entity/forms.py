@@ -15,6 +15,7 @@ from edw.models.related import (
     EntityRelatedDataMartModel,
     EntityImageModel,
 )
+from filer.models import Image
 
 from edw.admin.term.widgets import TermTreeWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
@@ -130,25 +131,22 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
 
 class EntitiesUpdateImagesAdminForm(forms.Form):
 
-    to_set = forms.ModelChoiceField(queryset=EntityImageModel.objects.all(), label=_('Image to set'),
+    to_set = forms.ModelChoiceField(queryset=Image.objects.all(), label=_('Image to set'),
                                               required=False, widget=SalmonellaIdWidget(
             EntityImageModel._meta.get_field("image").rel, admin.site))
 
-    to_unset = forms.ModelChoiceField(queryset=EntityImageModel.objects.all(), label=_('Image to unset'),
+    to_unset = forms.ModelChoiceField(queryset=Image.objects.all(), label=_('Image to unset'),
                                               required=False, widget=SalmonellaIdWidget(
             EntityImageModel._meta.get_field("image").rel, admin.site))
-    """
+
     def clean(self):
         cleaned_data = super(EntitiesUpdateImagesAdminForm, self).clean()
-        print(cleaned_data, self.cleaned_data)
-        to_set_image = cleaned_data.get("to_set")
-        to_unset_image = cleaned_data.get("to_unset")
-        print(to_set_image, to_unset_image)
+        to_set = cleaned_data.get("to_set")
+        to_unset = cleaned_data.get("to_unset")
 
-        if not to_set_image and not to_unset_image:
+        if not to_set and not to_unset:
             raise forms.ValidationError(
                 _("Select image for set or unset")
             )
 
         return cleaned_data
-    """
