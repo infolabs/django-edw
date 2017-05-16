@@ -14,9 +14,11 @@ from django.contrib.admin.utils import model_ngettext
 
 from celery import chain
 
-from edw.tasks import update_entities_terms, update_entities_relations
+from edw.tasks import update_entities_terms, update_entities_relations, \
+    update_entities_images
 
-from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm, EntitiesUpdateRelationAdminForm
+from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm, \
+        EntitiesUpdateRelationAdminForm, EntitiesUpdateImagesAdminForm
 
 
 def update_terms(modeladmin, request, queryset):
@@ -150,3 +152,74 @@ def update_relations(modeladmin, request, queryset):
                             context, current_app=modeladmin.admin_site.name)
 
 update_relations.short_description = _("Set or unset relation for selected %(verbose_name_plural)s")
+
+
+def update_images(modeladmin, request, queryset):
+    """
+    Update images for multiple entities
+    """
+    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATIONS_ACTION_CHUNK_SIZE', 100)
+
+    opts = modeladmin.model._meta
+    app_label = opts.app_label
+
+    if request.POST.get('post'):
+        form = EntitiesUpdateImagesAdminForm(request.POST)
+        objects_name = force_unicode(opts.verbose_name)
+        print("FORM", request.POST)
+        if form.is_valid():
+            print("VALID")
+            to_set = form.cleaned_data['to_set']
+            to_unset = form.cleaned_data['to_unset']
+
+            n = queryset.count()
+            if n and (to_set or to_unset):
+                i = 0
+                tasks = []
+                while i < n:
+                    chunk = queryset[i:i + CHUNK_SIZE]
+                    for obj in chunk:
+                        obj_display = force_unicode(obj)
+                        modeladmin.log_change(request, obj, obj_display)
+                    #tasks.append(update_entities_images.si([x.id for x in chunk], to_set, to_unset))
+                    update_entities_images([x.id for x in chunk], to_set, to_unset)
+                    i += CHUNK_SIZE
+
+                #chain(reduce(OR, tasks)).apply_async()
+
+                modeladmin.message_user(request, _("Successfully proceed %(count)d %(items)s.") % {
+                    "count": n, "items": model_ngettext(modeladmin.opts, n)
+                })
+
+            # Return None to display the change list page again.
+            return None
+        else:
+            print("NE VALID")
+            print("ERRORS", form.errors)
+
+    else:
+        form = EntitiesUpdateImagesAdminForm()
+
+    if len(queryset) == 1:
+        objects_name = force_unicode(opts.verbose_name)
+    else:
+        objects_name = force_unicode(opts.verbose_name_plural)
+
+
+    title = _("Update images for multiple entities")
+    context = {
+        "title": title,
+        'form': form,
+        "objects_name": objects_name,
+        'queryset': queryset,
+        "opts": opts,
+        "app_label": app_label,
+        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        'media': modeladmin.media,
+    }
+    # Display the confirmation page
+    return TemplateResponse(request, "edw/admin/entities/actions/update_images.html",
+                            context, current_app=modeladmin.admin_site.name)
+
+update_images.short_description = _("Set or unset images for selected %(verbose_name_plural)s")
+

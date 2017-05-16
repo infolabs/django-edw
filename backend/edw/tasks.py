@@ -6,6 +6,7 @@ from celery import shared_task
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel
 from edw.models.related import EntityRelationModel
+from filer.fields import image
 
 
 @shared_task
@@ -87,3 +88,35 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
         'does_not_exist_targets_ids': does_not_exist_targets_ids,
         'does_not_exist_relation_term_ids': does_not_exist_relations_terms_ids
     }
+
+
+#@shared_task
+def update_entities_images(entities_ids, to_set_ids, to_unset_ids):
+    does_not_exist = []
+    does_not_exist_image_field = []
+    
+    #TODO: check image
+    for entity_id in entities_ids:
+        try:
+            entity = EntityModel.objects.get(id=entity_id)
+        except EntityModel.DoesNotExist:
+            does_not_exist.append(entity_id)
+        else:
+            real_instance = entity.get_real_instance()
+            image_fields = [f for f in real_instance._meta.fields if isinstance(f, image.FilerImageField)]
+            if len(image_fields) < 1:
+                does_not_exist_image_field.append(entity_id)
+            else:
+                print(dir(image_fields[0]))
+                getattr(entity, image_fields[0].name).add(*to_set_ids)
+                getattr(entity, image_fields[0].name).remove(*to_unset_ids)
+
+    return {
+        'entities_ids': entities_ids,
+        'to_set_ids': to_set_ids,
+        'to_unset_ids': to_unset_ids,
+        'does_not_exist': does_not_exist,
+        'does_not_exist_image_field': does_not_exist_image_field
+    }
+
+

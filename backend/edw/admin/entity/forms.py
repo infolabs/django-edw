@@ -12,7 +12,8 @@ from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
 from edw.models.related import (
     EntityRelationModel,
-    EntityRelatedDataMartModel
+    EntityRelatedDataMartModel,
+    EntityImageModel,
 )
 
 from edw.admin.term.widgets import TermTreeWidget
@@ -124,3 +125,30 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
                 _("Select relation and target for unset")
             )
         return cleaned_data
+
+
+
+class EntitiesUpdateImagesAdminForm(forms.Form):
+
+    to_set = forms.ModelChoiceField(queryset=EntityImageModel.objects.all(), label=_('Image to set'),
+                                              required=False, widget=SalmonellaIdWidget(
+            EntityImageModel._meta.get_field("image").rel, admin.site))
+
+    to_unset = forms.ModelChoiceField(queryset=EntityImageModel.objects.all(), label=_('Image to unset'),
+                                              required=False, widget=SalmonellaIdWidget(
+            EntityImageModel._meta.get_field("image").rel, admin.site))
+    """
+    def clean(self):
+        cleaned_data = super(EntitiesUpdateImagesAdminForm, self).clean()
+        print(cleaned_data, self.cleaned_data)
+        to_set_image = cleaned_data.get("to_set")
+        to_unset_image = cleaned_data.get("to_unset")
+        print(to_set_image, to_unset_image)
+
+        if not to_set_image and not to_unset_image:
+            raise forms.ValidationError(
+                _("Select image for set or unset")
+            )
+
+        return cleaned_data
+    """
