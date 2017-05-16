@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import 'marked';
+import  marked from 'marked';
 
 
 // Container
