@@ -111,10 +111,11 @@ def update_relations(modeladmin, request, queryset):
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-                    tasks.append(update_entities_relations.si([x.id for x in chunk], to_set_term.id if to_set_term else None,
-                                              to_set_target.id if to_set_target else None,
-                                              to_unset_term.id if to_unset_term else None,
-                                              to_unset_target.id if to_unset_target else None))
+                    tasks.append(update_entities_relations.si([x.id for x in chunk],
+                                            to_set_term.id if to_set_term else None,
+                                            to_set_target.id if to_set_target else None,
+                                            to_unset_term.id if to_unset_term else None,
+                                            to_unset_target.id if to_unset_target else None))
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()
@@ -179,11 +180,12 @@ def update_images(modeladmin, request, queryset):
                     for obj in chunk:
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
-                    #tasks.append(update_entities_images.si([x.id for x in chunk], to_set, to_unset))
-                    update_entities_images([x.id for x in chunk], to_set, to_unset)
+                    tasks.append(update_entities_images.si([x.id for x in chunk],
+                                           to_set.id if to_set else None,
+                                           to_unset.id if to_unset else None))
                     i += CHUNK_SIZE
 
-                #chain(reduce(OR, tasks)).apply_async()
+                chain(reduce(OR, tasks)).apply_async()
 
                 modeladmin.message_user(request, _("Successfully proceed %(count)d %(items)s.") % {
                     "count": n, "items": model_ngettext(modeladmin.opts, n)
