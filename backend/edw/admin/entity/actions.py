@@ -23,11 +23,9 @@ from edw.tasks import (
     update_entities_images
 )
 
-from edw.admin.entity.forms import (
-    EntitiesUpdateTermsAdminForm,
-    EntitiesUpdateRelationAdminForm,
-    EntitiesUpdateImagesAdminForm
-)
+from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm, \
+    EntitiesUpdateRelationAdminForm, EntitiesUpdateImagesAdminForm, \
+    EntitiesUpdateAdditionalMarksAdminForm
 
 
 def update_terms(modeladmin, request, queryset):
@@ -257,7 +255,38 @@ update_images.short_description = _("Set or unset images for selected %(verbose_
 
 
 def update_additional_marks(modeladmin, request, queryset):
-    pass
+    """
+    Update additional marks for multiple entities
+    """
+    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATIONS_ACTION_CHUNK_SIZE', 100)
+
+    opts = modeladmin.model._meta
+    app_label = opts.app_label
+
+    if request.POST.get('post'):
+        form = EntitiesUpdateAdditionalMarksAdminForm(request.POST)
+    else:
+        form = EntitiesUpdateAdditionalMarksAdminForm()
+
+    if len(queryset) == 1:
+        objects_name = force_unicode(opts.verbose_name)
+    else:
+        objects_name = force_unicode(opts.verbose_name_plural)
+
+    title = _("Update additional marks for multiple entities")
+    context = {
+        "title": title,
+        'form': form,
+        "objects_name": objects_name,
+        'queryset': queryset,
+        "opts": opts,
+        "app_label": app_label,
+        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        'media': modeladmin.media,
+    }
+    # Display the confirmation page
+    return TemplateResponse(request, "edw/admin/entities/actions/update_additional_marks.html",
+                            context, current_app=modeladmin.admin_site.name)
 
 
 update_additional_marks.short_description = \
