@@ -166,9 +166,7 @@ def update_images(modeladmin, request, queryset):
     if request.POST.get('post'):
         form = EntitiesUpdateImagesAdminForm(request.POST)
         objects_name = force_unicode(opts.verbose_name)
-        print("FORM", request.POST)
         if form.is_valid():
-            print("VALID")
             to_set = form.cleaned_data['to_set']
             to_unset = form.cleaned_data['to_unset']
 
@@ -193,9 +191,6 @@ def update_images(modeladmin, request, queryset):
 
             # Return None to display the change list page again.
             return None
-        else:
-            print("NE VALID")
-            print("ERRORS", form.errors)
 
     else:
         form = EntitiesUpdateImagesAdminForm()

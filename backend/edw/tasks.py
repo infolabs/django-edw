@@ -5,8 +5,8 @@ from celery import shared_task
 
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel
-from edw.models.related import EntityRelationModel
-from filer.fields import image
+from edw.models.related import EntityRelationModel, EntityImageModel
+from filer.models import Image
 
 
 @shared_task
@@ -91,33 +91,35 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
 
 
 #@shared_task
-def update_entities_images(entities_ids, to_set_ids, to_unset_ids):
+def update_entities_images(entities_ids, to_set, to_unset):
     does_not_exist = []
     does_not_exist_image_field = []
-    
-    #TODO: check image
+
     for entity_id in entities_ids:
         try:
             entity = EntityModel.objects.get(id=entity_id)
         except EntityModel.DoesNotExist:
             does_not_exist.append(entity_id)
         else:
-            qs = EntityModel.objects.filter(id=entity_id)
-            real_instances = EntityModel.objects.get_real_instances(qs)
-            image_fields = [f for f in entity._meta.fields if isinstance(f, image.FilerImageField)]
-            print("META FIELDS", real_instances[0]._meta.fields)
-            print("FIELDS", image_fields)
-            if len(image_fields) < 1:
-                does_not_exist_image_field.append(entity_id)
+            image_relation_exist = False
+            fields = entity._meta.get_fields()
+            for f in fields:
+                rel = getattr(f, "rel", False)
+                if rel and issubclass(rel.model, Image):
+                    image_relation_exist = True
+                    break
+            if image_relation_exist:
+                if to_set:
+                    EntityImageModel.objects.get_or_create(entity=entity, image=to_set)
+                if to_unset:
+                    EntityImageModel.objects.filter(entity=entity, image=to_unset).delete()
             else:
-                print(dir(image_fields[0]))
-                getattr(entity, image_fields[0].name).add(*to_set_ids)
-                getattr(entity, image_fields[0].name).remove(*to_unset_ids)
+                does_not_exist_image_field.append(entity_id)
 
     return {
         'entities_ids': entities_ids,
-        'to_set_ids': to_set_ids,
-        'to_unset_ids': to_unset_ids,
+        'to_set_ids': [to_set.pk] if to_set else [],
+        'to_unset_ids': [to_unset.pk] if to_unset else [],
         'does_not_exist': does_not_exist,
         'does_not_exist_image_field': does_not_exist_image_field
     }

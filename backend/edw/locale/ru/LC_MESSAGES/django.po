@@ -106,6 +106,11 @@ msgstr "Обновление терминов списка объектов"
 msgid "Set or unset terms for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать термины для выбранных %(verbose_name_plural)s"
 
+#: admin/entity/actions.py:219
+#, python-format
+msgid "Set or unset images for selected %(verbose_name_plural)s"
+msgstr "Установить или убрать изображения для выбранных %(verbose_name_plural)s"
+
 #: admin/entity/actions.py:137
 #: templates/edw/admin/entities/actions/update_relations.html:14
 msgid "Update relations for multiple entities"
