@@ -23,9 +23,12 @@ from edw.tasks import (
     update_entities_images
 )
 
-from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm, \
-    EntitiesUpdateRelationAdminForm, EntitiesUpdateImagesAdminForm, \
+from edw.admin.entity.forms import (
+    EntitiesUpdateTermsAdminForm,
+    EntitiesUpdateRelationAdminForm,
+    EntitiesUpdateImagesAdminForm,
     EntitiesUpdateAdditionalMarksAdminForm
+)
 
 
 def update_terms(modeladmin, request, queryset):
