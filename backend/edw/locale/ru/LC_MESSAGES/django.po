@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-17 17:30+0300\n"
-"PO-Revision-Date: 2017-05-15 12:14+0300\n"
+"POT-Creation-Date: 2017-05-18 00:39+0300\n"
+"PO-Revision-Date: 2017-05-18 00:46+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -91,42 +91,56 @@ msgstr "Компонент представления"
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/actions.py:53 admin/entity/actions.py:122
-#: admin/entity/actions.py:188
+#: admin/entity/actions.py:63 admin/entity/actions.py:133
+#: admin/entity/actions.py:213
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: admin/entity/actions.py:68
+#: admin/entity/actions.py:78
 #: templates/edw/admin/entities/actions/update_terms.html:9
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
-#: admin/entity/actions.py:83
+#: admin/entity/actions.py:93
 #, python-format
 msgid "Set or unset terms for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/actions.py:139
+#: admin/entity/actions.py:150
 #: templates/edw/admin/entities/actions/update_relations.html:14
 msgid "Update relations for multiple entities"
 msgstr "Обновление связей списка объектов"
 
-#: admin/entity/actions.py:154
+#: admin/entity/actions.py:165
 #, python-format
 msgid "Set or unset relation for selected %(verbose_name_plural)s"
 msgstr "Установить или убрать связи для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/actions.py:204
+#: admin/entity/actions.py:229
+#: templates/edw/admin/entities/actions/update_additional_marks.html:14
 #: templates/edw/admin/entities/actions/update_images.html:14
 msgid "Update images for multiple entities"
 msgstr "Обновление изображений списка объектов"
 
-#: admin/entity/actions.py:219
+#: admin/entity/actions.py:244
 #, python-format
 msgid "Set or unset images for selected %(verbose_name_plural)s"
 msgstr ""
 "Установить или убрать изображения для выбранных %(verbose_name_plural)s"
+
+#: admin/entity/actions.py:267
+#| msgid "Update relations for multiple entities"
+msgid "Update additional marks for multiple entities"
+msgstr "Обновление характеристик или меток списка объектов"
+
+#: admin/entity/actions.py:284
+#, python-format
+#| msgid "Set or unset relation for selected %(verbose_name_plural)s"
+msgid "Set or unset additional marks for selected %(verbose_name_plural)s"
+msgstr ""
+"Установить или убрать характеристики или метки для выбранных "
+"%(verbose_name_plural)s"
 
 #: admin/entity/forms.py:40
 msgid "Characteristic or mark"
@@ -202,6 +216,40 @@ msgstr "Изображение для снятия"
 msgid "Select image for set or unset"
 msgstr "Выберите изображения для установки или снятия"
 
+#: admin/entity/forms.py:162 admin/entity/forms.py:183
+#: models/defaults/term.py:22 models/related.py:24 models/related.py:58
+#: models/related.py:116 models/term.py:280
+#: templates/edw/admin/mptt/_term_node.html:25
+msgid "Term"
+msgstr "Термин"
+
+#: admin/entity/forms.py:167 models/related.py:26
+msgid "Value"
+msgstr "Значение"
+
+#: admin/entity/forms.py:173 models/data_mart.py:215 models/related.py:27
+#: models/term.py:265 templates/edw/admin/mptt/_datamart_node.html:12
+#: templates/edw/admin/mptt/_term_node.html:28
+msgid "View Class"
+msgstr "Класс представления"
+
+#: admin/entity/forms.py:176 models/related.py:29 models/term.py:266
+msgid ""
+"Space delimited class attribute, specifies one or more classnames for an "
+"entity."
+msgstr ""
+"Список классов разделенных пробелами, задающий один или несколько классов "
+"для классифицируемых объектов."
+
+#: admin/entity/forms.py:195
+#| msgid "Select terms for set or unset"
+msgid "Select term to set or unset"
+msgstr "Выберите термины для установки или снятия"
+
+#: admin/entity/forms.py:200
+msgid "Set value and view class to set"
+msgstr "Укажите значение и класс представления"
+
 #: admin/notification.py:22 admin/notification.py:102
 msgid "Nobody"
 msgstr "Отсутствует"
@@ -269,7 +317,6 @@ msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
 #: forms/auth.py:52
-#, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -282,7 +329,6 @@ msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
 #: forms/auth.py:98
-#, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -300,15 +346,14 @@ msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
 #: management/commands/edwcustomers.py:35
-#, python-brace-format
 msgid ""
-"Customers in this EDW: total={total}, anonymous={anonymous}, "
-"expired={expired}, active={active}, guests={guests}, "
-"registered={registered}, staff={staff}."
+"Customers in this EDW: total={total}, anonymous={anonymous}, expired="
+"{expired}, active={active}, guests={guests}, registered={registered}, staff="
+"{staff}."
 msgstr ""
-"Пользователи ПХД: всего={total}, анонимные={anonymous}, "
-"истекающие={expired}, активные={active}, гости={guests}, "
-"зарегистрированные={registered}, персонал={staff}."
+"Пользователи ПХД: всего={total}, анонимные={anonymous}, истекающие="
+"{expired}, активные={active}, гости={guests}, зарегистрированные="
+"{registered}, персонал={staff}."
 
 #: models/customer.py:173
 msgid "Mrs."
@@ -424,12 +469,6 @@ msgstr ""
 "Объектов на странице. Оставьте пустым для установки значения по-умолчанию "
 "(по-умолчанию: {})."
 
-#: models/data_mart.py:215 models/related.py:27 models/term.py:265
-#: templates/edw/admin/mptt/_datamart_node.html:12
-#: templates/edw/admin/mptt/_term_node.html:28
-msgid "View Class"
-msgstr "Класс представления"
-
 #: models/data_mart.py:216
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
@@ -472,12 +511,6 @@ msgstr "Код пользователя"
 msgid "Tile view"
 msgstr "Плитка"
 
-#: models/defaults/term.py:22 models/related.py:24 models/related.py:58
-#: models/related.py:116 models/term.py:280
-#: templates/edw/admin/mptt/_term_node.html:25
-msgid "Term"
-msgstr "Термин"
-
 #: models/defaults/term.py:23 models/term.py:281
 msgid "Topic model"
 msgstr "Тематическая модель"
@@ -507,7 +540,8 @@ msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
 #: models/entity.py:610
-#: templates/edw/admin/entities/actions/update_images.html:58
+#: templates/edw/admin/entities/actions/update_additional_marks.html:81
+#: templates/edw/admin/entities/actions/update_images.html:59
 #: templates/edw/admin/entities/actions/update_relations.html:76
 #: templates/edw/admin/entities/actions/update_terms.html:56
 msgid "Entities"
@@ -572,18 +606,6 @@ msgstr "Уведомления"
 #: models/notification.py:38 models/notification.py:42
 msgid "Attachment"
 msgstr "Вложение"
-
-#: models/related.py:26
-msgid "Value"
-msgstr "Значение"
-
-#: models/related.py:29 models/term.py:266
-msgid ""
-"Space delimited class attribute, specifies one or more classnames for an "
-"entity."
-msgstr ""
-"Список классов разделенных пробелами, задающий один или несколько классов "
-"для классифицируемых объектов."
 
 #: models/related.py:33
 msgid "Additional Entity Characteristic or Mark"
@@ -752,31 +774,45 @@ msgstr "Изображения объектов"
 msgid "Save"
 msgstr "Записать"
 
+#: templates/edw/admin/entities/actions/update_additional_marks.html:11
 #: templates/edw/admin/entities/actions/update_images.html:11
 #: templates/edw/admin/entities/actions/update_relations.html:11
 #: templates/edw/admin/entities/actions/update_terms.html:6
 msgid "Home"
 msgstr "Начало"
 
+#: templates/edw/admin/entities/actions/update_additional_marks.html:23
 #: templates/edw/admin/entities/actions/update_images.html:23
 #: templates/edw/admin/entities/actions/update_relations.html:23
 #: templates/edw/admin/entities/actions/update_terms.html:20
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
+#: templates/edw/admin/entities/actions/update_additional_marks.html:30
 #: templates/edw/admin/entities/actions/update_images.html:30
 #: templates/edw/admin/entities/actions/update_relations.html:30
 #: templates/edw/admin/entities/actions/update_terms.html:27
 msgid "Make youre choice"
 msgstr "Выберите"
 
-#: templates/edw/admin/entities/actions/update_images.html:54
+#: templates/edw/admin/entities/actions/update_additional_marks.html:34
+msgid "Additional marks to set"
+msgstr "Характеристики или метки для установки"
+
+#: templates/edw/admin/entities/actions/update_additional_marks.html:35
+#| msgid "Relation to unset"
+msgid "Additional marks to unset"
+msgstr "Характеристики или метки для снятия"
+
+#: templates/edw/admin/entities/actions/update_additional_marks.html:77
+#: templates/edw/admin/entities/actions/update_images.html:55
 #: templates/edw/admin/entities/actions/update_relations.html:72
 #: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Updated entities"
 msgstr "Выбранные объекты"
 
-#: templates/edw/admin/entities/actions/update_images.html:54
+#: templates/edw/admin/entities/actions/update_additional_marks.html:77
+#: templates/edw/admin/entities/actions/update_images.html:55
 #: templates/edw/admin/entities/actions/update_relations.html:72
 #: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Count:"
@@ -898,7 +934,6 @@ msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
 #: views/auth.py:106
-#, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
