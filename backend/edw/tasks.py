@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 from celery import shared_task
 
+from filer.models import Image
+
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel
 from edw.models.related import EntityRelationModel, EntityImageModel
-from filer.models import Image
 
 
 @shared_task

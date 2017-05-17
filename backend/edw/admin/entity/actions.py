@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.core.cache import cache
 from django.conf import settings
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
@@ -14,11 +15,19 @@ from django.contrib.admin.utils import model_ngettext
 
 from celery import chain
 
-from edw.tasks import update_entities_terms, update_entities_relations, \
-    update_entities_images
+from edw.rest.serializers.entity import EntityCommonSerializer
 
-from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm, \
-        EntitiesUpdateRelationAdminForm, EntitiesUpdateImagesAdminForm
+from edw.tasks import (
+    update_entities_terms,
+    update_entities_relations,
+    update_entities_images
+)
+
+from edw.admin.entity.forms import (
+    EntitiesUpdateTermsAdminForm,
+    EntitiesUpdateRelationAdminForm,
+    EntitiesUpdateImagesAdminForm
+)
 
 
 def update_terms(modeladmin, request, queryset):
@@ -166,7 +175,6 @@ def update_images(modeladmin, request, queryset):
 
     if request.POST.get('post'):
         form = EntitiesUpdateImagesAdminForm(request.POST)
-        objects_name = force_unicode(opts.verbose_name)
         if form.is_valid():
             to_set = form.cleaned_data['to_set']
             to_unset = form.cleaned_data['to_unset']
@@ -175,12 +183,38 @@ def update_images(modeladmin, request, queryset):
             if n and (to_set or to_unset):
                 i = 0
                 tasks = []
+                languages = getattr(settings, 'LANGUAGES', ())
+
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
                     for obj in chunk:
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
-                    tasks.append(update_entities_images.si([x.id for x in chunk],
+
+
+
+                    # app_label = entity._meta.app_label.lower()
+                    #
+
+
+                    # update_entities_images([x.id for x in chunk],
+                    #                                        to_set.id if to_set else None,
+                    #                                        to_unset.id if to_unset else None)
+
+                    entities_ids = []
+                    for entity in chunk:
+                        entities_ids.append(entity.id)
+
+                        app_label = entity._meta.app_label.lower()
+
+                        keys = [EntityCommonSerializer.HTML_SNIPPET_CACHE_KEY_PATTERN.format(
+                            entity.id, app_label, label, entity.entity_model, 'media', language[0])
+                            for label in ('summary', 'detail') for language in languages]
+                        cache.delete_many(keys)
+
+                        print("+++UPDATE", keys)
+
+                    tasks.append(update_entities_images.si(entities_ids,
                                            to_set.id if to_set else None,
                                            to_unset.id if to_unset else None))
                     i += CHUNK_SIZE
