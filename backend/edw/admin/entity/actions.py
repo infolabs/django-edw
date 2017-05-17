@@ -27,7 +27,7 @@ from edw.admin.entity.forms import (
     EntitiesUpdateTermsAdminForm,
     EntitiesUpdateRelationAdminForm,
     EntitiesUpdateImagesAdminForm,
-    EntitiesUpdateAdditionalMarksAdminForm,
+    EntitiesUpdateAdditionalMarksAdminForm
 )
 
 
@@ -192,16 +192,6 @@ def update_images(modeladmin, request, queryset):
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-
-
-                    # app_label = entity._meta.app_label.lower()
-                    #
-
-
-                    # update_entities_images([x.id for x in chunk],
-                    #                                        to_set.id if to_set else None,
-                    #                                        to_unset.id if to_unset else None)
-
                     entities_ids = []
                     for entity in chunk:
                         entities_ids.append(entity.id)
@@ -212,8 +202,6 @@ def update_images(modeladmin, request, queryset):
                             entity.id, app_label, label, entity.entity_model, 'media', language[0])
                             for label in ('summary', 'detail') for language in languages]
                         cache.delete_many(keys)
-
-                        print("+++UPDATE", keys)
 
                     tasks.append(update_entities_images.si(entities_ids,
                                            to_set.id if to_set else None,
