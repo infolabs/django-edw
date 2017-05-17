@@ -220,3 +220,12 @@ def update_images(modeladmin, request, queryset):
 
 update_images.short_description = _("Set or unset images for selected %(verbose_name_plural)s")
 
+
+
+def update_additional_marks(modeladmin, request, queryset):
+    pass
+
+
+update_additional_marks.short_description = \
+    _("Set or unset additional marks for selected %(verbose_name_plural)s")
+
