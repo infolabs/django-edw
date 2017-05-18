@@ -169,7 +169,7 @@ def update_images(modeladmin, request, queryset):
     """
     Update images for multiple entities
     """
-    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATIONS_ACTION_CHUNK_SIZE', 100)
+    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_IMAGES_ACTION_CHUNK_SIZE', 100)
 
     opts = modeladmin.model._meta
     app_label = opts.app_label
