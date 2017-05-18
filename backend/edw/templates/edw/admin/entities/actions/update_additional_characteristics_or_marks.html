@@ -99,7 +99,7 @@
                 <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
             {% endfor %}
 
-            <input type="hidden" name="action" value="update_additional_marks" />
+            <input type="hidden" name="action" value="update_additional_characteristics_or_marks" />
             <input type="hidden" name="post" value="yes" />
 
             {% block submit_buttons_bottom %}{% include 'edw/admin/_submit_row.html' %}{% endblock %}

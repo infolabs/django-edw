@@ -1,0 +1,86 @@
+{% extends "admin/change_form.html" %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'salmonella/js/salmonella.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{% trans app_label|capfirst|escape %}</a>
+        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+        &rsaquo; {% trans 'Update relations for multiple entities' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <form action="" method="post">{% csrf_token %}
+            {% if form.errors %}
+                <p class="errornote">
+                    {% trans "Please correct the errors below." %}
+                </p>
+                {{ form.non_field_errors }}
+            {% endif %}
+            <div class="inline-group" id="relations-group">
+                <div class="inline-related tabular">
+                    <fieldset class="module">
+                        <h2>{% trans 'Make youre choice' %}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%">{% trans 'Data mart to set' %}</th>
+                                    <th style="width: 50%">{% trans 'Data mart to unset' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{ form.to_set_datamart }}
+                                    </td>
+                                    <td>
+                                        {{ form.to_unset_datamart }}
+                                    </td>
+                                </tr>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="inline-group" id="entities-group">
+                <div class="inline-related tabular">
+                    <fieldset class="module">
+                        <h2>{% trans 'Updated entities' %} <sup>{% trans 'Count:' %} {{ queryset|length }}</sup></h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Entities' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {% for obj in queryset|slice:":20" %}
+                                            {% if forloop.last %}{% if forloop.counter == 20 %} ... {% endif %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;
+                                            {% else %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;, {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+
+            {% for obj in queryset %}
+                <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+            {% endfor %}
+
+            <input type="hidden" name="action" value="update_related_data_marts" />
+            <input type="hidden" name="post" value="yes" />
+
+            {% block submit_buttons_bottom %}{% include 'edw/admin/_submit_row.html' %}{% endblock %}
+
+        </form>
+    </div>
+{% endblock %}
