@@ -33,12 +33,12 @@ def update_relations(modeladmin, request, queryset):
 
         if form.is_valid():
             to_set_term = form.cleaned_data['to_set_term']
-            to_set_target = form.cleaned_data['to_set_target']
+            to_set_targets = form.cleaned_data['to_set_targets']
             to_unset_term = form.cleaned_data['to_unset_term']
-            to_unset_target = form.cleaned_data['to_unset_target']
+            to_unset_targets = form.cleaned_data['to_unset_targets']
 
             n = queryset.count()
-            if n and ((to_set_term and to_set_target) or (to_unset_term and to_unset_target)):
+            if n and ((to_set_term and to_set_targets) or (to_unset_term and to_unset_targets)):
                 i = 0
                 tasks = []
                 while i < n:
@@ -48,10 +48,11 @@ def update_relations(modeladmin, request, queryset):
                         modeladmin.log_change(request, obj, obj_display)
 
                     tasks.append(update_entities_relations.si([x.id for x in chunk],
-                                            to_set_term.id if to_set_term else None,
-                                            to_set_target.id if to_set_target else None,
-                                            to_unset_term.id if to_unset_term else None,
-                                            to_unset_target.id if to_unset_target else None))
+                                              to_set_term.id if to_set_term else None,
+                                              [x.id for x in to_set_targets],
+                                              to_unset_term.id if to_unset_term else None,
+                                              [x.id for x in to_unset_targets]))
+
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()
@@ -70,8 +71,6 @@ def update_relations(modeladmin, request, queryset):
         objects_name = force_unicode(opts.verbose_name)
     else:
         objects_name = force_unicode(opts.verbose_name_plural)
-
-
 
     title = _("Update relations for multiple entities")
     context = {
