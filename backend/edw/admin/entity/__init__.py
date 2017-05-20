@@ -1,15 +1,18 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import urllib
 
-from django.contrib import admin
-
-from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
+from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
+
+from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
 
 from adminsortable2.admin import SortableInlineAdminMixin
+
+from edw.models.entity import EntityModel
 
 from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
@@ -18,11 +21,21 @@ from edw.models.related import (
     EntityImageModel
 )
 
-from edw.admin.entity.forms import (
+from forms import (
+    EntityAdminForm,
     EntityCharacteristicOrMarkInlineForm,
     EntityRelationInlineForm,
     EntityRelatedDataMartInlineForm
 )
+
+from actions import (
+    update_terms,
+    update_relations,
+    update_images,
+    update_additional_characteristics_or_marks,
+    update_related_data_marts
+)
+
 
 from edw.rest.filters.entity import EntityFilter
 
@@ -123,3 +136,112 @@ class EntityRelatedDataMartInline(admin.TabularInline):
     fk_name = 'entity'
     extra = 1
     form = EntityRelatedDataMartInlineForm
+
+
+#===========================================================================================
+# EntityChildModelAdmin
+#===========================================================================================
+class EntityChildModelAdmin(PolymorphicChildModelAdmin):
+
+    base_model = EntityModel
+
+    base_form = EntityAdminForm
+
+    base_fieldsets = (
+        (_("Main params"), {
+            'fields': ('get_name', 'get_type', 'active', 'created_at', 'terms'),
+        }),
+    )
+
+    readonly_fields = ('get_name', 'get_type')
+
+    list_display = ('get_name', 'get_type', 'active', 'created_at')
+
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline, EntityImageInline]
+
+    list_filter = (TermsTreeFilter, 'active')
+
+    actions = [update_terms, update_relations, update_images, update_additional_characteristics_or_marks, update_related_data_marts]
+
+    save_on_top = True
+
+    show_in_index = True
+
+    def get_name(self, object):
+        return object.get_real_instance().entity_name
+    get_name.short_description = _("Name")
+
+    def get_type(self, object):
+        return object.get_real_instance().entity_type()
+    get_type.short_description = _("Entity type")
+
+    class Media:
+        css = {
+            'all': (
+                '/static/css/admin/entity.css',
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+            )
+        }
+        js = (
+
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/jquery.compat.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
+
+
+# ===========================================================================================
+# EntityChildModelAdmin
+# ===========================================================================================
+class EntityParentModelAdmin(PolymorphicParentModelAdmin):
+
+    base_model = EntityModel
+
+    form = EntityAdminForm
+
+    base_fieldsets = (
+        (_("Main params"), {
+            'fields': ('get_name', 'get_type', 'active', 'created_at', 'terms'),
+        }),
+    )
+
+    readonly_fields = ('get_name', 'get_type')
+
+    list_display = ('get_name', 'get_type', 'active', 'created_at')
+
+    actions = [update_terms, update_relations, update_images, update_additional_characteristics_or_marks, update_related_data_marts]
+
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
+
+    save_on_top = True
+
+    list_filter = (TermsTreeFilter, 'active')
+
+    list_per_page = 250
+
+    list_max_show_all = 1000
+
+    def get_name(self, object):
+        return object.get_real_instance().entity_name
+    get_name.short_description = _("Name")
+
+    def get_type(self, object):
+        return object.get_real_instance().entity_type()
+    get_type.short_description = _("Entity type")
+
+    class Media:
+        css = {
+            'all': (
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+            )
+        }
+        js = (
+
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/jquery.compat.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )

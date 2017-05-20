@@ -9,7 +9,7 @@ from edw.models.mixins import ModelMixin
 
 
 class NotificationMixin(ModelMixin):
-    stored_request = JSONField(default={},
+    stored_request = JSONField(verbose_name=_("stored_request"), default={},
         help_text=_("Parts of the Request objects on the moment of submit."))
 
     @property
