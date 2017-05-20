@@ -30,12 +30,11 @@ def update_entities_additional_characteristics_or_marks(entities_ids, to_set_ter
             except EntityModel.DoesNotExist:
                 does_not_exist_entities_ids.append(entity_id)
             else:
-                try:
-                    additional_characteristic_or_mark = AdditionalEntityCharacteristicOrMarkModel.objects.get(
-                        entity=entity,
-                        term=to_set_term
-                    )
-                except AdditionalEntityCharacteristicOrMarkModel.DoesNotExist:
+                qs = AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+                    entity=entity,
+                    term=to_set_term
+                )
+                if len(qs) < 1:
                     AdditionalEntityCharacteristicOrMarkModel.objects.create(
                         entity=entity,
                         term=to_set_term,
@@ -43,6 +42,7 @@ def update_entities_additional_characteristics_or_marks(entities_ids, to_set_ter
                         view_class=view_class,
                     )
                 else:
+                    additional_characteristic_or_mark = qs[0]
                     additional_characteristic_or_mark.value = value
                     additional_characteristic_or_mark.view_class = view_class
                     additional_characteristic_or_mark.save()
