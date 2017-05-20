@@ -46,16 +46,15 @@ class EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm(forms.Form):
         to_set_term = cleaned_data.get("to_set_term")
         to_unset_term = cleaned_data.get("to_unset_term")
         value = cleaned_data.get("value")
-        view_class = cleaned_data.get("view_class")
 
         if not (to_set_term or to_unset_term):
             raise forms.ValidationError(
                 _("Select term to set or unset")
             )
 
-        if to_set_term and not (value and view_class):
+        if bool(to_set_term) ^ bool(value):
             raise forms.ValidationError(
-                _("Set value and view class to set")
+                _("Set term and value")
             )
 
         return cleaned_data
