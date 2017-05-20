@@ -10,19 +10,21 @@ from edw.models.related import EntityImageModel
 
 
 @shared_task(name='update_entities_images')
-def update_entities_images(entities_ids, to_set_image_id, to_unset_image_id):
+def update_entities_images(entities_ids, to_set_images_ids, to_unset_images_ids):
     does_not_exist_entities_ids = []
     does_not_exist_image_field_entities_ids = []
     does_not_exist_images_ids = []
 
-    to_set_image = None
-    if to_set_image_id is not None:
-        try:
-            to_set_image = Image.objects.get(id=to_set_image_id)
-        except Image.DoesNotExist:
-            does_not_exist_images_ids.append(to_set_image_id)
+    to_set_images = None
+    if to_set_images_ids:
+        to_set_images = Image.objects.filter(id__in=to_set_images_ids)
+        does_not_exist_images_ids.extend(
+            list(
+                set(to_set_images_ids) - set([i.id for i in to_set_images])
+            )
+        )
 
-    if to_set_image:
+    if to_set_images:
         for entity_id in entities_ids:
             try:
                 entity = EntityModel.objects.get(id=entity_id)
@@ -37,25 +39,28 @@ def update_entities_images(entities_ids, to_set_image_id, to_unset_image_id):
                         image_relation_exist = True
                         break
                 if image_relation_exist:
-                    if to_set_image_id:
-                        EntityImageModel.objects.get_or_create(entity=entity, image=to_set_image)
+                    for i in to_set_images:
+                        EntityImageModel.objects.get_or_create(entity=entity, image=i)
                 else:
                     does_not_exist_image_field_entities_ids.append(entity_id)
 
-    to_unset_image = None
-    if to_unset_image_id is not None:
-        try:
-            to_unset_image = Image.objects.get(id=to_unset_image_id)
-        except Image.DoesNotExist:
-            does_not_exist_images_ids.append(to_unset_image_id)
-
-    if to_unset_image:
-        EntityImageModel.objects.filter(entity_id__in=entities_ids, image=to_unset_image).delete()
+    to_unset_images = None
+    if to_unset_images_ids:
+        to_unset_images = Image.objects.filter(id__in=to_unset_images_ids)
+        does_not_exist_images_ids.extend(
+            list(
+                set(to_unset_images_ids) - set([i.id for i in to_unset_images])
+            )
+        )
+    if to_unset_images:
+        EntityImageModel.objects.filter(
+            entity_id__in=entities_ids, image__in=to_unset_images
+        ).delete()
 
     return {
         'entities_ids': entities_ids,
-        'to_set_image_id': to_set_image_id,
-        'to_unset_image_id': to_unset_image_id,
+        'to_set_image_id': to_set_images_ids,
+        'to_unset_image_id': to_unset_images_ids,
         'does_not_exist_entities_ids': does_not_exist_entities_ids,
         'does_not_exist_images_ids': does_not_exist_images_ids,
         'does_not_exist_image_field': does_not_exist_image_field_entities_ids
