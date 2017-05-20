@@ -61,8 +61,8 @@ def update_images(modeladmin, request, queryset):
                         cache.delete_many(keys)
 
                     tasks.append(update_entities_images.si(entities_ids,
-                                           to_set.id if to_set else None,
-                                           to_unset.id if to_unset else None))
+                                           [j.id for j in to_set] if to_set else None,
+                                           [j.id for j in to_unset] if to_unset else None))
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()

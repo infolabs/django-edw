@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-20 13:09+0300\n"
+"POT-Creation-Date: 2017-05-20 18:33+0300\n"
 "PO-Revision-Date: 2017-05-20 13:09+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
@@ -92,30 +92,21 @@ msgstr "Компонент представления"
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/__init__.py:151
+#: admin/entity/__init__.py:151 admin/entity/__init__.py:205
 msgid "Main params"
 msgstr "Основные"
 
-#: admin/entity/__init__.py:172
-msgid "Entity name"
-msgstr "Наименование"
+#: admin/entity/__init__.py:172 admin/entity/__init__.py:228
+#: models/data_mart.py:194 models/notification.py:18 models/term.py:254
+msgid "Name"
+msgstr "Название"
 
-#: admin/entity/__init__.py:176 models/entity.py:620
+#: admin/entity/__init__.py:176 admin/entity/__init__.py:232
+#: models/entity.py:620
 msgid "Entity type"
 msgstr "Тип объекта"
 
-#: admin/entity/actions/update_additional_characteristics_or_marks.py:34
-msgid "Update additional characteristics or marks for multiple entities"
-msgstr "Обновление характеристик или меток списка объектов"
-
-#: admin/entity/actions/update_additional_characteristics_or_marks.py:51
-#, python-format
-msgid ""
-"Modify additional characteristics or marks for selected "
-"%(verbose_name_plural)s"
-msgstr ""
-"Изменить характеристики или метки для выбранных %(verbose_name_plural)s"
-
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:59
 #: admin/entity/actions/update_images.py:70
 #: admin/entity/actions/update_related_data_marts.py:55
 #: admin/entity/actions/update_relations.py:60
@@ -123,6 +114,18 @@ msgstr ""
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
+
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:72
+msgid "Update additional characteristics or marks for multiple entities"
+msgstr "Обновление характеристик или меток списка объектов"
+
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:88
+#, python-format
+msgid ""
+"Modify additional characteristics or marks for selected "
+"%(verbose_name_plural)s"
+msgstr ""
+"Изменить характеристики или метки для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_images.py:86
 #: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:14
@@ -180,27 +183,27 @@ msgstr "Цель"
 msgid "Data mart"
 msgstr "Витрина данных"
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:23
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:44
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:20
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:41
 #: models/defaults/term.py:22 models/related.py:24 models/related.py:58
 #: models/related.py:116 models/term.py:280
 #: templates/edw/admin/mptt/_term_node.html:25
 msgid "Term"
 msgstr "Термин"
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:28
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:25
 #: models/related.py:26
 msgid "Value"
 msgstr "Значение"
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:34
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:31
 #: models/data_mart.py:215 models/related.py:27 models/term.py:265
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:37
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:34
 #: models/related.py:29 models/term.py:266
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
@@ -209,39 +212,37 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для классифицируемых объектов."
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:56
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:52
 msgid "Select term to set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: admin/entity/forms/update_additional_characteristics_or_marks.py:61
-msgid "Set value and view class to set"
-msgstr "Укажите значение и класс представления"
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:57
+msgid "Set term and value"
+msgstr "Установите термин и текущее значение"
 
 #: admin/entity/forms/update_images.py:19
-#: templates/edw/admin/entities/actions/update_images.html:34
-msgid "Image to set"
-msgstr "Изображение для установки"
+msgid "Images to set"
+msgstr "Изображения для установки"
 
 #: admin/entity/forms/update_images.py:23
-#: templates/edw/admin/entities/actions/update_images.html:35
-msgid "Image to unset"
-msgstr "Изображение для снятия"
+msgid "Images to unset"
+msgstr "Изображения для снятия"
 
 #: admin/entity/forms/update_images.py:34
-msgid "Select image for set or unset"
+msgid "Select images to set or unset"
 msgstr "Выберите изображения для установки или снятия"
 
-#: admin/entity/forms/update_related_data_marts.py:22
+#: admin/entity/forms/update_related_data_marts.py:19
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:34
 msgid "Data mart to set"
 msgstr "Витрина данных для установки"
 
-#: admin/entity/forms/update_related_data_marts.py:25
+#: admin/entity/forms/update_related_data_marts.py:22
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:35
 msgid "Data mart to unset"
 msgstr "Витрина данных для снятия"
 
-#: admin/entity/forms/update_related_data_marts.py:36
+#: admin/entity/forms/update_related_data_marts.py:33
 msgid "Select related datamart for set or unset"
 msgstr "Выберите витрины данных для установки или снятия"
 
@@ -358,6 +359,7 @@ msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
 #: forms/auth.py:52
+#, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -370,6 +372,7 @@ msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
 #: forms/auth.py:98
+#, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -387,14 +390,15 @@ msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
 #: management/commands/edwcustomers.py:35
+#, python-brace-format
 msgid ""
-"Customers in this EDW: total={total}, anonymous={anonymous}, expired="
-"{expired}, active={active}, guests={guests}, registered={registered}, staff="
-"{staff}."
+"Customers in this EDW: total={total}, anonymous={anonymous}, "
+"expired={expired}, active={active}, guests={guests}, "
+"registered={registered}, staff={staff}."
 msgstr ""
-"Пользователи ПХД: всего={total}, анонимные={anonymous}, истекающие="
-"{expired}, активные={active}, гости={guests}, зарегистрированные="
-"{registered}, персонал={staff}."
+"Пользователи ПХД: всего={total}, анонимные={anonymous}, "
+"истекающие={expired}, активные={active}, гости={guests}, "
+"зарегистрированные={registered}, персонал={staff}."
 
 #: models/customer.py:173
 msgid "Mrs."
@@ -467,10 +471,6 @@ msgstr "Термины витрины данных"
 #: models/data_mart.py:193 models/term.py:253
 msgid "Parent"
 msgstr "Родитель"
-
-#: models/data_mart.py:194 models/notification.py:18 models/term.py:254
-msgid "Name"
-msgstr "Название"
 
 #: models/data_mart.py:195 models/term.py:255
 msgid "Slug"
@@ -980,6 +980,7 @@ msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
 #: views/auth.py:106
+#, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
@@ -1000,6 +1001,18 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
+
+#~ msgid "Image to set"
+#~ msgstr "Изображение для установки"
+
+#~ msgid "Image to unset"
+#~ msgstr "Изображение для снятия"
+
+#~ msgid "Entity name"
+#~ msgstr "Наименование"
+
+#~ msgid "Set value and view class to set"
+#~ msgstr "Укажите значение и класс представления"
 
 #~ msgid "Use \"ctrl\" key for choose multiple terms"
 #~ msgstr "Используйте клавишу \"ctrl\" для выбора нескольких Терминов"
