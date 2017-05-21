@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
+import simplejson as json
+
 from celery import shared_task
 
 from edw.models.entity import EntityModel
@@ -51,7 +54,7 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
                                                    from_entity_id__in=entities_ids,
                                                    term=to_unset_relation_term).delete()
 
-    return {
+    return json.dumps({
         'entities_ids': entities_ids,
         'to_set_relation_term_id': to_set_relation_term_id,
         'to_set_target_ids': to_set_target_ids,
@@ -61,4 +64,4 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
         'exist_to_set_targets_ids': exist_to_set_targets_ids,
         'exist_to_unset_targets_ids': exist_to_unset_targets_ids,
         'does_not_exist_relation_term_ids': does_not_exist_relations_terms_ids
-    }
+    })
