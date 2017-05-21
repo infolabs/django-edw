@@ -50,8 +50,13 @@ class NotificationAdmin(admin.ModelAdmin):
     def get_senders():
         result = {}
         Model = EntityModel.materialized
-        for clazz in [Model] + Model.__subclasses__():
-            result[clazz.__name__.lower()] = clazz
+        result[Model.__name__.lower()] = Model
+        for clazz in Model.__subclasses__():
+            if clazz.__subclasses__():
+                for subclazz in clazz.__subclasses__():
+                    result[subclazz.__name__.lower()] = subclazz
+            else:
+                result[clazz.__name__.lower()] = clazz
         return result
 
     def get_transition_choices(self):
