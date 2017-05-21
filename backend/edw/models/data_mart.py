@@ -433,19 +433,23 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             DataMartModel._base_entity_model_cache = base_entity_model
         return base_entity_model
 
+    @staticmethod
+    def get_entities_model(terms_ids):
+        base_entity_model = DataMartModel.get_base_entity_model()
+        entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
+        entities_types_terms_ids = entities_types.keys()
+        crossing_terms_ids = list(set(entities_types_terms_ids) & set(terms_ids))
+        try:
+            return entities_types[crossing_terms_ids[0]]._entity_model_class
+        except IndexError:
+            return base_entity_model
+
     @cached_property
     def entities_model(self):
         """
         Return Data Mart entities collection Model
         """
-        base_entity_model = self.get_base_entity_model()
-        entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
-        entities_types_terms_ids = entities_types.keys()
-        crossing_terms_ids = list(set(entities_types_terms_ids) & set(self.active_terms_ids))
-        try:
-            return entities_types[crossing_terms_ids[0]]._entity_model_class
-        except IndexError:
-            return base_entity_model
+        return self.get_entities_model(self.active_terms_ids)
 
     def get_summary_extra(self):
         """

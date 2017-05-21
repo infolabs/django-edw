@@ -14,8 +14,8 @@ from django.contrib.admin.utils import model_ngettext
 
 from celery import chain
 
+from edw.models.data_mart import DataMartModel
 from edw.tasks import update_entities_states
-
 from edw.admin.entity.forms import EntitiesUpdateStateAdminForm
 
 
@@ -28,18 +28,21 @@ def update_states(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     app_label = opts.app_label
 
+    try:
+        terms_ids = queryset[0].terms.values_list('id', flat=True)
+    except IndexError:
+        entities_model = DataMartModel.get_base_entity_model()
+    else:
+        entities_model = DataMartModel.get_entities_model(terms_ids)
+
     if request.POST.get('post'):
-        form = EntitiesUpdateStateAdminForm(request.POST)
+        form = EntitiesUpdateStateAdminForm(request.POST, entities_model=entities_model)
 
         if form.is_valid():
-            # to_set_term = form.cleaned_data['to_set_term']
-            # to_set_targets = form.cleaned_data['to_set_targets']
-            # to_unset_term = form.cleaned_data['to_unset_term']
-            # to_unset_targets = form.cleaned_data['to_unset_targets']
+            state = form.cleaned_data['state']
 
             n = queryset.count()
-            if n:
-            # if n and ((to_set_term and to_set_targets) or (to_unset_term and to_unset_targets)):
+            if n and state:
                 i = 0
                 tasks = []
                 while i < n:
@@ -48,17 +51,11 @@ def update_states(modeladmin, request, queryset):
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-                    update_entities_states([x.id for x in chunk], 'OLOLOLO!!!')
-
-                    # tasks.append(update_entities_relations.si([x.id for x in chunk],
-                    #                           to_set_term.id if to_set_term else None,
-                    #                           [x.id for x in to_set_targets],
-                    #                           to_unset_term.id if to_unset_term else None,
-                    #                           [x.id for x in to_unset_targets]))
+                    tasks.append(update_entities_states.si([x.id for x in chunk], state))
 
                     i += CHUNK_SIZE
 
-                # chain(reduce(OR, tasks)).apply_async()
+                chain(reduce(OR, tasks)).apply_async()
 
                 modeladmin.message_user(request, _("Successfully proceed %(count)d %(items)s.") % {
                     "count": n, "items": model_ngettext(modeladmin.opts, n)
@@ -66,16 +63,15 @@ def update_states(modeladmin, request, queryset):
 
             # Return None to display the change list page again.
             return None
-
     else:
-        form = EntitiesUpdateStateAdminForm()
+        form = EntitiesUpdateStateAdminForm(entities_model=entities_model)
 
     if len(queryset) == 1:
         objects_name = force_unicode(opts.verbose_name)
     else:
         objects_name = force_unicode(opts.verbose_name_plural)
 
-    title = _("Update states for multiple entities")
+    title = _("Update state for multiple entities")
     context = {
         "title": title,
         'form': form,

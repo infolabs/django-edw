@@ -1,17 +1,11 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.contrib import admin
 
-# from salmonella.widgets import SalmonellaMultiIdWidget
-
-# from edw.models.term import TermModel
-# from edw.models.entity import EntityModel
-# from edw.models.related import EntityRelationModel
-
-from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
+from edw.models.data_mart import DataMartModel
 
 
 #==============================================================================
@@ -19,42 +13,27 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 #==============================================================================
 class EntitiesUpdateStateAdminForm(forms.Form):
 
-    test = forms.CharField(max_length=255)
+    state = forms.ChoiceField(choices=(('', _("-"*9)),), label=_('State'))
 
-    # to_set_term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(), required=False,
-    #                                    joiner=' / ', label=_('Relation to set'))
-    #
-    # to_set_targets = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Targets to set'),
-    #                                           required=False, widget=SalmonellaMultiIdWidget(
-    #         EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
-    #
-    # to_unset_term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(), required=False,
-    #                                           joiner=' / ', label=_('Relation to unset'))
-    #
-    # to_unset_targets = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Targets to unset'),
-    #                                             required=False, widget=SalmonellaMultiIdWidget(
-    #         EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
-    #
-    # def clean(self):
-    #     cleaned_data = super(EntitiesUpdateRelationAdminForm, self).clean()
-    #     to_set_term = cleaned_data.get("to_set_term")
-    #     to_set_targets = cleaned_data.get("to_set_targets")
-    #
-    #     to_unset_term = cleaned_data.get("to_unset_term")
-    #     to_unset_targets = cleaned_data.get("to_unset_targets")
-    #
-    #     if not (to_set_term or to_unset_term):
-    #         raise forms.ValidationError(
-    #             _("Select relation for set or unset")
-    #         )
-    #
-    #     if bool(to_set_term) ^ bool(to_set_targets):
-    #         raise forms.ValidationError(
-    #             _("Select relation and target for set")
-    #         )
-    #
-    #     if bool(to_unset_term) ^ bool(to_unset_targets):
-    #         raise forms.ValidationError(
-    #             _("Select relation and target for unset")
-    #         )
-    #     return cleaned_data
+    def __init__(self, *args, **kwargs):
+        entities_model = kwargs.pop('entities_model', None)
+        super(EntitiesUpdateStateAdminForm, self).__init__(*args, **kwargs)
+        if entities_model is None:
+            entities_model = DataMartModel.get_base_entity_model()
+        transition_states = getattr(entities_model, 'TRANSITION_TARGETS', {})
+        if transition_states:
+            choices = []
+            for k, v in transition_states.items():
+                choices.append((k, v))
+            self.fields['state'].choices = choices
+
+    def clean(self):
+        cleaned_data = super(EntitiesUpdateStateAdminForm, self).clean()
+        state = cleaned_data.get("state")
+
+        if not state:
+            raise forms.ValidationError(
+                _("Selected entities is not FSM instances")
+            )
+
+        return cleaned_data
