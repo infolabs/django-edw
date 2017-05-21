@@ -49,7 +49,7 @@ msgstr "Персонал"
 msgid "User"
 msgstr "Пользователь"
 
-#: admin/customer/__init__.py:107
+#: admin/customer/__init__.py:107 admin/entity/forms/update_states.py:16
 msgid "State"
 msgstr "Состояние"
 
@@ -73,8 +73,8 @@ msgstr "Пользователь"
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:19 admin/entity/__init__.py:49
-#: admin/entity/forms/__init__.py:40 models/data_mart.py:198
+#: admin/data_mart/forms.py:19 admin/entity/__init__.py:50
+#: admin/entity/forms/__init__.py:39 models/data_mart.py:198
 #: models/entity.py:589
 msgid "Terms"
 msgstr "Термины"
@@ -87,21 +87,21 @@ msgstr "Порядок сортировки"
 msgid "View component"
 msgstr "Компонент представления"
 
-#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:58
+#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:57
 #: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/__init__.py:151 admin/entity/__init__.py:205
+#: admin/entity/__init__.py:152 admin/entity/__init__.py:207
 msgid "Main params"
 msgstr "Основные"
 
-#: admin/entity/__init__.py:172 admin/entity/__init__.py:228
+#: admin/entity/__init__.py:174 admin/entity/__init__.py:231
 #: models/data_mart.py:194 models/notification.py:18 models/term.py:254
 msgid "Name"
 msgstr "Название"
 
-#: admin/entity/__init__.py:176 admin/entity/__init__.py:232
+#: admin/entity/__init__.py:178 admin/entity/__init__.py:235
 #: models/entity.py:620
 msgid "Entity type"
 msgstr "Тип объекта"
@@ -110,6 +110,7 @@ msgstr "Тип объекта"
 #: admin/entity/actions/update_images.py:70
 #: admin/entity/actions/update_related_data_marts.py:61
 #: admin/entity/actions/update_relations.py:60
+#: admin/entity/actions/update_states.py:60
 #: admin/entity/actions/update_terms.py:51
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
@@ -159,6 +160,17 @@ msgstr "Обновление отношений списка объектов"
 msgid "Modify relation for selected %(verbose_name_plural)s"
 msgstr "Изменить отношения для выбранных %(verbose_name_plural)s"
 
+#: admin/entity/actions/update_states.py:74
+#| msgid "Update terms for multiple entities"
+msgid "Update state for multiple entities"
+msgstr "Обновление состояния списка объектов"
+
+#: admin/entity/actions/update_states.py:89
+#, python-format
+#| msgid "Modify terms for selected %(verbose_name_plural)s"
+msgid "Modify state for selected %(verbose_name_plural)s"
+msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
+
 #: admin/entity/actions/update_terms.py:66
 #: templates/edw/admin/entities/actions/update_terms.html:9
 msgid "Update terms for multiple entities"
@@ -169,15 +181,15 @@ msgstr "Обновление терминов списка объектов"
 msgid "Modify terms for selected %(verbose_name_plural)s"
 msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/forms/__init__.py:49
+#: admin/entity/forms/__init__.py:48
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: admin/entity/forms/__init__.py:60
+#: admin/entity/forms/__init__.py:59
 msgid "Target"
 msgstr "Цель"
 
-#: admin/entity/forms/__init__.py:69 models/data_mart.py:233
+#: admin/entity/forms/__init__.py:68 models/data_mart.py:233
 #: models/defaults/data_mart.py:28 models/related.py:83 models/related.py:115
 #: templates/edw/admin/mptt/_datamart_node.html:9
 msgid "Data mart"
@@ -276,6 +288,14 @@ msgstr "Выберите отношение и цель для установк�
 msgid "Select relation and target for unset"
 msgstr "Выберите отношение и цель для снятия"
 
+#: admin/entity/forms/update_states.py:16
+msgid "-"
+msgstr ""
+
+#: admin/entity/forms/update_states.py:36
+msgid "Selected entities is not FSM instances"
+msgstr "Выбранные объекты не являются экземплярами FSM"
+
 #: admin/entity/forms/update_terms.py:15
 #: templates/edw/admin/entities/actions/update_terms.html:31
 msgid "Terms to set"
@@ -357,7 +377,6 @@ msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
 #: forms/auth.py:52
-#, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -370,7 +389,6 @@ msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
 #: forms/auth.py:98
-#, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -388,15 +406,14 @@ msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
 #: management/commands/edwcustomers.py:35
-#, python-brace-format
 msgid ""
-"Customers in this EDW: total={total}, anonymous={anonymous}, "
-"expired={expired}, active={active}, guests={guests}, "
-"registered={registered}, staff={staff}."
+"Customers in this EDW: total={total}, anonymous={anonymous}, expired="
+"{expired}, active={active}, guests={guests}, registered={registered}, staff="
+"{staff}."
 msgstr ""
-"Пользователи ПХД: всего={total}, анонимные={anonymous}, "
-"истекающие={expired}, активные={active}, гости={guests}, "
-"зарегистрированные={registered}, персонал={staff}."
+"Пользователи ПХД: всего={total}, анонимные={anonymous}, истекающие="
+"{expired}, активные={active}, гости={guests}, зарегистрированные="
+"{registered}, персонал={staff}."
 
 #: models/customer.py:173
 msgid "Mrs."
@@ -583,6 +600,7 @@ msgstr "Связанные витрины данных"
 #: templates/edw/admin/entities/actions/update_images.html:59
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:58
 #: templates/edw/admin/entities/actions/update_relations.html:76
+#: templates/edw/admin/entities/actions/update_states.html:49
 #: templates/edw/admin/entities/actions/update_terms.html:56
 msgid "Entities"
 msgstr "Объекты"
@@ -818,6 +836,7 @@ msgstr "Записать"
 #: templates/edw/admin/entities/actions/update_images.html:11
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:11
 #: templates/edw/admin/entities/actions/update_relations.html:11
+#: templates/edw/admin/entities/actions/update_states.html:6
 #: templates/edw/admin/entities/actions/update_terms.html:6
 msgid "Home"
 msgstr "Начало"
@@ -826,6 +845,7 @@ msgstr "Начало"
 #: templates/edw/admin/entities/actions/update_images.html:23
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:23
 #: templates/edw/admin/entities/actions/update_relations.html:23
+#: templates/edw/admin/entities/actions/update_states.html:18
 #: templates/edw/admin/entities/actions/update_terms.html:20
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
@@ -834,6 +854,7 @@ msgstr "Пожалуйста, исправьте ошибки ниже."
 #: templates/edw/admin/entities/actions/update_images.html:30
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:30
 #: templates/edw/admin/entities/actions/update_relations.html:30
+#: templates/edw/admin/entities/actions/update_states.html:25
 #: templates/edw/admin/entities/actions/update_terms.html:27
 msgid "Make youre choice"
 msgstr "Выберите"
@@ -850,6 +871,7 @@ msgstr "Характеристики или метки для снятия"
 #: templates/edw/admin/entities/actions/update_images.html:55
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:54
 #: templates/edw/admin/entities/actions/update_relations.html:72
+#: templates/edw/admin/entities/actions/update_states.html:45
 #: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Updated entities"
 msgstr "Выбранные объекты"
@@ -858,9 +880,20 @@ msgstr "Выбранные объекты"
 #: templates/edw/admin/entities/actions/update_images.html:55
 #: templates/edw/admin/entities/actions/update_related_data_marts.html:54
 #: templates/edw/admin/entities/actions/update_relations.html:72
+#: templates/edw/admin/entities/actions/update_states.html:45
 #: templates/edw/admin/entities/actions/update_terms.html:52
 msgid "Count:"
 msgstr "Количество:"
+
+#: templates/edw/admin/entities/actions/update_states.html:9
+#| msgid "Update terms for multiple entities"
+msgid "Update states for multiple entities"
+msgstr "Обновление состояний списка объектов"
+
+#: templates/edw/admin/entities/actions/update_states.html:29
+#| msgid "Image to set"
+msgid "State to set"
+msgstr "Состояние для установки"
 
 #: templates/edw/admin/mptt/_datamart_node.html:6
 #: templates/edw/admin/mptt/_term_node.html:15
@@ -978,7 +1011,6 @@ msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
 #: views/auth.py:106
-#, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
@@ -999,9 +1031,6 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
-
-#~ msgid "Image to set"
-#~ msgstr "Изображение для установки"
 
 #~ msgid "Image to unset"
 #~ msgstr "Изображение для снятия"

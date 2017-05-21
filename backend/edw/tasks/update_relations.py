@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 from celery import shared_task
 
 from edw.models.entity import EntityModel
@@ -24,7 +25,8 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
             does_not_exist_relations_terms_ids.append(to_set_relation_term_id)
     if to_set_relation_term is not None:
         if to_set_target_ids:
-            exist_to_set_targets_ids = EntityModel.objects.filter(id__in=to_set_target_ids).values_list('id', flat=True)
+            exist_to_set_targets_ids = list(EntityModel.objects.filter(
+                id__in=to_set_target_ids).values_list('id', flat=True))
             for to_set_target_id in exist_to_set_targets_ids:
                 for entity_id in entities_ids:
                     try:
@@ -44,8 +46,8 @@ def update_entities_relations(entities_ids, to_set_relation_term_id, to_set_targ
             does_not_exist_relations_terms_ids.append(to_unset_relation_term_id)
     if to_unset_relation_term is not None:
         if to_unset_target_ids is not None:
-            exist_to_unset_targets_ids = EntityModel.objects.filter(
-                id__in=to_unset_target_ids).values_list('id', flat=True)
+            exist_to_unset_targets_ids = list(EntityModel.objects.filter(
+                id__in=to_unset_target_ids).values_list('id', flat=True))
             if exist_to_unset_targets_ids:
                 EntityRelationModel.objects.filter(to_entity_id__in=exist_to_unset_targets_ids,
                                                    from_entity_id__in=entities_ids,
