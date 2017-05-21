@@ -32,11 +32,11 @@ def update_related_data_marts(modeladmin, request, queryset):
         form = EntitiesUpdateRelatedDataMartsAdminForm(request.POST)
 
         if form.is_valid():
-            to_set_datamart = form.cleaned_data['to_set_datamart']
-            to_unset_datamart = form.cleaned_data['to_unset_datamart']
+            to_set_datamarts = form.cleaned_data['to_set_datamarts']
+            to_unset_datamarts = form.cleaned_data['to_unset_datamarts']
 
             n = queryset.count()
-            if n and (to_set_datamart  or to_unset_datamart):
+            if n and (to_set_datamarts or to_unset_datamarts):
                 i = 0
                 tasks = []
                 while i < n:
@@ -45,9 +45,12 @@ def update_related_data_marts(modeladmin, request, queryset):
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-                    tasks.append(update_entities_related_data_marts.si([x.id for x in chunk],
-                                            to_set_datamart.id if to_set_datamart else None,
-                                            to_unset_datamart.id if to_unset_datamart else None))
+                    tasks.append(update_entities_related_data_marts.si(
+                        [x.id for x in chunk],
+                        [j.id for j in to_set_datamarts] if to_set_datamarts else None,
+                        [j.id for j in to_unset_datamarts] if to_unset_datamarts else None
+                    ))
+
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()
