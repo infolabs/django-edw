@@ -31,17 +31,17 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 50%">{% trans 'Data mart to set' %}</th>
-                                    <th style="width: 50%">{% trans 'Data mart to unset' %}</th>
+                                    <th style="width: 50%">{{ form.to_set_datamarts.label }}</th>
+                                    <th style="width: 50%">{{ form.to_unset_datamarts.label }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
-                                        {{ form.to_set_datamart }}
+                                        {{ form.to_set_datamarts }}
                                     </td>
                                     <td>
-                                        {{ form.to_unset_datamart }}
+                                        {{ form.to_unset_datamarts }}
                                     </td>
                                 </tr>
                         </table>
