@@ -248,7 +248,7 @@ class TaggedItems {
     let ret = false;
     if (item.parent && item.parent.parent &&
         item.parent.parent.semantic_rule &&
-        this.constructor.isTaggable(item)) {
+        !item.isLimbOrAnd()) {
       ret = this.isAnyTagged(item.siblings);
       if (!ret) {
         ret = this.isORXORTagged(item.parent);
