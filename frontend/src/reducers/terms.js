@@ -92,6 +92,12 @@ class Item {
 
   isLimbOrAnd(item) {
     return ((this.parent &&
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      this.structure == consts.STRUCTURE_LIMB)
+  }
+
+  isLimbOrAndLeaf(item) {
+    return ((this.parent &&
       this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
       this.structure == consts.STRUCTURE_LIMB)
   }
@@ -166,19 +172,18 @@ class TaggedItems {
   }
 
   static isTaggable(item) {
-    return !((item.parent &&
-      item.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
-      item.structure == consts.STRUCTURE_LIMB)
+    return !item.isLimbOrAndLeaf();
+
   }
 
   toggle(item) {
-    if (item.isLimbOrAnd())
+    if (item.isLimbOrAndLeaf())
       return this;
 
     let ret = this.copy();
 
     // no need to reload entities
-    if (item.parent.semantic_rule == consts.SEMANTIC_RULE_AND && !this.is_leaf)
+    if (item.isLimbOrAnd() && !this.is_leaf)
       ret.entities_ignore = true;
     else
       ret.entities_ignore = false;
