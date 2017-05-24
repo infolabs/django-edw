@@ -28,7 +28,7 @@ class RegisterUserForm(ModelForm):
                               help_text=_("E-mail address is used as login"))
     preset_password = fields.BooleanField(required=False, label=_("Preset password"),
         widget=widgets.CheckboxInput(),
-        help_text=_("Send a randomly generated password to your e-mail address."))
+        help_text=_("Send a randomly generated password to your e-mail address"))
 
     password1 = fields.CharField(label=_("Choose a password"), widget=widgets.PasswordInput,
                                  min_length=6, help_text=_("Minimum length is 6 characters."))

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-21 16:55+0300\n"
-"PO-Revision-Date: 2017-05-20 13:09+0300\n"
+"POT-Creation-Date: 2017-05-24 13:26+0300\n"
+"PO-Revision-Date: 2017-05-24 13:26+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -108,7 +108,7 @@ msgstr "Тип объекта"
 
 #: admin/entity/actions/update_additional_characteristics_or_marks.py:59
 #: admin/entity/actions/update_images.py:70
-#: admin/entity/actions/update_related_data_marts.py:61
+#: admin/entity/actions/update_related_data_marts.py:58
 #: admin/entity/actions/update_relations.py:60
 #: admin/entity/actions/update_states.py:60
 #: admin/entity/actions/update_terms.py:51
@@ -139,11 +139,11 @@ msgstr "Обновление изображений списка объекто�
 msgid "Modify images for selected %(verbose_name_plural)s"
 msgstr "Изменить изображения для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/actions/update_related_data_marts.py:78
+#: admin/entity/actions/update_related_data_marts.py:75
 msgid "Update related data marts for multiple entities"
 msgstr "Обновление связнных витрин данных списка объектов"
 
-#: admin/entity/actions/update_related_data_marts.py:93
+#: admin/entity/actions/update_related_data_marts.py:90
 #, python-format
 msgid "Modify related data marts for selected %(verbose_name_plural)s"
 msgstr ""
@@ -161,13 +161,11 @@ msgid "Modify relation for selected %(verbose_name_plural)s"
 msgstr "Изменить отношения для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_states.py:74
-#| msgid "Update terms for multiple entities"
 msgid "Update state for multiple entities"
 msgstr "Обновление состояния списка объектов"
 
 #: admin/entity/actions/update_states.py:89
 #, python-format
-#| msgid "Modify terms for selected %(verbose_name_plural)s"
 msgid "Modify state for selected %(verbose_name_plural)s"
 msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
 
@@ -290,7 +288,7 @@ msgstr "Выберите отношение и цель для снятия"
 
 #: admin/entity/forms/update_states.py:16
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: admin/entity/forms/update_states.py:36
 msgid "Selected entities is not FSM instances"
@@ -310,24 +308,24 @@ msgstr "Термины для снятия"
 msgid "Select terms for set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: admin/notification.py:22 admin/notification.py:102
+#: admin/notification.py:22 admin/notification.py:107
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification.py:82 models/entity.py:609 models/related.py:25
+#: admin/notification.py:87 models/entity.py:609 models/related.py:25
 #: models/related.py:82 models/related.py:145
 msgid "Entity"
 msgstr "Объект"
 
-#: admin/notification.py:88
+#: admin/notification.py:93
 msgid "Status"
 msgstr "Состояние"
 
-#: admin/notification.py:92 models/notification.py:43
+#: admin/notification.py:97 models/notification.py:43
 msgid "Attachments"
 msgstr "Вложения"
 
-#: admin/notification.py:103
+#: admin/notification.py:108
 msgid "Recipient"
 msgstr "Получатель"
 
@@ -340,7 +338,7 @@ msgid "Your fullname"
 msgstr "Полное имя"
 
 #: forms/auth.py:26
-msgid "Example: Ivanov Ivan Ivanovich"
+msgid "Example: Ivanov Ivan"
 msgstr "Например: Иванов Иван Иванович"
 
 #: forms/auth.py:27
@@ -356,9 +354,10 @@ msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
 #: forms/auth.py:31
-msgid "Send a randomly generated password to your e-mail address."
+#| msgid "Send a randomly generated password to your e-mail address."
+msgid "Send a randomly generated password to your e-mail address"
 msgstr ""
-"Отправить случайно сгенерированный пароль на ваш адрес электронной почты."
+"Отправить случайно сгенерированный пароль на ваш адрес электронной почты"
 
 #: forms/auth.py:33
 msgid "Choose a password"
@@ -886,12 +885,10 @@ msgid "Count:"
 msgstr "Количество:"
 
 #: templates/edw/admin/entities/actions/update_states.html:9
-#| msgid "Update terms for multiple entities"
 msgid "Update states for multiple entities"
 msgstr "Обновление состояний списка объектов"
 
 #: templates/edw/admin/entities/actions/update_states.html:29
-#| msgid "Image to set"
 msgid "State to set"
 msgstr "Состояние для установки"
 
