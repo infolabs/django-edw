@@ -46,17 +46,16 @@ export default class TermsTreeItem extends Component {
         info = "",
         semantic_class = "",
         state_class = "";
-
-    const show_children = (!term.isLimbOrAnd() && tagged[term.id] || 
-      term.isLimbOrAnd() && expanded[term.id]);
-    //console.log(term.name, expanded[term.id])
+    const is_limb_or_and = term.isLimbOrAnd(),
+          show_children = (!is_limb_or_and && tagged[term.id] || 
+      is_limb_or_and && expanded[term.id]);
 
     if (term.isVisible()) {
 
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
             siblings = term.siblings;
 
-      if (term.isLimbOrAnd()) {
+      if (is_limb_or_and) {
         semantic_class = "ex-and";
       } else {
         switch (rule) {
@@ -69,8 +68,7 @@ export default class TermsTreeItem extends Component {
         }
       }
 
-      if ((term.isLimbOrAnd() && expanded[term.id] == true) ||
-          (!term.isLimbOrAnd() && tagged[term.id] == true)) {
+      if (show_children) {
         state_class = 'ex-on';
       } else {
         state_class = 'ex-off';
