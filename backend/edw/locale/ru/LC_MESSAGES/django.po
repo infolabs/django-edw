@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-21 12:49+0300\n"
-"PO-Revision-Date: 2017-05-21 12:54+0300\n"
+"POT-Creation-Date: 2017-05-24 13:12+0300\n"
+"PO-Revision-Date: 2017-05-24 13:13+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -161,13 +161,11 @@ msgid "Modify relation for selected %(verbose_name_plural)s"
 msgstr "Изменить отношения для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_states.py:74
-#| msgid "Update terms for multiple entities"
 msgid "Update state for multiple entities"
 msgstr "Обновление состояния списка объектов"
 
 #: admin/entity/actions/update_states.py:89
 #, python-format
-#| msgid "Modify terms for selected %(verbose_name_plural)s"
 msgid "Modify state for selected %(verbose_name_plural)s"
 msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
 
@@ -292,7 +290,7 @@ msgstr "Выберите отношение и цель для снятия"
 
 #: admin/entity/forms/update_states.py:16
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: admin/entity/forms/update_states.py:36
 msgid "Selected entities is not FSM instances"
@@ -312,24 +310,24 @@ msgstr "Термины для снятия"
 msgid "Select terms for set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: admin/notification.py:22 admin/notification.py:102
+#: admin/notification.py:22 admin/notification.py:107
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification.py:82 models/entity.py:609 models/related.py:25
+#: admin/notification.py:87 models/entity.py:609 models/related.py:25
 #: models/related.py:82 models/related.py:145
 msgid "Entity"
 msgstr "Объект"
 
-#: admin/notification.py:88
+#: admin/notification.py:93
 msgid "Status"
 msgstr "Состояние"
 
-#: admin/notification.py:92 models/notification.py:43
+#: admin/notification.py:97 models/notification.py:43
 msgid "Attachments"
 msgstr "Вложения"
 
-#: admin/notification.py:103
+#: admin/notification.py:108
 msgid "Recipient"
 msgstr "Получатель"
 
@@ -342,8 +340,9 @@ msgid "Your fullname"
 msgstr "Полное имя"
 
 #: forms/auth.py:26
-msgid "Example: Ivanov Ivan Ivanovich"
-msgstr "Например: Иванов Иван Иванович"
+#| msgid "Example: Ivanov Ivan Ivanovich"
+msgid "Example: Ivanov Ivan"
+msgstr "Например: Иванов Иван"
 
 #: forms/auth.py:27
 msgid "Your e-mail address"
@@ -888,12 +887,10 @@ msgid "Count:"
 msgstr "Количество:"
 
 #: templates/edw/admin/entities/actions/update_states.html:9
-#| msgid "Update terms for multiple entities"
 msgid "Update states for multiple entities"
 msgstr "Обновление состояний списка объектов"
 
 #: templates/edw/admin/entities/actions/update_states.html:29
-#| msgid "Image to set"
 msgid "State to set"
 msgstr "Состояние для установки"
 
