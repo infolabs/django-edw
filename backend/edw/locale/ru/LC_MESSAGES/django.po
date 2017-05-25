@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-05-24 13:26+0300\n"
-"PO-Revision-Date: 2017-05-24 14:20+0300\n"
+"PO-Revision-Date: 2017-05-25 15:31+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -335,7 +335,7 @@ msgstr "Предметно-ориентированное хранилище д�
 
 #: forms/auth.py:26
 msgid "Your fullname"
-msgstr "Полное имя"
+msgstr "Ваше имя"
 
 #: forms/auth.py:26
 msgid "Example: Ivanov Ivan"
