@@ -131,7 +131,9 @@ class TaggedItems {
 
   json2tagged(json = []) {
     for (const child of json) {
-      if (child.structure != null) {
+      // expanded spec is always tagged
+      if (child.structure != null || 
+          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
         const pk = parseInt(child.id);
         this[pk] = true;
         this.cache[pk] = true;
@@ -147,7 +149,8 @@ class TaggedItems {
   json2cache(json = []) {
     for (const child of json) {
       const pk = parseInt(child.id);
-      if (child.structure != null) {
+      if (child.structure != null ||
+          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
         this.cache[pk] = true;
       }
       this.json2tagged(child.children);
@@ -177,13 +180,14 @@ class TaggedItems {
   }
 
   toggle(item) {
-    if (item.isLimbOrAndLeaf())
+    if (item.isLimbOrAndLeaf() ||
+        item.isLimbOrAnd() && item.children.length)
       return this;
 
     let ret = this.copy();
 
     // no need to reload entities
-    if (item.isLimbOrAnd() && !this.is_leaf)
+    if (item.isLimbOrAnd() && !item.is_leaf)
       ret.entities_ignore = true;
     else
       ret.entities_ignore = false;
@@ -223,7 +227,9 @@ class TaggedItems {
   }
 
   untag(item) {
-    this[item.id] = false;
+    // ignore limb or and once tagged
+    if (!item.isLimbOrAnd())
+      this[item.id] = false;
     let index = this.items.indexOf(item.id);
     if (index > -1) {
       this.items.splice(index, 1);
@@ -242,19 +248,6 @@ class TaggedItems {
   isAnyTagged(arr) {
     let self = this;
     return arr.some(el => !!self[el.id]);
-  }
-
-  isORXORTagged(item) {
-    let ret = false;
-    if (item.parent && item.parent.parent &&
-        item.parent.parent.semantic_rule &&
-        !item.isLimbOrAnd()) {
-      ret = this.isAnyTagged(item.siblings);
-      if (!ret) {
-        ret = this.isORXORTagged(item.parent);
-      }
-    }
-    return ret;
   }
 
   isAncestorTagged(item) {
