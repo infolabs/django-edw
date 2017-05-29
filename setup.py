@@ -68,7 +68,7 @@ setup(
         'beautifulsoup4>=4.4.0',
         'django-post-office>=2.0.5',
         'django-filer>=1.0.6',
-        'django-fsm>=2.2.1',
+        'django-fsm>=2.4.0',
         'django-rest-auth>=0.5.0',
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',

@@ -9,7 +9,7 @@ django-ckeditor==5.1.0
 django-compress==1.0.1
 django-compressor==1.6
 django-filter==0.13.0
-django-fsm==2.3.0
+django-fsm==2.5.0
 django-fsm-admin==1.2.2
 django-haystack==2.5.0
 django-ipware==1.1.1
