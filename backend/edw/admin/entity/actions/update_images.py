@@ -35,6 +35,7 @@ def update_images(modeladmin, request, queryset):
         form = EntitiesUpdateImagesAdminForm(request.POST)
         if form.is_valid():
             to_set = form.cleaned_data['to_set']
+            to_set_order = form.cleaned_data['to_set_order']
             to_unset = form.cleaned_data['to_unset']
 
             n = queryset.count()
@@ -62,6 +63,7 @@ def update_images(modeladmin, request, queryset):
 
                     tasks.append(update_entities_images.si(entities_ids,
                                            [j.id for j in to_set] if to_set else None,
+                                           to_set_order if to_set_order else 0,
                                            [j.id for j in to_unset] if to_unset else None))
                     i += CHUNK_SIZE
 

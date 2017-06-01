@@ -10,7 +10,7 @@ from edw.models.related import EntityImageModel
 
 
 @shared_task(name='update_entities_images')
-def update_entities_images(entities_ids, to_set_images_ids, to_unset_images_ids):
+def update_entities_images(entities_ids, to_set_images_ids, to_set_order, to_unset_images_ids):
     does_not_exist_entities_ids = []
     does_not_exist_image_field_entities_ids = []
     does_not_exist_images_ids = []
@@ -40,7 +40,7 @@ def update_entities_images(entities_ids, to_set_images_ids, to_unset_images_ids)
                         break
                 if image_relation_exist:
                     for i in to_set_images:
-                        EntityImageModel.objects.get_or_create(entity=entity, image=i)
+                        EntityImageModel.objects.get_or_create(entity=entity, image=i, defaults={'order': to_set_order})
                 else:
                     does_not_exist_image_field_entities_ids.append(entity_id)
 
