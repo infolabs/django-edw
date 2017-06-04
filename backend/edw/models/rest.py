@@ -93,6 +93,10 @@ class DynamicFieldsSerializerMixin(object):
                             field.method_name = None
                     method = getattr(rest_meta, method_name)
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
+                elif isinstance(field, serializers.ListField):
+                    # hack for ListField.__init__ method
+                    field.child.source = None
+
                 self.fields[field_name] = field
             for field_name in remove_fields:
                 self.fields.pop(field_name)
