@@ -5,8 +5,18 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 
+
 #==============================================================================
 # EntitiesUpdateActiveAdminForm
 #==============================================================================
+
+BOOLE = (
+    ("", _("")),
+    (True, _("Yes")),
+    (False, _("No"))
+)
+
 class EntitiesUpdateActiveAdminForm(forms.Form):
-    to_set_active = forms.BooleanField(label=_("Active"), initial=True, required=False)
+    to_set_active = forms.TypedChoiceField(label=_("Active"), choices=BOOLE, initial="",
+                                           coerce=lambda x: x == 'True',
+                                           widget=forms.Select())

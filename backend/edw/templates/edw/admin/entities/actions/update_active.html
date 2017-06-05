@@ -26,13 +26,16 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>{{ form.to_set_active.label }}</th>
+                                    <th>
+                                        {{ form.to_set_active.label }}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
                                         {{ form.to_set_active }}
+                                        {{ form.to_set_active.errors }}
                                     </td>
                                 </tr>
                             </tbody>
