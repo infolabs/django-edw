@@ -7,7 +7,8 @@ try:
         data_mart,
         entity,
         auth,
-        notification
+        notification,
+        fsm
     )
 except (AttributeError, ProgrammingError) as e:
     # initial migrations hack
