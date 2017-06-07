@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest
 from django.utils.six.moves.urllib.parse import urlparse
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
+from django.conf import settings
 
 from post_office import mail
 from post_office.models import EmailTemplate
@@ -40,14 +43,25 @@ class EmulateHttpRequest(HttpRequest):
         self.user = customer.is_anonymous() and AnonymousUser or customer.user
         self.current_page = None
 
+email_validator = EmailValidator()
 
 def entity_event_notification(sender, instance=None, target=None, **kwargs):
     if not isinstance(instance, EntityModel.materialized):
         return
     for notification in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
         recipient = instance.get_recipient(notification.mail_to)
+
         if recipient is None:
             continue
+
+        try:
+            email_validator(recipient)
+        except ValidationError:
+            default_email = getattr(settings, "DEFAULT_TO_EMAIL", None)
+            if default_email:
+                recipient = default_email
+            else:
+                continue
 
         # emulate a request object which behaves similar to that one, when the customer submitted its order
         emulated_request = EmulateHttpRequest(instance.customer, instance.stored_request)
