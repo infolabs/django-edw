@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.db import IntegrityError, transaction
 
 from edw import settings as edw_settings
 
@@ -119,6 +120,17 @@ class CustomerAdmin(UserAdmin):
         return True
     is_unexpired.short_description = _("Unexpired")
     is_unexpired.boolean = True
+
+    def save_model(self, request, obj, form, change):
+        try:
+            with transaction.atomic():
+                super(CustomerAdmin, self).save_model(request, obj, form, change)
+        except IntegrityError as e:
+            if obj.email is None:
+                obj.email = ""
+                super(CustomerAdmin, self).save_model(request, obj, form, change)
+        else:
+            raise e
 
 
 class CustomerProxy(get_user_model()):
