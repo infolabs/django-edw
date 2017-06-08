@@ -129,8 +129,6 @@ class CustomerAdmin(UserAdmin):
             if obj.email is None:
                 obj.email = ""
                 super(CustomerAdmin, self).save_model(request, obj, form, change)
-        else:
-            raise e
 
 
 class CustomerProxy(get_user_model()):
