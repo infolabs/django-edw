@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="inline-group" id="entities-group">
+    <div class="inline-related tabular">
+        <fieldset class="module">
+            <h2>{% trans 'Updated entities' %} <sup>{% trans 'Count:' %} {{ queryset|length }}</sup></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans 'Entities' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {% for obj in queryset|slice:":20" %}
+                                {% if forloop.last %}{% if forloop.counter == 20 %} ... {% endif %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;
+                                {% else %}&lt;{{ obj.entity_type }}: {{ obj }}&gt;, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+            </table>
+        </fieldset>
+    </div>
+</div>
