@@ -47,8 +47,9 @@ export default class TermsTreeItem extends Component {
         semantic_class = "",
         state_class = "";
     const is_limb_or_and = term.isLimbOrAnd(),
-          show_children = (!is_limb_or_and && tagged[term.id] || 
-      is_limb_or_and && expanded[term.id]);
+          is_tagged = tagged[term.id],
+          is_expanded = expanded[term.id],
+          show_children = (!is_limb_or_and && is_tagged || is_expanded);
 
     if (term.isVisible()) {
 
@@ -68,7 +69,7 @@ export default class TermsTreeItem extends Component {
         }
       }
 
-      if (show_children) {
+      if (!is_limb_or_and && is_tagged || is_limb_or_and && is_expanded) {
         state_class = 'ex-on';
       } else {
         state_class = 'ex-off';

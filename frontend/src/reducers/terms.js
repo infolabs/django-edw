@@ -116,10 +116,12 @@ class TaggedItems {
     this.items = [];
     this.cache = {};
     this.json2tagged(json);
+    this.json2cache(json);
   }
 
   createFromJson(json = []) {
-    this.json2tagged(json)
+    this.json2tagged(json);
+    this.json2cache(json);
     return Object.assign(new TaggedItems(), this);
   }
 
@@ -131,9 +133,7 @@ class TaggedItems {
 
   json2tagged(json = []) {
     for (const child of json) {
-      // expanded spec is always tagged
-      if (child.structure != null || 
-          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
+      if (child.structure != null) {
         const pk = parseInt(child.id);
         this[pk] = true;
         this.cache[pk] = true;
@@ -148,12 +148,13 @@ class TaggedItems {
 
   json2cache(json = []) {
     for (const child of json) {
-      const pk = parseInt(child.id);
+      // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
           child.specification_mode == consts.EXPANDED_SPECIFICATION) {
+        const pk = parseInt(child.id);
         this.cache[pk] = true;
       }
-      this.json2tagged(child.children);
+      this.json2cache(child.children);
     }
   }
 
