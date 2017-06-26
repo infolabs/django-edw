@@ -184,7 +184,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
                 '/static/css/admin/entity.css',
                 '/static/edw/css/admin/jqtree.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+                '/static/edw/css/admin/term.min.css',
             )
         }
         js = (
@@ -240,7 +240,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
             'all': (
                 '/static/edw/css/admin/jqtree.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+                '/static/edw/css/admin/term.min.css',
             )
         }
         js = (

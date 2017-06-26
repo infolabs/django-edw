@@ -56,7 +56,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         css = {
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-                '/static/edw/css/admin/term.css' if not settings.DEBUG else '/static/edw/assets/less/admin/term.css',
+                '/static/edw/css/admin/term.min.css',
                 ]
         }
 
