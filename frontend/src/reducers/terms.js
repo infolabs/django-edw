@@ -136,7 +136,6 @@ class TaggedItems {
       if (child.structure != null) {
         const pk = parseInt(child.id);
         this[pk] = true;
-        this.cache[pk] = true;
         let index = this.items.indexOf(pk);
         if (index < 0) {
           this.items.push(pk);
