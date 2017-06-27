@@ -41,7 +41,8 @@ class BaseEntityFilter(filters.FilterSet):
         data.update({
             '_initial_filter_meta': tree,
             '_terms_filter_meta': tree,
-            '_data_mart': None
+            '_data_mart': None,
+            '_terms_ids': []
         })
 
     @cached_property
@@ -165,6 +166,9 @@ class EntityFilter(BaseEntityFilter):
         self._term_ids = value
         if not self.term_ids:
             return queryset
+
+        self.data['_terms_ids'] = self.term_ids
+
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
         queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)

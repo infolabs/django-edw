@@ -243,6 +243,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
 
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
+    terms_ids = serializers.SerializerMethodField()
     subj_ids = serializers.SerializerMethodField()
     ordering = serializers.SerializerMethodField()
     view_component = serializers.SerializerMethodField()
@@ -263,6 +264,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         initial_queryset = self.context['initial_queryset']
         return initial_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                           timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
+
+    def get_terms_ids(self, instance):
+        return self.context['terms_ids']
 
     def get_real_terms_ids(self, instance):
         tree = self.context['terms_filter_meta']
