@@ -238,7 +238,7 @@ PIPELINE = {
             'source_filenames': (
                 'edw/assets/less/admin/term.less',
             ),
-            'output_filename': 'edw/css/admin/term.css',
+            'output_filename': 'edw/css/admin/term.min.css',
             'extra_context': {
                 'media': 'screen',
             },

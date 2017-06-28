@@ -250,7 +250,7 @@ PIPELINE = {
             'source_filenames': (
                 'edw/assets/less/admin/datamart.less',
             ),
-            'output_filename': 'edw/css/admin/datamart.css',
+            'output_filename': 'edw/css/admin/datamart.min.css',
             'extra_context': {
                 'media': 'screen',
             },
