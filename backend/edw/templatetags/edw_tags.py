@@ -181,6 +181,7 @@ class GetEntities(BaseRetrieveDataTag):
             "initial_queryset": query_params['_initial_queryset'],
             "terms_filter_meta": query_params['_terms_filter_meta'],
             "data_mart": data_mart,
+            "terms_ids": query_params['_terms_ids'],
             "subj_ids": query_params['_subj_ids'],
             "ordering": query_params['_ordering'],
             "view_component": query_params['_view_component'],
