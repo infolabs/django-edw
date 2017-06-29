@@ -42,3 +42,17 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Instance must have an attribute named `owner`.
         return obj.owner == request.user
+
+
+class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
+    """
+    Object-level permission to only allow staff, superuser or owner of an object to access it.
+    Assumes the model instance has an `owner` attribute.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Instance must have an attribute named `owner`.
+        return obj.owner == request.user or request.user.is_active and (
+            request.user.is_staff or request.user.is_superuser)
+
+    def has_permission(self, request, view):
+        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)

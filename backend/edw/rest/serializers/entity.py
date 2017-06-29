@@ -17,7 +17,7 @@ from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
-from edw.models.rest import DynamicFieldsSerializerMixin
+from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
 
@@ -32,7 +32,7 @@ class AttributeSerializer(serializers.Serializer):
     view_class = serializers.ListField(child=serializers.CharField())
 
 
-class EntityCommonSerializer(serializers.ModelSerializer):
+class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelSerializer):
     """
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
     EntityDetailSerializer.
