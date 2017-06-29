@@ -18,11 +18,11 @@ from rest_framework_recursive.fields import RecursiveField
 
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFieldsSerializerMixin
+from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
-class DataMartCommonSerializer(serializers.ModelSerializer):
+class DataMartCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelSerializer):
     """
     A simple serializer to convert the data mart items for rendering.
     """

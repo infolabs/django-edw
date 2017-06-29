@@ -104,9 +104,6 @@ class DynamicFieldsSerializerMixin(object):
                 self.fields.pop(field_name)
 
 
-
-
-
 class CheckPermissionsSerializerMixin(object):
 
     def __init__(self, *args, **kwargs):
