@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-04 17:48+0300\n"
-"PO-Revision-Date: 2017-05-25 15:31+0300\n"
+"PO-Revision-Date: 2017-06-30 16:58+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -252,7 +252,6 @@ msgid "Images to set"
 msgstr "Изображения для установки"
 
 #: admin/entity/forms/update_images.py:22
-#, fuzzy
 #| msgid "Ordering"
 msgid "Order"
 msgstr "Порядок сортировки"
@@ -398,7 +397,6 @@ msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
 #: forms/auth.py:52
-#, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -411,7 +409,6 @@ msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
 #: forms/auth.py:98
-#, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -429,15 +426,14 @@ msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
 #: management/commands/edwcustomers.py:35
-#, python-brace-format
 msgid ""
-"Customers in this EDW: total={total}, anonymous={anonymous}, "
-"expired={expired}, active={active}, guests={guests}, "
-"registered={registered}, staff={staff}."
+"Customers in this EDW: total={total}, anonymous={anonymous}, expired="
+"{expired}, active={active}, guests={guests}, registered={registered}, staff="
+"{staff}."
 msgstr ""
-"Пользователи ПХД: всего={total}, анонимные={anonymous}, "
-"истекающие={expired}, активные={active}, гости={guests}, "
-"зарегистрированные={registered}, персонал={staff}."
+"Пользователи ПХД: всего={total}, анонимные={anonymous}, истекающие="
+"{expired}, активные={active}, гости={guests}, зарегистрированные="
+"{registered}, персонал={staff}."
 
 #: models/customer.py:173
 msgid "Mrs."
@@ -638,15 +634,15 @@ msgstr "Неизвестное значение родителя."
 
 #: models/mixins/entity/add_date_terms_validation.py:51
 msgid "Added day"
-msgstr "Дни"
+msgstr "День"
 
 #: models/mixins/entity/add_date_terms_validation.py:125
 msgid "Added month"
-msgstr "Месяца"
+msgstr "Месяц"
 
 #: models/mixins/entity/add_date_terms_validation.py:182
 msgid "Added year"
-msgstr "Года"
+msgstr "Год"
 
 #: models/mixins/entity/fsm.py:80
 msgid "Type"
@@ -1033,7 +1029,6 @@ msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
 #: views/auth.py:106
-#, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
