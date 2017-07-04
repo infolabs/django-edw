@@ -13,3 +13,12 @@ except (AttributeError, ProgrammingError) as e:
     # initial migrations hack
     print("*** INITIAL MIGRATIONS HACK ***")
     print e.args
+
+
+# from . import (
+#     term,
+#     data_mart,
+#     entity,
+#     auth,
+#     notification
+# )

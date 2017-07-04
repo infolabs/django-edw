@@ -704,8 +704,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                             parent.get_descendants(include_self=False).values_list('id', flat=True)))
                 except TermModel.DoesNotExist:
                     term = TermModel(slug=slug,
-                                     parent_id=parent.id,
-                                     name=force_text(cls._meta.verbose_name),
+                                     parent_id=parent.id if parent else None,
+                                     name=force_text(Model._meta.verbose_name),
                                      semantic_rule=TermModel.XOR_RULE,
                                      system_flags=(TermModel.system_flags.delete_restriction |
                                                    TermModel.system_flags.change_parent_restriction |
