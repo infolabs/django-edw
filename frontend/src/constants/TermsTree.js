@@ -30,3 +30,5 @@ export const STRUCTURE_NULL = null;
 export const STANDARD_SPECIFICATION = 10;
 export const EXPANDED_SPECIFICATION = 20;
 export const REDUCED_SPECIFICATION = 30;
+// RECACHE_RATE
+export const RECACHE_RATE = 60000;

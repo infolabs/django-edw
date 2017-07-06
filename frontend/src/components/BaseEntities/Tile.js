@@ -31,14 +31,24 @@ class TileItem extends Component {
     super();
     this.state = {
       h_pos: null,
+      is_load: {}
     };
   }
 
   handleMouseOver(e) {
-    const { data, actions, descriptions } = this.props;
+    const { data, actions, descriptions } = this.props,
+        { is_load } = this.state,
+        id = data.id;
     actions.showDescription(data.id);
-    if (!descriptions[data.id])
-      actions.getEntityItem(data.entity_url);
+    if (!descriptions[id] && typeof is_load[id] === "undefined") {
+        this.setState({
+            is_load: {
+                ...is_load,
+                [id]: true
+            }
+        });
+        actions.getEntityItem(data.entity_url);
+    }
   }
 
   handleMouseOut(e) {
