@@ -2,20 +2,17 @@ import { createStore, compose, applyMiddleware } from 'redux';
 import promise from 'redux-promise';
 import { persistState } from 'redux-devtools';
 import rootReducer from 'reducers';
-import DevTools from 'components/DevTools'
+import logger from 'redux-logger'
 
-const enhancer = compose(
-  applyMiddleware(promise),
-  DevTools.instrument(),
-  persistState(
-    window.location.href.match(
-      /[?&]debug_session=([^&#]+)\b/
-    )
-  )
-);
+
+let createStoreWithMiddleware = applyMiddleware(promise)(applyMiddleware(logger)(createStore));
 
 export default function configureStore(initialState) {
-  const store = createStore(rootReducer, initialState, enhancer);
+
+  const store = createStoreWithMiddleware(
+      rootReducer,
+      initialState
+  );
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>
