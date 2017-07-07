@@ -57,17 +57,32 @@ export function getTermsItem(url) {
   }));
 }
 
-export function getEntityItem(url) {
-  return fetch(reCache(url), {
-    method: 'get',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-  }).then(response => response.json()).then(json => ({
-    type: LOAD_ENTITY_ITEM,
-    json: json,
-  }));
+export function getEntityItem(data) {
+  return (dispatch, getState)=> {
+    if (!getState().entities.loadingItems[data.id]) {
+
+      dispatch(loadingEntityItem(data.id));
+
+      fetch(reCache(data.entity_url), {
+          method: 'get',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        }).then(response => response.json()).then(json => dispatch({
+          type: LOAD_ENTITY_ITEM,
+          json: json,
+        }));
+      }
+
+    }
+}
+
+function loadingEntityItem(id) {
+    return {
+      type: NOTIFY_LOADING_ENTITIE_ITEM,
+      id
+    }
 }
 
 function opts2gets(options = {}) {
