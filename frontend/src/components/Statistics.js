@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/Actions'
+import Actions from '../actions/index'
 
 
 class Statistics extends Component {
