@@ -7,7 +7,6 @@ import {
     NOTIFY_LOADING_ENTITIE_ITEM,
     TOGGLE_DROPDOWN,
     SELECT_DROPDOWN,
-    NOTIFY_LOADING_ENTITIES
 } from '../constants/TermsTree'
 import reCache from '../utils/reCache';
 
