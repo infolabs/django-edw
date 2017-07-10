@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Dropdown from './Dropdown';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as TermsTreeActions from '../actions/TermsTreeActions';
+import Actions from '../actions/Actions'
 
 
 class ViewComponents extends Component {
@@ -46,7 +46,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators(TermsTreeActions, dispatch),
+    actions: bindActionCreators(Actions, dispatch),
     dispatch: dispatch
   };
 }

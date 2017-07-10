@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import * as TermsTreeActions from '../actions/TermsTreeActions';
+import Actions from '../actions/Actions'
 import TermsTreeItem from './TermsTreeItem';
 
 
@@ -108,7 +108,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators(TermsTreeActions, dispatch),
+    actions: bindActionCreators(Actions, dispatch),
     dispatch: dispatch
   };
 }

@@ -1,26 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import {
-    getTermsItem,
-    loadTree,
-    reloadTree,
-    notifyLoading,
-    toggle,
-    resetItem,
-    resetBranch,
-    showInfo,
-    hideInfo
-} from '../actions/TermsTreeActions';
-import {
-    getEntityItem,
-    getEntities,
-    notifyLoadingEntities,
-    showDescription,
-    hideDescription,
-    toggleDropdown,
-    selectDropdown
-} from '../actions/EntityActions';
+import Actions from '../actions/Actions'
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
@@ -98,24 +79,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators({
-        getTermsItem,
-        loadTree,
-        reloadTree,
-        notifyLoading,
-        toggle,
-        resetItem,
-        resetBranch,
-        showInfo,
-        hideInfo,
-        getEntityItem,
-        getEntities,
-        notifyLoadingEntities,
-        showDescription,
-        hideDescription,
-        toggleDropdown,
-        selectDropdown
-    }, dispatch),
+    actions: bindActionCreators(Actions, dispatch),
     dispatch: dispatch
   };
 }
