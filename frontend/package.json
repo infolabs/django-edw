@@ -36,7 +36,6 @@
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-logger": "^3.0.6",
-    "redux-promise": "^0.5.3",
     "redux-thunk": "^2.2.0",
     "singleton-js-es6": "^1.0.2",
     "whatwg-fetch": "^2.0.1"
