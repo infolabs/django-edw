@@ -58,8 +58,8 @@ export function getTermsItem(url) {
 }
 
 export function getEntityItem(data) {
-  return (dispatch, getState)=> {
-    if (!getState().entities.loadingItems[data.id]) {
+  return (dispatch, getState) => {
+    if ( !getState().entities.loadingItems[data.id] ) {
 
       dispatch(loadingEntityItem(data.id));
 
