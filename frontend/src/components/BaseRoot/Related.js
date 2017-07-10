@@ -3,23 +3,24 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import {
     getTermsItem,
-    getEntityItem,
-    getEntities,
-    notifyLoading,
-    notifyLoadingEntities,
     loadTree,
     reloadTree,
+    notifyLoading,
     toggle,
     resetItem,
     resetBranch,
+    showInfo,
+    hideInfo
+} from '../../actions/TermsTreeActions';
+import {
+    getEntityItem,
+    getEntities,
+    notifyLoadingEntities,
     showDescription,
     hideDescription,
-    showInfo,
-    hideInfo,
     toggleDropdown,
     selectDropdown
-} from 'actions/TermsTreeActions';
-
+} from '../../actions/EntityActions';
 import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
 
@@ -72,19 +73,19 @@ function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators({
         getTermsItem,
-        getEntityItem,
-        getEntities,
-        notifyLoading,
-        notifyLoadingEntities,
         loadTree,
         reloadTree,
+        notifyLoading,
         toggle,
         resetItem,
         resetBranch,
-        showDescription,
-        hideDescription,
         showInfo,
         hideInfo,
+        getEntityItem,
+        getEntities,
+        notifyLoadingEntities,
+        showDescription,
+        hideDescription,
         toggleDropdown,
         selectDropdown
     }, dispatch),
