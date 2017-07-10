@@ -7,7 +7,7 @@ import ReduxThunk from 'redux-thunk'
 
 
 let createStoreWithMiddleware = applyMiddleware(ReduxThunk)(
-    applyMiddleware(promise)(applyMiddleware(logger)(createStore))
+    applyMiddleware(logger)(createStore)
 );
 
 export default function configureStore(initialState) {
