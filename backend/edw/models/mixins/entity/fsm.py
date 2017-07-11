@@ -52,59 +52,82 @@ class FSMMixin(object):
         )
 
     @classmethod
+    def get_states(cls):
+        fsm_model = cls._meta.get_field('status').model
+        cache_key = "_{cls}_states_cache".format(cls=fsm_model)
+        states = getattr(fsm_model, cache_key, None)
+        if states is None:
+            model_class_term_slug = "{}_wrapper".format(fsm_model.__name__.lower())
+            states = {}
+            try:
+                root = TermModel.objects.get(
+                    slug=fsm_model.STATE_ROOT_TERM_SLUG,
+                    parent__slug=model_class_term_slug
+                )
+                for term in root.get_descendants(include_self=False):
+                    states[term.slug] = term
+            except TermModel.DoesNotExist:
+                pass
+            setattr(fsm_model, cache_key, states)
+        return states
+
+    @classmethod
     def validate_term_model(cls):
         super(FSMMixin, cls).validate_term_model()
-        system_flags = _default_system_flags_restriction
 
-        # Get original entity model class term
-        original_model_class_term = cls.get_entities_types(from_cache=False)[cls.__name__.lower()]
-        original_model_class_term_parent = original_model_class_term.parent
+        if cls._meta.get_field('status').model == cls:
 
-        # Compose new entity model class term slug
-        new_model_class_term_slug = "{}_wrapper".format(cls.__name__.lower())
-        if original_model_class_term_parent.slug != new_model_class_term_slug:
-            try:  # get or create model class root term
-                model_root_term = TermModel.objects.get(slug=new_model_class_term_slug,
-                                                        parent=original_model_class_term_parent)
-            except TermModel.DoesNotExist:
-                model_root_term = TermModel(
-                    slug=new_model_class_term_slug,
-                    parent_id=original_model_class_term_parent.id,
-                    name=force_text(cls._meta.verbose_name),
-                    semantic_rule=TermModel.AND_RULE,
-                    system_flags=system_flags
-                )
-                model_root_term.save()
-            # set original entity model class term to new parent
-            original_model_class_term.parent = model_root_term
-            original_model_class_term.name = _("Type")
-            original_model_class_term.save()
-        else:
-            model_root_term = original_model_class_term_parent
-        try:
-            states_parent_term = TermModel.objects.get(slug=cls.STATE_ROOT_TERM_SLUG, parent=model_root_term)
-        except TermModel.DoesNotExist:
-            states_parent_term = TermModel(
-                slug=cls.STATE_ROOT_TERM_SLUG,
-                parent_id=model_root_term.id,
-                name=force_text(cls._meta.get_field('status').verbose_name),
-                semantic_rule=TermModel.XOR_RULE,
-                system_flags=system_flags
-            )
-            states_parent_term.save()
-        transition_states = cls.TRANSITION_TARGETS
-        for state_key, state_name  in transition_states.items():
+            system_flags = _default_system_flags_restriction
+
+            # Get original entity model class term
+            original_model_class_term = cls.get_entities_types(from_cache=False)[cls.__name__.lower()]
+            original_model_class_term_parent = original_model_class_term.parent
+
+            # Compose new entity model class term slug
+            new_model_class_term_slug = "{}_wrapper".format(cls.__name__.lower())
+            if original_model_class_term_parent.slug != new_model_class_term_slug:
+                try:  # get or create model class root term
+                    model_root_term = TermModel.objects.get(slug=new_model_class_term_slug,
+                                                            parent=original_model_class_term_parent)
+                except TermModel.DoesNotExist:
+                    model_root_term = TermModel(
+                        slug=new_model_class_term_slug,
+                        parent_id=original_model_class_term_parent.id,
+                        name=force_text(cls._meta.verbose_name),
+                        semantic_rule=TermModel.AND_RULE,
+                        system_flags=system_flags
+                    )
+                    model_root_term.save()
+                # set original entity model class term to new parent
+                original_model_class_term.parent = model_root_term
+                original_model_class_term.name = _("Type")
+                original_model_class_term.save()
+            else:
+                model_root_term = original_model_class_term_parent
             try:
-                state = states_parent_term.get_descendants(include_self=False).get(slug=state_key)
+                states_parent_term = TermModel.objects.get(slug=cls.STATE_ROOT_TERM_SLUG, parent=model_root_term)
             except TermModel.DoesNotExist:
-                state = TermModel(
-                    slug=state_key,
-                    parent_id=states_parent_term.id,
-                    name=force_text(state_name),
-                    semantic_rule=TermModel.OR_RULE,
+                states_parent_term = TermModel(
+                    slug=cls.STATE_ROOT_TERM_SLUG,
+                    parent_id=model_root_term.id,
+                    name=force_text(cls._meta.get_field('status').verbose_name),
+                    semantic_rule=TermModel.XOR_RULE,
                     system_flags=system_flags
                 )
-            state.save()
+                states_parent_term.save()
+            transition_states = cls.TRANSITION_TARGETS
+            for state_key, state_name  in transition_states.items():
+                try:
+                    state = states_parent_term.get_descendants(include_self=False).get(slug=state_key)
+                except TermModel.DoesNotExist:
+                    state = TermModel(
+                        slug=state_key,
+                        parent_id=states_parent_term.id,
+                        name=force_text(state_name),
+                        semantic_rule=TermModel.OR_RULE,
+                        system_flags=system_flags
+                    )
+                state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         if origin is None or origin.status != self.status:
