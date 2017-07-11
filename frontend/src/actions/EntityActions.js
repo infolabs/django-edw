@@ -60,10 +60,11 @@ export function getEntities(mart_id, subj_ids=[], options = {}) {
         url = reCache(url);
         if (subj_ids.length) {
             subj_ids.join();
-            url = Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json');
+            url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
           }
           url += opts2gets(options);
-          return fetch(url, {
+
+          fetch(url, {
             method: 'get',
             headers: {
               'Accept': 'application/json',
