@@ -1,11 +1,13 @@
 import { createStore, compose, applyMiddleware } from 'redux';
-import promise from 'redux-promise';
 import { persistState } from 'redux-devtools';
 import rootReducer from 'reducers';
 import logger from 'redux-logger'
+import ReduxThunk from 'redux-thunk'
 
 
-let createStoreWithMiddleware = applyMiddleware(promise)(applyMiddleware(logger)(createStore));
+let createStoreWithMiddleware = applyMiddleware(ReduxThunk)(
+    applyMiddleware(logger)(createStore)
+);
 
 export default function configureStore(initialState) {
 

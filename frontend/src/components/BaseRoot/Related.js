@@ -1,25 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import {
-    getTermsItem,
-    getEntityItem,
-    getEntities,
-    notifyLoading,
-    notifyLoadingEntities,
-    loadTree,
-    reloadTree,
-    toggle,
-    resetItem,
-    resetBranch,
-    showDescription,
-    hideDescription,
-    showInfo,
-    hideInfo,
-    toggleDropdown,
-    selectDropdown
-} from 'actions/TermsTreeActions';
-
+import Actions from '../../actions/index'
 import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
 
@@ -70,24 +52,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators({
-        getTermsItem,
-        getEntityItem,
-        getEntities,
-        notifyLoading,
-        notifyLoadingEntities,
-        loadTree,
-        reloadTree,
-        toggle,
-        resetItem,
-        resetBranch,
-        showDescription,
-        hideDescription,
-        showInfo,
-        hideInfo,
-        toggleDropdown,
-        selectDropdown
-    }, dispatch),
+    actions: bindActionCreators(Actions, dispatch),
     dispatch: dispatch
   };
 }

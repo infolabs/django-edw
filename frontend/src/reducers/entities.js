@@ -181,6 +181,15 @@ function loading(state = false, action) {
   }
 }
 
+function loadingItems(state = {}, action) {
+    switch (action.type) {
+        case consts.NOTIFY_LOADING_ENTITIE_ITEM:
+            return Object.assign({}, state, {[action.id]: true});
+        default:
+          return state;
+    }
+}
+
 function descriptions(state = new Descriptions(), action) {
   switch (action.type) {
     case consts.SHOW_ENTITY_DESC:
@@ -195,9 +204,11 @@ function descriptions(state = new Descriptions(), action) {
 }
 
 const entities = combineReducers({
-    items: items,
-    dropdowns: dropdowns,
-    descriptions: descriptions
-})
+    items,
+    dropdowns,
+    descriptions,
+    loading,
+    loadingItems
+});
 
 export default entities;

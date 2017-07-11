@@ -1,8 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import * as TermsTreeActions from 'actions/TermsTreeActions';
-
+import Actions from '../actions/index'
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
@@ -19,7 +18,7 @@ class BaseEntities extends Component {
 
   static defaultProps = {
     getTemplates: BaseEntities.getTemplates
-  }
+  };
 
   componentWillMount() {
     this.templates = this.props.getTemplates();
@@ -80,7 +79,7 @@ function mapState(state) {
 
 function mapDispatch(dispatch) {
   return {
-    actions: bindActionCreators(TermsTreeActions, dispatch),
+    actions: bindActionCreators(Actions, dispatch),
     dispatch: dispatch
   };
 }
