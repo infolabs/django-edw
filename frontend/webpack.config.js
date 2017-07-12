@@ -10,14 +10,14 @@ module.exports = {
   devtool: 'eval',
   entry: [
     'whatwg-fetch',
-    'webpack-dev-server/client?http://127.0.0.1:3000',
+    'webpack-dev-server/client?http://d.excentrics.ru:3000',
     'webpack/hot/only-dev-server',
     './src/index'
   ],
   output: {
     path: path.resolve('../backend/edw/static/js/'),
-    filename: "edw.js",
-    publicPath: 'http://127.0.0.1:3000/assets/bundles/'
+    filename: "bundle.js",
+    publicPath: 'http://d.excentrics.ru:3000/assets/bundles/'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -26,17 +26,18 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      'react': path.join(__dirname, '../../node_modules', 'react'),
+      'react': path.join(__dirname, 'node_modules', 'react'),
     },
     extensions: ['', '.js']
   },
   resolveLoader: {
-    'fallback': path.join(__dirname, '../../node_modules')
+    'fallback': path.join(__dirname, 'node_modules')
   },
   module: {
     loaders: [{
       test: /\.js$/,
       loaders: ['react-hot', 'babel'],
+      exclude: /node_modules/,
       include: __dirname
     }, {
       test: /\.js$/,

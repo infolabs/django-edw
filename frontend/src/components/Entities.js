@@ -1,4 +1,4 @@
-import BaseEntities from './BaseEntities';
+import BaseEntities from 'components/BaseEntities';
 
 
 const Entities = BaseEntities;
