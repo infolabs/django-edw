@@ -1,4 +1,4 @@
-import BaseRoot from 'components/BaseRoot';
+import BaseRoot from './BaseRoot';
 
 const Root = BaseRoot;
 export default Root;

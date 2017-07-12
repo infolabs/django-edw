@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import terms from 'reducers/terms';
-import entities from 'reducers/entities';
+import terms from './terms';
+import entities from './entities';
 
 const rootReducer = combineReducers({
   terms,

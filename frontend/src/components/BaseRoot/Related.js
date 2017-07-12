@@ -2,8 +2,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import Actions from '../../actions/index'
-import Paginator from 'components/Paginator';
-import Entities from 'components/Entities';
+import Paginator from '../Paginator';
+import Entities from '../Entities';
 
 class Related extends Component {
   render() {

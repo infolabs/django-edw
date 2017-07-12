@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 
-import Entities from 'components/Entities';
-import TermsTree from 'components/TermsTree';
-import Paginator from 'components/Paginator';
-import ViewComponents from 'components/ViewComponents';
-import Ordering from 'components/Ordering';
-import Limits from 'components/Limits';
-import Statistics from 'components/Statistics';
-import Aggregation from 'components/Aggregation';
+import Entities from '../Entities';
+import TermsTree from '../TermsTree';
+import Paginator from '../Paginator';
+import ViewComponents from '../ViewComponents';
+import Ordering from '../Ordering';
+import Limits from '../Limits';
+import Statistics from '../Statistics';
+import Aggregation from '../Aggregation';
 
 
 export default class DataMart extends Component {

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 
-import DataMart from 'components/BaseRoot/DataMart';
-import Related from 'components/BaseRoot/Related';
+import DataMart from './BaseRoot/DataMart';
+import Related from './BaseRoot/Related';
 
 
 
