@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import * as consts from 'constants/TermsTree';
+import * as consts from '../constants/TermsTree';
 
 /* Tree Data Structures */
 
