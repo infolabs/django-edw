@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import urllib
 
 from django.core.exceptions import ImproperlyConfigured
-from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -196,7 +195,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
 
 # ===========================================================================================
-# EntityChildModelAdmin
+# EntityParentModelAdmin
 # ===========================================================================================
 class EntityParentModelAdmin(PolymorphicParentModelAdmin):
 
