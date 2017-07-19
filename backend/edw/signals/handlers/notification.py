@@ -48,6 +48,8 @@ email_validator = EmailValidator()
 def entity_event_notification(sender, instance=None, **kwargs):
     if not isinstance(instance, EntityModel.materialized):
         return
+
+    target = kwargs['target']
     for notification in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
         recipient = instance.get_recipient(notification.mail_to)
 
@@ -75,7 +77,7 @@ def entity_event_notification(sender, instance=None, **kwargs):
             'transition': {
                 'name': kwargs['name'],
                 'source': kwargs['source'],
-                'target': kwargs['target']
+                'target': target
             }
         }
         try:
