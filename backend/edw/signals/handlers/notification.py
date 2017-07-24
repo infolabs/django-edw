@@ -45,9 +45,11 @@ class EmulateHttpRequest(HttpRequest):
 
 email_validator = EmailValidator()
 
-def entity_event_notification(sender, instance=None, target=None, **kwargs):
+def entity_event_notification(sender, instance=None, **kwargs):
     if not isinstance(instance, EntityModel.materialized):
         return
+
+    target = kwargs['target']
     for notification in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
         recipient = instance.get_recipient(notification.mail_to)
 
@@ -72,6 +74,11 @@ def entity_event_notification(sender, instance=None, target=None, **kwargs):
             'data': entity_serializer.data,
             'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
             'render_language': language,
+            'transition': {
+                'name': kwargs['name'],
+                'source': kwargs['source'],
+                'target': target
+            }
         }
         try:
             template = notification.mail_template.translated_templates.get(language=language)
