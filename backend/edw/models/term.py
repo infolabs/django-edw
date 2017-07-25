@@ -676,8 +676,9 @@ class TermInfo(list):
                     invalid_ids.extend(x.get_descendants_ids())
                     x.is_leaf = True
                     del x[:]
-            for id in invalid_ids:
-                del tree[id]
+            if invalid_ids:
+                for id in uniq(invalid_ids):
+                    del tree[id]
 
         return tree
 
