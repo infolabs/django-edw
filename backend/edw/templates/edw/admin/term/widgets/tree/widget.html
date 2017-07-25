@@ -54,6 +54,16 @@
         });
 
         {% endifequal %}
+
+        console.log('========= {{ name }}');
+
+        $(document).on('formset:added', function(event, $row, formsetName) {
+            console.log('---------------', event, $row, formsetName);
+        });
+
+
+
+
         var $tree = $('#{{ name }}-select').tree({
             autoEscape: false,
             selectable: false,
@@ -65,7 +75,7 @@
                     /* make entity filtering by selected terms */
                     var current_filter_dict = {},
                         selected_terms = [];
-                    $("#terms-select :checked").each(function(){
+                    $("#{{ name }}-select :checked").each(function(){
                         selected_terms.push(parseInt($(this).val()))
                     });
                     makeFiltering(selected_terms);
