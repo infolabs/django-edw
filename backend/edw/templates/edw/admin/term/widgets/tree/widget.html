@@ -54,79 +54,124 @@
         });
 
         {% endifequal %}
+        
+        
+//        var onAddCPPlugin = function (event) {
+//
+//
+//            var $add_button = $(event.target);
+//            var placeholder_key = $add_button.attr("data-placeholder-slot");  // TODO: use ID?
+//            var model_name = $add_button.siblings("select").val();
+//
+//
+//            console.log("Event", placeholder_key, model_name);
+//        };
 
-        console.log('========= {{ name }}');
-
-        $(document).on('formset:added', function(event, $row, formsetName) {
-            console.log('---------------', event, $row, formsetName);
-        });
-
-
-
-
-        var $tree = $('#{{ name }}-select').tree({
-            autoEscape: false,
-            selectable: false,
-            onCreateLi: function(node, $li){
-                var $checkbox = $("input:checkbox", $li);
-                $checkbox.change(node, function(e){
-                    e.data._cheked = $(this).is(':checked');
-                    {% ifequal node_template "simple" %}
-                    /* make entity filtering by selected terms */
-                    var current_filter_dict = {},
-                        selected_terms = [];
-                    $("#{{ name }}-select :checked").each(function(){
-                        selected_terms.push(parseInt($(this).val()))
+        // tree init
+        window._init_terms_tree_fn = window._init_terms_tree_fn || function(selector) {
+            var $tree = $(selector).tree({
+                autoEscape: false,
+                selectable: false,
+                onCreateLi: function(node, $li){
+                    var $checkbox = $("input:checkbox", $li);
+                    $checkbox.change(node, function(e){
+                        e.data._cheked = $(this).is(':checked');
+                        {% ifequal node_template "simple" %}
+                        /* make entity filtering by selected terms */
+                        var current_filter_dict = {},
+                            selected_terms = [];
+                        $(selector + " :checked").each(function(){
+                            selected_terms.push(parseInt($(this).val()))
+                        });
+                        makeFiltering(selected_terms);
+                        {% endifequal %}
                     });
-                    makeFiltering(selected_terms);
-                    {% endifequal %}
-                });
-                if ( node._cheked ){
-                    $checkbox.prop('checked', true);
-                }
-            },
-            onLoading: function (is_loading, node, $el){
+                    if ( node._cheked ){
+                        $checkbox.prop('checked', true);
+                    }
+                },
+                onLoading: function (is_loading, node, $el){
 
-                function getNodeId() {
-                    if (!node) {
-                        return "__root__";
+                    function getNodeId() {
+                        if (!node) {
+                            return "__root__";
+                        }
+                        else {
+                            return node.id;
+                        }
+                    }
+
+                    function getContainer() {
+                        if (node) {
+                            return $el.find(".jqtree-element")[0];
+                        }
+                        else {
+                            return $el[0];
+                        }
+                    }
+
+                    var node_id = getNodeId();
+
+                    if (is_loading) {
+                        spinners[node_id] = new Spinner(opts).spin(getContainer());
                     }
                     else {
-                        return node.id;
+                        var spinner = spinners[node_id];
+                        if (spinner) {
+                            spinner.stop();
+                            spinners[node_id] = null;
+                        }
                     }
                 }
+            }).bind(
+                'tree.init',
+                function(){
+                    $("input:checkbox[autoopen]", this).each(function(){
+                        var node = $tree.tree('getNodeById', $(this).val());
+                        $tree.tree('openNode', node, false);
+                    });
+                }
+            );
 
-                function getContainer() {
-                    if (node) {
-                        return $el.find(".jqtree-element")[0];
-                    }
-                    else {
-                        return $el[0];
-                    }
-                }
+        };
 
-                var node_id = getNodeId();
+        // widget name
+        var name = "{{ name }}";
 
-                if (is_loading) {
-                    spinners[node_id] = new Spinner(opts).spin(getContainer());
+        if (name.search(/__prefix__/) != -1){
+
+            // add to inline
+            $(document).on('formset:added', function(event, $row, formsetName) {
+                var $el = $('.tree-widget', $row).get(0); // tree-widget
+                if ( $el ) {
+                    window._init_terms_tree_fn('#' + $($el).attr('id'));
                 }
-                else {
-                    var spinner = spinners[node_id];
-                    if (spinner) {
-                        spinner.stop();
-                        spinners[node_id] = null;
-                    }
-                }
+            });
+
+            // add to django-fluent-contents
+            var cp_plugins = window.cp_plugins || {};
+            if ( !cp_plugins._init_tree_monkey_patch ) {
+
+                var origin_add_formset_item = cp_plugins.add_formset_item;
+                cp_plugins.add_formset_item = function( placeholder_slot, model_name, options ) {
+                    options = options || {
+                        on_post_add: function ($fs_item) {
+                            var $el = $('.tree-widget', $fs_item).get(0); // tree-widget
+                            if ( $el ) {
+                                window._init_terms_tree_fn('#' + $($el).attr('id'));
+                            }
+                        }
+                    };
+                    origin_add_formset_item(placeholder_slot, model_name, options)
+                };
+
+                cp_plugins._init_tree_monkey_patch = true
             }
-        }).bind(
-            'tree.init',
-            function(){
-                $("input:checkbox[autoopen]", this).each(function(){
-                    var node = $tree.tree('getNodeById', $(this).val());
-                    $tree.tree('openNode', node, false);
-                });
-            }
-        );
+
+        } else {
+            window._init_terms_tree_fn('#' + name + '-select');
+        }
+
     });
 })(django.jQuery);
 
