@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import operator
 
+from datetime import timedelta
 from six import with_metaclass
 
 from django.core.exceptions import ImproperlyConfigured, ValidationError
@@ -100,6 +101,32 @@ class BaseTermManager(TreeManager.from_queryset(BaseTermQuerySet)):
         queryset = self.get_queryset().filter(reduce(operator.or_, filter_by_term))
         return queryset
     '''
+
+    def rebuild2(self):
+        """
+        The same as rebuild but keeps current order.
+        """
+        qs = self._mptt_filter()
+        if len(qs) < 1: return
+        dates = {t.pk: t.created_at for t in qs}
+        base_date = qs[0].created_at
+        for item in qs:
+            offset = item.tree_id + item.lft
+            lookups = {
+                "created_at" : base_date + timedelta(seconds=offset)
+            }
+            item_qs = self.model._default_manager.filter(pk=item.pk)
+            item_qs.update(**lookups)
+        try:
+            super(BaseTermManager, self).rebuild()
+        except Exception as e:
+            print(e.message, e.args)
+        for item in qs:
+            lookups = {
+                "created_at" : dates[item.pk]
+            }
+            item_qs = self.model._default_manager.filter(pk=item.pk)
+            item_qs.update(**lookups)
 
 
 #==============================================================================
