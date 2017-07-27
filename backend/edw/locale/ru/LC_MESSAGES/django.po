@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 15:37+0300\n"
-"PO-Revision-Date: 2017-07-27 15:38+0300\n"
+"POT-Creation-Date: 2017-07-27 17:19+0300\n"
+"PO-Revision-Date: 2017-07-27 17:21+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -970,11 +970,8 @@ msgstr "Команда сайта «%(site_name)s»"
 
 #: templates/edw/email/activate-account-subject.txt:2
 #, python-format
-msgid ""
-"%(user.get_full_name)s, you have registered account on website "
-"«%(site_name)s»"
-msgstr ""
-"%(user.get_full_name)s, вы зарегистрировали аккаунт на сайте «%(site_name)s»"
+msgid ", you have registered account on website «%(site_name)s»"
+msgstr ", вы зарегистрировали аккаунт на сайте «%(site_name)s»"
 
 #: templates/edw/email/register-user-body.txt:3
 #, python-format
@@ -1000,12 +997,9 @@ msgstr ""
 
 #: templates/edw/email/register-user-subject.txt:2
 #, python-format
-msgid ""
-"%(user.get_full_name)s, you have requested auto-generated password on "
-"website «%(site_name)s»"
+msgid ", you have requested auto-generated password on website «%(site_name)s»"
 msgstr ""
-"%(user.get_full_name)s, вы запросили автоматически сгенерированный пароль на "
-"сайте «%(site_name)s»"
+", вы запросили автоматически сгенерированный пароль на сайте «%(site_name)s»"
 
 #: templates/edw/email/reset-password-body.txt:2
 #, python-format
@@ -1023,11 +1017,8 @@ msgstr "Пожалуйста, проследуйте на эту страниц�
 
 #: templates/edw/email/reset-password-subject.txt:2
 #, python-format
-msgid ""
-"%(user.get_full_name)s, you have requested password reset on website "
-"«%(site_name)s»"
-msgstr ""
-"%(user.get_full_name)s, вы запросили сброс пароля на сайте «%(site_name)s»"
+msgid ", you have requested password reset on website «%(site_name)s»"
+msgstr ", вы запросили сброс пароля на сайте «%(site_name)s»"
 
 #: views/auth.py:81
 msgid "Successfully logged out."
