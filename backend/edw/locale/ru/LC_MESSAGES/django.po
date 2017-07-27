@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-04 17:48+0300\n"
-"PO-Revision-Date: 2017-07-24 14:13+0300\n"
+"POT-Creation-Date: 2017-07-27 13:28+0300\n"
+"PO-Revision-Date: 2017-07-27 13:47+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -24,56 +24,56 @@ msgstr ""
 msgid "edw"
 msgstr "предметно-ориентированное хранилище данных"
 
-#: admin/customer/__init__.py:32
+#: admin/customer/__init__.py:33
 msgctxt "customer"
 msgid "Number"
 msgstr "Номер"
 
-#: admin/customer/__init__.py:36
+#: admin/customer/__init__.py:37
 msgid "Customer State"
 msgstr "Состояние"
 
-#: admin/customer/__init__.py:90
+#: admin/customer/__init__.py:91
 msgid "Username"
 msgstr "Имя пользователя"
 
-#: admin/customer/__init__.py:97 models/customer.py:182
+#: admin/customer/__init__.py:98 models/customer.py:182
 msgid "Salutation"
 msgstr "Обращение"
 
-#: admin/customer/__init__.py:104
+#: admin/customer/__init__.py:105
 msgid "Staff"
 msgstr "Персонал"
 
-#: admin/customer/__init__.py:106
+#: admin/customer/__init__.py:107
 msgid "User"
 msgstr "Пользователь"
 
-#: admin/customer/__init__.py:107 admin/entity/forms/update_states.py:16
+#: admin/customer/__init__.py:108 admin/entity/forms/update_states.py:16
 msgid "State"
 msgstr "Состояние"
 
-#: admin/customer/__init__.py:112
+#: admin/customer/__init__.py:113
 msgid "No data"
 msgstr "Никогда"
 
-#: admin/customer/__init__.py:113 models/customer.py:183
+#: admin/customer/__init__.py:114 models/customer.py:183
 msgid "Last accessed"
 msgstr "Дата последнего входа"
 
-#: admin/customer/__init__.py:120
+#: admin/customer/__init__.py:121
 msgid "Unexpired"
 msgstr "Неистекающий"
 
-#: admin/customer/__init__.py:131 admin/notification.py:23
+#: admin/customer/__init__.py:143 admin/notification.py:23
 msgid "Customer"
 msgstr "Пользователь"
 
-#: admin/customer/__init__.py:132
+#: admin/customer/__init__.py:144
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:19 admin/entity/__init__.py:51
+#: admin/data_mart/forms.py:19 admin/entity/__init__.py:50
 #: admin/entity/forms/__init__.py:40 models/data_mart.py:198
 #: models/entity.py:589
 msgid "Terms"
@@ -92,16 +92,16 @@ msgstr "Компонент представления"
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/__init__.py:153 admin/entity/__init__.py:208
+#: admin/entity/__init__.py:152 admin/entity/__init__.py:207
 msgid "Main params"
 msgstr "Основные"
 
-#: admin/entity/__init__.py:175 admin/entity/__init__.py:232
+#: admin/entity/__init__.py:174 admin/entity/__init__.py:231
 #: models/data_mart.py:194 models/notification.py:18 models/term.py:254
 msgid "Name"
 msgstr "Название"
 
-#: admin/entity/__init__.py:179 admin/entity/__init__.py:236
+#: admin/entity/__init__.py:178 admin/entity/__init__.py:235
 #: models/entity.py:620
 msgid "Entity type"
 msgstr "Тип объекта"
@@ -123,6 +123,7 @@ msgid "Update active for multiple entities"
 msgstr "Изменить активен для списка объектов"
 
 #: admin/entity/actions/update_active.py:82
+#, python-format
 msgid "Modify active for selected %(verbose_name_plural)s"
 msgstr "Изменить активен для выбранных %(verbose_name_plural)s"
 
@@ -203,7 +204,15 @@ msgstr "Цель"
 msgid "Data mart"
 msgstr "Витрина данных"
 
-#: admin/entity/forms/update_active.py:12 models/data_mart.py:218
+#: admin/entity/forms/update_active.py:15
+msgid "Yes"
+msgstr ""
+
+#: admin/entity/forms/update_active.py:16
+msgid "No"
+msgstr ""
+
+#: admin/entity/forms/update_active.py:20 models/data_mart.py:218
 #: models/entity.py:593 models/term.py:268
 #: templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
@@ -252,7 +261,6 @@ msgid "Images to set"
 msgstr "Изображения для установки"
 
 #: admin/entity/forms/update_images.py:22
-#| msgid "Ordering"
 msgid "Order"
 msgstr "Порядок сортировки"
 
@@ -397,6 +405,7 @@ msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
 #: forms/auth.py:52
+#, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
 "If you have used this address previously, try to reset the password."
@@ -409,6 +418,7 @@ msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
 #: forms/auth.py:98
+#, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
 "To complete the registration, click the link that was sent to you by e-mail"
@@ -426,6 +436,7 @@ msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
 #: management/commands/edwcustomers.py:35
+#, python-brace-format
 msgid ""
 "Customers in this EDW: total={total}, anonymous={anonymous}, "
 "expired={expired}, active={active}, guests={guests}, "
@@ -587,7 +598,7 @@ msgstr "Тематическая модель"
 
 #: models/entity.py:573
 msgid "Created at: new first"
-msgstr "По дате ↓"
+msgstr "По дате ↑"
 
 #: models/entity.py:581
 msgid "List view"
@@ -610,13 +621,7 @@ msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
 #: models/entity.py:610
-#: templates/edw/admin/entities/actions/update_active.html:50
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:81
-#: templates/edw/admin/entities/actions/update_images.html:73
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:58
-#: templates/edw/admin/entities/actions/update_relations.html:76
-#: templates/edw/admin/entities/actions/update_states.html:49
-#: templates/edw/admin/entities/actions/update_terms.html:56
+#: templates/edw/admin/entities/actions/_updated_entities.html:9
 msgid "Entities"
 msgstr "Объекты"
 
@@ -644,7 +649,7 @@ msgstr "Месяц"
 msgid "Added year"
 msgstr "Год"
 
-#: models/mixins/entity/fsm.py:80
+#: models/mixins/entity/fsm.py:103
 msgid "Type"
 msgstr "Тип"
 
@@ -847,6 +852,14 @@ msgstr "Изображения объектов"
 msgid "Save"
 msgstr "Записать"
 
+#: templates/edw/admin/entities/actions/_updated_entities.html:5
+msgid "Updated entities"
+msgstr "Выбранные объекты"
+
+#: templates/edw/admin/entities/actions/_updated_entities.html:5
+msgid "Count:"
+msgstr "Количество:"
+
 #: templates/edw/admin/entities/actions/update_active.html:6
 #: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:11
 #: templates/edw/admin/entities/actions/update_images.html:11
@@ -876,26 +889,6 @@ msgstr "Пожалуйста, исправьте ошибки ниже."
 #: templates/edw/admin/entities/actions/update_terms.html:27
 msgid "Make youre choice"
 msgstr "Выберите"
-
-#: templates/edw/admin/entities/actions/update_active.html:46
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:77
-#: templates/edw/admin/entities/actions/update_images.html:69
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:54
-#: templates/edw/admin/entities/actions/update_relations.html:72
-#: templates/edw/admin/entities/actions/update_states.html:45
-#: templates/edw/admin/entities/actions/update_terms.html:52
-msgid "Updated entities"
-msgstr "Выбранные объекты"
-
-#: templates/edw/admin/entities/actions/update_active.html:46
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:77
-#: templates/edw/admin/entities/actions/update_images.html:69
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:54
-#: templates/edw/admin/entities/actions/update_relations.html:72
-#: templates/edw/admin/entities/actions/update_states.html:45
-#: templates/edw/admin/entities/actions/update_terms.html:52
-msgid "Count:"
-msgstr "Количество:"
 
 #: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:34
 msgid "Additional marks to set"
@@ -951,9 +944,11 @@ msgstr ""
 
 #: templates/edw/email/activate-account-body.txt:5
 #, python-format
-msgid "Click on link %(activation_link)s for activate your account %(email)s."
+msgid ""
+"Click on link %(activation_link)s for activate your account %(user.email)s."
 msgstr ""
-"Перейдите по ссылке %(activation_link)s для активации аккаунта %(email)s."
+"Перейдите по ссылке %(activation_link)s для активации аккаунта "
+"%(user.email)s."
 
 #: templates/edw/email/activate-account-body.txt:7
 #, python-format
@@ -975,8 +970,12 @@ msgstr "Команда сайта «%(site_name)s»"
 
 #: templates/edw/email/activate-account-subject.txt:2
 #, python-format
-msgid "Activate account on «%(site_name)s»"
-msgstr "Активация аккаунта на «%(site_name)s»"
+msgid ""
+"%(user.get_full_name())s, you have registered account on website "
+"«%(site_name)s»"
+msgstr ""
+"%(user.get_full_name())s, вы зарегистрировали аккаунт на сайте "
+"«%(site_name)s»"
 
 #: templates/edw/email/register-user-body.txt:2
 #, python-format
@@ -992,18 +991,22 @@ msgstr ""
 #: templates/edw/email/register-user-body.txt:5
 #, python-format
 msgid ""
-"In the future, please use username %(email)s with password %(password)s to "
-"sign\n"
+"In the future, please use username %(user.email)s with password %(password)s "
+"to sign\n"
 "into %(absolute_base_uri)s."
 msgstr ""
-"В дальнейшем используйте имя пользователя %(email)s и пароль %(password)s "
-"для входа\n"
+"В дальнейшем используйте имя пользователя %(user.email)s и пароль "
+"%(password)s для входа\n"
 "на сайт %(absolute_base_uri)s."
 
 #: templates/edw/email/register-user-subject.txt:2
 #, python-format
-msgid "Password set on «%(site_name)s»"
-msgstr "Установлен пароль для «%(site_name)s»"
+msgid ""
+"%(user.get_full_name())s, you have requested auto-generated password on "
+"website «%(site_name)s»"
+msgstr ""
+"%(user.get_full_name())s, вы запросили автоматически сгенерированный пароль "
+"на сайте «%(site_name)s»"
 
 #: templates/edw/email/reset-password-body.txt:2
 #, python-format
@@ -1021,14 +1024,18 @@ msgstr "Пожалуйста, проследуйте на эту страниц�
 
 #: templates/edw/email/reset-password-subject.txt:2
 #, python-format
-msgid "Password reset on «%(site_name)s»"
-msgstr "Сброс пароля для «%(site_name)s»"
+msgid ""
+"%(user.get_full_name())s, you have requested password reset on website "
+"«%(site_name)s»"
+msgstr ""
+"%(user.get_full_name())s, вы запросили сброс пароля на сайте «%(site_name)s»"
 
 #: views/auth.py:81
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
 #: views/auth.py:106
+#, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
@@ -1049,6 +1056,15 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
+
+#~ msgid "Activate account on «%(site_name)s»"
+#~ msgstr "Активация аккаунта на «%(site_name)s»"
+
+#~ msgid "Password set on «%(site_name)s»"
+#~ msgstr "Установлен пароль для «%(site_name)s»"
+
+#~ msgid "Password reset on «%(site_name)s»"
+#~ msgstr "Сброс пароля для «%(site_name)s»"
 
 #~ msgid "Image to unset"
 #~ msgstr "Изображение для снятия"

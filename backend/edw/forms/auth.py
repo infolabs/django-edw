@@ -104,7 +104,6 @@ class RegisterUserForm(ModelForm):
         context = Context({
             'site_name': current_site.name,
             'absolute_base_uri': request.build_absolute_uri('/'),
-            'email': user.email,
             'password': password,
             'user': user,
         })
@@ -135,7 +134,7 @@ class RegisterUserForm(ModelForm):
             'site_name': current_site.name,
             'activation_link': activation_link,
             'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
-            'email': user.email,
+            'user': user,
         })
         subject = select_template([
             '{}/email/activate-account-subject.txt'.format(edw_settings.APP_LABEL),
