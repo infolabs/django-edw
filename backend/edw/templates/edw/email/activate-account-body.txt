@@ -1,4 +1,5 @@
 {% load i18n %}{% autoescape off %}
+
 {% blocktrans %}You are receiving this email because you asked for registration for your
 user account at «{{ site_name }}».{% endblocktrans %}
 

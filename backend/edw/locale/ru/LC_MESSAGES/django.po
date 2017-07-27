@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 13:28+0300\n"
-"PO-Revision-Date: 2017-07-27 13:47+0300\n"
+"POT-Creation-Date: 2017-07-27 15:37+0300\n"
+"PO-Revision-Date: 2017-07-27 15:38+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -933,7 +933,7 @@ msgstr "Характеристика"
 msgid "Clear filter"
 msgstr "Сбросить всё"
 
-#: templates/edw/email/activate-account-body.txt:2
+#: templates/edw/email/activate-account-body.txt:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for registration for your\n"
@@ -942,7 +942,7 @@ msgstr ""
 "Вы получили это письмо потому что этот адрес был указан при регистрации\n"
 "пользовательского аккаунта на «%(site_name)s»."
 
-#: templates/edw/email/activate-account-body.txt:5
+#: templates/edw/email/activate-account-body.txt:6
 #, python-format
 msgid ""
 "Click on link %(activation_link)s for activate your account %(user.email)s."
@@ -950,19 +950,19 @@ msgstr ""
 "Перейдите по ссылке %(activation_link)s для активации аккаунта "
 "%(user.email)s."
 
-#: templates/edw/email/activate-account-body.txt:7
+#: templates/edw/email/activate-account-body.txt:8
 #, python-format
 msgid "Link is valid for %(expiration_days)s days."
 msgstr "Ссылка будет активна %(expiration_days)s дней."
 
-#: templates/edw/email/activate-account-body.txt:9
-#: templates/edw/email/register-user-body.txt:8
+#: templates/edw/email/activate-account-body.txt:10
+#: templates/edw/email/register-user-body.txt:9
 #: templates/edw/email/reset-password-body.txt:8
 msgid "Thanks for using our site!"
 msgstr "Спасибо, что используете наш сайт."
 
-#: templates/edw/email/activate-account-body.txt:11
-#: templates/edw/email/register-user-body.txt:10
+#: templates/edw/email/activate-account-body.txt:12
+#: templates/edw/email/register-user-body.txt:11
 #: templates/edw/email/reset-password-body.txt:10
 #, python-format
 msgid "The «%(site_name)s» team"
@@ -971,13 +971,12 @@ msgstr "Команда сайта «%(site_name)s»"
 #: templates/edw/email/activate-account-subject.txt:2
 #, python-format
 msgid ""
-"%(user.get_full_name())s, you have registered account on website "
+"%(user.get_full_name)s, you have registered account on website "
 "«%(site_name)s»"
 msgstr ""
-"%(user.get_full_name())s, вы зарегистрировали аккаунт на сайте "
-"«%(site_name)s»"
+"%(user.get_full_name)s, вы зарегистрировали аккаунт на сайте «%(site_name)s»"
 
-#: templates/edw/email/register-user-body.txt:2
+#: templates/edw/email/register-user-body.txt:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for a auto-generated password "
@@ -988,7 +987,7 @@ msgstr ""
 "пароль для вашего\n"
 "пользовательского аккаунта на «%(site_name)s»."
 
-#: templates/edw/email/register-user-body.txt:5
+#: templates/edw/email/register-user-body.txt:6
 #, python-format
 msgid ""
 "In the future, please use username %(user.email)s with password %(password)s "
@@ -1002,11 +1001,11 @@ msgstr ""
 #: templates/edw/email/register-user-subject.txt:2
 #, python-format
 msgid ""
-"%(user.get_full_name())s, you have requested auto-generated password on "
+"%(user.get_full_name)s, you have requested auto-generated password on "
 "website «%(site_name)s»"
 msgstr ""
-"%(user.get_full_name())s, вы запросили автоматически сгенерированный пароль "
-"на сайте «%(site_name)s»"
+"%(user.get_full_name)s, вы запросили автоматически сгенерированный пароль на "
+"сайте «%(site_name)s»"
 
 #: templates/edw/email/reset-password-body.txt:2
 #, python-format
@@ -1025,10 +1024,10 @@ msgstr "Пожалуйста, проследуйте на эту страниц�
 #: templates/edw/email/reset-password-subject.txt:2
 #, python-format
 msgid ""
-"%(user.get_full_name())s, you have requested password reset on website "
+"%(user.get_full_name)s, you have requested password reset on website "
 "«%(site_name)s»"
 msgstr ""
-"%(user.get_full_name())s, вы запросили сброс пароля на сайте «%(site_name)s»"
+"%(user.get_full_name)s, вы запросили сброс пароля на сайте «%(site_name)s»"
 
 #: views/auth.py:81
 msgid "Successfully logged out."
