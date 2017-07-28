@@ -27,3 +27,31 @@ Datamart styles
     display: none;
   }
 }
+
+.datamart-list li {
+  display: inline-block;
+  padding: 5px;
+
+  span {
+    border-bottom: 1px dashed rgba(0,0,0,0.6);
+    color: #666666;
+    text-transform: uppercase;
+    background-color: transparent;
+    cursor: initial;
+    font-size: 25px;
+    padding: 0;
+    font-weight: bold;
+  }
+
+  span:hover {
+    color: #3d5896;
+    transition: all .5s;
+    cursor: pointer;
+  }
+
+}
+
+.datamart-list .active span{
+    border: 0;
+    color: #3d5896;
+}

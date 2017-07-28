@@ -1,10 +1,13 @@
 import { combineReducers } from 'redux';
-import terms from 'reducers/terms';
-import entities from 'reducers/entities';
+import terms from './terms';
+import entities from './entities';
+import datamart_list from './datamart_list'
+
 
 const rootReducer = combineReducers({
   terms,
-  entities
+  entities,
+  datamart_list
 });
 
 export default rootReducer;

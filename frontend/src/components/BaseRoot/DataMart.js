@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import Entities from 'components/Entities';
 import TermsTree from 'components/TermsTree';
 import Paginator from 'components/Paginator';
@@ -8,10 +7,12 @@ import Ordering from 'components/Ordering';
 import Limits from 'components/Limits';
 import Statistics from 'components/Statistics';
 import Aggregation from 'components/Aggregation';
+import DataMartsList from 'components/DataMartsList'
 
 
 export default class DataMart extends Component {
   render() {
+
     const { dom_attrs, mart_id } = this.props;
 
     return (
@@ -20,6 +21,12 @@ export default class DataMart extends Component {
           <TermsTree dom_attrs={dom_attrs} mart_id={mart_id} />
         </div>
         <div className="col-sm-8 col-md-9">
+          <div className="col-sm-12 col-md-12">
+            <DataMartsList
+              dom_attrs={dom_attrs}
+              mart_id={mart_id}
+            />
+          </div>
           <div className="row">
             <div className="col-sm-6 col-md-3 ex-view-as ex-dropdown ex-state-closed">
               <ViewComponents dom_attrs={dom_attrs} mart_id={mart_id} />

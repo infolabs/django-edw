@@ -17,7 +17,7 @@ class BaseRoot extends Component {
 
   static defaultProps = {
     getTemplates: BaseRoot.getTemplates
-  }
+  };
 
   componentWillMount() {
     this.templates = this.props.getTemplates();
