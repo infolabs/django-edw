@@ -47,6 +47,8 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     salmonella_fields = ('parent', )
 
+    change_tree_template = 'edw/admin/term/change_list.html'
+
     autoescape = False
 
     class Media:
