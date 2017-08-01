@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: admin/entity/forms/update_active.py:14
 msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 17:19+0300\n"
+"POT-Creation-Date: 2017-08-01 18:20+0300\n"
 "PO-Revision-Date: 2017-07-27 17:21+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
@@ -97,7 +98,7 @@ msgid "Main params"
 msgstr "Основные"
 
 #: admin/entity/__init__.py:174 admin/entity/__init__.py:231
-#: models/data_mart.py:194 models/notification.py:18 models/term.py:254
+#: models/data_mart.py:194 models/notification.py:18 models/term.py:286
 msgid "Name"
 msgstr "Название"
 
@@ -213,7 +214,7 @@ msgid "No"
 msgstr ""
 
 #: admin/entity/forms/update_active.py:20 models/data_mart.py:218
-#: models/entity.py:593 models/term.py:268
+#: models/entity.py:593 models/term.py:300
 #: templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
@@ -222,7 +223,7 @@ msgstr "Активен"
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:20
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:41
 #: models/defaults/term.py:22 models/related.py:24 models/related.py:58
-#: models/related.py:116 models/term.py:280
+#: models/related.py:116 models/term.py:312
 #: templates/edw/admin/mptt/_term_node.html:25
 msgid "Term"
 msgstr "Термин"
@@ -233,14 +234,14 @@ msgid "Value"
 msgstr "Значение"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:31
-#: models/data_mart.py:215 models/related.py:27 models/term.py:265
+#: models/data_mart.py:215 models/related.py:27 models/term.py:297
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:34
-#: models/related.py:29 models/term.py:266
+#: models/related.py:29 models/term.py:298
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "entity."
@@ -482,19 +483,19 @@ msgstr "Обозначает распознанное состояние пол�
 msgid "Extra information about this customer"
 msgstr "Расширенная информация по пользователю"
 
-#: models/data_mart.py:168 models/term.py:232
+#: models/data_mart.py:168 models/term.py:264
 msgid "Delete restriction"
 msgstr "Ограничение на удаление"
 
-#: models/data_mart.py:169 models/term.py:233
+#: models/data_mart.py:169 models/term.py:265
 msgid "Change parent restriction"
 msgstr "Ограничение на изменение родителя"
 
-#: models/data_mart.py:170 models/term.py:234
+#: models/data_mart.py:170 models/term.py:266
 msgid "Change slug restriction"
 msgstr "Ограничение на изменение синонима"
 
-#: models/data_mart.py:171 models/term.py:236
+#: models/data_mart.py:171 models/term.py:268
 msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
@@ -502,7 +503,7 @@ msgstr "Ограничение на добавление потомков"
 msgid "Change terms restriction"
 msgstr "Ограничение на изменение терминов"
 
-#: models/data_mart.py:174 models/term.py:239
+#: models/data_mart.py:174 models/term.py:271
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
@@ -514,27 +515,27 @@ msgstr "Термин витрины данных"
 msgid "Data marts terms"
 msgstr "Термины витрины данных"
 
-#: models/data_mart.py:193 models/term.py:253
+#: models/data_mart.py:193 models/term.py:285
 msgid "Parent"
 msgstr "Родитель"
 
-#: models/data_mart.py:195 models/term.py:255
+#: models/data_mart.py:195 models/term.py:287
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/data_mart.py:195 models/term.py:255
+#: models/data_mart.py:195 models/term.py:287
 msgid "Used for URLs, auto-generated from name if blank."
 msgstr "Используется авто-генерация URL, если это поле пустое"
 
-#: models/data_mart.py:196 models/term.py:256
+#: models/data_mart.py:196 models/term.py:288
 msgid "Path"
 msgstr "Путь"
 
-#: models/data_mart.py:200 models/entity.py:591 models/term.py:263
+#: models/data_mart.py:200 models/entity.py:591 models/term.py:295
 msgid "Created at"
 msgstr "Дата создания"
 
-#: models/data_mart.py:201 models/entity.py:592 models/term.py:264
+#: models/data_mart.py:201 models/entity.py:592 models/term.py:296
 msgid "Updated at"
 msgstr "Дата обновления"
 
@@ -564,7 +565,7 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: models/data_mart.py:217 models/term.py:267
+#: models/data_mart.py:217 models/term.py:299
 msgid "Description"
 msgstr "Описание"
 
@@ -572,7 +573,7 @@ msgstr "Описание"
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: models/data_mart.py:221 models/term.py:271
+#: models/data_mart.py:221 models/term.py:303
 msgid "system flags"
 msgstr "системные флаги"
 
@@ -592,7 +593,7 @@ msgstr "Код пользователя"
 msgid "Tile view"
 msgstr "Плитка"
 
-#: models/defaults/term.py:23 models/term.py:281
+#: models/defaults/term.py:23 models/term.py:313
 msgid "Topic model"
 msgstr "Тематическая модель"
 
@@ -769,68 +770,68 @@ msgstr "Изображение"
 msgid "DataMart Images"
 msgstr "Изображения"
 
-#: models/term.py:210
+#: models/term.py:242
 msgid "OR"
 msgstr "«ИЛИ»"
 
-#: models/term.py:211
+#: models/term.py:243
 msgid "XOR"
 msgstr "«Исключающее ИЛИ»"
 
-#: models/term.py:212
+#: models/term.py:244
 msgid "AND"
 msgstr "«И»"
 
-#: models/term.py:217
+#: models/term.py:249
 msgid "Is characteristic"
 msgstr "Характеристика"
 
-#: models/term.py:218
+#: models/term.py:250
 msgid "Is mark"
 msgstr "Метка"
 
-#: models/term.py:219
+#: models/term.py:251
 msgid "Is relation"
 msgstr "Отношение"
 
-#: models/term.py:226
+#: models/term.py:258
 msgid "Standard"
 msgstr "Стандартный"
 
-#: models/term.py:227
+#: models/term.py:259
 msgid "Expanded"
 msgstr "Расширенный"
 
-#: models/term.py:228
+#: models/term.py:260
 msgid "Reduced"
 msgstr "Сокращенный"
 
-#: models/term.py:235
+#: models/term.py:267
 msgid "Change semantic rule restriction"
 msgstr "Ограничение на изменение семантического правила."
 
-#: models/term.py:237
+#: models/term.py:269
 msgid "External tagging restriction"
 msgstr "Ограничение на ручную установку в объектах"
 
-#: models/term.py:257 templates/edw/admin/mptt/_term_node.html:3
+#: models/term.py:289 templates/edw/admin/mptt/_term_node.html:3
 #: templates/edw/admin/mptt/_term_node.html:4
 msgid "Semantic Rule"
 msgstr "Семантическое правило"
 
-#: models/term.py:259
+#: models/term.py:291
 msgid "attributes"
 msgstr "атрибуты"
 
-#: models/term.py:260
+#: models/term.py:292
 msgid "Specifying attributes of term."
 msgstr "Позволяет устанавливать атрибуты термина"
 
-#: models/term.py:261 templates/edw/admin/mptt/_term_node.html:4
+#: models/term.py:293 templates/edw/admin/mptt/_term_node.html:4
 msgid "Specification Mode"
 msgstr "Режим конкретизации"
 
-#: models/term.py:269
+#: models/term.py:301
 msgid "Is this term active."
 msgstr ""
 "Определяет активен ли этот термин, участвует ли он в отборе и можно ли его "
@@ -928,6 +929,10 @@ msgstr "Метка"
 #: templates/edw/admin/mptt/_term_node.html:18
 msgid "Characteristic"
 msgstr "Характеристика"
+
+#: templates/edw/admin/term/change_list.html:7
+msgid "Rebuild the tree"
+msgstr "Перестроить дерево"
 
 #: templates/edw/admin/term/filters/tree/filter.html:4
 msgid "Clear filter"
@@ -1046,6 +1051,10 @@ msgstr ""
 #: views/auth.py:205
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
+
+#: views/term.py:103
+msgid "The tree was sucessfully rebuilt"
+msgstr "Дерево успешно перестроено"
 
 #~ msgid "Activate account on «%(site_name)s»"
 #~ msgstr "Активация аккаунта на «%(site_name)s»"
