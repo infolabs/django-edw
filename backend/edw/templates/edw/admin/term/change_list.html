@@ -2,8 +2,10 @@
 {% load i18n %}
 {% block object-tools-items %}
     {{ block.super }}
+    {% if user.is_superuser %}
     <li>
-        <a href="{{ grid_url }}">{% trans "Rebuild the tree" %}</a>
+        <a href="{% url 'rebuild_tree' %}">{% trans "Rebuild the tree" %}</a>
     </li>
+    {% endif %}
 {% endblock %}
 
