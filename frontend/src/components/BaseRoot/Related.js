@@ -26,10 +26,12 @@ class Related extends Component {
       <div className="ex-related-datamart" data-data-count={count}>
         <div className="row">
           <div className="col-sm-12 col-md-12">
-            <DataMartsList
-              dom_attrs={dom_attrs}
-              mart_id={mart_id}
-            />
+            {
+              dom_attrs.getNamedItem('data-entry-point') ? <DataMartsList
+                dom_attrs={dom_attrs}
+                mart_id={mart_id}
+              /> : null
+            }
           </div>
           <div className="col-md-9 ex-title">
             { mart_url != '' ? (

@@ -22,10 +22,12 @@ export default class DataMart extends Component {
         </div>
         <div className="col-sm-8 col-md-9">
           <div className="col-sm-12 col-md-12">
-            <DataMartsList
-              dom_attrs={dom_attrs}
-              mart_id={mart_id}
-            />
+            {
+              dom_attrs.getNamedItem('data-entry-point') ? <DataMartsList
+                dom_attrs={dom_attrs}
+                mart_id={mart_id}
+              /> : null
+            }
           </div>
           <div className="row">
             <div className="col-sm-6 col-md-3 ex-view-as ex-dropdown ex-state-closed">
