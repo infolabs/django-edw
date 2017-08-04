@@ -101,10 +101,12 @@ class RebuildTreeView(APIView):
 
     def get(self, request):
         TermModel._tree_manager.rebuild2()
+        app_label = TermModel._meta.app_label
+
         messages.add_message(request._request, messages.INFO,
                              _("The tree was sucessfully rebuilt"))
         return HttpResponseRedirect(urlresolvers.reverse(
-            "admin:edw_term_changelist")
+            "admin:%s_term_changelist" % app_label)
         )
 
 
