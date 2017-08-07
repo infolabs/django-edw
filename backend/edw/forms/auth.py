@@ -75,6 +75,7 @@ class RegisterUserForm(ModelForm):
             raise ValidationError(msg)
 
         return self.cleaned_data['fio']
+
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
         # check for matching passwords
