@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
 
@@ -55,13 +57,24 @@ class RegisterUserForm(ModelForm):
         return self.cleaned_data['email']
 
     def clean_fio(self):
-        # check for fio
-        #fio = self.cleaned_data['fio'].split(' ')
-        #if len(fio) < 2:
-        #    msg = _("Expected last and first name")
-        #    raise ValidationError(msg)
-        return self.cleaned_data['fio']
+        fio = self.cleaned_data['fio']
 
+        if not re.match(r'^[а-яёА-ЯЁ\.\ ]+$', fio):
+            msg = _("Name should not contain characters other than"
+                    " characters from Russian alphabet, dots and spaces")
+            raise ValidationError(msg)
+
+        if fio.isspace():
+            msg = _("Name should not be empty")
+            raise ValidationError(msg)
+
+        if not re.sub(r'[\.\ ]', '', fio):
+            # '.... .... ...абв' => ok
+            # '.... .... ...' => Error
+            msg = _('Name should not contain only spaces or dots')
+            raise ValidationError(msg)
+
+        return self.cleaned_data['fio']
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
         # check for matching passwords
