@@ -133,16 +133,23 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
     def get_terms_ids(self, tree):
         return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
 
-    def get_similar(self, terms_ids):
+    def get_similar(self, value, use_cached_decompress=False, fix_it=False):
         """
-        Return similar entity from queryset
+        Return similar entity from queryset, semantics isn't considered
+        :param value: terms ids
+        :param use_cached_decompress: do use cached decompress
+        :param fix_it: do fix terms tree on decompress
+        :return: similar entity on None
         """
-        terms_tree = TermModel.decompress(terms_ids, fix_it=False)
+        decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
+        terms_tree = decompress(value, fix_it=fix_it)
         crossing_terms_ids = terms_tree.trim(self.get_related_terms_ids()).keys()
+
         expression = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
         similar_entities = self.filter(terms__id__in=crossing_terms_ids).annotate(
             num=models.Count('terms__id'), terms_avg_lvl=models.Avg(expression), terms_max_lvl=models.Max(expression)
         ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', 'created_at')
+
         try:
             result = similar_entities[0]
         except IndexError:

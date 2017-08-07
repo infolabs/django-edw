@@ -39,7 +39,12 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
         return
 
     action = kwargs.pop('action', None)
+
+    # print ("___ Action", action, kwargs.get('pk_set', None))
+
     if action in ["pre_remove", "pre_add"]:
+
+
 
         valid_pk_set = getattr(instance, "_valid_pk_set", None)
         if valid_pk_set is None:
@@ -49,6 +54,9 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
         pk_set = kwargs.pop('pk_set')
 
         if getattr(instance, "_during_terms_validation", False):
+
+            # print ("*** During Terms Validation ***", action, pk_set)
+
             valid_pk_set.update(pk_set)
             return
 

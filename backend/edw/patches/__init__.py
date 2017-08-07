@@ -44,4 +44,3 @@ def datamartmodel_terms_m2m__str__(self):
     return smart_str("{} → {}".format(self.datamart.get_real_instance().name, term_title))
 
 DataMartModelTerms.__str__ = datamartmodel_terms_m2m__str__
-
