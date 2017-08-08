@@ -2,10 +2,10 @@
 # coding=utf-8
 # ------------------------------------------------------------------------
 """
-``rebuild_datamart2``
+``rebuild_datamart``
 ---------------------
 
-``rebuild_datamart2`` rebuilds your mptt pointers. Only use in emergencies.
+``rebuild_datamart`` rebuilds your mptt pointers. Only use in emergencies.
 """
 
 from django.core.management.base import NoArgsCommand
@@ -17,4 +17,4 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         #print "Rebuilding MPTT pointers for DataMartModel"
-        DataMartModel._tree_manager.rebuild2()
+        DataMartModel._tree_manager.rebuild()

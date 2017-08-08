@@ -28,6 +28,7 @@ from rest_framework.reverse import reverse
 from . import deferred
 from .rest import RESTModelBase
 from .term import TermModel
+from .mixins.rebuild_tree import RebuildTreeMixin
 
 from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
@@ -67,7 +68,7 @@ class TreePolymorphicManager(TreeManager, PolymorphicManager):
     queryset_class = BaseDataMartQuerySet
 
 
-class BaseDataMartManager(TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
+class BaseDataMartManager(RebuildTreeMixin, TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
     """
     Customized model manager for our DataMart model.
     """

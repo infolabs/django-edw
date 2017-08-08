@@ -1068,7 +1068,7 @@ msgstr "Аккаунт успешно активирован."
 
 #: views/term.py:107
 msgid "The tree was sucessfully rebuilt"
-msgstr ""
+msgstr "Дерево успешно перестроено"
 
 #~ msgid "Activate account on «%(site_name)s»"
 #~ msgstr "Активация аккаунта на «%(site_name)s»"

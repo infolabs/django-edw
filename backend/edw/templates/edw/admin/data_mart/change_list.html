@@ -4,7 +4,7 @@
     {{ block.super }}
     {% if user.is_superuser %}
     <li>
-        <a href="{% url 'rebuild_term_tree' %}">{% trans "Rebuild the tree" %}</a>
+        <a href="{% url 'rebuild_datamart_tree' %}">{% trans "Rebuild the tree" %}</a>
     </li>
     {% endif %}
 {% endblock %}
