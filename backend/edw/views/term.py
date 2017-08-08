@@ -93,9 +93,9 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
         return super(TermViewSet, self).list(request, *args, **kwargs)
 
 
-class RebuildTreeView(APIView):
+class RebuildTermTreeView(APIView):
     """
-    Calls Django logout method and delete the auth Token assigned to the current User object.
+    Rebuilds MPTT tree
     """
     permission_classes = (IsAdminUser,)
 

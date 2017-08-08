@@ -45,6 +45,8 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     salmonella_fields = ('parent', )
 
+    change_tree_template = 'edw/admin/data_mart/change_list.html'
+
     autoescape = False
 
     class Media:

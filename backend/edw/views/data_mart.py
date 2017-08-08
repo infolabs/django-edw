@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext_lazy as _
+from django.core import urlresolvers
+
 from rest_framework import viewsets, filters
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
@@ -64,3 +71,20 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
         if data_mart_pk is not None:
             request.GET.setdefault('parent_id', data_mart_pk)
         return super(DataMartViewSet, self).list(request, *args, **kwargs)
+
+
+class RebuildDataMartTreeView(APIView):
+    """
+    Rebuilds MPTT tree
+    """
+    permission_classes = (IsAdminUser,)
+
+    def get(self, request):
+        DataMartModel._tree_manager.rebuild2()
+        app_label = DataMartModel._meta.app_label
+
+        messages.add_message(request._request, messages.INFO,
+                             _("The tree was sucessfully rebuilt"))
+        return HttpResponseRedirect(urlresolvers.reverse(
+            "admin:%s_term_changelist" % app_label)
+        )
