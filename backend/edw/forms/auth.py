@@ -3,22 +3,17 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
-
 from django.core import signing
 from django.core.exceptions import ValidationError
-
+from django.core.urlresolvers import reverse
 from django.forms import fields, widgets, ModelForm
-
 from django.template import Context
 from django.template.loader import select_template
-
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.signals.auth import customer_registered
-from edw.utils.form_validation import validate_russian_name
 
 
 class RegisterUserForm(ModelForm):
@@ -54,9 +49,6 @@ class RegisterUserForm(ModelForm):
                     "If you have used this address previously, try to reset the password.")
             raise ValidationError(msg.format(**self.cleaned_data))
         return self.cleaned_data['email']
-
-    def clean_fio(self):
-        return validate_russian_name(self.cleaned_data['fio'])
 
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
