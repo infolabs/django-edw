@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import re
-
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
 
@@ -20,6 +18,7 @@ from django.core.urlresolvers import reverse
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.signals.auth import customer_registered
+from edw.utils.form_validation import validate_russian_name
 
 
 class RegisterUserForm(ModelForm):
@@ -57,24 +56,7 @@ class RegisterUserForm(ModelForm):
         return self.cleaned_data['email']
 
     def clean_fio(self):
-        fio = self.cleaned_data['fio']
-
-        if not re.match(r'^[а-яёА-ЯЁ\.\ ]+$', fio):
-            msg = _("Name should not contain characters other than"
-                    " characters from Russian alphabet, dots and spaces")
-            raise ValidationError(msg)
-
-        if fio.isspace():
-            msg = _("Name should not be empty")
-            raise ValidationError(msg)
-
-        if not re.sub(r'[\.\ ]', '', fio):
-            # '.... .... ...абв' => ok
-            # '.... .... ...' => Error
-            msg = _('Name should not contain only spaces or dots')
-            raise ValidationError(msg)
-
-        return self.cleaned_data['fio']
+        return validate_russian_name(self.cleaned_data['fio'])
 
     def clean(self):
         cleaned_data = super(RegisterUserForm, self).clean()
