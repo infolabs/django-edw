@@ -39,6 +39,7 @@ from .rest import RESTModelBase
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
 from ..utils.hash_helpers import hash_unsorted_list
+from ..utils.monkey_patching import patch_class_method
 from .. import settings as edw_settings
 
 
@@ -545,6 +546,27 @@ class EntityCharacteristicOrMarkGetter(object):
 
 
 #==============================================================================
+# BaseEntity terms ManyRelatedManager patched methods
+#==============================================================================
+def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
+
+    self._origin_add(*objs, **kwargs)
+
+    if getattr(self.instance, '_during_terms_validation', False) and objs:
+        source_field = self.through._meta.get_field(self.source_field_name)
+        new_ids = set()
+        for obj in objs:
+            if isinstance(obj, self.model):
+                fk_val = source_field.get_foreign_related_value(obj)[0]
+                if fk_val is not None:
+                    new_ids.add(fk_val)
+            else:
+                new_ids.add(obj)
+
+        self.instance._valid_pk_set.update(new_ids) # add ids to _valid_pk_set
+
+
+#==============================================================================
 # BaseEntity
 #==============================================================================
 @python_2_unicode_compatible
@@ -762,11 +784,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 if hasattr(self, '_valid_pk_set'):
                     del self._valid_pk_set
                 self._during_terms_validation = True
+
+                self.patch_terms_many_related_manager() # HACK!: monkey patch terms ManyRelatedManager instance
+
                 self.validate_terms(origin, context=validation_context)
                 del self._during_terms_validation
         else:
             result = super(BaseEntity, self).save(*args, **kwargs)
         return result
+
+    def patch_terms_many_related_manager(self):
+        patch_class_method(self.terms.__class__, 'add', _entity_terms_many_related_manager_add)
 
     @cached_property
     def additional_characteristics(self):
