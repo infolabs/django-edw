@@ -1,0 +1,36 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django EDW\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-12 09:36+0000\n"
+"PO-Revision-Date: 2017-08-12 12:39+0300\n"
+"Last-Translator: Infolabs <team@infolabs.ru>\n"
+"Language-Team: Infolabs <team@infolabs.ru>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#: models.py:38
+msgid "Customer"
+msgstr "Пользователь"
+
+#: models.py:39
+msgid "Customers"
+msgstr "Пользователи"
+
+#: models.py:44
+msgid "Email is empty"
+msgstr "Не указана электронная почта"
+
+#: models.py:70
+msgid "A customer with the e-mail address ‘{email}’ already exists."
+msgstr "Пользователь с адресом ‘{email}’  уже существует."

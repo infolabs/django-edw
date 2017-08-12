@@ -41,7 +41,7 @@ class User(AbstractUser):
     def get_username(self):
         if self.is_staff:
             return self.username
-        return self.email or '<anonymous>'
+        return self.email or _('Email is empty')
 
     def __str__(self):
         return self.get_username()
