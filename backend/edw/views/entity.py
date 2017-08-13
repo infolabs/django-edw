@@ -54,6 +54,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
 
     pagination_class = EntityPagination
 
+    REQUEST_CACHED_SERIALIZED_DATA_KEY = '_cached_serialized_data'
+
     @remove_empty_params_from_request(exclude=('active',))
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
@@ -134,6 +136,10 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             "filter_queryset": queryset
         }
         return queryset
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        request.GET[self.REQUEST_CACHED_SERIALIZED_DATA_KEY] = response.data
+        return super(EntityViewSet, self).finalize_response(request, response, *args, **kwargs)
 
 
 class EntitySubjectViewSet(EntityViewSet):
