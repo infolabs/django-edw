@@ -26,3 +26,15 @@ class ToSeconds(Func):
         # Return the date or datetime argument converted to seconds since Year 0
         self.template = '%(function)s(%(expressions)s)'
         return super(ToSeconds, self).as_sql(compiler, connection)
+
+class Sin(Func):
+    function = 'SIN'
+
+class Cos(Func):
+    function = 'COS'
+
+class Acos(Func):
+    function = 'ACOS'
+
+class Radians(Func):
+    function = 'RADIANS'
