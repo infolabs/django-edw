@@ -1,7 +1,9 @@
 {% load thumbnail edw_media_tags %}
-{% if image.file %}
-    {% thumbnail image.file size upscale='True' autocrop replace_alpha=replace_alpha as thumb %}
+{% if image.file %}{% if crop %}
+    {% thumbnail image.file size crop='True' replace_alpha=replace_alpha as thumb %}
 {% else %}
+    {% thumbnail image.file size upscale='True' autocrop replace_alpha=replace_alpha as thumb %}
+{% endif %}{% else %}
     {% get_default_thumbnail size replace_alpha as thumb %}
 {% endif %}
 {% get_align_thumbnail_in_center_styles size thumb.width thumb.height as center_thumb_styles %}

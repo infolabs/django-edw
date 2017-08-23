@@ -67,7 +67,7 @@ class Item {
       'is_leaf': true,
       'parent': null,
       'children': []
-    }
+    };
     Object.assign(this, defaults, options);
   }
 
@@ -387,7 +387,7 @@ function requested(state = new Requested(), action) {
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
     case consts.LOAD_TREE:
-      return state.createFromJson(action.json);
+      return new TaggedItems().createFromJson(action.json);
     case consts.RELOAD_TREE:
       return state.setCache(action.json);
     case consts.TOGGLE_ITEM:
