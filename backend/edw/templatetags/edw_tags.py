@@ -192,3 +192,14 @@ class GetEntities(BaseRetrieveDataTag):
         return queryset
 
 register.tag(GetEntities)
+
+
+@register.filter
+def attributes_has_view_class(value, arg):
+    if value and isinstance(value, (tuple, list)):
+        getter = (lambda x: x['view_class']) if isinstance(value[0], dict) else lambda x: x.view_class
+        for attr in value:
+            view_class = getter(attr)
+            if arg in view_class:
+                return True
+    return False

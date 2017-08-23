@@ -94,7 +94,7 @@ class TileItem extends Component {
                 (child, i) =>
                   <li data-path={child.path} key={i}
                     data-view-class={child.view_class.join(" ")}>
-                    <strong>{child.name}:</strong>&nbsp;
+                    <strong>{child.name}:&nbsp;</strong>
                     {child.values.join("; ")}
                   </li>
               )}
