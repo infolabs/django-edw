@@ -439,8 +439,8 @@ msgid ""
 "To complete the registration, click the link that was sent to you by e-mail"
 msgstr ""
 "Пользователь ‘{email}’ успешно зарегистрирован.\n"
-"Для завершения регистрации, перейдите по ссылке, которая была вам выслана на "
-"электронную почту"
+"Для завершения регистрации Вам необходимо перейти по ссылке, которая была выслана на электронную почту ‘{email}’. "
+"Если письмо не пришло в папку «Входящие», проверьте папку «Спам»."
 
 #: management/commands/edwcustomers.py:9
 msgid "Collect information about all customers which accessed this EDW."

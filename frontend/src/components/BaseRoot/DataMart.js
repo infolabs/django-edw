@@ -17,18 +17,18 @@ export default class DataMart extends Component {
 
     return (
       <div className="row">
-        <div className="col-sm-4 col-md-3 sidebar-filter">
-          <TermsTree dom_attrs={dom_attrs} mart_id={mart_id} />
-        </div>
-        <div className="col-sm-8 col-md-9">
-          <div className="col-sm-12 col-md-12">
+        <div className="col-sm-12 col-md-12">
             {
               dom_attrs.getNamedItem('data-entry-point') ? <DataMartsList
                 dom_attrs={dom_attrs}
                 mart_id={mart_id}
               /> : null
             }
-          </div>
+        </div>
+        <div className="col-sm-4 col-md-3 sidebar-filter">
+          <TermsTree dom_attrs={dom_attrs} mart_id={mart_id} />
+        </div>
+        <div className="col-sm-8 col-md-9">
           <div className="row">
             <div className="col-sm-6 col-md-3 ex-view-as ex-dropdown ex-state-closed">
               <ViewComponents dom_attrs={dom_attrs} mart_id={mart_id} />
