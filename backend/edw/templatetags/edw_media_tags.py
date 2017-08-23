@@ -8,7 +8,7 @@ import os
 from django import template
 from django.core.files import File
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.cache import cache
+from django.contrib.staticfiles import finders
 from django.template import TemplateSyntaxError
 from django.conf import settings
 from django.utils import six
@@ -82,7 +82,7 @@ class GetDefaultThumbnail(Tag):
         try:
             no_photo_image = Image.objects.get(original_filename=no_photo_name)
         except ObjectDoesNotExist:
-            no_photo_file = os.path.join(settings.STATIC_ROOT, "edw/img/no_photo.png")
+            no_photo_file = finders.find('edw/img/no_photo.png')
             with open(no_photo_file, "rb") as f:
                 file_obj = File(f, name=no_photo_name)
                 (no_photo_image, is_created) = Image.objects.get_or_create(
