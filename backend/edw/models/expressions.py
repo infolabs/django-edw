@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-from django.db.models.expressions import Func
+from django.db.models.expressions import Func, Expression
 
 
 # SQLite & MYSQL function to force a date time subtraction to come out correctly.
@@ -27,14 +27,46 @@ class ToSeconds(Func):
         self.template = '%(function)s(%(expressions)s)'
         return super(ToSeconds, self).as_sql(compiler, connection)
 
+
 class Sin(Func):
     function = 'SIN'
+
 
 class Cos(Func):
     function = 'COS'
 
+
 class Acos(Func):
     function = 'ACOS'
 
+
 class Radians(Func):
     function = 'RADIANS'
+
+
+class CharLength(Func):
+    function = 'CHAR_LENGTH'
+
+
+class Position(Func):
+    function = 'POSITION'
+    arg_joiner = ' IN '
+
+
+class SubstrJoiner(str):
+    def join(self, s):
+        return str(s[0]) + " FROM " + str(s[1]) + " FOR " + str(s[2])
+
+
+class Substring(Func):
+    function = 'SUBSTRING'
+    arg_joiner = SubstrJoiner()
+
+
+class Cast(Func):
+    function = 'CAST'
+    arg_joiner = ' AS '
+
+
+class Decimal(Func):
+    function = 'Decimal'
