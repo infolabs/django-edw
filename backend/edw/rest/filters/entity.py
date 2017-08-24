@@ -306,7 +306,7 @@ class EntityOrderingFilter(OrderingFilter):
         data_mart = request.GET['_data_mart']
         if data_mart is not None:
             self._extra_ordering = data_mart.entities_model.ORDERING_MODES
-            setattr(view, 'ordering', data_mart.ordering)
+            setattr(view, 'ordering', data_mart.ordering.split(','))
         result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
         request.GET['_ordering'] = result
         return result
@@ -316,8 +316,12 @@ class EntityOrderingFilter(OrderingFilter):
         extra_ordering = getattr(self, '_extra_ordering', None)
         if extra_ordering is not None:
             fields = dict(result)
-            fields.update(dict([(item[0].lstrip('-'), item[1]) for item in extra_ordering]))
+            valid_fields = []
+            for item in extra_ordering:
+                valid_fields.extend([(x.lstrip('-'), item[1]) for x in item[0].split(',')])
+            fields.update(dict(valid_fields))
             result = fields.items()
         return result
 
-
+    def filter_queryset(self, request, queryset, view):
+        return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
