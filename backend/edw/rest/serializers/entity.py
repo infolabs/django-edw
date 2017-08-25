@@ -285,7 +285,8 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         return self.context['subj_ids']
 
     def get_ordering(self, instance):
-        return ",".join(self.context['ordering'])
+        ordering = self.context['ordering']
+        return ",".join(ordering) if ordering else None
 
     def get_view_component(self, instance):
         return self.context['view_component']
