@@ -79,9 +79,10 @@ class GetDefaultThumbnail(Tag):
                 raise TemplateSyntaxError(
                     "%r is not a valid size." % size)
         no_photo_name = "no_photo.png"
-        try:
-            no_photo_image = Image.objects.get(original_filename=no_photo_name)
-        except ObjectDoesNotExist:
+        no_photo_images = Image.objects.filter(original_filename=no_photo_name)
+        if len(no_photo_images)!=0:
+            no_photo_image = no_photo_images[0]
+        else:
             no_photo_file = finders.find('edw/img/no_photo.png')
             with open(no_photo_file, "rb") as f:
                 file_obj = File(f, name=no_photo_name)

@@ -452,7 +452,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         """
         return self.get_entities_model(self.active_terms_ids)
 
-    def get_summary_extra(self):
+    def get_summary_extra(self, context):
         """
         Return extra data for summary serializer
         """
