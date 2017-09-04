@@ -191,9 +191,7 @@ class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, 
         super(DataMartSummarySerializerBase, self).__init__(*args, **kwargs)
 
     def get_extra(self, instance):
-        return instance.get_summary_extra()
-
-
+        return instance.get_summary_extra(self.context)
 
 
 class DataMartSummarySerializer(DataMartSummarySerializerBase):

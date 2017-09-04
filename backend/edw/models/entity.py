@@ -896,6 +896,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             result = None
         return result
 
+    def get_cached_data_mart(self):
+        return None
+
+
+
+
     @staticmethod
     def get_terms_cache_buffer():
         return RingBuffer.factory(BaseEntity.TERMS_BUFFER_CACHE_KEY,
@@ -908,7 +914,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         buf.clear()
         cache.delete_many(keys)
 
-    def get_summary_extra(self):
+    def get_summary_extra(self, context):
         """
         Return extra data for summary serializer
         """

@@ -85,6 +85,9 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
             'entity': entity,
             'ABSOLUTE_BASE_URI': absolute_base_uri
         }
+        data_mart = self.context.get('data_mart', None)
+        if data_mart is not None:
+            context['data_mart'] = data_mart
         content = strip_spaces_between_tags(template.render(context, request).strip())
         cache.set(cache_key, content, cache_duration)
         return mark_safe(content)
@@ -130,7 +133,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
     def get_extra(self, instance):
-        extra = instance.get_summary_extra()
+        extra = instance.get_summary_extra(self.context)
 
         annotation_meta = self.context.get('annotation_meta', None)
         if annotation_meta:
