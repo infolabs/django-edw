@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Cookies } from 'react-cookie';
 
 export default class Dropdown extends Component {
 
@@ -13,8 +14,22 @@ export default class Dropdown extends Component {
     return options;
   }
 
+  selectItem(value) {
+    const { actions, mart_id, subj_ids, name, request_var, request_options } = this.props;
+    let option = {};
+    option[request_var] = value;
+    let options = Object.assign(request_options, option);
+    actions.selectDropdown(name, value);
+    actions.notifyLoadingEntities();
+    actions.getEntities(mart_id, subj_ids, this.fixOffset(options));
+  }
+
   componentDidMount() {
     document.body.addEventListener('click', this.handleBodyClick);
+  }
+
+  componentWillMount() {
+    this.cookies = new Cookies();
   }
 
   componentWillUnmount() {
@@ -34,13 +49,10 @@ export default class Dropdown extends Component {
   handleOptionClick(e, value) {
     e.preventDefault();
     e.stopPropagation();
-    const { actions, mart_id, subj_ids, name, request_var, request_options } = this.props;
-    let option = {};
-    option[request_var] = value;
-    let options = Object.assign(request_options, option);
-    this.props.actions.selectDropdown(name, value);
-    this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(mart_id, subj_ids, this.fixOffset(options));
+    const { mart_id, request_var  } = this.props;
+    this.selectItem(value);
+    const cookie_key = "datamart_prefs_" + mart_id + "_" + request_var;
+    this.cookies.set(cookie_key, encodeURI(value), { path: '/' });
   }
 
   handleSelectedClick(e) {

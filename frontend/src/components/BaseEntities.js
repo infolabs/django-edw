@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import Actions from '../actions/index'
+import { Cookies } from 'react-cookie';
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
@@ -22,6 +23,23 @@ class BaseEntities extends Component {
 
   componentWillMount() {
     this.templates = this.props.getTemplates();
+    this.cookies = new Cookies();
+  }
+
+  getCookiePreferences() {
+    const dom_attrs = this.props.dom_attrs,
+          mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
+    const cookie_data = this.cookies.getAll();
+    const prefix = "datamart_prefs_" + mart_id + "_";
+    let preferences = {};
+
+    for (const k of Object.keys(cookie_data)) {
+      if (k.startsWith(prefix)) {
+        const meta_key = k.slice(prefix.length);
+        preferences[meta_key] = decodeURI(cookie_data[k]);
+      }
+    }
+    return preferences;
   }
 
   componentDidMount() {
@@ -29,6 +47,8 @@ class BaseEntities extends Component {
           mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
           subj_attr = dom_attrs.getNamedItem('data-subj'),
           terms_attr = dom_attrs.getNamedItem('data-terms');
+
+    let request_options = this.props.entities.items.meta.request_options;
 
     let subj_ids = [];
     if (subj_attr && subj_attr.value)
@@ -38,9 +58,13 @@ class BaseEntities extends Component {
     if (terms_attr && terms_attr.value)
       term_ids = terms_attr.value.split(",");
 
+    request_options['terms'] = term_ids;
+    const preferences = this.getCookiePreferences();
+    request_options = Object.assign(request_options, preferences);
+
     this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(
-      mart_attr.value, subj_ids, {'terms': term_ids}
+      mart_attr.value, subj_ids, request_options
     );
   }
 
