@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import Actions from '../actions/index'
-import { Cookies } from 'react-cookie';
+import cookie from 'react-cookies'
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
@@ -23,13 +23,12 @@ class BaseEntities extends Component {
 
   componentWillMount() {
     this.templates = this.props.getTemplates();
-    this.cookies = new Cookies();
   }
 
   getCookiePreferences() {
     const dom_attrs = this.props.dom_attrs,
           mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
-    const cookie_data = this.cookies.getAll();
+    const cookie_data = cookie.loadAll();
     const prefix = "datamart_prefs_" + mart_id + "_";
     let preferences = {};
 

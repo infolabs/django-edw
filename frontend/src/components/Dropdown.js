@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Cookies } from 'react-cookie';
+import cookie from 'react-cookies'
 
 export default class Dropdown extends Component {
 
@@ -28,10 +28,6 @@ export default class Dropdown extends Component {
     document.body.addEventListener('click', this.handleBodyClick);
   }
 
-  componentWillMount() {
-    this.cookies = new Cookies();
-  }
-
   componentWillUnmount() {
     document.body.removeEventListener('click', this.handleBodyClick);
   }
@@ -52,7 +48,9 @@ export default class Dropdown extends Component {
     const { mart_id, request_var  } = this.props;
     this.selectItem(value);
     const cookie_key = "datamart_prefs_" + mart_id + "_" + request_var;
-    this.cookies.set(cookie_key, encodeURI(value), { path: '/' });
+    let expires = new Date();   
+    expires.setTime(expires.getTime() + (10 * 60 * 1000));
+    cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });
   }
 
   handleSelectedClick(e) {
