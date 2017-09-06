@@ -897,8 +897,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return result
 
     def get_cached_data_mart(self):
-        return None
 
+        # todo: fix???
+
+        return None
 
 
 
