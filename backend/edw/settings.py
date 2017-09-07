@@ -29,6 +29,7 @@ CACHE_DURATIONS = {
 
     'entity_html_snippet': 86400,
     'entity_terms_ids': 3600,
+    'entity_data_mart': 3600,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 
@@ -41,6 +42,7 @@ CACHE_BUFFERS_SIZES = {
     'data_mart_children': 500,
 
     'entity_terms_ids': 500,
+    'entity_data_mart': 500,
 }
 CACHE_BUFFERS_SIZES.update(getattr(settings, 'EDW_CACHE_BUFFERS_SIZES', {}))
 

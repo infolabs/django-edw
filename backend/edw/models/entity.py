@@ -37,7 +37,7 @@ from .related import (
 )
 from .rest import RESTModelBase
 from ..utils.set_helpers import uniq
-from ..utils.circular_buffer_in_cache import RingBuffer
+from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
 from .. import settings as edw_settings
@@ -594,6 +594,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}'
     TERMS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_terms_ids']
 
+    DATA_MART_BUFFER_CACHE_KEY = 'e_dm_bf'
+    DATA_MART_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_data_mart']
+    DATA_MART_CACHE_KEY_PATTERN = 'e_dm:{id}'
+    DATA_MART_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_data_mart']
+
     # ORDER_BY_CREATED_AT_ASC = 'created_at'
     ORDER_BY_CREATED_AT_DESC = DataMartModel.ENTITIES_ORDER_BY_CREATED_AT_DESC
 
@@ -872,8 +877,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def active_terms_ids(self):
         return list(self.terms.active().values_list('id', flat=True))
 
-    @cached_property
-    def data_mart(self):
+    def get_data_mart(self):
         """
         Return entity data mart
         """
@@ -896,13 +900,46 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             result = None
         return result
 
+    @staticmethod
+    def get_data_mart_cache_buffer():
+        return RingBuffer.factory(BaseEntity.DATA_MART_BUFFER_CACHE_KEY,
+                                  max_size=BaseEntity.DATA_MART_BUFFER_CACHE_SIZE)
+
+    @staticmethod
+    def clear_data_mart_cache_buffer():
+        buf = BaseEntity.get_data_mart_cache_buffer()
+        keys = buf.get_all()
+        buf.clear()
+        cache.delete_many(keys)
+
+    def get_data_mart_cache_key(self):
+        return self.DATA_MART_CACHE_KEY_PATTERN.format(
+            id=self.id
+        )
+
     def get_cached_data_mart(self):
+        key = self.get_data_mart_cache_key()
+        data_mart = cache.get(key, empty)
 
-        # todo: fix???
+        print ("TRY", key, self, data_mart)
 
-        return None
+        if data_mart == empty:
+            data_mart = self.get_data_mart()
 
 
+            print ("CALCULATE", key, self, data_mart)
+
+
+            cache.set(key, data_mart, self.DATA_MART_CACHE_TIMEOUT)
+            buf = self.get_data_mart_cache_buffer()
+            old_key = buf.record(key)
+            if old_key != buf.empty:
+                cache.delete(old_key)
+        return data_mart
+
+    @cached_property
+    def data_mart(self):
+        return self.get_cached_data_mart()
 
     @staticmethod
     def get_terms_cache_buffer():
