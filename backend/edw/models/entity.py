@@ -920,16 +920,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def get_cached_data_mart(self):
         key = self.get_data_mart_cache_key()
         data_mart = cache.get(key, empty)
-
-        print ("TRY", key, self, data_mart)
-
         if data_mart == empty:
             data_mart = self.get_data_mart()
-
-
-            print ("CALCULATE", key, self, data_mart)
-
-
             cache.set(key, data_mart, self.DATA_MART_CACHE_TIMEOUT)
             buf = self.get_data_mart_cache_buffer()
             old_key = buf.record(key)

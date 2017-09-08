@@ -81,10 +81,11 @@ def invalidate_entity_after_save(sender, instance, **kwargs):
 
     # Clear HTML snippets
     keys = get_HTML_snippets_keys(instance)
-    cache.delete_many(keys)
 
-    # todo: Clear Data Mart Cache!!!
-    # and data_mart
+    # Clear Data Mart cache
+    keys.append(instance.get_data_mart_cache_key())
+
+    cache.delete_many(keys)
 
 
 def invalidate_entity_before_delete(sender, instance, **kwargs):
