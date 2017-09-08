@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
 from filer.fields import image
+from filer.fields.file import FilerFileField
 
 from ..models import deferred
 
@@ -181,3 +182,29 @@ class BaseDataMartImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)
 
 
 DataMartImageModel = deferred.MaterializedModel(BaseDataMartImage)
+
+
+#==============================================================================
+# BaseEntityFile
+#==============================================================================
+@python_2_unicode_compatible
+class BaseEntityFile(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+    """
+    ManyToMany relation from the polymorphic Entity to a set of files.
+    """
+    file = FilerFileField(verbose_name=_('File'))
+    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
+    order = models.SmallIntegerField(default=0, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+        verbose_name = _("Entity File")
+        verbose_name_plural = _("Entity Files")
+        ordering = ('order',)
+
+    def __str__(self):
+        return "{}".format(self.file)
+
+
+EntityFileModel = deferred.MaterializedModel(BaseEntityFile)
+

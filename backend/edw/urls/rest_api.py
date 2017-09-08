@@ -60,6 +60,18 @@ try:
 except ImproperlyConfigured:
     pass
 
+try:
+    from edw.models.related import EntityFileModel
+    EntityFileModel() # Test pass if model materialized
+
+    from edw.views.related.entity_file import EntityFileViewSet
+
+    router.register(r'entities-files', EntityFileViewSet)
+    entity_nested_router.register(r'files', EntityFileViewSet, base_name='entity-file')
+except ImproperlyConfigured:
+    pass
+
+
 
 #==============================================================================
 # urls

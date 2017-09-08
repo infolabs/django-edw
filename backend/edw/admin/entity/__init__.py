@@ -17,6 +17,7 @@ from edw.models.related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
     EntityRelatedDataMartModel,
+    EntityFileModel,
     EntityImageModel
 )
 
@@ -124,6 +125,14 @@ class EntityRelationInline(admin.TabularInline):
 #===========================================================================================
 class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = EntityImageModel
+    extra = 1
+    ordering = ('order',)
+
+#===========================================================================================
+# EntityFileInline
+#===========================================================================================
+class EntityFileInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = EntityFileModel
     extra = 1
     ordering = ('order',)
 
