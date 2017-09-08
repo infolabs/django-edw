@@ -22,6 +22,7 @@ from edw.signals.mptt import (
 
 from edw.models.data_mart import DataMartModel
 from edw.models.term import TermModel
+from edw.models.entity import EntityModel
 
 from edw.rest.serializers.data_mart import DataMartCommonSerializer
 
@@ -136,6 +137,9 @@ def invalidate_data_mart_after_save(sender, instance, **kwargs):
         # Clear HTML snippets
         keys = get_HTML_snippets_keys(instance)
         cache.delete_many(keys)
+
+        # Clear Entity Data Mart
+        EntityModel.clear_data_mart_cache_buffer()
 
         if not getattr(instance, '_parent_id_validate', False):
             keys = get_children_keys(sender, instance.parent_id)
