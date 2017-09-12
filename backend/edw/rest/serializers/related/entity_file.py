@@ -12,11 +12,10 @@ from edw.rest.serializers.filer_fields import FilerFileField
 
 class EntityFileSerializer(serializers.ModelSerializer):
     """
-    Common serializer for the EntityImage model.
+    Common serializer for the EntityFile model.
     """
     file = FilerFileField(max_length=None, use_url=True, upload_folder_name=_('Entities files'))
     file_serial = serializers.SerializerMethodField()
-
     original_filename = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
 
