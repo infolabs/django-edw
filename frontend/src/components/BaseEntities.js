@@ -62,6 +62,7 @@ class BaseEntities extends Component {
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
+
     this.props.actions.getEntities(
       mart_attr.value, subj_ids, request_options
     );
