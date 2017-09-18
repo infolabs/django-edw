@@ -446,6 +446,11 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             return base_entity_model
 
     @cached_property
+    def is_subjective(self):
+        # todo: fix it!!!
+        return False
+
+    @cached_property
     def entities_model(self):
         """
         Return Data Mart entities collection Model
