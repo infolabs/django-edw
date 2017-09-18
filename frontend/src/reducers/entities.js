@@ -3,7 +3,7 @@ import * as consts from 'constants/TermsTree';
 
 /* Entities */
 
-class EtitiesManager {
+class EntitiesManager {
   constructor(json = {}, request_options = {}) {
     this.objects = this.json2objects(json);
     this.meta = this.json2meta(json, request_options);
@@ -145,13 +145,13 @@ class Descriptions {
   }
 }
 
-function items(state = new EtitiesManager(), action) {
+function items(state = new EntitiesManager(), action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
       state.loading = true;
-      return Object.assign(new EtitiesManager(), state);
+      return Object.assign(new EntitiesManager(), state);
     case consts.LOAD_ENTITIES:
-      return new EtitiesManager(action.json, action.request_options);
+      return new EntitiesManager(action.json, action.request_options);
     default:
       return state;
   }

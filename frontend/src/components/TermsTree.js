@@ -58,6 +58,7 @@ class TermsTree extends Component {
         request_options['terms'] = tagged_next.items;
         request_options['offset'] = 0;
         this.props.actions.notifyLoadingEntities();
+
         this.props.actions.getEntities(mart_id, subj_ids, request_options);
       }
     }

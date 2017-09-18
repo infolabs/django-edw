@@ -77,9 +77,9 @@ class Item {
   }
 
   isLimbDescendant() {
-    let ret = this.structure == consts.STRUCTURE_LIMB
+    let ret = this.structure === consts.STRUCTURE_LIMB
     if (!ret && this.parent) {
-      ret = this.parent.structure == consts.STRUCTURE_LIMB
+      ret = this.parent.structure === consts.STRUCTURE_LIMB
       if (!ret)
         ret = this.parent.isLimbDescendant();
     }
@@ -92,14 +92,14 @@ class Item {
 
   isLimbOrAnd(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
-      this.structure == consts.STRUCTURE_LIMB)
+      this.parent.semantic_rule === consts.SEMANTIC_RULE_AND) ||
+      this.structure === consts.STRUCTURE_LIMB)
   }
 
   isLimbOrAndLeaf(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
-      this.structure == consts.STRUCTURE_LIMB)
+      this.parent.semantic_rule === consts.SEMANTIC_RULE_AND && this.is_leaf) ||
+      this.structure === consts.STRUCTURE_LIMB)
   }
 
   isVisible() {
@@ -115,6 +115,8 @@ class TaggedItems {
   constructor(json = []) {
     this.items = [];
     this.cache = {};
+    this.entities_ignore = true;
+
     this.json2tagged(json);
     this.json2cache(json);
   }
@@ -149,7 +151,7 @@ class TaggedItems {
     for (const child of json) {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
-          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
+          child.specification_mode === consts.EXPANDED_SPECIFICATION) {
         const pk = parseInt(child.id);
         this.cache[pk] = true;
       }
@@ -187,11 +189,7 @@ class TaggedItems {
     let ret = this.copy();
 
     // no need to reload entities
-    if (item.isLimbOrAnd() && !item.is_leaf)
-      ret.entities_ignore = true;
-    else
-      ret.entities_ignore = false;
-
+    ret.entities_ignore = item.isLimbOrAnd() && !item.is_leaf;
 
     if (ret[item.id]) {
       ret.untag(item);
@@ -217,7 +215,7 @@ class TaggedItems {
 
   tag(item) {
     this[item.id] = true;
-    if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_OR)
+    if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_OR)
       this.untagSiblings(item);
     let index = this.items.indexOf(item.id);
     if (index < 0 && item.id > -1) {
@@ -304,7 +302,7 @@ class Requested {
   }
 
   toggle(item) {
-    if (this[item.id] != true &&
+    if (!this[item.id] &&
         !item.children.length) {
       this[item.id] = true;
       this.array.push(item.id);
@@ -446,7 +444,7 @@ const terms = combineReducers({
     expanded: expanded,
     info_expanded: infoExpanded,
     real_potential: realPotential,
-})
+});
 
 
 export default terms;
