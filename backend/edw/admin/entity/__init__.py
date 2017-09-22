@@ -167,7 +167,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     list_display = ('get_name', 'get_type', 'active', 'created_at')
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline, EntityImageInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline, EntityImageInline, EntityFileInline]
 
     list_filter = (TermsTreeFilter, 'active')
 
@@ -225,7 +225,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
     actions = [update_terms, update_relations, update_images, update_additional_characteristics_or_marks,
                update_related_data_marts, update_states, update_active]
 
-    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
+    inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline, EntityImageInline, EntityFileInline]
 
     save_on_top = True
 

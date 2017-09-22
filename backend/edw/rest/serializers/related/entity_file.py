@@ -30,5 +30,5 @@ class EntityFileSerializer(serializers.ModelSerializer):
     def get_original_filename(self, instance):
         return instance.file.original_filename
 
-    def get_file(self, instance):
+    def get_file_serial(self, instance):
         return str(instance.file.file)
