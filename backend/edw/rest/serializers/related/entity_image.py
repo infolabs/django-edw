@@ -18,6 +18,8 @@ class EntityImageSerializer(serializers.ModelSerializer):
     file = serializers.SerializerMethodField()
     original_filename = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityImageModel
@@ -32,3 +34,9 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     def get_file(self, instance):
         return str(instance.image.file)
+
+    def get_author(self, instance):
+        return u'{}'.format(instance.image.author) if instance.image.author else ""
+
+    def get_name(self, instance):
+        return u'{}'.format(instance.image.name) if instance.image.name else ""
