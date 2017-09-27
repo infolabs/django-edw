@@ -149,7 +149,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         expression = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
         similar_entities = self.filter(terms__id__in=crossing_terms_ids).annotate(
             num=models.Count('terms__id'), terms_avg_lvl=models.Avg(expression), terms_max_lvl=models.Max(expression)
-        ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', '-created_at')
+        ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', 'created_at')
 
         try:
             result = similar_entities[0]
