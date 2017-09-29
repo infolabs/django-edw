@@ -151,6 +151,13 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
             num=models.Count('terms__id'), terms_avg_lvl=models.Avg(expression), terms_max_lvl=models.Max(expression)
         ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', 'created_at')
 
+        if similar_entities:
+            print
+            print('similar_entities ============', similar_entities, similar_entities.query.__str__())
+            for similar_entity in similar_entities:
+                print('similar_entity', similar_entity, similar_entity.num, similar_entity.terms_avg_lvl, similar_entity.terms_max_lvl)
+            print
+
         try:
             result = similar_entities[0]
         except IndexError:
