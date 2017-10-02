@@ -19,7 +19,11 @@ from edw.signals.auth import customer_registered
 class RegisterUserForm(ModelForm):
     form_name = 'register_user_form'
 
-    fio = fields.CharField(label=_("Your fullname"), help_text=_("Example: Ivanov Ivan"), max_length=255)
+    fio = fields.CharField(
+        label=_("Your fullname"),
+        help_text=_("Example: Ivanov Ivan"),
+        max_length=255
+    )
     email = fields.EmailField(label=_("Your e-mail address"),
                               help_text=_("E-mail address is used as login"))
     preset_password = fields.BooleanField(required=False, label=_("Preset password"),
