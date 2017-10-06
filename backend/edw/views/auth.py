@@ -82,7 +82,6 @@ class LogoutView(APIView):
             status=status.HTTP_200_OK
         )
 
-
 class PasswordResetView(GenericAPIView):
     """
     Calls Django Auth PasswordResetForm save method.
@@ -96,6 +95,16 @@ class PasswordResetView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         # Create a serializer with request.data
         serializer = self.get_serializer(data=request.data)
+        email = request.data.__getitem__('email')
+        User = get_user_model()
+        user = User.objects.filter(
+            email__iexact=email,
+            is_active=False
+        )
+        if user.count() > 0:
+            user = user[0]
+            user.email_user(_('Password reset'), _('For reset password you need first activation your account'))
+
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
