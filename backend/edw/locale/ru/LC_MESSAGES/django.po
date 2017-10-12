@@ -1074,6 +1074,12 @@ msgstr "Аккаунт успешно активирован."
 msgid "The tree was sucessfully rebuilt"
 msgstr "Дерево успешно перестроено"
 
+msgid "Password reset"
+msgstr "Восстановление пароля"
+
+msgid "For reset password you need first activation your account"
+msgstr "Для восстановления пароля сначала активируете свой аккаунт."
+
 #~ msgid ""
 #~ "Name should not contain characters other than characters from Russian "
 #~ "alphabet, dots and spaces"
