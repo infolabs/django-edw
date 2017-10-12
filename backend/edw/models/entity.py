@@ -144,20 +144,15 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         """
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         terms_tree = decompress(value, fix_it=fix_it)
-        crossing_terms_ids = terms_tree.trim(self.get_related_terms_ids()).keys()
-
-        expression = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
-        similar_entities = self.filter(terms__id__in=crossing_terms_ids).annotate(
-            num=models.Count('terms__id'), terms_avg_lvl=models.Avg(expression), terms_max_lvl=models.Max(expression)
-        ).order_by('-num', '-terms_avg_lvl', '-terms_max_lvl', 'created_at')
-
-        if similar_entities:
-            print
-            print('similar_entities ============', similar_entities, similar_entities.query.__str__())
-            for similar_entity in similar_entities:
-                print('similar_entity', similar_entity, similar_entity.num, similar_entity.terms_avg_lvl, similar_entity.terms_max_lvl)
-            print
-
+        lvl_expr = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
+        similar_entities_ids = self.values_list('id', flat=True)
+        similar_entities = EntityModel.objects.filter(
+            models.Q(id__in=similar_entities_ids) & models.Q(terms__id__in=terms_tree.keys())
+        ).annotate(
+            num=models.Count('terms__id'),
+            avg_lvl=models.Avg(lvl_expr),
+            max_lvl=models.Max(lvl_expr)
+        ).order_by('-num', '-avg_lvl', '-max_lvl', 'created_at')
         try:
             result = similar_entities[0]
         except IndexError:
