@@ -157,9 +157,6 @@ EARTH_RADIUS_METERS = 6378137
 
 
 def get_closest(model, geo_field, latitude, longitude):
-    places = model.objects.all()
-    places = places.annotate(latitude=geo_to_latitude(geo_field))
-    places = places.annotate(longitude=geo_to_longitude(geo_field))
 
     from_lat = Radians(latitude)
     from_lon = Radians(longitude)
@@ -169,6 +166,8 @@ def get_closest(model, geo_field, latitude, longitude):
     expression = EARTH_RADIUS_METERS * Acos(Cos(from_lat) * Cos(to_lat) *
                     Cos(to_lon - from_lon) + Sin(from_lat) * Sin(to_lat))
 
-    places = places.annotate(distance=expression).order_by('distance')
+    places = model.objects.all()\
+        .annotate(latitude=geo_to_latitude(geo_field), longitude=geo_to_longitude(geo_field))\
+        .annotate(distance=expression).order_by('distance')
 
     return places[0] if len(places) else None
