@@ -67,3 +67,7 @@ def get_postal_zone(postcode):
     else:
         zone = None
     return zone
+
+def get_all_post_zone():
+    zones = PostZoneModel.objects.filter(active=True)
+    return zones
