@@ -18,7 +18,7 @@ from rest_framework.reverse import reverse
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
-from edw.rest.serializers.data_mart import DataMartDetailSerializer
+from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
 
 
@@ -154,27 +154,35 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         return extra
 
 
-class RelatedDataMartSerializer(DataMartDetailSerializer):
+class RelatedDataMartSerializer(DataMartCommonSerializer):
     entities_url = serializers.SerializerMethodField()
+    is_subjective = serializers.SerializerMethodField()
 
-    view_name = "edw:data-mart-entity-by-subject-list"
-
-    # class Meta(DataMartDetailSerializer.Meta):
-    #     fields = ('entities_url',) + DataMartDetailSerializer.Meta.fields
+    class Meta(DataMartCommonSerializer.Meta):
+        fields = ('id', 'parent_id', 'name', 'slug', 'data_mart_url', 'data_mart_model', 'is_leaf',
+              'active', 'view_class', 'short_description', 'is_subjective', 'entities_url')
 
     def get_entities_url(self, instance):
-
         request = self.context.get('request', None)
+
         kwargs = {
-            'data_mart_pk': instance.id,
-            'entity_pk': self.entity_pk,
+            'data_mart_pk': instance.id
         }
+        if instance.is_subjective:
+            kwargs['entity_pk'] = self.entity_pk
+            view_name = "edw:data-mart-entity-by-subject-list"
+        else:
+            view_name = "edw:data-mart-entity-list"
+
         format = self.context.get('format', None)
-        return reverse(self.view_name, request=request, kwargs=kwargs, format=format)
+        return reverse(view_name, request=request, kwargs=kwargs, format=format)
 
     @property
     def entity_pk(self):
         return self.context.get('_entity_pk')
+
+    def get_is_subjective(self, instance):
+        return instance.is_subjective
 
 
 class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSerializer):

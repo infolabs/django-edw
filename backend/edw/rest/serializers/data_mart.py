@@ -100,7 +100,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
     """
     Keep a global reference onto the class implementing `DataMartSummarySerializerBase`.
     There can be only one class instance, because the data marts summary is the lowest common
-    denominator for all entities of this edw instance. Otherwise we would be unable to mix
+    denominator for all data marts of this edw instance. Otherwise we would be unable to mix
     different polymorphic data mart types in the all list views.
     """
     def __new__(cls, clsname, bases, attrs):

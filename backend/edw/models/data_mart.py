@@ -447,8 +447,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @cached_property
     def is_subjective(self):
-        # todo: fix it!!!
-        return False
+        return self.relations.all().exists()
 
     @cached_property
     def entities_model(self):
