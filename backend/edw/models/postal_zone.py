@@ -6,8 +6,25 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 from django.utils.six import with_metaclass
+
 from . import deferred
 from .term import TermModel
+
+
+#==============================================================================
+# BasePostZoneQuerySet
+#==============================================================================
+class BasePostZoneQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(active=True)
+
+class BasePostZoneManager(models.Manager):
+
+    def get_queryset(self):
+        return BasePostZoneQuerySet(self.model, using=self._db)
+
+    def active(self):
+        return self.get_queryset().active()
 
 
 # =========================================================================================================
@@ -26,6 +43,8 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         """Example: 2204*, 38?45, 23*, 123_4??."""))
 
     active = models.BooleanField(verbose_name=_('Active'), default=True, db_index=True)
+
+    objects = BasePostZoneManager()
 
     class Meta:
         abstract = True
@@ -58,7 +77,7 @@ PostZoneModel = deferred.MaterializedModel(BasePostZone)
 
 def get_postal_zone(postcode):
     tree_opts = TermModel._mptt_meta
-    zones = PostZoneModel.objects.filter(active=True).order_by(
+    zones = PostZoneModel.objects.active().order_by(
         '-' + 'term__{}'.format(tree_opts.level_attr),
         'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
     for zone in zones:
@@ -69,5 +88,5 @@ def get_postal_zone(postcode):
     return zone
 
 def get_all_post_zone():
-    zones = PostZoneModel.objects.filter(active=True)
+    zones = PostZoneModel.objects.active()
     return zones
