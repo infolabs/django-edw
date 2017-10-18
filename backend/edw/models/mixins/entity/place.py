@@ -6,6 +6,9 @@ from edw.models.postal_zone import get_all_post_zone, get_postal_zone
 
 class PlaceMixin(object):
 
+    def PlaceMixin(self):
+        return True
+
     def need_terms_validation_after_save(self, origin, **kwargs):
         if origin is None or origin.geoposition != self.geoposition:
             do_validate = kwargs["context"]["validate_place"] = True
