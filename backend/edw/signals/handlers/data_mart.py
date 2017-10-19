@@ -186,3 +186,5 @@ for clazz in itertools.chain([Model], Model.get_all_subclasses()):
                              invalidate_data_mart_after_move,
                              clazz
                          ))
+    clazz.validate_term_model()
+

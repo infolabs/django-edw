@@ -468,6 +468,10 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         """
         return None
 
+    @classmethod
+    def validate_term_model(cls):
+        pass
+
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)
 
