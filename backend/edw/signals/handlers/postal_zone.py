@@ -36,8 +36,7 @@ def on_pre_save_postzone(sender, instance, **kwargs):
             zone_term = instance.term
             entities_ids = EntityModel.objects.instance_of(*ModelWithPlaceMinix).filter(
                 terms__id=origin_zone_term_id).values_list('id', flat=True)
-            entities = EntityModel.terms.through.objects.filter(
-                entity_id__in=entities_ids, term_id=origin_zone_term_id)
-            for entiti in entities:
-                entiti.term = zone_term
-                entiti.save()
+            terms = EntityModel.terms.through.objects.filter(entity_id__in=entities_ids, term_id=origin_zone_term_id)
+            for term in terms:
+                term.term = zone_term
+                term.save()
