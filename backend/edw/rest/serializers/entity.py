@@ -17,6 +17,7 @@ from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
+from edw.models.data_mart import DataMartModel
 from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
@@ -191,7 +192,8 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSeria
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
-    related_data_marts = RelatedDataMartSerializer(many=True, read_only=True)
+    # related_data_marts = RelatedDataMartSerializer(many=True, read_only=True)
+    related_data_marts = serializers.SerializerMethodField()
 
     _meta_cache = {}
 
@@ -228,6 +230,33 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSeria
         """
         self.context['_entity_pk'] = data.id
         return super(EntityDetailSerializerBase, self).to_representation(data)
+
+    def get_related_data_marts(self, entity):
+        ids = entity.get_related_data_marts_ids_from_attributes(entity.marks, entity.characteristics)
+        data_marts0 = entity.related_data_marts.active()
+
+        if ids:
+            data_marts0 = list(data_marts0)
+            data_marts1 = list(DataMartModel.objects.active().filter(id__in=ids))
+
+            data_marts = []
+            while data_marts0 and data_marts1:
+                if data_marts0[0] == data_marts1[0]:
+                    data_marts.append(data_marts1.pop(0))
+                    data_marts0.pop(0)
+                elif data_marts0[0] < data_marts1[0]:
+                    data_marts.append(data_marts0.pop(0))
+                else:
+                    data_marts.append(data_marts1.pop(0))
+            if data_marts0:
+                data_marts.extend(data_marts0)
+            elif data_marts1:
+                data_marts.extend(data_marts1)
+        else:
+            data_marts = data_marts0
+
+        related_data_mart_serializer = RelatedDataMartSerializer(data_marts, context=self.context, many=True)
+        return related_data_mart_serializer.data
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import types
+import re
 
 from operator import __or__ as OR
 from functools import reduce
@@ -619,6 +620,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         # (VIEW_COMPONENT_TABLE, _('Table view')),
     )
 
+    RELATED_DATA_MARTS_REGEX = re.compile(r"^rdm-(\d+)$")
+
     TERMS_M2M_VERBOSE_NAME = _("Entity term")
     TERMS_M2M_VERBOSE_NAME_PLURAL = _("Entities terms")
 
@@ -946,6 +949,19 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)
+
+    @classmethod
+    def get_related_data_marts_ids_from_attributes(cls, *attrs):
+        """
+        :return: Related data marts ids from characteristics or marks
+        """
+        result = []
+        for attr in attrs:
+            for text in reduce(lambda c, x: c + x, [x.view_class for x in attr], []):
+                m = cls.RELATED_DATA_MARTS_REGEX.search(text)
+                if m:
+                    result.append(int(m.group(1)))
+        return uniq(result)
 
     def get_summary_extra(self, context):
         """

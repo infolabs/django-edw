@@ -240,6 +240,23 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def __str__(self):
         return self.name
 
+    def __cmp__(self, other):
+        tree_opts = self._mptt_meta
+        self_tree_id, other_tree_id = getattr(self, tree_opts.tree_id_attr), getattr(other, tree_opts.tree_id_attr)
+        self_tree_left, other_tree_left = getattr(self, tree_opts.left_attr), getattr(other, tree_opts.left_attr)
+
+        if self_tree_id == other_tree_id:
+            if self_tree_left == other_tree_left:
+                return 0
+            elif self_tree_left < other_tree_left:
+                return -1
+            else:
+                return 1
+        elif self_tree_id < other_tree_id:
+            return -1
+        else:
+            return 1
+
     def data_mart_type(self):
         """
         Returns the polymorphic type of the object.
