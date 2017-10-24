@@ -129,6 +129,12 @@ def get_name(location):
     return name
 
 
+#=================================================
+# Get closest model utils
+#=================================================
+EARTH_RADIUS_METERS = 6378137
+
+
 def geo_to_latitude(geo_field):
     return Cast(
         Substring(
@@ -151,9 +157,6 @@ def geo_to_longitude(geo_field):
         Decimal(13, 10),
         output_field=models.FloatField()
     )
-
-
-EARTH_RADIUS_METERS = 6378137
 
 
 def get_closest(model, geo_field, latitude, longitude):

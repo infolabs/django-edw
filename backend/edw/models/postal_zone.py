@@ -18,6 +18,7 @@ class BasePostZoneQuerySet(models.QuerySet):
     def active(self):
         return self.filter(active=True)
 
+
 class BasePostZoneManager(models.Manager):
 
     def get_queryset(self):
@@ -75,6 +76,7 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 
 PostZoneModel = deferred.MaterializedModel(BasePostZone)
 
+
 def get_postal_zone(postcode):
     tree_opts = TermModel._mptt_meta
     zones = PostZoneModel.objects.active().order_by(
@@ -87,6 +89,6 @@ def get_postal_zone(postcode):
         zone = None
     return zone
 
-def get_all_post_zone():
-    zones = PostZoneModel.objects.active()
-    return zones
+
+def get_all_postal_zone_terms_ids():
+    return PostZoneModel.objects.all().values_list('term_id', flat=True)
