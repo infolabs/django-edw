@@ -59,15 +59,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
         request = self.context['request']
         cache_key = self.HTML_SNIPPET_CACHE_KEY_PATTERN.format(entity.id, app_label, self.label, entity.entity_model,
                                                             postfix, get_language_from_request(request))
-        cache_duration = self.context.get('entity_html_snippet_cache_duration', empty)
-        if cache_duration == empty:
-            cache_duration = edw_settings.CACHE_DURATIONS['entity_html_snippet']
-            content = cache.get(cache_key)
-        elif cache_duration is None:
-            cache_duration = edw_settings.CACHE_DURATIONS['entity_html_snippet']
-            content = None
-        else:
-            content = cache.get(cache_key)
+        content = cache.get(cache_key)
         if content:
             return mark_safe(content)
         params = [
@@ -90,7 +82,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
         if data_mart is not None:
             context['data_mart'] = data_mart
         content = strip_spaces_between_tags(template.render(context, request).strip())
-        cache.set(cache_key, content, cache_duration)
+        cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['entity_html_snippet'])
         return mark_safe(content)
 
 
