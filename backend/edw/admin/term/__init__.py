@@ -41,7 +41,9 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     list_filter = ('active', 'semantic_rule', 'specification_mode') #todo: Add ', ('attributes', BitFieldListFilter)', Django 1.7 support, fixes https://github.com/coagulant/django-bitfield/commit/fbbececd6e60c9a804846050da8bf258bd7f2937
 
-    search_fields = ['name', 'slug']
+    list_display = ['name', 'parent', 'semantic_rule', 'specification_mode', 'view_class', 'active']
+
+    search_fields = ['name', 'slug', 'parent', 'view_class']
 
     tree_auto_open = 0
 

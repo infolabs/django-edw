@@ -41,7 +41,9 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     list_filter = ('active', ) #todo: Add ', ('system_flags', BitFieldListFilter)', Django 1.7 support, fixes https://github.com/coagulant/django-bitfield/commit/fbbececd6e60c9a804846050da8bf258bd7f2937
 
-    search_fields = ['name', 'slug']
+    list_display = ['name', 'parent', 'view_class', 'active']
+
+    search_fields = ['name', 'slug', 'parent', 'view_class']
 
     salmonella_fields = ('parent', )
 
