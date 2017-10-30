@@ -9,10 +9,6 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('post_office', '0004_auto_20160607_0901'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Email',
