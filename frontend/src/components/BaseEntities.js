@@ -42,7 +42,7 @@ class BaseEntities extends Component {
   }
 
   componentDidMount() {
-    const dom_attrs = this.props.dom_attrs,
+    const { dom_attrs, limit } = this.props,
           mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
           subj_attr = dom_attrs.getNamedItem('data-subj'),
           terms_attr = dom_attrs.getNamedItem('data-terms');
@@ -62,6 +62,10 @@ class BaseEntities extends Component {
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
+
+    if (limit) {
+      request_options['limit'] = limit
+    }
 
     this.props.actions.getEntities(
       mart_attr.value, subj_ids, request_options

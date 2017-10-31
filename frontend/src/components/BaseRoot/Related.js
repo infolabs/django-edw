@@ -11,9 +11,12 @@ class Related extends Component {
   render() {
     const { entities, dom_attrs, mart_id } = this.props,
           data_mart_url_attr = dom_attrs.getNamedItem('data-data-mart-url'),
-          data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name');
+          data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name'),
+          data_data_mart_limit = dom_attrs.getNamedItem('data-data-mart-limit');
 
     const count = entities.meta.count;
+
+    let limit = data_data_mart_limit && data_data_mart_limit.value ? data_data_mart_limit.value : null;
 
     let mart_url = "",
         mart_name = "";
@@ -47,7 +50,7 @@ class Related extends Component {
           </div>
         </div>
         <div>
-          <Entities dom_attrs={dom_attrs} mart_id={mart_id} />
+          <Entities dom_attrs={dom_attrs} mart_id={mart_id} limit={limit} />
         </div>
       </div>
     );
