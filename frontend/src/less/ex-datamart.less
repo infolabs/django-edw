@@ -2,6 +2,15 @@
 Datamart styles
 */
 
+.ex-data-mart {
+  &[data-data-count~="0"] {
+    display: none;
+    .ex-data-mart-container {
+      display: none;
+    }
+  }
+}
+
 .ex-related-datamart {
   .ex-title {
     h3 {

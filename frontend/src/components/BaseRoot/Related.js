@@ -8,7 +8,9 @@ import DataMartsList from 'components/DataMartsList'
 
 
 class Related extends Component {
+
   render() {
+
     const { entities, dom_attrs, mart_id } = this.props,
           data_mart_url_attr = dom_attrs.getNamedItem('data-data-mart-url'),
           data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name'),
@@ -25,8 +27,17 @@ class Related extends Component {
     if (data_mart_name_attr)
       mart_name = data_mart_name_attr.value;
 
+    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
+
+    for(let el of el_with_count){
+      el = document.getElementsByClassName(el);
+      if (el.length) {
+        el[0].setAttribute("data-data-count", count);
+      }
+    }
+
     return (
-      <div className="ex-related-datamart" data-data-count={count}>
+      <div className="ex-related-datamart">
         <div className="row">
           <div className="col-sm-12 col-md-12">
             {
