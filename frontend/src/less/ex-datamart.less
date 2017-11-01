@@ -5,9 +5,12 @@ Datamart styles
 .ex-data-mart {
   &[data-data-count~="0"] {
     display: none;
-    .ex-data-mart-container {
-      display: none;
-    }
+  }
+}
+
+.ex-data-mart-container {
+  &[data-data-count~="0"] {
+    display: none;
   }
 }
 
