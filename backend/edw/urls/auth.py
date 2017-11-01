@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.conf.urls import url
-from django.conf.urls import patterns
 from django.utils.module_loading import import_string
 
 from edw.views.auth import AuthFormsView
@@ -24,8 +23,7 @@ else:
     RegisterUserForm = DefaultRegisterUserForm
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^password/reset/$', PasswordResetView.as_view(),
         name='password-reset'),
     url(r'^login/$', LoginView.as_view(),
@@ -34,10 +32,10 @@ urlpatterns = patterns(
         name='register-user'),
     url(r'^activate/(?P<activation_key>[-:\w]+)/$', ActivationView.as_view(),
         name='registration_activate'),
-    #url(r'^continue/$', AuthFormsView.as_view(form_class=ContinueAsGuestForm),
+    # url(r'^continue/$', AuthFormsView.as_view(form_class=ContinueAsGuestForm),
     #    name='continue-as-guest'),
     url(r'^logout/$', LogoutView.as_view(),
         name='logout'),
     url(r'^password/change/$', PasswordChangeView.as_view(),
         name='password-change'),
-)
+]
