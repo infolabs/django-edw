@@ -91,6 +91,15 @@ def split(value, separator):
     return value.split(separator)
 
 
+@register.filter
+def trim(value):
+    """Removes whitespaces around the string.
+
+    Example usage: {{ value|trim }}
+    """
+    return value.strip()
+
+
 #==============================================================================
 # Logical utils
 #==============================================================================
