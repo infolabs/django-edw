@@ -7,6 +7,7 @@ import urllib
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
+from django.utils.translation import ugettext_lazy as _
 
 import rest_framework_filters as filters
 
@@ -20,13 +21,15 @@ from edw.models.data_mart import DataMartModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 
+from .common import NumberInFilter, DateTimeFromToRangeFilter
+
 
 class BaseEntityFilter(filters.FilterSet):
     """
     BaseEntityFilter
     """
-    terms = filters.MethodFilter(widget=CSVWidget())
-    data_mart_pk = filters.MethodFilter()
+    terms = filters.MethodFilter(widget=CSVWidget(), label=_("Terms"))
+    data_mart_pk = filters.MethodFilter(label=_("Data mart"))
 
     def __init__(self, data, **kwargs):
         try:
@@ -98,9 +101,13 @@ class EntityFilter(BaseEntityFilter):
     """
     EntityFilter
     """
-    active = filters.MethodFilter()
-    subj = filters.MethodFilter(widget=CSVWidget())
-    rel = filters.MethodFilter(widget=CSVWidget())
+    id__in = NumberInFilter(name='id', label=_("IDs"))
+
+    # created_at__range = DateTimeFromToRangeFilter(name='created_at', label=_("CA Range"))
+
+    active = filters.MethodFilter(label=_("Active"))
+    subj = filters.MethodFilter(widget=CSVWidget(), label=_("Subjects"))
+    rel = filters.MethodFilter(widget=CSVWidget(), label=_("Relations"))
 
     class Meta:
         model = BaseEntity
