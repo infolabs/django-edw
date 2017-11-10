@@ -10,6 +10,7 @@ from functools import reduce
 from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
+from django.db.models.sql.datastructures import EmptyResultSet
 
 from django.utils import six
 from django.utils.functional import cached_property
@@ -112,20 +113,23 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
         outer_qs = model.objects.distinct().values_list('term_id', flat=True)
         outer_alias = outer_qs.query.get_initial_alias()
         inner_qs = self.order_by().values_list('pk', flat=True)
-        raw_subquery, subquery_params = inner_qs.query.get_compiler(self.db).as_sql()
-        result = outer_qs.extra(
-            tables=['({select}) AS {alias}'.format(
-                select=raw_subquery,
-                alias=inner_alias
-            )],
-            where=['{outer_alias}.{entity}_id = {inner_alias}.id'.format(
-                entity=self.model._meta.object_name.lower(),
-                outer_alias=outer_alias,
-                inner_alias=inner_alias
-            )],
-            params=subquery_params
-        )
-
+        try:
+            raw_subquery, subquery_params = inner_qs.query.get_compiler(self.db).as_sql()
+        except EmptyResultSet:
+            result = []
+        else:
+            result = outer_qs.extra(
+                tables=['({select}) AS {alias}'.format(
+                    select=raw_subquery,
+                    alias=inner_alias
+                )],
+                where=['{outer_alias}.{entity}_id = {inner_alias}.id'.format(
+                    entity=self.model._meta.object_name.lower(),
+                    outer_alias=outer_alias,
+                    inner_alias=inner_alias
+                )],
+                params=subquery_params
+            )
         return result
 
     def _get_terms_ids_cache_key(self, tree):

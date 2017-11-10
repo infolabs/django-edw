@@ -104,7 +104,10 @@ class EntityFilter(BaseEntityFilter):
 
     class Meta:
         model = BaseEntity
-        fields = []
+        fields = {
+            'created_at': ['exact', 'lt', 'lte', 'gt', 'gte'],
+            'updated_at': ['exact', 'lt', 'lte', 'gt', 'gte'],
+        }
 
     def patch_data(self, data, **kwargs):
         data.update({
@@ -323,5 +326,5 @@ class EntityOrderingFilter(OrderingFilter):
             result = fields.items()
         return result
 
-    def filter_queryset(self, request, queryset, view):
-        return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
+    # def filter_queryset(self, request, queryset, view):
+    #     return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
