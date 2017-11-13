@@ -11,5 +11,5 @@ class NumberInFilter(BaseInFilter, NumberFilter):
     pass
 
 
-class DateTimeFromToRangeFilter(BaseRangeFilter, DateTimeFilter):
-    pass
+# class DateTimeFromToRangeFilter(BaseRangeFilter, DateTimeFilter):
+#     pass
