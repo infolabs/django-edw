@@ -21,7 +21,24 @@ from edw.models.data_mart import DataMartModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 
-from .common import NumberInFilter, DateTimeFromToRangeFilter
+from .common import NumberInFilter
+
+
+_COMPARISONS_LABELS = {
+    'exact': _('equal'),
+    'lt': _('less than'),
+    'lte': _('less than or equal'),
+    'gt': _('greater than'),
+    'gte': _('greater than or equal')
+}
+
+_FIELDS_LABELS = {
+    'created_at': _("Created at"),
+    'updated_at': _("Updated at"),
+}
+
+def _format_label(*args):
+    return '{} ({})'.format(*args)
 
 
 class BaseEntityFilter(filters.FilterSet):
@@ -102,19 +119,41 @@ class EntityFilter(BaseEntityFilter):
     EntityFilter
     """
     id__in = NumberInFilter(name='id', label=_("IDs"))
-
-    # created_at__range = DateTimeFromToRangeFilter(name='created_at', label=_("CA Range"))
-
     active = filters.MethodFilter(label=_("Active"))
     subj = filters.MethodFilter(widget=CSVWidget(), label=_("Subjects"))
     rel = filters.MethodFilter(widget=CSVWidget(), label=_("Relations"))
+    created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
+    created_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['lt']))
+    created_at__lte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lte', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['lte']))
+    created_at__gt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gt', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['gt']))
+    created_at__gte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gte', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['gte']))
+    updated_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['exact']))
+    updated_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['lt']))
+    updated_at__lte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lte', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['lte']))
+    updated_at__gt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gt', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['gt']))
+    updated_at__gte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gte', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['gte']))
 
     class Meta:
         model = BaseEntity
-        fields = {
-            'created_at': ['exact', 'lt', 'lte', 'gt', 'gte'],
-            'updated_at': ['exact', 'lt', 'lte', 'gt', 'gte'],
-        }
+        fields = {}
+
+    # def __new__(cls, *args, **kwargs):
+    #
+    #     it = super(EntityFilter, cls).__new__(cls, *args, **kwargs)
+    #
+    #     it.base_filters['created_at__range'] = DateTimeFromToRangeFilter(name='created_at', label=_("CA Range"))
+    #
+    #     return it
 
     def patch_data(self, data, **kwargs):
         data.update({
