@@ -16,7 +16,12 @@ from edw.rest.serializers.entity import (
 )
 
 from edw.models.entity import EntityModel
-from edw.rest.filters.entity import EntityFilter, EntityMetaFilter, EntityOrderingFilter
+from edw.rest.filters.entity import (
+    EntityFilter,
+    EntityMetaFilter,
+    EntityDynamicFilter,
+    EntityOrderingFilter
+)
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import EntityPagination
@@ -46,8 +51,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityOrderingFilter)
-    # ordering_fields = ('created_at',)
+    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityDynamicFilter, EntityOrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = EntityPagination
@@ -58,8 +62,12 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 
-    def initial(self, request, *args, **kwargs):
+    def initial(self, request, data_mart_pk=None, *args, **kwargs):
         super(EntityViewSet, self).initial(request, *args, **kwargs)
+        if self.data_mart_pk is not None:
+            request.GET['data_mart_pk'] = str(self.data_mart_pk)
+        elif data_mart_pk is not None:
+            request.GET.setdefault('data_mart_pk', data_mart_pk)
         if hasattr(self.extra_serializer_context, '__call__'):
             self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)
 
@@ -91,12 +99,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             kwargs[self.settings.FORMAT_SUFFIX_KWARG] = self.format
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
-    def list(self, request, data_mart_pk=None, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         request.GET.setdefault('active', True)
-        if self.data_mart_pk is not None:
-            request.GET['data_mart_pk'] = str(self.data_mart_pk)
-        elif data_mart_pk is not None:
-            request.GET.setdefault('data_mart_pk', data_mart_pk)
         if self.terms is not None:
             request.GET['terms'] = ','.join([str(x) for x in self.terms]) if isinstance(
                 self.terms, (list, tuple)) else str(self.terms)
