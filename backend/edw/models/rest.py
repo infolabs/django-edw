@@ -5,10 +5,13 @@ from __future__ import unicode_literals
 import types
 
 from django.db.models.base import ModelBase
+from django.db.models.constants import LOOKUP_SEP
 from django.utils.module_loading import import_string
 
 from rest_framework import serializers
 from rest_framework import exceptions
+
+import rest_framework_filters as filters
 
 
 class RESTOptions(object):
@@ -18,11 +21,27 @@ class RESTOptions(object):
         class MyModel(Model):
             class RESTMeta:
                 exclude = ['name']
+                filters = {
+                    'published_at': filters.IsoDateTimeFilter(
+                        name='published_at', lookup_expr='exact'),
+                    'close_at': ('filters.IsoDateTimeFilter', {
+                        'name': 'close_at',
+                        'lookup_expr': 'exact',
+                        # 'action': lambda qs, value: qs
+                        }),
+                        'is_id__in__18_19': ('rest_framework_filters.MethodFilter', {
+                        })
+                }
+
+                def filter_is_id__in__18_19(self, name, qs, value):
+                    return qs.filter(id__in=[18, 19])
+
     """
 
     exclude = []
     include = {}
     permission_classes = []
+    filters = {}
 
     def __init__(self, opts=None, **kwargs):
         # Override defaults with options provided
@@ -172,3 +191,36 @@ class CheckPermissionsSerializerMixin(object):
                     self._permissions_cache[data.__class__] = permission_classes
 
         return super(CheckPermissionsSerializerMixin, self).to_representation(data)
+
+
+class DynamicFilterSetMixin(object):
+
+    def __new__(cls, data=None, queryset=None, **kwargs):
+        it = super(DynamicFilterSetMixin, cls).__new__(cls, data=data, queryset=queryset, **kwargs)
+        it._extra_method_filters = {}
+        if data:
+            data_mart = data['_data_mart']
+            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            rest_meta = getattr(entity_model, '_rest_meta', None)
+            if rest_meta:
+                for filter_name, filter_ in rest_meta.filters.items():
+                    if isinstance(filter_, (tuple, list)):
+                        filter_ = import_string(filter_[0])(**filter_[1])
+
+                    if isinstance(filter_, filters.MethodFilter):
+                        method_name = 'filter_{0}'.format(filter_name)
+                        filter_.action = method_name
+                        it._extra_method_filters[method_name] = getattr(rest_meta, method_name)
+                    else:
+                        assert filter_.name, 'Expected `name` argument in `{0}` filter constructor of {1} class'.format(
+                            filter_name, filter_.__class__.__name__)
+
+                    it.base_filters[filter_name] = filter_
+        return it
+
+    def __init__(self, *arg, **kwargs):
+        for method_name, method in self._extra_method_filters.items():
+            setattr(self, method_name, types.MethodType(method, self, self.__class__))
+        super(DynamicFilterSetMixin, self).__init__(*arg, **kwargs)
+
+

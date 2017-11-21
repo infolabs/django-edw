@@ -18,27 +18,11 @@ from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from edw.models.entity import BaseEntity
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.rest import DynamicFilterSetMixin
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 
 from .common import NumberInFilter
-
-
-_COMPARISONS_LABELS = {
-    'exact': _('equal'),
-    'lt': _('less than'),
-    'lte': _('less than or equal'),
-    'gt': _('greater than'),
-    'gte': _('greater than or equal')
-}
-
-_FIELDS_LABELS = {
-    'created_at': _("Created at"),
-    'updated_at': _("Updated at"),
-}
-
-def _format_label(*args):
-    return '{} ({})'.format(*args)
 
 
 class BaseEntityFilter(filters.FilterSet):
@@ -114,6 +98,24 @@ class BaseEntityFilter(filters.FilterSet):
         return serializers.BooleanField().to_internal_value(value)
 
 
+_COMPARISONS_LABELS = {
+    'exact': _('equal'),
+    'lt': _('less than'),
+    'lte': _('less than or equal'),
+    'gt': _('greater than'),
+    'gte': _('greater than or equal'),
+    'date_range': _('date range')
+}
+
+_FIELDS_LABELS = {
+    'created_at': _("Created at"),
+    'updated_at': _("Updated at"),
+}
+
+def _format_label(*args):
+    return '{} ({})'.format(*args)
+
+
 class EntityFilter(BaseEntityFilter):
     """
     EntityFilter
@@ -124,6 +126,8 @@ class EntityFilter(BaseEntityFilter):
     rel = filters.MethodFilter(widget=CSVWidget(), label=_("Relations"))
     created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
+    created_at__date_range = filters.DateRangeFilter(name='created_at', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['date_range']))
     created_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['lt']))
     created_at__lte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lte', label=_format_label(
@@ -132,28 +136,22 @@ class EntityFilter(BaseEntityFilter):
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['gt']))
     created_at__gte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gte', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['gte']))
-    updated_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
+    updated_at = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['exact']))
-    updated_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(
+    updated_at__date_range = filters.DateRangeFilter(name='updated_at', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['date_range']))
+    updated_at__lt = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='lt', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['lt']))
-    updated_at__lte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lte', label=_format_label(
+    updated_at__lte = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='lte', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['lte']))
-    updated_at__gt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gt', label=_format_label(
+    updated_at__gt = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='gt', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['gt']))
-    updated_at__gte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='gte', label=_format_label(
+    updated_at__gte = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='gte', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['gte']))
 
     class Meta:
         model = BaseEntity
         fields = {}
-
-    # def __new__(cls, *args, **kwargs):
-    #
-    #     it = super(EntityFilter, cls).__new__(cls, *args, **kwargs)
-    #
-    #     it.base_filters['created_at__range'] = DateTimeFromToRangeFilter(name='created_at', label=_("CA Range"))
-    #
-    #     return it
 
     def patch_data(self, data, **kwargs):
         data.update({
@@ -192,21 +190,16 @@ class EntityFilter(BaseEntityFilter):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
-
         self.data['_data_mart'] = self.data_mart
-
         if 'rel' not in self.data:
             rel_ids = self.data_mart_rel_ids
             if rel_ids:
                 queryset = self.filter_rel(name, queryset, rel_ids)
-
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
-
         if 'terms' in self.data:
             return queryset
-
         queryset = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
         self.data['_terms_filter_meta'] = queryset.semantic_filter_meta
         return queryset
@@ -215,9 +208,7 @@ class EntityFilter(BaseEntityFilter):
         self._term_ids = value
         if not self.term_ids:
             return queryset
-
         self.data['_terms_ids'] = self.term_ids
-
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
         queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
@@ -236,9 +227,7 @@ class EntityFilter(BaseEntityFilter):
         self._subj_ids = value
         if not self.subj_ids:
             return queryset
-
         self.data['_subj_ids'] = self.subj_ids
-
         if self.rel_ids is None:
             self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
             return queryset.subj(self.subj_ids)
@@ -347,6 +336,30 @@ class EntityMetaFilter(BaseFilterBackend):
         request.GET['_view_component'] = view_component
 
         return queryset
+
+
+class EntityDynamicFilterSet(DynamicFilterSetMixin, filters.FilterSet):
+
+    class Meta:
+        model = BaseEntity
+        fields = {}
+
+    # @property
+    # def qs(self):
+    #     parent = super(EntityDynamicFilterSet, self).qs
+    #     return parent
+
+
+class EntityDynamicFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+
+        # todo: get filter_queryset from RESTMeta
+
+        # if view.action == 'list':
+        queryset = EntityDynamicFilterSet(request.GET, queryset).qs
+        return queryset
+
 
 
 class EntityOrderingFilter(OrderingFilter):
