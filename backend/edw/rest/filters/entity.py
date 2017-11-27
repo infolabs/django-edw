@@ -18,7 +18,7 @@ from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from edw.models.entity import BaseEntity
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFilterSetMixin
+from edw.models.rest import DynamicFilterSetMixin, DynamicFilterMixin
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 
@@ -344,22 +344,10 @@ class EntityDynamicFilterSet(DynamicFilterSetMixin, filters.FilterSet):
         model = BaseEntity
         fields = {}
 
-    # @property
-    # def qs(self):
-    #     parent = super(EntityDynamicFilterSet, self).qs
-    #     return parent
 
+class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
-class EntityDynamicFilter(BaseFilterBackend):
-
-    def filter_queryset(self, request, queryset, view):
-
-        # todo: get filter_queryset from RESTMeta
-
-        # if view.action == 'list':
-        queryset = EntityDynamicFilterSet(request.GET, queryset).qs
-        return queryset
-
+    dynamic_filter_set_class = EntityDynamicFilterSet
 
 
 class EntityOrderingFilter(OrderingFilter):

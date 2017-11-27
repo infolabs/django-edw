@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import types
 
 from django.db.models.base import ModelBase
-from django.db.models.constants import LOOKUP_SEP
 from django.utils.module_loading import import_string
 
 from rest_framework import serializers
@@ -35,6 +34,11 @@ class RESTOptions(object):
 
                 def filter_is_id__in__18_19(self, name, qs, value):
                     return qs.filter(id__in=[18, 19])
+
+                def filter_queryset(self, request, queryset, view):
+                    # if view.action == 'list':
+                    #    pass
+                    return queryset
 
     """
 
@@ -201,7 +205,7 @@ class DynamicFilterSetMixin(object):
         if data:
             data_mart = data['_data_mart']
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-            rest_meta = getattr(entity_model, '_rest_meta', None)
+            it._rest_meta = rest_meta = getattr(entity_model, '_rest_meta', None)
             if rest_meta:
                 for filter_name, filter_ in rest_meta.filters.items():
                     if isinstance(filter_, (tuple, list)):
@@ -224,3 +228,25 @@ class DynamicFilterSetMixin(object):
         super(DynamicFilterSetMixin, self).__init__(*arg, **kwargs)
 
 
+class DynamicFilterMixin(object):
+    dynamic_filter_set_class = None
+
+    def __init__(self):
+        assert self.dynamic_filter_set_class, \
+            'Using DynamicFilterMixin, but `dynamic_filter_set_class` is is not defined'
+
+    def filter_queryset(self, request, queryset, view):
+        self.dynamic_filter_set = self.dynamic_filter_set_class(request.GET, queryset)
+
+        queryset = self.dynamic_filter_set.qs
+
+        # add extra `filter_queryset` from RESTMeta
+        rest_meta = getattr(self.dynamic_filter_set, '_rest_meta', None)
+        if rest_meta:
+            filter_qs = getattr(rest_meta, 'filter_queryset', None)
+            if filter_qs:
+                setattr(self, '_extra_filter_queryset',
+                        types.MethodType(filter_qs, self, self.__class__))
+                queryset = self._extra_filter_queryset(request, queryset, view)
+
+        return queryset
