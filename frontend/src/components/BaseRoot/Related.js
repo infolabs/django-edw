@@ -14,7 +14,8 @@ class Related extends Component {
     const { entities, dom_attrs, mart_id } = this.props,
           data_mart_url_attr = dom_attrs.getNamedItem('data-data-mart-url'),
           data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name'),
-          data_data_mart_limit = dom_attrs.getNamedItem('data-data-mart-limit');
+          data_data_mart_limit = dom_attrs.getNamedItem('data-data-mart-limit'),
+          data_data_mart_pk = dom_attrs.getNamedItem('data-data-mart-pk');
 
     const count = entities.meta.count;
 
@@ -29,10 +30,16 @@ class Related extends Component {
 
     let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
 
-    for(let el of el_with_count){
-      el = document.getElementsByClassName(el);
-      if (el.length) {
-        el[0].setAttribute("data-data-count", count);
+    if (data_data_mart_pk) {
+      for(let item of el_with_count){
+        let elements = document.getElementsByClassName(item);
+        for (let element of elements) {
+          let pk = element.attributes.getNamedItem('data-data-mart-pk')
+            ? element.attributes.getNamedItem('data-data-mart-pk').value : null;
+          if (pk && pk == data_data_mart_pk.value) {
+            element.setAttribute("data-data-count", count);
+          }
+        }
       }
     }
 
