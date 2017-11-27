@@ -161,6 +161,9 @@ class GetEntities(BaseRetrieveDataTag):
     )
 
     def render_tag(self, context, kwargs, varname):
+
+        print("========================", kwargs)
+
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -170,6 +173,9 @@ class GetEntities(BaseRetrieveDataTag):
         else:
             serializer = self.get_serializer(queryset, many=True)
             data = serializer.data
+
+        print('----------------------', serializer)
+
         if varname:
             context[varname] = data
             return ''
