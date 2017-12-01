@@ -201,11 +201,11 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
 
-    ordering = models.CharField(verbose_name=_('Ordering'), max_length=50,
+    ordering = models.CharField(verbose_name=_('Ordering'), max_length=255,
                                 default=ENTITIES_ORDER_BY_CREATED_AT_DESC,
                                 help_text=_('Default data mart entities ordering mode.'))
 
-    view_component = models.CharField(verbose_name=_('View component'), max_length=50,
+    view_component = models.CharField(verbose_name=_('View component'), max_length=255,
                                 default=ENTITIES_VIEW_COMPONENT_LIST,
                                 help_text=_('Default data mart entities view component.'))
 

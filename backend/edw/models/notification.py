@@ -16,7 +16,7 @@ class Notification(models.Model):
     A task executed on receiving a signal.
     """
     name = models.CharField(max_length=255, verbose_name=_("Name"))
-    transition_target = models.CharField(max_length=50, verbose_name=_("Event"))
+    transition_target = models.CharField(max_length=255, verbose_name=_("Event"))
     mail_to = models.IntegerField(verbose_name=_("Mail to"), null=True,
                                           blank=True, default=None)
     mail_template = models.ForeignKey(EmailTemplate, verbose_name=_("Template"),
