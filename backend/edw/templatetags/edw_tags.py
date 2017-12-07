@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import json
 
 from django import template
 
@@ -9,6 +10,7 @@ from django.utils.dateformat import format, time_format
 
 from datetime import datetime
 
+from classytags.core import Tag
 from classytags.core import Options
 from classytags.arguments import MultiKeywordArgument, Argument
 
@@ -219,3 +221,37 @@ def attributes_has_view_class(value, arg):
             if arg in view_class:
                 return True
     return False
+
+
+#==============================================================================
+# Frontend utils
+#==============================================================================
+
+class CompactJson(Tag):
+    name = 'compactjson'
+
+    options = Options(
+        'as',
+        Argument('varname', required=False, resolve=False),
+        blocks=[('endcompactjson', 'nodelist')]
+    )
+
+    def render_tag(self, context, nodelist, varname):
+        block_data = reduce(
+            lambda x, y: x + y,
+            map(
+                lambda x: x.render(context),
+                nodelist
+            )
+        )
+        block_data = json.loads(block_data)
+        block_data = json.dumps(block_data)
+        if varname:
+            context[varname] = block_data
+            return ''
+        else:
+            return block_data
+
+
+register.tag(CompactJson)
+
