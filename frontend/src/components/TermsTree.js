@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import Actions from '../actions/index'
 import TermsTreeItem from './TermsTreeItem';
+import parseRequestParams from 'utils/parseRequestParams';
 
 
 function isArraysEqual(a, b) {
@@ -20,22 +21,21 @@ function isArraysEqual(a, b) {
 class TermsTree extends Component {
 
   componentDidMount() {
-    const dom_attrs = this.props.dom_attrs,
-          mart_id = this.props.mart_id,
-          terms_attr = dom_attrs.getNamedItem('data-terms');
+    const entry_points = this.props.entry_points,
+          entry_point_id = this.props.entry_point_id,
+          request_params = entry_points[entry_point_id.toString()].request_params || [];
 
-    let term_ids = [];
-    if (terms_attr && terms_attr.value)
-      term_ids = terms_attr.value.split(",");
+    const parms = parseRequestParams(request_params),
+          term_ids = parms.term_ids;
 
     this.props.actions.notifyLoading();
-    this.props.actions.loadTree(mart_id, term_ids);
+    this.props.actions.loadTree(entry_point_id, term_ids);
   }
 
   componentWillReceiveProps(nextProps) {
-    const dom_attrs = this.props.dom_attrs,
-          mart_id = this.props.mart_id,
-          subj_attr = dom_attrs.getNamedItem('data-subj'),
+    const entry_points = this.props.entry_points,
+          entry_point_id = this.props.entry_point_id,
+          request_params = entry_points[entry_point_id.toString()].request_params || [],
           tagged_current = this.props.terms.tagged,
           tagged_next = nextProps.terms.tagged,
           meta = this.props.entities.items.meta;
@@ -44,22 +44,26 @@ class TermsTree extends Component {
       // reload tree
       if (!tagged_next.isInCache()) {
         this.props.actions.notifyLoading();
-        this.props.actions.reloadTree(mart_id, tagged_next.items);
+        this.props.actions.reloadTree(entry_point_id, tagged_next.items);
       }
 
       // reload entities
       if (!tagged_next.entities_ignore) {
-        let request_options = meta.request_options,
-            subj_ids = meta.subj_ids;
+        const parms = parseRequestParams(request_params),
+              subj_req_ids = parms.subj_ids,
+              options_arr = parms.options_arr;
 
-        if (!subj_ids && subj_attr && subj_attr.value)
-          subj_ids = subj_attr.value.split(",");
+        let request_options = meta.request_options,
+            subj_ids = meta.subj_ids || subj_req_ids;
 
         request_options['terms'] = tagged_next.items;
         request_options['offset'] = 0;
         this.props.actions.notifyLoadingEntities();
 
-        this.props.actions.getEntities(mart_id, subj_ids, request_options);
+        this.props.actions.getEntities(
+          entry_point_id, subj_ids, request_options, options_arr
+        );
+
       }
     }
   }

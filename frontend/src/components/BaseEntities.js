@@ -6,6 +6,8 @@ import cookie from 'react-cookies'
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
+import parseRequestParams from 'utils/parseRequestParams';
+
 
 class BaseEntities extends Component {
 
@@ -26,10 +28,10 @@ class BaseEntities extends Component {
   }
 
   getCookiePreferences() {
-    const dom_attrs = this.props.dom_attrs,
-          mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value;
-    const cookie_data = cookie.loadAll();
-    const prefix = "datamart_prefs_" + mart_id + "_";
+    const entry_point_id = this.props.entry_point_id,
+          cookie_data = cookie.loadAll(),
+          prefix = "datamart_prefs_" + entry_point_id + "_";
+
     let preferences = {};
 
     for (const k of Object.keys(cookie_data)) {
@@ -42,38 +44,31 @@ class BaseEntities extends Component {
   }
 
   componentDidMount() {
-    const { dom_attrs, limit } = this.props,
-          mart_attr = dom_attrs.getNamedItem('data-data-mart-pk'),
-          subj_attr = dom_attrs.getNamedItem('data-subj'),
-          terms_attr = dom_attrs.getNamedItem('data-terms');
+    const { entry_points, entry_point_id } = this.props,
+          request_params = entry_points[entry_point_id].request_params || [];
+
+    const parms = parseRequestParams(request_params),
+          term_ids = parms.term_ids,
+          subj_ids = parms.subj_ids,
+          options_arr = parms.options_arr;
 
     let request_options = this.props.entities.items.meta.request_options;
 
-    let subj_ids = [];
-    if (subj_attr && subj_attr.value)
-      subj_ids = subj_attr.value.split(",");
-
-    let term_ids = [];
-    if (terms_attr && terms_attr.value)
-      term_ids = terms_attr.value.split(",");
-
-    request_options['terms'] = term_ids;
+    if (term_ids.length) {
+      request_options['terms'] = term_ids;
+    }
     const preferences = this.getCookiePreferences();
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
 
-    if (limit) {
-      request_options['limit'] = limit
-    }
-
     this.props.actions.getEntities(
-      mart_attr.value, subj_ids, request_options
+      entry_point_id, subj_ids, request_options, options_arr
     );
   }
 
   render() {
-    const { entities, actions } = this.props;
+    const { entities, actions, entry_points, entry_point_id } = this.props;
 
     const items = entities.items.objects || [],
         dropdowns = entities.dropdowns || {},
@@ -90,7 +85,8 @@ class BaseEntities extends Component {
           actions: actions,
           meta: meta,
           loading: loading,
-          descriptions: descriptions
+          descriptions: descriptions,
+          data_mart: entry_points[entry_point_id]
         }
       );
     }
@@ -99,11 +95,13 @@ class BaseEntities extends Component {
   }
 }
 
+
 function mapState(state) {
   return {
     entities: state.entities,
   };
 }
+
 
 function mapDispatch(dispatch) {
   return {

@@ -54,7 +54,7 @@ function opts2gets(options = {}) {
   return gets;
 }
 
-export function getEntities(mart_id, subj_ids=[], options = {}) {
+export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
     return dispatch => {
         let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
         url = reCache(url);
@@ -62,7 +62,11 @@ export function getEntities(mart_id, subj_ids=[], options = {}) {
             subj_ids.join();
             url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
           }
-          url += opts2gets(options);
+          url += opts2gets(options_obj);
+
+          if (options_arr.length) {
+            url += "&" + options_arr.join("&");
+          }
 
           fetch(url, {
             method: 'get',
@@ -73,7 +77,7 @@ export function getEntities(mart_id, subj_ids=[], options = {}) {
           }).then(response => response.json()).then(json => dispatch({
             type: LOAD_ENTITIES,
             json: json,
-            request_options: options
+            request_options: options_obj
           }));
     }
 }

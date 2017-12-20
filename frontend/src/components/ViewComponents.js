@@ -7,7 +7,7 @@ import Actions from '../actions/index'
 
 class ViewComponents extends Component {
   render() {
-    const { mart_id, actions } = this.props,
+    const { entry_point_id, actions } = this.props,
           { dropdowns } = this.props.entities,
           { meta } = this.props.entities.items,
           { view_components } = dropdowns;
@@ -22,7 +22,7 @@ class ViewComponents extends Component {
           <li>
             <Dropdown name='view_components'
                       request_var={view_components.request_var}
-                      mart_id={mart_id}
+                      entry_point_id={entry_point_id}
                       subj_ids={meta.subj_ids}
                       request_options={meta.request_options}
                       open={view_components.open}

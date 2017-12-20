@@ -11,46 +11,36 @@ class Related extends Component {
 
   render() {
 
-    const { entities, dom_attrs, mart_id } = this.props,
-          data_mart_url_attr = dom_attrs.getNamedItem('data-data-mart-url'),
-          data_mart_name_attr = dom_attrs.getNamedItem('data-data-mart-name'),
-          data_data_mart_limit = dom_attrs.getNamedItem('data-data-mart-limit'),
-          data_data_mart_pk = dom_attrs.getNamedItem('data-data-mart-pk');
+    const { entities, entry_points, entry_point_id, actions } = this.props;
 
     const count = entities.meta.count;
 
-    let limit = data_data_mart_limit && data_data_mart_limit.value ? data_data_mart_limit.value : null;
-
-    let mart_url = "",
-        mart_name = "";
-    if (data_mart_url_attr)
-      mart_url = data_mart_url_attr.value;
-    if (data_mart_name_attr)
-      mart_name = data_mart_name_attr.value;
-
-    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
-
-    if (data_data_mart_pk) {
-      for(let item of el_with_count){
-        let elements = document.getElementsByClassName(item);
-        for (let element of elements) {
-          let pk = element.attributes.getNamedItem('data-data-mart-pk')
-            ? element.attributes.getNamedItem('data-data-mart-pk').value : null;
-          if (pk && pk == data_data_mart_pk.value) {
-            element.setAttribute("data-data-count", count);
-          }
+/*
+    for(let item of el_with_count) {
+      let elements = document.getElementsByClassName(item);
+      for (let element of elements) {
+        let pk = element.attributes.getNamedItem('data-data-mart-pk')
+          ? element.attributes.getNamedItem('data-data-mart-pk').value : null;
+        if (pk && pk == entry_point_id) {
+          element.setAttribute("data-data-count", count);
         }
       }
     }
+*/
 
+    let mart_url = entry_points[entry_point_id].url || "",
+        mart_name = entry_points[entry_point_id].name || "";
+
+    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
     return (
       <div className="ex-related-datamart">
         <div className="row">
           <div className="col-sm-12 col-md-12">
             {
-              dom_attrs.getNamedItem('data-entry-point') ? <DataMartsList
-                dom_attrs={dom_attrs}
-                mart_id={mart_id}
+              Object.keys(entry_points).length > 1 ? <DataMartsList
+                entry_points={entry_points}
+                entry_point_id={entry_point_id}
+                actions={actions}
               /> : null
             }
           </div>
@@ -62,13 +52,14 @@ class Related extends Component {
             )}
           </div>
           <div className="col-md-3 ex-paginator">
-            <Paginator dom_attrs={dom_attrs}
-                       mart_id={mart_id}
+            <Paginator entry_points={entry_points}
+                       entry_point_id={entry_point_id}
                        hide_page_numbers={true}/>
           </div>
         </div>
         <div>
-          <Entities dom_attrs={dom_attrs} mart_id={mart_id} limit={limit} />
+          <Entities entry_points={entry_points}
+                    entry_point_id={entry_point_id} />
         </div>
       </div>
     );

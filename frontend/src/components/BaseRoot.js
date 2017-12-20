@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Provider } from 'react-redux';
-
+import { Provider, connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import Actions from '../actions/index'
 import DataMart from 'components/BaseRoot/DataMart';
 import Related from 'components/BaseRoot/Related';
 
@@ -24,17 +25,34 @@ class BaseRoot extends Component {
   }
 
   render() {
-    const {store, dom_attrs} = this.props,
-          template_name_attr = dom_attrs.getNamedItem('data-template-name'),
-          template_name = template_name_attr && template_name_attr.value || 'data_mart',
-          component = this.templates[template_name],
-          mart_id = dom_attrs.getNamedItem('data-data-mart-pk').value,
-          container_render = React.createElement(
-            component, {
-              dom_attrs: dom_attrs,
-              mart_id: mart_id
-            }
-          );
+
+    const {store, dom_attrs, actions, datamart_list} = this.props,
+      entry_points = JSON.parse(dom_attrs.getNamedItem('data-entry-points').value),
+      entry_point_id_attr = dom_attrs.getNamedItem('data-selected-entry-point-id');
+
+    let entry_point_id;
+
+    if (datamart_list.active_mart_id) {
+      entry_point_id = datamart_list.active_mart_id;
+    } else if (entry_point_id_attr) {
+      entry_point_id = entry_point_id_attr.value;
+    } else {
+      for(var key in entry_points) {
+        entry_point_id = parseInt(key);
+        if (!isNaN(entry_point_id)) break;
+      }
+    }
+
+    const template_name = entry_points[entry_point_id].template_name || 'data_mart',
+          component = this.templates[template_name];
+
+    const container_render = React.createElement(
+      component, {
+        entry_points: entry_points,
+        entry_point_id: entry_point_id,
+        actions: actions
+      }
+    );
 
     return (
       <Provider store={store}>
@@ -45,4 +63,19 @@ class BaseRoot extends Component {
 
 }
 
-export default BaseRoot;
+
+function mapState(state) {
+  return {
+    datamart_list: state.datamart_list
+  };
+}
+
+function mapDispatch(dispatch) {
+  return {
+    actions: bindActionCreators(Actions, dispatch),
+    dispatch: dispatch
+  };
+}
+
+
+export default connect(mapState, mapDispatch)(BaseRoot);
