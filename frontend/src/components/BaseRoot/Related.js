@@ -15,23 +15,22 @@ class Related extends Component {
 
     const count = entities.meta.count;
 
-/*
-    for(let item of el_with_count) {
-      let elements = document.getElementsByClassName(item);
-      for (let element of elements) {
-        let pk = element.attributes.getNamedItem('data-data-mart-pk')
-          ? element.attributes.getNamedItem('data-data-mart-pk').value : null;
+    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
+
+    for(const item of el_with_count) {
+      const elements = document.getElementsByClassName(item);
+      for (const element of elements) {
+        const pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
+              element.attributes.getNamedItem('data-selected-entry-point-id').value;
         if (pk && pk == entry_point_id) {
           element.setAttribute("data-data-count", count);
         }
       }
     }
-*/
 
     let mart_url = entry_points[entry_point_id].url || "",
         mart_name = entry_points[entry_point_id].name || "";
 
-    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
     return (
       <div className="ex-related-datamart">
         <div className="row">
