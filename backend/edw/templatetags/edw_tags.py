@@ -19,6 +19,7 @@ from rest_framework_filters.backends import DjangoFilterBackend
 from edw.rest.pagination import EntityPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
+from edw.models.data_mart import DataMartModel
 from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
@@ -29,7 +30,10 @@ from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
 )
-
+from edw.rest.serializers.data_mart import (
+    DataMartSummarySerializer,
+    DataMartDetailSerializer
+)
 
 register = template.Library()
 
@@ -221,6 +225,36 @@ def attributes_has_view_class(value, arg):
             if arg in view_class:
                 return True
     return False
+
+
+#==============================================================================
+# DataMarts utils
+#==============================================================================
+class GetDataMart(BaseRetrieveDataTag):
+    name = 'get_data_mart'
+    queryset = DataMartModel.objects.all()
+    serializer_class = DataMartDetailSerializer
+    action = 'retrieve'
+
+    options = Options(
+        Argument('pk', resolve=True),
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, pk, kwargs, varname):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+register.tag(GetDataMart)
+
 
 
 #==============================================================================
