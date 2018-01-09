@@ -16,7 +16,9 @@ from classytags.arguments import MultiKeywordArgument, Argument
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from edw.rest.pagination import EntityPagination
+from rest_framework import filters
+
+from edw.rest.pagination import EntityPagination, DataMartPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
@@ -26,6 +28,7 @@ from edw.rest.filters.entity import (
     EntityDynamicFilter,
     EntityOrderingFilter
 )
+from edw.rest.filters.data_mart import DataMartFilter
 from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
@@ -256,6 +259,59 @@ class GetDataMart(BaseRetrieveDataTag):
 register.tag(GetDataMart)
 
 
+class GetDataMarts(BaseRetrieveDataTag):
+    name = 'get_data_marts'
+    queryset = DataMartModel.objects.all()
+    serializer_class = DataMartSummarySerializer
+    action = 'list'
+
+    filter_class = DataMartFilter
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = '__all__'
+
+    pagination_class = DataMartPagination
+
+    options = Options(
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, kwargs, varname):
+
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = self.get_paginated_data(serializer.data)
+            context["{}_paginator".format(varname)] = self.paginator
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            data = serializer.data
+
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+    # def get_serializer_context(self):
+    #     context = super(GetDataMarts, self).get_serializer_context()
+    #     # context.update(self.queryset_context)
+    #     return context
+
+    # def filter_queryset(self, queryset):
+    #     queryset = super(GetDataMarts, self).filter_queryset(queryset)
+    #     # query_params = self.request.GET
+    #     #
+    #     # self.queryset_context = {
+    #     #     "initial_queryset": query_params['_initial_queryset'],
+    #     #     "filter_queryset": queryset
+    #     # }
+    #     return queryset
+
+register.tag(GetDataMarts)
+
 
 #==============================================================================
 # Frontend utils
@@ -285,7 +341,6 @@ class CompactJson(Tag):
             return ''
         else:
             return block_data
-
 
 register.tag(CompactJson)
 

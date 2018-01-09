@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from django_filters.filters import (
     BaseInFilter,
-    BaseRangeFilter,
+    # BaseRangeFilter,
     NumberFilter,
-    DateTimeFilter,
+    # DateTimeFilter,
 )
 
 
