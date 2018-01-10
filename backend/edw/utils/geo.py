@@ -173,4 +173,4 @@ def get_closest(model, geo_field, latitude, longitude):
         .annotate(latitude=geo_to_latitude(geo_field), longitude=geo_to_longitude(geo_field))\
         .annotate(distance=expression).order_by('distance')
 
-    return places[0] if len(places) else None
+    return places
