@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 
+import six
+
 from django.utils.translation import ugettext_lazy as _
 
 import rest_framework_filters as filters
@@ -30,7 +32,7 @@ class DataMartFilter(filters.FilterSet):
         fields = ['active']
 
     def filter_parent_id(self, name, queryset, value):
-        if str(value).lower() in ('none', 'null'):
+        if isinstance(value, six.string_types) and value.lower() in ('none', 'null'):
             value = None
         else:
             value = serializers.IntegerField().to_internal_value(value)
