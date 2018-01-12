@@ -132,12 +132,29 @@ export default class Map extends Component {
     return Math.min(latZoom, lngZoom, ZOOM_MAX);
   }
 
+  getPinColor(item) {
+    let pinColor = "FE7569";
+    if (item.short_marks.length) {
+      for (const sm of item.short_marks) {
+        if (sm.view_class.length) {
+          for (const cl of sm.view_class) {
+            if(cl.startsWith("pin-color-")) {
+              pinColor = cl.replace("pin-color-", "").toUpperCase();
+              return pinColor;
+            }
+          }
+        }
+      }
+    }
+    return pinColor;
+  }
+
   render() {
     const { items, actions, loading, descriptions } = this.props;
     let entities_class = "entities";
     entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
-    const geo_items = items.filter(item => !!(item.extra && item.extra.geoposition))
+    const geo_items = items.filter(item => !!(item.extra && item.extra.geoposition));
 
     let min_lng = null,
         min_lat = null,
@@ -156,14 +173,7 @@ export default class Map extends Component {
       min_lat = min_lat != null && min_lat < lat ? min_lat : lat;
       max_lat = max_lat != null && max_lat > lat ? max_lat : lat;
 
-      let pinColor = "FE7569";
-      if (item.short_marks.length && item.short_marks[0].view_class.length) {
-        for (const cl of item.short_marks[0].view_class) {
-          if(cl.startsWith("pin-color-")) {
-            pinColor = cl.replace("pin-color-", "").toUpperCase();
-          }
-        }
-      }
+      let pinColor = this.getPinColor(item);
 
       const url = item.extra.url ? item.extra.url : itemdata.entity_url,
             marks = item.short_marks || [];

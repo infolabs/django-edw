@@ -13,39 +13,40 @@ import DataMartsList from 'components/DataMartsList'
 export default class DataMart extends Component {
   render() {
 
-    const { dom_attrs, mart_id } = this.props;
+    const { entry_point_id, entry_points, actions } = this.props;
 
     return (
       <div className="row">
         <div className="col-sm-12 col-md-12">
             {
-              dom_attrs.getNamedItem('data-entry-point') ? <DataMartsList
-                dom_attrs={dom_attrs}
-                mart_id={mart_id}
+              Object.keys(entry_points).length > 1 ? <DataMartsList
+                entry_points={entry_points}
+                entry_point_id={entry_point_id}
+                actions={actions}
               /> : null
             }
         </div>
         <div className="col-sm-4 col-md-3 sidebar-filter">
-          <TermsTree dom_attrs={dom_attrs} mart_id={mart_id} />
+          <TermsTree entry_points={entry_points} entry_point_id={entry_point_id} />
         </div>
         <div className="col-sm-8 col-md-9">
           <div className="row">
             <div className="col-sm-6 col-md-3 ex-view-as ex-dropdown ex-state-closed">
-              <ViewComponents dom_attrs={dom_attrs} mart_id={mart_id} />
+              <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
             <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
-              <Ordering dom_attrs={dom_attrs} mart_id={mart_id} />
+              <Ordering entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
             <div className="col-sm-6 col-md-3 ex-howmany-items ex-dropdown ex-state-closed">
-              <Limits dom_attrs={dom_attrs} mart_id={mart_id} />
+              <Limits entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
             <div className="col-sm-6 col-md-2 ex-statistic float-right">
-              <Statistics dom_attrs={dom_attrs} mart_id={mart_id} />
+              <Statistics entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
           </div>
-          <Entities dom_attrs={dom_attrs} mart_id={mart_id} />
-          <Paginator dom_attrs={dom_attrs} mart_id={mart_id} />
-          <Aggregation dom_attrs={dom_attrs} mart_id={mart_id} />
+          <Entities entry_points={entry_points} entry_point_id={entry_point_id} />
+          <Paginator entry_points={entry_points} entry_point_id={entry_point_id} />
+          <Aggregation entry_points={entry_points} entry_point_id={entry_point_id} />
         </div>
       </div>
     );

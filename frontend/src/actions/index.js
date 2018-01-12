@@ -9,6 +9,7 @@ import {
     showInfo,
     hideInfo
 } from './TermsTreeActions';
+
 import {
     getEntityItem,
     getEntities,
@@ -19,6 +20,9 @@ import {
     selectDropdown
 } from './EntityActions';
 
+import {
+    changeActiveDataMart,
+} from './DataMartListActions';
 
 export default {
     getTermsItem,
@@ -36,5 +40,6 @@ export default {
     showDescription,
     hideDescription,
     toggleDropdown,
-    selectDropdown
+    selectDropdown,
+    changeActiveDataMart
 }

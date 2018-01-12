@@ -14,7 +14,7 @@ class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
   handlePrevClick(e) {
@@ -25,7 +25,7 @@ class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
   handlePageClick(e, n) {
@@ -36,7 +36,7 @@ class Paginator extends Component {
     const actions = this.props.actions;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(this.props.mart_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
   render() {

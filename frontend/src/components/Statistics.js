@@ -7,7 +7,7 @@ import Actions from '../actions/index'
 class Statistics extends Component {
   render() {
     const meta = this.props.entities.items.meta,
-          { actions, mart_id } = this.props;
+          { actions, entry_point_id } = this.props;
 
     let ret = <span></span>;
     if (meta.count) {

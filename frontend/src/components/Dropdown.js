@@ -15,13 +15,13 @@ export default class Dropdown extends Component {
   }
 
   selectItem(value) {
-    const { actions, mart_id, subj_ids, name, request_var, request_options } = this.props;
+    const { actions, entry_point_id, subj_ids, name, request_var, request_options } = this.props;
     let option = {};
     option[request_var] = value;
     let options = Object.assign(request_options, option);
     actions.selectDropdown(name, value);
     actions.notifyLoadingEntities();
-    actions.getEntities(mart_id, subj_ids, this.fixOffset(options));
+    actions.getEntities(entry_point_id, subj_ids, this.fixOffset(options));
   }
 
   componentDidMount() {
@@ -45,9 +45,9 @@ export default class Dropdown extends Component {
   handleOptionClick(e, value) {
     e.preventDefault();
     e.stopPropagation();
-    const { mart_id, request_var  } = this.props;
+    const { entry_point_id, request_var  } = this.props;
     this.selectItem(value);
-    const cookie_key = "datamart_prefs_" + mart_id + "_" + request_var;
+    const cookie_key = "datamart_prefs_" + entry_point_id + "_" + request_var;
     let expires = new Date();   
     expires.setTime(expires.getTime() + (10 * 60 * 1000));
     cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });

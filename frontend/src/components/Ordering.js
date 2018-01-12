@@ -7,7 +7,7 @@ import Actions from '../actions/index'
 
 class Ordering extends Component {
   render() {
-    const { mart_id, actions } = this.props,
+    const { entry_point_id, actions } = this.props,
           { dropdowns } = this.props.entities,
           { meta } = this.props.entities.items,
           { ordering } = dropdowns;
@@ -21,7 +21,7 @@ class Ordering extends Component {
           </li>
           <li>
             <Dropdown name='ordering'
-                      mart_id={mart_id}
+                      entry_point_id={entry_point_id}
                       request_var={ordering.request_var}
                       request_options={meta.request_options}
                       subj_ids={meta.subj_ids}
