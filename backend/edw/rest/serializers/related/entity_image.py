@@ -22,6 +22,7 @@ class EntityImageSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     default_caption = serializers.SerializerMethodField()
     alt = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityImageModel
@@ -48,3 +49,6 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     def get_alt(self, instance):
         return u'{}'.format(instance.image.default_alt_text) if instance.image.default_alt_text else ""
+
+    def get_description(self, instance):
+        return u'{}'.format(instance.image.description) if instance.image.description else ""
