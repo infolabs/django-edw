@@ -19,6 +19,7 @@ class EntityFileSerializer(serializers.ModelSerializer):
     original_filename = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityFileModel
@@ -36,3 +37,6 @@ class EntityFileSerializer(serializers.ModelSerializer):
 
     def get_name(self, instance):
         return u'{}'.format(instance.file.name) if instance.file.name else ""
+
+    def get_description(self, instance):
+        return u'{}'.format(instance.file.description) if instance.file.description else ""
