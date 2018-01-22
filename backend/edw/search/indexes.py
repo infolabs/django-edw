@@ -38,12 +38,12 @@ class EntityIndex(indexes.SearchIndex):
         """
         prepared_data = super(EntityIndex, self).prepare(obj)
         prepared_data.update({
-            DJANGO_CT: get_model_ct(EntityModel())
+            DJANGO_CT: get_model_ct(self.get_model()())
         })
 
-        print '-----------------------------'
-        print prepared_data
-        print '-----------------------------'
+        # print '-----------------------------'
+        # print prepared_data
+        # print '-----------------------------'
 
         return prepared_data
 
