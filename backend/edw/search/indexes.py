@@ -10,7 +10,7 @@ from haystack.utils import get_model_ct
 from edw.models.entity import EntityModel
 
 
-class EntityIndex(indexes.SearchIndex, indexes.Indexable):
+class EntityIndex(indexes.SearchIndex):
     """
     Abstract base class used to index all entities for this edw
     """
