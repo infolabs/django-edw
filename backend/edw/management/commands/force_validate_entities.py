@@ -20,4 +20,4 @@ class Command(NoArgsCommand):
         print "Save all entities with force validate terms"
         all_entities = EntityModel.objects.all()
         for entity in all_entities:
-            entity.save(force_validate_terms=True)
+            entity.save(force_validate_terms=True, bulk_force_validate_terms=True)

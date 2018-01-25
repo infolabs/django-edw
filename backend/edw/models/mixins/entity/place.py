@@ -29,7 +29,10 @@ class PlaceMixin(object):
 
     def validate_terms(self, origin, **kwargs):
         context = kwargs["context"]
-        if context.get("force_validate_terms", False) or context.get("validate_place", False):
+
+        if (context.get("force_validate_terms", False) and not context.get("bulk_force_validate_terms", False)
+        ) or context.get("validate_place", False):
+            # нельзя использовать в массовых операциях из ограничения API геокодера
             if origin is not None:
                 postal_zone_terms_ids = get_all_postal_zone_terms_ids()
                 self.terms.remove(*EntityModel.terms.through.objects.filter(

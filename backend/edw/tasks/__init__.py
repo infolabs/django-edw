@@ -8,3 +8,4 @@ from update_related_data_marts import update_entities_related_data_marts
 from update_additional_characteristics_or_marks import update_entities_additional_characteristics_or_marks
 from update_states import update_entities_states
 from update_active import update_entities_active
+from force_validate import entities_force_validate

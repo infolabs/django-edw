@@ -790,9 +790,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 origin = None
             self.pre_save_entity(origin, *args, **kwargs)
             force_validate_terms = kwargs.pop('force_validate_terms', False)
+            bulk_force_validate_terms = kwargs.pop('bulk_force_validate_terms', False)
             result = super(BaseEntity, self).save(*args, **kwargs)
             validation_context = {
-                "force_validate_terms": force_validate_terms
+                "force_validate_terms": force_validate_terms,
+                "bulk_force_validate_terms": bulk_force_validate_terms
             }
             if force_validate_terms or self.need_terms_validation_after_save(origin, context=validation_context):
                 if hasattr(self, '_valid_pk_set'):
