@@ -211,14 +211,15 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                     EntityModel._added_years_cache = added_years
                 if year_key not in added_years:
                     system_flags = _default_system_flags_restriction
-                    term = TermModel(
+                    (term, is_create) = TermModel.objects.get_or_create(
                         slug=year_key,
                         parent_id=root.id,
-                        name="{}".format(year),
-                        semantic_rule=TermModel.OR_RULE,
-                        system_flags=system_flags
+                        defaults={
+                            'name': "{}".format(year),
+                            'semantic_rule': TermModel.OR_RULE,
+                            'system_flags': system_flags
+                        }
                     )
-                    term.save()
                     added_years[year_key] = term
             except TermModel.DoesNotExist:
                 pass
