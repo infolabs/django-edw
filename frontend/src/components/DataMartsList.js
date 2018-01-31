@@ -46,19 +46,25 @@ export default class DataMartsList extends Component {
 
     let is_active = (pk) => pk == entry_point_id;
 
-
     return entry_points && Object.keys(entry_points).length > 1 ? <div>
       <ul className="datamart-list">
         {Object.keys(entry_points).map((key, i) => {
 
           const item = entry_points[key];
 
+          let item_vis;
+          if (is_active(key) && item.url) {
+            item_vis = <a href={item.url}>{item.name}</a>
+          } else {
+            item_vis = item.name
+          }
+
           return <li
             key={`datamart-list_${i}`}
             className={is_active(key) ? 'active' : ''}
             onClick={() => is_active(key) ? null : this.changeDataMart(key)}
           >
-            <span>{item.name}</span>
+            <span>{item_vis}</span>
           </li>
 
         })}

@@ -31,25 +31,28 @@ class Related extends Component {
     let mart_url = entry_points[entry_point_id].url || "",
         mart_name = entry_points[entry_point_id].name || "";
 
+    const multi = Object.keys(entry_points).length > 1;
+
+    const title = (
+      <div className="col-md-9 ex-title">
+        { mart_url != '' ? (
+          <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
+          ) : (
+          <h3>{mart_name}</h3>
+        )}
+      </div>
+    );
+
     return (
       <div className="ex-related-datamart">
         <div className="row">
-          <div className="col-sm-12 col-md-12">
-            {
-              Object.keys(entry_points).length > 1 ? <DataMartsList
-                entry_points={entry_points}
-                entry_point_id={entry_point_id}
-                actions={actions}
-              /> : null
-            }
-          </div>
-          <div className="col-md-9 ex-title">
-            { mart_url != '' ? (
-            <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
-            ) : (
-            <h3>{mart_name}</h3>
-            )}
-          </div>
+          {
+            multi ? <div className="col-md-9"> <DataMartsList
+              entry_points={entry_points}
+              entry_point_id={entry_point_id}
+              actions={actions}
+            /> </div> : title
+          }
           <div className="col-md-3 ex-paginator">
             <Paginator entry_points={entry_points}
                        entry_point_id={entry_point_id}
