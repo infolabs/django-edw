@@ -20,6 +20,7 @@ function parseIntList(param, name) {
 export default function parseRequestParams(request_params) {
     let term_ids = [];
     let subj_ids = [];
+    let limit = -1;
     let options_arr = [];
 
     for (const param of request_params) {
@@ -27,10 +28,12 @@ export default function parseRequestParams(request_params) {
           term_ids = parseIntList(param, "terms");
         } else if (param.startsWith("subj=")) {
           subj_ids = parseIntList(param, "subj");
+        } else if (param.startsWith("limit=")) {
+          limit = parseIntList(param, "limit");
         } else {
           options_arr.push(param);
         }
     }
 
-    return { term_ids, subj_ids, options_arr };
+    return { term_ids, subj_ids, limit, options_arr };
 }

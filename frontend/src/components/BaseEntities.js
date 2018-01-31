@@ -50,10 +50,14 @@ class BaseEntities extends Component {
     const parms = parseRequestParams(request_params),
           term_ids = parms.term_ids,
           subj_ids = parms.subj_ids,
+          limit = parms.limit,
           options_arr = parms.options_arr;
 
     let request_options = this.props.entities.items.meta.request_options;
 
+    if (limit > -1) {
+      request_options['limit'] = limit;
+    }
     if (term_ids.length) {
       request_options['terms'] = term_ids;
     }

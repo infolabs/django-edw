@@ -22,6 +22,7 @@ export default class DataMartsList extends Component {
     const parms = parseRequestParams(request_params),
           term_ids = parms.term_ids,
           subj_ids = parms.subj_ids,
+          limit = parms.limit,
           options_arr = parms.options_arr;
 
     this.props.actions.notifyLoading();
@@ -31,6 +32,9 @@ export default class DataMartsList extends Component {
 
     request_options['terms'] = term_ids;
     request_options['offset'] = 0;
+    if (limit > -1) {
+      request_options['limit'] = limit;
+    }
     this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(pk, subj_ids, request_options, options_arr);
 
