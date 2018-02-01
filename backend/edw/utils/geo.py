@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
+from functools import wraps
+import time
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Value, F
 from django.utils.translation import ugettext_lazy as _
 
 from geopy.geocoders import get_geocoder_for_service
+from geopy.exc import GeocoderQuotaExceeded
 
 from edw.utils.common import dict2obj
 
@@ -22,8 +27,37 @@ class GeocoderException(Exception):
 
 
 #=================================================
+# Geocoder request retry decorator
+#=================================================
+GEOCODER_REQUEST_RETRY_DEFAULT_TIMEOUT = 2
+GEOCODER_REQUEST_RETRY_DEFAULT_ATTEMPTS = 3
+
+def geocoder_request_retry(attempts, timeout=GEOCODER_REQUEST_RETRY_DEFAULT_TIMEOUT):
+    def geocoder_request_retry_decorator(func):
+        @wraps(func)
+        def func_wrapper(*args, **kwargs):
+            i = 0
+            success = False
+            while not success and i < attempts:
+                i += 1
+                try:
+                    result = func(*args, **kwargs)
+                except GeocoderQuotaExceeded:
+                    time.sleep(timeout)
+                    continue
+                else:
+                    success = True
+            if i == attempts:
+                raise GeocoderException(_('Daily requests limit has been reached'))
+            return result
+        return func_wrapper
+    return geocoder_request_retry_decorator
+
+
+#=================================================
 # Get location from geocoder by geoposition
 #=================================================
+@geocoder_request_retry(GEOCODER_REQUEST_RETRY_DEFAULT_ATTEMPTS)
 def _get_location_from_geocoder_by_geoposition(geoposition, config):
     '''
     local function for reverse location by geoposition
@@ -45,6 +79,7 @@ def _get_location_from_geocoder_by_geoposition(geoposition, config):
 #=================================================
 # Get location from geocoder by query
 #=================================================
+@geocoder_request_retry(GEOCODER_REQUEST_RETRY_DEFAULT_ATTEMPTS)
 def _get_location_from_geocoder_by_query(query, config):
     '''
     local function for reverse location by query
@@ -68,12 +103,12 @@ def get_location_from_geocoder(geoposition=None, query=None):
     '''
     config = getattr(settings, 'GEOPY_GEOCODER_CONFIG', None)
     if config is not None:
-      if geoposition is not None:
-          location = _get_location_from_geocoder_by_geoposition(geoposition, config)
-      elif query is not None:
-          location = _get_location_from_geocoder_by_query(query, config)
-      else:
-          raise GeocoderException(_('Both of geoposition and query can`t be None'))
+        if geoposition is not None:
+            location = _get_location_from_geocoder_by_geoposition(geoposition, config)
+        elif query is not None:
+            location = _get_location_from_geocoder_by_query(query, config)
+        else:
+            raise GeocoderException(_('Both of geoposition and query can`t be None'))
     else:
         raise GeocoderException(_('Geocoder not configured yet. Confirm your GEOPY_GEOCODER_CONFIG settings is valid'))
     return location
