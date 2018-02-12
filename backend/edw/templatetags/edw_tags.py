@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import json
+from functools import reduce
 
 from django import template
 
 from django.conf import settings
 from django.utils import formats
 from django.utils.dateformat import format, time_format
+
+try:
+    from django.utils.encoding import smart_text
+except ImportError:
+    from django.utils.encoding import smart_unicode as smart_text
 
 from datetime import datetime
 
@@ -328,7 +335,7 @@ class CompactJson(Tag):
 
     def render_tag(self, context, nodelist, varname):
         block_data = reduce(
-            lambda x, y: x + y,
+            lambda x, y: x + smart_text(y),
             map(
                 lambda x: x.render(context),
                 nodelist

@@ -70,7 +70,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
         try:
             template = select_template(['{0}/entities/{1}-{2}-{3}.html'.format(*p) for p in params])
         except TemplateDoesNotExist:
-            return SafeText("<!-- no such template: '{0}/entities/{1}-{2}-{3}.html' -->".format(*params[0]))
+            return SafeText("<!-- no such template: `{0}/entities/{1}-{2}-{3}.html` -->".format(*params[0]))
         # when rendering emails, we require an absolute URI, so that media can be accessed from
         # the mail client
         absolute_base_uri = request.build_absolute_uri('/').rstrip('/')
