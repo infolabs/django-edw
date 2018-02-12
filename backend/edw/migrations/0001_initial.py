@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('post_office', '0006_attachment_mimetype'),
+        ('post_office', '0001_initial'),
     ]
 
     operations = [
