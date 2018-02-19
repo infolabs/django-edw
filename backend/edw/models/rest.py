@@ -121,7 +121,9 @@ class DynamicFieldsSerializerMixin(object):
                 elif isinstance(field, serializers.ListField):
                     # hack for ListField.__init__ method
                     field.child.source = None
-
+                elif getattr(field, 'many', False):
+                    # hack for `many=True`
+                    field.source = None
                 self.fields[field_name] = field
             for field_name in remove_fields:
                 self.fields.pop(field_name)
