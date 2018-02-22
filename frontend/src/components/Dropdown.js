@@ -40,7 +40,7 @@ export default class Dropdown extends Component {
       e.stopPropagation();
       this.props.actions.toggleDropdown(name);
     }
-  }
+  };
 
   handleOptionClick(e, value) {
     e.preventDefault();
@@ -61,7 +61,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { selected, options, open } = this.props;
+    const { selected, options, open, btn_groups = false } = this.props;
 
     let opts = {};
     for (const opt of Object.keys(options)) {
@@ -69,22 +69,40 @@ export default class Dropdown extends Component {
         opts[opt] = options[opt];
     }
 
-    let ret = (
-      <div className="ex-sort-dropdown">
-        <a href="#"
-           className="ex-btn ex-btn-default"
-           onClick={(e) => { ::this.handleSelectedClick(e) } }>
-          {selected}<span className="ex-icon-caret-down"></span>
-        </a>
-        <ul className={open ? "ex-dropdown-menu2": "ex-dropdown-menu2 ex-dropdown-hide"}>
-          {Object.keys(opts).map(
-            (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }>
-              <a href="#" key={i}>{options[k]}</a>
-            </li>
-          )}
-        </ul>
-      </div>
-    );
-    return ret;
+    if (btn_groups) {
+      return (
+          <div className="btn-group" role="group">
+            {Object.keys(options).map(
+              (k, i) => (
+                  <button
+                      type="button"
+                      className={`btn btn-default ${options[k]===selected ? 'active' : ''}`}
+                      key={i}
+                      onClick={(e) => { ::this.handleOptionClick(e, k) } }
+                  >
+                    {options[k]}
+                  </button>
+              )
+            )}
+          </div>
+      )
+    } else {
+      return (
+        <div className="ex-sort-dropdown">
+          <a href="#"
+             className="ex-btn ex-btn-default"
+             onClick={(e) => { ::this.handleSelectedClick(e) } }>
+            {selected}<span className="ex-icon-caret-down"></span>
+          </a>
+          <ul className={open ? "ex-dropdown-menu2": "ex-dropdown-menu2 ex-dropdown-hide"}>
+            {Object.keys(opts).map(
+              (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }>
+                <a href="#" key={i}>{options[k]}</a>
+              </li>
+            )}
+          </ul>
+        </div>
+      );
+    }
   }
 }
