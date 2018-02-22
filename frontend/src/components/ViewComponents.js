@@ -14,21 +14,25 @@ class ViewComponents extends Component {
 
     let ret = <div></div>;
     if (view_components && Object.keys(view_components.options).length > 1) {
+
       ret = (
         <ul className="ex-inline">
           <li>
             <span>{gettext("View as")} &nbsp; </span>
           </li>
           <li>
-            <Dropdown name='view_components'
-                      request_var={view_components.request_var}
-                      entry_point_id={entry_point_id}
-                      subj_ids={meta.subj_ids}
-                      request_options={meta.request_options}
-                      open={view_components.open}
-                      actions={actions}
-                      selected={view_components.selected}
-                      options={view_components.options}/>
+            <Dropdown
+                name='view_components'
+                request_var={view_components.request_var}
+                entry_point_id={entry_point_id}
+                subj_ids={meta.subj_ids}
+                request_options={meta.request_options}
+                open={view_components.open}
+                actions={actions}
+                selected={view_components.selected}
+                options={view_components.options}
+                btn_groups
+            />
           </li>
         </ul>
       )
