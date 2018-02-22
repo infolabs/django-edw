@@ -49,7 +49,7 @@ export default class Dropdown extends Component {
     this.selectItem(value);
     const cookie_key = "datamart_prefs_" + entry_point_id + "_" + request_var;
     let expires = new Date();   
-    expires.setTime(expires.getTime() + (10 * 60 * 1000));
+    expires.setTime(expires.getTime() + 2592000000); // 2592000000 = 30 * 24 * 60 * 60 * 1000
     cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });
   }
 
