@@ -96,9 +96,8 @@ export default class BtnGroup extends Component {
             const is_selected = options[k] == selected;
             return <button key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }
                             type="button"
-                            className={"ex-btn ex-btn-default" + (is_selected ? ' active' : '')}
-                            style={{marginLeft: i ? 5 : 0}}
-                            ><i className="ex-icon-slug"></i>{options[k]}</button>
+                            className={"ex-btn ex-btn-default " + k + (is_selected ? ' active' : '')}
+                   ><i className="ex-icon-slug"></i><span>{options[k]}</span></button>
           }
         )}
 

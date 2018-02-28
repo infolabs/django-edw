@@ -31,13 +31,13 @@ export default class DataMart extends Component {
         </div>
         <div className="col-sm-8 col-md-9">
           <div className="row">
-            <div className="col-sm-6 col-md-3 ex-view-as ex-dropdown ex-state-closed">
+            <div className="col-sm-6 col-md-4 ex-view-as">
               <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
             <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
               <Ordering entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
-            <div className="col-sm-6 col-md-3 ex-howmany-items ex-dropdown ex-state-closed">
+            <div className="col-sm-6 col-md-2 ex-howmany-items ex-dropdown ex-state-closed">
               <Limits entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
             <div className="col-sm-6 col-md-2 ex-statistic float-right">

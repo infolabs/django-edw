@@ -9,7 +9,7 @@
 
     margin-right: 4px;
 
-    font-family: FontAwesome;
+    font-family: @font-family-icon;
     font-style: normal;
     font-weight: normal;
     text-decoration: inherit;
@@ -189,6 +189,36 @@
 
   &:before {
     content: "";
+  }
+}
+
+.ex-icon-slug:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 @font-family-icon;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ex-view-as {
+  [class*='map'] .ex-icon-slug {
+    margin-right: 5px;
+    &:before {
+      content: "\f279";
+    }
+  }
+  [class*='tile'] .ex-icon-slug {
+    margin-right: 5px;
+    &:before {
+      content: "\f00a";
+    }
+  }
+  [class*='list'] .ex-icon-slug {
+    margin-right: 5px;
+    &:before {
+      content: "\f03a";
+    }
   }
 }
 
