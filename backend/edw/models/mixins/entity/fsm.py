@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# from django.utils.translation import ugettext_lazy as _
+
 from django.utils.encoding import force_text
 
 from edw.models.term import TermModel
@@ -94,7 +94,7 @@ class FSMMixin(object):
             transition_states = cls.TRANSITION_TARGETS
             for state_key, state_name  in transition_states.items():
                 try:
-                    state = states_parent_term.get_descendants(include_self=False).get(slug=state_key)
+                    states_parent_term.get_descendants(include_self=False).get(slug=state_key)
                 except TermModel.DoesNotExist:
                     state = TermModel(
                         slug=state_key,
@@ -103,7 +103,7 @@ class FSMMixin(object):
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=system_flags
                     )
-                state.save()
+                    state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         if origin is None or origin.status != self.status:
