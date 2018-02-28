@@ -61,7 +61,7 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const { selected, options, open, btn_groups = false } = this.props;
+    const { selected, options, open } = this.props;
 
     let opts = {};
     for (const opt of Object.keys(options)) {
@@ -69,25 +69,7 @@ export default class Dropdown extends Component {
         opts[opt] = options[opt];
     }
 
-    if (btn_groups) {
-      return (
-          <div className="btn-group" role="group">
-            {Object.keys(options).map(
-              (k, i) => (
-                  <button
-                      type="button"
-                      className={`btn btn-default ${options[k]===selected ? 'active' : ''}`}
-                      key={i}
-                      onClick={(e) => { ::this.handleOptionClick(e, k) } }
-                  >
-                    {options[k]}
-                  </button>
-              )
-            )}
-          </div>
-      )
-    } else {
-      return (
+    return (
         <div className="ex-sort-dropdown">
           <a href="#"
              className="ex-btn ex-btn-default"
@@ -103,6 +85,5 @@ export default class Dropdown extends Component {
           </ul>
         </div>
       );
-    }
   }
 }

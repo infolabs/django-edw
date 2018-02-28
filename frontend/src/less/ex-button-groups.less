@@ -1,0 +1,244 @@
+//
+// Button groups
+// --------------------------------------------------
+
+// Make the div behave like a button
+.ex-btn-group,
+.ex-btn-group-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle; // match .ex-btn alignment given font-size hack above
+  > .ex-btn {
+    position: relative;
+    float: left;
+    // Bring the "active" button to the front
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+      z-index: 2;
+    }
+  }
+}
+
+// Prevent double borders when buttons are next to each other
+.ex-btn-group {
+  .ex-btn + .ex-btn,
+  .ex-btn + .ex-btn-group,
+  .ex-btn-group + .ex-btn,
+  .ex-btn-group + .ex-btn-group {
+    margin-left: -1px;
+  }
+}
+
+// Optional: Group multiple button groups together for a toolbar
+.ex-btn-toolbar {
+  margin-left: -5px; // Offset the first child's margin
+  &:extend(.clearfix all);
+
+  .ex-btn,
+  .ex-btn-group,
+  .input-group {
+    float: left;
+  }
+  > .ex-btn,
+  > .ex-btn-group,
+  > .input-group {
+    margin-left: 5px;
+  }
+}
+
+.ex-btn-group > .ex-btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+  border-radius: 0;
+}
+
+// Set corners individual because sometimes a single button can be in a .ex-btn-group and we need :first-child and :last-child to both match
+.ex-btn-group > .ex-btn:first-child {
+  margin-left: 0;
+  &:not(:last-child):not(.dropdown-toggle) {
+    .border-right-radius(0);
+  }
+}
+// Need .dropdown-toggle since :last-child doesn't apply, given that a .dropdown-menu is used immediately after it
+.ex-btn-group > .ex-btn:last-child:not(:first-child),
+.ex-btn-group > .dropdown-toggle:not(:first-child) {
+  .border-left-radius(0);
+}
+
+// Custom edits for including ex-btn-groups within ex-btn-groups (useful for including dropdown buttons within a ex-btn-group)
+.ex-btn-group > .ex-btn-group {
+  float: left;
+}
+.ex-btn-group > .ex-btn-group:not(:first-child):not(:last-child) > .ex-btn {
+  border-radius: 0;
+}
+.ex-btn-group > .ex-btn-group:first-child:not(:last-child) {
+  > .ex-btn:last-child,
+  > .dropdown-toggle {
+    .border-right-radius(0);
+  }
+}
+.ex-btn-group > .ex-btn-group:last-child:not(:first-child) > .ex-btn:first-child {
+  .border-left-radius(0);
+}
+
+// On active and open, don't show outline
+.ex-btn-group .dropdown-toggle:active,
+.ex-btn-group.open .dropdown-toggle {
+  outline: 0;
+}
+
+
+// Sizing
+//
+// Remix the default button sizing classes into new ones for easier manipulation.
+
+.ex-btn-group-xs > .ex-btn { &:extend(.ex-btn-xs); }
+.ex-btn-group-sm > .ex-btn { &:extend(.ex-btn-sm); }
+.ex-btn-group-lg > .ex-btn { &:extend(.ex-btn-lg); }
+
+
+// Split button dropdowns
+// ----------------------
+
+// Give the line between buttons some depth
+.ex-btn-group > .ex-btn + .dropdown-toggle {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.ex-btn-group > .ex-btn-lg + .dropdown-toggle {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+// The clickable button for toggling the menu
+// Remove the gradient and set the same inset shadow as the :active state
+.ex-btn-group.open .dropdown-toggle {
+  .box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+
+  // Show no shadow for `.ex-btn-link` since it has no other button styles.
+  &.ex-btn-link {
+    .box-shadow(none);
+  }
+}
+
+
+// Reposition the caret
+.ex-btn .caret {
+  margin-left: 0;
+}
+// Carets in other button sizes
+.ex-btn-lg .caret {
+  border-width: @caret-width-large @caret-width-large 0;
+  border-bottom-width: 0;
+}
+// Upside down carets for .dropup
+.dropup .ex-btn-lg .caret {
+  border-width: 0 @caret-width-large @caret-width-large;
+}
+
+
+// Vertical button groups
+// ----------------------
+
+.ex-btn-group-vertical {
+  > .ex-btn,
+  > .ex-btn-group,
+  > .ex-btn-group > .ex-btn {
+    display: block;
+    float: none;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  // Clear floats so dropdown menus can be properly placed
+  > .ex-btn-group {
+    &:extend(.clearfix all);
+    > .ex-btn {
+      float: none;
+    }
+  }
+
+  > .ex-btn + .ex-btn,
+  > .ex-btn + .ex-btn-group,
+  > .ex-btn-group + .ex-btn,
+  > .ex-btn-group + .ex-btn-group {
+    margin-top: -1px;
+    margin-left: 0;
+  }
+}
+
+.ex-btn-group-vertical > .ex-btn {
+  &:not(:first-child):not(:last-child) {
+    border-radius: 0;
+  }
+  &:first-child:not(:last-child) {
+    .border-top-radius(@btn-border-radius-base);
+    .border-bottom-radius(0);
+  }
+  &:last-child:not(:first-child) {
+    .border-top-radius(0);
+    .border-bottom-radius(@btn-border-radius-base);
+  }
+}
+.ex-btn-group-vertical > .ex-btn-group:not(:first-child):not(:last-child) > .ex-btn {
+  border-radius: 0;
+}
+.ex-btn-group-vertical > .ex-btn-group:first-child:not(:last-child) {
+  > .ex-btn:last-child,
+  > .dropdown-toggle {
+    .border-bottom-radius(0);
+  }
+}
+.ex-btn-group-vertical > .ex-btn-group:last-child:not(:first-child) > .ex-btn:first-child {
+  .border-top-radius(0);
+}
+
+
+// Justified button groups
+// ----------------------
+
+.ex-btn-group-justified {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  > .ex-btn,
+  > .ex-btn-group {
+    float: none;
+    display: table-cell;
+    width: 1%;
+  }
+  > .ex-btn-group .ex-btn {
+    width: 100%;
+  }
+
+  > .ex-btn-group .dropdown-menu {
+    left: auto;
+  }
+}
+
+
+// Checkbox and radio options
+//
+// In order to support the browser's form validation feedback, powered by the
+// `required` attribute, we have to "hide" the inputs via `clip`. We cannot use
+// `display: none;` or `visibility: hidden;` as that also hides the popover.
+// Simply visually hiding the inputs via `opacity` would leave them clickable in
+// certain cases which is prevented by using `clip` and `pointer-events`.
+// This way, we ensure a DOM element is visible to position the popover from.
+//
+// See https://github.com/twbs/bootstrap/pull/12794 and
+// https://github.com/twbs/bootstrap/pull/14559 for more information.
+
+[data-toggle="buttons"] {
+  > .ex-btn,
+  > .ex-btn-group > .ex-btn {
+    input[type="radio"],
+    input[type="checkbox"] {
+      position: absolute;
+      clip: rect(0,0,0,0);
+      pointer-events: none;
+    }
+  }
+}

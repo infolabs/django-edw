@@ -126,6 +126,7 @@ class EntityRelationInline(admin.TabularInline):
 #===========================================================================================
 class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = EntityImageModel
+    fk_name = 'entity'
     extra = 1
     ordering = ('order',)
 
@@ -134,6 +135,7 @@ class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
 #===========================================================================================
 class EntityFileInline(SortableInlineAdminMixin, admin.StackedInline):
     model = EntityFileModel
+    fk_name = 'entity'
     extra = 1
     ordering = ('order',)
 

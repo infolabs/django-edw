@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Dropdown from './Dropdown';
+import BtnGroup from './BtnGroup';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Actions from '../actions/index'
@@ -21,7 +21,7 @@ class ViewComponents extends Component {
             <span>{gettext("View as")} &nbsp; </span>
           </li>
           <li>
-            <Dropdown
+            <BtnGroup
                 name='view_components'
                 request_var={view_components.request_var}
                 entry_point_id={entry_point_id}
@@ -31,7 +31,6 @@ class ViewComponents extends Component {
                 actions={actions}
                 selected={view_components.selected}
                 options={view_components.options}
-                btn_groups
             />
           </li>
         </ul>
