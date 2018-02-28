@@ -118,8 +118,7 @@ class FSMMixin(object):
         if context.get("force_validate_terms", False) or context.get("validate_entity_state", False):
             states = self.get_states()
             # remove old state term
-            for state in states.values():
-                self.terms.remove(state)
+            self.terms.remove(*[term.id for term in states.values()])
             # add new state term
             new_state = states[self.status]
             self.terms.add(new_state)
