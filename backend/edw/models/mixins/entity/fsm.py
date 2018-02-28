@@ -6,7 +6,7 @@ from django.utils.encoding import force_text
 
 from edw.models.term import TermModel
 from edw.models.customer import CustomerModel
-from edw.models.mixins.entity import get_or_create_model_class_wrapper_term
+from edw.models.mixins.entity import get_or_create_model_class_wrapper_term, ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN
 
 
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
@@ -58,7 +58,7 @@ class FSMMixin(object):
         cache_key = "_{cls}_states_cache".format(cls=fsm_model)
         states = getattr(fsm_model, cache_key, None)
         if states is None:
-            model_class_term_slug = "{}_wrapper".format(fsm_model.__name__.lower())
+            model_class_term_slug = ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN.format(fsm_model.__name__.lower())
             states = {}
             try:
                 root = TermModel.objects.get(

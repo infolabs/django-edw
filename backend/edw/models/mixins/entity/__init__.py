@@ -16,15 +16,19 @@ _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
                                      TermModel.system_flags.external_tagging_restriction)
 
 
+ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN = "{}_wrapper"
+
+
 def get_or_create_model_class_wrapper_term(cls):
     system_flags = _default_system_flags_restriction
+    cls_name_lower = cls.__name__.lower()
 
     # Get original entity model class term
-    original_model_class_term = cls.get_entities_types(from_cache=False)[cls.__name__.lower()]
+    original_model_class_term = cls.get_entities_types(from_cache=False)[cls_name_lower]
     original_model_class_term_parent = original_model_class_term.parent
 
     # Compose new entity model class term slug
-    new_model_class_term_slug = "{}_wrapper".format(cls.__name__.lower())
+    new_model_class_term_slug = ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN.format(cls_name_lower)
     if original_model_class_term_parent.slug != new_model_class_term_slug:
         try:  # get or create model class root term
             model_root_term = TermModel.objects.get(slug=new_model_class_term_slug,
