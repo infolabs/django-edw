@@ -2,6 +2,26 @@
 // Button groups
 // --------------------------------------------------
 
+// Single side border-radius
+
+.border-top-radius(@radius) {
+  border-top-right-radius: @radius;
+   border-top-left-radius: @radius;
+}
+.border-right-radius(@radius) {
+  border-bottom-right-radius: @radius;
+     border-top-right-radius: @radius;
+}
+.border-bottom-radius(@radius) {
+  border-bottom-right-radius: @radius;
+   border-bottom-left-radius: @radius;
+}
+.border-left-radius(@radius) {
+  border-bottom-left-radius: @radius;
+     border-top-left-radius: @radius;
+}
+
+
 // Make the div behave like a button
 .ex-btn-group,
 .ex-btn-group-vertical {
@@ -100,11 +120,11 @@
 // The clickable button for toggling the menu
 // Remove the gradient and set the same inset shadow as the :active state
 .ex-btn-group.open .dropdown-toggle {
-  .box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+  .ex-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
 
   // Show no shadow for `.ex-btn-link` since it has no other button styles.
   &.ex-btn-link {
-    .box-shadow(none);
+    .ex-box-shadow(none);
   }
 }
 
@@ -149,12 +169,12 @@
     border-radius: 0;
   }
   &:first-child:not(:last-child) {
-    .border-top-radius(@btn-border-radius-base);
+    .border-top-radius(@ex-btn-border-radius-base);
     .border-bottom-radius(0);
   }
   &:last-child:not(:first-child) {
     .border-top-radius(0);
-    .border-bottom-radius(@btn-border-radius-base);
+    .border-bottom-radius(@ex-btn-border-radius-base);
   }
 }
 .ex-btn-group-vertical > .ex-btn-group:not(:first-child):not(:last-child) > .ex-btn {
