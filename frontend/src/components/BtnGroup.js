@@ -94,10 +94,13 @@ export default class BtnGroup extends Component {
         {Object.keys(options).map(
           (k, i) => {
             const is_selected = options[k] == selected;
-            return <button key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }
-                            type="button"
-                            className={"ex-btn ex-btn-default " + k + (is_selected ? ' active' : '')}
-                   ><i className="ex-icon-slug"></i><span>{options[k]}</span></button>
+            return <a
+                      key={i}
+                      onClick={(e) => { ::this.handleOptionClick(e, k) } }
+                      className={"ex-btn ex-btn-default " + k + (is_selected ? ' disabled' : '')}
+                  >
+                    <i className="ex-icon-slug"></i><span>{options[k]}</span>
+                  </a>
           }
         )}
 
