@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 
 from django.core import exceptions
 from django.core.cache import cache
@@ -155,10 +156,10 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def get_ordering_modes(self, instance):
-        return dict(instance.entities_model.ORDERING_MODES)
+        return OrderedDict(instance.entities_model.ORDERING_MODES)
 
     def get_view_components(self, instance):
-        return dict(instance.entities_model.VIEW_COMPONENTS)
+        return OrderedDict(instance.entities_model.VIEW_COMPONENTS)
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
