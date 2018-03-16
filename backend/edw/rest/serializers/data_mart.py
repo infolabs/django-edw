@@ -159,7 +159,7 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         return OrderedDict(instance.entities_model.ORDERING_MODES)
 
     def get_view_components(self, instance):
-        return OrderedDict(instance.entities_model.VIEW_COMPONENTS)
+        return OrderedDict(instance.entities_model.get_view_components())
 
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
