@@ -297,17 +297,26 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         return initial_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                           timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
 
+    def _get_cached_real_terms_ids(self, instance):
+        real_terms_ids = getattr(self, '_cached_real_terms_ids', None)
+        if real_terms_ids is None:
+            tree = self.context['terms_filter_meta']
+            filter_queryset = self.context['filter_queryset']
+            real_terms_ids = self._cached_real_terms_ids = filter_queryset.get_terms_ids(tree).cache(
+                on_cache_set=self.on_terms_ids_cache_set, timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
+        return real_terms_ids
+
     def get_terms_ids(self, instance):
         return self.context['terms_ids']
 
     def get_real_terms_ids(self, instance):
-        tree = self.context['terms_filter_meta']
-        filter_queryset = self.context['filter_queryset']
-        return filter_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
-                                                         timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
+        return self._get_cached_real_terms_ids(instance)
 
     def get_data_mart(self, instance):
         data_mart = self.context['data_mart']
+        self.context.update({
+            'real_terms_ids': self._get_cached_real_terms_ids(instance)
+        })
         if data_mart is not None:
             serializer = DataMartDetailSerializer(data_mart, context=self.context)
             return serializer.data
