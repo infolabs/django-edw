@@ -61,7 +61,20 @@ class BaseEntities extends Component {
     if (term_ids.length) {
       request_options['terms'] = term_ids;
     }
-    const preferences = this.getCookiePreferences();
+
+    let preferences = this.getCookiePreferences();
+
+    // check view preference
+    const comp_pref = preferences.view_component;
+    if (comp_pref && this.props.entities.dropdowns.view_components) {
+      let views = this.props.entities.dropdowns.view_components.options,
+          view_keys = Object.keys(views);
+
+      if (view_keys.indexOf(comp_pref) < 0 && view_keys.length) {
+        preferences.view_component = view_keys[0];
+      }
+    }
+
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
