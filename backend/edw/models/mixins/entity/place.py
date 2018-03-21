@@ -14,7 +14,7 @@ class PlaceMixin(object):
     REQUIRED_FIELDS = ('geoposition',)
 
     def need_terms_validation_after_save(self, origin, **kwargs):
-        if origin is None or origin.geoposition != self.geoposition:
+        if (origin is None or origin.geoposition != self.geoposition) and self.geoposition:
             do_validate = kwargs["context"]["validate_place"] = True
         else:
             do_validate = False
