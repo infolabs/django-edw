@@ -63,18 +63,6 @@ class BaseEntities extends Component {
     }
 
     let preferences = this.getCookiePreferences();
-
-    // check view preference
-    const comp_pref = preferences.view_component;
-    if (comp_pref && this.props.entities.dropdowns.view_components) {
-      let views = this.props.entities.dropdowns.view_components.options,
-          view_keys = Object.keys(views);
-
-      if (view_keys.indexOf(comp_pref) < 0 && view_keys.length) {
-        preferences.view_component = view_keys[0];
-      }
-    }
-
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
@@ -93,9 +81,18 @@ class BaseEntities extends Component {
         descriptions = entities.descriptions,
         meta = entities.items.meta;
 
+    // set the first available component if the requested one isn't in the list
+    let component_name = entities.items.component;
+    if (meta.data_mart && meta.data_mart.view_components) {
+      let view_components = Object.keys(meta.data_mart.view_components);
+      if (view_components.length && view_components.indexOf(component_name) < 0) {
+        component_name = view_components[0];
+      }
+    }
+
     let ret = <div></div>;
-    if (entities.items && entities.items.component) {
-      const component = this.templates[entities.items.component];
+    if (component_name) {
+      const component = this.templates[component_name];
       ret = React.createElement(
         component, {
           items: items,

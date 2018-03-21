@@ -13,7 +13,15 @@ class ViewComponents extends Component {
           { view_components } = dropdowns;
 
     let ret = <div></div>;
+
     if (view_components && Object.keys(view_components.options).length > 1) {
+
+      // if the selected component isn't in the options list, select the first one
+      let selected = view_components.selected;
+      const values = Object.values(view_components.options);
+      if (values.length && values.indexOf(selected) < 0) {
+        selected = values[0];
+      }
 
       ret = (
         <ul className="ex-inline">
@@ -29,7 +37,7 @@ class ViewComponents extends Component {
                 request_options={meta.request_options}
                 open={view_components.open}
                 actions={actions}
-                selected={view_components.selected}
+                selected={selected}
                 options={view_components.options}
             />
           </li>
