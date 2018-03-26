@@ -2,11 +2,15 @@
 from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
+from django.dispatch import Signal
 
 from edw.utils.geo import get_location_from_geocoder, get_postcode
 
 from edw.models.postal_zone import get_all_postal_zone_terms_ids, get_postal_zone
 from edw.models.entity import EntityModel
+
+
+zone_changed = Signal(providing_args=["zone_term_id", ])
 
 
 class PlaceMixin(object):
@@ -41,5 +45,7 @@ class PlaceMixin(object):
             zone = get_postal_zone(get_postcode(self.location))
             if zone is not None:
                 self.terms.add(zone.term)
+                zone_changed.send(sender=self.__class__, zone_term_id=zone.term.id)
+
 
         super(PlaceMixin, self).validate_terms(origin, **kwargs)
