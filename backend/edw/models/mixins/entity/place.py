@@ -2,15 +2,12 @@
 from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
-from django.dispatch import Signal
 
+from edw.signals.place import zone_changed
 from edw.utils.geo import get_location_from_geocoder, get_postcode
 
 from edw.models.postal_zone import get_all_postal_zone_terms_ids, get_postal_zone
 from edw.models.entity import EntityModel
-
-
-zone_changed = Signal(providing_args=["zone_term_id", ])
 
 
 class PlaceMixin(object):
@@ -39,13 +36,20 @@ class PlaceMixin(object):
             # нельзя использовать в массовых операциях из ограничения API геокодера
             if origin is not None:
                 postal_zone_terms_ids = get_all_postal_zone_terms_ids()
-                self.terms.remove(*EntityModel.terms.through.objects.filter(
-                    entity_id=self.id, term_id__in=postal_zone_terms_ids).values_list('term_id', flat=True))
-
+                to_remove = EntityModel.terms.through.objects.filter(
+                    entity_id=self.id, term_id__in=postal_zone_terms_ids).values_list('term_id', flat=True)
+                self.terms.remove(*to_remove)
+            else:
+                to_remove = []
             zone = get_postal_zone(get_postcode(self.location))
             if zone is not None:
-                self.terms.add(zone.term)
-                zone_changed.send(sender=self.__class__, zone_term_id=zone.term.id)
-
+                to_add = [zone.term.id,]
+                self.terms.add(*to_add)
+            else:
+                to_add = []
+            if set(to_add) != set(to_remove):
+                zone_changed.send(sender=self.__class__, instance=self,
+                                  zone_term_ids_to_remove=to_remove,
+                                  zone_term_ids_to_add=to_add)
 
         super(PlaceMixin, self).validate_terms(origin, **kwargs)
