@@ -747,6 +747,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     if parent is None:
                         term = TermModel.objects.get(slug=slug, parent=parent)
                     else:
+                        try:
+                            parent = TermModel.objects.get(id=parent.id)
+                        except TermModel.DoesNotExist:
+                            pass
                         term = TermModel.objects.get(slug=slug, id__in=list(
                             parent.get_descendants(include_self=False).values_list('id', flat=True)))
                 except TermModel.DoesNotExist:
@@ -760,7 +764,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                                                    TermModel.system_flags.change_semantic_rule_restriction |
                                                    TermModel.system_flags.has_child_restriction |
                                                    TermModel.system_flags.external_tagging_restriction))
-                    term.save()
+                    term.save(do_correct_term_unique_error=False)
                 parent = term
 
     def need_terms_validation_after_save(self, origin, **kwargs):
