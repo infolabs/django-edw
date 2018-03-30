@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import operator
+from functools import reduce
 
 from six import with_metaclass
 
@@ -32,6 +33,13 @@ from ..utils.circular_buffer_in_cache import RingBuffer
 from ..signals.mptt import MPTTModelSignalSenderMixin
 
 from .. import settings as edw_settings
+
+
+#==============================================================================
+# TermUniqueError
+#==============================================================================
+class TermUniqueError(IntegrityError):
+    pass
 
 
 #==============================================================================
@@ -331,6 +339,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     def save(self, *args, **kwargs):
         # determine whether this instance is already in the db
         force_update = kwargs.get('force_update', False)
+        do_correct_term_unique_error = kwargs.pop('do_correct_term_unique_error', True)
         if not force_update:
             model_class = self.__class__
             ancestors = self.ancestors_list
@@ -346,9 +355,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                     result = super(BaseTerm, self).save(*args, **kwargs)
             except IntegrityError as e:
                 if model_class._default_manager.exclude(pk=self.pk).filter(path=self.path).exists():
-                    self.slug = get_unique_slug(self.slug, self.id)
-                    self._make_path(ancestors + [self, ])
-                    result = super(BaseTerm, self).save(*args, **kwargs)
+                    if do_correct_term_unique_error:
+                        self.slug = get_unique_slug(self.slug, self.id)
+                        self._make_path(ancestors + [self, ])
+                        result = super(BaseTerm, self).save(*args, **kwargs)
+                    else:
+                        raise TermUniqueError(e)
                 else:
                     raise e
             if not origin or origin.active != self.active:
