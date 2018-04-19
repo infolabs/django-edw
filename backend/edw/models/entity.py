@@ -1024,6 +1024,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return None
 
+    def get_common_terms_ids(self):
+        return self.terms.all().exclude(system_flags=TermModel.system_flags.external_tagging_restriction).values_list(
+            'id', flat=True)
+
 EntityModel = deferred.MaterializedModel(BaseEntity)
 
 
