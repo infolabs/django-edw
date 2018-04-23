@@ -2,17 +2,40 @@
 from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 
 from edw.signals.place import zone_changed
 from edw.utils.geo import get_location_from_geocoder, get_postcode
 
 from edw.models.postal_zone import get_all_postal_zone_terms_ids, get_postal_zone
+from edw.models.term import TermModel
 from edw.models.entity import EntityModel
 
 
 class PlaceMixin(object):
 
     REQUIRED_FIELDS = ('geoposition',)
+
+    REGION_ROOT_TERM_SLUG = "region"
+
+    @classmethod
+    def validate_term_model(cls):
+        try: # region
+            region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
+        except TermModel.DoesNotExist:
+            region = TermModel(
+                slug=cls.REGION_ROOT_TERM_SLUG,
+                parent=None,
+                name=_('Region'),
+                semantic_rule=TermModel.OR_RULE,
+                system_flags=(TermModel.system_flags.delete_restriction |
+                              TermModel.system_flags.change_parent_restriction |
+                              TermModel.system_flags.change_slug_restriction))
+            region.save()
+
+        print(">>>> validate_term_model", cls, region)
+
+        super(PlaceMixin, cls).validate_term_model()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         if (origin is None or origin.geoposition != self.geoposition) and self.geoposition:
