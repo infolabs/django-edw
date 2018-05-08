@@ -7,6 +7,7 @@ import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
 import parseRequestParams from 'utils/parseRequestParams';
+import hashCode from "../utils/utils";
 
 
 class BaseEntities extends Component {
@@ -30,7 +31,7 @@ class BaseEntities extends Component {
   getCookiePreferences() {
     const entry_point_id = this.props.entry_point_id,
           cookie_data = cookie.loadAll(),
-          prefix = "datamart_prefs_" + entry_point_id + "_";
+          prefix = `dm_${entry_point_id}_${hashCode(document.location.pathname)}_`;
 
     let preferences = {};
 
