@@ -46,7 +46,6 @@ class TermsTree extends Component {
         this.props.actions.notifyLoading();
         this.props.actions.reloadTree(entry_point_id, tagged_next.items);
       }
-
       // reload entities
       if (!tagged_next.entities_ignore) {
         const parms = parseRequestParams(request_params),

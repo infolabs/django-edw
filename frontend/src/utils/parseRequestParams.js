@@ -1,27 +1,20 @@
 
 function parseIntList(param, name) {
-  let ret = [];
-  const q = name + "=";
-  const r = new RegExp("^" + q, "g");
-  if (param.startsWith(q)) {
-    const param_str = param.replace(r, "");
-    if (param_str) {
-      let param_int = parseInt(param_str);
-      if (isNaN(param_int)) {
-        ret = param_str.value.split(",");
-      } else {
-        ret.push(param_int);
-      }
+    let ret = [],
+        arr = param.replace(`${name}=`, '').split(',');
+    for (const value of arr) {
+        const num = parseInt(value);
+        if (!isNaN(num))
+            ret.push(num);
     }
-  }
-  return ret;
+    return ret;
 }
 
 export default function parseRequestParams(request_params) {
-    let term_ids = [];
-    let subj_ids = [];
-    let limit = -1;
-    let options_arr = [];
+    let term_ids = [],
+        subj_ids = [],
+        limit = -1,
+        options_arr = [];
 
     for (const param of request_params) {
         if (param.startsWith("terms=")) {
@@ -34,6 +27,5 @@ export default function parseRequestParams(request_params) {
           options_arr.push(param);
         }
     }
-
     return { term_ids, subj_ids, limit, options_arr };
 }

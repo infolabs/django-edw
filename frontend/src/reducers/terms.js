@@ -54,7 +54,7 @@ class Tree {
 class Item {
   constructor(options) {
     let defaults = {
-      'id': -1,
+      'id': null,
       'name': '',
       'slug': '',
       'url': '',
@@ -127,7 +127,7 @@ class TaggedItems {
     return Object.assign(new TaggedItems(), this);
   }
 
-  copy () {
+  copy() {
     let ret = Object.assign(new TaggedItems(), this); 
     ret.items = this.items.slice();
     return ret;
@@ -178,7 +178,6 @@ class TaggedItems {
 
   static isTaggable(item) {
     return !item.isLimbOrAndLeaf();
-
   }
 
   toggle(item) {
@@ -201,12 +200,14 @@ class TaggedItems {
 
   resetBranch(item) {
     let ret = this.copy();
+    ret.entities_ignore = false;
     ret.untag(item);
     return ret;
   }
 
   resetItem(item) {
     let ret = this.copy();
+    ret.entities_ignore = false;
     for (const child of item.children) {
       ret.untag(child);
     }
@@ -218,7 +219,8 @@ class TaggedItems {
     if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_OR)
       this.untagSiblings(item);
     let index = this.items.indexOf(item.id);
-    if (index < 0 && item.id > -1) {
+    if (index < 0 && item.id != null) {
+    // if (index < 0 && item.id > -1) {
       this.items.push(item.id);
     }
     item.parent && this.tag(item.parent);
