@@ -1025,8 +1025,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return None
 
     def get_common_terms_ids(self):
-        return self.terms.all().exclude(system_flags=TermModel.system_flags.external_tagging_restriction).values_list(
+        """
+        Return common terms ids
+        """
+        return self.terms.exclude(system_flags=TermModel.system_flags.external_tagging_restriction).values_list(
             'id', flat=True)
+
+    @cached_property
+    def common_terms_ids(self):
+        return list(self.get_common_terms_ids())
+
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
 
