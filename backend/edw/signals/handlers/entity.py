@@ -14,6 +14,7 @@ from django.db.models.signals import (
 from django.dispatch import receiver
 
 from edw.signals import make_dispatch_uid
+from edw.signals.entity import external_add_terms, external_remove_terms
 
 from edw.models.term import TermModel
 from edw.models.entity import EntityModel
@@ -73,6 +74,12 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
                 instance._during_terms_normalization = True
                 instance.terms.remove(*list(pk_set_difference))
                 del instance._during_terms_normalization
+
+            if pk_set:
+                external_add_terms.send(sender=instance.__class__, instance=instance, pk_set=pk_set)
+        else:
+            if pk_set:
+                external_remove_terms.send(sender=instance.__class__, instance=instance, pk_set=pk_set)
 
 
 def invalidate_entity_after_save(sender, instance, **kwargs):
