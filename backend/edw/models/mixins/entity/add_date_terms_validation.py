@@ -99,7 +99,7 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         if added_days is None:
             added_days = {}
             try:
-                root = TermModel.objects.get(slug=EntityModel.ADDED_DAY_ROOT_TERM_SLUG, parent=None)
+                root = TermModel.objects.get(slug=AddedDayTermsValidationMixin.ADDED_DAY_ROOT_TERM_SLUG, parent=None)
                 for term in root.get_descendants(include_self=True):
                     added_days[term.slug] = term
             except TermModel.DoesNotExist:
@@ -156,12 +156,13 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         if added_months is None:
             added_months = {}
             try:
-                root = TermModel.objects.get(slug=EntityModel.ADDED_MONTH_ROOT_TERM_SLUG, parent=None)
+                root = TermModel.objects.get(slug=AddedMonthTermsValidationMixin.ADDED_MONTH_ROOT_TERM_SLUG, parent=None)
                 for term in root.get_descendants(include_self=True):
                     added_months[term.slug] = term
             except TermModel.DoesNotExist:
                 pass
-            EntityModel._added_months_cache = added_months
+            else:
+                EntityModel._added_months_cache = added_months
         return added_months
 
 
@@ -204,7 +205,10 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         added_years = getattr(EntityModel, "_added_years_cache", {})
         if year_key not in added_years:
             try:
-                root = TermModel.objects.get(slug=EntityModel.ADDED_YEAR_ROOT_TERM_SLUG, parent=None)
+                root = TermModel.objects.get(slug=AddedYearTermsValidationMixin.ADDED_YEAR_ROOT_TERM_SLUG, parent=None)
+            except TermModel.DoesNotExist:
+                pass
+            else:
                 if not added_years:
                     for term in root.get_descendants(include_self=False):
                         added_years[term.slug] = term
@@ -221,8 +225,6 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                         }
                     )
                     added_years[year_key] = term
-            except TermModel.DoesNotExist:
-                pass
         return added_years
 
 
