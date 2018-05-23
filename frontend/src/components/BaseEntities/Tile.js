@@ -35,18 +35,34 @@ class TileItem extends Component {
   }
 
   handleMouseOver(e) {
-    const { data, actions, descriptions } = this.props,
-        id = data.id;
-
-    actions.showDescription(id);
-    if (!descriptions[id]) {
-        actions.getEntityItem(data);
-    }
+    this.toggleDescription(e);
   }
 
   handleMouseOut(e) {
-    const { data, actions, descriptions } = this.props;
-    actions.hideDescription(data.id);
+    this.toggleDescription(e);
+  }
+
+  toggleDescription(e) {
+    const { data, actions, descriptions } = this.props,
+          id = data.id;
+
+    if (this.getIsHover(e.clientX, e.clientY)) {
+      actions.showDescription(id);
+      if (!descriptions[id]) {
+        actions.getEntityItem(data);
+      }
+    } else {
+      actions.hideDescription(id);
+    }
+  }
+
+  getIsHover(clientX, clientY) {
+    const area = ReactDOM.findDOMNode(this),
+          areaRect = area.getBoundingClientRect(),
+          posX = clientX - areaRect.left,
+          posY = clientY - areaRect.top;
+
+    return posX >= 0 && posY >= 0 && posX <= areaRect.width && posY <= areaRect.height;
   }
 
   componentDidMount(x, y, z) {
