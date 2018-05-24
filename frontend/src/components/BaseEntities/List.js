@@ -11,9 +11,11 @@ export default class List extends Component {
 
   render() {
     const { items, actions, loading, descriptions, meta } = this.props;
+    let entities_class = "entities list-items";
+    entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
     return (
-      <div className="entities list-items">
+      <div className={entities_class}>
         {items.map(
           (child, i) =>
           <ListItem key={i} data={child} actions={actions} descriptions={descriptions} position={i} meta={meta}/>
@@ -122,7 +124,7 @@ class ListItem extends Component {
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>
 
-        <a href={url} title={data.entity_name} className={item_wrapper_class}>
+        <a href={url} className={item_wrapper_class}>
           <div className="row">
             <div className="col-md-3" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
 
