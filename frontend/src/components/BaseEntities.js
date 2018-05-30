@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import Scroll from 'react-scroll';
 import Actions from '../actions/index'
 import cookie from 'react-cookies'
 import List from 'components/BaseEntities/List';
@@ -71,6 +73,28 @@ class BaseEntities extends Component {
     this.props.actions.getEntities(
       entry_point_id, subj_ids, request_options, options_arr
     );
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { entities } = this.props;
+
+    if (!entities.items.loading && prevProps.entities.items.loading) {
+      const area = ReactDOM.findDOMNode(this),
+            areaRect = area.getBoundingClientRect(),
+            bodyRect = document.body.getBoundingClientRect(),
+            areaOffsetTop = areaRect.top - bodyRect.top,
+            screenHeight = window.innerHeight;
+
+      if ((areaRect.top < 0 && areaRect.top < 0.667 * (screenHeight - areaRect.height)) || areaRect.top > screenHeight) {
+        const dY = Math.min(Math.round(0.25 * screenHeight), Math.abs(areaRect.top));
+
+        Scroll.animateScroll.scrollTo(areaOffsetTop - dY, {
+          duration: 700,
+          delay: 200,
+          smooth: true
+        });
+      }
+    }
   }
 
   render() {
