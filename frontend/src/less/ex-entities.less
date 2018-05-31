@@ -601,7 +601,7 @@
 /* ========== RIBBONS ========== */
 //
 //##
-.ex-catalog-item .ex-ribbons {
+.ex-ribbons {
   overflow: hidden;
   position: absolute;
   right: 0px;
@@ -709,6 +709,61 @@
   }
 }
 
+.ex-map-info {
+  max-width: 530px;
+  display: flex;
+  box-sizing: border-box;
+
+  ul {
+    padding: 0;
+
+    li {
+      list-style-type: none;
+    }
+  }
+
+  .ex-map-img {
+    flex: 0 0 160px;
+    max-height: 160px;
+
+    .ex-wrap-thumbnail {
+      padding: 10px!important;
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
+
+      a {
+        padding: 0!important;
+
+        img {
+          object-fit: contain;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+
+  .ex-map-descr {
+    flex-grow: 1;
+    padding: 10px;
+    z-index: 11;
+  }
+
+  .ex-ribbons {
+    left: 0;
+
+    .ex-ribbon {
+      padding: 4px 12px;
+      font-size: 10px;
+
+      &:after{
+        display: none;
+      }
+    }
+  }
+}
+
 //== Responsive layout
 //
 //##
@@ -741,43 +796,68 @@
       }
     }
   }
-}
 
-.ex-map-info {
-  max-width: 250px;
-  ul {
-    padding: 0;
-  }
-  ul li {
-    list-style-type: none;
-  }
-}
+  .ex-map-info {
+    max-width: 250px;
 
-.list-items {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
+    .ex-ribbons,
+    .ex-map-img {
+      display: none;
+    }
 
-  h4 {
-    font-size: 16px;
-    margin-bottom: 0;
-
-    a {
-      text-decoration: underline;
-      &:hover {
-        text-decoration: none;
-        color: @ex-catalog-item-hover-title-color;
-      }
+    .ex-map-descr {
+      padding: 0;
     }
   }
-  li {
-    margin-bottom: 5px;
-  }
-  .tags {
-    font-size: 15px;
-    color: darken(@ex-catalog-item-title-color, 20%);
-    opacity: 0.8;
-    margin-bottom: 15px;
+}
+
+
+.list-items {
+  .list-item {
+    display: block;
+    position: relative;
+    margin: 0;
+    width: initial;
+    z-index: initial;
+
+    &:not(:last-of-type) {
+      border-bottom: 1px solid @ex-catalog-item-border;
+    }
+
+    .wrap-list-item {
+      display: block;
+      width: 100%;
+      padding: 20px;
+      background-color: @ex-white;
+      transition: all .35s ease 0s;
+
+      &.is-active {
+        position: absolute;
+        z-index: 11;
+        box-shadow: 0 10px 28px -10px rgba(0,0,0,.2);
+        background-color: @ex-catalog-item-hover-bg;
+      }
+
+      h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+      }
+
+      .ex-description-wrapper {
+        .ex-attrs {
+          li {
+            display: inline-block;
+            padding: 8px 15px;
+            padding-left: 0;
+          }
+        }
+      }
+
+      .ex-ribbons {
+        left: 14px;
+        top: 30px;
+      }
+    }
   }
 }
 

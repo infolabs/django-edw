@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import  marked from 'marked';
 import { withGoogleMap, GoogleMap, Marker, InfoWindow } from "react-google-maps";
 
 // Map component
@@ -180,33 +181,50 @@ export default class Map extends Component {
 
       const info = (
         <div className="ex-map-info">
-          <h5><a href={url}>{item.entity_name}</a></h5>
-          <ul className="ex-attrs">
-            {item.short_characteristics.map(
+          <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(item.media, {sanitize: false})}} />
+
+          <ul className="ex-ribbons">
+            {marks.map(
               (child, i) =>
-                <li data-path={child.path} key={i}
+                <li className="ex-wrap-ribbon"
+                    key={i}
+                    data-name={child.name}
+                    data-path={child.path}
                     data-view-class={child.view_class.join(" ")}>
-                  <strong>{child.name}:</strong>&nbsp;
-                  {child.values.join("; ")}
+                  <div className="ex-ribbon">{child.values.join(", ")}</div>
                 </li>
             )}
           </ul>
-          <span className="tags">
-            <small>
-              {marks.map(
+
+          <div className="ex-map-descr">
+            <h5><a href={url}>{item.entity_name}</a></h5>
+            <ul className="ex-attrs">
+              {item.short_characteristics.map(
                 (child, i) =>
-                  <span className="ex-wrap-ribbon"
-                      key={i}
-                      data-name={child.name}
-                      data-path={child.path}
+                  <li data-path={child.path} key={i}
                       data-view-class={child.view_class.join(" ")}>
-                    <i className="fa fa-tag"></i>&nbsp;
-                    <span className="ex-ribbon">{child.values.join(", ")}</span>
-                    &nbsp;
-                  </span>
+                    <strong>{child.name}:</strong>&nbsp;
+                    {child.values.join("; ")}
+                  </li>
               )}
-            </small>
-          </span>
+            </ul>
+            <span className="tags">
+              <small>
+                {marks.map(
+                  (child, i) =>
+                    <span className="ex-wrap-ribbon"
+                        key={i}
+                        data-name={child.name}
+                        data-path={child.path}
+                        data-view-class={child.view_class.join(" ")}>
+                      <i className="fa fa-tag"></i>&nbsp;
+                      <span className="ex-ribbon">{child.values.join(", ")}</span>
+                      &nbsp;
+                    </span>
+                )}
+              </small>
+            </span>
+          </div>
         </div>
       );
 

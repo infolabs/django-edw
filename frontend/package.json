@@ -34,6 +34,7 @@
     "react-dom": "^15.6.1",
     "react-google-maps": "^6.0.1",
     "react-cookies": "0.1.0",
+    "react-scroll": "1.7.9",
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-logger": "^3.0.6",
