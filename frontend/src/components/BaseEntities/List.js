@@ -130,18 +130,6 @@ class ListItem extends Component {
 
             <div className="col-md-9">
               <h4>{data.entity_name}</h4>
-              {
-                descriptions.opened[data.id] &&
-                descriptions[data.id] &&
-                descriptions[data.id].lead &&
-                descriptions[data.id].lead.length ?
-                <p>{descriptions[data.id].lead}</p>
-                :
-                data.extra.short_subtitle &&
-                data.extra.short_subtitle.length &&
-                data.extra.short_subtitle !== data.entity_name &&
-                <p>{data.extra.short_subtitle}</p>
-              }
               {descriptions.opened[data.id] && description_baloon}
             </div>
           </div>
