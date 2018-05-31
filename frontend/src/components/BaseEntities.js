@@ -14,6 +14,10 @@ import hashCode from "../utils/utils";
 
 class BaseEntities extends Component {
 
+  state = {
+    initialized: false
+  };
+
   static getTemplates() {
     return {
       "tile": Tile,
@@ -79,20 +83,26 @@ class BaseEntities extends Component {
     const { entities } = this.props;
 
     if (!entities.items.loading && prevProps.entities.items.loading) {
-      const area = ReactDOM.findDOMNode(this),
-            areaRect = area.getBoundingClientRect(),
-            bodyRect = document.body.getBoundingClientRect(),
-            areaOffsetTop = areaRect.top - bodyRect.top,
-            screenHeight = window.innerHeight;
+      const { initialized } = this.state;
 
-      if ((areaRect.top < 0 && areaRect.top < 0.667 * (screenHeight - areaRect.height)) || areaRect.top > screenHeight) {
-        const dY = Math.min(Math.round(0.25 * screenHeight), Math.abs(areaRect.top));
+      if (initialized) {
+        const area = ReactDOM.findDOMNode(this),
+              areaRect = area.getBoundingClientRect(),
+              bodyRect = document.body.getBoundingClientRect(),
+              areaOffsetTop = areaRect.top - bodyRect.top,
+              screenHeight = window.innerHeight;
 
-        Scroll.animateScroll.scrollTo(areaOffsetTop - dY, {
-          duration: 700,
-          delay: 200,
-          smooth: true
-        });
+        if ((areaRect.top < 0 && areaRect.top < 0.667 * (screenHeight - areaRect.height)) || areaRect.top > screenHeight) {
+          const dY = Math.min(Math.round(0.25 * screenHeight), Math.abs(areaRect.top));
+
+          Scroll.animateScroll.scrollTo(areaOffsetTop - dY, {
+            duration: 700,
+            delay: 200,
+            smooth: true
+          });
+        }
+      } else {
+        this.setState({initialized: true});
       }
     }
   }
