@@ -77,6 +77,20 @@ class PlaceMixin(object):
                     EntityModel._terra_incognita_cache = terra_incognita
         return terra_incognita
 
+    @classmethod
+    def get_all_regions_terms_ids_set(cls):
+        region = PlaceMixin.get_region_term()
+        if region is not None:
+            ids = region.get_descendants(include_self=True).values_list('id', flat=True)
+        else:
+            ids = []
+        return set(ids)
+
+
+    @cached_property
+    def all_regions_terms_ids_set(self):
+        return self.get_all_regions_terms_ids_set()
+
     def need_terms_validation_after_save(self, origin, **kwargs):
         if (origin is None or origin.geoposition != self.geoposition) and self.geoposition:
             do_validate = kwargs["context"]["validate_place"] = True
@@ -96,12 +110,10 @@ class PlaceMixin(object):
         if (context.get("force_validate_terms", False) and not context.get("bulk_force_validate_terms", False)
         ) or context.get("validate_place", False):
             # нельзя использовать в массовых операциях из ограничения API геокодера
-            terra_incognita = self.get_terra_incognita_term()
             if origin is not None:
-                postal_zone_terms_ids = get_all_postal_zone_terms_ids()
                 to_remove = EntityModel.terms.through.objects.filter(
                     Q(entity_id=self.id) &
-                    (Q(term_id__in=postal_zone_terms_ids) | Q(term_id=terra_incognita.id))
+                    Q(term_id__in=self.all_regions_terms_ids_set)
                 ).values_list('term_id', flat=True)
                 self.terms.remove(*to_remove)
             else:
@@ -117,7 +129,7 @@ class PlaceMixin(object):
             if zone is not None:
                 to_add = [zone.term.id]
             else:
-                to_add = [terra_incognita.id]
+                to_add = [self.get_terra_incognita_term().id]
             self.terms.add(*to_add)
 
             if set(to_add) != set(to_remove):
