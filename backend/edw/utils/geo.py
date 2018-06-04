@@ -170,12 +170,20 @@ def get_name(location):
 EARTH_RADIUS_METERS = 6378137
 
 
+def lat_lon_substring(geo_field):
+    return Substring(
+        F(geo_field),
+        Position(Value(","), F(geo_field)) + 1,
+        CharLength(F(geo_field))
+    )
+
+
 def geo_to_latitude(geo_field):
     return Cast(
         Substring(
-            F(geo_field),
+            lat_lon_substring(geo_field),
             1,
-            Position(Value(","), F(geo_field)) - 1
+            Position(Value(","), lat_lon_substring(geo_field)) - 1
         ),
         Decimal(12, 10),
         output_field=models.FloatField()
@@ -185,9 +193,9 @@ def geo_to_latitude(geo_field):
 def geo_to_longitude(geo_field):
     return Cast(
         Substring(
-            F(geo_field),
-            Position(Value(","), F(geo_field)) + 1,
-            CharLength(F(geo_field))
+            lat_lon_substring(geo_field),
+            Position(Value(","), lat_lon_substring(geo_field)) + 1,
+            CharLength(lat_lon_substring(geo_field))
         ),
         Decimal(13, 10),
         output_field=models.FloatField()
