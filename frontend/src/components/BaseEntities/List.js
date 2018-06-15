@@ -18,7 +18,15 @@ export default class List extends Component {
       <div className={entities_class}>
         {items.map(
           (child, i) =>
-          <ListItem key={i} data={child} actions={actions} descriptions={descriptions} position={i} meta={meta}/>
+          <ListItem
+              key={i}
+              data={child}
+              actions={actions}
+              loading={loading}
+              descriptions={descriptions}
+              position={i}
+              meta={meta}
+          />
         )}
       </div>
     );
