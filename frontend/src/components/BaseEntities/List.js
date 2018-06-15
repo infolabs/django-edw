@@ -42,6 +42,12 @@ class ListItem extends Component {
     this.toggleDescription(e);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.loading !== prevProps.loading) {
+      this.setState({minHeight: 'auto'});
+    }
+  }
+
   toggleDescription(e) {
     const { data, actions, descriptions } = this.props,
           id = data.id,
