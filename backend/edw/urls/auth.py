@@ -11,6 +11,7 @@ from edw.views.auth import LogoutView
 from edw.views.auth import PasswordResetView
 from edw.views.auth import PasswordChangeView
 from edw.views.auth import ActivationView
+from edw.views.auth import GetTokenView
 from edw.forms.auth import RegisterUserForm as DefaultRegisterUserForm
 
 
@@ -36,6 +37,8 @@ urlpatterns = [
     #    name='continue-as-guest'),
     url(r'^logout/$', LogoutView.as_view(),
         name='logout'),
+    url(r'^get-token/$', GetTokenView.as_view(),
+        name='get-token'),
     url(r'^password/change/$', PasswordChangeView.as_view(),
         name='password-change'),
 ]
