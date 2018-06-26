@@ -56,7 +56,7 @@ class GetTokenView(GenericAPIView):
         if not request.user.is_anonymous():
             email = request.customer.user.email
             try:
-                token, created = Token.objects.get_or_create(user=None)
+                token, created = Token.objects.get_or_create(user=request.user)
             except ValueError as e:
                 return Response(
                     {'detail': _('User is not recognized as "registered"')},
