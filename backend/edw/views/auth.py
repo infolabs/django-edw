@@ -54,12 +54,23 @@ class AuthFormsView(GenericAPIView):
 class GetTokenView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_anonymous():
-            user = request.customer.user
-            email = user.email
-            token, created = Token.objects.get_or_create(user=request.user)
+            email = request.customer.user.email
+            try:
+                token, created = Token.objects.get_or_create(user=request.user)
+            except ValueError as e:
+                return Response(
+                    {'detail': e},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                return Response(
+                    {"email": email, "key": token.key},
+                    status=status.HTTP_200_OK
+                )
+        else:
             return Response(
-                {'email': email, 'key': token.key},
-                status=status.HTTP_200_OK
+                {'detail': _("Logged out")},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
 
