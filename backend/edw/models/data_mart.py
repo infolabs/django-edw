@@ -32,7 +32,7 @@ from .mixins.rebuild_tree import RebuildTreeMixin
 
 from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
-from .fields import TreeForeignKey
+from .fields.tree import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug
 from ..utils.circular_buffer_in_cache import RingBuffer
 from ..signals.mptt import MPTTModelSignalSenderMixin

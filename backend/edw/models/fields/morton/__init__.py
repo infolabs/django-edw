@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from django.db import models
@@ -7,22 +8,43 @@ from django.db.models import Lookup
 from django.db.models.lookups import PatternLookup
 
 
+def dummy_interleave_fn(*args):
+    """
+    :param args: Fi(*arg) --> morton code
+    :return: morton code string
+    """
+    return ''
+
+
+def dummy_deinterleave_fn(mortoncode):
+    """
+    :param mortoncode: Fd(mortoncode) --> (arg1, arg2, ... , argn)
+    :return: *args
+    """
+    return []
+
+
 class BaseMortonOrder(object):
-    def __init__(self, mortoncode=None, base=32, fn=lambda: '', inv_fn=lambda: None, *args):
+    def __init__(self, mortoncode=None,
+                 interleave_fn=dummy_interleave_fn,
+                 deinterleave_fn=dummy_deinterleave_fn,
+                 *args):
         self.args = args
-        self.interleave = fn
-        self.deinterleave = inv_fn
+        self.interleave_fn = interleave_fn
+        self.deinterleave_fn = deinterleave_fn
 
         if mortoncode is None:
+            self._do_invalidate_mortoncode = True
             self.mortoncode = self.interleave()
         else:
+            self._do_invalidate_mortoncode = False
             self.mortoncode = mortoncode
 
     def __str__(self):
-        return "%s,%s" % (self.mortoncode)
+        return "{}".format(self.mortoncode)
 
     def __repr__(self):
-        return "MortonOrder(%s)" % str(self)
+        return "{}({}: [{}])".format(self.__class__.__name__, str(self), ", ".join([str(x) for x in self.args]))
 
     def __len__(self):
         return len(str(self))
@@ -39,35 +61,41 @@ class BaseMortonOrder(object):
     def __lt__(self, other):
         return not isinstance(other, BaseMortonOrder) or self.mortoncode < other.mortoncode
 
-    def interleave(self, *args, **kwargs):
-        pass
+    def interleave(self):
+        if self._do_invalidate_mortoncode:
+            self.mortoncode = self.interleave_fn(*self.args)
+            self._do_invalidate_mortoncode = False
+        return self.mortoncode
 
-    def deinterleave(self, *args, **kwargs):
-        pass
+    def deinterleave(self):
+        return self.deinterleave_fn(self.mortoncode)
 
 
-class MortonField(models.Field):
-    description = _("MortonOrder field")
+class BaseMortonField(models.Field):
+    description = _("BaseMortonOrder field")
+    value_class = BaseMortonOrder
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 255
-        super(MortonField, self).__init__(*args, **kwargs)
+        super(BaseMortonField, self).__init__(*args, **kwargs)
 
     def get_internal_type(self):
         return 'CharField'
 
     def to_python(self, value):
-        if not value or value == 'None':
+        if not value:
             return None
-        if isinstance(value, MortonField):
+        if isinstance(value, BaseMortonField):
             return value
         # default case is string
-        return BaseMortonOrder(mortoncode=value)
+        return self.value_class(mortoncode=value)
 
     def from_db_value(self, value, expression, connection, context):
-        return self.to_python(value)
+        return self.value_class(mortoncode=value, *self.deinterleave(value))
 
     def get_prep_value(self, value):
+        if isinstance(value, self.value_class):
+            return value.interleave()
         return str(value)
 
     def value_to_string(self, obj):
@@ -75,7 +103,7 @@ class MortonField(models.Field):
         return smart_text(value)
 
 
-@MortonField.register_lookup
+@BaseMortonField.register_lookup
 class MortonSearchMatchedLookup(Lookup):
     lookup_name = 'mortonsearch'
 
@@ -99,7 +127,7 @@ class MortonSearchMatchedLookup(Lookup):
         return rhs, params
 
 
-@MortonField.register_lookup
+@BaseMortonField.register_lookup
 class MortonPreciseSearchMatchedLookup(PatternLookup):
     lookup_name = 'mortonprecise'
 

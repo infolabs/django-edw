@@ -26,7 +26,7 @@ from . import deferred
 from .mixins.term.semantic_rule import (OrRuleFilterMixin, AndRuleFilterMixin,)
 from .mixins.rebuild_tree import RebuildTreeMixin
 from .cache import add_cache_key, QuerySetCachedResultMixin
-from .fields import TreeForeignKey
+from .fields.tree import TreeForeignKey
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer
