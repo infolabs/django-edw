@@ -777,7 +777,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def validate_terms(self, origin, **kwargs):
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_entity_type", False):
-            term = self.get_entities_types()[self.__class__.__name__.lower()]
+            key = self.__class__.__name__.lower()
+            try:
+                term = self.get_entities_types()[key]
+            except KeyError:
+                term = self.get_entities_types(from_cache=False)[key]
             self.terms.add(term)
 
     def pre_save_entity(self, origin, *args, **kwargs):

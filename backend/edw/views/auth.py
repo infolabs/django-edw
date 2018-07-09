@@ -14,6 +14,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 from rest_auth.views import (
     LoginView as OriginalLoginView,
@@ -48,6 +49,30 @@ class AuthFormsView(GenericAPIView):
             dict(form.errors),
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class GetTokenView(GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_anonymous():
+            email = request.customer.user.email
+            try:
+                token, created = Token.objects.get_or_create(user=request.user)
+            except ValueError as e:
+                return Response(
+                    {'detail': _('User is not recognized as "registered"')},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                return Response(
+                    {"email": email, "key": token.key},
+                    status=status.HTTP_200_OK
+                )
+        else:
+            return Response(
+                {'detail': _("Logged out")},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class LoginView(OriginalLoginView):
     def login(self):
