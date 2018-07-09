@@ -69,6 +69,7 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
           }
 
           fetch(url, {
+            credentials: 'include',
             method: 'get',
             headers: {
               'Accept': 'application/json',
