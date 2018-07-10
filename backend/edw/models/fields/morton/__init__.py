@@ -25,13 +25,11 @@ def dummy_deinterleave_fn(mortoncode):
 
 
 class BaseMortonOrder(object):
-    def __init__(self, mortoncode=None,
-                 interleave_fn=dummy_interleave_fn,
-                 deinterleave_fn=dummy_deinterleave_fn,
-                 *args):
-        self.interleave_fn = interleave_fn
-        self.deinterleave_fn = deinterleave_fn
 
+    def __init__(self, *args, **kwargs):
+        mortoncode = kwargs.get('mortoncode', None)
+        self.interleave_fn = kwargs.get('interleave_fn', dummy_interleave_fn)
+        self.deinterleave_fn= kwargs.get('deinterleave_fn', dummy_deinterleave_fn)
         self.args = args
         self._do_invalidate_args = False
         if mortoncode is None:
