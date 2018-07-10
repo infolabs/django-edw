@@ -25,20 +25,31 @@ def dummy_deinterleave_fn(mortoncode):
 
 
 class BaseMortonOrder(object):
-    def __init__(self, mortoncode=None,
-                 interleave_fn=dummy_interleave_fn,
-                 deinterleave_fn=dummy_deinterleave_fn,
-                 *args):
-        self.args = args
-        self.interleave_fn = interleave_fn
-        self.deinterleave_fn = deinterleave_fn
 
+    def __init__(self, *args, **kwargs):
+        mortoncode = kwargs.get('mortoncode', None)
+        self.interleave_fn = kwargs.get('interleave_fn', dummy_interleave_fn)
+        self.deinterleave_fn= kwargs.get('deinterleave_fn', dummy_deinterleave_fn)
+        self.args = args
+        self._do_invalidate_args = False
         if mortoncode is None:
             self._do_invalidate_mortoncode = True
             self.mortoncode = self.interleave()
         else:
             self._do_invalidate_mortoncode = False
             self.mortoncode = mortoncode
+            if not len(self.args):
+                self._do_invalidate_args = True
+                self.args = self.deinterleave()
+
+    @property
+    def mortoncode(self):
+        return self._mortoncode
+
+    @mortoncode.setter
+    def mortoncode(self, value):
+        self._do_invalidate_args = True
+        self._mortoncode = value
 
     def __str__(self):
         return "{}".format(self.mortoncode)
@@ -68,7 +79,10 @@ class BaseMortonOrder(object):
         return self.mortoncode
 
     def deinterleave(self):
-        return self.deinterleave_fn(self.mortoncode)
+        if self._do_invalidate_args:
+            self.args = self.deinterleave_fn(self.mortoncode)
+            self._do_invalidate_args = False
+        return self.args
 
 
 class BaseMortonField(models.Field):
@@ -91,7 +105,7 @@ class BaseMortonField(models.Field):
         return self.value_class(mortoncode=value)
 
     def from_db_value(self, value, expression, connection, context):
-        return self.value_class(mortoncode=value, *self.deinterleave(value))
+        return self.value_class(mortoncode=value)
 
     def get_prep_value(self, value):
         if isinstance(value, self.value_class):

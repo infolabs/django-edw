@@ -9,15 +9,31 @@ import pymorton as pm
 from . import  BaseMortonOrder, BaseMortonField
 
 
+
+def interleave_fn(*args):
+    """
+    :param args: Fi(*arg) --> morton code
+    :return: morton code string
+    """
+    return str(pm.interleave2(*args))
+
+
+def deinterleave_fn(mortoncode):
+    """
+    :param mortoncode: Fd(mortoncode) --> (arg1, arg2, ... , argn)
+    :return: *args
+    """
+    print '#### mortoncode ####', mortoncode
+    return pm.deinterleave2(int(mortoncode))
+
+
 class MortonOrder2D(BaseMortonOrder):
 
-    def __init__(self, x, y, mortoncode=None):
-        args = (x, y)
-        super(MortonOrder2D, self).__init__(mortoncode=mortoncode,
-                                            interleave_fn=pm.interleave2,
-                                            deinterleave_fn=pm.deinterleave2,
-                                            *args
-                                            )
+    def __init__(self, *args, **kwargs):
+        kwargs['interleave_fn'] = pm.interleave2
+        kwargs['deinterleave_fn'] = pm.deinterleave2
+
+        super(MortonOrder2D, self).__init__(*args, **kwargs)
 
     @property
     def x(self):
