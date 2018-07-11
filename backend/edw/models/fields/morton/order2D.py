@@ -23,15 +23,19 @@ def deinterleave_fn(mortoncode):
     :param mortoncode: Fd(mortoncode) --> (arg1, arg2, ... , argn)
     :return: *args
     """
-    print '#### mortoncode ####', mortoncode
-    return pm.deinterleave2(int(mortoncode))
+    try:
+        value = pm.deinterleave2(int(mortoncode))
+    except:
+        return []
+    else:
+        return value
 
 
 class MortonOrder2D(BaseMortonOrder):
 
     def __init__(self, *args, **kwargs):
-        kwargs['interleave_fn'] = pm.interleave2
-        kwargs['deinterleave_fn'] = pm.deinterleave2
+        kwargs['interleave_fn'] = interleave_fn
+        kwargs['deinterleave_fn'] = deinterleave_fn
 
         super(MortonOrder2D, self).__init__(*args, **kwargs)
 
