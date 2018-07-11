@@ -19,9 +19,11 @@ class Related extends Component {
 
     for(const item of el_with_count) {
       const elements = document.getElementsByClassName(item);
-      for (const element of elements) {
-        const pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
-              element.attributes.getNamedItem('data-selected-entry-point-id').value;
+      //for (const element of elements) {
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const element = elements[i],
+            pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
+                element.attributes.getNamedItem('data-selected-entry-point-id').value;
         if (pk && pk == entry_point_id) {
           element.setAttribute("data-data-count", count);
         }
