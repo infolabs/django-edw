@@ -131,7 +131,7 @@ class MortonSearchMatchedLookup(Lookup):
         params = rhs_params[0]
         if params and not self.bilateral_transforms:
             rhs_params[0] = "%s%%" % connection.ops.prep_for_like_query(params)
-            rhs += lhs + 'like %s'
+            rhs += lhs + ' like %s'
         return rhs, rhs_params
 
     def as_sql(self, compiler, connection):
