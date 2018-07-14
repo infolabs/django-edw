@@ -10,17 +10,4 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('post_office', '0001_initial'),
-    ]
-
-    operations = [
-        migrations.CreateModel(
-            name='Email',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-            },
-            bases=('post_office.email',),
-        ),
     ]
