@@ -20,7 +20,6 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
 from update_terms import EntitiesUpdateTermsAdminForm
 from update_relations import EntitiesUpdateRelationAdminForm
-from update_images import EntitiesUpdateImagesAdminForm
 from update_additional_characteristics_or_marks import EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm
 from update_related_data_marts import EntitiesUpdateRelatedDataMartsAdminForm
 from update_states import EntitiesUpdateStateAdminForm

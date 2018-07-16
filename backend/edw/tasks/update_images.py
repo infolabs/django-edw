@@ -6,7 +6,7 @@ from celery import shared_task
 from filer.models import Image
 
 from edw.models.entity import EntityModel
-from edw.models.related import EntityImageModel
+from edw.models.related.entity_image import EntityImageModel
 
 
 @shared_task(name='update_entities_images')

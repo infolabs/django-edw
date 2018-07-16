@@ -8,7 +8,7 @@ from django.contrib import admin
 from filer.models import Image
 from salmonella.widgets import SalmonellaMultiIdWidget
 
-from edw.models.related import EntityImageModel
+from edw.models.related.entity_image import EntityImageModel
 
 
 #==============================================================================
