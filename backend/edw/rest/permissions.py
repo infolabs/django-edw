@@ -4,6 +4,69 @@ from __future__ import unicode_literals
 from rest_framework import permissions
 
 
+class IsReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        return request.method in permissions.SAFE_METHODS
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Object-level permission to only allow owners of an object to edit it.
+    Assumes the model instance has an `owner` attribute.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Instance must have an attribute named `owner`.
+        if hasattr(obj, 'owner'):
+            return obj.owner == request.user
+        else:
+            return False
+
+
+class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
+    """
+    Object-level permission to only allow staff, superuser or owner of an object to access it.
+    Assumes the model instance has an `owner` attribute.
+    """
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
+            return True
+        else:
+            # Instance must have an attribute named `owner`.
+            return hasattr(obj, 'owner') and obj.owner == request.user
+
+    def has_permission(self, request, view):
+        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
+
+
+class IsOwnerOrStaffOrSuperuserOrReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
+            return True
+        else:
+            # Instance must have an attribute named `owner`.
+            return hasattr(obj, 'owner') and obj.owner == request.user
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
+
+
+# Register class only if `filer` installed
 try:
     from filer.fields.file import FilerFileField
 except ImportError:
@@ -28,33 +91,3 @@ else:
                     return f.owner == request.user
             else:
                 return False
-
-
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Object-level permission to only allow owners of an object to edit it.
-    Assumes the model instance has an `owner` attribute.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        # Instance must have an attribute named `owner`.
-        return obj.owner == request.user
-
-
-class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
-    """
-    Object-level permission to only allow staff, superuser or owner of an object to access it.
-    Assumes the model instance has an `owner` attribute.
-    """
-    def has_object_permission(self, request, view, obj):
-        # Instance must have an attribute named `owner`.
-        return obj.owner == request.user or request.user.is_active and (
-            request.user.is_staff or request.user.is_superuser)
-
-    def has_permission(self, request, view):
-        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)

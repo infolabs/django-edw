@@ -25,9 +25,11 @@ from edw.rest.filters.entity import (
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import EntityPagination
+from edw.rest.permissions import IsReadOnly
 
 
-class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
+# class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
     """
     A simple ViewSet for listing or retrieving entities.
     Additional actions:
@@ -47,6 +49,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
     data_mart_pk = None
     subj = None
     format = None
+
+    permission_classes = [IsReadOnly]
 
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
@@ -108,6 +112,21 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet)
             request.GET['subj'] = ','.join([str(x) for x in self.subj]) if isinstance(
                 self.subj, (list, tuple)) else str(self.subj)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
+
+    def check_object_permissions(self, request, obj):
+        """
+        Check if the request should be permitted for a given object.
+        Raises an appropriate exception if the request is not permitted.
+        """
+        permissions = [permission() for permission in obj._rest_meta.permission_classes]
+        if not permissions:
+            permissions = self.get_permissions()
+
+        for permission in permissions:
+            if not permission.has_object_permission(request, self, obj):
+                self.permission_denied(
+                    request, message=getattr(permission, 'message', None)
+                )
 
     def get_serializer_context(self):
         context = super(EntityViewSet, self).get_serializer_context()
