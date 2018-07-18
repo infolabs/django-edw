@@ -20,6 +20,13 @@ class RESTOptions(object):
         class MyModel(Model):
             class RESTMeta:
                 exclude = ['name']
+
+                include = {
+                    'test_id': ('rest_framework.serializers.IntegerField', {
+                        'write_only': True
+                    }),
+                }
+
                 filters = {
                     'published_at': filters.IsoDateTimeFilter(
                         name='published_at', lookup_expr='exact'),
@@ -39,6 +46,21 @@ class RESTOptions(object):
                     # if view.action == 'list':
                     #    pass
                     return queryset
+
+                def create(self, validated_data):
+                    test_id = validated_data.pop('test_id', None)
+                    # print ("Get test_id", test_id)
+                    instance = super(self.__class__, self).create(validated_data)
+                    # print("Created instance", instance)
+                    return instance
+
+                def update(self, instance, validated_data):
+                    test_id = validated_data.pop('test_id', None)
+                    # print ("Get test_id", test_id)
+                    instance = super(self.__class__, self).update(instance, validated_data)
+                    # print("Updated instance", self.partial, instance)
+                    return instance
+
 
     """
 
@@ -93,17 +115,23 @@ class RESTModelBase(ModelBase):
         return new
 
 
-class DynamicFieldsSerializerMixin(object):
+class RESTMetaSerializerMixin(object):
 
     def __init__(self, *args, **kwargs):
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
-            rest_meta = instance._rest_meta
+            self.rest_meta = instance._rest_meta
         else:
-            rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+            self.rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+        super(RESTMetaSerializerMixin, self).__init__(*args, **kwargs)
+
+
+class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
+
+    def __init__(self, *args, **kwargs):
         super(DynamicFieldsSerializerMixin, self).__init__(*args, **kwargs)
-        if rest_meta:
-            remove_fields, include_fields = rest_meta.exclude, rest_meta.include
+        if self.rest_meta:
+            remove_fields, include_fields = self.rest_meta.exclude, self.rest_meta.include
             for field_name, field in include_fields.items():
                 if isinstance(field, (tuple, list)):
                     field = import_string(field[0])(**field[1])
@@ -116,7 +144,7 @@ class DynamicFieldsSerializerMixin(object):
                         # hack for SerializerMethodField.bind method
                         if field.method_name == default_method_name:
                             field.method_name = None
-                    method = getattr(rest_meta, method_name)
+                    method = getattr(self.rest_meta, method_name)
                     setattr(self, method_name, types.MethodType(method, self, self.__class__))
                 elif isinstance(field, serializers.ListField):
                     # hack for ListField.__init__ method
@@ -127,6 +155,16 @@ class DynamicFieldsSerializerMixin(object):
                 self.fields[field_name] = field
             for field_name in remove_fields:
                 self.fields.pop(field_name)
+
+
+class DynamicCreateUpdateMethodSerializerMixin(RESTMetaSerializerMixin):
+
+    def __init__(self, *args, **kwargs):
+        super(DynamicCreateUpdateMethodSerializerMixin, self).__init__(*args, **kwargs)
+        for method_name in ('create', 'update'):
+            method = getattr(self.rest_meta, method_name, None)
+            if method is not None:
+                setattr(self, method_name, types.MethodType(method, self, self.__class__))
 
 
 class CheckPermissionsSerializerMixin(object):

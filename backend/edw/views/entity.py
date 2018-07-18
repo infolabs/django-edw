@@ -40,11 +40,14 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
     """
     queryset = EntityModel.objects.all()
     serializer_class = EntityCommonSerializer
+    # serializer_class = EntityCommonSerializer
     custom_serializer_classes = {
         # 'list':  EntitySummarySerializer,
         'list':  EntityTotalSummarySerializer,
         'retrieve':  EntityDetailSerializer,
-        'create': EntityDetailSerializer
+        'create': EntityDetailSerializer,
+        'update': EntityDetailSerializer,
+        'partial_update': EntityDetailSerializer
     }
 
     # serializer_context = None
@@ -118,8 +121,16 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
                 self.subj, (list, tuple)) else str(self.subj)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
-    # def create(self, request, *args, **kwargs):
-    #     return super(EntityViewSet, self).create(request, *args, **kwargs)
+
+
+
+    def create(self, request, *args, **kwargs):
+        return super(EntityViewSet, self).create(request, *args, **kwargs)
+
+
+
+
+
 
     def get_object(self):
         obj = getattr(self, '_obj', None)

@@ -20,7 +20,11 @@ from rest_framework.reverse import reverse
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
+from edw.models.rest import (
+    DynamicFieldsSerializerMixin,
+    DynamicCreateUpdateMethodSerializerMixin,
+    CheckPermissionsSerializerMixin
+)
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
 
@@ -180,13 +184,14 @@ class RelatedDataMartSerializer(DataMartCommonSerializer):
         return instance.is_subjective
 
 
-class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSerializer):
+class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
+                                 DynamicCreateUpdateMethodSerializerMixin,
+                                 EntityCommonSerializer):
     """
     Serialize all fields of the Entity model, for the entities detail view.
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
-    # related_data_marts = RelatedDataMartSerializer(many=True, read_only=True)
     related_data_marts = serializers.SerializerMethodField()
 
     _meta_cache = {}
