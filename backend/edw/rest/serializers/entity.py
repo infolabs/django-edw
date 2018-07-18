@@ -219,15 +219,17 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSeria
                     request = context['request']
                     data_mart_pk = request.GET.get('data_mart_pk', None)
                     if data_mart_pk is not None:
-                        try:
-
-                            # добавить кеш!!!
-
-                            data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
-                        except DataMartModel.DoesNotExist:
-                            pass
-                        else:
+                        # try find data_mart in cache
+                        data_mart = request.GET.get('_data_mart', None)
+                        if data_mart is not None and isinstance(data_mart, DataMartModel):
                             cls._update_meta(it, data_mart.entities_model)
+                        else:
+                            try:
+                                data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
+                            except DataMartModel.DoesNotExist:
+                                pass
+                            else:
+                                cls._update_meta(it, data_mart.entities_model)
                     else:
                         entity_model = data.get('entity_model', None)
                         if entity_model is not None:
