@@ -11,6 +11,20 @@ class IsReadOnly(permissions.BasePermission):
         # so we'll always allow GET, HEAD or OPTIONS requests.
         return request.method in permissions.SAFE_METHODS
 
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS
+
+
+class IsSuperuserOrReadOnly(IsReadOnly):
+
+    def has_object_permission(self, request, view, obj):
+        return super(IsSuperuserOrReadOnly, self).has_object_permission(request, view, obj) or (
+                request.user.is_active and request.user.is_superuser)
+
+    def has_permission(self, request, view):
+        return super(IsSuperuserOrReadOnly, self).has_permission(request, view) or (
+                request.user.is_active and request.user.is_superuser)
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -46,12 +60,10 @@ class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
         return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
 
 
-class IsOwnerOrStaffOrSuperuserOrReadOnly(permissions.BasePermission):
+class IsOwnerOrStaffOrSuperuserOrReadOnly(IsReadOnly):
 
     def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
+        if super(IsOwnerOrStaffOrSuperuserOrReadOnly, self).has_object_permission(request, view, obj):
             return True
 
         if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
@@ -61,7 +73,7 @@ class IsOwnerOrStaffOrSuperuserOrReadOnly(permissions.BasePermission):
             return hasattr(obj, 'owner') and obj.owner == request.user
 
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
+        if super(IsOwnerOrStaffOrSuperuserOrReadOnly, self).has_permission(request, view):
             return True
         return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
 

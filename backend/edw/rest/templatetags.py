@@ -78,7 +78,11 @@ class BaseRetrieveDataTag(Tag):
         Check if the request should be permitted for a given object.
         Raises an appropriate exception if the request is not permitted.
         """
-        for permission in self.get_permissions():
+        permissions = [permission() for permission in obj._rest_meta.permission_classes]
+        if not permissions:
+            permissions = self.get_permissions()
+
+        for permission in permissions:
             if not permission.has_object_permission(request, self, obj):
                 self.permission_denied(
                     request, message=getattr(permission, 'message', None)
