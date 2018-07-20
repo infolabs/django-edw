@@ -7,3 +7,6 @@ external_add_terms = Signal(providing_args=["instance", "pk_set"])
 
 
 external_remove_terms = Signal(providing_args=["instance", "pk_set"])
+
+
+post_save = Signal(providing_args=["instance", "origin"])
