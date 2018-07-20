@@ -121,17 +121,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
                 self.subj, (list, tuple)) else str(self.subj)
         return super(EntityViewSet, self).list(request, *args, **kwargs)
 
-
-
-
-    def create(self, request, *args, **kwargs):
-        return super(EntityViewSet, self).create(request, *args, **kwargs)
-
-
-
-
-
-
     def get_object(self):
         obj = getattr(self, '_obj', None)
         if obj is None:
