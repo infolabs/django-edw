@@ -216,7 +216,7 @@ class TaggedItems {
 
   tag(item) {
     this[item.id] = true;
-    if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_OR)
+    if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_XOR)
       this.untagSiblings(item);
     let index = this.items.indexOf(item.id);
     if (index < 0 && item.id != null) {
@@ -445,7 +445,7 @@ const terms = combineReducers({
     tagged: tagged,
     expanded: expanded,
     info_expanded: infoExpanded,
-    real_potential: realPotential,
+    real_potential: realPotential
 });
 
 
