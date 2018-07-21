@@ -22,7 +22,7 @@ from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
-    DynamicCreateUpdateMethodSerializerMixin,
+    DynamicCreateUpdateValidateMethodSerializerMixin,
     CheckPermissionsSerializerMixin
 )
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
@@ -185,7 +185,7 @@ class RelatedDataMartSerializer(DataMartCommonSerializer):
 
 
 class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
-                                 DynamicCreateUpdateMethodSerializerMixin,
+                                 DynamicCreateUpdateValidateMethodSerializerMixin,
                                  EntityCommonSerializer):
     """
     Serialize all fields of the Entity model, for the entities detail view.

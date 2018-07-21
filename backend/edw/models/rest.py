@@ -82,6 +82,7 @@ class RESTOptions(object):
                 continue
             setattr(self, key, value)
 
+
     def __iter__(self):
         return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
 
@@ -157,11 +158,11 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
                 self.fields.pop(field_name)
 
 
-class DynamicCreateUpdateMethodSerializerMixin(RESTMetaSerializerMixin):
+class DynamicCreateUpdateValidateMethodSerializerMixin(RESTMetaSerializerMixin):
 
     def __init__(self, *args, **kwargs):
-        super(DynamicCreateUpdateMethodSerializerMixin, self).__init__(*args, **kwargs)
-        for method_name in ('create', 'update'):
+        super(DynamicCreateUpdateValidateMethodSerializerMixin, self).__init__(*args, **kwargs)
+        for method_name in ('create', 'update', 'validate'):
             method = getattr(self.rest_meta, method_name, None)
             if method is not None:
                 setattr(self, method_name, types.MethodType(method, self, self.__class__))
