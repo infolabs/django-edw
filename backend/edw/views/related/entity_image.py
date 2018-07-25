@@ -7,7 +7,7 @@ from rest_framework import permissions
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from edw.models.related import EntityImageModel
+from edw.models.related.entity_image import EntityImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.entity_image import EntityImageFilter
 from edw.rest.serializers.related.entity_image import EntityImageSerializer

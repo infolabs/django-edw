@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
-from edw.models.related import EntityFileModel
+from edw.models.related.entity_file import EntityFileModel
 from edw.rest.serializers.filer_fields import FilerFileField
 
 

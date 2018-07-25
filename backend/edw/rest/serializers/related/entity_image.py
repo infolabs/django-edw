@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
-from edw.models.related import EntityImageModel
+from edw.models.related.entity_image import EntityImageModel
 from edw.rest.serializers.filer_fields import FilerImageField
 
 

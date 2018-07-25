@@ -7,7 +7,7 @@ from rest_framework import permissions
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from edw.models.related import DataMartImageModel
+from edw.models.related.data_mart_image import DataMartImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.data_mart_image import DataMartImageFilter
 from edw.rest.serializers.related.data_mart_image import DataMartImageSerializer
