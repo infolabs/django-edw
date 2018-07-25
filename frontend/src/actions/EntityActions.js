@@ -86,9 +86,9 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
     };
 }
 
-export function readEntities(mart_id, options_obj = {}) {
+export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
+  if (globalStore.initial && globalStore.initial[mart_id]) {
     let json = globalStore.initial[mart_id];
-    // add cookies to data
     json.results.meta = Object.assign(json.results.meta, options_obj);
     return dispatch => {
         dispatch({
@@ -97,6 +97,10 @@ export function readEntities(mart_id, options_obj = {}) {
             request_options: options_obj
         });
     };
+  } else {
+    return getEntities(mart_id, subj_ids, options_obj, options_arr);
+  }
+
 }
 
 export function showDescription(entity_id = null) {

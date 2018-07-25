@@ -74,13 +74,8 @@ class BaseEntities extends Component {
 
     this.props.actions.notifyLoadingEntities();
 
-    /*
-    this.props.actions.getEntities(
-      entry_point_id, subj_ids, request_options, options_arr
-    );
-    */
     this.props.actions.readEntities(
-      entry_point_id, request_options
+      entry_point_id, subj_ids, request_options, options_arr
     );
   }
 
