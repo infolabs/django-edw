@@ -1,3 +1,7 @@
+import Singleton from 'singleton-js-es6';
+
+const globalStore = new Singleton();
+
 import {
     LOAD_ENTITY_ITEM,
     LOAD_ENTITIES,
@@ -14,7 +18,6 @@ import reCache from '../utils/reCache';
 export function getEntityItem(data) {
   return (dispatch, getState) => {
     if ( !getState().entities.loadingItems[data.id] ) {
-
       dispatch(loadingEntityItem(data.id));
 
       fetch(reCache(data.entity_url), {
@@ -80,7 +83,24 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
             json: json,
             request_options: options_obj
           }));
-    }
+    };
+}
+
+export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
+  if (globalStore.initial && globalStore.initial[mart_id]) {
+    let json = globalStore.initial[mart_id];
+    json.results.meta = Object.assign(json.results.meta, options_obj);
+    return dispatch => {
+        dispatch({
+            type: LOAD_ENTITIES,
+            json: json,
+            request_options: options_obj
+        });
+    };
+  } else {
+    return getEntities(mart_id, subj_ids, options_obj, options_arr);
+  }
+
 }
 
 export function showDescription(entity_id = null) {

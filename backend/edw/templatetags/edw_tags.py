@@ -9,11 +9,24 @@ from django import template
 from django.conf import settings
 from django.utils import formats
 from django.utils.dateformat import format, time_format
+from django.utils.safestring import mark_safe
+from django.utils.functional import Promise
+from django.utils.encoding import force_text
+from django.core.serializers.json import DjangoJSONEncoder
 
 try:
     from django.utils.encoding import smart_text
 except ImportError:
     from django.utils.encoding import smart_unicode as smart_text
+
+try:
+    from html import unescape  # python 3.4+
+except ImportError:
+    try:
+        from html.parser import HTMLParser  # python 3.x (<3.4)
+    except ImportError:
+        from HTMLParser import HTMLParser  # python 2.x
+    unescape = HTMLParser().unescape
 
 from datetime import datetime
 
@@ -327,10 +340,18 @@ class CompactJson(Tag):
     )
 
     def render_tag(self, context, nodelist, varname):
+        def ren(x):
+          ret = x.render(context)
+          return ret
+
+        def tex(x, y):
+          ret = x + smart_text(y)
+          return ret
+
         block_data = reduce(
-            lambda x, y: x + smart_text(y),
+            tex,
             map(
-                lambda x: x.render(context),
+                ren,
                 nodelist
             )
         )
@@ -340,7 +361,51 @@ class CompactJson(Tag):
             context[varname] = block_data
             return ''
         else:
-            return block_data
+            return mark_safe(block_data)
+
 
 register.tag(CompactJson)
 
+
+class LazyEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Promise):
+            return force_text(obj)
+        return super(LazyEncoder, self).default(obj)
+
+
+@register.filter
+def jsondumps(value):
+    """Return the string split by separator.
+
+    Example usage: {{ value|jsondumps }}
+    """
+    res = json.dumps(value, ensure_ascii=False, cls=LazyEncoder)
+    res = res.encode('utf-8')
+    return mark_safe(res)
+
+
+class AddToSingletonJs(Tag):
+    name = 'addtosingeltonjs'
+
+    BEFORE = '<script type="text/javascript">'
+    BEFORE += 'var _key = "_global_singleton_instance",'
+    BEFORE += 'instance = window[_key];'
+    BEFORE += '!instance && (instance = window[_key] = {});'
+    AFTER = '</script>'
+
+    options = Options(
+        "as",
+        Argument("varname", required=False, resolve=False),
+        blocks=[("endaddtosingeltonjs", "nodelist")]
+    )
+
+    def render_tag(self, context, nodelist, varname):
+        block_data = self.BEFORE + nodelist.render(context) + self.AFTER
+        if varname:
+            context[varname] = block_data
+            return ''
+        else:
+            return block_data
+
+register.tag(AddToSingletonJs)

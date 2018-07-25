@@ -13,6 +13,7 @@ import {
 import {
     getEntityItem,
     getEntities,
+    readEntities,
     notifyLoadingEntities,
     showDescription,
     hideDescription,
@@ -36,6 +37,7 @@ export default {
     hideInfo,
     getEntityItem,
     getEntities,
+    readEntities,
     notifyLoadingEntities,
     showDescription,
     hideDescription,

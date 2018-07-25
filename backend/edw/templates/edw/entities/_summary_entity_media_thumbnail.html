@@ -7,8 +7,8 @@
     {% get_default_thumbnail size replace_alpha as thumb %}
 {% endif %}
 {% get_align_thumbnail_in_center_styles size thumb.width thumb.height as center_thumb_styles %}
-<div class="ex-wrap-thumbnail" style='{{ center_thumb_styles.outer }}'>
-    <a href="{{ ABSOLUTE_BASE_URI }}{{ href }}" style='{{ center_thumb_styles.inner }}'>
+<div class="ex-wrap-thumbnail" style="{{ center_thumb_styles.outer }}">
+    <a href="{{ ABSOLUTE_BASE_URI }}{{ href }}" style="{{ center_thumb_styles.inner }}">
         <img src="{{ thumb.url }}" alt="{{ entity.entity_name }}">
     </a>
 </div>
