@@ -13,7 +13,6 @@ from filer.fields.file import FilerFileField
 from edw.models import deferred
 
 
-
 #==============================================================================
 # BaseEntityFile
 #==============================================================================

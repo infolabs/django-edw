@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import rest_framework_filters as filters
 
-from edw.models.related import BaseEntityFile
+from edw.models.related.entity_file import BaseEntityFile
 
 
 class EntityFileFilter(filters.FilterSet):
