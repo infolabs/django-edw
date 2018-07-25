@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-from edw.models.related import BaseEntityFile
+from edw.models.related.entity_file import BaseEntityFile
 
 
 class EntityFile(BaseEntityFile):

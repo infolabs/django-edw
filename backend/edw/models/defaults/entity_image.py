@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-from edw.models.related import BaseEntityImage
+from edw.models.related.entity_image import BaseEntityImage
 
 
 class EntityImage(BaseEntityImage):

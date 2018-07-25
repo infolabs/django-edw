@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 
-from edw.models.related import BaseDataMartImage
+from edw.models.related.data_mart_image import BaseDataMartImage
 
 
 class DataMartImage(BaseDataMartImage):
