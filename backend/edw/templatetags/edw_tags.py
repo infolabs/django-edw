@@ -323,21 +323,6 @@ class GetDataMarts(BaseRetrieveDataTag):
         else:
             return self.to_json(data)
 
-    # def get_serializer_context(self):
-    #     context = super(GetDataMarts, self).get_serializer_context()
-    #     # context.update(self.queryset_context)
-    #     return context
-
-    # def filter_queryset(self, queryset):
-    #     queryset = super(GetDataMarts, self).filter_queryset(queryset)
-    #     # query_params = self.request.GET
-    #     #
-    #     # self.queryset_context = {
-    #     #     "initial_queryset": query_params['_initial_queryset'],
-    #     #     "filter_queryset": queryset
-    #     # }
-    #     return queryset
-
 register.tag(GetDataMarts)
 
 

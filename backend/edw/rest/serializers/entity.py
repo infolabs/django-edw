@@ -12,13 +12,19 @@ from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 
+from django.apps import apps
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
+from edw.models.rest import (
+    DynamicFieldsSerializerMixin,
+    DynamicCreateUpdateValidateMethodSerializerMixin,
+    CheckPermissionsSerializerMixin
+)
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
 
@@ -178,13 +184,14 @@ class RelatedDataMartSerializer(DataMartCommonSerializer):
         return instance.is_subjective
 
 
-class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSerializer):
+class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
+                                 DynamicCreateUpdateValidateMethodSerializerMixin,
+                                 EntityCommonSerializer):
     """
     Serialize all fields of the Entity model, for the entities detail view.
     """
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
-    # related_data_marts = RelatedDataMartSerializer(many=True, read_only=True)
     related_data_marts = serializers.SerializerMethodField()
 
     _meta_cache = {}
@@ -198,8 +205,7 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSeria
         return Meta
 
     @classmethod
-    def _update_meta(cls, it, instance):
-        model_class = instance.__class__
+    def _update_meta(cls, it, model_class):
         key = model_class.__name__
         meta_class = cls._meta_cache.get(key, None)
         if meta_class is None:
@@ -209,7 +215,35 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin, EntityCommonSeria
     def __new__(cls, *args, **kwargs):
         it = super(EntityDetailSerializerBase, cls).__new__(cls, *args, **kwargs)
         if args:
-            cls._update_meta(it, args[0])
+            cls._update_meta(it, args[0].__class__)
+        else:
+            data = kwargs.get('data', None)
+            if data is not None:
+                context = kwargs.get('context', None)
+                if context is not None:
+                    request = context['request']
+                    data_mart_pk = request.GET.get('data_mart_pk', None)
+                    if data_mart_pk is not None:
+                        # try find data_mart in cache
+                        data_mart = request.GET.get('_data_mart', None)
+                        if data_mart is not None and isinstance(data_mart, DataMartModel):
+                            cls._update_meta(it, data_mart.entities_model)
+                        else:
+                            try:
+                                data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
+                            except DataMartModel.DoesNotExist:
+                                pass
+                            else:
+                                cls._update_meta(it, data_mart.entities_model)
+                    else:
+                        entity_model = data.get('entity_model', None)
+                        if entity_model is not None:
+                            try:
+                                model_class = apps.get_model(it.Meta.model._meta.app_label, str(entity_model))
+                            except LookupError:
+                                pass
+                            else:
+                                cls._update_meta(it, model_class)
         return it
 
     def __init__(self, *args, **kwargs):

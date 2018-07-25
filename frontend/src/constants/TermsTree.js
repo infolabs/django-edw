@@ -18,8 +18,8 @@ export const HIDE_ENTITY_DESC = 'HIDE_ENTITY_DESC';
 export const TOGGLE_DROPDOWN = 'TOGGLE_DROPDOWN';
 export const SELECT_DROPDOWN = 'SELECT_DROPDOWN';
 // Semantic Rules
-export const SEMANTIC_RULE_XOR = 10;
-export const SEMANTIC_RULE_OR = 20;
+export const SEMANTIC_RULE_OR = 10;
+export const SEMANTIC_RULE_XOR = 20;
 export const SEMANTIC_RULE_AND = 30;
 // Structures
 export const STRUCTURE_TRUNK = "trunk";

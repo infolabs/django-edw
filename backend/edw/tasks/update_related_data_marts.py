@@ -5,7 +5,6 @@ from celery import shared_task
 
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
-from edw.models.term import TermModel
 from edw.models.related import EntityRelatedDataMartModel
 
 

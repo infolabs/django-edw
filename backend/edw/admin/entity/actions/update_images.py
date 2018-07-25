@@ -19,7 +19,7 @@ from edw.rest.serializers.entity import EntityCommonSerializer
 
 from edw.tasks import update_entities_images
 
-from edw.admin.entity.forms import EntitiesUpdateImagesAdminForm
+from edw.admin.entity.forms.update_images import EntitiesUpdateImagesAdminForm
 
 
 def update_images(modeladmin, request, queryset):

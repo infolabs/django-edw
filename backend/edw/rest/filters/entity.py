@@ -41,6 +41,7 @@ class BaseEntityFilter(filters.FilterSet):
         super(BaseEntityFilter, self).__init__(data, **kwargs)
 
     def patch_data(self, data, **kwargs):
+        self._data_mart = data.get('_data_mart', None)
         tree = TermModel.cached_decompress([], fix_it=True)
         data.update({
             '_initial_filter_meta': tree,
@@ -75,6 +76,9 @@ class BaseEntityFilter(filters.FilterSet):
         '''
         :return: active `DataMartModel` instance from `self.data_mart_id`
         '''
+        if self._data_mart is not None:
+            return self._data_mart
+
         pk = self.data_mart_id
         if pk is not None:
             return get_object_or_404(DataMartModel.objects.active(), pk=pk)

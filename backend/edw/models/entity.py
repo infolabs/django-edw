@@ -42,6 +42,7 @@ from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
+from ..signals.entity import post_save as entity_post_save
 from .. import settings as edw_settings
 
 
@@ -817,6 +818,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
                 self.validate_terms(origin, context=validation_context)
                 del self._during_terms_validation
+            entity_post_save.send(sender=self.__class__, instance=self, origin=origin)
         else:
             result = super(BaseEntity, self).save(*args, **kwargs)
         return result

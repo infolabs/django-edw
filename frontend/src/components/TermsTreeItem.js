@@ -49,7 +49,7 @@ export default class TermsTreeItem extends Component {
     const is_limb_or_and = term.isLimbOrAnd(),
           is_tagged = tagged[term.id],
           is_expanded = expanded[term.id],
-          show_children = (!is_limb_or_and && is_tagged || is_expanded);
+          show_children = (!is_limb_or_and && is_tagged || is_expanded) && !term.is_leaf;
 
     if (term.isVisible()) {
 
@@ -87,9 +87,10 @@ export default class TermsTreeItem extends Component {
         </span>
       );
 
-      if (term.semantic_rule == consts.SEMANTIC_RULE_OR && show_children) {
+      if (term.semantic_rule == consts.SEMANTIC_RULE_XOR && show_children) {
+
         let any_tagged = tagged.isAnyTagged(children),
-            reset_class = any_tagged ? "ex-or ex-off" : "ex-or ex-on";
+            reset_class = any_tagged ? "ex-xor ex-off" : "ex-xor ex-on";
 
         reset_item = (
           <li className={reset_class}>
