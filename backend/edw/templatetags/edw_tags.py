@@ -37,11 +37,13 @@ from classytags.arguments import MultiKeywordArgument, Argument
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
+from rest_framework.decorators import list_route
 
 from edw.rest.pagination import EntityPagination, DataMartPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
+from edw.models.term import TermModel
 from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
@@ -49,6 +51,7 @@ from edw.rest.filters.entity import (
     EntityOrderingFilter
 )
 from edw.rest.filters.data_mart import DataMartFilter
+from edw.rest.filters.term import TermFilter
 from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
@@ -57,6 +60,11 @@ from edw.rest.serializers.data_mart import (
     DataMartSummarySerializer,
     DataMartDetailSerializer
 )
+from edw.rest.serializers.term import (
+    TermSerializer,
+    TermTreeSerializer
+)
+
 
 register = template.Library()
 
@@ -261,6 +269,7 @@ def attributes_has_view_class(value, arg):
 #==============================================================================
 # DataMarts utils
 #==============================================================================
+
 class GetDataMart(BaseRetrieveDataTag):
     name = 'get_data_mart'
     queryset = DataMartModel.objects.all()
@@ -324,6 +333,39 @@ class GetDataMarts(BaseRetrieveDataTag):
             return self.to_json(data)
 
 register.tag(GetDataMarts)
+
+
+#==============================================================================
+# Term utils
+#==============================================================================
+
+class GetTermTree(BaseRetrieveDataTag):
+    name = 'get_term_tree'
+    queryset = TermModel.objects.all()
+    serializer_class = TermSerializer
+    filter_class = TermFilter
+    action = 'list'
+
+    options = Options(
+        Argument('pk', resolve=True),
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    @list_route(filter_backends=())
+    def render_tag(self, context, pk, kwargs, varname):
+        context["data_mart_pk"] = pk
+        queryset = TermModel.objects.toplevel()
+        serializer = TermTreeSerializer(queryset, many=True, context=context)
+        data = serializer.data
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+register.tag(GetTermTree)
 
 
 #==============================================================================

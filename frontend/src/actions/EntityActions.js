@@ -1,7 +1,4 @@
 import Singleton from 'singleton-js-es6';
-
-const globalStore = new Singleton();
-
 import {
     LOAD_ENTITY_ITEM,
     LOAD_ENTITIES,
@@ -11,8 +8,11 @@ import {
     NOTIFY_LOADING_ENTITIE_ITEM,
     TOGGLE_DROPDOWN,
     SELECT_DROPDOWN,
-} from '../constants/TermsTree'
+} from '../constants/TermsTree';
 import reCache from '../utils/reCache';
+
+
+const globalStore = new Singleton();
 
 
 export function getEntityItem(data) {
@@ -31,31 +31,31 @@ export function getEntityItem(data) {
           json: json,
         }));
       }
-
-    }
+    };
 }
+
 
 function loadingEntityItem(id) {
     return dispatch => {
-          dispatch({
-          type: NOTIFY_LOADING_ENTITIE_ITEM,
-            id
-          })
-    }
+      dispatch({
+        type: NOTIFY_LOADING_ENTITIE_ITEM,
+        id
+      });
+    };
 }
 
+
 function opts2gets(options = {}) {
-  let gets = '',
-      i = 0;
+  let gets = '';
   for (let key in options) {
     let value = options[key];
     if (typeof value == 'array')
-      value = value.join()
+      value = value.join();
     gets += '&' + key + '=' + value;
-    i++;
   }
   return gets;
 }
+
 
 export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
     return dispatch => {
@@ -86,9 +86,10 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
     };
 }
 
+
 export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
-  if (globalStore.initial && globalStore.initial[mart_id]) {
-    let json = globalStore.initial[mart_id];
+  if (globalStore.initial_entities && globalStore.initial_entities[mart_id]) {
+    let json = globalStore.initial_entities[mart_id];
     json.results.meta = Object.assign(json.results.meta, options_obj);
     return dispatch => {
         dispatch({
@@ -103,32 +104,36 @@ export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr
 
 }
 
+
 export function showDescription(entity_id = null) {
     return dispatch => {
         dispatch({
             type: SHOW_ENTITY_DESC,
             entity_id: entity_id
-        })
-    }
+        });
+    };
 }
+
 
 export function hideDescription(entity_id = null) {
   return dispatch => {
     dispatch({
       type: HIDE_ENTITY_DESC,
       entity_id: entity_id
-    })
-  }
+    });
+  };
 }
+
 
 export function toggleDropdown(dropdown_name = "") {
   return dispatch => {
     dispatch({
       type: TOGGLE_DROPDOWN,
       dropdown_name: dropdown_name
-    })
-  }
+    });
+  };
 }
+
 
 export function selectDropdown(dropdown_name = "", selected = "") {
   return dispatch => {
@@ -136,14 +141,15 @@ export function selectDropdown(dropdown_name = "", selected = "") {
       type: SELECT_DROPDOWN,
       dropdown_name: dropdown_name,
       selected: selected
-    })
-  }
+    });
+  };
 }
 
+
 export function notifyLoadingEntities() {
-    return dispatch => {
-        dispatch({
-            type: NOTIFY_LOADING_ENTITIES
-        })
-    }
+  return dispatch => {
+    dispatch({
+      type: NOTIFY_LOADING_ENTITIES
+    });
+  };
 }
