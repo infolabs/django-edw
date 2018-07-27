@@ -37,7 +37,6 @@ from classytags.arguments import MultiKeywordArgument, Argument
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
-from rest_framework.decorators import list_route
 
 from edw.rest.pagination import EntityPagination, DataMartPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
@@ -341,23 +340,18 @@ register.tag(GetDataMarts)
 
 class GetTermTree(BaseRetrieveDataTag):
     name = 'get_term_tree'
-    queryset = TermModel.objects.all()
-    serializer_class = TermSerializer
-    filter_class = TermFilter
-    action = 'list'
+    queryset = TermModel.objects.toplevel()
+    serializer_class = TermTreeSerializer
 
     options = Options(
-        Argument('pk', resolve=True),
         MultiKeywordArgument('kwargs', required=False),
         'as',
         Argument('varname', required=False, resolve=False)
     )
 
-    @list_route(filter_backends=())
-    def render_tag(self, context, pk, kwargs, varname):
-        context["data_mart_pk"] = pk
-        queryset = TermModel.objects.toplevel()
-        serializer = TermTreeSerializer(queryset, many=True, context=context)
+    def render_tag(self, context, kwargs, varname):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True, context=context)
         data = serializer.data
         if varname:
             context[varname] = data
@@ -430,10 +424,10 @@ def jsondumps(value):
 class AddToSingletonJs(Tag):
     name = 'addtosingeltonjs'
 
-    BEFORE = '<script type="text/javascript">'
-    BEFORE += 'var _key = "_global_singleton_instance",'
-    BEFORE += 'instance = window[_key];'
-    BEFORE += '!instance && (instance = window[_key] = {});'
+    BEFORE = """<script type="text/javascript">
+var _key = "_global_singleton_instance",
+    instance = window[_key];
+!instance && (instance = window[_key] = {});"""
     AFTER = '</script>'
 
     options = Options(

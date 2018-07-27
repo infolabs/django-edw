@@ -236,7 +236,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         :return: `selected` terms ids in context or request, default: []
         '''
-        return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(","))
+        return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value.split(",")) if value else []
 
     @cached_property
     @get_from_context('data_mart')
