@@ -2,6 +2,7 @@ import {
     getTermsItem,
     loadTree,
     reloadTree,
+    readTree,
     notifyLoading,
     toggle,
     resetItem,
@@ -29,6 +30,7 @@ export default {
     getTermsItem,
     loadTree,
     reloadTree,
+    readTree,
     notifyLoading,
     toggle,
     resetItem,
@@ -44,4 +46,4 @@ export default {
     toggleDropdown,
     selectDropdown,
     changeActiveDataMart
-}
+};

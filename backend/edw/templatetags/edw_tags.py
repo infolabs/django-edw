@@ -42,6 +42,7 @@ from edw.rest.pagination import EntityPagination, DataMartPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
+from edw.models.term import TermModel
 from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
@@ -49,6 +50,7 @@ from edw.rest.filters.entity import (
     EntityOrderingFilter
 )
 from edw.rest.filters.data_mart import DataMartFilter
+from edw.rest.filters.term import TermFilter
 from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
@@ -57,6 +59,11 @@ from edw.rest.serializers.data_mart import (
     DataMartSummarySerializer,
     DataMartDetailSerializer
 )
+from edw.rest.serializers.term import (
+    TermSerializer,
+    TermTreeSerializer
+)
+
 
 register = template.Library()
 
@@ -261,6 +268,7 @@ def attributes_has_view_class(value, arg):
 #==============================================================================
 # DataMarts utils
 #==============================================================================
+
 class GetDataMart(BaseRetrieveDataTag):
     name = 'get_data_mart'
     queryset = DataMartModel.objects.all()
@@ -327,6 +335,34 @@ register.tag(GetDataMarts)
 
 
 #==============================================================================
+# Term utils
+#==============================================================================
+
+class GetTermTree(BaseRetrieveDataTag):
+    name = 'get_term_tree'
+    queryset = TermModel.objects.toplevel()
+    serializer_class = TermTreeSerializer
+
+    options = Options(
+        MultiKeywordArgument('kwargs', required=False),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, kwargs, varname):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True, context=context)
+        data = serializer.data
+        if varname:
+            context[varname] = data
+            return ''
+        else:
+            return self.to_json(data)
+
+register.tag(GetTermTree)
+
+
+#==============================================================================
 # Frontend utils
 #==============================================================================
 
@@ -388,10 +424,10 @@ def jsondumps(value):
 class AddToSingletonJs(Tag):
     name = 'addtosingeltonjs'
 
-    BEFORE = '<script type="text/javascript">'
-    BEFORE += 'var _key = "_global_singleton_instance",'
-    BEFORE += 'instance = window[_key];'
-    BEFORE += '!instance && (instance = window[_key] = {});'
+    BEFORE = """<script type="text/javascript">
+var _key = "_global_singleton_instance",
+    instance = window[_key];
+!instance && (instance = window[_key] = {});"""
     AFTER = '</script>'
 
     options = Options(

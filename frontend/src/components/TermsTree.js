@@ -29,7 +29,7 @@ class TermsTree extends Component {
           term_ids = parms.term_ids;
 
     this.props.actions.notifyLoading();
-    this.props.actions.loadTree(entry_point_id, term_ids);
+    this.props.actions.readTree(entry_point_id, term_ids);
   }
 
   componentWillReceiveProps(nextProps) {

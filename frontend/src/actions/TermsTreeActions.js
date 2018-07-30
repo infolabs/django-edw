@@ -1,3 +1,4 @@
+import Singleton from 'singleton-js-es6';
 import {
     LOAD_ITEM,
     LOAD_TREE,
@@ -8,8 +9,11 @@ import {
     SHOW_INFO,
     HIDE_INFO,
     NOTIFY_LOADING,
-} from '../constants/TermsTree'
+} from '../constants/TermsTree';
 import reCache from '../utils/reCache';
+
+
+const globalStore = new Singleton();
 
 
 function getTermsTree(type, mart_id, selected = []) {
@@ -33,6 +37,7 @@ function getTermsTree(type, mart_id, selected = []) {
   };
 }
 
+
 export function getTermsItem(url) {
   return dispatch => {
     fetch(reCache(url), {
@@ -45,66 +50,87 @@ export function getTermsItem(url) {
       type: LOAD_ITEM,
       json: json,
     }));
-  }
+  };
 }
+
 
 export function notifyLoading() {
   return dispatch => {
     dispatch({
       type: NOTIFY_LOADING
-    })
-  }
+    });
+  };
 }
 
+
 export function loadTree(mart_id, selected = []) {
-  return getTermsTree(LOAD_TREE, mart_id, selected)
+  return getTermsTree(LOAD_TREE, mart_id, selected);
 }
+
 
 export function reloadTree(mart_id, selected = []) {
   return getTermsTree(RELOAD_TREE, mart_id, selected);
 }
+
+
+export function readTree(mart_id, selected = []) {
+  const type = LOAD_TREE;
+  if (globalStore.initial_trees && globalStore.initial_trees[mart_id]) {
+    const json = globalStore.initial_trees[mart_id];
+    return dispatch => {
+      dispatch({ type, json });
+    };
+  } else {
+    return getTermsTree(type, mart_id, selected);
+  }
+}
+
 
 export function toggle(term = {}) {
   return dispatch => {
     dispatch({
       type: TOGGLE_ITEM,
       term: term
-    })
-  }
+    });
+  };
 }
+
 
 export function resetItem(term = {}) {
   return dispatch => {
     dispatch({
       type: RESET_ITEM,
       term: term
-    })
-  }
+    });
+  };
 }
+
 
 export function resetBranch(term = {}) {
   return dispatch => {
     dispatch({
       type: RESET_BRANCH,
       term: term
-    })
-  }
+    });
+  };
 }
+
 
 export function showInfo(term = {}) {
   return dispatch => {
     dispatch({
       type: SHOW_INFO,
       term: term
-    })
+    });
   };
 }
+
 
 export function hideInfo(term = {}) {
    return dispatch => {
     dispatch({
       type: HIDE_INFO,
       term: term
-    })
+    });
   };
 }

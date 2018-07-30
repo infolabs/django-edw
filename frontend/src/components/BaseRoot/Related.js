@@ -5,6 +5,7 @@ import Actions from '../../actions/index'
 import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
 import DataMartsList from 'components/DataMartsList'
+import Statistics from 'components/Statistics';
 
 
 class Related extends Component {
@@ -36,7 +37,7 @@ class Related extends Component {
     const multi = Object.keys(entry_points).length > 1;
 
     const title = (
-      <div className="col-md-9 ex-title">
+      <div className="col-md-8 ex-title">
         { mart_url != '' ? (
           <h3><a href={mart_url} title={mart_name}>{mart_name}</a></h3>
           ) : (
@@ -49,19 +50,22 @@ class Related extends Component {
       <div className="ex-related-datamart">
         <div className="row">
           {
-            multi ? <div className="col-md-9"> <DataMartsList
+            multi ? <div className="col-sm-12 col-md-8"> <DataMartsList
               entry_points={entry_points}
               entry_point_id={entry_point_id}
               actions={actions}
             /> </div> : title
           }
-          <div className="col-md-3 ex-paginator">
+          <div className="col-sm-6 col-md-2 ex-statistic">
+            <Statistics entry_points={entry_points} entry_point_id={entry_point_id} />
+          </div>
+          <div className="col-sm-6 col-md-2 ex-paginator">
             <Paginator entry_points={entry_points}
                        entry_point_id={entry_point_id}
                        hide_page_numbers={true}/>
           </div>
         </div>
-        <div>
+        <div className="ex-entities">
           <Entities entry_points={entry_points}
                     entry_point_id={entry_point_id} />
         </div>
