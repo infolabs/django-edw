@@ -14,24 +14,35 @@ import reCache from '../utils/reCache';
 
 const globalStore = new Singleton();
 
+function html2json(data) {
+  /* makeshift solution, TODO */
+  if (data && data.entity_url && data.entity_url.endsWith("html")) {
+    const str = data.entity_url.replace(/html$/gi, 'json');
+    data.entity_url = str;
+    return data;
+  }
+  return data;
+}
+
+
 
 export function getEntityItem(data) {
+  data = html2json(data);
   return (dispatch, getState) => {
     if ( !getState().entities.loadingItems[data.id] ) {
       dispatch(loadingEntityItem(data.id));
-
       fetch(reCache(data.entity_url), {
-          method: 'get',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        }).then(response => response.json()).then(json => dispatch({
-          type: LOAD_ENTITY_ITEM,
-          json: json,
-        }));
-      }
-    };
+        method: 'get',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      }).then(response => response.json()).then(json => dispatch({
+        type: LOAD_ENTITY_ITEM,
+        json: json,
+      }));
+    }
+  };
 }
 
 
@@ -58,32 +69,32 @@ function opts2gets(options = {}) {
 
 
 export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
-    return dispatch => {
-        let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
-        url = reCache(url);
-        if (subj_ids.length) {
-            subj_ids.join();
-            url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
-          }
-          url += opts2gets(options_obj);
+  return dispatch => {
+    let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
+    url = reCache(url);
+    if (subj_ids.length) {
+        subj_ids.join();
+        url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
+    }
+    url += opts2gets(options_obj);
 
-          if (options_arr.length) {
-            url += "&" + options_arr.join("&");
-          }
+    if (options_arr.length) {
+      url += "&" + options_arr.join("&");
+    }
 
-          fetch(url, {
-            credentials: 'include',
-            method: 'get',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-          }).then(response => response.json()).then(json => dispatch({
-            type: LOAD_ENTITIES,
-            json: json,
-            request_options: options_obj
-          }));
-    };
+    fetch(url, {
+      credentials: 'include',
+      method: 'get',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    }).then(response => response.json()).then(json => dispatch({
+      type: LOAD_ENTITIES,
+      json: json,
+      request_options: options_obj
+    }));
+  };
 }
 
 
