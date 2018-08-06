@@ -47,6 +47,8 @@ class RESTOptions(object):
                     #    pass
                     return queryset
 
+                validators = []
+
                 def create(self, validated_data):
                     test_id = validated_data.pop('test_id', None)
                     # print ("Get test_id", test_id)
@@ -61,13 +63,35 @@ class RESTOptions(object):
                     # print("Updated instance", self.partial, instance)
                     return instance
 
+                def validate_key(self, value):
+                    # print ("+ Validate key +", value)
+                    if 'x' not in value.lower():
+                        raise serializers.ValidationError("Key must have `x`")
+                    return value
+
+                def validate(self, data):
+                    try:
+                        ControllerActivity.objects.get(key=data['key'])
+                    except ControllerActivity.DoesNotExist:
+                        raise serializers.ValidationError(_('Invalid controller key'))
+                    return data
 
     """
 
     exclude = []
     include = {}
+
     permission_classes = []
+
     filters = {}
+
+    create = None
+    update = None
+    validate = None
+
+    validators = []
+
+    _fields_validators = []
 
     def __init__(self, opts=None, **kwargs):
         # Override defaults with options provided
@@ -81,7 +105,6 @@ class RESTOptions(object):
             if key[:2] == '__':
                 continue
             setattr(self, key, value)
-
 
     def __iter__(self):
         return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
@@ -111,8 +134,25 @@ class RESTModelBase(ModelBase):
                 for name, value in base._rest_meta:
                     if name not in initial_options:
                         setattr(RESTMeta, name, value)
-        setattr(new, '_rest_meta', RESTOptions(RESTMeta))
 
+        opts = RESTOptions(RESTMeta)
+
+        # parce fields validator
+        include_fields = opts.include.copy()
+        for field_name in [field.name for field in new._meta.fields]:
+            include_fields[field_name] = None
+        for field_name in opts.exclude:
+            include_fields.pop(field_name, None)
+        field_level_validators_names = ["validate_{}".format(field_name) for field_name in include_fields.keys()]
+
+        fields_validators = []
+        for name in field_level_validators_names:
+            validator = getattr(opts, name, None)
+            if validator is not None:
+                fields_validators.append(name)
+        opts._fields_validators = fields_validators
+
+        setattr(new, '_rest_meta', opts)
         return new
 
 
@@ -158,13 +198,20 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
                 self.fields.pop(field_name)
 
 
-class DynamicCreateUpdateValidateMethodSerializerMixin(RESTMetaSerializerMixin):
+class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
 
     def __init__(self, *args, **kwargs):
-        super(DynamicCreateUpdateValidateMethodSerializerMixin, self).__init__(*args, **kwargs)
-        for method_name in ('create', 'update', 'validate'):
-            method = getattr(self.rest_meta, method_name, None)
-            if method is not None:
+        super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)
+        if self.rest_meta:
+            self.validators = self.rest_meta.validators
+
+            for method_name in ('create', 'update', 'validate'):
+                method = getattr(self.rest_meta, method_name, None)
+                if method is not None:
+                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
+
+            for method_name in self.rest_meta._fields_validators:
+                method = getattr(self.rest_meta, method_name)
                 setattr(self, method_name, types.MethodType(method, self, self.__class__))
 
 

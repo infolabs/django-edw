@@ -86,7 +86,6 @@ class PlaceMixin(object):
             ids = []
         return set(ids)
 
-
     @cached_property
     def all_regions_terms_ids_set(self):
         return self.get_all_regions_terms_ids_set()
