@@ -50,7 +50,6 @@ from edw.rest.filters.entity import (
     EntityOrderingFilter
 )
 from edw.rest.filters.data_mart import DataMartFilter
-from edw.rest.filters.term import TermFilter
 from edw.rest.serializers.entity import (
     EntityTotalSummarySerializer,
     EntityDetailSerializer
@@ -59,10 +58,7 @@ from edw.rest.serializers.data_mart import (
     DataMartSummarySerializer,
     DataMartDetailSerializer
 )
-from edw.rest.serializers.term import (
-    TermSerializer,
-    TermTreeSerializer
-)
+from edw.rest.serializers.term import TermTreeSerializer
 
 
 register = template.Library()
@@ -193,7 +189,7 @@ class GetEntities(BaseRetrieveDataTag):
     action = 'list'
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityDynamicFilter, EntityOrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityOrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = EntityPagination
@@ -247,7 +243,8 @@ class GetEntities(BaseRetrieveDataTag):
             "view_component": query_params['_view_component'],
             "annotation_meta": query_params['_annotation_meta'],
             "aggregation_meta": query_params['_aggregation_meta'],
-            "filter_queryset": queryset
+            "group_by": query_params['_group_by'],
+            "filter_queryset": query_params['_filter_queryset']
         }
         return queryset
 

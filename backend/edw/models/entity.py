@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
 from django.db.models.sql.datastructures import EmptyResultSet
+from django.db.models import Count
 
 from django.utils import six
 from django.utils.functional import cached_property
@@ -38,6 +39,7 @@ from .related import (
     EntityRelatedDataMartModel
 )
 from .rest import RESTModelBase
+from .mixins.group_by import CustomGroupByQuerySetMixin
 from ..utils.set_helpers import uniq
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
@@ -68,7 +70,16 @@ def get_polymorphic_ancestors_models(ChildModel):
 #==============================================================================
 # BaseEntityQuerySet
 #==============================================================================
-class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
+class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, PolymorphicQuerySet):
+
+    GROUP_SIZE_ALIAS = 'group_size'
+
+    def group_by(self, *fields):
+        result = self.annotate(**{
+            self.GROUP_SIZE_ALIAS: Count('id', distinct=True)
+        })
+        result.query.group_by = fields
+        return result
 
     @add_cache_key('actv')
     def active(self):
@@ -234,6 +245,7 @@ class BaseEntityQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
             'user_agent': request.META.get('HTTP_USER_AGENT'),
             'username': request.user.username if request.user else None,
         }
+
 
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):

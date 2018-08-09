@@ -93,6 +93,8 @@ class RESTOptions(object):
 
     _fields_validators = []
 
+    group_by = []
+
     def __init__(self, opts=None, **kwargs):
         # Override defaults with options provided
         if opts:
