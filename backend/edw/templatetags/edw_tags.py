@@ -445,3 +445,19 @@ var _key = "_global_singleton_instance",
             return block_data
 
 register.tag(AddToSingletonJs)
+
+
+@register.filter
+def to_list(value):
+    return list(value)
+
+
+@register.filter
+def append_value(data, value):
+    data.append(value)
+    return data
+
+
+@register.filter
+def empty_str(value):
+    return ''
