@@ -24,6 +24,7 @@ from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
     EntityDynamicFilter,
+    EntityGroupByFilter,
     EntityOrderingFilter
 )
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
@@ -63,7 +64,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityMetaFilter, EntityDynamicFilter, EntityOrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
+                       EntityOrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = EntityPagination
@@ -211,7 +213,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
             "view_component": query_params['_view_component'],
             "annotation_meta": query_params['_annotation_meta'],
             "aggregation_meta": query_params['_aggregation_meta'],
-            "filter_queryset": queryset
+            "group_by": query_params['_group_by'],
+            "filter_queryset": query_params['_filter_queryset']
         }
         return queryset
 

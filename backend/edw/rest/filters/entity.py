@@ -330,6 +330,7 @@ class EntityMetaFilter(BaseFilterBackend):
 
         request.GET['_annotation_meta'] = annotation_meta
         request.GET['_aggregation_meta'] = aggregation_meta
+        request.GET['_filter_queryset'] = queryset
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)
@@ -352,6 +353,46 @@ class EntityDynamicFilterSet(DynamicFilterSetMixin, filters.FilterSet):
 class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
     dynamic_filter_set_class = EntityDynamicFilterSet
+
+
+class EntityGroupByFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        data_mart = request.GET['_data_mart']
+        group_by = []
+        if view.action == 'list':
+            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            group_by = entity_model._rest_meta.group_by
+
+            # print ("*** EntityGroupByFilter ***", group_by)
+            #
+            # txt = 'Нарушение сроков реализации товара, оказания услуг'
+            #
+            # queryset = queryset.filter(
+            #         particularproblem__name__icontains=txt
+            #     )
+
+            if group_by:
+
+
+                queryset_with_counts = queryset.group_by(*group_by)
+
+                # print ("++++++++++++++++++++++++++++++++++++++++==", queryset_with_counts.query.__str__())
+
+                if queryset_with_counts.count() > 1:
+
+                    queryset = queryset_with_counts
+
+
+                    # ----
+
+                    # print ("+ queryset_with_counts +", queryset_with_counts)
+
+                else:
+                    group_by = []
+
+        request.GET['_group_by'] = group_by
+        return queryset
 
 
 class EntityOrderingFilter(OrderingFilter):
@@ -377,5 +418,4 @@ class EntityOrderingFilter(OrderingFilter):
             result = fields.items()
         return result
 
-    # def filter_queryset(self, request, queryset, view):
-    #     return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
+

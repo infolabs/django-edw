@@ -208,22 +208,19 @@ export default class Map extends Component {
                   </li>
               )}
             </ul>
-            <span className="tags">
-              <small>
-                {marks.map(
-                  (child, i) =>
-                    <span className="ex-wrap-ribbon"
-                        key={i}
-                        data-name={child.name}
-                        data-path={child.path}
-                        data-view-class={child.view_class.join(" ")}>
-                      <i className="fa fa-tag"></i>&nbsp;
-                      <span className="ex-ribbon">{child.values.join(", ")}</span>
-                      &nbsp;
-                    </span>
-                )}
-              </small>
-            </span>
+            <ul className="ex-tags">
+              {marks.map(
+                (child, i) =>
+                  <li className="ex-tag"
+                      key={i}
+                      data-name={child.name}
+                      data-path={child.path}
+                      data-view-class={child.view_class.join(" ")}>
+                    <i className="fa fa-tag"></i>&nbsp;
+                    {child.values.join(", ")}
+                  </li>
+              )}
+            </ul>
           </div>
         </div>
       );

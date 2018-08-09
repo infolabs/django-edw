@@ -135,7 +135,12 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         extra = instance.get_summary_extra(self.context)
 
         annotation_meta = self.context.get('annotation_meta', None)
-        if annotation_meta:
+        group_by = self.context.get('group_by', [])
+
+        if group_by:
+            group_size_alias = self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
+            extra[group_size_alias] = getattr(instance, group_size_alias)
+        elif annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
 
@@ -314,6 +319,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     ordering = serializers.SerializerMethodField()
     view_component = serializers.SerializerMethodField()
     aggregation = serializers.SerializerMethodField()
+    group_by = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
     extra = serializers.SerializerMethodField()
@@ -396,6 +402,9 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             return result
         else:
             return None
+
+    def get_group_by(self, instance):
+        return self.context['group_by']
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):

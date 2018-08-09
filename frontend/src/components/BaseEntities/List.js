@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import  marked from 'marked';
 
 
-const TOGGLE_DESCRIPTION_DELAY = 300;
+const TOGGLE_DESCRIPTION_DELAY = 100;
 
 // Container
 
@@ -128,6 +128,19 @@ class ListItem extends Component {
                 </li>
             )}
           </ul>
+          <ul className="ex-tags">
+            {marks.map(
+              (child, i) =>
+                <li className="ex-tag"
+                    key={i}
+                    data-name={child.name}
+                    data-path={child.path}
+                    data-view-class={child.view_class.join(" ")}>
+                  <i className="fa fa-tag"></i>&nbsp;
+                  {child.values.join(", ")}
+                </li>
+            )}
+          </ul>
         </div>
       )
     }
@@ -138,12 +151,18 @@ class ListItem extends Component {
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>
 
-        <a href={url} className={item_wrapper_class}>
+        <div className={item_wrapper_class}>
           <div className="row">
-            <div className="col-md-3" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
+              <div className="col-md-3">
+                <a href={url}>
+                  <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
+                </a>
+              </div>
 
             <div className="col-md-9">
-              <h4>{data.entity_name}</h4>
+              <a href={url}>
+                <h4>{data.entity_name}</h4>
+              </a>
               {descriptions.opened[data.id] && description_baloon}
             </div>
           </div>
@@ -160,7 +179,7 @@ class ListItem extends Component {
                 </li>
             )}
           </ul>
-        </a>
+        </div>
       </div>
     );
   }
