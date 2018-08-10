@@ -47,6 +47,7 @@ from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
     EntityDynamicFilter,
+    EntityGroupByFilter,
     EntityOrderingFilter
 )
 from edw.rest.filters.data_mart import DataMartFilter
@@ -189,7 +190,8 @@ class GetEntities(BaseRetrieveDataTag):
     action = 'list'
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityOrderingFilter)
+    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
+                       EntityOrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = EntityPagination
@@ -243,8 +245,7 @@ class GetEntities(BaseRetrieveDataTag):
             "view_component": query_params['_view_component'],
             "annotation_meta": query_params['_annotation_meta'],
             "aggregation_meta": query_params['_aggregation_meta'],
-            #todo: Костыль. сказать Артему сделать по-нормальному.
-            "group_by": query_params['_group_by'] if hasattr(query_params, '_group_by') else [],
+            "group_by": query_params['_group_by'],
             "filter_queryset": query_params['_filter_queryset']
         }
         return queryset
