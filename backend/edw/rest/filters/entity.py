@@ -381,6 +381,21 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
     dynamic_filter_set_class = EntityDynamicFilterSet
 
+    template = 'edw/entities/filters/dynamic.html'
+
+    def to_html(self, request, queryset, view):
+        dynamic_filter_set = self.dynamic_filter_set_class(request.GET, queryset)
+        rest_meta = getattr(dynamic_filter_set, '_rest_meta', None)
+        if view.action == 'list' and rest_meta is not None and rest_meta.filters:
+            for filter_name in rest_meta.filters.keys():
+                dynamic_filter_set.data.setdefault(filter_name, '')
+            context = {
+                'form': dynamic_filter_set.form
+            }
+            template = loader.get_template(self.template)
+            return template_render(template, context)
+        return ''
+
 
 class EntityGroupByFilter(BaseFilterBackend):
 

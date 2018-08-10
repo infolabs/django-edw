@@ -30,7 +30,7 @@ class RESTOptions(object):
                 filters = {
                     'published_at': filters.IsoDateTimeFilter(
                         name='published_at', lookup_expr='exact'),
-                    'close_at': ('filters.IsoDateTimeFilter', {
+                    'close_at': ('rest_framework_filters.IsoDateTimeFilter', {
                         'name': 'close_at',
                         'lookup_expr': 'exact',
                         # 'action': lambda qs, value: qs
