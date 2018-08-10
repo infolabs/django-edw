@@ -243,7 +243,8 @@ class GetEntities(BaseRetrieveDataTag):
             "view_component": query_params['_view_component'],
             "annotation_meta": query_params['_annotation_meta'],
             "aggregation_meta": query_params['_aggregation_meta'],
-            "group_by": query_params['_group_by'],
+            #todo: Костыль. сказать Артему сделать по-нормальному.
+            "group_by": query_params['_group_by'] if hasattr(query_params, '_group_by') else [],
             "filter_queryset": query_params['_filter_queryset']
         }
         return queryset
@@ -442,3 +443,19 @@ var _key = "_global_singleton_instance",
             return block_data
 
 register.tag(AddToSingletonJs)
+
+
+@register.filter
+def to_list(value):
+    return list(value)
+
+
+@register.filter
+def append_value(data, value):
+    data.append(value)
+    return data
+
+
+@register.filter
+def empty_str(value):
+    return ''
