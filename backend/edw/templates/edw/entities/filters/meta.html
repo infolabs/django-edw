@@ -1,0 +1,15 @@
+{% load i18n %}{% spaceless %}
+
+{% if annotation_meta %}
+    <h2>{% trans "Annotation" %}</h2>
+    <p>`{{ annotation_meta|join:"`, `" }}`</p>
+{% endif %}
+
+{% if annotation_meta and aggregation_meta %}<hr>{% endif %}
+
+{% if aggregation_meta %}
+    <h2>{% trans "Aggregation" %}</h2>
+    <p>`{{ aggregation_meta|join:"`, `" }}`</p>
+{% endif %}
+
+{% endspaceless %}

@@ -8,9 +8,11 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
+from django.template import loader
 
 import rest_framework_filters as filters
 
+from rest_framework.compat import template_render
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
@@ -284,6 +286,8 @@ class EntityFilter(BaseEntityFilter):
 
 class EntityMetaFilter(BaseFilterBackend):
 
+    template = 'edw/entities/filters/meta.html'
+
     def filter_queryset(self, request, queryset, view):
 
         data_mart = request.GET['_data_mart']
@@ -341,6 +345,29 @@ class EntityMetaFilter(BaseFilterBackend):
         request.GET['_view_component'] = view_component
 
         return queryset
+
+    def to_html(self, request, queryset, view):
+        data_mart = request.GET.get('_data_mart', None)
+
+        # annotation & aggregation
+        annotation_meta, aggregation_meta = None, None
+        if view.action == 'list':
+            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+
+            annotation = entity_model.get_summary_annotation()
+            if isinstance(annotation, dict):
+                annotation_meta = annotation.keys()
+
+            aggregation = entity_model.get_summary_aggregation()
+            if isinstance(aggregation, dict):
+                aggregation_meta = aggregation.keys()
+
+        context = {
+            'annotation_meta': annotation_meta,
+            'aggregation_meta': aggregation_meta
+        }
+        template = loader.get_template(self.template)
+        return template_render(template, context)
 
 
 class EntityDynamicFilterSet(DynamicFilterSetMixin, filters.FilterSet):
