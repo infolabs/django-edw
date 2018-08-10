@@ -9,6 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
+from django.db.models.expressions import BaseExpression
 
 import rest_framework_filters as filters
 
@@ -350,7 +351,7 @@ class EntityMetaFilter(BaseFilterBackend):
         data_mart = request.GET.get('_data_mart', None)
 
         # annotation & aggregation
-        annotation_meta, aggregation_meta = None, None
+        annotation_meta, aggregation_meta = [], []
         if view.action == 'list':
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
 
@@ -360,7 +361,7 @@ class EntityMetaFilter(BaseFilterBackend):
 
             aggregation = entity_model.get_summary_aggregation()
             if isinstance(aggregation, dict):
-                aggregation_meta = aggregation.keys()
+                aggregation_meta = [key for key, value in aggregation.items() if isinstance(value[0], BaseExpression)]
 
         context = {
             'annotation_meta': annotation_meta,
