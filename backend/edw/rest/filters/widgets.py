@@ -14,5 +14,11 @@ class CSVWidget(OriginCSVWidget):
         value = super(forms.TextInput, self).value_from_datadict(data, files, name)
 
         if value is not None:
-            return urllib.unquote(value).decode('utf8').split(',')
+            try:
+                return urllib.unquote(value).decode('utf8').split(',')
+            except AttributeError:
+                if isinstance(value, (tuple, list)):
+                    return [str(x) for x in value]
+                else:
+                    return str(value)
         return None

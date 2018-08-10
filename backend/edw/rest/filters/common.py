@@ -6,20 +6,8 @@ from django_filters.filters import (
     # DateTimeFilter,
 )
 from django_filters.fields import BaseCSVField
-from django_filters.widgets import CSVWidget
 
-
-class CustomCSVWidget(CSVWidget):
-
-    def value_from_datadict(self, data, files, name):
-        value = super(CSVWidget, self).value_from_datadict(data, files, name)
-
-        if value is not None:
-            try:
-                return value.split(',')
-            except AttributeError:
-                return str(value)
-        return None
+from edw.rest.filters.widgets import CSVWidget as CustomCSVWidget
 
 
 class CustomCSVField(BaseCSVField):
