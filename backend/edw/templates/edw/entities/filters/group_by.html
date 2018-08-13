@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if group_by %}
+<h2>{% trans "Group by" %}</h2>
+<p>`{{ group_by|join:"`, `" }}`</p>
+
+<form class="form" action="" method="get">
+<p><label for="id_{{ like_param }}">{% trans "Like" %}:</label> <input id="id_{{ like_param }}" name="{{ like_param }}" type="text" value="{{ like }}"> <span class="helptext">{% trans "Filter" %}</span></p>
+<button type="submit" class="btn btn-primary">{% trans "Send" %}</button>
+</form>
+{% endif %}
