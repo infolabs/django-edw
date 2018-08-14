@@ -209,6 +209,13 @@ class GetEntities(BaseRetrieveDataTag):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             data = self.get_paginated_data(serializer.data)
+            pagination = {
+                "limit": self.paginator.limit,
+                "offset": self.paginator.offset,
+                "next": self.paginator.get_next_link(),
+                "previous": self.paginator.get_previous_link(),
+            }
+            data.update(pagination)
             context["{}_paginator".format(varname)] = self.paginator
         else:
             serializer = self.get_serializer(queryset, many=True)
