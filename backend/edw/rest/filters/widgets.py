@@ -20,5 +20,5 @@ class CSVWidget(OriginCSVWidget):
                 if isinstance(value, (tuple, list)):
                     return [str(x) for x in value]
                 else:
-                    return str(value)
+                    return [str(value)]
         return None
