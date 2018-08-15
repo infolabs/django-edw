@@ -10,6 +10,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
 from django.db.models.expressions import BaseExpression
+from django.http import Http404
 
 import rest_framework_filters as filters
 
@@ -400,42 +401,61 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
 class EntityGroupByFilter(BaseFilterBackend):
 
-    def filter_queryset(self, request, queryset, view):
+    like_param = 'like'
+
+    template = 'edw/entities/filters/group_by.html'
+
+    def get_like_param(self, request):
+        param = request.query_params.get(self.like_param, None)
+        if param is not None:
+            return serializers.IntegerField().to_internal_value(param)
+        return None
+
+    def get_like(self, request, queryset):
+        param = self.get_like_param(request)
+        if param is not None:
+            try:
+                return queryset.filter(pk=param)[0]
+            except IndexError:
+                raise Http404
+        return None
+
+    def get_group_by(self, request, queryset):
         data_mart = request.GET['_data_mart']
+        entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+        return entity_model._rest_meta.group_by
+
+    def filter_queryset(self, request, queryset, view):
         group_by = []
         if view.action == 'list':
-            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-            group_by = entity_model._rest_meta.group_by
-
-            # print ("*** EntityGroupByFilter ***", group_by)
-            #
-            # txt = 'Нарушение сроков реализации товара, оказания услуг'
-            #
-            # queryset = queryset.filter(
-            #         particularproblem__name__icontains=txt
-            #     )
-
+            group_by = self.get_group_by(request, queryset)
             if group_by:
-
+                like = self.get_like(request, queryset.values(*group_by))
+                if like is not None:
+                    queryset = queryset.filter(**like)
 
                 queryset_with_counts = queryset.group_by(*group_by)
-
-                # print ("++++++++++++++++++++++++++++++++++++++++==", queryset_with_counts.query.__str__())
-
                 if queryset_with_counts.count() > 1:
-
                     queryset = queryset_with_counts
-
-
-                    # ----
-
-                    # print ("+ queryset_with_counts +", queryset_with_counts)
-
                 else:
                     group_by = []
 
         request.GET['_group_by'] = group_by
         return queryset
+
+    def to_html(self, request, queryset, view):
+        if view.action == 'list':
+            group_by = self.get_group_by(request, queryset)
+            if group_by:
+                like = self.get_like_param(request)
+                context = {
+                    'like': like if like is not None else '',
+                    'group_by': group_by,
+                    'like_param': self.like_param
+                }
+                template = loader.get_template(self.template)
+                return template_render(template, context)
+        return ''
 
 
 class EntityOrderingFilter(OrderingFilter):

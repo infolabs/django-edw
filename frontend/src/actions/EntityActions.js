@@ -14,20 +14,8 @@ import reCache from '../utils/reCache';
 
 const globalStore = new Singleton();
 
-function html2json(data) {
-  /* makeshift solution, TODO */
-  if (data && data.entity_url && data.entity_url.endsWith("html")) {
-    const str = data.entity_url.replace(/html$/gi, 'json');
-    data.entity_url = str;
-    return data;
-  }
-  return data;
-}
-
-
 
 export function getEntityItem(data) {
-  data = html2json(data);
   return (dispatch, getState) => {
     if ( !getState().entities.loadingItems[data.id] ) {
       dispatch(loadingEntityItem(data.id));
