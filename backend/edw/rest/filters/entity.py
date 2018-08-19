@@ -10,7 +10,6 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
 from django.db.models.expressions import BaseExpression
-from django.http import Http404
 
 import rest_framework_filters as filters
 
@@ -25,6 +24,7 @@ from edw.models.data_mart import DataMartModel
 from edw.models.rest import DynamicFilterSetMixin, DynamicFilterMixin
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
+from edw import settings as edw_settings
 
 from .common import NumberInFilter
 
@@ -294,6 +294,10 @@ class EntityMetaFilter(BaseFilterBackend):
 
         data_mart = request.GET['_data_mart']
 
+
+        print "++++ OLOLOLO ++++", queryset.model, queryset.query.__str__()
+
+
         # annotation & aggregation
         annotation_meta, aggregation_meta = None, None
         if view.action == 'list':
@@ -401,7 +405,7 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
 class EntityGroupByFilter(BaseFilterBackend):
 
-    like_param = 'like'
+    like_param = edw_settings.REST_FILTERS['like_param']
 
     template = 'edw/entities/filters/group_by.html'
 
@@ -409,15 +413,6 @@ class EntityGroupByFilter(BaseFilterBackend):
         param = request.query_params.get(self.like_param, None)
         if param is not None:
             return serializers.IntegerField().to_internal_value(param)
-        return None
-
-    def get_like(self, request, queryset):
-        param = self.get_like_param(request)
-        if param is not None:
-            try:
-                return queryset.filter(pk=param)[0]
-            except IndexError:
-                raise Http404
         return None
 
     def get_group_by(self, request, queryset):
@@ -430,16 +425,14 @@ class EntityGroupByFilter(BaseFilterBackend):
         if view.action == 'list':
             group_by = self.get_group_by(request, queryset)
             if group_by:
-                like = self.get_like(request, queryset.values(*group_by))
-                if like is not None:
-                    queryset = queryset.filter(**like)
-
+                pk = self.get_like_param(request)
+                if pk is not None:
+                    queryset = queryset.like(pk, *group_by)
                 queryset_with_counts = queryset.group_by(*group_by)
                 if queryset_with_counts.count() > 1:
                     queryset = queryset_with_counts
                 else:
                     group_by = []
-
         request.GET['_group_by'] = group_by
         return queryset
 

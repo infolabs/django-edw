@@ -81,6 +81,13 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
         result.query.group_by = fields
         return result
 
+    def like(self, pk, *fields):
+        try:
+            like = self.values(*fields).filter(pk=pk)[0]
+        except IndexError:
+            return self.none()
+        return self.filter(**like)
+
     @add_cache_key('actv')
     def active(self):
         return self.filter(active=True)

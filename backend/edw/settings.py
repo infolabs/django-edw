@@ -60,6 +60,12 @@ REST_PAGINATION = {
 REST_PAGINATION.update(getattr(settings, 'EDW_REST_PAGINATION', {}))
 
 
+REST_FILTERS = {
+    'like_param': 'like'
+}
+REST_PAGINATION.update(getattr(settings, 'EDW_REST_FILTERS', {}))
+
+
 REGISTRATION_PROCESS = {
     'registration_salt': 'registration',
     'do_activation': False,
