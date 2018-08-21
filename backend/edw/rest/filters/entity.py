@@ -294,9 +294,7 @@ class EntityMetaFilter(BaseFilterBackend):
 
         data_mart = request.GET['_data_mart']
 
-
-        print "++++ OLOLOLO ++++", queryset.model, queryset.query.__str__()
-
+        # print "++++ OLOLOLO ++++", queryset.model, queryset.query.__str__()
 
         # annotation & aggregation
         annotation_meta, aggregation_meta = None, None
@@ -425,9 +423,10 @@ class EntityGroupByFilter(BaseFilterBackend):
         if view.action == 'list':
             group_by = self.get_group_by(request, queryset)
             if group_by:
-                pk = self.get_like_param(request)
-                if pk is not None:
-                    queryset = queryset.like(pk, *group_by)
+                like_id = self.get_like_param(request)
+                if like_id is not None:
+                    queryset = queryset.like(like_id, *group_by)
+
                 queryset_with_counts = queryset.group_by(*group_by)
                 if queryset_with_counts.count() > 1:
                     queryset = queryset_with_counts
@@ -440,9 +439,9 @@ class EntityGroupByFilter(BaseFilterBackend):
         if view.action == 'list':
             group_by = self.get_group_by(request, queryset)
             if group_by:
-                like = self.get_like_param(request)
+                like_id = self.get_like_param(request)
                 context = {
-                    'like': like if like is not None else '',
+                    'like': like_id if like_id is not None else '',
                     'group_by': group_by,
                     'like_param': self.like_param
                 }

@@ -11,6 +11,7 @@ from django.utils.six import with_metaclass
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
+from django.utils.functional import cached_property
 
 from django.apps import apps
 
@@ -128,6 +129,30 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
+    def to_representation(self, data):
+        """
+        Prepare some data for serialization
+        """
+        if self.group_by:
+            group_size = getattr(data, self.group_size_alias)
+            if group_size > 1:
+                queryset = self.context['filter_queryset']
+                group_queryset = queryset.like(data.id, *self.group_by)
+
+                # patch short_characteristics & short_marks
+                data.short_characteristics = group_queryset.short_characteristics
+                data.short_marks = group_queryset.short_marks
+
+        return super(EntitySummarySerializerBase, self).to_representation(data)
+
+    @cached_property
+    def group_size_alias(self):
+        return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
+
+    @cached_property
+    def group_by(self):
+        return self.context.get('group_by', [])
+
     def get_entity_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
@@ -135,11 +160,9 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         extra = instance.get_summary_extra(self.context)
 
         annotation_meta = self.context.get('annotation_meta', None)
-        group_by = self.context.get('group_by', [])
 
-        if group_by:
-            group_size_alias = self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
-            extra[group_size_alias] = getattr(instance, group_size_alias)
+        if self.group_by:
+            extra[self.group_size_alias] = getattr(instance, self.group_size_alias)
         elif annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
