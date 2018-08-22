@@ -288,17 +288,28 @@ class EntityFilter(BaseEntityFilter):
 
 class EntityMetaFilter(BaseFilterBackend):
 
+    alike_param = edw_settings.REST_FILTERS['alike_param']
+
     template = 'edw/entities/filters/meta.html'
 
+    def get_alike_param(self, request):
+        param = request.query_params.get(self.alike_param, None)
+        if param is not None:
+            return serializers.IntegerField().to_internal_value(param)
+        return None
+
     def filter_queryset(self, request, queryset, view):
+
+        alike_id = self.get_alike_param(request)
 
         data_mart = request.GET['_data_mart']
 
         # print "++++ OLOLOLO ++++", queryset.model, queryset.query.__str__()
 
-        # annotation & aggregation
         annotation_meta, aggregation_meta = None, None
-        if view.action == 'list':
+
+        # annotation
+        if view.action == 'list' or alike_id is not None:
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
 
             annotation = entity_model.get_summary_annotation()
@@ -317,6 +328,8 @@ class EntityMetaFilter(BaseFilterBackend):
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
 
+        # aggregation
+        if view.action == 'list':
             aggregation = entity_model.get_summary_aggregation()
             if isinstance(aggregation, dict):
                 aggregation_meta = {}
@@ -339,6 +352,8 @@ class EntityMetaFilter(BaseFilterBackend):
         request.GET['_annotation_meta'] = annotation_meta
         request.GET['_aggregation_meta'] = aggregation_meta
         request.GET['_filter_queryset'] = queryset
+        request.GET['_alike'] = alike_id
+        request.GET['_alike_param'] = self.alike_param
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)
@@ -403,15 +418,7 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
 
 class EntityGroupByFilter(BaseFilterBackend):
 
-    like_param = edw_settings.REST_FILTERS['like_param']
-
     template = 'edw/entities/filters/group_by.html'
-
-    def get_like_param(self, request):
-        param = request.query_params.get(self.like_param, None)
-        if param is not None:
-            return serializers.IntegerField().to_internal_value(param)
-        return None
 
     def get_group_by(self, request, queryset):
         data_mart = request.GET['_data_mart']
@@ -423,9 +430,9 @@ class EntityGroupByFilter(BaseFilterBackend):
         if view.action == 'list':
             group_by = self.get_group_by(request, queryset)
             if group_by:
-                like_id = self.get_like_param(request)
-                if like_id is not None:
-                    queryset = queryset.like(like_id, *group_by)
+                alike_id = request.GET['_alike']
+                if alike_id is not None:
+                    queryset = queryset.alike(alike_id, *group_by)
 
                 queryset_with_counts = queryset.group_by(*group_by)
                 if queryset_with_counts.count() > 1:
@@ -439,11 +446,12 @@ class EntityGroupByFilter(BaseFilterBackend):
         if view.action == 'list':
             group_by = self.get_group_by(request, queryset)
             if group_by:
-                like_id = self.get_like_param(request)
+                alike_id = request.GET['_alike']
+                alike_param = request.GET['_alike_param']
                 context = {
-                    'like': like_id if like_id is not None else '',
+                    'alike': alike_id if alike_id is not None else '',
                     'group_by': group_by,
-                    'like_param': self.like_param
+                    'alike_param': alike_param
                 }
                 template = loader.get_template(self.template)
                 return template_render(template, context)

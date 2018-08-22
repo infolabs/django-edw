@@ -61,7 +61,7 @@ REST_PAGINATION.update(getattr(settings, 'EDW_REST_PAGINATION', {}))
 
 
 REST_FILTERS = {
-    'like_param': 'like'
+    'alike_param': 'alike'
 }
 REST_PAGINATION.update(getattr(settings, 'EDW_REST_FILTERS', {}))
 

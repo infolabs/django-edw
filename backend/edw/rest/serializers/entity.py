@@ -137,7 +137,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
             group_size = getattr(data, self.group_size_alias)
             if group_size > 1:
                 queryset = self.context['filter_queryset']
-                group_queryset = queryset.like(data.id, *self.group_by)
+                group_queryset = queryset.alike(data.id, *self.group_by)
 
                 # patch short_characteristics & short_marks
                 data.short_characteristics = group_queryset.short_characteristics
@@ -162,7 +162,11 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         annotation_meta = self.context.get('annotation_meta', None)
 
         if self.group_by:
-            extra[self.group_size_alias] = getattr(instance, self.group_size_alias)
+            group_size = getattr(instance, self.group_size_alias)
+            extra[self.group_size_alias] = group_size
+            if group_size > 1:
+                extra.update(instance.get_group_extra(self.context))
+
         elif annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():

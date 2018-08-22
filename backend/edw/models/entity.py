@@ -84,12 +84,12 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
         result.query.group_by = fields
         return result
 
-    def like(self, pk, *fields):
+    def alike(self, pk, *fields):
         try:
-            like = self.values(*fields).filter(pk=pk)[0]
+            alike = self.values(*fields).filter(pk=pk)[0]
         except IndexError:
             return self.none()
-        return self.filter(**like)
+        return self.filter(**alike)
 
     @add_cache_key('actv')
     def active(self):
@@ -1087,6 +1087,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return extra data for summary serializer
         """
         return None
+
+    def get_group_extra(self, context):
+        """
+        Return extra data for group
+        """
+        return {
+            'group_name': self.entity_name
+        }
 
     @classmethod
     def get_summary_annotation(cls):

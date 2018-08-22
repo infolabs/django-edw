@@ -115,6 +115,7 @@ class GetEntities(BaseRetrieveDataTag):
             "annotation_meta": query_params['_annotation_meta'],
             "aggregation_meta": query_params['_aggregation_meta'],
             "group_by": query_params['_group_by'],
+            "alike": query_params['_alike'],
             "filter_queryset": query_params['_filter_queryset']
         }
         return queryset
