@@ -21,7 +21,11 @@ from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from edw.models.entity import BaseEntity
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFilterSetMixin, DynamicFilterMixin
+from edw.models.rest import (
+    DynamicFilterSetMixin,
+    DynamicFilterMixin,
+    DynamicGroupByMixin
+)
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 from edw import settings as edw_settings
@@ -299,13 +303,8 @@ class EntityMetaFilter(BaseFilterBackend):
         return None
 
     def filter_queryset(self, request, queryset, view):
-
         alike_id = self.get_alike_param(request)
-
         data_mart = request.GET['_data_mart']
-
-        # print "++++ OLOLOLO ++++", queryset.model, queryset.query.__str__()
-
         annotation_meta, aggregation_meta = None, None
 
         # annotation
@@ -416,19 +415,15 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
         return ''
 
 
-class EntityGroupByFilter(BaseFilterBackend):
+class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
 
     template = 'edw/entities/filters/group_by.html'
-
-    def get_group_by(self, request, queryset):
-        data_mart = request.GET['_data_mart']
-        entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-        return entity_model._rest_meta.group_by
 
     def filter_queryset(self, request, queryset, view):
         group_by = []
         if view.action == 'list':
-            group_by = self.get_group_by(request, queryset)
+            self.initialize(request, queryset)
+            group_by = self.get_group_by()
             if group_by:
                 alike_id = request.GET['_alike']
                 if alike_id is not None:
@@ -444,7 +439,8 @@ class EntityGroupByFilter(BaseFilterBackend):
 
     def to_html(self, request, queryset, view):
         if view.action == 'list':
-            group_by = self.get_group_by(request, queryset)
+            self.initialize(request, queryset)
+            group_by = self.get_group_by()
             if group_by:
                 alike_id = request.GET['_alike']
                 alike_param = request.GET['_alike_param']
@@ -480,5 +476,4 @@ class EntityOrderingFilter(OrderingFilter):
             fields.update(dict(valid_fields))
             result = fields.items()
         return result
-
 
