@@ -158,22 +158,22 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
 
     def get_extra(self, instance):
         extra = instance.get_summary_extra(self.context)
-
         annotation_meta = self.context.get('annotation_meta', None)
 
         if self.group_by:
             group_size = getattr(instance, self.group_size_alias)
-            extra[self.group_size_alias] = group_size
             if group_size > 1:
+                if extra is None:
+                    extra = {}
+                extra[self.group_size_alias] = group_size
                 extra.update(instance.get_group_extra(self.context))
+                return extra
 
-        elif annotation_meta:
+        if annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
-
                 if field == field.root:
                     field.root = self.root
-
                 value = getattr(instance, key)
                 annotation[key] = field.to_representation(value) if value is not None else None
 
@@ -181,7 +181,6 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
                 extra.update(annotation)
             else:
                 extra = annotation
-
         return extra
 
 
@@ -347,6 +346,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     view_component = serializers.SerializerMethodField()
     aggregation = serializers.SerializerMethodField()
     group_by = serializers.SerializerMethodField()
+    alike = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
     extra = serializers.SerializerMethodField()
@@ -432,6 +432,23 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     def get_group_by(self, instance):
         return self.context['group_by']
+
+    def get_alike(self, instance):
+        alike_id = self.context['alike']
+        if alike_id is not None:
+            result = {
+                'id': alike_id
+            }
+            queryset = self.context['filter_queryset']
+            try:
+                obj = queryset.get(id=alike_id)
+            except queryset.model.DoesNotExist:
+                pass
+            else:
+                result.update(obj.get_group_extra(self.context))
+            return result
+        else:
+            return None
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):
