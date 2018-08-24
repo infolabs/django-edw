@@ -94,7 +94,13 @@ class BaseRetrieveDataTag(Tag):
         initial_kwargs = tag_kwargs.copy()
 
         inner_kwargs = initial_kwargs.pop('kwargs', None)
+
         if inner_kwargs is not None:
+
+            for k, v in inner_kwargs.items():
+                if v == '':
+                    del inner_kwargs[k]
+
             initial_kwargs.update(inner_kwargs)
         self.format_kwarg = initial_kwargs.pop(
             api_settings.FORMAT_SUFFIX_KWARG, None) if api_settings.FORMAT_SUFFIX_KWARG else None
