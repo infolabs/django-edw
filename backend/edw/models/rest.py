@@ -81,7 +81,7 @@ class RESTOptions(object):
                 def get_group_by(self):
                     if self.data_mart is not None and self.queryset.count() <= self.data_mart.limit:
                         return []
-                    return super(self.__class__, self).get_group_by()
+                    return self.group_by
 
     """
 
