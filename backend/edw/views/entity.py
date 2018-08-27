@@ -186,10 +186,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super(EntityViewSet, self).get_serializer_context()
-
         if hasattr(self, 'serializer_context'):
-             context.update(self.serializer_context)
-
+            context.update(self.serializer_context)
         if self.extra_serializer_context is not None:
             context.update(self.extra_serializer_context)
         return context

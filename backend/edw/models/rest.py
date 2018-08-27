@@ -352,11 +352,13 @@ class DynamicFilterMixin(object):
 
 class DynamicGroupByMixin(object):
 
-    def initialize(self, request, queryset):
+    def initialize(self, request, queryset, view):
         self.request = request
         self.queryset = queryset
+        self.view = view
         self.data_mart = request.GET['_data_mart']
-        self.entity_model = self.data_mart.entities_model if self.data_mart is not None else queryset.model
+        self.entity_model = request.GET.get(
+            '_entity_model', self.data_mart.entities_model if self.data_mart is not None else queryset.model)
         self.group_by = self.entity_model._rest_meta.group_by
 
         method = self.entity_model._rest_meta.get_group_by
