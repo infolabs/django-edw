@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import  marked from 'marked';
+import marked from 'marked';
 import { withGoogleMap, GoogleMap, Marker, InfoWindow } from "react-google-maps";
 
 // Map component
