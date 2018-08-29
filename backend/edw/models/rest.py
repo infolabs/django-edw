@@ -76,6 +76,13 @@ class RESTOptions(object):
                         raise serializers.ValidationError(_('Invalid controller key'))
                     return data
 
+                group_by = ['particularproblem__name', 'is_solved']
+
+                def get_group_by(self):
+                    if self.data_mart is not None and self.queryset.count() <= self.data_mart.limit:
+                        return []
+                    return self.group_by
+
     """
 
     exclude = []
@@ -94,6 +101,7 @@ class RESTOptions(object):
     _fields_validators = []
 
     group_by = []
+    get_group_by = None
 
     def __init__(self, opts=None, **kwargs):
         # Override defaults with options provided
@@ -340,3 +348,22 @@ class DynamicFilterMixin(object):
                 queryset = self._extra_filter_queryset(request, queryset, view)
 
         return queryset
+
+
+class DynamicGroupByMixin(object):
+
+    def initialize(self, request, queryset, view):
+        self.request = request
+        self.queryset = queryset
+        self.view = view
+        self.data_mart = request.GET['_data_mart']
+        self.entity_model = request.GET.get(
+            '_entity_model', self.data_mart.entities_model if self.data_mart is not None else queryset.model)
+        self.group_by = self.entity_model._rest_meta.group_by
+
+        method = self.entity_model._rest_meta.get_group_by
+        if method is not None:
+            setattr(self, 'get_group_by', types.MethodType(method, self, self.__class__))
+
+    def get_group_by(self):
+        return self.group_by

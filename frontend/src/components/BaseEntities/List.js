@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import  marked from 'marked';
+import marked from 'marked';
 
 
 const TOGGLE_DESCRIPTION_DELAY = 100;

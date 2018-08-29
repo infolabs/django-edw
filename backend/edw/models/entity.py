@@ -48,6 +48,9 @@ from ..signals.entity import post_save as entity_post_save
 from .. import settings as edw_settings
 
 
+from datetime import datetime
+
+
 #==============================================================================
 # get_polymorphic_ancestors_models
 #==============================================================================
@@ -80,6 +83,13 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
         })
         result.query.group_by = fields
         return result
+
+    def alike(self, pk, *fields):
+        try:
+            alike = self.values(*fields).filter(pk=pk)[0]
+        except IndexError:
+            return self.none()
+        return self.filter(**alike)
 
     @add_cache_key('actv')
     def active(self):
@@ -233,6 +243,84 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
                          models.Q(backward_relations__term__in=rel_f_ids))
         return self.filter(reduce(OR, q_lst)).distinct()
 
+    @cached_property
+    def ids(self):
+        return list(self.values_list('id', flat=True))
+
+    @cached_property
+    def additional_characteristics(self):
+        """
+        Return additional characteristics of current queryset
+        """
+        tree_opts = TermModel._mptt_meta
+        return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+            entity_id__in=self.ids, term__attributes=TermModel.attributes.is_characteristic).order_by(
+            'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
+
+    @cached_property
+    def additional_marks(self):
+        """
+        Return additional marks of current queryset
+        """
+        tree_opts = TermModel._mptt_meta
+        return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+            entity_id__in=self.ids, term__attributes=TermModel.attributes.is_mark).order_by(
+            'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
+
+    @cached_property
+    def _active_terms_for_characteristics(self):
+        """
+        Return terms for characteristics of current queryset
+        """
+        tree_opts = TermModel._mptt_meta
+        descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
+        return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
+            tree_opts.tree_id_attr, tree_opts.left_attr))
+
+    @cached_property
+    def _active_terms_for_marks(self):
+        """
+        Return terms for marks of current queryset
+        """
+        tree_opts = TermModel._mptt_meta
+        descendants_ids = TermModel.get_all_active_marks_descendants_ids()
+        return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
+            tree_opts.tree_id_attr, tree_opts.left_attr))
+
+    @cached_property
+    def characteristics_getter(self):
+        tree_opts = TermModel._mptt_meta
+        return EntityCharacteristicOrMarkGetter(self._active_terms_for_characteristics, self.additional_characteristics,
+                                                TermModel.attributes.is_characteristic, tree_opts)
+
+    @cached_property
+    def characteristics(self):
+        """
+        Return all characteristics objects of current queryset
+        """
+        return self.characteristics_getter.all()
+
+    @cached_property
+    def short_characteristics(self):
+        return self.characteristics_getter[:self.model.SHORT_CHARACTERISTICS_MAX_COUNT]
+
+    @cached_property
+    def marks_getter(self):
+        tree_opts = TermModel._mptt_meta
+        return EntityCharacteristicOrMarkGetter(self._active_terms_for_marks, self.additional_marks,
+                                                TermModel.attributes.is_mark, tree_opts)
+
+    @cached_property
+    def marks(self):
+        """
+        Return all marks objects of current queryset
+        """
+        return self.marks_getter.all()
+
+    @cached_property
+    def short_marks(self):
+        return self.marks_getter[:self.model.SHORT_MARKS_MAX_COUNT]
+
     def stored_request(self, request):
         """
         Extract useful information about the request to be used for emulating a Django request
@@ -245,7 +333,6 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
             'user_agent': request.META.get('HTTP_USER_AGENT'),
             'username': request.user.username if request.user else None,
         }
-
 
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
@@ -1000,6 +1087,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Return extra data for summary serializer
         """
         return None
+
+    def get_group_extra(self, context):
+        """
+        Return extra data for group
+        """
+        return {
+            'group_name': self.entity_name
+        }
 
     @classmethod
     def get_summary_annotation(cls):

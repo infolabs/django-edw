@@ -11,6 +11,7 @@ from django.utils.six import with_metaclass
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
+from django.utils.functional import cached_property
 
 from django.apps import apps
 
@@ -91,6 +92,10 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
         cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['entity_html_snippet'])
         return mark_safe(content)
 
+    @cached_property
+    def group_size_alias(self):
+        return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
+
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
     """
@@ -128,25 +133,46 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         kwargs.setdefault('label', 'summary')
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
+    def to_representation(self, data):
+        """
+        Prepare some data for serialization
+        """
+        if self.group_by:
+            group_size = getattr(data, self.group_size_alias, 0)
+            if group_size > 1:
+                queryset = self.context['filter_queryset']
+                group_queryset = queryset.alike(data.id, *self.group_by)
+
+                # patch short_characteristics & short_marks
+                data.short_characteristics = group_queryset.short_characteristics
+                data.short_marks = group_queryset.short_marks
+        else:
+            group_size = 0
+        self._group_size = group_size
+        return super(EntitySummarySerializerBase, self).to_representation(data)
+
+    @cached_property
+    def group_by(self):
+        return self.context.get('group_by', [])
+
     def get_entity_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
     def get_extra(self, instance):
         extra = instance.get_summary_extra(self.context)
-
         annotation_meta = self.context.get('annotation_meta', None)
-        group_by = self.context.get('group_by', [])
+        if self._group_size > 1 :
+            if extra is None:
+                extra = {}
+            extra[self.group_size_alias] = self._group_size
+            extra.update(instance.get_group_extra(self.context))
+            return extra
 
-        if group_by:
-            group_size_alias = self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
-            extra[group_size_alias] = getattr(instance, group_size_alias)
-        elif annotation_meta:
+        if annotation_meta:
             annotation = {}
             for key, field in annotation_meta.items():
-
                 if field == field.root:
                     field.root = self.root
-
                 value = getattr(instance, key)
                 annotation[key] = field.to_representation(value) if value is not None else None
 
@@ -154,7 +180,6 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
                 extra.update(annotation)
             else:
                 extra = annotation
-
         return extra
 
 
@@ -198,6 +223,8 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
     characteristics = AttributeSerializer(read_only=True, many=True)
     marks = AttributeSerializer(read_only=True, many=True)
     related_data_marts = serializers.SerializerMethodField()
+
+    extra = serializers.SerializerMethodField()
 
     _meta_cache = {}
 
@@ -255,16 +282,16 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
         kwargs.setdefault('label', 'detail')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
-    def to_representation(self, data):
-        """
-        Prepare some data for serialization
-        """
-        self.context['_entity_pk'] = data.id
-        return super(EntityDetailSerializerBase, self).to_representation(data)
+    @cached_property
+    def group_by(self):
+        # group only for root
+        if self == self.root:
+            return self.context.get('group_by', [])
+        return []
 
     def get_related_data_marts(self, entity):
         ids = entity.get_related_data_marts_ids_from_attributes(entity.marks, entity.characteristics)
-        data_marts0 = entity.related_data_marts.active()
+        data_marts0 = entity.related_data_marts.active() # todo: необходимо найти все связанные с группой витрины данных
 
         if ids:
             data_marts0 = list(data_marts0)
@@ -288,6 +315,36 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
 
         related_data_mart_serializer = RelatedDataMartSerializer(data_marts, context=self.context, many=True)
         return related_data_mart_serializer.data
+
+    def get_extra(self, instance):
+        extra = self.context.get('extra', None)
+
+        if self._group_size > 1:
+            if extra is None:
+                extra = {}
+            extra[self.group_size_alias] = self._group_size
+            extra.update(instance.get_group_extra(self.context))
+
+        return extra
+
+    def to_representation(self, data):
+        """
+        Prepare some data for serialization
+        """
+        if self.group_by:
+            queryset = self.context['filter_queryset']
+            group_queryset = queryset.alike(data.id, *self.group_by)
+            group_size = group_queryset.count()
+            if group_size > 1:
+                # patch characteristics & marks
+                data.characteristics = group_queryset.characteristics
+                data.marks = group_queryset.marks
+        else:
+            group_size = 0
+        self._group_size = group_size
+
+        self.context['_entity_pk'] = data.id
+        return super(EntityDetailSerializerBase, self).to_representation(data)
 
 
 class EntitySummarySerializer(EntitySummarySerializerBase):
@@ -320,6 +377,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
     view_component = serializers.SerializerMethodField()
     aggregation = serializers.SerializerMethodField()
     group_by = serializers.SerializerMethodField()
+    alike = serializers.SerializerMethodField()
     potential_terms_ids = serializers.SerializerMethodField()
     real_terms_ids = serializers.SerializerMethodField()
     extra = serializers.SerializerMethodField()
@@ -405,6 +463,23 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
 
     def get_group_by(self, instance):
         return self.context['group_by']
+
+    def get_alike(self, instance):
+        alike_id = self.context['alike']
+        if alike_id is not None:
+            result = {
+                'id': alike_id
+            }
+            queryset = self.context['filter_queryset']
+            try:
+                obj = queryset.get(id=alike_id)
+            except queryset.model.DoesNotExist:
+                pass
+            else:
+                result.update(obj.get_group_extra(self.context))
+            return result
+        else:
+            return None
 
 
 class EntityTotalSummarySerializer(serializers.Serializer):
