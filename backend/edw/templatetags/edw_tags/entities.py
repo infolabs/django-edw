@@ -65,7 +65,6 @@ class GetEntities(BaseRetrieveDataTag):
     )
 
     def render_tag(self, context, kwargs, varname):
-
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:

@@ -5,6 +5,7 @@ from django import template
 from edw.templatetags.edw_tags.common import (
     time, date, split, trim, multiply, bitwise_and,
     to_list, append_value, empty_str,
+    select_attr, set_attr, select_value, set_value,
 )
 from edw.templatetags.edw_tags.entities import GetEntity, GetEntities
 from edw.templatetags.edw_tags.data_marts import GetDataMart, GetDataMarts
@@ -22,6 +23,10 @@ register.filter(append_value)
 register.filter(empty_str)
 register.filter(multiply)
 register.filter(bitwise_and)
+register.filter(set_attr)
+register.filter(select_attr)
+register.filter(select_value)
+register.filter(set_value)
 
 register.tag(GetEntity)
 register.tag(GetEntities)

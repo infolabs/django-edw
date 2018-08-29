@@ -7,6 +7,8 @@ from django.conf import settings
 from django.utils import formats
 from django.utils.dateformat import time_format
 from django.utils.dateformat import format as date_format
+from classytags.core import Tag, Options
+from classytags.arguments import Argument
 
 
 def from_iso8601(value):
@@ -91,3 +93,25 @@ def multiply(value, arg):
 
 def bitwise_and(value, arg):
     return bool(value & arg)
+
+
+def select_attr(obj, name):
+    """Prepares data for select_attr"""
+    return {'object': obj, 'name': name}
+
+
+def set_attr(attribute, value):
+    """{{ request|select_attr:'foobar'|set_attr:42 }} """
+    setattr(attribute['object'], attribute['name'], value)
+    return attribute['object']
+
+
+def select_value(obj, key):
+    """Prepares data for set_value"""
+    return {'object': obj, 'key': key}
+
+
+def set_value(data, value):
+    """{{ request|select_value:'foobar'|set_value:42 }} """
+    data['object'][data['key']] = value
+    return data['object']
