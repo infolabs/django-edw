@@ -7,7 +7,8 @@ import Ordering from 'components/Ordering';
 import Limits from 'components/Limits';
 import Statistics from 'components/Statistics';
 import Aggregation from 'components/Aggregation';
-import DataMartsList from 'components/DataMartsList'
+import DataMartsList from 'components/DataMartsList';
+import GroupTitle from 'components/GroupTitle';
 
 
 export default class DataMart extends Component {
@@ -43,6 +44,9 @@ export default class DataMart extends Component {
             <div className="col-sm-6 col-md-2 ex-statistic float-right">
               <Statistics entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
+          </div>
+          <div className="row">
+            <GroupTitle/>
           </div>
           <Entities entry_points={entry_points} entry_point_id={entry_point_id} />
           <Paginator entry_points={entry_points} entry_point_id={entry_point_id} />

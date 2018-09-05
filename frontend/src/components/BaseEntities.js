@@ -3,8 +3,8 @@ import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Scroll from 'react-scroll';
-import Actions from '../actions/index'
-import cookie from 'react-cookies'
+import Actions from '../actions/index';
+import cookie from 'react-cookies';
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
@@ -23,7 +23,7 @@ class BaseEntities extends Component {
       "tile": Tile,
       "list": List,
       "map": Map
-    }
+    };
   }
 
   static defaultProps = {
@@ -111,7 +111,6 @@ class BaseEntities extends Component {
     const { entities, actions, entry_points, entry_point_id } = this.props;
 
     const items = entities.items.objects || [],
-        dropdowns = entities.dropdowns || {},
         loading = entities.items.loading,
         descriptions = entities.descriptions,
         meta = entities.items.meta;

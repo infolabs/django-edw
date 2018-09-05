@@ -37,12 +37,11 @@
 
 .ex-catalog-item-block {
 
-  &, /*&.ex-catalog-item-variants > *, &.ex-catalog-item-variants > * > *, */
+  &, &.ex-catalog-item-variants > *, &.ex-catalog-item-variants > * > *,
   & .ex-title, & .ex-price, & .ex-price .ex-divider, & .ex-status,
   & .ex-gradient, & .ex-digit {
     transition: all 0.35s ease 0s;
   }
-
 }
 
 .ex-content-description tr[data-view-class~="hidden"] {
@@ -109,25 +108,21 @@
       border-color: @ex-catalog-item-hover-border;
       color: @ex-catalog-item-hover-color;
 
-      //&.ex-catalog-item-variants {
-      //  background-color: darken(@ex-catalog-item-hover-bg, 5%);
-      //
-      //  & > * {
-      //    background-color: darken(@ex-catalog-item-hover-bg, 3%);
-      //    border-color: @ex-catalog-item-hover-border;
-      //
-      //    & > * {
-      //      background-color: @ex-catalog-item-hover-bg;
-      //      border-color: @ex-catalog-item-hover-border;
-      //    }
-      //  }
-      //
-      //  .ex-digit {
-      //    background-color: @ex-catalog-item-variants-badge-hover-bg;
-      //    color: @ex-catalog-item-variants-badge-hover-color;
-      //  }
-      //
-      //}
+      &.ex-catalog-item-variants {
+        background-color: darken(@ex-catalog-item-hover-bg, 5%);
+        & > * {
+          background-color: darken(@ex-catalog-item-hover-bg, 3%);
+          border-color: @ex-catalog-item-hover-border;
+          & > * {
+            background-color: @ex-catalog-item-hover-bg;
+            border-color: @ex-catalog-item-hover-border;
+          }
+        }
+        .ex-digit {
+          background-color: @ex-catalog-item-variants-badge-hover-bg;
+          color: @ex-catalog-item-variants-badge-hover-color;
+        }
+      }
     }
 
     .ex-wrap-thumbnail {
@@ -495,81 +490,81 @@
 //== Publication group
 //
 //##
-//
-//.ex-catalog-item-block {
-//  &.ex-catalog-item-variants {
-//    padding: 0;
-//    background-color: darken(@ex-catalog-item-bg, 5%);
-//    border: 1px solid @ex-catalog-item-border;
-//
-//    left: 2px;
-//    top: 4px;
-//
-//    .ex-rotation(2deg);
-//
-//    & > * {
-//      position: relative;
-//      border: 1px solid @ex-catalog-item-border;
-//      left: -2px;
-//      top: -2px;
-//      margin: -1px;
-//      border-radius: @ex-catalog-item-border-radius;
-//      background-color: darken(@ex-catalog-item-bg, 3%);
-//
-//      transition-property: border-color, background-color;
-//
-//      .ex-rotation(-1deg);
-//
-//      & > * {
-//        position: relative;
-//        border: 1px solid @ex-catalog-item-border;
-//        left: -2px;
-//        top: -2px;
-//        margin: -1px;
-//        padding: @ex-catalog-item-padding-vertical @ex-catalog-item-padding-horizontal;
-//        border-radius: @ex-catalog-item-border-radius;
-//        background-color: @ex-catalog-item-bg;
-//        transition-property: border-color, background-color;
-//
-//        .ex-rotation(-1deg);
-//      }
-//    }
-//
-//    .ex-group-description {
-//      font-size: @ex-catalog-item-additional-font-size;
-//      height: floor(@ex-catalog-item-additional-line-height * @ex-catalog-item-additional-lines);
-//      overflow: hidden;
-//      line-height: @ex-catalog-item-additional-line-height;
-//
-//      p {
-//        margin: 0;
-//        text-align: center;
-//      }
-//    }
-//
-//    .ex-digit {
-//      position: absolute;
-//      top: -5px;
-//      right: -9px;
-//      z-index: 20;
-//      .ex-badge(@ex-catalog-item-variants-badge-color, @ex-catalog-item-variants-badge-bg);
-//      transition-property: background-color, color;
-//    }
-//
-//    .ex-wrap-ribbon[data-view-class~="not-group"], .ex-description-wrapper li[data-view-class~="not-group"] {
-//      display: none;
-//    }
-//
-//    .ex-wrap-ribbon[data-view-class~="only-group"], .ex-description-wrapper li[data-view-class~="only-group"] {
-//      display: inherit;
-//    }
-//
-//  }
-//
-//  .ex-wrap-ribbon[data-view-class~="only-group"], .ex-description-wrapper li[data-view-class~="only-group"] {
-//    display: none;
-//  }
-//}
+
+.ex-catalog-item-block {
+  &.ex-catalog-item-variants {
+    padding: 0;
+    background-color: darken(@ex-catalog-item-bg, 5%);
+    border: 1px solid @ex-catalog-item-border;
+
+    left: 2px;
+    top: 4px;
+
+    .ex-rotation(2deg);
+
+    & > * {
+      position: relative;
+      border: 1px solid @ex-catalog-item-border;
+      left: -2px;
+      top: -2px;
+      margin: -1px;
+      border-radius: @ex-catalog-item-border-radius;
+      background-color: darken(@ex-catalog-item-bg, 3%);
+
+      transition-property: border-color, background-color;
+
+      .ex-rotation(-1deg);
+
+      & > * {
+        position: relative;
+        border: 1px solid @ex-catalog-item-border;
+        left: -2px;
+        top: -2px;
+        margin: -1px;
+        padding: @ex-catalog-item-padding-vertical @ex-catalog-item-padding-horizontal;
+        border-radius: @ex-catalog-item-border-radius;
+        background-color: @ex-catalog-item-bg;
+        transition-property: border-color, background-color;
+
+        .ex-rotation(-1deg);
+      }
+    }
+
+    .ex-group-description {
+      font-size: @ex-catalog-item-additional-font-size;
+      height: floor(@ex-catalog-item-additional-line-height * @ex-catalog-item-additional-lines);
+      overflow: hidden;
+      line-height: @ex-catalog-item-additional-line-height;
+
+      p {
+        margin: 0;
+        text-align: center;
+      }
+    }
+
+    .ex-digit {
+      position: absolute;
+      top: -5px;
+      right: -9px;
+      z-index: 20;
+      .ex-badge(@ex-catalog-item-variants-badge-color, @ex-catalog-item-variants-badge-bg);
+      transition-property: background-color, color;
+    }
+
+    .ex-wrap-ribbon[data-view-class~="not-group"], .ex-description-wrapper li[data-view-class~="not-group"] {
+      display: none;
+    }
+
+    .ex-wrap-ribbon[data-view-class~="only-group"], .ex-description-wrapper li[data-view-class~="only-group"] {
+      display: inherit;
+    }
+
+  }
+
+  .ex-wrap-ribbon[data-view-class~="only-group"], .ex-description-wrapper li[data-view-class~="only-group"] {
+    display: none;
+  }
+}
 
 
 //== Catalog grid .ex-catalog-grid-2-col, .ex-catalog-grid-3-col, ... .ex-catalog-grid-6-col
@@ -834,6 +829,22 @@
   .ex-list-unstyled();
 }
 
+
+/* ========== GROUP TITLE ========== */
+//
+//##
+.ex-group-title {
+  &.ex-state-loading {
+    .ex-opacity(.3);
+  }
+  .ex-icon-reset {
+    vertical-align: -7%;
+    cursor: pointer;
+  }
+  transition: all 0.15s ease 0s;
+}
+
+
 //== Responsive layout
 //
 //##
@@ -880,3 +891,6 @@
     }
   }
 }
+
+
+

@@ -15,11 +15,13 @@ import reCache from '../utils/reCache';
 const globalStore = new Singleton();
 
 
-export function getEntityItem(data) {
+export function getEntityItem(data, group=false) {
+  let url = reCache(data.entity_url);
+  if (group) url += "&alike=true";
   return (dispatch, getState) => {
     if ( !getState().entities.loadingItems[data.id] ) {
       dispatch(loadingEntityItem(data.id));
-      fetch(reCache(data.entity_url), {
+      fetch(url, {
         method: 'get',
         headers: {
           'Accept': 'application/json',
@@ -86,10 +88,26 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
 }
 
 
+function optArrToObj(arr) {
+  let ret = {};
+  if (!arr.length)
+    return ret;
+  for (const arg of arr) {
+    if (arg.includes("=")) {
+      const query = arg.split("=");
+      ret[query[0]] = query[1];
+    }
+  }
+  return ret;
+}
+
+
 export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
   if (globalStore.initial_entities && globalStore.initial_entities[mart_id]) {
+    const options_obj2 = optArrToObj(options_arr);
     let json = globalStore.initial_entities[mart_id];
     json.results.meta = Object.assign(json.results.meta, options_obj);
+    json.results.meta = Object.assign(json.results.meta, options_obj2);
     return dispatch => {
         dispatch({
             type: LOAD_ENTITIES,

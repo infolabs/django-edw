@@ -105,7 +105,7 @@ class Dropdowns {
     let item = this[name];
     if (item && item.selected != item.options[selected]) {
       item.open = false;
-      item.selected = item.options[selected]
+      item.selected = item.options[selected];
       ret = Object.assign(new Dropdowns(), this);
     }
     return ret;
@@ -122,6 +122,7 @@ class Dropdowns {
 class Descriptions {
   constructor() {
     this.opened = {};
+    this.groups = {};
   }
 
   show(id) {
@@ -140,10 +141,15 @@ class Descriptions {
   }
 
   load(json) {
-    this[json.id] = json;
+    if (json.extra && json.extra.group_size) {
+      this.groups[json.id] = json;
+    } else {
+      this[json.id] = json;
+    }
     return Object.assign(new Descriptions(), this);
   }
 }
+
 
 function items(state = new EntitiesManager(), action) {
   switch (action.type) {
@@ -156,6 +162,7 @@ function items(state = new EntitiesManager(), action) {
       return state;
   }
 }
+
 
 function dropdowns(state = new Dropdowns({}), action) {
   switch (action.type) {
@@ -170,6 +177,7 @@ function dropdowns(state = new Dropdowns({}), action) {
   }
 }
 
+
 function loading(state = false, action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
@@ -181,6 +189,7 @@ function loading(state = false, action) {
   }
 }
 
+
 function loadingItems(state = {}, action) {
     switch (action.type) {
         case consts.NOTIFY_LOADING_ENTITIE_ITEM:
@@ -189,6 +198,7 @@ function loadingItems(state = {}, action) {
           return state;
     }
 }
+
 
 function descriptions(state = new Descriptions(), action) {
   switch (action.type) {
@@ -203,6 +213,7 @@ function descriptions(state = new Descriptions(), action) {
   }
 }
 
+
 const entities = combineReducers({
     items,
     dropdowns,
@@ -210,5 +221,6 @@ const entities = combineReducers({
     loading,
     loadingItems
 });
+
 
 export default entities;

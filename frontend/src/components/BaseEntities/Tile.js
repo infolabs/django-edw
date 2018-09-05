@@ -42,15 +42,35 @@ class TileItem extends Component {
     this.toggleDescription(e);
   }
 
+  handleMouseClick(e) {
+    const { data, actions, meta } = this.props;
+    if (data.extra.group_size) {
+      const mart_id = meta.data_mart.id,
+            subj_ids = meta.subj_ids;
+      let request_options = meta.request_options;
+      delete request_options["offset"];
+      delete request_options["limit"];
+      request_options["alike"] = data.id;
+      actions.notifyLoadingEntities();
+      actions.getEntities(mart_id, subj_ids, request_options);
+
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
   toggleDescription(e) {
     const { data, actions, descriptions } = this.props,
           id = data.id;
 
     if (this.getIsHover(e.clientX, e.clientY)) {
       actions.showDescription(id);
-      if (!descriptions[id]) {
+
+      if (data.extra.group_size && !descriptions.groups[id])
+        actions.getEntityItem(data, true);
+
+      if (!data.extra.group_size && !descriptions[id])
         actions.getEntityItem(data);
-      }
     } else {
       actions.hideDescription(id);
     }
@@ -80,9 +100,20 @@ class TileItem extends Component {
   }
 
   render() {
-    const { data, descriptions, position, meta } = this.props,
+    const { data, position, meta, descriptions } = this.props,
         url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
         index = position + meta.offset;
+
+
+    const group_size = data.extra.group_size || 0;
+
+
+    let group_digit = "";
+    if (group_size) {
+      group_digit = (
+          <span className="ex-digit">{group_size}</span>
+      );
+    }
 
     let li_class = "ex-catalog-item";
     if (descriptions.opened[data.id]) {
@@ -92,10 +123,11 @@ class TileItem extends Component {
     let characteristics = data.short_characteristics || [],
         marks = data.short_marks || [];
 
+    let descriptions_data = group_size ? descriptions.groups : descriptions;
     // let related_data_marts = [];
-    if (descriptions[data.id]) {
-        characteristics = descriptions[data.id].characteristics || [];
-        marks = descriptions[data.id].marks || [];
+    if (descriptions_data[data.id]) {
+        characteristics = descriptions_data[data.id].characteristics || [];
+        marks = descriptions_data[data.id].marks || [];
         // related_data_marts = descriptions[data.id].marks || [];
     }
 
@@ -117,44 +149,67 @@ class TileItem extends Component {
             </ul>
           </div>
         </div>
-      )
+      );
+    }
+
+    const item_content = (
+      <div className="ex-wrap-action">
+        <div className="ex-media"
+             dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}>
+        </div>
+
+        <ul className="ex-ribbons">
+          {marks.map(
+            (child, i) =>
+              <li className="ex-wrap-ribbon"
+                  key={i}
+                  data-name={child.name}
+                  data-path={child.path}
+                  data-view-class={child.view_class.join(" ")}>
+                <div className="ex-ribbon">{child.values.join(", ")}</div>
+              </li>
+          )}
+        </ul>
+
+        <div className="ex-wrap-title">
+          <h4 className="ex-title">
+            <a href={url} title={data.entity_name}>{data.entity_name}</a>
+          </h4>
+        </div>
+      </div>
+    );
+
+    let item_block = (
+        <div className="ex-catalog-item-block"
+             onClickCapture={e => { ::this.handleMouseClick(e); } }>
+          {description_baloon}
+          {item_content}
+        </div>
+    );
+    if (group_size) {
+      item_block = (
+        <div className="ex-catalog-item-block ex-catalog-item-variants"
+             onClickCapture={e => { ::this.handleMouseClick(e); } }>
+          <div>
+            <div>
+              {description_baloon}
+              {group_digit}
+              {item_content}
+            </div>
+          </div>
+        </div>
+      );
     }
 
     let ret = (
-
-    <li className={li_class}
-        data-horizontal-position={this.state.h_pos}
-        data-vertical-position="center"
-        data-index={index}
-        onMouseOver={e => { ::this.handleMouseOver(e) } }
-        onMouseOut={e => { ::this.handleMouseOut(e) } }>
-
-      <div className="ex-catalog-item-block">
-        {description_baloon}
-        <div className="ex-wrap-action">
-          <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}></div>
-
-          <ul className="ex-ribbons">
-            {marks.map(
-              (child, i) =>
-                <li className="ex-wrap-ribbon"
-                    key={i}
-                    data-name={child.name}
-                    data-path={child.path}
-                    data-view-class={child.view_class.join(" ")}>
-                  <div className="ex-ribbon">{child.values.join(", ")}</div>
-                </li>
-            )}
-          </ul>
-
-          <div className="ex-wrap-title">
-            <h4 className="ex-title">
-              <a href={url} title={data.entity_name}>{data.entity_name}</a>
-            </h4>
-          </div>
-        </div>
-      </div>
-    </li>
+      <li className={li_class}
+          data-horizontal-position={this.state.h_pos}
+          data-vertical-position="center"
+          data-index={index}
+          onMouseOver={e => { ::this.handleMouseOver(e); } }
+          onMouseOut={e => { ::this.handleMouseOut(e); } }>
+          {item_block}
+      </li>
     );
 
     return ret;

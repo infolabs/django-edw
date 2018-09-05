@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 
 
 class Statistics extends Component {
   render() {
-    const meta = this.props.entities.items.meta,
-          { actions, entry_point_id } = this.props;
+    const meta = this.props.entities.items.meta;
 
     let ret = <span></span>;
     if (meta.count) {

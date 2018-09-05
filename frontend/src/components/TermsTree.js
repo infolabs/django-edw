@@ -55,6 +55,7 @@ class TermsTree extends Component {
         let request_options = meta.request_options,
             subj_ids = meta.subj_ids || subj_req_ids;
 
+        delete request_options["alike"];
         request_options['terms'] = tagged_next.items;
         request_options['offset'] = 0;
         this.props.actions.notifyLoadingEntities();
