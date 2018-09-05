@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import marked from 'marked';
 import { withGoogleMap, GoogleMap, Marker, InfoWindow } from "react-google-maps";
 
+import { MAP_HEIGHT } from 'constants/Components'
+
 // Map component
 // <script src="https://maps.googleapis.com/maps/api/js"></script>
 
@@ -256,10 +258,10 @@ export default class Map extends Component {
                     lat={map_lat}
                     zoom={zoom}
                     containerElement={
-                      <div style={{ height: '400px' }} />
+                      <div style={{ height: MAP_HEIGHT }} />
                     }
                     mapElement={
-                      <div style={{ height: '400px' }} />
+                      <div style={{ height: MAP_HEIGHT }} />
                     }
                     onMarkerClick={this.handleMarkerClick}
                     onMarkerClose={this.handleMarkerClose}
