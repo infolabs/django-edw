@@ -45,15 +45,8 @@ class TileItem extends Component {
   handleMouseClick(e) {
     const { data, actions, meta } = this.props;
     if (data.extra.group_size) {
-      const mart_id = meta.data_mart.id,
-            subj_ids = meta.subj_ids;
-      let request_options = meta.request_options;
-      delete request_options["offset"];
-      delete request_options["limit"];
-      request_options["alike"] = data.id;
       actions.notifyLoadingEntities();
-      actions.getEntities(mart_id, subj_ids, request_options);
-
+      actions.expandGroup(data.id, meta);
       e.preventDefault();
       e.stopPropagation();
     }
@@ -101,17 +94,14 @@ class TileItem extends Component {
 
   render() {
     const { data, position, meta, descriptions } = this.props,
-        url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
-        index = position + meta.offset;
-
-
-    const group_size = data.extra.group_size || 0;
-
+          url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
+          index = position + meta.offset,
+          group_size = data.extra.group_size || 0;
 
     let group_digit = "";
     if (group_size) {
       group_digit = (
-          <span className="ex-digit">{group_size}</span>
+        <span className="ex-digit">{group_size}</span>
       );
     }
 
@@ -186,6 +176,7 @@ class TileItem extends Component {
           {item_content}
         </div>
     );
+
     if (group_size) {
       item_block = (
         <div className="ex-catalog-item-block ex-catalog-item-variants"

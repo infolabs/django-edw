@@ -122,6 +122,17 @@ export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr
 }
 
 
+export function expandGroup(item_id, meta) {
+  const mart_id = meta.data_mart.id,
+        subj_ids = meta.subj_ids;
+  let request_options = meta.request_options;
+  delete request_options["offset"];
+  delete request_options["limit"];
+  request_options["alike"] = item_id;
+  return getEntities(mart_id, subj_ids, request_options);
+}
+
+
 export function showDescription(entity_id = null) {
     return dispatch => {
         dispatch({

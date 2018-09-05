@@ -491,6 +491,17 @@
 //
 //##
 
+.ex-catalog-item, .ex-catalog-item-block {
+  .ex-digit {
+    position: absolute;
+    top: -5px;
+    right: -9px;
+    z-index: 20;
+    .ex-badge(@ex-catalog-item-variants-badge-color, @ex-catalog-item-variants-badge-bg);
+    transition-property: background-color, color;
+  }
+}
+
 .ex-catalog-item-block {
   &.ex-catalog-item-variants {
     padding: 0;
@@ -540,15 +551,6 @@
         margin: 0;
         text-align: center;
       }
-    }
-
-    .ex-digit {
-      position: absolute;
-      top: -5px;
-      right: -9px;
-      z-index: 20;
-      .ex-badge(@ex-catalog-item-variants-badge-color, @ex-catalog-item-variants-badge-bg);
-      transition-property: background-color, color;
     }
 
     .ex-wrap-ribbon[data-view-class~="not-group"], .ex-description-wrapper li[data-view-class~="not-group"] {

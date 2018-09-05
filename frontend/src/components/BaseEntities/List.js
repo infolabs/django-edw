@@ -50,6 +50,16 @@ class ListItem extends Component {
     this.toggleDescription(e);
   }
 
+  handleMouseClick(e) {
+    const { data, actions, meta } = this.props;
+    if (data.extra.group_size) {
+      actions.notifyLoadingEntities();
+      actions.expandGroup(data.id, meta);
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (this.props.loading !== prevProps.loading) {
       this.setState({minHeight: 'auto'});
@@ -95,9 +105,18 @@ class ListItem extends Component {
   }
 
   render() {
-    const { data, descriptions, position, meta } = this.props,
-        url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
-        index = position + meta.offset;
+    const { data, descriptions } = this.props,
+          url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
+          group_size = data.extra.group_size || 0;
+
+    let group_digit = "";
+    if (group_size) {
+      group_digit = (
+        <span className="ex-digit">
+          <i className="ex-icon-group"></i> {group_size}
+        </span>
+      );
+    }
 
     let item_wrapper_class = "wrap-list-item";
     if (descriptions.opened[data.id]) {
@@ -109,9 +128,9 @@ class ListItem extends Component {
 
     // let related_data_marts = [];
     if (descriptions[data.id]) {
-        characteristics = descriptions[data.id].characteristics || [];
-        marks = descriptions[data.id].marks || [];
-        // related_data_marts = descriptions[data.id].marks || [];
+      characteristics = descriptions[data.id].characteristics || [];
+      marks = descriptions[data.id].marks || [];
+      // related_data_marts = descriptions[data.id].marks || [];
     }
 
     let description_baloon = "";
@@ -142,16 +161,19 @@ class ListItem extends Component {
             )}
           </ul>
         </div>
-      )
+      );
     }
 
+    const className = "ex-catalog-item list-item" + (group_size ? " ex-catalog-item-variants" : "");
+
     return (
-      <div className="ex-catalog-item list-item"
+      <div className={className}
          onMouseOver={e => this.handleMouseOver(e)}
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>
-
-        <div className={item_wrapper_class}>
+        {group_digit}
+        <div className={item_wrapper_class}
+             onClickCapture={e => { ::this.handleMouseClick(e); } }>
           <div className="row">
               <div className="col-md-3">
                 <a href={url}>
