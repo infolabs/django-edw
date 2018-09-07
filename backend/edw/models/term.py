@@ -9,7 +9,7 @@ from six import with_metaclass
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.cache import cache
 from django.db import models, IntegrityError, transaction
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.query import EmptyQuerySet
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.translation import ugettext_lazy as _
@@ -63,6 +63,12 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         :return: all nodes which have no parent
         """
         return self.filter(parent__isnull=True)
+
+    def leaf_only(self):
+        """
+        :return: all leaf nodes
+        """
+        return self.filter(lft=F('rght')-1)
 
     def attribute_is_characteristic_or_mark(self):
         return self.filter(Q(attributes=self.model.attributes.is_characteristic) |
