@@ -97,10 +97,10 @@ export default class Map extends Component {
     return pinImage;
   }
 
-  getGroupMarkerIcon(pinColor = "FE7569") {
+  getGroupMarkerIcon(label, pinColor = "FE7569") {
     let pinImage = {
       path: google.maps.SymbolPath.CIRCLE,
-      scale: 15,
+      scale: 9 + label.length * 2.5,
       fillColor: "#" + pinColor,
       fillOpacity: 1.0,
       strokeWeight: 1.5,
@@ -174,7 +174,7 @@ export default class Map extends Component {
   }
 
   render() {
-    const { items, loading } = this.props;
+    const { items, loading, meta } = this.props;
 
     let entities_class = "entities";
     entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
@@ -201,6 +201,7 @@ export default class Map extends Component {
       
       const url = item.extra.url ? item.extra.url : item.entity_url,
             marks = item.short_marks || [];
+      const title = item.extra.group_size && !meta.alike ? item.extra.group_name : item.entity_name;
 
       const info = (
         <div className="ex-map-info"
@@ -221,7 +222,7 @@ export default class Map extends Component {
           </ul>
 
           <div className="ex-map-descr">
-            <h5><a href={url}>{item.entity_name}</a></h5>
+            <h5><a href={url}>{title}</a></h5>
             <ul className="ex-attrs">
               {item.short_characteristics.map(
                 (child, i) =>
@@ -255,8 +256,9 @@ export default class Map extends Component {
       };
 
       if (item.extra.group_size) {
-        marker["icon"] = this.getGroupMarkerIcon(pinColor);
-        marker["label"] = item.extra.group_size.toString();
+        const label = item.extra.group_size.toString();
+        marker["icon"] = this.getGroupMarkerIcon(label, pinColor);
+        marker["label"] = label;
       } else {
         marker["icon"] = this.getMarkerIcon(pinColor);
         marker["shadow"] = this.getMarkerShadow();

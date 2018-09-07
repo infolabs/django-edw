@@ -53,14 +53,14 @@ class TileItem extends Component {
   }
 
   toggleDescription(e) {
-    const { data, actions, descriptions } = this.props,
+    const { data, actions, meta, descriptions } = this.props,
           id = data.id;
 
     if (this.getIsHover(e.clientX, e.clientY)) {
       actions.showDescription(id);
 
-      if (data.extra.group_size && !descriptions.groups[id])
-        actions.getEntityItem(data, true);
+      if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
+        actions.getEntityItem(data, meta);
 
       if (!data.extra.group_size && !descriptions[id])
         actions.getEntityItem(data);
@@ -142,6 +142,8 @@ class TileItem extends Component {
       );
     }
 
+    const title = group_size && !meta.alike ? data.extra.group_name : data.entity_name;
+
     const item_content = (
       <div className="ex-wrap-action">
         <div className="ex-media"
@@ -163,7 +165,7 @@ class TileItem extends Component {
 
         <div className="ex-wrap-title">
           <h4 className="ex-title">
-            <a href={url} title={data.entity_name}>{data.entity_name}</a>
+            <a href={url} title={title}>{title}</a>
           </h4>
         </div>
       </div>

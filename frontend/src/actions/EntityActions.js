@@ -15,9 +15,29 @@ import reCache from '../utils/reCache';
 const globalStore = new Singleton();
 
 
-export function getEntityItem(data, group=false) {
+function opts2gets(options = {}) {
+  let gets = '';
+  for (let key in options) {
+    let value = options[key];
+    if (typeof value == 'array')
+      value = value.join();
+    gets += '&' + key + '=' + value;
+  }
+  return gets;
+}
+
+
+export function getEntityItem(data, meta=false) {
   let url = reCache(data.entity_url);
-  if (group) url += "&alike=true";
+  if (meta) {
+    const opts = {
+      "alike": true,
+      "data_mart_pk": meta.data_mart.id,
+      "terms": meta.terms_ids,
+      "subj": meta.subj_ids
+    };
+    url += opts2gets(opts);
+  }
   return (dispatch, getState) => {
     if ( !getState().entities.loadingItems[data.id] ) {
       dispatch(loadingEntityItem(data.id));
@@ -43,18 +63,6 @@ function loadingEntityItem(id) {
         id
       });
     };
-}
-
-
-function opts2gets(options = {}) {
-  let gets = '';
-  for (let key in options) {
-    let value = options[key];
-    if (typeof value == 'array')
-      value = value.join();
-    gets += '&' + key + '=' + value;
-  }
-  return gets;
 }
 
 

@@ -67,7 +67,7 @@ class ListItem extends Component {
   }
 
   toggleDescription(e) {
-    const { data, actions, descriptions } = this.props,
+    const { data, meta, actions, descriptions } = this.props,
           id = data.id,
           lastIsHover = this.getIsHover(e.clientX, e.clientY);
 
@@ -85,9 +85,13 @@ class ListItem extends Component {
           context.setState({minHeight: areaRect.height});
 
           actions.showDescription(id);
-          if (!descriptions[id]) {
+
+          if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
+            actions.getEntityItem(data, meta);
+
+          if (!data.extra.group_size && !descriptions[id])
             actions.getEntityItem(data);
-          }
+
         } else {
           actions.hideDescription(id);
         }
@@ -105,7 +109,7 @@ class ListItem extends Component {
   }
 
   render() {
-    const { data, descriptions } = this.props,
+    const { data, meta, descriptions } = this.props,
           url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
           group_size = data.extra.group_size || 0;
 
@@ -165,6 +169,7 @@ class ListItem extends Component {
     }
 
     const className = "ex-catalog-item list-item" + (group_size ? " ex-catalog-item-variants" : "");
+    const title = group_size && !meta.alike ? data.extra.group_name : data.entity_name;
 
     return (
       <div className={className}
@@ -183,7 +188,7 @@ class ListItem extends Component {
 
             <div className="col-md-9">
               <a href={url}>
-                <h4>{data.entity_name}</h4>
+                <h4>{title}</h4>
               </a>
               {descriptions.opened[data.id] && description_baloon}
             </div>
