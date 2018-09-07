@@ -64,6 +64,16 @@ export default class Map extends Component {
     });
   }
 
+  handleInfoMouseClick(e, data) {
+    const { actions, meta } = this.props;
+    if (data.extra.group_size) {
+      actions.notifyLoadingEntities();
+      actions.expandGroup(data.id, meta);
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
   handleMarkerClose(targetMarker) {
     this.setState({
       markers: this.state.markers.map(marker => {
@@ -84,6 +94,17 @@ export default class Map extends Component {
       new google.maps.Point(0,0),
       new google.maps.Point(10, 34)
     );
+    return pinImage;
+  }
+
+  getGroupMarkerIcon(pinColor = "FE7569") {
+    let pinImage = {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 15,
+      fillColor: "#" + pinColor,
+      fillOpacity: 1.0,
+      strokeWeight: 1.5,
+    };
     return pinImage;
   }
 
@@ -153,7 +174,8 @@ export default class Map extends Component {
   }
 
   render() {
-    const { items, actions, loading, descriptions } = this.props;
+    const { items, loading } = this.props;
+
     let entities_class = "entities";
     entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
 
@@ -164,8 +186,7 @@ export default class Map extends Component {
         max_lng = null,
         max_lat = null,
         markers = this.state.markers,
-        old_markers = this.state.markers.length,
-        shadow = this.getMarkerShadow();
+        old_markers = this.state.markers.length;
 
     for (const item of geo_items) {
       const coords = item.extra.geoposition.split(','),
@@ -177,12 +198,13 @@ export default class Map extends Component {
       max_lat = max_lat != null && max_lat > lat ? max_lat : lat;
 
       let pinColor = this.getPinColor(item);
-
-      const url = item.extra.url ? item.extra.url : itemdata.entity_url,
+      
+      const url = item.extra.url ? item.extra.url : item.entity_url,
             marks = item.short_marks || [];
 
       const info = (
-        <div className="ex-map-info">
+        <div className="ex-map-info"
+             onClickCapture={e => { ::this.handleInfoMouseClick(e, item); } }>
           <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(item.media, {sanitize: false})}} />
 
           <ul className="ex-ribbons">
@@ -227,14 +249,20 @@ export default class Map extends Component {
         </div>
       );
 
-      markers.push(
-        {
+      let marker = {
           position: {lat: lat, lng: lng},
-          info: info,
-          icon: this.getMarkerIcon(pinColor),
-          shadow: shadow
-        }
-      );
+          info: info
+      };
+
+      if (item.extra.group_size) {
+        marker["icon"] = this.getGroupMarkerIcon(pinColor);
+        marker["label"] = item.extra.group_size.toString();
+      } else {
+        marker["icon"] = this.getMarkerIcon(pinColor);
+        marker["shadow"] = this.getMarkerShadow();
+      }
+
+      markers.push(marker);
     }
 
     let map_lng = min_lng + (max_lng - min_lng) / 2,
