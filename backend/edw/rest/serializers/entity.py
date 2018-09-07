@@ -155,12 +155,19 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
     def group_by(self):
         return self.context.get('group_by', [])
 
+    @cached_property
+    def annotation_meta(self):
+        # annotation_meta only for root
+        if self == self.root or (self.parent and isinstance(self.parent, EntityTotalSummarySerializer)):
+            return self.context.get('annotation_meta', None)
+        return None
+
     def get_entity_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
     def get_extra(self, instance):
         extra = instance.get_summary_extra(self.context)
-        annotation_meta = self.context.get('annotation_meta', None)
+        # annotation_meta = self.context.get('annotation_meta', None)
         if self._group_size > 1 :
             if extra is None:
                 extra = {}
@@ -168,9 +175,9 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
             extra.update(instance.get_group_extra(self.context))
             return extra
 
-        if annotation_meta:
+        if self.annotation_meta:
             annotation = {}
-            for key, field in annotation_meta.items():
+            for key, field in self.annotation_meta.items():
                 if field == field.root:
                     field.root = self.root
                 value = getattr(instance, key)
