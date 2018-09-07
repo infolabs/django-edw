@@ -4,6 +4,8 @@
 (function ($) {
     "use strict";
 
+    $('body').addClass('loading');
+
     $(function(){
         var spinners = {};
         var opts = {
@@ -89,6 +91,7 @@
                     if ( node._cheked ){
                         $checkbox.prop('checked', true);
                     }
+                    $('body').removeClass('loading');
                 },
                 onLoading: function (is_loading, node, $el){
 
@@ -132,7 +135,6 @@
                     });
                 }
             );
-
         };
 
         // widget name

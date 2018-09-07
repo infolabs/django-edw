@@ -130,3 +130,7 @@ span.jqtree-dragging {
   ul.jqtree-tree li.jqtree-ghost span.jqtree-circle {
     background: url(jqtree-circle.png) no-repeat;
     border: 0 none; } }
+
+body.loading .submit-row {
+  visibility: hidden;
+}
