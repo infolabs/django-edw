@@ -19,18 +19,18 @@ class GroupTitle extends Component {
   render() {
     const alike = this.props.entities.items.meta.alike,
           loading = this.props.entities.items.loading,
-          className = "ex-group-title" + (loading ? " ex-state-loading" : "");
-    let ret = "";
+          className = (loading ? " ex-state-loading" : "");
+    let ret = null;
     if (alike) {
       ret = (
-        <h4>
+        <span className={className}>
           {alike.group_name}
           <i onClick={e => { ::this.handleMouseClick(); } }
              className="ex-icon-reset"></i>
-        </h4>
+        </span>
       );
     }
-    return <div className={className}>{ret}</div>;
+    return ret;
   }
 }
 

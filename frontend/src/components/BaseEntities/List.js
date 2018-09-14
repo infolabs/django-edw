@@ -116,15 +116,11 @@ class ListItem extends Component {
     let group_digit = "";
     if (group_size) {
       group_digit = (
-        <span className="ex-digit">
-          <i className="ex-icon-group"></i> {group_size}
-        </span>
+        <div className="ex-pack">
+          <span className="ex-digit">{group_size}</span>
+          <div><div><div></div></div></div>
+        </div>
       );
-    }
-
-    let item_wrapper_class = "wrap-list-item";
-    if (descriptions.opened[data.id]) {
-      item_wrapper_class += " is-active";
     }
 
     let characteristics = data.short_characteristics || [],
@@ -168,7 +164,8 @@ class ListItem extends Component {
       );
     }
 
-    const className = "ex-catalog-item list-item" + (group_size ? " ex-catalog-item-variants" : "");
+    const className = "ex-catalog-item list-item" + (group_size ? " ex-catalog-item-variants" : "") +
+        (descriptions.opened[data.id] ? " ex-state-description" : "");
     const title = group_size && !meta.alike ? data.extra.group_name : data.entity_name;
 
     return (
@@ -177,7 +174,7 @@ class ListItem extends Component {
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>
         {group_digit}
-        <div className={item_wrapper_class}
+        <div className="wrap-list-item"
              onClickCapture={e => { ::this.handleMouseClick(e); } }>
           <div className="row">
               <div className="col-md-3">

@@ -100,7 +100,7 @@ export default class Map extends Component {
   getGroupMarkerIcon(label, pinColor = "FE7569") {
     let pinImage = {
       path: google.maps.SymbolPath.CIRCLE,
-      scale: 9 + label.length * 2.5,
+      scale: 9 + label.length * 4,
       fillColor: "#" + pinColor,
       fillOpacity: 1.0,
       strokeWeight: 1.5,
@@ -157,13 +157,14 @@ export default class Map extends Component {
   }
 
   getPinColor(item) {
-    let pinColor = "FE7569";
+    let pinColor = "FEFEFE";
+    const pinColorPattern = item.extra.group_size ? "group-pin-color-" : "pin-color-";
     if (item.short_marks.length) {
       for (const sm of item.short_marks) {
         if (sm.view_class.length) {
           for (const cl of sm.view_class) {
-            if(cl.startsWith("pin-color-")) {
-              pinColor = cl.replace("pin-color-", "").toUpperCase();
+            if(cl.startsWith(pinColorPattern)) {
+              pinColor = cl.replace(pinColorPattern, "").toUpperCase();
               return pinColor;
             }
           }
@@ -279,7 +280,7 @@ export default class Map extends Component {
     }
 
     if (!zoom && !geo_items.length)
-      return <div></div>;
+      return null;
 
     return (
       <div className={entities_class}>

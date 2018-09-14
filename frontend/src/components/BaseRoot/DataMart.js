@@ -46,7 +46,9 @@ export default class DataMart extends Component {
             </div>
           </div>
           <div className="row">
-            <GroupTitle/>
+            <div className="col-md-12 ex-group-title">
+              <GroupTitle/>
+            </div>
           </div>
           <Entities entry_points={entry_points} entry_point_id={entry_point_id} />
           <Paginator entry_points={entry_points} entry_point_id={entry_point_id} />
