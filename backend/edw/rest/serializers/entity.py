@@ -156,9 +156,14 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         return self.context.get('group_by', [])
 
     @cached_property
+    def is_root(self):
+        return self == self.root or (
+                self.parent and self.parent.parent and isinstance(self.parent.parent, EntityTotalSummarySerializer))
+
+    @cached_property
     def annotation_meta(self):
         # annotation_meta only for root
-        if self == self.root or (self.parent and isinstance(self.parent, EntityTotalSummarySerializer)):
+        if self.is_root:
             return self.context.get('annotation_meta', None)
         return None
 
@@ -290,9 +295,13 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
     @cached_property
+    def is_root(self):
+        return self == self.root
+
+    @cached_property
     def group_by(self):
         # group only for root
-        if self == self.root:
+        if self.is_root:
             return self.context.get('group_by', [])
         return []
 
