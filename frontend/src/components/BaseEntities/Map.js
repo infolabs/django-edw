@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
-import { withGoogleMap, GoogleMap, Marker, InfoWindow } from "react-google-maps";
+import {
+  withGoogleMap,
+  GoogleMap,
+  Marker,
+  InfoWindow
+} from "react-google-maps";
 
 import { MAP_HEIGHT } from 'constants/Components'
 
@@ -43,7 +48,7 @@ const ProblemMap = withGoogleMap(props => (
 export default class Map extends Component {
   state = {
     markers: []
-  }
+  };
 
   handleMarkerClick = this.handleMarkerClick.bind(this);
   handleMarkerClose = this.handleMarkerClose.bind(this);
@@ -89,7 +94,7 @@ export default class Map extends Component {
   }
 
   getMarkerIcon(pinColor = "FE7569") {
-    let pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+    let pinImage = new google.maps.MarkerImage("https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
       new google.maps.Size(21, 34),
       new google.maps.Point(0,0),
       new google.maps.Point(10, 34)
@@ -109,7 +114,7 @@ export default class Map extends Component {
   }
 
   getMarkerShadow() {
-    let pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+    let pinShadow = new google.maps.MarkerImage("https://chart.apis.google.com/chart?chst=d_map_pin_shadow",
       new google.maps.Size(40, 37),
       new google.maps.Point(0, 0),
       new google.maps.Point(12, 35)
