@@ -91,7 +91,6 @@
                     if ( node._cheked ){
                         $checkbox.prop('checked', true);
                     }
-                    $('body').removeClass('loading');
                 },
                 onLoading: function (is_loading, node, $el){
 
@@ -123,6 +122,7 @@
                         if (spinner) {
                             spinner.stop();
                             spinners[node_id] = null;
+                            $('body').removeClass('loading');
                         }
                     }
                 }
