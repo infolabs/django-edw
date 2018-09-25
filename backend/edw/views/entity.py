@@ -145,7 +145,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
             obj = self.get_object()
             model_class = obj.__class__
         elif self.action in ('create', 'list'):
-            data_mart_pk = self.kwargs.get('data_mart_pk', None)
+            data_mart_pk = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
             if data_mart_pk is not None:
                 request.GET['_data_mart'] = data_mart = get_object_or_404(DataMartModel.objects.active(),
                                                                           pk=data_mart_pk)
