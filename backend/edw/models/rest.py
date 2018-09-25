@@ -218,7 +218,7 @@ class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
             for method_name in ('create', 'update', 'validate'):
                 method = getattr(self.rest_meta, method_name, None)
                 if method is not None:
-                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
+                    setattr(self, method_name, types.MethodType(getattr(method, '__func__', method), self, self.__class__))
 
             for method_name in self.rest_meta._fields_validators:
                 method = getattr(self.rest_meta, method_name)
