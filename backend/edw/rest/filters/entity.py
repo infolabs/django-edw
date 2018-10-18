@@ -333,11 +333,13 @@ class EntityMetaFilter(BaseFilterBackend):
                 for key, value in annotation.items():
                     if isinstance(value, (tuple, list)):
                         annotate_kwargs[key] = value[0]
-                        if len(value) > 1:
+                        n = len(value)
+                        if n > 1:
                             field = value[1]
                             if isinstance(field, six.string_types):
                                 field = import_string(field)()
-                            annotation_meta[key] = field
+                            name = value[2] if n > 2 else None
+                            annotation_meta[key] = (field, name)
                     else:
                         annotate_kwargs[key] = value
                 if annotate_kwargs:

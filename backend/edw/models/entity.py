@@ -1108,7 +1108,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 'duration': (
                     ExpressionWrapper(ToSeconds(F('updated_at')) - ToSeconds(F('created_at')),
                                       output_field=models.BigIntegerField()),
-                    'rest_framework.serializers.IntegerField'
+                    'rest_framework.serializers.IntegerField',
+                    # _("Duration in seconds")
                 )
             }
 

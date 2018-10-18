@@ -172,7 +172,6 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
 
     def get_extra(self, instance):
         extra = instance.get_summary_extra(self.context)
-        # annotation_meta = self.context.get('annotation_meta', None)
         if self._group_size > 1 :
             if extra is None:
                 extra = {}
@@ -182,12 +181,16 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
 
         if self.annotation_meta:
             annotation = {}
-            for key, field in self.annotation_meta.items():
+            name_field = serializers.CharField()
+            for key, (field, name) in self.annotation_meta.items():
                 if field == field.root:
                     field.root = self.root
                 value = getattr(instance, key)
-                annotation[key] = field.to_representation(value) if value is not None else None
-
+                value = field.to_representation(value) if value is not None else None
+                annotation[key] = value if name is None else {
+                    'value': value,
+                    'name': name_field.to_representation(name)
+                }
             if extra is not None:
                 extra.update(annotation)
             else:
