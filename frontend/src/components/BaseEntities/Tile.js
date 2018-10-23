@@ -136,25 +136,22 @@ class TileItem extends Component {
             <ul className="ex-attrs">
               {characteristics.map(
                 (child, i) =>
-                  <li data-path={child.path} key={i}
+                  <li  className="characteristic"
+                    data-path={child.path} key={i}
                     data-view-class={child.view_class.join(" ")}>
                     <strong>{child.name}:&nbsp;</strong>
                     {child.values.join("; ")}
                   </li>
               )}
+              {Object.keys(annotations).map(
+                (key, i) =>
+                  <li className="annotation" key={i}
+                    data-view-class={key}>
+                    <strong>{annotations[key].name}:&nbsp;</strong>
+                    {annotations[key].value}
+                  </li>
+              )}
             </ul>
-              {Object.keys(annotations).length && <hr/>}
-              {Object.keys(annotations).length &&
-                <ul className="ex-attrs">
-                  {Object.keys(annotations).map(
-                    (key, i) =>
-                      <li key={i}
-                        data-view-class={key}>
-                        <strong>{annotations[key].name}:&nbsp;</strong>
-                        {annotations[key].value}
-                      </li>
-                  )}
-                </ul>}
           </div>
         </div>
       );
