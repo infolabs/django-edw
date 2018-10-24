@@ -11,6 +11,7 @@ from django.contrib.auth.models import AbstractUser, UserManager as BaseUserMana
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext
 
 
 class UserManager(BaseUserManager):
@@ -41,7 +42,7 @@ class User(AbstractUser):
     def get_username(self):
         if self.is_staff:
             return self.username
-        return self.email or _('Email is empty')
+        return self.email or ugettext('Email is empty')
 
     def __str__(self):
         return self.get_username()
