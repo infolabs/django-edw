@@ -36,8 +36,10 @@ class AuthFormsView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         if request.customer.is_visitor():
-            request.customer = CustomerModel.objects.get_or_create_from_request(request)
-        data =  request.data.copy()
+            (request.customer, is_created) = CustomerModel.objects.get_or_create_from_request(request)
+        else:
+            is_created = False
+        data = request.data.copy()
         form = self.form_class(data=data, instance=request.customer)
         if form.is_valid():
             msg = form.save(request=request)
@@ -45,6 +47,8 @@ class AuthFormsView(GenericAPIView):
                 {'success': msg},
                 status=status.HTTP_200_OK
             )
+        if is_created:
+            request.customer.delete()
         return Response(
             dict(form.errors),
             status=status.HTTP_400_BAD_REQUEST
