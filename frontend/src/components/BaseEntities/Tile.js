@@ -98,7 +98,7 @@ class TileItem extends Component {
           index = position + meta.offset,
           group_size = data.extra.group_size || 0;
 
-    let group_digit = "";
+    let group_digit;
     if (group_size) {
       group_digit = (
         <span className="ex-digit">{group_size}</span>
@@ -121,7 +121,13 @@ class TileItem extends Component {
         // related_data_marts = descriptions[data.id].marks || [];
     }
 
-    let description_baloon = "";
+    let annotations = {};
+    for (const [key, val] of Object.entries(data.extra)) {
+      if (val instanceof Object && 'name' in val && 'value' in val)
+        annotations[key] = val;
+    }
+
+    let description_baloon;
     if (characteristics.length) {
       description_baloon = (
         <div className="ex-description-wrapper">
@@ -130,10 +136,19 @@ class TileItem extends Component {
             <ul className="ex-attrs">
               {characteristics.map(
                 (child, i) =>
-                  <li data-path={child.path} key={i}
+                  <li  className="characteristic"
+                    data-path={child.path} key={i}
                     data-view-class={child.view_class.join(" ")}>
                     <strong>{child.name}:&nbsp;</strong>
                     {child.values.join("; ")}
+                  </li>
+              )}
+              {Object.keys(annotations).map(
+                (key, i) =>
+                  <li className="annotation" key={i}
+                    data-view-class={key}>
+                    <strong>{annotations[key].name}:&nbsp;</strong>
+                    {annotations[key].value}
                   </li>
               )}
             </ul>

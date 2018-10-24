@@ -511,6 +511,14 @@
     color: @ex-catalog-item-characteristics-color;
 
     padding: @ex-catalog-item-characteristics-padding-vertical @ex-catalog-item-characteristics-padding-horizontal;
+    
+    ul.ex-attrs {
+      .annotation:first-child, :not(.annotation) + .annotation {
+        border-top: 1px solid @ex-catalog-item-border;
+        margin-top: 5px;
+        padding-top: 5px;
+      }
+    }
 
     .ex-arrow, .ex-arrow:after {
       position: absolute;
