@@ -1110,7 +1110,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                                       output_field=models.BigIntegerField()),
                     'rest_framework.serializers.IntegerField',
                     # _("Duration in seconds")
-                )
+                ),
+                'duration_null2zero': (
+                    'duration',
+                    'edw.rest.fields.IntegerFieldNull2Zero',
+                    _("Duration in seconds not null")
+                ),
             }
 
             Or, if serialization not needed...

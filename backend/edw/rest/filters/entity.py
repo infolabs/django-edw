@@ -332,15 +332,21 @@ class EntityMetaFilter(BaseFilterBackend):
                 annotation_meta, annotate_kwargs = {}, {}
                 for key, value in annotation.items():
                     if isinstance(value, (tuple, list)):
-                        annotate_kwargs[key] = value[0]
+                        annotate = value[0]
+                        if isinstance(annotate, BaseExpression):
+                            annotate_kwargs[key] = annotate
                         n = len(value)
                         if n > 1:
                             field = value[1]
                             if isinstance(field, six.string_types):
                                 field = import_string(field)()
                             name = value[2] if n > 2 else None
-                            annotation_meta[key] = (field, name)
+                            annotation_meta[key] = (annotate, field, name)
                     else:
+                        assert isinstance(value, BaseExpression), (
+                "value getting from dictionary key '%s' should be instance of a class or of a subclass `BaseExpression`"
+                                % key
+                        )
                         annotate_kwargs[key] = value
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
