@@ -6,6 +6,7 @@ against the email field in addition to the username fields.
 This alternative implementation is activated by setting ``AUTH_USER_MODEL = 'edw.User'`` in
 settings.py, otherwise the default Django or another customized implementation will be used.
 """
+from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.core.exceptions import ValidationError
@@ -69,3 +70,19 @@ class User(AbstractUser):
         if self.email and get_user_model().objects.exclude(id=self.id).filter(is_active=True, email__exact=self.email).exists():
             msg = _("A customer with the e-mail address ‘{email}’ already exists.")
             raise ValidationError({'email': msg.format(email=self.email)})
+
+
+@python_2_unicode_compatible
+class BannedEmailDomain(models.Model):
+    domain_name = models.CharField(
+        max_length=255,
+        verbose_name=_('Domain name')
+    )
+    
+    class Meta:
+        db_table = 'auth_banned_email_domain'
+        verbose_name = _("Banned email domain")
+        verbose_name_plural = _("Banned email domains")
+    
+    def __str__(self):
+        return self.domain_name

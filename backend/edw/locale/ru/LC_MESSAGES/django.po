@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 09:32+0000\n"
-"PO-Revision-Date: 2018-03-06 12:35+0300\n"
+"POT-Creation-Date: 2018-10-25 13:39+0000\n"
+"PO-Revision-Date: 2018-10-25 16:39+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: __init__.py:7
@@ -73,9 +73,9 @@ msgstr "Пользователь"
 msgid "Customers"
 msgstr "Пользователи"
 
-#: admin/data_mart/forms.py:19 admin/entity/__init__.py:52
-#: admin/entity/forms/__init__.py:38 models/data_mart.py:199
-#: models/entity.py:632 rest/filters/entity.py:32
+#: admin/data_mart/forms.py:19 admin/entity/__init__.py:48
+#: admin/entity/forms/__init__.py:37 models/data_mart.py:199
+#: models/entity.py:732 rest/filters/entity.py:39
 msgid "Terms"
 msgstr "Термины"
 
@@ -87,23 +87,23 @@ msgstr "Порядок сортировки"
 msgid "View component"
 msgstr "Компонент представления"
 
-#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:56
+#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:55
 #: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: admin/entity/__init__.py:164 admin/entity/__init__.py:219
+#: admin/entity/__init__.py:141 admin/entity/__init__.py:196
 msgid "Main params"
 msgstr "Основные"
 
-#: admin/entity/__init__.py:186 admin/entity/__init__.py:243
+#: admin/entity/__init__.py:163 admin/entity/__init__.py:220
 #: models/data_mart.py:195 models/notification.py:18 models/postal_zone.py:66
-#: models/term.py:255
+#: models/term.py:269
 msgid "Name"
 msgstr "Название"
 
-#: admin/entity/__init__.py:190 admin/entity/__init__.py:247
-#: models/entity.py:663
+#: admin/entity/__init__.py:167 admin/entity/__init__.py:224
+#: models/entity.py:763
 msgid "Entity type"
 msgstr "Тип объекта"
 
@@ -204,17 +204,18 @@ msgstr "Обновление терминов списка объектов"
 msgid "Modify terms for selected %(verbose_name_plural)s"
 msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/forms/__init__.py:47
+#: admin/entity/forms/__init__.py:46
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: admin/entity/forms/__init__.py:58
+#: admin/entity/forms/__init__.py:57
 msgid "Target"
 msgstr "Цель"
 
-#: admin/entity/forms/__init__.py:67 models/data_mart.py:234
-#: models/defaults/data_mart.py:28 models/related.py:84 models/related.py:116
-#: rest/filters/entity.py:33 templates/edw/admin/mptt/_datamart_node.html:9
+#: admin/entity/forms/__init__.py:66 models/data_mart.py:234
+#: models/defaults/data_mart.py:28 models/related/__init__.py:81
+#: models/related/__init__.py:113 rest/filters/entity.py:40
+#: templates/edw/admin/mptt/_datamart_node.html:9
 msgid "Data mart"
 msgstr "Витрина данных"
 
@@ -232,34 +233,35 @@ msgid "No"
 msgstr "Нет"
 
 #: admin/entity/forms/update_active.py:20 models/data_mart.py:219
-#: models/entity.py:636 models/postal_zone.py:46 models/term.py:269
-#: rest/filters/entity.py:124 templates/edw/admin/mptt/_datamart_node.html:7
+#: models/entity.py:736 models/postal_zone.py:46 models/term.py:283
+#: rest/filters/entity.py:135 templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
 msgstr "Активен"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:20
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:41
-#: models/defaults/term.py:22 models/postal_zone.py:39 models/related.py:25
-#: models/related.py:59 models/related.py:117 models/term.py:281
+#: models/defaults/term.py:22 models/postal_zone.py:39
+#: models/related/__init__.py:22 models/related/__init__.py:56
+#: models/related/__init__.py:114 models/term.py:295
 #: templates/edw/admin/mptt/_term_node.html:25
 msgid "Term"
 msgstr "Термин"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:25
-#: models/related.py:27
+#: models/related/__init__.py:24
 msgid "Value"
 msgstr "Значение"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:31
-#: models/data_mart.py:216 models/related.py:28 models/term.py:266
+#: models/data_mart.py:216 models/related/__init__.py:25 models/term.py:280
 #: templates/edw/admin/mptt/_datamart_node.html:12
 #: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
 #: admin/entity/forms/update_additional_characteristics_or_marks.py:34
-#: models/related.py:30 models/term.py:267
+#: models/related/__init__.py:27 models/term.py:281
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "entity."
@@ -357,8 +359,9 @@ msgstr "Выберите термины для установки или сня�
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: admin/notification.py:87 models/entity.py:652 models/related.py:26
-#: models/related.py:83 models/related.py:146 models/related.py:196
+#: admin/notification.py:87 models/entity.py:752 models/related/__init__.py:23
+#: models/related/__init__.py:80 models/related/entity_file.py:25
+#: models/related/entity_image.py:25
 msgid "Entity"
 msgstr "Объект"
 
@@ -378,48 +381,53 @@ msgstr "Получатель"
 msgid "EDW"
 msgstr "Предметно-ориентированное хранилище данных"
 
-#: forms/auth.py:23
+#: forms/auth.py:24
 msgid "Your fullname"
 msgstr "Ваше имя"
 
-#: forms/auth.py:24
+#: forms/auth.py:25
 msgid "Example: Ivanov Ivan"
 msgstr "Например: Иванов Иван"
 
-#: forms/auth.py:27
+#: forms/auth.py:28
 msgid "Your e-mail address"
 msgstr "Ваш адрес электронной почты"
 
-#: forms/auth.py:28
+#: forms/auth.py:29
 msgid "E-mail address is used as login"
 msgstr "Используется в качестве логина"
 
-#: forms/auth.py:29
+#: forms/auth.py:30
 msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
-#: forms/auth.py:31
+#: forms/auth.py:32
 msgid "Send a randomly generated password to your e-mail address"
 msgstr ""
 "Отправить случайно сгенерированный пароль на ваш адрес электронной почты"
 
-#: forms/auth.py:33
+#: forms/auth.py:34
 msgid "Choose a password"
 msgstr "Введите пароль"
 
-#: forms/auth.py:34
+#: forms/auth.py:35
 msgid "Minimum length is 6 characters."
 msgstr "Минимальная длина 6 символов"
 
-#: forms/auth.py:35
+#: forms/auth.py:36
 msgid "Repeat password"
 msgstr "Повторите пароль"
 
-#: forms/auth.py:36
+#: forms/auth.py:37
 msgid "Confirm password."
 msgstr "Подтверждение пароля "
 
-#: forms/auth.py:52
+#: forms/auth.py:54
+#, python-format
+msgid "Domain name \"%(domain)s\" is not supported"
+msgstr "Почтовый ящик на сайте \"%(domain)s\" не поддерживается"
+
+#: forms/auth.py:58
 #, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
@@ -428,11 +436,11 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: forms/auth.py:62
+#: forms/auth.py:68
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: forms/auth.py:98
+#: forms/auth.py:104
 #, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
@@ -498,19 +506,19 @@ msgstr "Обозначает распознанное состояние пол�
 msgid "Extra information about this customer"
 msgstr "Расширенная информация по пользователю"
 
-#: models/data_mart.py:169 models/term.py:233
+#: models/data_mart.py:169 models/term.py:247
 msgid "Delete restriction"
 msgstr "Ограничение на удаление"
 
-#: models/data_mart.py:170 models/term.py:234
+#: models/data_mart.py:170 models/term.py:248
 msgid "Change parent restriction"
 msgstr "Ограничение на изменение родителя"
 
-#: models/data_mart.py:171 models/term.py:235
+#: models/data_mart.py:171 models/term.py:249
 msgid "Change slug restriction"
 msgstr "Ограничение на изменение синонима"
 
-#: models/data_mart.py:172 models/term.py:237
+#: models/data_mart.py:172 models/term.py:251
 msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
@@ -518,7 +526,7 @@ msgstr "Ограничение на добавление потомков"
 msgid "Change terms restriction"
 msgstr "Ограничение на изменение терминов"
 
-#: models/data_mart.py:175 models/term.py:240
+#: models/data_mart.py:175 models/term.py:254
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
@@ -530,29 +538,29 @@ msgstr "Термин витрины данных"
 msgid "Data marts terms"
 msgstr "Термины витрины данных"
 
-#: models/data_mart.py:194 models/term.py:254
+#: models/data_mart.py:194 models/term.py:268
 msgid "Parent"
 msgstr "Родитель"
 
-#: models/data_mart.py:196 models/term.py:256 rest/filters/data_mart.py:25
+#: models/data_mart.py:196 models/term.py:270 rest/filters/data_mart.py:25
 msgid "Slug"
 msgstr "Синоним"
 
-#: models/data_mart.py:196 models/term.py:256
+#: models/data_mart.py:196 models/term.py:270
 msgid "Used for URLs, auto-generated from name if blank."
 msgstr "Используется авто-генерация URL, если это поле пустое"
 
-#: models/data_mart.py:197 models/term.py:257 rest/filters/data_mart.py:27
+#: models/data_mart.py:197 models/term.py:271 rest/filters/data_mart.py:27
 msgid "Path"
 msgstr "Путь"
 
-#: models/data_mart.py:201 models/entity.py:634 models/term.py:264
-#: rest/filters/entity.py:111
+#: models/data_mart.py:201 models/entity.py:734 models/term.py:278
+#: rest/filters/entity.py:122
 msgid "Created at"
 msgstr "Дата создания"
 
-#: models/data_mart.py:202 models/entity.py:635 models/term.py:265
-#: rest/filters/entity.py:112
+#: models/data_mart.py:202 models/entity.py:735 models/term.py:279
+#: rest/filters/entity.py:123
 msgid "Updated at"
 msgstr "Дата обновления"
 
@@ -582,7 +590,7 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: models/data_mart.py:218 models/term.py:268
+#: models/data_mart.py:218 models/term.py:282
 msgid "Description"
 msgstr "Описание"
 
@@ -590,7 +598,7 @@ msgstr "Описание"
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: models/data_mart.py:222 models/term.py:272
+#: models/data_mart.py:222 models/term.py:286
 msgid "system flags"
 msgstr "системные флаги"
 
@@ -610,48 +618,56 @@ msgstr "Код пользователя"
 msgid "Tile view"
 msgstr "Плитка"
 
-#: models/defaults/term.py:23 models/term.py:282
+#: models/defaults/term.py:23 models/term.py:296
 msgid "Topic model"
 msgstr "Тематическая модель"
 
-#: models/entity.py:614
+#: models/entity.py:714
 msgid "Created at: new first"
 msgstr "По дате ↑"
 
-#: models/entity.py:622
+#: models/entity.py:722
 msgid "List view"
 msgstr "Список"
 
-#: models/entity.py:629
+#: models/entity.py:729
 msgid "Entity term"
 msgstr "Термин объекта"
 
-#: models/entity.py:630
+#: models/entity.py:730
 msgid "Entities terms"
 msgstr "Термины объекта"
 
-#: models/entity.py:637
+#: models/entity.py:737
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
-#: models/entity.py:648
+#: models/entity.py:748
 msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
-#: models/entity.py:653
+#: models/entity.py:753
 #: templates/edw/admin/entities/actions/_updated_entities.html:9
 msgid "Entities"
 msgstr "Объекты"
 
-#: models/fields/__init__.py:15
+#: models/fields/morton/__init__.py:89
+msgid "BaseMortonOrder field"
+msgstr ""
+
+#: models/fields/morton/order2D.py:63
+msgid "MortonOrder2D field"
+msgstr ""
+
+#: models/fields/tree.py:15
 msgid "The selected node cannot have child nodes."
 msgstr "Выбраный узел не может иметь дочерних узлов"
 
-#: models/fields/__init__.py:16
+#: models/fields/tree.py:16
 msgid "A node may not be made a child of itself."
 msgstr "Узел не может быть дочерним сам себе"
 
-#: models/fields/__init__.py:17
+#: models/fields/tree.py:17
 msgid "Unknown parent value."
 msgstr "Неизвестное значение родителя."
 
@@ -667,7 +683,7 @@ msgstr "День"
 msgid "Added month"
 msgstr "Месяц"
 
-#: models/mixins/entity/add_date_terms_validation.py:182
+#: models/mixins/entity/add_date_terms_validation.py:183
 msgid "Added year"
 msgstr "Год"
 
@@ -678,6 +694,14 @@ msgstr "Данные http запроса"
 #: models/mixins/entity/notification.py:13
 msgid "Parts of the Request objects on the moment of submit."
 msgstr "Request-объект на момент отправки"
+
+#: models/mixins/entity/place.py:32
+msgid "Region"
+msgstr ""
+
+#: models/mixins/entity/place.py:44
+msgid "Terra Incognita"
+msgstr ""
 
 #: models/notification.py:19
 msgid "Event"
@@ -727,164 +751,164 @@ msgstr "Почтовая зона"
 msgid "Postal zones"
 msgstr "Почтовые зоны"
 
-#: models/related.py:34
+#: models/related/__init__.py:31
 msgid "Additional Entity Characteristic or Mark"
 msgstr "дополнительная характеристика или метка"
 
-#: models/related.py:35
+#: models/related/__init__.py:32
 msgid "Additional Entity Characteristics or Marks"
 msgstr "дополнительные характеристики или метки"
 
-#: models/related.py:57
+#: models/related/__init__.py:54
 msgid "From Entity"
 msgstr "Субъект"
 
-#: models/related.py:58
+#: models/related/__init__.py:55
 msgid "To Entity"
 msgstr "Объект"
 
-#: models/related.py:63
+#: models/related/__init__.py:60
 msgid "Entity Relation"
 msgstr "Отношение"
 
-#: models/related.py:64
+#: models/related/__init__.py:61
 msgid "Entity Relations"
 msgstr "Отношения"
 
-#: models/related.py:88
+#: models/related/__init__.py:85
 msgid "Related data mart"
 msgstr "Связанная витрина данных"
 
-#: models/related.py:89
+#: models/related/__init__.py:86
 msgid "Entity related data marts"
 msgstr "Связанные витрины данных"
 
-#: models/related.py:111
+#: models/related/__init__.py:108
 msgid "Bidirectional"
 msgstr "двунаправленная"
 
-#: models/related.py:112
+#: models/related/__init__.py:109
 msgid "Forward"
 msgstr "прямая"
 
-#: models/related.py:113
+#: models/related/__init__.py:110
 msgid "Reverse"
 msgstr "обратная"
 
-#: models/related.py:118
+#: models/related/__init__.py:115
 msgid "Relation direction"
 msgstr "тип направления связи"
 
-#: models/related.py:121
+#: models/related/__init__.py:118
 msgid "Defines the direction of relation on which selection is carried out"
 msgstr "Определяет направление связи по которому осуществляется отбор"
 
-#: models/related.py:125
+#: models/related/__init__.py:122
 msgid "Data mart relation"
 msgstr "Отношение"
 
-#: models/related.py:126
+#: models/related/__init__.py:123
 msgid "Data mart relations"
 msgstr "Отношения"
 
-#: models/related.py:145 models/related.py:170
+#: models/related/data_mart_image.py:24 models/related/entity_image.py:24
 msgid "Image"
 msgstr "Изображение"
 
-#: models/related.py:151
-msgid "Entity Image"
-msgstr "Изображение"
-
-#: models/related.py:152
-msgid "Entity Images"
-msgstr "Изображения"
-
-#: models/related.py:171
+#: models/related/data_mart_image.py:25
 msgid "DataMart"
 msgstr "Витрина данных"
 
-#: models/related.py:176
+#: models/related/data_mart_image.py:30
 msgid "DataMart Image"
 msgstr "Изображение"
 
-#: models/related.py:177
+#: models/related/data_mart_image.py:31
 msgid "DataMart Images"
 msgstr "Изображения"
 
-#: models/related.py:195
+#: models/related/entity_file.py:24
 msgid "File"
 msgstr "Файл"
 
-#: models/related.py:201
+#: models/related/entity_file.py:30
 msgid "Entity File"
 msgstr "Файл"
 
-#: models/related.py:202
+#: models/related/entity_file.py:31
 msgid "Entity Files"
 msgstr "Файлы"
 
-#: models/term.py:211
+#: models/related/entity_image.py:30
+msgid "Entity Image"
+msgstr "Изображение"
+
+#: models/related/entity_image.py:31
+msgid "Entity Images"
+msgstr "Изображения"
+
+#: models/term.py:225
 msgid "OR"
 msgstr "«ИЛИ»"
 
-#: models/term.py:212
+#: models/term.py:226
 msgid "XOR"
 msgstr "«Исключающее ИЛИ»"
 
-#: models/term.py:213
+#: models/term.py:227
 msgid "AND"
 msgstr "«И»"
 
-#: models/term.py:218
+#: models/term.py:232
 msgid "Is characteristic"
 msgstr "Характеристика"
 
-#: models/term.py:219
+#: models/term.py:233
 msgid "Is mark"
 msgstr "Метка"
 
-#: models/term.py:220
+#: models/term.py:234
 msgid "Is relation"
 msgstr "Отношение"
 
-#: models/term.py:227
+#: models/term.py:241
 msgid "Standard"
 msgstr "Стандартный"
 
-#: models/term.py:228
+#: models/term.py:242
 msgid "Expanded"
 msgstr "Расширенный"
 
-#: models/term.py:229
+#: models/term.py:243
 msgid "Reduced"
 msgstr "Сокращенный"
 
-#: models/term.py:236
+#: models/term.py:250
 msgid "Change semantic rule restriction"
 msgstr "Ограничение на изменение семантического правила."
 
-#: models/term.py:238
+#: models/term.py:252
 msgid "External tagging restriction"
 msgstr "Ограничение на ручную установку в объектах"
 
-#: models/term.py:258 templates/edw/admin/mptt/_term_node.html:3
+#: models/term.py:272 templates/edw/admin/mptt/_term_node.html:3
 #: templates/edw/admin/mptt/_term_node.html:4
 msgid "Semantic Rule"
 msgstr "Семантическое правило"
 
-#: models/term.py:260
+#: models/term.py:274
 msgid "attributes"
 msgstr "атрибуты"
 
-#: models/term.py:261
+#: models/term.py:275
 msgid "Specifying attributes of term."
 msgstr "Позволяет устанавливать атрибуты термина"
 
-#: models/term.py:262 templates/edw/admin/mptt/_term_node.html:4
+#: models/term.py:276 templates/edw/admin/mptt/_term_node.html:4
 msgid "Specification Mode"
 msgstr "Режим конкретизации"
 
-#: models/term.py:270
+#: models/term.py:284
 msgid "Is this term active."
 msgstr ""
 "Определяет активен ли этот термин, участвует ли он в отборе и можно ли его "
@@ -894,7 +918,7 @@ msgstr ""
 msgid "Parent Id"
 msgstr "ID родителя"
 
-#: rest/filters/data_mart.py:24 rest/filters/entity.py:123
+#: rest/filters/data_mart.py:24 rest/filters/entity.py:134
 msgid "IDs"
 msgstr "ID`ы"
 
@@ -906,35 +930,35 @@ msgstr "Синоним (icontains)"
 msgid "Path (icontains)"
 msgstr "Путь (icontains)"
 
-#: rest/filters/entity.py:102
+#: rest/filters/entity.py:113
 msgid "equal"
 msgstr "равно"
 
-#: rest/filters/entity.py:103
+#: rest/filters/entity.py:114
 msgid "less than"
 msgstr "меньше чем"
 
-#: rest/filters/entity.py:104
+#: rest/filters/entity.py:115
 msgid "less than or equal"
 msgstr "меньше или равно"
 
-#: rest/filters/entity.py:105
+#: rest/filters/entity.py:116
 msgid "greater than"
 msgstr "больше чем"
 
-#: rest/filters/entity.py:106
+#: rest/filters/entity.py:117
 msgid "greater than or equal"
 msgstr "больше или равно"
 
-#: rest/filters/entity.py:107
+#: rest/filters/entity.py:118
 msgid "date range"
 msgstr "диапазон дат"
 
-#: rest/filters/entity.py:125
+#: rest/filters/entity.py:136
 msgid "Subjects"
 msgstr "Субъекты"
 
-#: rest/filters/entity.py:126
+#: rest/filters/entity.py:137
 msgid "Relations"
 msgstr "Отношение"
 
@@ -1163,6 +1187,39 @@ msgstr "Пожалуйста, проследуйте на эту страниц�
 msgid ", you have requested password reset on website «%(site_name)s»"
 msgstr ", вы запросили сброс пароля на сайте «%(site_name)s»"
 
+#: templates/edw/entities/filters/dynamic.html:3
+msgid "Dynamic Filters"
+msgstr ""
+
+#: templates/edw/entities/filters/dynamic.html:6
+#: templates/edw/entities/filters/group_by.html:8
+msgid "Send"
+msgstr ""
+
+#: templates/edw/entities/filters/group_by.html:3
+msgid "Group by"
+msgstr ""
+
+#: templates/edw/entities/filters/group_by.html:7
+msgid "Alike"
+msgstr ""
+
+#: templates/edw/entities/filters/group_by.html:7
+msgid "Filter"
+msgstr ""
+
+#: templates/edw/entities/filters/meta.html:4
+#, fuzzy
+#| msgid "Notification"
+msgid "Annotation"
+msgstr "Уведомление"
+
+#: templates/edw/entities/filters/meta.html:11
+#, fuzzy
+#| msgid "Is relation"
+msgid "Aggregation"
+msgstr "Отношение"
+
 #: utils/geo.py:51
 msgid "Daily requests limit has been reached"
 msgstr "Достигнут предел дневных запросов"
@@ -1187,38 +1244,46 @@ msgstr "Ожидается место"
 msgid "Postcode not found in raw data"
 msgstr "Почтовый индекс не найден в данных ответа"
 
-#: views/auth.py:81
+#: views/auth.py:62
+msgid "User is not recognized as \"registered\""
+msgstr ""
+
+#: views/auth.py:72
+msgid "Logged out"
+msgstr ""
+
+#: views/auth.py:106
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
-#: views/auth.py:106
+#: views/auth.py:131
 msgid "Password reset"
 msgstr "Восстановление пароля"
 
-#: views/auth.py:106
+#: views/auth.py:131
 msgid "For reset password you need first activation your account"
 msgstr "Для восстановления пароля сначала активируете свой аккаунт."
 
-#: views/auth.py:115
+#: views/auth.py:140
 #, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr "Инструкция по сбросу пароля выслана Вам на адрес '{email}'."
 
-#: views/auth.py:174
+#: views/auth.py:199
 msgid "Password has been reset with the new password."
 msgstr "Пароль был сброшен."
 
-#: views/auth.py:187
+#: views/auth.py:212
 msgid "New password has been saved."
 msgstr "Новый пароль установлен."
 
-#: views/auth.py:207
+#: views/auth.py:232
 msgid "Error validate account. Validate link wrong or expired validate code."
 msgstr ""
 "Ошибка активации аккаунта. Либо код активации неверно указан, либо он был "
 "просрочен."
 
-#: views/auth.py:214
+#: views/auth.py:239
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
 
