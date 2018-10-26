@@ -156,9 +156,9 @@ class CustomerManager(models.Manager):
             user.is_active = False
             user.save()
             recognized = self.model.UNRECOGNIZED
-        customer = self.get_or_create(user=user)[0]
+        (customer, is_created) = self.get_or_create(user=user)
         customer.recognized = recognized
-        return customer
+        return (customer, is_created)
 
 
 @python_2_unicode_compatible

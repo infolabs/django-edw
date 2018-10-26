@@ -182,11 +182,20 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
         if self.annotation_meta:
             annotation = {}
             name_field = serializers.CharField()
-            for key, (field, name) in self.annotation_meta.items():
+            for key, (alias, field, name) in self.annotation_meta.items():
                 if field == field.root:
                     field.root = self.root
-                value = getattr(instance, key)
-                value = field.to_representation(value) if value is not None else None
+                value = getattr(instance, key, empty)
+                if value == empty:
+                    value = [getattr(instance, x) for x in alias] if isinstance(
+                        alias, (tuple, list)) else getattr(instance, alias)
+                if value is None:
+                    try:
+                        value = field.to_representation(value)
+                    except TypeError:
+                        value = None
+                else:
+                    value = field.to_representation(value)
                 annotation[key] = value if name is None else {
                     'value': value,
                     'name': name_field.to_representation(name)
@@ -461,19 +470,23 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             aggregation = queryset.aggregate(**aggregate_kwargs)
             result = {}
             name_field = serializers.CharField()
-            for key, data in aggregation_meta.items():
-                field = data[1]
+            for key, (alias, field, name) in aggregation_meta.items():
                 if field is not None:
                     if field == field.root:
                         field.root = self.root
-                    name = data[2]
                     value = aggregation.get(key, empty)
                     if value == empty:
-                        alias = data[0]
                         value = [aggregation[x] for x in alias] if isinstance(alias, (tuple, list)
                                                                               ) else aggregation[alias]
+                    if value is None:
+                        try:
+                            value = field.to_representation(value)
+                        except TypeError:
+                            value = None
+                    else:
+                        value = field.to_representation(value)
                     result[key] = {
-                        'value': field.to_representation(value) if value is not None else None,
+                        'value': value,
                         'name': name_field.to_representation(name) if name is not None else None
                     }
             return result
