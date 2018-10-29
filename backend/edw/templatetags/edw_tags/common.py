@@ -96,7 +96,7 @@ def bitwise_and(value, arg):
 
 
 def select_attr(obj, name):
-    """Prepares data for select_attr"""
+    """Prepares data for set_attr"""
     return {'object': obj, 'name': name}
 
 
