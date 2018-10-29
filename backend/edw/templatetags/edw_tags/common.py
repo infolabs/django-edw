@@ -78,6 +78,11 @@ def to_list(value):
     return list(value)
 
 
+def zip_lists(lists):
+    for item in zip(*lists):
+        yield item
+
+
 def append_value(data, value):
     data.append(value)
     return data
@@ -89,6 +94,10 @@ def empty_str(value):
 
 def multiply(value, arg):
     return value * arg
+
+
+def divide(value, arg):
+    return value / arg
 
 
 def bitwise_and(value, arg):
