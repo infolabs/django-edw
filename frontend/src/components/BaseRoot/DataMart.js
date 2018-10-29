@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import Actions from '../../actions/index'
 import Entities from 'components/Entities';
 import TermsTree from 'components/TermsTree';
 import Paginator from 'components/Paginator';
@@ -11,10 +14,27 @@ import DataMartsList from 'components/DataMartsList';
 import GroupTitle from 'components/GroupTitle';
 
 
-export default class DataMart extends Component {
+export class DataMart extends Component {
   render() {
 
-    const { entry_point_id, entry_points, actions } = this.props;
+    const { entities, entry_point_id, entry_points, actions } = this.props;
+
+    const count = entities.meta.count;
+
+    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
+
+    for(const item of el_with_count) {
+      const elements = document.getElementsByClassName(item);
+      //for (const element of elements) {
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const element = elements[i],
+            pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
+                element.attributes.getNamedItem('data-selected-entry-point-id').value;
+        if (pk && pk == entry_point_id) {
+          element.setAttribute('data-data-count', count);
+        }
+      }
+    }
 
     return (
       <div className="row">
@@ -58,3 +78,20 @@ export default class DataMart extends Component {
     );
   }
 }
+
+
+function mapState(state) {
+  return {
+    entities: state.entities.items,
+  };
+}
+
+function mapDispatch(dispatch) {
+  return {
+    actions: bindActionCreators(Actions, dispatch),
+    dispatch: dispatch
+  };
+}
+
+
+export default connect(mapState, mapDispatch)(DataMart);
