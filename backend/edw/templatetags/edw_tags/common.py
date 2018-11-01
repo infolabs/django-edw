@@ -96,10 +96,6 @@ def multiply(value, arg):
     return value * arg
 
 
-def divide(value, arg):
-    return value / arg
-
-
 def bitwise_and(value, arg):
     return bool(value & arg)
 
