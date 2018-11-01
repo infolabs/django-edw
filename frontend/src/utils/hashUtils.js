@@ -1,3 +1,4 @@
+
 export default function hashCode(s) {
     let hash = 0, i, chr;
     if (s.length === 0) return hash;

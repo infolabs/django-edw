@@ -9,7 +9,7 @@ import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
 import parseRequestParams from 'utils/parseRequestParams';
-import hashCode from "../utils/utils";
+import hashCode from "../utils/hashUtils";
 
 
 class BaseEntities extends Component {
