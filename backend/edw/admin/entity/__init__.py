@@ -27,7 +27,7 @@ from forms import (
 from actions import (
     update_terms,
     update_relations,
-    # update_images,
+    update_images,
     update_additional_characteristics_or_marks,
     update_related_data_marts,
     update_states,
@@ -151,7 +151,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     list_filter = (TermsTreeFilter, 'active')
 
-    actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
+    actions = [update_terms, update_terms, update_relations, update_images, update_additional_characteristics_or_marks,
                update_related_data_marts, update_states, update_active, force_validate]
 
     save_on_top = True
