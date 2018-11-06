@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import ReactDOM from 'react-dom';
 import cookie from 'react-cookies'
-import hashCode from '../utils/utils';
+import hashCode from '../utils/hashUtils';
 
 
 export default class BtnGroup extends Component {

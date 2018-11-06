@@ -6,33 +6,52 @@ import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
 import DataMartsList from 'components/DataMartsList'
 import Statistics from 'components/Statistics';
+import { closest } from '../../utils/querySelector';
 
 
 class Related extends Component {
 
-  render() {
+  componentWillReceiveProps(nextProps) {
 
-    const { entities, entry_points, entry_point_id, actions } = this.props;
-
-    const count = entities.meta.count;
-
-    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
-
-    for(const item of el_with_count) {
-      const elements = document.getElementsByClassName(item);
-      //for (const element of elements) {
+    // устанавливаем data-data-count и data-initial-data-count
+    const prevCount = this.props.entities && this.props.entities.meta.count,
+        { entities, entry_point_id } = nextProps,
+        count = entities.meta && entities.meta.count;
+    if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
+      const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i],
-            pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
-                element.attributes.getNamedItem('data-selected-entry-point-id').value;
-        if (pk && pk == entry_point_id) {
-          element.setAttribute("data-data-count", count);
+            pki = element.attributes.getNamedItem('data-selected-entry-point-id'),
+            pk = pki && pki.value;
+        if (pk == entry_point_id) {
+          let targets = [element];
+          const container = closest(element, '.ex-data-mart-container');
+          if (container) {
+            targets.push(container);
+          }
+          const is_initial = (prevCount === undefined) && (count !== undefined);
+          for (let j = targets.length - 1; j >= 0; j--) {
+            const target = targets[j];
+            target.setAttribute("data-data-count", count);
+            if (is_initial) {
+              target.setAttribute("data-initial-data-count", count);
+            } else if ((count === undefined) && (prevCount === undefined)) {
+              target.setAttribute("data-initial-data-count", '0');
+            }
+          }
         }
       }
     }
 
-    let mart_url = entry_points[entry_point_id].url || "",
-        mart_name = entry_points[entry_point_id].name || "";
+  }
+
+  render() {
+
+    const { entry_points, entry_point_id, actions } = this.props;
+
+    let entry_point = entry_points[entry_point_id],
+        mart_url = entry_point.url || "",
+        mart_name = entry_point.name || "";
 
     const multi = Object.keys(entry_points).length > 1;
 

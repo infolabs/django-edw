@@ -12,29 +12,49 @@ import Statistics from 'components/Statistics';
 import Aggregation from 'components/Aggregation';
 import DataMartsList from 'components/DataMartsList';
 import GroupTitle from 'components/GroupTitle';
+import {closest} from "../../utils/querySelector";
 
 
 export class DataMart extends Component {
-  render() {
 
-    const { entities, entry_point_id, entry_points, actions } = this.props;
+  componentWillReceiveProps(nextProps) {
 
-    const count = entities.meta.count;
-
-    let el_with_count = ['ex-data-mart', 'ex-data-mart-container'];
-
-    for(const item of el_with_count) {
-      const elements = document.getElementsByClassName(item);
-      //for (const element of elements) {
+    // устанавливаем data-data-count и data-initial-data-count
+    const prevCount = this.props.entities && this.props.entities.meta.count,
+        { entities, entry_point_id } = nextProps,
+        count = entities.meta && entities.meta.count;
+    if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
+      const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i],
-            pk = element.attributes.getNamedItem('data-selected-entry-point-id') &&
-                element.attributes.getNamedItem('data-selected-entry-point-id').value;
-        if (pk && pk == entry_point_id) {
-          element.setAttribute('data-data-count', count);
+            pki = element.attributes.getNamedItem('data-selected-entry-point-id'),
+            pk = pki && pki.value;
+        if (pk == entry_point_id) {
+          let targets = [element];
+          const container = closest(element, '.ex-data-mart-container');
+          if (container) {
+            targets.push(container);
+          }
+          const is_initial = (prevCount === undefined) && (count !== undefined);
+          for (let j = targets.length - 1; j >= 0; j--) {
+            const target = targets[j];
+            target.setAttribute("data-data-count", count);
+            if (is_initial) {
+              target.setAttribute("data-initial-data-count", count);
+            } else if ((count === undefined) && (prevCount === undefined)) {
+              target.setAttribute("data-initial-data-count", '0');
+            }
+          }
         }
       }
     }
+
+  }
+
+
+  render() {
+
+    const { entry_point_id, entry_points, actions } = this.props;
 
     return (
       <div className="row">
