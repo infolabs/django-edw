@@ -125,14 +125,23 @@ class PasswordResetView(GenericAPIView):
         # Create a serializer with request.data
         serializer = self.get_serializer(data=request.data)
         email = request.data.__getitem__('email')
+
         User = get_user_model()
-        user = User.objects.filter(
-            email__iexact=email,
-            is_active=False
-        )
-        if user.count() > 0:
-            user = user[0]
-            user.email_user(_('Password reset'), _('For reset password you need first activation your account'))
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            msg = _("Account does not exists. You must register first")
+            return Response(
+                dict(email=msg),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            if not user.is_active:
+                msg = _('For reset password you need first activate your account')
+                return Response(
+                    dict(email=msg),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         if not serializer.is_valid():
             return Response(

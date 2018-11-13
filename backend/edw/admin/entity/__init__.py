@@ -24,10 +24,14 @@ from forms import (
     EntityRelatedDataMartInlineForm
 )
 
+from edw.rest.filters.entity import EntityFilter
+
+#===========================================================================================
+# inport edw actions
+#===========================================================================================
 from actions import (
     update_terms,
     update_relations,
-    # update_images,
     update_additional_characteristics_or_marks,
     update_related_data_marts,
     update_states,
@@ -35,8 +39,19 @@ from actions import (
     force_validate
 )
 
+edw_actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
+               update_related_data_marts, update_states, update_active, force_validate]
 
-from edw.rest.filters.entity import EntityFilter
+try:
+    from edw.models.related.entity_image import EntityImageModel
+    EntityImageModel() # Test pass if model materialized
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
+    from actions import update_images
+
+    edw_actions.append(update_images)
+#===========================================================================================
 
 
 #===========================================================================================
@@ -151,8 +166,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     list_filter = (TermsTreeFilter, 'active')
 
-    actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate]
+    actions = edw_actions
 
     save_on_top = True
 
