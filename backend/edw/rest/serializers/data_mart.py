@@ -121,6 +121,8 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
+    REMOVE_VIEW_COMPONENT_PREFIX = 'remove_view_component__'
+    
     ordering_modes = serializers.SerializerMethodField()
     view_components = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
@@ -159,10 +161,21 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         return OrderedDict(instance.entities_model.ORDERING_MODES)
 
     def get_view_components(self, instance):
-        return OrderedDict(
+        view_components = OrderedDict(
             instance.entities_model.get_view_components(context=self.context)
         )
-
+        if instance.view_class:
+            n = len(self.REMOVE_VIEW_COMPONENT_PREFIX)
+            components_to_remove = [
+                x[n:] for x in instance.view_class.split(' ') if x.startswith(self.REMOVE_VIEW_COMPONENT_PREFIX)
+            ]
+            for name in components_to_remove:
+                try:
+                    del view_components[name]
+                except KeyError:
+                    pass
+        return view_components
+    
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
 
