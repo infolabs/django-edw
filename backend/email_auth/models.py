@@ -77,10 +77,13 @@ class User(AbstractUser):
 class BannedEmailDomain(models.Model):
     domain_name = models.CharField(
         max_length=255,
-        verbose_name=_('Domain name')
+        verbose_name=_('Domain name'),
+        unique=True,
+        db_index=True,
     )
     
     class Meta:
+        ordering = ('domain_name',)
         db_table = 'auth_banned_email_domain'
         verbose_name = _("Banned email domain")
         verbose_name_plural = _("Banned email domains")
