@@ -9,6 +9,7 @@ from email_auth.models import BannedEmailDomain
 class BannedEmailDomainAdmin(admin.ModelAdmin):
     model = BannedEmailDomain
     search_fields = ('domain_name',)
+    list_display = ('domain_name',)
     
 
 admin.site.register(BannedEmailDomain, BannedEmailDomainAdmin)
