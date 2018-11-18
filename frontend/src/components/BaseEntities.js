@@ -8,6 +8,7 @@ import cookie from 'react-cookies';
 import List from 'components/BaseEntities/List';
 import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
+import YMap from 'components/BaseEntities/YMap';
 import parseRequestParams from 'utils/parseRequestParams';
 import hashCode from "../utils/hashUtils";
 
@@ -22,7 +23,8 @@ class BaseEntities extends Component {
     return {
       "tile": Tile,
       "list": List,
-      "map": Map
+      "map": Map,
+      "ymap": YMap
     };
   }
 
