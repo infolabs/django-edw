@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import marked from 'marked';
 
 
@@ -24,6 +25,12 @@ export default class AbstractMap extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.state.itemsChanged = nextProps.items != this.props.items;
+  }
+
+  componentDidMount(x, y, z) {
+    this.setState({
+      div: ReactDOM.findDOMNode(this)
+    });
   }
 
   calculateZoom(west, east, south, north) {

@@ -12,6 +12,7 @@ class GroupTitle extends Component {
           subj_ids = meta.subj_ids;
     let request_options = meta.request_options;
     delete request_options["alike"];
+    delete request_options["offset"];
     actions.notifyLoadingEntities();
     actions.getEntities(mart_id, subj_ids, request_options);
   }

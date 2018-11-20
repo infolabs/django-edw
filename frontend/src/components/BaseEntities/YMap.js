@@ -7,8 +7,7 @@ import { MAP_HEIGHT } from 'constants/Components';
 
 
 const defaultState = {
-  center: [55.76, 37.64],
-  zoom: 15,
+  bounds: [[50.1, 30.2],[60.3, 20.4]],
   margin: 50,
   type: 'yandex#map',
   controls: [
@@ -139,12 +138,14 @@ class YMapInner extends AbstractMap {
     let mapState = defaultState;
 
     if ((!geoItems.length || !this.state.itemsChanged) && this._map) {
-      mapState.zoom = this._map.getZoom();
-      mapState.center = this._map.getCenter();
+      mapState.bounds = this._map.getBounds();
     } else {
-      delete mapState.zoom;
-      delete mapState.center;
       mapState.bounds = [[latMin, lngMin],[latMax, lngMax]];
+    }
+
+    // explicitly update map
+    if (this.state.itemsChanged && this._map) {
+      this._map.setBounds(mapState.bounds);
     }
 
     return (

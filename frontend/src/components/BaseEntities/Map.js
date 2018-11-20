@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {
   withGoogleMap,
   GoogleMap,
@@ -104,12 +103,6 @@ export default class Map extends AbstractMap {
     super.componentWillReceiveProps(nextProps);
     this.setState({
       markers: []
-    });
-  }
-
-  componentDidMount(x, y, z) {
-    this.setState({
-      div: ReactDOM.findDOMNode(this)
     });
   }
 
