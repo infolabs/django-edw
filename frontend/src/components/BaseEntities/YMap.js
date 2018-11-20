@@ -52,6 +52,8 @@ class YMapInner extends AbstractMap {
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
+                   left: {{ options.offset.0 }}px;
+                   top: {{ options.offset.1 }}px;
                    position: relative;`;
 
     const circle = `
@@ -108,11 +110,19 @@ class YMapInner extends AbstractMap {
 
       if (item.extra.group_size) {
         const label = item.extra.group_size.toString();
+        const diameter = 17 + label.length * 12;
+        const radius = diameter / 2;
         marker.properties.iconContent = label;
         marker.options = {
           preset: {iconLayout: this.circleLayout},
           iconColor: 'white',
-          iconDiameter: 17 + label.length * 12,
+          iconDiameter: diameter,
+          iconOffset: [-radius / 2, -radius / 2],
+          iconShape: {
+            type: 'Circle',
+            coordinates: [radius / 2, radius / 2],
+            radius: radius
+          },
           hideIconOnBalloonOpen: false
         };
       } else {
