@@ -145,7 +145,7 @@ class YMapInner extends AbstractMap {
 
     // explicitly update map
     if (this.state.itemsChanged && this._map) {
-      this._map.setBounds(mapState.bounds);
+      this._map.setBounds(mapState.bounds, {checkZoomRange: true});
     }
 
     return (
