@@ -3,8 +3,8 @@
 from django import template
 
 from edw.templatetags.edw_tags.common import (
-    time, date, split, trim, multiply, bitwise_and,
-    to_list, zip_lists, append_value, empty_str,
+    time, date, split, trim, multiply, divide, minimal, maximal,
+    bitwise_and, to_list, zip_lists, append_value, empty_str,
     select_attr, set_attr, select_value, set_value,
 )
 from edw.templatetags.edw_tags.entities import GetEntity, GetEntities
@@ -23,6 +23,9 @@ register.filter(zip_lists)
 register.filter(append_value)
 register.filter(empty_str)
 register.filter(multiply)
+register.filter(divide)
+register.filter(minimal)
+register.filter(maximal)
 register.filter(bitwise_and)
 register.filter(set_attr)
 register.filter(select_attr)
