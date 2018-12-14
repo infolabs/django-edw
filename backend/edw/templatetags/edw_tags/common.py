@@ -96,6 +96,18 @@ def multiply(value, arg):
     return value * arg
 
 
+def divide(value, arg):
+    return value / arg
+
+
+def minimal(value, arg):
+    return min(value, arg)
+
+
+def maximal(value, arg):
+    return max(value, arg)
+
+
 def bitwise_and(value, arg):
     return bool(value & arg)
 
