@@ -96,7 +96,7 @@ class TileItem extends Component {
     const { data, position, meta, descriptions } = this.props,
           url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
           index = position + meta.offset,
-          group_size = data.extra.group_size || 0;
+          group_size = data.extra && data.extra.group_size ? data.extra.group_size : 0;
 
     let group_digit;
     if (group_size) {

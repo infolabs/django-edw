@@ -107,7 +107,7 @@ class YMapInner extends AbstractMap {
         item: item
       };
 
-      if (item.extra.group_size) {
+      if (item.extra && item.extra.group_size) {
         const label = item.extra.group_size.toString();
         const diameter = 17 + label.length * 12;
         const radius = diameter / 2;

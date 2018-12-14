@@ -140,7 +140,7 @@ export default class Map extends AbstractMap {
           info: this.assembleInfo(item, meta)
       };
 
-      if (item.extra.group_size) {
+      if (item.extra && item.extra.group_size) {
         const label = item.extra.group_size.toString();
         marker["icon"] = this.getGroupMarkerIcon(label, pinColor);
         marker["label"] = label;

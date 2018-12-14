@@ -111,7 +111,7 @@ class ListItem extends Component {
   render() {
     const { data, meta, descriptions } = this.props,
           url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
-          group_size = data.extra.group_size || 0;
+          group_size = data.extra && data.extra.group_size ? data.extra.group_size : 0;
 
     let group_digit = "";
     if (group_size) {
