@@ -6,7 +6,7 @@ import ReduxThunk from 'redux-thunk'
 
 
 let createStoreWithMiddleware = applyMiddleware(ReduxThunk)(
-    // applyMiddleware(logger)(createStore)
+    // applyMiddleware(logger)(createStore),
     createStore
 );
 

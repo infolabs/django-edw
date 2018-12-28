@@ -37,14 +37,33 @@ const markerModules = [
 class YMapInner extends AbstractMap {
   setMapRef = ref => { this._map = ref; };
 
-  closeBalloon(e) {
-    e.get('target').balloon.close();
-  }
+  // Пока не нужен, см todo ниже
+  // onGeometryChange(e) {
+  //   e.get('target').balloon.close();
+  // }
 
-  handleMarkerClick(e1, data) {
+  handleBalloonOpen(e1, marker) {
+    const { actions, meta, descriptions } = this.props,
+          data = marker.item,
+          id = data.id;
+
     e1.get('target').balloon.events.add('click', e2 => {
       this.handleInfoMouseClick(e2, data);
     });
+
+    if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
+      actions.getEntityItem(data, meta);
+
+    if (!data.extra.group_size && !descriptions[id])
+      actions.getEntityItem(data);
+
+    actions.showDescription(id);
+
+  }
+
+  handleBalloonClose(e1, marker) {
+    const { actions } = this.props;
+    actions.hideDescription(marker.item.id);
   }
 
   componentWillMount() {
@@ -77,7 +96,7 @@ class YMapInner extends AbstractMap {
   }
 
   render() {
-    const { items, meta, loading } = this.props;
+    const { items, meta, loading, descriptions } = this.props;
     const geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
 
     let entitiesClass = "entities";
@@ -94,9 +113,10 @@ class YMapInner extends AbstractMap {
       latMin = latMin != null && latMin < lat ? latMin : lat;
       latMax = latMax != null && latMax > lat ? latMax : lat;
 
-
       const pinColor = this.getPinColor(item),
-            info = this.assembleInfo(item, meta),
+            descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
+            description = !descriptions_data[item.id] && descriptions.groups ? descriptions.groups[item.id] : descriptions_data[item.id],
+            info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
       let marker = {
@@ -162,8 +182,13 @@ class YMapInner extends AbstractMap {
                        geometry={marker.center}
                        properties={marker.properties}
                        options={marker.options}
-                       onGeometrychange={this.closeBalloon}
-                       onBalloonopen={e => this.handleMarkerClick(e, marker.item)}/>
+                       onBalloonopen={e => this.handleBalloonOpen(e, marker)}
+                       onBalloonclose={e => this.handleBalloonClose(e, marker)}
+                       // todo: Работает даже просто при перерендере карты при загрузке данных,
+                       //       надо придумать другой механизм закрытия всплывашек при изменении размеров окна.
+                       // onGeometrychange={this.onGeometryChange}
+            />
+
           )}
         </Map>
       </div>
