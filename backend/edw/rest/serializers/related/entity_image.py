@@ -23,6 +23,7 @@ class EntityImageSerializer(serializers.ModelSerializer):
     default_caption = serializers.SerializerMethodField()
     alt = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    subject_location = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityImageModel
@@ -52,3 +53,6 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     def get_description(self, instance):
         return u'{}'.format(instance.image.description) if instance.image.description else ""
+
+    def get_subject_location(self, instance):
+        return u'{}'.format(instance.image.subject_location) if instance.image.subject_location else ""

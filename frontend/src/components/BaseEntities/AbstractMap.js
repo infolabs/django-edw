@@ -81,9 +81,10 @@ export default class AbstractMap extends Component {
     }
   }
 
-  assembleInfo(item, meta) {
+  assembleInfo(item, meta, description) {
     const url = item.extra.url ? item.extra.url : item.entity_url,
-          marks = item.short_marks || [];
+          marks = description ? description.marks : item.short_marks || [],
+          characteristics = description ? description.characteristics : item.short_characteristics || [];
     const title = item.extra.group_size && !meta.alike ? item.extra.group_name : item.entity_name;
 
     let media = item.media;
@@ -117,7 +118,7 @@ export default class AbstractMap extends Component {
         <div className="ex-map-descr">
           <h5>{header}</h5>
           <ul className="ex-attrs">
-            {item.short_characteristics.map(
+            {characteristics.map(
               (child, i) =>
                 <li data-path={child.path} key={i}
                     data-view-class={child.view_class.join(" ")}>
