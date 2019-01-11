@@ -5,10 +5,11 @@ from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url, include
 
-from rest_framework_nested import routers
+# from rest_framework_nested import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from edw.views.term import TermViewSet
+from edw.rest import routers
 from edw.views.data_mart import DataMartViewSet
 from edw.views.entity import EntityViewSet, EntitySubjectViewSet
 from edw.search.views import EntitySearchViewSet
@@ -17,14 +18,19 @@ from edw.search.views import EntitySearchViewSet
 #==============================================================================
 # routers
 #==============================================================================
-router = routers.DefaultRouter()
+router = routers.DefaultBulkRouter()
+# router = routers.DefaultRouter()
 
 router.register(r'data-marts', DataMartViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'entities', EntityViewSet)
 router.register(r'search', EntitySearchViewSet, base_name='search')
 
-data_mart_nested_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
+data_mart_nested_router = routers.NestedSimpleBulkRouter(router, r'data-marts', lookup='data_mart')
+
+# print ("+++++++++", routers.NestedSimpleBulkRouter.routes[0].mapping)
+
+# data_mart_nested_router = routers.NestedSimpleRouter(router, r'data-marts', lookup='data_mart')
 data_mart_nested_router.register(r'children', DataMartViewSet, base_name='data-mart-children')
 data_mart_nested_router.register(r'terms', TermViewSet, base_name='data-mart-term')
 data_mart_nested_router.register(r'entities', EntityViewSet, base_name='data-mart-entity')
@@ -32,10 +38,12 @@ data_mart_nested_router.register(r'entities', EntityViewSet, base_name='data-mar
 term_nested_router = routers.NestedSimpleRouter(router, r'terms', lookup='term')
 term_nested_router.register(r'children', TermViewSet, base_name='term-children')
 
-entity_nested_router = routers.NestedSimpleRouter(router, r'entities', lookup='entity')
+entity_nested_router = routers.NestedSimpleBulkRouter(router, r'entities', lookup='entity')
+# entity_nested_router = routers.NestedSimpleRouter(router, r'entities', lookup='entity')
 entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='entity-by-subject')
 
-data_mart_entity_nested_router = routers.NestedSimpleRouter(data_mart_nested_router, r'entities', lookup='entity')
+data_mart_entity_nested_router = routers.NestedSimpleBulkRouter(data_mart_nested_router, r'entities', lookup='entity')
+# data_mart_entity_nested_router = routers.NestedSimpleRouter(data_mart_nested_router, r'entities', lookup='entity')
 data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='data-mart-entity-by-subject')
 
 

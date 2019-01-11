@@ -173,8 +173,27 @@ class RESTMetaSerializerMixin(object):
         if instance is not None and hasattr(instance, '_rest_meta'):
             self.rest_meta = instance._rest_meta
         else:
-            self.rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+            if hasattr(self, 'Meta'):
+                self.rest_meta = getattr(self.Meta.model, '_rest_meta', None)
+            else:
+                self.rest_meta = None
+                context = kwargs.get('context', None)
+                if context is not None:
+                    data_mart = context.get('data_mart', None)
+                    if data_mart is not None:
+                        model = data_mart.entities_model
+                        self.rest_meta = model._rest_meta
+
         super(RESTMetaSerializerMixin, self).__init__(*args, **kwargs)
+
+    def get_serializer_to_patch(self):
+        return self
+
+
+class RESTMetaListSerializerPatchMixin(object):
+
+    def get_serializer_to_patch(self):
+        return self.child
 
 
 class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
@@ -183,6 +202,9 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
         super(DynamicFieldsSerializerMixin, self).__init__(*args, **kwargs)
         if self.rest_meta:
             remove_fields, include_fields = self.rest_meta.exclude, self.rest_meta.include
+
+            patch_target = self.get_serializer_to_patch()
+
             for field_name, field in include_fields.items():
                 if isinstance(field, (tuple, list)):
                     field = import_string(field[0])(**field[1])
@@ -196,16 +218,20 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
                         if field.method_name == default_method_name:
                             field.method_name = None
                     method = getattr(self.rest_meta, method_name)
-                    setattr(self, method_name, types.MethodType(method, self, self.__class__))
+                    setattr(patch_target, method_name, types.MethodType(method, patch_target, patch_target.__class__))
                 elif isinstance(field, serializers.ListField):
                     # hack for ListField.__init__ method
                     field.child.source = None
                 # elif getattr(field, 'many', False): # todo: не работает когда вызывается описание поля в виде строки
                 #     # hack for `many=True`
                 #     field.source = None
-                self.fields[field_name] = field
+                patch_target.fields[field_name] = field
             for field_name in remove_fields:
-                self.fields.pop(field_name)
+                patch_target.fields.pop(field_name, None)
+
+
+class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, DynamicFieldsSerializerMixin):
+    pass
 
 
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
@@ -213,24 +239,27 @@ class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
     def __init__(self, *args, **kwargs):
         super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)
         if self.rest_meta:
-            self.validators = self.rest_meta.validators
+            patch_target = self.get_serializer_to_patch()
+
+            patch_target.validators = self.rest_meta.validators
 
             for method_name in ('create', 'update', 'validate'):
                 method = getattr(self.rest_meta, method_name, None)
                 if method is not None:
-                    setattr(self, method_name, types.MethodType(getattr(method, '__func__', method), self, self.__class__))
+                    setattr(patch_target, method_name, types.MethodType(getattr(method, '__func__', method),
+                                                                        patch_target, patch_target.__class__))
 
             for method_name in self.rest_meta._fields_validators:
                 method = getattr(self.rest_meta, method_name)
-                setattr(self, method_name, types.MethodType(method, self, self.__class__))
+                setattr(patch_target, method_name, types.MethodType(method, patch_target, patch_target.__class__))
 
 
-class CheckPermissionsSerializerMixin(object):
+class DynamicCreateUpdateValidateListSerializerMixin(RESTMetaListSerializerPatchMixin,
+                                                     DynamicCreateUpdateValidateSerializerMixin):
+    pass
 
-    def __init__(self, *args, **kwargs):
-        instance = args[0] if args else None
-        self._permissions_cache = None if instance is not None else {}
-        super(CheckPermissionsSerializerMixin, self).__init__(*args, **kwargs)
+
+class BasePermissionsSerializerMixin(object):
 
     @staticmethod
     def _get_permissions(permission_classes):
@@ -247,6 +276,14 @@ class CheckPermissionsSerializerMixin(object):
             raise exceptions.NotAuthenticated()
         raise exceptions.PermissionDenied(detail=message)
 
+
+class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
+
+    def __init__(self, *args, **kwargs):
+        instance = args[0] if args else None
+        self._permissions_cache = None if instance is not None else {}
+        super(CheckPermissionsSerializerMixin, self).__init__(*args, **kwargs)
+
     def to_representation(self, data):
         """
         Check permissions
@@ -254,12 +291,10 @@ class CheckPermissionsSerializerMixin(object):
         if hasattr(data, '_rest_meta'):
             context = self.context
             request = context.get('request', None)
-
             assert request is not None, (
                 "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
                 % self.__class__.__name__
             )
-
             view = context.get('view')
 
             if self._permissions_cache is None:
@@ -276,7 +311,7 @@ class CheckPermissionsSerializerMixin(object):
                         )
             else:
                 """
-                Check if the request should be permitted.
+                Check if the request should be permitted for list.
                 Raises an appropriate exception if the request is not permitted.
                 """
                 permission_classes = self._permissions_cache.get(data.__class__, None)
@@ -293,6 +328,29 @@ class CheckPermissionsSerializerMixin(object):
                     self._permissions_cache[data.__class__] = permission_classes
 
         return super(CheckPermissionsSerializerMixin, self).to_representation(data)
+
+
+class CheckPermissionsBulkListSerializerMixin(BasePermissionsSerializerMixin):
+
+    def validate_bulk_update(self, objects):
+        """
+        Hook to ensure that the bulk update should be allowed.
+        """
+        context = self.context
+        request = context.get('request', None)
+        assert request is not None, (
+                "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
+                % self.__class__.__name__
+        )
+        view = context.get('view')
+        for obj in objects:
+            permission_classes = obj._rest_meta.permission_classes
+
+            for permission in self._get_permissions(permission_classes):
+                if not permission.has_object_permission(request, view, obj):
+                    self.permission_denied(
+                        request, message=getattr(permission, 'message', None)
+                    )
 
 
 class DynamicFilterSetMixin(object):

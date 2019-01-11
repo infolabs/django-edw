@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.apps import apps
 
-from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
@@ -12,10 +11,13 @@ from rest_framework.generics import get_object_or_404
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
+from rest_framework_bulk.generics import BulkModelViewSet
+
 from edw.rest.serializers.entity import (
     EntityCommonSerializer,
     EntityTotalSummarySerializer,
-    EntityDetailSerializer
+    EntityDetailSerializer,
+    # EntitySummarySerializer
 )
 
 from edw.models.entity import EntityModel
@@ -33,7 +35,7 @@ from edw.rest.pagination import EntityPagination
 from edw.rest.permissions import IsReadOnly
 
 
-class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
+class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving entities.
     Additional actions:
@@ -41,14 +43,15 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
     """
     queryset = EntityModel.objects.all()
     serializer_class = EntityCommonSerializer
-    # serializer_class = EntityCommonSerializer
     custom_serializer_classes = {
         # 'list':  EntitySummarySerializer,
         'list':  EntityTotalSummarySerializer,
         'retrieve':  EntityDetailSerializer,
         'create': EntityDetailSerializer,
         'update': EntityDetailSerializer,
-        'partial_update': EntityDetailSerializer
+        'partial_update': EntityDetailSerializer,
+        'partial_bulk_update': EntityDetailSerializer,
+        'bulk_destroy': EntityCommonSerializer
     }
 
     # serializer_context = None
@@ -144,7 +147,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
             obj = self.get_object()
             model_class = obj.__class__
-        elif self.action in ('create', 'list'):
+        elif self.action in ('create', 'list', 'bulk_update', 'partial_bulk_update', 'bulk_destroy'):
             data_mart_pk = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
             if data_mart_pk is not None:
                 request.GET['_data_mart'] = data_mart = get_object_or_404(DataMartModel.objects.active(),
@@ -183,6 +186,14 @@ class EntityViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
                 self.permission_denied(
                     request, message=getattr(permission, 'message', None)
                 )
+
+    def allow_bulk_destroy(self, qs, filtered):
+        result = super(EntityViewSet, self).allow_bulk_destroy(qs, filtered)
+        if result:
+            # May raise a permission denied
+            for obj in filtered:
+                self.check_object_permissions(self.request, obj)
+        return result
 
     def get_serializer_context(self):
         context = super(EntityViewSet, self).get_serializer_context()

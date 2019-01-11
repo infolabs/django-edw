@@ -7,8 +7,6 @@ from django.conf import settings
 from django.utils import formats
 from django.utils.dateformat import time_format
 from django.utils.dateformat import format as date_format
-from classytags.core import Tag, Options
-from classytags.arguments import Argument
 
 
 def from_iso8601(value):

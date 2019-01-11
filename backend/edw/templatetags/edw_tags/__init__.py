@@ -5,7 +5,7 @@ from django import template
 from edw.templatetags.edw_tags.common import (
     time, date, split, trim, multiply, divide, minimal, maximal,
     bitwise_and, to_list, zip_lists, append_value, empty_str,
-    select_attr, set_attr, select_value, set_value,
+    select_attr, set_attr, select_value, set_value
 )
 from edw.templatetags.edw_tags.entities import GetEntity, GetEntities
 from edw.templatetags.edw_tags.data_marts import GetDataMart, GetDataMarts

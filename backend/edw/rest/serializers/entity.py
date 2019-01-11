@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.core import exceptions
 from django.core.cache import cache
 from django.db.models.expressions import BaseExpression
+from django.db import models
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -18,13 +19,18 @@ from django.apps import apps
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
+
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
+    DynamicFieldsListSerializerMixin,
     DynamicCreateUpdateValidateSerializerMixin,
-    CheckPermissionsSerializerMixin
+    DynamicCreateUpdateValidateListSerializerMixin,
+    CheckPermissionsSerializerMixin,
+    CheckPermissionsBulkListSerializerMixin,
 )
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
@@ -40,7 +46,77 @@ class AttributeSerializer(serializers.Serializer):
     view_class = serializers.ListField(child=serializers.CharField())
 
 
-class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelSerializer):
+class EntityDynamicMetaMixin(object):
+    _meta_cache = {}
+
+    @staticmethod
+    def _get_meta_class(base, model_class):
+
+        class Meta(base):
+            model = model_class
+
+        return Meta
+
+    @classmethod
+    def _update_meta(cls, it, model_class):
+        key = model_class.__name__
+        meta_class = cls._meta_cache.get(key, None)
+        if meta_class is None:
+            cls._meta_cache[key] = meta_class = EntityDynamicMetaMixin._get_meta_class(it.Meta, model_class)
+        setattr(it, 'Meta', meta_class)
+
+    def __new__(cls, *args, **kwargs):
+        it = super(EntityDynamicMetaMixin, cls).__new__(cls, *args, **kwargs)
+        if args and isinstance(args[0], models.Model):
+            cls._update_meta(it, args[0].__class__)
+        else:
+            data = kwargs.get('data', None)
+            if data is not None:
+                context = kwargs.get('context', None)
+                if context is not None:
+                    request = context['request']
+                    data_mart_pk = request.GET.get('data_mart_pk', None)
+                    if data_mart_pk is not None:
+                        # try find data_mart in cache
+                        data_mart = request.GET.get('_data_mart', None)
+                        if data_mart is not None and isinstance(data_mart, DataMartModel):
+                            cls._update_meta(it, data_mart.entities_model)
+                        else:
+                            try:
+                                data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
+                            except DataMartModel.DoesNotExist:
+                                pass
+                            else:
+                                cls._update_meta(it, data_mart.entities_model)
+                    else:
+                        entity_model = data.get('entity_model', None)
+                        if entity_model is not None:
+                            try:
+                                model_class = apps.get_model(it.Meta.model._meta.app_label, str(entity_model))
+                            except LookupError:
+                                pass
+                            else:
+                                cls._update_meta(it, model_class)
+        return it
+
+
+class EntityBulkListSerializer(EntityDynamicMetaMixin,
+                               CheckPermissionsBulkListSerializerMixin,
+                               DynamicFieldsListSerializerMixin,
+                               DynamicCreateUpdateValidateListSerializerMixin,
+                               BulkListSerializer):
+
+    class Meta:
+        model = None
+
+    def __init__(self, *args, **kwargs):
+        super(EntityBulkListSerializer, self).__init__(*args, **kwargs)
+        # make sure that child model is correct
+        if self.Meta.model is not None:
+            self.child.Meta.model = self.Meta.model
+
+
+class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
     """
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
     EntityDetailSerializer.
@@ -50,6 +126,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelS
 
     class Meta:
         model = EntityModel
+        list_serializer_class = EntityBulkListSerializer
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
@@ -238,7 +315,8 @@ class RelatedDataMartSerializer(DataMartCommonSerializer):
         return instance.is_subjective
 
 
-class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
+class EntityDetailSerializerBase(EntityDynamicMetaMixin,
+                                 DynamicFieldsSerializerMixin,
                                  DynamicCreateUpdateValidateSerializerMixin,
                                  EntityCommonSerializer):
     """
@@ -249,58 +327,6 @@ class EntityDetailSerializerBase(DynamicFieldsSerializerMixin,
     related_data_marts = serializers.SerializerMethodField()
 
     extra = serializers.SerializerMethodField()
-
-    _meta_cache = {}
-
-    @staticmethod
-    def _get_meta_class(base, model_class):
-
-        class Meta(base):
-            model = model_class
-
-        return Meta
-
-    @classmethod
-    def _update_meta(cls, it, model_class):
-        key = model_class.__name__
-        meta_class = cls._meta_cache.get(key, None)
-        if meta_class is None:
-            cls._meta_cache[key] = meta_class = EntityDetailSerializerBase._get_meta_class(it.Meta, model_class)
-        setattr(it, 'Meta', meta_class)
-
-    def __new__(cls, *args, **kwargs):
-        it = super(EntityDetailSerializerBase, cls).__new__(cls, *args, **kwargs)
-        if args:
-            cls._update_meta(it, args[0].__class__)
-        else:
-            data = kwargs.get('data', None)
-            if data is not None:
-                context = kwargs.get('context', None)
-                if context is not None:
-                    request = context['request']
-                    data_mart_pk = request.GET.get('data_mart_pk', None)
-                    if data_mart_pk is not None:
-                        # try find data_mart in cache
-                        data_mart = request.GET.get('_data_mart', None)
-                        if data_mart is not None and isinstance(data_mart, DataMartModel):
-                            cls._update_meta(it, data_mart.entities_model)
-                        else:
-                            try:
-                                data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
-                            except DataMartModel.DoesNotExist:
-                                pass
-                            else:
-                                cls._update_meta(it, data_mart.entities_model)
-                    else:
-                        entity_model = data.get('entity_model', None)
-                        if entity_model is not None:
-                            try:
-                                model_class = apps.get_model(it.Meta.model._meta.app_label, str(entity_model))
-                            except LookupError:
-                                pass
-                            else:
-                                cls._update_meta(it, model_class)
-        return it
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
