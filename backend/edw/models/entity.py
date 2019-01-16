@@ -290,6 +290,7 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
     @cached_property
     def characteristics_getter(self):
         tree_opts = TermModel._mptt_meta
+        # todo: Add local cache
         return EntityCharacteristicOrMarkGetter(self._active_terms_for_characteristics, self.additional_characteristics,
                                                 TermModel.attributes.is_characteristic, tree_opts)
 
