@@ -208,18 +208,23 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'summary')
+        # init local cache for calculating attributes
+        self.attributes_ancestors_local_cache = {}
         super(EntitySummarySerializerBase, self).__init__(*args, **kwargs)
 
     def to_representation(self, data):
         """
         Prepare some data for serialization
         """
+        # inject local cache to entity
+        data.attributes_ancestors_local_cache = self.attributes_ancestors_local_cache
         if self.group_by:
             group_size = getattr(data, self.group_size_alias, 0)
             if group_size > 1:
                 queryset = self.context['filter_queryset']
                 group_queryset = queryset.alike(data.id, *self.group_by)
-
+                # inject local cache to entities group
+                group_queryset.attributes_ancestors_local_cache = self.attributes_ancestors_local_cache
                 # patch short_characteristics & short_marks
                 data.short_characteristics = group_queryset.short_characteristics
                 data.short_marks = group_queryset.short_marks

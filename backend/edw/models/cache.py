@@ -73,18 +73,31 @@ class QuerySetCachedResultMixin(object):
     def prepare_for_cache(data):
         return _ReadyForCache(data)
 
+    def _get_from_global_cache(self, key, on_cache_set, timeout):
+
+        result = cache.get(key, empty)
+        if result == empty:
+            result = self.prepare_for_cache(self)
+            cache.set(key, result, timeout)
+            if on_cache_set is not None:
+                on_cache_set(key)
+
+        return result
+
     def cache(self,
               on_cache_set=None,
-              timeout=DEFAULT_CACHE_TIMEOUT):
+              timeout=DEFAULT_CACHE_TIMEOUT,
+              local_cache=None):
         cache_key_attr = getattr(self, '_cache_key_attr', DEFAULT_CACHE_KEY_ATTR)
         key = getattr(self, cache_key_attr, empty)
         if key != empty:
-            result = cache.get(key, empty)
-            if result == empty:
-                result = self.prepare_for_cache(self)
-                cache.set(key, result, timeout)
-                if on_cache_set is not None:
-                    on_cache_set(key)
+            if local_cache is not None:
+                result = local_cache.get(key, empty)
+                if result == empty:
+                    result = self._get_from_global_cache(key, on_cache_set, timeout)
+                    local_cache[key] = result
+            else:
+                result = self._get_from_global_cache(key, on_cache_set, timeout)
         else:
             raise AttributeError(
                 '{cls}.{attr} not found.'.format(
@@ -105,4 +118,3 @@ class _ReadyForCache(QuerySetCachedResultMixin, list):
                 setattr(self, cache_key_attr, cache_key)
 
         super(_ReadyForCache, self).__init__(data)
-

@@ -48,9 +48,6 @@ from ..signals.entity import post_save as entity_post_save
 from .. import settings as edw_settings
 
 
-from datetime import datetime
-
-
 #==============================================================================
 # get_polymorphic_ancestors_models
 #==============================================================================
@@ -290,9 +287,13 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
     @cached_property
     def characteristics_getter(self):
         tree_opts = TermModel._mptt_meta
-        # todo: Add local cache
-        return EntityCharacteristicOrMarkGetter(self._active_terms_for_characteristics, self.additional_characteristics,
-                                                TermModel.attributes.is_characteristic, tree_opts)
+        return EntityCharacteristicOrMarkGetter(
+            self._active_terms_for_characteristics,
+            self.additional_characteristics,
+            TermModel.attributes.is_characteristic,
+            tree_opts,
+            attributes_ancestors_local_cache=getattr(self, 'attributes_ancestors_local_cache', None)
+        )
 
     @cached_property
     def characteristics(self):
@@ -308,8 +309,13 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
     @cached_property
     def marks_getter(self):
         tree_opts = TermModel._mptt_meta
-        return EntityCharacteristicOrMarkGetter(self._active_terms_for_marks, self.additional_marks,
-                                                TermModel.attributes.is_mark, tree_opts)
+        return EntityCharacteristicOrMarkGetter(
+            self._active_terms_for_marks,
+            self.additional_marks,
+            TermModel.attributes.is_mark,
+            tree_opts,
+            attributes_ancestors_local_cache=getattr(self, 'attributes_ancestors_local_cache', None)
+        )
 
     @cached_property
     def marks(self):
@@ -490,12 +496,18 @@ class EntityCharacteristicOrMarkGetter(object):
     """
     Represents a lazy database lookup for a set of attributes.
     """
-    def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts):
+    def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts,
+                 attributes_ancestors_local_cache=None):
+
+        # print (">>> local cache", attributes_ancestors_local_cache)
+
         self.terms = terms
         self.additional_characteristics_or_marks = additional_characteristics_or_marks
         self.attribute_mode = attribute_mode
         self.tree_opts = tree_opts
         self._result_cache = {}
+
+        self.attributes_ancestors_local_cache = attributes_ancestors_local_cache
 
     def all(self, limit=None):
         if limit not in self._result_cache:
@@ -528,11 +540,13 @@ class EntityCharacteristicOrMarkGetter(object):
             cache.delete(old_key)
 
     @staticmethod
-    def _get_attribute_ancestors(term, attribute_mode):
+    def _get_attribute_ancestors(term, attribute_mode, local_cache):
         ancestors = term.get_ancestors(ascending=True, include_self=False).attribute_filter(
             attribute_mode=attribute_mode).select_related('parent').cache(
             on_cache_set=EntityCharacteristicOrMarkGetter.on_attribute_ancestors_cache_set,
-            timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT)
+            timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT,
+            local_cache=local_cache
+        )
         return ancestors
 
     def _get_attributes(self, limit=None):
@@ -545,7 +559,8 @@ class EntityCharacteristicOrMarkGetter(object):
         for term in self.terms:
             if limit and cnt > limit:
                 break
-            ancestors = EntityCharacteristicOrMarkGetter._get_attribute_ancestors(term, self.attribute_mode)
+            ancestors = EntityCharacteristicOrMarkGetter._get_attribute_ancestors(term, self.attribute_mode,
+                                                                                  self.attributes_ancestors_local_cache)
             if ancestors:
                 attr0 = ancestors.pop(0)
                 prev_attr = attr0
@@ -967,8 +982,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def characteristics_getter(self):
         tree_opts = TermModel._mptt_meta
-        return EntityCharacteristicOrMarkGetter(self._active_terms_for_characteristics, self.additional_characteristics,
-                                                TermModel.attributes.is_characteristic, tree_opts)
+        return EntityCharacteristicOrMarkGetter(
+            self._active_terms_for_characteristics,
+            self.additional_characteristics,
+            TermModel.attributes.is_characteristic,
+            tree_opts,
+            attributes_ancestors_local_cache=getattr(self, 'attributes_ancestors_local_cache', None)
+        )
 
     @cached_property
     def characteristics(self):
@@ -984,8 +1004,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def marks_getter(self):
         tree_opts = TermModel._mptt_meta
-        return EntityCharacteristicOrMarkGetter(self._active_terms_for_marks, self.additional_marks,
-                                                TermModel.attributes.is_mark, tree_opts)
+        return EntityCharacteristicOrMarkGetter(
+            self._active_terms_for_marks,
+            self.additional_marks,
+            TermModel.attributes.is_mark,
+            tree_opts,
+            attributes_ancestors_local_cache=getattr(self, 'attributes_ancestors_local_cache', None)
+        )
 
     @cached_property
     def marks(self):
