@@ -96,6 +96,8 @@ class QuerySetCachedResultMixin(object):
                 if result == empty:
                     result = self._get_from_global_cache(key, on_cache_set, timeout)
                     local_cache[key] = result
+                # создаем поверхностную копию что-бы минимизировать возможность "затереть" кеш
+                result = result[:]
             else:
                 result = self._get_from_global_cache(key, on_cache_set, timeout)
         else:
