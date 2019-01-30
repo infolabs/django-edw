@@ -29,6 +29,7 @@ class install(st_install):
                 shutil.copytree(src_dir, dst_dir, symlinks=True)
             if os.path.exists(backend_dir):
                 shutil.rmtree(backend_dir)
+
     def run(self):
         st_install.run(self)
         self.execute(self._post_install, (self.install_lib,),
@@ -58,7 +59,11 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     packages=find_packages(exclude=['docs', 'requirements']),
-    package_dir={'edw': 'backend/edw', 'email_auth': 'backend/email_auth'},
+    package_dir={
+        'edw': 'backend/edw',
+        'email_auth': 'backend/email_auth',
+        'social_extra': 'backend/social_extra',
+    },
     include_package_data=True,
     zip_safe=False,
     cmdclass={'install': install},
@@ -74,5 +79,7 @@ setup(
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
         'django-polymorphic==1.1',
+        'social-auth-app-django==2.1.0',
+        'M2Crypto==0.31.0',
     ],
 )
