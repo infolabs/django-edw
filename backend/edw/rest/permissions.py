@@ -60,24 +60,6 @@ class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
         return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
 
 
-class IsOwnerOrStaffOrSuperuserOrReadOnly(IsReadOnly):
-
-    def has_object_permission(self, request, view, obj):
-        if super(IsOwnerOrStaffOrSuperuserOrReadOnly, self).has_object_permission(request, view, obj):
-            return True
-
-        if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
-            return True
-        else:
-            # Instance must have an attribute named `owner`.
-            return hasattr(obj, 'owner') and obj.owner == request.user
-
-    def has_permission(self, request, view):
-        if super(IsOwnerOrStaffOrSuperuserOrReadOnly, self).has_permission(request, view):
-            return True
-        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
-
-
 # Register class only if `filer` installed
 try:
     from filer.fields.file import FilerFileField
