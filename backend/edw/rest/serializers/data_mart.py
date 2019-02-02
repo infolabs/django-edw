@@ -114,6 +114,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
             data_mart_summary_serializer_class = new_class
         return new_class
 
+
 data_mart_summary_serializer_class = None
 
 
@@ -122,7 +123,8 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
     REMOVE_VIEW_COMPONENT_PREFIX = 'remove_view_component__'
-    
+    REMOVE_ORDERING_MODE_PREFIX = 'remove_ordering_mode__'
+
     ordering_modes = serializers.SerializerMethodField()
     view_components = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
@@ -158,7 +160,20 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
         super(DataMartDetailSerializerBase, self).__init__(*args, **kwargs)
 
     def get_ordering_modes(self, instance):
-        return OrderedDict(instance.entities_model.ORDERING_MODES)
+        ordering_modes = OrderedDict(
+            instance.entities_model.get_ordering_modes(context=self.context)
+        )
+        if instance.view_class:
+            n = len(self.REMOVE_ORDERING_MODE_PREFIX)
+            ordering_modes_to_remove = [
+                x[n:] for x in instance.view_class.split(' ') if x.startswith(self.REMOVE_ORDERING_MODE_PREFIX)
+            ]
+            for name in ordering_modes_to_remove:
+                try:
+                    del ordering_modes[name]
+                except KeyError:
+                    pass
+        return ordering_modes
 
     def get_view_components(self, instance):
         view_components = OrderedDict(
@@ -175,7 +190,7 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
                 except KeyError:
                     pass
         return view_components
-    
+
     def get_rel(self, instance):
         return ['{}{}'.format(relation.term_id, relation.direction) for relation in instance.relations.all()]
 
@@ -345,4 +360,3 @@ class DataMartTreeSerializer(DataMartTreeSerializerBase):
         """
         self._depth = data._depth
         return super(DataMartTreeSerializer, self).to_representation(data)
-

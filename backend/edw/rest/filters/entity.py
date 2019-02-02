@@ -123,6 +123,7 @@ _FIELDS_LABELS = {
     'updated_at': _("Updated at"),
 }
 
+
 def _format_label(*args):
     return '{} ({})'.format(*args)
 
@@ -316,10 +317,10 @@ class EntityMetaFilter(BaseFilterBackend):
                 # Perform the lookup filtering.
                 lookup_url_kwarg = view.lookup_url_kwarg or view.lookup_field
                 assert lookup_url_kwarg in view.kwargs, (
-                        'Expected view %s to be called with a URL keyword argument '
-                        'named "%s". Fix your URL conf, or set the `.lookup_field` '
-                        'attribute on the view correctly.' %
-                        (view.__class__.__name__, lookup_url_kwarg)
+                    'Expected view %s to be called with a URL keyword argument '
+                    'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                    'attribute on the view correctly.' %
+                    (view.__class__.__name__, lookup_url_kwarg)
                 )
                 filter_kwargs = {view.lookup_field: view.kwargs[lookup_url_kwarg]}
                 obj = get_object_or_404(queryset, **filter_kwargs)
@@ -344,7 +345,7 @@ class EntityMetaFilter(BaseFilterBackend):
                             annotation_meta[key] = (annotate, field, name)
                     else:
                         assert isinstance(value, BaseExpression), (
-                "value getting from dictionary key '%s' should be instance of a class or of a subclass `BaseExpression`"
+            "value getting from dictionary key '%s' should be instance of a class or of a subclass `BaseExpression`"
                                 % key
                         )
                         annotate_kwargs[key] = value
@@ -491,7 +492,7 @@ class EntityOrderingFilter(OrderingFilter):
     def get_ordering(self, request, queryset, view):
         data_mart = request.GET['_data_mart']
         if data_mart is not None:
-            self._extra_ordering = data_mart.entities_model.ORDERING_MODES
+            self._extra_ordering = data_mart.entities_model.get_ordering_modes(context={'request': request})
             setattr(view, 'ordering', data_mart.ordering.split(','))
         result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
         request.GET['_ordering'] = result
@@ -508,4 +509,3 @@ class EntityOrderingFilter(OrderingFilter):
             fields.update(dict(valid_fields))
             result = fields.items()
         return result
-
