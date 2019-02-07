@@ -8,6 +8,8 @@ from django.utils import formats
 from django.utils.dateformat import time_format
 from django.utils.dateformat import format as date_format
 
+from edw.utils.set_helpers import uniq as _uniq
+
 
 def from_iso8601(value):
     try:
@@ -79,6 +81,34 @@ def to_list(value):
 def zip_lists(lists):
     for item in zip(*lists):
         yield item
+
+
+def flatten(data):
+    '''
+    Flattens a nested array, the array will only be flattened a single level.
+    :param data:
+    :return:
+    '''
+    return tuple(j for i in data for j in (i if isinstance(i, (tuple, list)) else (i,)))
+
+
+def union(data):
+    '''
+    Computes the union of the passed-in arrays: the list of unique items, in order,
+    that are present in one or more of the arrays
+    :param data:
+    :return:
+    '''
+    return _uniq(flatten(data))
+
+def uniq(data):
+    '''
+    Produces a duplicate-free version of the array, using === to test object equality.
+    In particular only the first occurrence of each value is kept.
+    :param data:
+    :return:
+    '''
+    return _uniq(data)
 
 
 def append_value(data, value):
