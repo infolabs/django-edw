@@ -166,8 +166,10 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
         :param fix_it: do fix terms tree on decompress
         :return: similar entity on None
         """
+        ids = TermModel.get_all_active_root_ids(use_cache=use_cached_decompress)
+        ids.extend(value)
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
-        terms_tree = decompress(value, fix_it=fix_it)
+        terms_tree = decompress(ids, fix_it=fix_it)
         lvl_expr = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
         similar_entities_ids = self.values_list('id', flat=True)
         similar_entities = EntityModel.objects.filter(
@@ -498,15 +500,11 @@ class EntityCharacteristicOrMarkGetter(object):
     """
     def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts,
                  attributes_ancestors_local_cache=None):
-
-        # print (">>> local cache", attributes_ancestors_local_cache)
-
         self.terms = terms
         self.additional_characteristics_or_marks = additional_characteristics_or_marks
         self.attribute_mode = attribute_mode
         self.tree_opts = tree_opts
         self._result_cache = {}
-
         self.attributes_ancestors_local_cache = attributes_ancestors_local_cache
 
     def all(self, limit=None):

@@ -211,6 +211,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     ALL_ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY = 't_mrk_ds_ids'
     ALL_ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_all_attribute_descendants_ids']
 
+    ALL_ACTIVE_ROOT_IDS_CACHE_KEY = 't_a_r_ids'
+    ALL_ACTIVE_ROOT_IDS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_all_active_root_ids']
+
     SELECT_RELATED_CACHE_KEY_PATTERN = '{fields}:sr'
 
     ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 't_a_anc_bf'
@@ -513,6 +516,15 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                 descendants_ids = []
             cache.set(key, descendants_ids, BaseTerm.ALL_ATTRIBUTE_DESCENDANTS_IDS_CACHE_TIMEOUT)
         return descendants_ids
+
+    @staticmethod
+    def get_all_active_root_ids(use_cache=True):
+        key = BaseTerm.ALL_ACTIVE_ROOT_IDS_CACHE_KEY
+        root_ids = cache.get(key, None) if use_cache else None
+        if root_ids is None:
+            root_ids = list(TermModel.objects.active().filter(parent=None).order_by().values_list('id', flat=True))
+            cache.set(key, root_ids, BaseTerm.ALL_ACTIVE_ROOT_IDS_CACHE_TIMEOUT)
+        return root_ids
 
 
 #==============================================================================

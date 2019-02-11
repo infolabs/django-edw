@@ -26,6 +26,7 @@ CACHE_DURATIONS = {
     'term_ancestors': 3600,
     'term_all_attribute_descendants_ids': 3600,
     'term_attribute_ancestors': 3600,
+    'term_all_active_root_ids': 3600,
 
     'entity_html_snippet': 86400,
     'entity_terms_ids': 3600,
