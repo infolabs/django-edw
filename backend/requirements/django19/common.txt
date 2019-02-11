@@ -53,3 +53,4 @@ elasticsearch==1.9.0
 geopy==1.11.0
 social-auth-app-django==2.1.0
 pymorton==1.0.5
+M2Crypto==0.31.0
