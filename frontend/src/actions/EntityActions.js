@@ -28,6 +28,7 @@ function opts2gets(options = {}) {
 
 
 export function getEntityItem(data, meta=false) {
+  data.entity_url = data.entity_url.replace(/\.html$/,'.json');
   let url = reCache(data.entity_url);
   if (meta) {
     const opts = {
