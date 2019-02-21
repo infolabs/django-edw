@@ -29,7 +29,7 @@ from rest_framework.reverse import reverse
 
 from ipware import ip
 
-from . import deferred
+from .. import deferred
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .term import TermModel
 from .data_mart import DataMartModel
@@ -369,7 +369,7 @@ class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
         return self.active()
 
 
-class PolymorphicEntityMetaclass(PolymorphicModelBase, RESTModelBase):
+class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTModelBase):
     """
     The BaseEntity class must refer to their materialized model definition, for instance when
     accessing its model manager. Since polymoriphic object classes, normally are materialized
@@ -377,55 +377,6 @@ class PolymorphicEntityMetaclass(PolymorphicModelBase, RESTModelBase):
     MaterializedModel with it.
     For instance,``EntityModel.objects.all()`` returns all available objects from the edw.
     """
-    def __new__(cls, name, bases, attrs):
-
-        class Meta:
-            app_label = edw_settings.APP_LABEL
-
-        attrs.setdefault('Meta', Meta)
-        if not hasattr(attrs['Meta'], 'app_label') and not getattr(attrs['Meta'], 'abstract', False):
-            attrs['Meta'].app_label = Meta.app_label
-        attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
-
-        Model = super(PolymorphicEntityMetaclass, cls).__new__(cls, name, bases, attrs)
-        if Model._meta.abstract:
-            return Model
-        for baseclass in bases:
-            # since an abstract base class does not have no valid model.Manager,
-            # refer to it via its materialized Entity model.
-            if not isinstance(baseclass, cls):
-                continue
-            basename = baseclass.__name__
-            try:
-                if issubclass(baseclass._materialized_model, Model):
-                    # as the materialized model, use the most generic one
-                    baseclass._materialized_model = Model
-                elif not issubclass(Model, baseclass._materialized_model):
-                    raise ImproperlyConfigured("Abstract base class {} has already been associated "
-                        "with a model {}, which is different or not a submodel of {}."
-                        .format(name, Model, baseclass._materialized_model))
-            except (AttributeError, TypeError):
-                deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
-                # remember the materialized model mapping in the base class for further usage
-                baseclass._materialized_model = Model
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
-
-        # search for deferred foreign fields in our Model
-        for attrname in dir(Model):
-            try:
-                member = getattr(Model, attrname)
-            except AttributeError:
-                continue
-            if not isinstance(member, deferred.DeferredRelatedField):
-                continue
-            map_model = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-            if map_model:
-                field = member.MaterializedField(map_model, **member.options)
-                field.contribute_to_class(Model, attrname)
-            else:
-                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
-        Model.perform_model_checks(Model)
-        return Model
 
     @classmethod
     def perform_model_checks(cls, Model):

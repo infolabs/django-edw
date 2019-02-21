@@ -22,7 +22,7 @@ from mptt.exceptions import InvalidMove
 
 from bitfield import BitField
 
-from . import deferred
+from .. import deferred
 from .mixins.term.semantic_rule import (OrRuleFilterMixin, AndRuleFilterMixin,)
 from .mixins.rebuild_tree import RebuildTreeMixin
 from .cache import add_cache_key, QuerySetCachedResultMixin
@@ -120,61 +120,11 @@ class BaseTermManager(RebuildTreeMixin, TreeManager.from_queryset(BaseTermQueryS
 #==============================================================================
 # BaseTermMetaclass
 #==============================================================================
-class BaseTermMetaclass(MPTTModelBase):
+class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
     """
     The BaseTerm class must refer to their materialized model definition, for instance when
     accessing its model manager.
     """
-    def __new__(cls, name, bases, attrs):
-
-        class Meta:
-            app_label = edw_settings.APP_LABEL
-
-        attrs.setdefault('Meta', Meta)
-        if not hasattr(attrs['Meta'], 'app_label') and not getattr(attrs['Meta'], 'abstract', False):
-            attrs['Meta'].app_label = Meta.app_label
-        attrs.setdefault('__module__', getattr(bases[-1], '__module__'))
-
-        Model = super(BaseTermMetaclass, cls).__new__(cls, name, bases, attrs)
-        if Model._meta.abstract:
-            return Model
-        for baseclass in bases:
-            # classes which materialize an abstract model are added to a mapping dictionary
-            basename = baseclass.__name__
-            try:
-                if not issubclass(Model, baseclass) or not baseclass._meta.abstract:
-                    raise ImproperlyConfigured("Base class %s is not abstract." % basename)
-            except (AttributeError, NotImplementedError):
-                pass
-            else:
-                if basename in deferred.ForeignKeyBuilder._materialized_models:
-                    if Model.__name__ != deferred.ForeignKeyBuilder._materialized_models[basename]:
-                        raise AssertionError("Both Model classes '%s' and '%s' inherited from abstract"
-                            "base class %s, which is disallowed in this configuration." %
-                            (Model.__name__, deferred.ForeignKeyBuilder._materialized_models[basename], basename))
-                elif isinstance(baseclass, cls):
-                    deferred.ForeignKeyBuilder._materialized_models[basename] = Model.__name__
-                    # remember the materialized model mapping in the base class for further usage
-                    baseclass._materialized_model = Model
-            deferred.ForeignKeyBuilder.process_pending_mappings(Model, basename)
-
-        # search for deferred foreign fields in our Model
-        for attrname in dir(Model):
-            try:
-                member = getattr(Model, attrname)
-            except AttributeError:
-                continue
-            if not isinstance(member, deferred.DeferredRelatedField):
-                continue
-            map_model = deferred.ForeignKeyBuilder._materialized_models.get(member.abstract_model)
-            if map_model:
-                field = member.MaterializedField(map_model, **member.options)
-                field.contribute_to_class(Model, attrname)
-            else:
-                deferred.ForeignKeyBuilder._pending_mappings.append((Model, attrname, member,))
-        Model.perform_model_checks(Model)
-        return Model
-
     @classmethod
     def perform_model_checks(cls, Model):
         """

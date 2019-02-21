@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 from django.utils.six import with_metaclass
 
-from . import deferred
+from .. import deferred
 from .term import TermModel
 
 

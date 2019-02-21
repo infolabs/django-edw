@@ -10,7 +10,7 @@ from django.db import models
 
 from filer.fields.file import FilerFileField
 
-from edw.models import deferred
+from edw import deferred
 
 
 #==============================================================================
