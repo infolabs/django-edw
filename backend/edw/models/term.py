@@ -6,7 +6,7 @@ from functools import reduce
 
 from six import with_metaclass
 
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.cache import cache
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q, F
