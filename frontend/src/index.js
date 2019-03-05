@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import configureStore from 'store/configureStore';
 import Root from 'components/Root';
 
-import Singleton from 'singleton-js-es6';
+import Singleton from 'utils/singleton';
 
 // => returns compiled css code from style.less, resolves imports and url(...)s
 var css = require("!style!raw!less!./less/styles.less");
