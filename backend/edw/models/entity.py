@@ -7,7 +7,7 @@ import re
 from operator import __or__ as OR
 from functools import reduce
 
-from django.core.exceptions import ImproperlyConfigured, FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
 from django.db.models.sql.datastructures import EmptyResultSet
