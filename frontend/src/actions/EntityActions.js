@@ -1,4 +1,3 @@
-import Singleton from 'singleton-js-es6';
 import {
     LOAD_ENTITY_ITEM,
     LOAD_ENTITIES,
@@ -10,6 +9,7 @@ import {
     SELECT_DROPDOWN,
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
+import Singleton from '../utils/singleton';
 
 
 const globalStore = new Singleton();

@@ -1,4 +1,3 @@
-import Singleton from 'singleton-js-es6';
 import {
     LOAD_ITEM,
     LOAD_TREE,
@@ -11,6 +10,7 @@ import {
     NOTIFY_LOADING,
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
+import Singleton from '../utils/singleton';
 
 
 const globalStore = new Singleton();
