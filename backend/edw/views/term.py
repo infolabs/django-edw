@@ -16,6 +16,8 @@ from rest_framework.permissions import IsAdminUser
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
+from rest_framework_bulk.generics import BulkModelViewSet
+
 from edw.rest.serializers.term import (
     TermSerializer,
     TermSummarySerializer,
@@ -26,9 +28,12 @@ from edw.rest.filters.term import TermFilter
 from edw.models.term import TermModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import TermPagination
+from edw.rest.permissions import IsSuperuserOrReadOnly
 
 
-class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
+
+# class TermViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
+class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
     Additional actions:
@@ -39,7 +44,15 @@ class TermViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
     custom_serializer_classes = {
         'list':  TermSummarySerializer,
         'retrieve':  TermDetailSerializer,
+
+        'create': TermDetailSerializer,
+        'update': TermDetailSerializer,
+        'partial_update': TermDetailSerializer,
+        'partial_bulk_update': TermDetailSerializer,
+        'bulk_destroy': TermSerializer
     }
+
+    permission_classes = [IsSuperuserOrReadOnly]
 
     filter_class = TermFilter
     filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter,)

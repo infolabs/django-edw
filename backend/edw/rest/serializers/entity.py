@@ -127,7 +127,6 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixi
     class Meta:
         model = EntityModel
         list_serializer_class = EntityBulkListSerializer
-        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
 

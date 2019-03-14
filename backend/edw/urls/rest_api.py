@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url, include
 
-# from rest_framework_nested import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from edw.views.term import TermViewSet
@@ -31,7 +30,7 @@ data_mart_nested_router.register(r'children', DataMartViewSet, base_name='data-m
 data_mart_nested_router.register(r'terms', TermViewSet, base_name='data-mart-term')
 data_mart_nested_router.register(r'entities', EntityViewSet, base_name='data-mart-entity')
 
-term_nested_router = routers.NestedSimpleRouter(router, r'terms', lookup='term')
+term_nested_router = routers.NestedSimpleBulkRouter(router, r'terms', lookup='term')
 term_nested_router.register(r'children', TermViewSet, base_name='term-children')
 
 entity_nested_router = routers.NestedSimpleBulkRouter(router, r'entities', lookup='entity')
