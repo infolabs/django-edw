@@ -39,7 +39,7 @@ class TermValidator(object):
 
     def __call__(self, attrs):
 
-        # print (">>>VAlidate attrs<<<",  attrs)
+        print (">>>VAlidate attrs<<<",  attrs)
 
         validated_data = dict(attrs)
         if self.instance is not None:
@@ -66,19 +66,18 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     """
     A simple serializer to convert the terms data for rendering.
     """
-
-    #slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
-    #path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
-    #semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
-    #specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES)
-    #active = serializers.BooleanField()
-    #description = serializers.CharField(read_only=True)
-
     name = serializers.CharField()
-    parent_id = serializers.IntegerField(allow_null=True)
+    parent_id = serializers.IntegerField(allow_null=True, required=False)
+    slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
+    path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
+    semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES, required=False)
+    specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES, required=False)
+    active = serializers.BooleanField(required=False, default=True)
+    description = serializers.CharField(read_only=True)
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=True, write_only=True)
 
     class Meta:
         model = TermModel
@@ -86,20 +85,24 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
         validators = [TermValidator(model)]
 
     def create(self, validated_data):
+
         print ("*** create ***", validated_data)
+
         result = super(TermSerializer, self).create(validated_data)
+
         print (">>>", result)
+
         return result
 
     def update(self, instance, validated_data):
 
-        # instance.parent_id = validated_data.get('parent_id', instance.parent_id)
+        instance.parent_id = validated_data.get('parent_id', instance.parent_id)
 
-        # print ("*** update ***", instance, validated_data)
+        print ("*** update ***", instance, validated_data)
 
         result = super(TermSerializer, self).update(instance, validated_data)
 
-        # print ("*** update >>>", result)
+        print ("*** update >>>", result)
 
         return result
 
