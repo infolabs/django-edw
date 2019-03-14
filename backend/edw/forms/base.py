@@ -5,7 +5,7 @@ from formtools.wizard.views import normalize_name
 from django.forms import fields
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
-from cms.utils.helpers import classproperty
+from edw.utils.common import classproperty
 from djng.forms import NgModelFormMixin, NgFormValidationMixin
 from djng.styling.bootstrap3.forms import Bootstrap3Form, Bootstrap3ModelForm
 
