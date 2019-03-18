@@ -3,41 +3,108 @@ from __future__ import unicode_literals
 
 
 from django.core.cache import cache
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 
 from rest_framework import serializers
+from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
+from rest_framework.compat import unicode_to_repr
+
 from rest_framework_recursive.fields import RecursiveField
+
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 
 
-class TermSerializer(serializers.HyperlinkedModelSerializer):
+class TermValidator(object):
+    """
+    Term Validator
+    """
+    def __init__(self, model):
+        self.model = model
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, 'instance', None)
+
+    def __call__(self, attrs):
+
+        print (">>>VAlidate attrs<<<",  attrs)
+
+        validated_data = dict(attrs)
+        if self.instance is not None:
+            validated_data.pop('id', None)
+
+        try:
+            # print (">>>>!!!1")
+            self.model(**validated_data).full_clean()
+            # print (">>>>!!!2")
+        except ObjectDoesNotExist as e:
+            raise exceptions.NotFound(e)
+        except ValidationError as e:
+            raise serializers.ValidationError(e)
+
+        # print (">>>> POST VALIDATE")
+
+    def __repr__(self):
+        return unicode_to_repr('<%s>' % (
+            self.__class__.__name__
+        ))
+
+
+class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     """
     A simple serializer to convert the terms data for rendering.
     """
-    #name = serializers.CharField(read_only=True)
-    #slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
-    #path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
-    #semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES)
-    #specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES)
-    #active = serializers.BooleanField()
-    #description = serializers.CharField(read_only=True)
-
-    parent_id = serializers.SerializerMethodField()
+    name = serializers.CharField()
+    parent_id = serializers.IntegerField(allow_null=True, required=False)
+    slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
+    path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
+    semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES, required=False)
+    specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES, required=False)
+    active = serializers.BooleanField(required=False, default=True)
+    description = serializers.CharField(read_only=True)
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=True, write_only=True)
 
     class Meta:
         model = TermModel
-        extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
+        list_serializer_class = BulkListSerializer
+        validators = [TermValidator(model)]
 
-    def get_parent_id(self, instance):
-        return instance.parent_id
+    def create(self, validated_data):
+
+        print ("*** create ***", validated_data)
+
+        result = super(TermSerializer, self).create(validated_data)
+
+        print (">>>", result)
+
+        return result
+
+    def update(self, instance, validated_data):
+
+        instance.parent_id = validated_data.get('parent_id', instance.parent_id)
+
+        print ("*** update ***", instance, validated_data)
+
+        result = super(TermSerializer, self).update(instance, validated_data)
+
+        print ("*** update >>>", result)
+
+        return result
 
     def get_is_leaf(self, instance):
         return instance.is_leaf_node()
@@ -47,6 +114,9 @@ class TermSerializer(serializers.HyperlinkedModelSerializer):
             return ''
         return mark_safe(
             Truncator(Truncator(instance.description).words(10, truncate=" ...")).chars(80, truncate="..."))
+
+    def get_url(self, instance):
+        return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
 
 
 

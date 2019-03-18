@@ -22,6 +22,8 @@ from mptt.exceptions import InvalidMove
 
 from bitfield import BitField
 
+from rest_framework.reverse import reverse
+
 from .. import deferred
 from .mixins.term.semantic_rule import (OrRuleFilterMixin, AndRuleFilterMixin,)
 from .mixins.rebuild_tree import RebuildTreeMixin
@@ -475,6 +477,13 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
             root_ids = list(TermModel.objects.active().filter(parent=None).order_by().values_list('id', flat=True))
             cache.set(key, root_ids, BaseTerm.ALL_ACTIVE_ROOT_IDS_CACHE_TIMEOUT)
         return root_ids
+
+    def get_absolute_url(self, request=None, format=None):
+        """
+        Return the absolute URL of a entity
+        """
+        return reverse('edw:{}-detail'.format(self.__class__._meta.model_name.lower()), kwargs={'pk': self.pk},
+                       request=request, format=format)
 
 
 #==============================================================================
