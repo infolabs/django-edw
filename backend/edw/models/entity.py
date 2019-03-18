@@ -60,10 +60,6 @@ def get_polymorphic_ancestors_models(ChildModel):
         if isinstance(Model, PolymorphicModelBase):
             if not Model._meta.abstract:
                 ancestors.append(Model)
-            else:
-                break
-        else:
-            continue
     return reversed(ancestors)
 
 
