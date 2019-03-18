@@ -18,7 +18,7 @@ except ImportError:
 
 class install(st_install):
     def _post_install(self, lib_dir):
-        packages = ('edw', 'email_auth')
+        packages = ('edw', 'email_auth', 'social_extra')
         backend_dir = os.path.join(lib_dir, 'backend')
         if os.path.exists(backend_dir):
             for package in packages:
