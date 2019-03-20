@@ -31,8 +31,6 @@ from edw.rest.pagination import TermPagination
 from edw.rest.permissions import IsSuperuserOrReadOnly
 
 
-
-# class TermViewSet(CustomSerializerViewSetMixin, viewsets.ModelViewSet):
 class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
@@ -63,7 +61,21 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
+
+        print ("%%%%%%%")
+
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
+
+    def get_object(self):
+
+        print (">>> Get Object")
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        if lookup_url_kwarg in self.kwargs:
+            print ("+++++!!!!++++++", lookup_url_kwarg)
+
+        return super(TermViewSet, self).get_object()
 
     @list_route(filter_backends=())
     def tree(self, request, data_mart_pk=None, term_pk=None, format=None):
@@ -81,7 +93,6 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         data_mart_pk = request.GET.get('data_mart_pk', data_mart_pk)
         if data_mart_pk is not None:
             context["data_mart_pk"] = data_mart_pk
-
 
         if term_pk is not None:
             request.GET.setdefault('parent_id', term_pk)

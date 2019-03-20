@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 
 from django.core.cache import cache
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
@@ -44,6 +44,20 @@ class TermValidator(object):
         validated_data = dict(attrs)
         if self.instance is not None:
             validated_data.pop('id', None)
+        else:
+            id = validated_data.get('id', None)
+
+            print (">>>>--", id)
+
+
+        parent__slug = validated_data.pop('parent__slug', None)
+        if parent__slug is not None:
+            try:
+                TermModel.objects.get(slug=parent__slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                raise exceptions.NotFound(e)
+
+        print (">>>> parent__slug", parent__slug)
 
         try:
             # print (">>>>!!!1")
@@ -54,7 +68,7 @@ class TermValidator(object):
         except ValidationError as e:
             raise serializers.ValidationError(e)
 
-        # print (">>>> POST VALIDATE")
+        print (">>>> POST VALIDATE")
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -84,9 +98,27 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
         list_serializer_class = BulkListSerializer
         validators = [TermValidator(model)]
 
+    def _prepare_validated_data(self, validated_data):
+
+        parent__slug = validated_data.pop('parent__slug', None)
+        if parent__slug is not None:
+            try:
+                parent = TermModel.objects.get(slug=parent__slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                pass
+            else:
+                validated_data['parent_id'] = parent.id
+
+        return validated_data
+
     def create(self, validated_data):
 
+        validated_data = self._prepare_validated_data(validated_data)
+
         print ("*** create ***", validated_data)
+
+
+
 
         result = super(TermSerializer, self).create(validated_data)
 
@@ -96,7 +128,9 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        instance.parent_id = validated_data.get('parent_id', instance.parent_id)
+        # instance.parent_id = validated_data.get('parent_id', instance.parent_id)
+
+        validated_data = self._prepare_validated_data(validated_data)
 
         print ("*** update ***", instance, validated_data)
 
@@ -126,7 +160,8 @@ class TermDetailSerializer(TermSerializer):
     '''
     class Meta(TermSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'path', 'semantic_rule', 'specification_mode', 'url', 'active',
-                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes', 'is_leaf')
+                  'description', 'view_class', 'created_at', 'updated_at', 'level', 'attributes', 'is_leaf',
+                  'parent__slug')
 
 
 class TermSummarySerializer(TermSerializer):
