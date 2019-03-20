@@ -76,7 +76,7 @@ class FSMMixin(object):
     def validate_term_model(cls):
         super(FSMMixin, cls).validate_term_model()
 
-        if cls._meta.get_field('status').model == cls:
+        if not cls._meta.abstract and cls._meta.get_field('status').model == cls:
             system_flags = _default_system_flags_restriction
 
             model_root_term = get_or_create_model_class_wrapper_term(cls)
