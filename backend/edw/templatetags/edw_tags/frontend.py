@@ -72,7 +72,7 @@ def jsondumps(value):
 class AddToSingletonJs(Tag):
     name = 'addtosingeltonjs'
 
-    BEFORE = """<script type="text/javascript">
+    BEFORE = """<script>
 var _key = "_global_singleton_instance",
     instance = window[_key];
 !instance && (instance = window[_key] = {});"""
