@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
 
 from edw import settings as edw_settings
+from edw.utils.hash_helpers import get_cookie_setting
 
 
 class EDWLimitOffsetPagination(LimitOffsetPagination):
@@ -39,3 +40,7 @@ class TermPagination(EDWLimitOffsetPagination):
 class EntityPagination(EDWLimitOffsetPagination):
     default_limit = edw_settings.REST_PAGINATION['entity_default_limit']
     max_limit = edw_settings.REST_PAGINATION['entity_max_limit']
+
+    def get_limit(self, request):
+        limit = get_cookie_setting(request, "limit")
+        return int(limit) if limit else super(EntityPagination, self).get_limit(request)

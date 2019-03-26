@@ -10,7 +10,7 @@ import Tile from 'components/BaseEntities/Tile';
 import Map from 'components/BaseEntities/Map';
 import YMap from 'components/BaseEntities/YMap';
 import parseRequestParams from 'utils/parseRequestParams';
-import hashCode from "../utils/hashUtils";
+import cookieKey from "../utils/hashUtils";
 
 
 class BaseEntities extends Component {
@@ -39,7 +39,7 @@ class BaseEntities extends Component {
   getCookiePreferences() {
     const entry_point_id = this.props.entry_point_id,
           cookie_data = cookie.loadAll(),
-          prefix = `dm_${entry_point_id}_${hashCode(document.location.pathname)}_`;
+          prefix = cookieKey(entry_point_id, document.location.pathname, '');
 
     let preferences = {};
 
@@ -49,6 +49,7 @@ class BaseEntities extends Component {
         preferences[meta_key] = decodeURI(cookie_data[k]);
       }
     }
+
     return preferences;
   }
 

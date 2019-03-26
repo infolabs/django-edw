@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-// import ReactDOM from 'react-dom';
-import cookie from 'react-cookies'
-import hashCode from '../utils/hashUtils';
+import cookie from 'react-cookies';
+import cookieKey from '../utils/hashUtils';
 
 
 export default class BtnGroup extends Component {
@@ -31,7 +30,7 @@ export default class BtnGroup extends Component {
     e.stopPropagation();
     const { entry_point_id, request_var  } = this.props;
     this.selectItem(value);
-    const cookie_key = `dm_${entry_point_id}_${hashCode(document.location.pathname)}_${request_var}`;
+    const cookie_key = cookieKey(entry_point_id, document.location.pathname, request_var);
     let expires = new Date();
     expires.setTime(expires.getTime() + 2592000000); // 2592000000 = 30 * 24 * 60 * 60 * 1000
     cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });
@@ -46,16 +45,14 @@ export default class BtnGroup extends Component {
           (k, i) => {
             const is_selected = options[k] == selected;
             return <a
-                      key={i}
-                      onClick={(e) => { is_selected ? null : ::this.handleOptionClick(e, k) } }
-                      className={"ex-btn ex-btn-default " + k + (is_selected ? ' active' : '')}
-                  >
-                    <i className="ex-icon-slug"></i><span>{options[k]}</span>
-                  </a>
+                     key={i}
+                     onClick={(e) => { is_selected ? null : ::this.handleOptionClick(e, k); } }
+                     className={"ex-btn ex-btn-default " + k + (is_selected ? ' active' : '')}
+                   >
+                     <i className="ex-icon-slug"></i><span>{options[k]}</span>
+                   </a>;
           }
         )}
-
-
       </div>
     );
 
