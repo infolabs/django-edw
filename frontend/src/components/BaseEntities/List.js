@@ -52,7 +52,7 @@ class ListItem extends Component {
 
   handleMouseClick(e) {
     const { data, actions, meta } = this.props;
-    if (data.extra.group_size) {
+    if (data.extra && data.extra.group_size) {
       actions.notifyLoadingEntities();
       actions.expandGroup(data.id, meta);
       e.preventDefault();
@@ -86,10 +86,10 @@ class ListItem extends Component {
 
           actions.showDescription(id);
 
-          if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
+          if ((data.extra && data.extra.group_size) && !meta.alike && !descriptions.groups[id])
             actions.getEntityItem(data, meta);
 
-          if (!data.extra.group_size && !descriptions[id])
+          if ((data.extra && !data.extra.group_size) && !descriptions[id])
             actions.getEntityItem(data);
 
         } else {

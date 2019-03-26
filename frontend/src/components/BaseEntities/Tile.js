@@ -44,7 +44,7 @@ class TileItem extends Component {
 
   handleMouseClick(e) {
     const { data, actions, meta } = this.props;
-    if (data.extra.group_size) {
+    if (data.extra && data.extra.group_size) {
       actions.notifyLoadingEntities();
       actions.expandGroup(data.id, meta);
       e.preventDefault();
@@ -59,10 +59,10 @@ class TileItem extends Component {
     if (this.getIsHover(e.clientX, e.clientY)) {
       actions.showDescription(id);
 
-      if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
+      if (data.extra && data.extra.group_size && !meta.alike && !descriptions.groups[id])
         actions.getEntityItem(data, meta);
 
-      if (!data.extra.group_size && !descriptions[id])
+      if ((data.extra && !data.extra.group_size) && !descriptions[id])
         actions.getEntityItem(data);
     } else {
       actions.hideDescription(id);
@@ -122,9 +122,11 @@ class TileItem extends Component {
     }
 
     let annotations = {};
-    for (const [key, val] of Object.entries(data.extra)) {
-      if (val instanceof Object && 'name' in val && 'value' in val)
-        annotations[key] = val;
+    if (data.extra) {
+      for (const [key, val] of Object.entries(data.extra)) {
+        if (val instanceof Object && 'name' in val && 'value' in val)
+          annotations[key] = val;
+      }
     }
 
     let description_baloon;
