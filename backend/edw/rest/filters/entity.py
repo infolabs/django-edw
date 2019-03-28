@@ -28,6 +28,7 @@ from edw.models.rest import (
 )
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
+from edw.utils.hash_helpers import get_cookie_setting
 
 from .common import NumberInFilter
 
@@ -494,7 +495,12 @@ class EntityOrderingFilter(OrderingFilter):
         if data_mart is not None:
             self._extra_ordering = data_mart.entities_model.get_ordering_modes(context={'request': request})
             setattr(view, 'ordering', data_mart.ordering.split(','))
-        result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
+        ordering = get_cookie_setting(request, "ordering")
+        if ordering:
+            # %2C is an ASCII keycode in hexadecimal for a comma
+            result = ordering.split("%2C")
+        else:
+            result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
         request.GET['_ordering'] = result
         return result
 

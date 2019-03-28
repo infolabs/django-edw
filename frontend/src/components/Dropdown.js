@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import cookie from 'react-cookies'
-import hashCode from "../utils/hashUtils";
+import cookie from 'react-cookies';
+import cookieKey from "../utils/hashUtils";
 
 
 export default class Dropdown extends Component {
@@ -40,7 +40,7 @@ export default class Dropdown extends Component {
     if (!area.contains(e.target) && open) {
       e.preventDefault();
       e.stopPropagation();
-      this.props.actions.toggleDropdown(name);
+      actions.toggleDropdown(name);
     }
   };
 
@@ -49,8 +49,8 @@ export default class Dropdown extends Component {
     e.stopPropagation();
     const { entry_point_id, request_var  } = this.props;
     this.selectItem(value);
-    const cookie_key = `dm_${entry_point_id}_${hashCode(document.location.pathname)}_${request_var}`;
-    let expires = new Date();   
+    const cookie_key = cookieKey(entry_point_id, document.location.pathname, request_var);
+    let expires = new Date();
     expires.setTime(expires.getTime() + 2592000000); // 2592000000 = 30 * 24 * 60 * 60 * 1000
     cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });
   }
@@ -58,8 +58,8 @@ export default class Dropdown extends Component {
   handleSelectedClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { actions, name, open } = this.props;
-    this.props.actions.toggleDropdown(name);
+    const { actions, name } = this.props;
+    actions.toggleDropdown(name);
   }
 
   render() {
@@ -75,12 +75,12 @@ export default class Dropdown extends Component {
         <div className="ex-sort-dropdown">
           <a href="#"
              className="ex-btn ex-btn-default"
-             onClick={(e) => { ::this.handleSelectedClick(e) } }>
+             onClick={(e) => { ::this.handleSelectedClick(e); } }>
             {selected}<span className="ex-icon-caret-down"></span>
           </a>
           <ul className={open ? "ex-dropdown-menu2": "ex-dropdown-menu2 ex-dropdown-hide"}>
             {Object.keys(opts).map(
-              (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k) } }>
+              (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k); } }>
                 <a href="#" key={i}>{options[k]}</a>
               </li>
             )}
