@@ -692,9 +692,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='entities', verbose_name=_('Terms'), blank=True)
 
-    created_at = models.DateTimeField(default=timezone.now, verbose_name=_("Created at"))
+    created_at = models.DateTimeField(default=timezone.now, db_index=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
-    active = models.BooleanField(default=True, verbose_name=_("Active"),
+    active = models.BooleanField(default=True, verbose_name=_("Active"), db_index=True,
         help_text=_("Is this object publicly visible."))
 
     additional_characteristics_or_marks = deferred.ManyToManyField('BaseTerm',

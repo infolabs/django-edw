@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.core import urlresolvers
 
-from rest_framework import viewsets, filters
+from rest_framework import filters
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
@@ -61,21 +61,7 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
-
-        print ("%%%%%%%")
-
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
-
-    def get_object(self):
-
-        print (">>> Get Object")
-
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-
-        if lookup_url_kwarg in self.kwargs:
-            print ("+++++!!!!++++++", lookup_url_kwarg)
-
-        return super(TermViewSet, self).get_object()
 
     @list_route(filter_backends=())
     def tree(self, request, data_mart_pk=None, term_pk=None, format=None):

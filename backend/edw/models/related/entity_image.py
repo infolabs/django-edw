@@ -23,7 +23,7 @@ class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
     image = image.FilerImageField(verbose_name=_('Image'))
     entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
-    order = models.SmallIntegerField(default=0, blank=False, null=False)
+    order = models.SmallIntegerField(default=0, blank=False, null=False, db_index=True)
 
     class Meta:
         abstract = True

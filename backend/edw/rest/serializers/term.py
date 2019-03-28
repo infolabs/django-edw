@@ -12,6 +12,7 @@ from rest_framework import serializers
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.compat import unicode_to_repr
+from rest_framework.fields import empty
 
 from rest_framework_recursive.fields import RecursiveField
 
@@ -20,6 +21,9 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
+
+
+TERM_UPDATE_LOOKUP_FIELDS = ('id', 'slug')
 
 
 class TermValidator(object):
@@ -39,36 +43,26 @@ class TermValidator(object):
 
     def __call__(self, attrs):
 
-        print (">>>VAlidate attrs<<<",  attrs)
-
         validated_data = dict(attrs)
-        if self.instance is not None:
-            validated_data.pop('id', None)
-        else:
-            id = validated_data.get('id', None)
 
-            print (">>>>--", id)
-
-
+        # todo: empty ???
         parent__slug = validated_data.pop('parent__slug', None)
-        if parent__slug is not None:
-            try:
-                TermModel.objects.get(slug=parent__slug)
-            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                raise exceptions.NotFound(e)
-
-        print (">>>> parent__slug", parent__slug)
+        if self.instance is not None:
+            exclude = TERM_UPDATE_LOOKUP_FIELDS
+            if parent__slug is not None:
+                try:
+                    TermModel.objects.get(slug=parent__slug)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    raise exceptions.NotFound(e)
+        else:
+            exclude = ('path',)
 
         try:
-            # print (">>>>!!!1")
-            self.model(**validated_data).full_clean()
-            # print (">>>>!!!2")
+            self.model(**validated_data).full_clean(exclude=exclude)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
             raise serializers.ValidationError(e)
-
-        print (">>>> POST VALIDATE")
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -91,11 +85,15 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=True, write_only=True)
+    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=True, write_only=True,
+                                         required=False)
 
     class Meta:
         model = TermModel
         list_serializer_class = BulkListSerializer
+
+        # todo: update_lookup_fields --> lookup_fields
+        update_lookup_fields = TERM_UPDATE_LOOKUP_FIELDS
         validators = [TermValidator(model)]
 
     def _prepare_validated_data(self, validated_data):
@@ -104,8 +102,8 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
         if parent__slug is not None:
             try:
                 parent = TermModel.objects.get(slug=parent__slug)
-            except (ObjectDoesNotExist, MultipleObjectsReturned):
-                pass
+            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                raise exceptions.NotFound(e)
             else:
                 validated_data['parent_id'] = parent.id
 
@@ -115,28 +113,29 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
         validated_data = self._prepare_validated_data(validated_data)
 
-        print ("*** create ***", validated_data)
+        for id_attr in self.Meta.update_lookup_fields:
 
+            id_value = validated_data.pop(id_attr, empty)
 
+            if id_value != empty:
 
+                result, created = TermModel.objects.update_or_create(**{
+                    id_attr: id_value,
+                    'defaults': validated_data
+                })
+                # todo: multiple ???
 
-        result = super(TermSerializer, self).create(validated_data)
-
-        print (">>>", result)
+                break
+        else:
+            raise ValidationError('')
 
         return result
 
     def update(self, instance, validated_data):
 
-        # instance.parent_id = validated_data.get('parent_id', instance.parent_id)
-
         validated_data = self._prepare_validated_data(validated_data)
 
-        print ("*** update ***", instance, validated_data)
-
         result = super(TermSerializer, self).update(instance, validated_data)
-
-        print ("*** update >>>", result)
 
         return result
 
@@ -151,7 +150,6 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
     def get_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
-
 
 
 class TermDetailSerializer(TermSerializer):

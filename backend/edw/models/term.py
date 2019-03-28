@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import inspect
+
 import operator
 from functools import reduce
 
@@ -268,10 +270,12 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     def clean(self, *args, **kwargs):
         model_class = self.__class__
-        try:
-            origin = model_class._default_manager.get(pk=self.pk)
-        except model_class.DoesNotExist:
-            origin = None
+        origin = None
+        if bool(self.pk) and not inspect.isclass(self.pk) or self.pk == 0:
+            try:
+                origin = model_class._default_manager.get(pk=self.pk)
+            except model_class.DoesNotExist:
+                pass
         if self.system_flags:
             if origin is not None:
                 if self.system_flags.change_slug_restriction and origin.slug != self.slug:

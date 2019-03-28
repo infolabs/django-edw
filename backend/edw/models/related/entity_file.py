@@ -23,7 +23,7 @@ class BaseEntityFile(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
     file = FilerFileField(verbose_name=_('File'))
     entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
-    order = models.SmallIntegerField(default=0, blank=False, null=False)
+    order = models.SmallIntegerField(default=0, blank=False, null=False, db_index=True)
 
     class Meta:
         abstract = True
