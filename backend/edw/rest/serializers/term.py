@@ -42,10 +42,7 @@ class TermValidator(object):
         self.instance = getattr(serializer, 'instance', None)
 
     def __call__(self, attrs):
-
         validated_data = dict(attrs)
-
-        # todo: empty ???
         parent__slug = validated_data.pop('parent__slug', None)
         if self.instance is not None:
             exclude = TERM_UPDATE_LOOKUP_FIELDS
@@ -85,59 +82,50 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=True, write_only=True,
-                                         required=False)
+    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_null=True,
+                                         allow_blank=True, write_only=True, required=False)
 
     class Meta:
         model = TermModel
         list_serializer_class = BulkListSerializer
 
-        # todo: update_lookup_fields --> lookup_fields
-        update_lookup_fields = TERM_UPDATE_LOOKUP_FIELDS
+        lookup_fields = TERM_UPDATE_LOOKUP_FIELDS
         validators = [TermValidator(model)]
 
     def _prepare_validated_data(self, validated_data):
-
-        parent__slug = validated_data.pop('parent__slug', None)
-        if parent__slug is not None:
-            try:
-                parent = TermModel.objects.get(slug=parent__slug)
-            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                raise exceptions.NotFound(e)
+        parent__slug = validated_data.pop('parent__slug', empty)
+        if parent__slug != empty:
+            if parent__slug is not None:
+                try:
+                    parent = TermModel.objects.get(slug=parent__slug)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    raise exceptions.NotFound(e)
+                else:
+                    validated_data['parent_id'] = parent.id
             else:
-                validated_data['parent_id'] = parent.id
-
+                validated_data['parent_id'] = None
         return validated_data
 
     def create(self, validated_data):
-
         validated_data = self._prepare_validated_data(validated_data)
-
-        for id_attr in self.Meta.update_lookup_fields:
-
+        for id_attr in self.Meta.lookup_fields:
             id_value = validated_data.pop(id_attr, empty)
-
             if id_value != empty:
-
-                result, created = TermModel.objects.update_or_create(**{
-                    id_attr: id_value,
-                    'defaults': validated_data
-                })
-                # todo: multiple ???
-
+                try:
+                    result, created = TermModel.objects.update_or_create(**{
+                        id_attr: id_value,
+                        'defaults': validated_data
+                    })
+                except MultipleObjectsReturned as e:
+                    raise exceptions.ValidationError(e)
                 break
         else:
             raise ValidationError('')
-
         return result
 
     def update(self, instance, validated_data):
-
         validated_data = self._prepare_validated_data(validated_data)
-
-        result = super(TermSerializer, self).update(instance, validated_data)
-
-        return result
+        return super(TermSerializer, self).update(instance, validated_data)
 
     def get_is_leaf(self, instance):
         return instance.is_leaf_node()

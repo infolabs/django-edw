@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.core import urlresolvers
 
-from rest_framework import viewsets, filters
+from rest_framework import filters
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
@@ -15,6 +15,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 
 from rest_framework_filters.backends import DjangoFilterBackend
+
+from rest_framework_bulk.generics import BulkModelViewSet
 
 from edw.rest.serializers.data_mart import (
     DataMartCommonSerializer,
@@ -27,9 +29,10 @@ from edw.rest.filters.data_mart import DataMartFilter
 from edw.models.data_mart import DataMartModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import DataMartPagination
+from edw.rest.permissions import IsSuperuserOrReadOnly
 
 
-class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving data marts.
     Additional actions:
@@ -38,9 +41,17 @@ class DataMartViewSet(CustomSerializerViewSetMixin, viewsets.ReadOnlyModelViewSe
     queryset = DataMartModel.objects.all()
     serializer_class = DataMartCommonSerializer
     custom_serializer_classes = {
-        'list':  DataMartSummarySerializer,
-        'retrieve':  DataMartDetailSerializer,
+        'list': DataMartSummarySerializer,
+        'retrieve': DataMartDetailSerializer,
+
+        'create': DataMartDetailSerializer,
+        'update': DataMartDetailSerializer,
+        'partial_update': DataMartDetailSerializer,
+        'partial_bulk_update': DataMartDetailSerializer,
+        'bulk_destroy': DataMartCommonSerializer
     }
+
+    permission_classes = [IsSuperuserOrReadOnly]
 
     filter_class = DataMartFilter
     filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)

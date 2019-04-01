@@ -5,6 +5,8 @@ from collections import OrderedDict
 
 from django.core import exceptions
 from django.core.cache import cache
+from django.db import models
+from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.functional import cached_property
@@ -15,7 +17,11 @@ from django.utils.translation import get_language_from_request
 from django.utils.text import Truncator
 
 from rest_framework import serializers
+from rest_framework.fields import empty
+from rest_framework.compat import unicode_to_repr
 from rest_framework_recursive.fields import RecursiveField
+
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
@@ -23,7 +29,50 @@ from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerial
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
-class DataMartCommonSerializer(CheckPermissionsSerializerMixin, serializers.ModelSerializer):
+DATA_MART_UPDATE_LOOKUP_FIELDS = ('id', 'slug')
+
+
+class DataMartValidator(object):
+    """
+    DataMart Validator
+    """
+    def __init__(self, model):
+        self.model = model
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, 'instance', None)
+
+    def __call__(self, attrs):
+        validated_data = dict(attrs)
+        parent__slug = validated_data.pop('parent__slug', None)
+        if self.instance is not None:
+            exclude = DATA_MART_UPDATE_LOOKUP_FIELDS
+            if parent__slug is not None:
+                try:
+                    DataMartModel.objects.get(slug=parent__slug)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    raise exceptions.NotFound(e)
+        else:
+            exclude = ('path',)
+        try:
+            self.model(**validated_data).full_clean(exclude=exclude)
+        except ObjectDoesNotExist as e:
+            raise exceptions.NotFound(e)
+        except ValidationError as e:
+            raise serializers.ValidationError(e)
+
+    def __repr__(self):
+        return unicode_to_repr('<%s>' % (
+            self.__class__.__name__
+        ))
+
+
+class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
     """
     A simple serializer to convert the data mart items for rendering.
     """
@@ -38,10 +87,50 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, serializers.Mode
     data_mart_url = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
+    parent__slug = serializers.SlugField(max_length=50, min_length=None, allow_null=True,
+                                         allow_blank=True, write_only=True, required=False)
 
     class Meta:
         model = DataMartModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
+        list_serializer_class = BulkListSerializer
+        lookup_fields = DATA_MART_UPDATE_LOOKUP_FIELDS
+        validators = [DataMartValidator(model)]
+
+    def _prepare_validated_data(self, validated_data):
+        parent__slug = validated_data.pop('parent__slug', empty)
+        if parent__slug != empty:
+            if parent__slug is not None:
+                try:
+                    parent = DataMartModel.objects.get(slug=parent__slug)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    raise exceptions.NotFound(e)
+                else:
+                    validated_data['parent_id'] = parent.id
+            else:
+                validated_data['parent_id'] = None
+        return validated_data
+
+    def create(self, validated_data):
+        validated_data = self._prepare_validated_data(validated_data)
+        for id_attr in self.Meta.lookup_fields:
+            id_value = validated_data.pop(id_attr, empty)
+            if id_value != empty:
+                try:
+                    result, created = DataMartModel.objects.update_or_create(**{
+                        id_attr: id_value,
+                        'defaults': validated_data
+                    })
+                except MultipleObjectsReturned as e:
+                    raise exceptions.ValidationError(e)
+                break
+        else:
+            raise ValidationError('')
+        return result
+
+    def update(self, instance, validated_data):
+        validated_data = self._prepare_validated_data(validated_data)
+        return super(DataMartCommonSerializer, self).update(instance, validated_data)
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'data_mart:{0}|{1}-{2}-{3}-{4}-{5}'
 
@@ -134,7 +223,6 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
 
     @staticmethod
     def _get_meta_class(base, model_class):
-
         class Meta(base):
             model = model_class
 
@@ -151,7 +239,7 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
 
     def __new__(cls, *args, **kwargs):
         it = super(DataMartDetailSerializerBase, cls).__new__(cls, *args, **kwargs)
-        if args:
+        if args and isinstance(args[0], models.Model):
             cls._update_meta(it, args[0])
         return it
 
