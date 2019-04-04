@@ -90,6 +90,8 @@ class RESTOptions(object):
 
     permission_classes = []
 
+    lookup_fields = ('id',)
+
     filters = {}
 
     create = None
@@ -235,6 +237,8 @@ class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, Dynamic
 
 
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
+    def get_id_attrs(self):
+        return self.rest_meta.lookup_fields
 
     def __init__(self, *args, **kwargs):
         super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)
@@ -339,8 +343,8 @@ class CheckPermissionsBulkListSerializerMixin(BasePermissionsSerializerMixin):
         context = self.context
         request = context.get('request', None)
         assert request is not None, (
-                "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
-                % self.__class__.__name__
+            "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
+            % self.__class__.__name__
         )
         view = context.get('view')
         for obj in objects:

@@ -352,6 +352,9 @@ class EntityMetaFilter(BaseFilterBackend):
                         annotate_kwargs[key] = value
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
+        #elif view.action in ("bulk_update", "partial_bulk_update"):
+        #    # TODO: make beautiful
+        #    entity_model = data_mart.entities_model if data_mart is not None else queryset.model
         else:
             entity_model = queryset.model
 
@@ -390,7 +393,6 @@ class EntityMetaFilter(BaseFilterBackend):
         else:
             view_component = serializers.CharField().to_internal_value(raw_view_component)
         request.GET['_view_component'] = view_component
-
         return queryset
 
     def to_html(self, request, queryset, view):
