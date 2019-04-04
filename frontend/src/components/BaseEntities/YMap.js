@@ -102,7 +102,7 @@ class YMapInner extends AbstractMap {
     let entitiesClass = "entities";
     entitiesClass = loading ? entitiesClass + " ex-state-loading" : entitiesClass;
 
-    let lngMin, latMin, lngMax, latMax, markers = [];
+    let lngMin = null, latMin = null, lngMax = null, latMax = null, markers = [];
 
     for (const item of geoItems) {
       const coords = item.extra.geoposition.split(','),
@@ -159,8 +159,14 @@ class YMapInner extends AbstractMap {
 
     if ((!geoItems.length || !this.state.itemsChanged) && this._map) {
       mapState.bounds = this._map.getBounds();
-    } else {
+    } else if (geoItems.length == 1) {
+      // expand collapsed bounds to a square
+      const dl = 0.0005;
+      mapState.bounds = [[latMin - dl, lngMin - dl],[latMax + dl, lngMax + dl]];
+    } else if (lngMin != null && latMin != null && lngMax != null && latMax != null) {
       mapState.bounds = [[latMin, lngMin],[latMax, lngMax]];
+    } else {
+      mapState.bounds = defaultState.bounds;
     }
 
     // explicitly update map
