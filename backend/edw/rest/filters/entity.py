@@ -352,9 +352,10 @@ class EntityMetaFilter(BaseFilterBackend):
                         annotate_kwargs[key] = value
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
-        #elif view.action in ("bulk_update", "partial_bulk_update"):
-        #    # TODO: make beautiful
-        #    entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+        elif view.action in ("bulk_update", "partial_bulk_update"):
+            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            # modify queryset for `bulk_update` and `partial_bulk_update`
+            queryset = entity_model.objects.filter(id__in=queryset.values_list('id', flat=True))
         else:
             entity_model = queryset.model
 
