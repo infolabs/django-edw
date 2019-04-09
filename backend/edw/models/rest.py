@@ -98,7 +98,7 @@ class RESTOptions(object):
     update = None
     validate = None
 
-    validators = []
+    validators = None
 
     _fields_validators = []
 
@@ -237,6 +237,7 @@ class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, Dynamic
 
 
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
+
     def get_id_attrs(self):
         return self.rest_meta.lookup_fields
 
@@ -245,7 +246,8 @@ class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
         if self.rest_meta:
             patch_target = self.get_serializer_to_patch()
 
-            patch_target.validators = self.rest_meta.validators
+            if self.rest_meta.validators is not None:
+                patch_target.validators = self.rest_meta.validators
 
             for method_name in ('create', 'update', 'validate'):
                 method = getattr(self.rest_meta, method_name, None)

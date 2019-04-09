@@ -6,6 +6,7 @@ from django.core import exceptions
 from django.core.cache import cache
 from django.db.models.expressions import BaseExpression
 from django.db import models
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -18,6 +19,7 @@ from django.apps import apps
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.compat import unicode_to_repr
 
 from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
@@ -116,6 +118,43 @@ class EntityBulkListSerializer(EntityDynamicMetaMixin,
             self.child.Meta.model = self.Meta.model
 
 
+class EntityValidator(object):
+    """
+    Entity Validator
+    """
+    def __init__(self, model):
+        self.model = model
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, 'instance', None)
+        if self.instance is not None:
+            self.model = self.instance.__class__
+        self.rest_meta = getattr(serializer, 'rest_meta', None)
+
+    def __call__(self, attrs):
+        validated_data = dict(attrs)
+        if self.instance is not None:
+            exclude = self.rest_meta.lookup_fields if self.rest_meta else ('id',)
+        else:
+            exclude = None
+        try:
+            self.model(**validated_data).full_clean(exclude=exclude)
+        except ObjectDoesNotExist as e:
+            raise exceptions.NotFound(e)
+        except ValidationError as e:
+            raise serializers.ValidationError(e)
+
+    def __repr__(self):
+        return unicode_to_repr('<%s>' % (
+            self.__class__.__name__
+        ))
+
+
 class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
     """
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
@@ -127,6 +166,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixi
     class Meta:
         model = EntityModel
         list_serializer_class = EntityBulkListSerializer
+        validators = [EntityValidator(model)]
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
 
