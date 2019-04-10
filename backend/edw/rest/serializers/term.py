@@ -23,39 +23,34 @@ from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 
 
-TERM_UPDATE_LOOKUP_FIELDS = ('id', 'slug')
-
-
 class TermValidator(object):
     """
     Term Validator
     """
-    def __init__(self, model):
-        self.model = model
-
     def set_context(self, serializer):
         """
         This hook is called by the serializer instance,
         prior to the validation call being made.
         """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
+        self.serializer = serializer
 
     def __call__(self, attrs):
+        model = self.serializer.Meta.model
+        # Determine the existing instance, if this is an update operation.
+        instance = getattr(self.serializer, 'instance', None)
         validated_data = dict(attrs)
         parent__slug = validated_data.pop('parent__slug', None)
-        if self.instance is not None:
-            exclude = TERM_UPDATE_LOOKUP_FIELDS
+        if instance is not None:
+            validate_unique = False
             if parent__slug is not None:
                 try:
                     TermModel.objects.get(slug=parent__slug)
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                     raise exceptions.NotFound(e)
         else:
-            exclude = ('path',)
-
+            validate_unique = True
         try:
-            self.model(**validated_data).full_clean(exclude=exclude)
+            model(**validated_data).full_clean(validate_unique=validate_unique)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
@@ -78,7 +73,7 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     semantic_rule = serializers.ChoiceField(choices=TermModel.SEMANTIC_RULES, required=False)
     specification_mode = serializers.ChoiceField(choices=TermModel.SPECIFICATION_MODES, required=False)
     active = serializers.BooleanField(required=False, default=True)
-    description = serializers.CharField(read_only=True)
+    description = serializers.CharField(required=False)
     is_leaf = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
@@ -88,9 +83,8 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = TermModel
         list_serializer_class = BulkListSerializer
-
-        lookup_fields = TERM_UPDATE_LOOKUP_FIELDS
-        validators = [TermValidator(model)]
+        lookup_fields = ('id', 'slug')
+        validators = [TermValidator()]
 
     def _prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)

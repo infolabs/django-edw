@@ -122,28 +122,22 @@ class EntityValidator(object):
     """
     Entity Validator
     """
-    def __init__(self, model):
-        self.model = model
-
     def set_context(self, serializer):
         """
         This hook is called by the serializer instance,
         prior to the validation call being made.
         """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
-        if self.instance is not None:
-            self.model = self.instance.__class__
-        self.rest_meta = getattr(serializer, 'rest_meta', None)
+        self.serializer = serializer
 
     def __call__(self, attrs):
+        model = self.serializer.Meta.model
+        # Determine the existing instance, if this is an update operation.
+        instance = getattr(self.serializer, 'instance', None)
+
         validated_data = dict(attrs)
-        if self.instance is not None:
-            exclude = self.rest_meta.lookup_fields if self.rest_meta else ('id',)
-        else:
-            exclude = None
+        validate_unique = instance is None
         try:
-            self.model(**validated_data).full_clean(exclude=exclude)
+            model(**validated_data).full_clean(validate_unique=validate_unique)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
@@ -166,7 +160,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixi
     class Meta:
         model = EntityModel
         list_serializer_class = EntityBulkListSerializer
-        validators = [EntityValidator(model)]
+        validators = [EntityValidator()]
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
 

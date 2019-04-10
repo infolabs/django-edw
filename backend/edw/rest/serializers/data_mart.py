@@ -29,38 +29,34 @@ from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerial
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
-DATA_MART_UPDATE_LOOKUP_FIELDS = ('id', 'slug')
-
-
 class DataMartValidator(object):
     """
     DataMart Validator
     """
-    def __init__(self, model):
-        self.model = model
-
     def set_context(self, serializer):
         """
         This hook is called by the serializer instance,
         prior to the validation call being made.
         """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
+        self.serializer = serializer
 
     def __call__(self, attrs):
+        model = self.serializer.Meta.model
+        # Determine the existing instance, if this is an update operation.
+        instance = getattr(self.serializer, 'instance', None)
         validated_data = dict(attrs)
         parent__slug = validated_data.pop('parent__slug', None)
-        if self.instance is not None:
-            exclude = DATA_MART_UPDATE_LOOKUP_FIELDS
+        if instance is not None:
+            validate_unique = False
             if parent__slug is not None:
                 try:
                     DataMartModel.objects.get(slug=parent__slug)
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                     raise exceptions.NotFound(e)
         else:
-            exclude = ('path',)
+            validate_unique = True
         try:
-            self.model(**validated_data).full_clean(exclude=exclude)
+            model(**validated_data).full_clean(validate_unique=validate_unique)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
@@ -76,13 +72,12 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
     """
     A simple serializer to convert the data mart items for rendering.
     """
-    #name = serializers.CharField(read_only=True)
-    #slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
-    #path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
-    #active = serializers.BooleanField()
-    #description = serializers.CharField(read_only=True)
-    #view_class = serializers.CharField(read_only=True)
-    parent_id = serializers.SerializerMethodField()
+    name = serializers.CharField()
+    parent_id = serializers.IntegerField(allow_null=True, required=False)
+    slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
+    path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
+    active = serializers.BooleanField(required=False, default=True)
+    description = serializers.CharField(required=False)
     data_mart_model = serializers.CharField(read_only=True)
     data_mart_url = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
@@ -94,8 +89,8 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         model = DataMartModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
         list_serializer_class = BulkListSerializer
-        lookup_fields = DATA_MART_UPDATE_LOOKUP_FIELDS
-        validators = [DataMartValidator(model)]
+        lookup_fields = ('id', 'slug')
+        validators = [DataMartValidator()]
 
     def _prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)
@@ -169,9 +164,6 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         content = strip_spaces_between_tags(template.render(context, request).strip())
         cache.set(cache_key, content, edw_settings.CACHE_DURATIONS['data_mart_html_snippet'])
         return mark_safe(content)
-
-    def get_parent_id(self, instance):
-        return instance.parent_id
 
     def get_data_mart_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
