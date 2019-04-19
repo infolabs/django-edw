@@ -27,7 +27,7 @@ from forms import (
 from edw.rest.filters.entity import EntityFilter
 
 #===========================================================================================
-# inport edw actions
+# import edw actions
 #===========================================================================================
 from actions import (
     update_terms,

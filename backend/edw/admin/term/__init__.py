@@ -28,6 +28,8 @@ from edw.rest.serializers.term import TermSummarySerializer
 
 from edw.admin.term.serializers import WidgetTermTreeSerializer
 
+from edw.admin.term.actions import update_terms_parent
+
 
 class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
@@ -48,6 +50,8 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
     tree_auto_open = 0
 
     salmonella_fields = ('parent', )
+
+    actions = [update_terms_parent]
 
     change_tree_template = 'edw/admin/term/change_list.html'
 
