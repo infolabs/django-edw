@@ -59,7 +59,7 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
 
 def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
     plaintext = (params.get('scope', '') + params.get('timestamp', '') +
-                 params.get('client_id', '') + params.get('state', ''))
+                 str(params.get('client_id', '')) + params.get('state', ''))
     raw_client_secret = smime_sign(certificate_file, private_key_file, plaintext, backend)
     params.update(
         client_secret=base64.urlsafe_b64encode(raw_client_secret).decode('utf-8'),
