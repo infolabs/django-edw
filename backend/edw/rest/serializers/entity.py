@@ -25,6 +25,7 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 
 from edw import settings as edw_settings
 from edw.models.entity import EntityModel
+from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
@@ -145,8 +146,7 @@ class EntityValidator(object):
         # print (">> validate terms_ids <<", terms_ids)
 
         if terms_ids is not None:
-            potential_terms_ids = self.serializer.initial_filter_expand_terms_ids
-            not_found_ids = list(set(terms_ids) - set(potential_terms_ids))
+            not_found_ids = list(set(terms_ids) - set(self.serializer.data_mart_available_terms_ids))
             if not_found_ids:
                 raise serializers.ValidationError("Terms with id`s [{}] not found.".format(
                     ', '.join(str(x) for x in not_found_ids)))
@@ -238,8 +238,16 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
 
     @cached_property
-    def initial_filter_expand_terms_ids(self):
-        tree = self.context['initial_filter_meta']
+    def data_mart_available_terms_ids(self):
+        """
+        Return available terms ids for current data mart and filters
+        """
+        # дерево терминов вычисляется на этапе фильтрации, помимо витрины данных учитываются дополнительные фильтры
+        tree = self.context.get('initial_filter_meta', None)
+        if tree is None:
+            # при POST запросе потребуется вычислить дерево терминов, поскольку фильтрация не производится
+            data_mart = self.context['request'].GET['_data_mart']
+            tree = TermModel.decompress(data_mart.active_terms_ids)
         return tree.expand().keys()
 
 
@@ -405,10 +413,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     terms_ids = serializers.ListSerializer(child=serializers.IntegerField(), required=False, source='active_terms_ids')
 
-    characteristics = AttributeSerializer(many=True)
-    # characteristics = AttributeSerializer(read_only=True, many=True)
-    marks = AttributeSerializer(many=True)
-    # marks = AttributeSerializer(read_only=True, many=True)
+    characteristics = AttributeSerializer(many=True, required=False)
+    marks = AttributeSerializer(many=True, required=False)
     related_data_marts = serializers.SerializerMethodField()
 
     extra = serializers.SerializerMethodField()
@@ -431,11 +437,17 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         #
         # print (">> create marks <<", marks)
 
-        result = super(EntityDetailSerializerBase, self).create(validated_data)
+        instance = super(EntityDetailSerializerBase, self).create(validated_data)
 
-        # print (">>> create <<<", result)
+        if terms_ids is not None:
+            data_mart = self.context['request'].GET.get('_data_mart', None)
+            if data_mart is not None:
+                terms_ids.extend(data_mart.active_terms_ids)
+                instance.terms = uniq(terms_ids)
 
-        return result
+        # print (">>> create <<<", instance)
+
+        return instance
 
     def update(self, instance, validated_data):
 
