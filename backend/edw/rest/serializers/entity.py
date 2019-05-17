@@ -36,6 +36,7 @@ from edw.models.rest import (
 )
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
+from edw.utils.set_helpers import uniq
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -118,6 +119,9 @@ class EntityBulkListSerializer(EntityDynamicMetaMixin,
             self.child.Meta.model = self.Meta.model
 
 
+#==============================================================================
+# EntityValidator
+#==============================================================================
 class EntityValidator(object):
     """
     Entity Validator
@@ -135,6 +139,28 @@ class EntityValidator(object):
         instance = getattr(self.serializer, 'instance', None)
 
         validated_data = dict(attrs)
+
+        terms_ids = validated_data.pop('active_terms_ids', None)
+
+        # print (">> validate terms_ids <<", terms_ids)
+
+        if terms_ids is not None:
+            potential_terms_ids = self.serializer.initial_filter_expand_terms_ids
+            not_found_ids = list(set(terms_ids) - set(potential_terms_ids))
+            if not_found_ids:
+                raise serializers.ValidationError("Terms with id`s [{}] not found.".format(
+                    ', '.join(str(x) for x in not_found_ids)))
+
+        characteristics = validated_data.pop('characteristics', None)
+
+        # print ("### validate data ###", validated_data)
+
+        # print (">> validate characteristics <<", characteristics)
+
+        # marks = validated_data.pop('marks', None)
+        #
+        # print (">> validate marks <<", marks)
+
         validate_unique = instance is None
         try:
             model(**validated_data).full_clean(validate_unique=validate_unique)
@@ -149,7 +175,12 @@ class EntityValidator(object):
         ))
 
 
-class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
+#==============================================================================
+# EntityCommonSerializer
+#==============================================================================
+class EntityCommonSerializer(CheckPermissionsSerializerMixin,
+                             BulkSerializerMixin,
+                             serializers.ModelSerializer):
     """
     Common serializer for the Entity model, both for the EntitySummarySerializer and the
     EntityDetailSerializer.
@@ -206,6 +237,11 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixi
     def group_size_alias(self):
         return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
 
+    @cached_property
+    def initial_filter_expand_terms_ids(self):
+        tree = self.context['initial_filter_meta']
+        return tree.expand().keys()
+
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
     """
@@ -227,6 +263,9 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 entity_summary_serializer_class = None
 
 
+#==============================================================================
+# EntitySummarySerializerBase
+#==============================================================================
 class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
     """
     Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
@@ -353,6 +392,9 @@ class RelatedDataMartSerializer(DataMartCommonSerializer):
         return instance.is_subjective
 
 
+#==============================================================================
+# EntityDetailSerializerBase
+#==============================================================================
 class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                                  DynamicFieldsSerializerMixin,
                                  DynamicCreateUpdateValidateSerializerMixin,
@@ -360,8 +402,13 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
     """
     Serialize all fields of the Entity model, for the entities detail view.
     """
-    characteristics = AttributeSerializer(read_only=True, many=True)
-    marks = AttributeSerializer(read_only=True, many=True)
+
+    terms_ids = serializers.ListSerializer(child=serializers.IntegerField(), required=False, source='active_terms_ids')
+
+    characteristics = AttributeSerializer(many=True)
+    # characteristics = AttributeSerializer(read_only=True, many=True)
+    marks = AttributeSerializer(many=True)
+    # marks = AttributeSerializer(read_only=True, many=True)
     related_data_marts = serializers.SerializerMethodField()
 
     extra = serializers.SerializerMethodField()
@@ -369,6 +416,53 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+
+    def create(self, validated_data):
+
+        terms_ids = validated_data.pop('active_terms_ids', None)
+
+        # print (">> create terms_ids <<", terms_ids)
+
+        characteristics = validated_data.pop('characteristics', None)
+
+        # print (">> create characteristics <<", characteristics)
+
+        # marks = validated_data.pop('marks', None)
+        #
+        # print (">> create marks <<", marks)
+
+        result = super(EntityDetailSerializerBase, self).create(validated_data)
+
+        # print (">>> create <<<", result)
+
+        return result
+
+    def update(self, instance, validated_data):
+
+        terms_ids = validated_data.pop('active_terms_ids', None)
+        if terms_ids is not None:
+
+            # print (">> update terms_ids <<", terms_ids)
+
+            data_mart = self.context.get('data_mart', None)
+            if data_mart is not None:
+                terms_ids.extend(data_mart.active_terms_ids)
+                instance.terms = uniq(terms_ids)
+                # print ("++++ UPDATE ++++", instance.terms)
+
+        characteristics = validated_data.pop('characteristics', None)
+
+        # print (">> update characteristics <<", characteristics)
+
+        # marks = validated_data.pop('marks', None)
+        #
+        # print (">> update marks <<", marks)
+
+        result = super(EntityDetailSerializerBase, self).update(instance, validated_data)
+
+        # print (">>> post update <<<", result)
+
+        return result
 
     @cached_property
     def is_root(self):
@@ -454,13 +548,13 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-
         exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
 
 
+# class EntitySummaryMetadataSerializer(EntityPotentialTermsIdsGetterSerializerMixin, serializers.Serializer):
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
     terms_ids = serializers.SerializerMethodField()
