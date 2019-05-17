@@ -19,3 +19,4 @@ from update_additional_characteristics_or_marks import update_entities_additiona
 from update_states import update_entities_states
 from update_active import update_entities_active
 from force_validate import entities_force_validate
+from update_terms_parent import update_terms_parent
