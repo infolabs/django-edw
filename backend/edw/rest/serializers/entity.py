@@ -4,15 +4,16 @@ from __future__ import unicode_literals
 
 from django.core import exceptions
 from django.core.cache import cache
+from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.expressions import BaseExpression
 from django.db import models
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
+from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 
 from django.apps import apps
@@ -44,10 +45,10 @@ class AttributeSerializer(serializers.Serializer):
     """
     A serializer to convert the characteristics and marks for rendering.
     """
-    name = serializers.CharField()
+    name = serializers.CharField(read_only=True)
     path = serializers.CharField()
     values = serializers.ListField(child=serializers.CharField())
-    view_class = serializers.ListField(child=serializers.CharField())
+    view_class = serializers.ListField(child=serializers.CharField(), read_only=True)
 
 
 class EntityDynamicMetaMixin(object):
@@ -127,6 +128,9 @@ class EntityValidator(object):
     """
     Entity Validator
     """
+
+    FIELD_REQUIRED_ERROR_MESSAGE = _('This field is required.')
+
     def set_context(self, serializer):
         """
         This hook is called by the serializer instance,
@@ -141,25 +145,42 @@ class EntityValidator(object):
 
         validated_data = dict(attrs)
 
+        attr_errors = {}
+        for (attr_name, attribute_mode) in [
+            ('characteristics', TermModel.attributes.is_characteristic),
+            ('marks', TermModel.attributes.is_mark)
+        ]:
+            attributes = validated_data.pop(attr_name, None)
+            if attributes is not None:
+                errors = []
+                for attribute in attributes:
+                    error = {}
+                    path = attribute.get('path', None)
+                    if path is not None:
+                        terms = TermModel.objects.active().attribute_filter(attribute_mode)
+                        try:
+                            # Try find Term by `slug` or `path`
+                            terms.get(slug=path) if path.find('/') == -1 else terms.get(path=path)
+                        except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                            error.update({'path': str(e)})
+                    else:
+                        error.update({'path': [self.FIELD_REQUIRED_ERROR_MESSAGE]})
+                    values = attribute.get('values', None)
+                    if values is None:
+                        error.update({'values': [self.FIELD_REQUIRED_ERROR_MESSAGE]})
+                    errors.append(error)
+                if any(errors):
+                    attr_errors[attr_name] = errors
+
+        if attr_errors:
+            raise serializers.ValidationError(attr_errors)
+
         terms_ids = validated_data.pop('active_terms_ids', None)
-
-        # print (">> validate terms_ids <<", terms_ids)
-
         if terms_ids is not None:
             not_found_ids = list(set(terms_ids) - set(self.serializer.data_mart_available_terms_ids))
             if not_found_ids:
                 raise serializers.ValidationError("Terms with id`s [{}] not found.".format(
                     ', '.join(str(x) for x in not_found_ids)))
-
-        characteristics = validated_data.pop('characteristics', None)
-
-        # print ("### validate data ###", validated_data)
-
-        # print (">> validate characteristics <<", characteristics)
-
-        # marks = validated_data.pop('marks', None)
-        #
-        # print (">> validate marks <<", marks)
 
         validate_unique = instance is None
         try:
@@ -334,7 +355,7 @@ class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, En
 
     def get_extra(self, instance):
         extra = instance.get_summary_extra(self.context)
-        if self._group_size > 1 :
+        if self._group_size > 1:
             if extra is None:
                 extra = {}
             extra[self.group_size_alias] = self._group_size
@@ -433,7 +454,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         # print (">> create characteristics <<", characteristics)
 
-        # marks = validated_data.pop('marks', None)
+        marks = validated_data.pop('marks', None)
         #
         # print (">> create marks <<", marks)
 
@@ -466,7 +487,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         # print (">> update characteristics <<", characteristics)
 
-        # marks = validated_data.pop('marks', None)
+        marks = validated_data.pop('marks', None)
         #
         # print (">> update marks <<", marks)
 
