@@ -472,8 +472,46 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def update(self, instance, validated_data):
 
+        # print ("++++ UPDATE ++++", validated_data)
+
+        attr_terms_ids = []
+
+        for (attr_name, attribute_mode) in [
+            ('characteristics', TermModel.attributes.is_characteristic),
+            ('marks', TermModel.attributes.is_mark)
+        ]:
+            attributes = validated_data.pop(attr_name, None)
+            if attributes is not None:
+                # print("+++ ATTRIBUTE +++", attr_name)
+
+                for attribute in attributes:
+                    path, values = attribute['path'], attribute['values']
+
+                    terms = TermModel.objects.active().attribute_filter(attribute_mode)
+                    try:
+                        # Try find Term by `slug` or `path`
+                        term = terms.get(slug=path) if path.find('/') == -1 else terms.get(path=path)
+                    except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                        raise serializers.ValidationError(str(e))
+
+                    values_terms_map = {x['name']: x['id'] for x in reversed(
+                        term.get_descendants(include_self=False).filter(name__in=values).values('id', 'name'))}
+
+                    for value in values:
+                        if value in values_terms_map:
+                            print ("FIND TERM!!", value, values_terms_map[value])
+                            attr_terms_ids.append(values_terms_map[value])
+                            del values_terms_map[value]
+                        else:
+                            # print ("ADD EXTRA!!", value)
+                            pass
+
         terms_ids = validated_data.pop('active_terms_ids', None)
-        if terms_ids is not None:
+        if terms_ids is not None or attr_terms_ids:
+            if terms_ids is None:
+                terms_ids = attr_terms_ids
+            else:
+                terms_ids.extend(attr_terms_ids)
 
             # print (">> update terms_ids <<", terms_ids)
 
@@ -481,15 +519,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             if data_mart is not None:
                 terms_ids.extend(data_mart.active_terms_ids)
                 instance.terms = uniq(terms_ids)
-                # print ("++++ UPDATE ++++", instance.terms)
-
-        characteristics = validated_data.pop('characteristics', None)
-
-        # print (">> update characteristics <<", characteristics)
-
-        marks = validated_data.pop('marks', None)
-        #
-        # print (">> update marks <<", marks)
 
         result = super(EntityDetailSerializerBase, self).update(instance, validated_data)
 
@@ -587,7 +616,6 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
         return self.render_html(entity, 'media')
 
 
-# class EntitySummaryMetadataSerializer(EntityPotentialTermsIdsGetterSerializerMixin, serializers.Serializer):
 class EntitySummaryMetadataSerializer(serializers.Serializer):
     data_mart = serializers.SerializerMethodField()
     terms_ids = serializers.SerializerMethodField()
