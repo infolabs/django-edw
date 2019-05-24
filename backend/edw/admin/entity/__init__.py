@@ -42,9 +42,29 @@ from actions import (
 edw_actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
                update_related_data_marts, update_states, update_active, force_validate]
 
+DISABLED_ACTIONS = [
+    "update_terms",
+    "update_relations",
+    "update_additional_characteristics_or_marks",
+    "update_related_data_marts",
+    "update_states",
+    "update_active",
+    "update_images",
+    "force_validate"
+]
+
+
+def filter_actions(request, actions):
+    if not request.user.is_superuser:
+        for a in DISABLED_ACTIONS:
+            if a in actions.keys():
+                del actions[a]
+    return actions
+
+
 try:
     from edw.models.related.entity_image import EntityImageModel
-    EntityImageModel() # Test pass if model materialized
+    EntityImageModel()  # Test pass if model materialized
 except (ImproperlyConfigured, ImportError):
     pass
 else:
@@ -196,6 +216,10 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
             '/static/edw/js/admin/tree.jquery.js'
         )
 
+    def get_actions(self, request):
+       actions = super(EntityChildModelAdmin, self).get_actions(request)
+       return filter_actions(request, actions)
+
 
 # ===========================================================================================
 # EntityParentModelAdmin
@@ -251,3 +275,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
             '/static/edw/js/admin/jquery.compat.js',
             '/static/edw/js/admin/tree.jquery.js'
         )
+
+    def get_actions(self, request):
+       actions = super(EntityParentModelAdmin, self).get_actions(request)
+       return filter_actions(request, actions)
