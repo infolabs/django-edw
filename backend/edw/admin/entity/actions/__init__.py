@@ -19,3 +19,4 @@ from update_related_data_marts import update_related_data_marts
 from update_states import update_states
 from update_active import update_active
 from force_validate import force_validate
+from make_terms_from_additional_characteristics_or_marks import make_terms_from_additional_characteristics_or_marks

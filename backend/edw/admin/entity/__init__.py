@@ -36,11 +36,13 @@ from actions import (
     update_related_data_marts,
     update_states,
     update_active,
-    force_validate
+    force_validate,
+    make_terms_from_additional_characteristics_or_marks
 )
 
 edw_actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate]
+               update_related_data_marts, update_states, update_active, force_validate,
+               make_terms_from_additional_characteristics_or_marks]
 
 DISABLED_ACTIONS = [
     "update_terms",
@@ -50,7 +52,8 @@ DISABLED_ACTIONS = [
     "update_states",
     "update_active",
     "update_images",
-    "force_validate"
+    "force_validate",
+    "make_terms_from_additional_characteristics_or_marks"
 ]
 
 

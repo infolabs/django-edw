@@ -25,6 +25,7 @@ from update_related_data_marts import EntitiesUpdateRelatedDataMartsAdminForm
 from update_states import EntitiesUpdateStateAdminForm
 from update_active import EntitiesUpdateActiveAdminForm
 from force_validate import EntitiesForceValidateAdminForm
+from make_terms_from_additional_characteristics_or_marks import MakeTermsFromAdditionalCharacteristicsOrMarksAdminForm
 
 
 #==============================================================================

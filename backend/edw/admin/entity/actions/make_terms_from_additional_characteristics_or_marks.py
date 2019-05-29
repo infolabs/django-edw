@@ -14,24 +14,24 @@ from django.contrib.admin.utils import model_ngettext
 
 from celery import chain
 
-from edw.admin.entity.forms import EntitiesForceValidateAdminForm
-from edw.tasks import entities_force_validate
+from edw.admin.entity.forms import MakeTermsFromAdditionalCharacteristicsOrMarksAdminForm
+from edw.tasks import entities_make_terms_from_additional_characteristics_or_marks
 
 
-def force_validate(modeladmin, request, queryset):
+def make_terms_from_additional_characteristics_or_marks(modeladmin, request, queryset):
     """
-    Save multiple entities with force validate terms
+    Make terms from additional characteristics or marks
     """
-    CHUNK_SIZE = getattr(settings, 'EDW_ENTITIES_FORCE_VALIDATE_ACTION_CHUNK_SIZE', 100)
+    CHUNK_SIZE = getattr(settings, 'EDW_MAKE_TERMS_FROM_ADDITIONAL_CHARACTERISTICS_OR_MARKS_ACTION_CHUNK_SIZE', 100)
 
     opts = modeladmin.model._meta
     app_label = opts.app_label
 
     if request.POST.get('post'):
-        form = EntitiesForceValidateAdminForm(request.POST)
+        form = MakeTermsFromAdditionalCharacteristicsOrMarksAdminForm(request.POST)
 
         if form.is_valid():
-            #foo = form.cleaned_data['foo']
+            # foo = form.cleaned_data['foo']
 
             n = queryset.count()
             if n:
@@ -43,7 +43,7 @@ def force_validate(modeladmin, request, queryset):
                         obj_display = force_unicode(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-                    tasks.append(entities_force_validate.si([x.id for x in chunk]))
+                    tasks.append(entities_make_terms_from_additional_characteristics_or_marks.si([x.id for x in chunk]))
 
                     i += CHUNK_SIZE
 
@@ -57,14 +57,14 @@ def force_validate(modeladmin, request, queryset):
             return None
 
     else:
-        form = EntitiesForceValidateAdminForm()
+        form = MakeTermsFromAdditionalCharacteristicsOrMarksAdminForm()
 
     if len(queryset) == 1:
         objects_name = force_unicode(opts.verbose_name)
     else:
         objects_name = force_unicode(opts.verbose_name_plural)
 
-    title = _("Save multiple entities with force validate terms")
+    title = _("Make terms from additional characteristics or marks for multiple entities")
     context = {
         "title": title,
         'form': form,
@@ -74,10 +74,11 @@ def force_validate(modeladmin, request, queryset):
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         'media': modeladmin.media,
-        'action': 'force_validate'
+        'action': 'make_terms_from_additional_characteristics_or_marks'
     }
     # Display the confirmation page
     return TemplateResponse(request, "edw/admin/entities/actions/base_multiply_entities_action.html",
                             context, current_app=modeladmin.admin_site.name)
 
-force_validate.short_description = _("Save with force validate terms for selected %(verbose_name_plural)s")
+
+make_terms_from_additional_characteristics_or_marks.short_description = _("Make terms from additional characteristics or marks for selected %(verbose_name_plural)s")
