@@ -37,12 +37,15 @@ from actions import (
     update_states,
     update_active,
     force_validate,
-    make_terms_from_additional_characteristics_or_marks
+    make_terms_from_additional_characteristics_or_marks,
+    remove_additional_characteristics_or_marks_with_exists_value_term
 )
 
-edw_actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate,
-               make_terms_from_additional_characteristics_or_marks]
+edw_actions = [
+    update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
+    update_states, update_active, force_validate, make_terms_from_additional_characteristics_or_marks,
+    remove_additional_characteristics_or_marks_with_exists_value_term
+]
 
 DISABLED_ACTIONS = [
     "update_terms",
@@ -53,7 +56,8 @@ DISABLED_ACTIONS = [
     "update_active",
     "update_images",
     "force_validate",
-    "make_terms_from_additional_characteristics_or_marks"
+    "make_terms_from_additional_characteristics_or_marks",
+    "remove_additional_characteristics_or_marks_with_exists_value_term"
 ]
 
 
@@ -243,8 +247,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
 
     list_display = ('get_name', 'get_type', 'active', 'created_at')
 
-    actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate]
+    actions = edw_actions
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 

@@ -5,5 +5,3 @@ from django.utils.translation import ugettext_lazy as _
 __version__ = '0.1.0'
 
 _('edw')
-_('Sid')
-_('sid')

@@ -5,7 +5,7 @@ from django import forms
 
 
 #==============================================================================
-# EntitiesForceValidateAdminForm
+# BaseEntityActionAdminForm
 #==============================================================================
-class MakeTermsFromAdditionalCharacteristicsOrMarksAdminForm(forms.Form):
+class BaseEntityActionAdminForm(forms.Form):
     pass

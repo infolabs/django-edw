@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-29 15:40+0300\n"
-"PO-Revision-Date: 2019-05-29 15:49+0300\n"
+"POT-Creation-Date: 2019-05-30 12:52+0300\n"
+"PO-Revision-Date: 2019-05-30 12:52+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -74,7 +74,7 @@ msgid "Customers"
 msgstr "Пользователи"
 
 #: admin/data_mart/forms.py:19 admin/entity/__init__.py:86
-#: admin/entity/forms/__init__.py:38 models/data_mart.py:148
+#: admin/entity/forms/__init__.py:37 models/data_mart.py:148
 #: models/entity.py:693 rest/filters/entity.py:40
 msgid "Terms"
 msgstr "Термины"
@@ -87,7 +87,7 @@ msgstr "Порядок сортировки"
 msgid "View component"
 msgstr "Компонент представления"
 
-#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:56
+#: admin/data_mart/forms.py:44 admin/entity/forms/__init__.py:55
 #: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
@@ -107,8 +107,7 @@ msgstr "Название"
 msgid "Entity type"
 msgstr "Тип объекта"
 
-#: admin/entity/actions/force_validate.py:52
-#: admin/entity/actions/make_terms_from_additional_characteristics_or_marks.py:52
+#: admin/entity/actions/base_entity_action.py:45
 #: admin/entity/actions/update_active.py:52
 #: admin/entity/actions/update_additional_characteristics_or_marks.py:59
 #: admin/entity/actions/update_images.py:72
@@ -121,24 +120,24 @@ msgstr "Тип объекта"
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: admin/entity/actions/force_validate.py:67
+#: admin/entity/actions/force_validate.py:18
 msgid "Save multiple entities with force validate terms"
 msgstr "Массовая запись объектов с быстрой валидацией терминов"
 
-#: admin/entity/actions/force_validate.py:82
+#: admin/entity/actions/force_validate.py:24
 #, python-format
 msgid "Save with force validate terms for selected %(verbose_name_plural)s"
 msgstr ""
 "Массовая запись объектов с быстрой валидацией терминов для выбранных "
 "%(verbose_name_plural)s"
 
-#: admin/entity/actions/make_terms_from_additional_characteristics_or_marks.py:67
+#: admin/entity/actions/make_terms_from_additional_characteristics_or_marks.py:18
 msgid ""
 "Make terms from additional characteristics or marks for multiple entities"
 msgstr ""
 "Создать термины для дополнительных характеристик или меток списка объектов"
 
-#: admin/entity/actions/make_terms_from_additional_characteristics_or_marks.py:83
+#: admin/entity/actions/make_terms_from_additional_characteristics_or_marks.py:25
 #, python-format
 msgid ""
 "Make terms from additional characteristics or marks for selected "
@@ -147,8 +146,22 @@ msgstr ""
 "Создать термины для дополнительных характеристик или меток для выбранных "
 "%(verbose_name_plural)s"
 
+#: admin/entity/actions/remove_additional_characteristics_or_marks_with_exists_value_term.py:18
+msgid "Remove additional characteristics or marks with exists value term"
+msgstr ""
+"Удалить характеристики или метки значениям которых соответствует "
+"установленный термин"
+
+#: admin/entity/actions/remove_additional_characteristics_or_marks_with_exists_value_term.py:25
+#, python-format
+msgid ""
+"Remove additional characteristics or marks with exists value term for "
+"selected %(verbose_name_plural)s"
+msgstr ""
+"Удалить характеристики или метки значениям которых соответствует "
+"установленный термин для выбранных %(verbose_name_plural)s"
+
 #: admin/entity/actions/update_active.py:67
-#: templates/edw/admin/entities/actions/update_active.html:9
 msgid "Update active for multiple entities"
 msgstr "Изменить активен для списка объектов"
 
@@ -170,8 +183,6 @@ msgstr ""
 "Изменить характеристики или метки для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_images.py:88
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:14
-#: templates/edw/admin/entities/actions/update_images.html:14
 msgid "Update images for multiple entities"
 msgstr "Обновление изображений списка объектов"
 
@@ -191,8 +202,6 @@ msgstr ""
 "Изменить связанные витрины данных для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_relations.py:75
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:14
-#: templates/edw/admin/entities/actions/update_relations.html:14
 msgid "Update relations for multiple entities"
 msgstr "Обновление отношений списка объектов"
 
@@ -211,7 +220,6 @@ msgid "Modify state for selected %(verbose_name_plural)s"
 msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
 
 #: admin/entity/actions/update_terms.py:66
-#: templates/edw/admin/entities/actions/update_terms.html:9
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
@@ -220,15 +228,15 @@ msgstr "Обновление терминов списка объектов"
 msgid "Modify terms for selected %(verbose_name_plural)s"
 msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
 
-#: admin/entity/forms/__init__.py:47
+#: admin/entity/forms/__init__.py:46
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: admin/entity/forms/__init__.py:58
+#: admin/entity/forms/__init__.py:57
 msgid "Target"
 msgstr "Цель"
 
-#: admin/entity/forms/__init__.py:67 models/data_mart.py:183
+#: admin/entity/forms/__init__.py:66 models/data_mart.py:183
 #: models/defaults/data_mart.py:28 models/related/__init__.py:81
 #: models/related/__init__.py:113 rest/filters/entity.py:41
 #: templates/edw/admin/mptt/_datamart_node.html:9
@@ -322,22 +330,22 @@ msgid "Select related datamarts for set or unset"
 msgstr "Выберите витрины данных для установки или снятия"
 
 #: admin/entity/forms/update_relations.py:23
-#: templates/edw/admin/entities/actions/update_relations.html:34
+#: templates/edw/admin/entities/actions/update_relations.html:25
 msgid "Relation to set"
 msgstr "Отношение для установки"
 
 #: admin/entity/forms/update_relations.py:25
-#: templates/edw/admin/entities/actions/update_relations.html:51
+#: templates/edw/admin/entities/actions/update_relations.html:42
 msgid "Targets to set"
 msgstr "Цели для установки"
 
 #: admin/entity/forms/update_relations.py:30
-#: templates/edw/admin/entities/actions/update_relations.html:35
+#: templates/edw/admin/entities/actions/update_relations.html:26
 msgid "Relation to unset"
 msgstr "Отношение для снятия"
 
 #: admin/entity/forms/update_relations.py:32
-#: templates/edw/admin/entities/actions/update_relations.html:52
+#: templates/edw/admin/entities/actions/update_relations.html:43
 msgid "Targets to unset"
 msgstr "Цели для снятия"
 
@@ -358,12 +366,12 @@ msgid "Selected entities is not FSM instances"
 msgstr "Выбранные объекты не являются экземплярами FSM"
 
 #: admin/entity/forms/update_terms.py:15
-#: templates/edw/admin/entities/actions/update_terms.html:31
+#: templates/edw/admin/entities/actions/update_terms.html:20
 msgid "Terms to set"
 msgstr "Термины для установки"
 
 #: admin/entity/forms/update_terms.py:17
-#: templates/edw/admin/entities/actions/update_terms.html:32
+#: templates/edw/admin/entities/actions/update_terms.html:21
 msgid "Terms to unset"
 msgstr "Термины для снятия"
 
@@ -1051,6 +1059,11 @@ msgstr "Записать"
 msgid "Rebuild the tree"
 msgstr "Перестроить дерево"
 
+#: templates/edw/admin/entities/actions/_base_change_form.html:6
+#: templates/edw/admin/terms/actions/update_terms_parent.html:11
+msgid "Home"
+msgstr "Начало"
+
 #: templates/edw/admin/entities/actions/_updated_entities.html:5
 msgid "Updated entities"
 msgstr "Выбранные объекты"
@@ -1059,54 +1072,38 @@ msgstr "Выбранные объекты"
 msgid "Count:"
 msgstr "Количество:"
 
-#: templates/edw/admin/entities/actions/base_multiply_entities_action.html:6
-#: templates/edw/admin/entities/actions/update_active.html:6
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:11
-#: templates/edw/admin/entities/actions/update_images.html:11
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:11
-#: templates/edw/admin/entities/actions/update_relations.html:11
-#: templates/edw/admin/entities/actions/update_states.html:6
-#: templates/edw/admin/entities/actions/update_terms.html:6
-#: templates/edw/admin/terms/actions/update_terms_parent.html:11
-msgid "Home"
-msgstr "Начало"
-
-#: templates/edw/admin/entities/actions/base_multiply_entities_action.html:18
-#: templates/edw/admin/entities/actions/update_active.html:18
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:23
-#: templates/edw/admin/entities/actions/update_images.html:23
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:23
-#: templates/edw/admin/entities/actions/update_relations.html:23
-#: templates/edw/admin/entities/actions/update_states.html:18
-#: templates/edw/admin/entities/actions/update_terms.html:20
+#: templates/edw/admin/entities/actions/base_multiply_entities_action.html:9
+#: templates/edw/admin/entities/actions/update_active.html:9
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:14
+#: templates/edw/admin/entities/actions/update_images.html:14
+#: templates/edw/admin/entities/actions/update_related_data_marts.html:14
+#: templates/edw/admin/entities/actions/update_relations.html:14
+#: templates/edw/admin/entities/actions/update_states.html:9
+#: templates/edw/admin/entities/actions/update_terms.html:9
 #: templates/edw/admin/terms/actions/update_terms_parent.html:23
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
-#: templates/edw/admin/entities/actions/update_active.html:25
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:30
-#: templates/edw/admin/entities/actions/update_images.html:30
-#: templates/edw/admin/entities/actions/update_related_data_marts.html:30
-#: templates/edw/admin/entities/actions/update_relations.html:30
-#: templates/edw/admin/entities/actions/update_states.html:25
-#: templates/edw/admin/entities/actions/update_terms.html:27
+#: templates/edw/admin/entities/actions/update_active.html:16
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:21
+#: templates/edw/admin/entities/actions/update_images.html:21
+#: templates/edw/admin/entities/actions/update_related_data_marts.html:21
+#: templates/edw/admin/entities/actions/update_relations.html:21
+#: templates/edw/admin/entities/actions/update_states.html:16
+#: templates/edw/admin/entities/actions/update_terms.html:16
 #: templates/edw/admin/terms/actions/update_terms_parent.html:30
 msgid "Make youre choice"
 msgstr "Выберите"
 
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:34
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:25
 msgid "Additional marks to set"
 msgstr "Характеристики или метки для установки"
 
-#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:35
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:26
 msgid "Additional marks to unset"
 msgstr "Характеристики или метки для снятия"
 
-#: templates/edw/admin/entities/actions/update_states.html:9
-msgid "Update states for multiple entities"
-msgstr "Обновление состояний списка объектов"
-
-#: templates/edw/admin/entities/actions/update_states.html:29
+#: templates/edw/admin/entities/actions/update_states.html:20
 msgid "State to set"
 msgstr "Состояние для установки"
 
@@ -1327,6 +1324,9 @@ msgstr "Аккаунт успешно активирован."
 #: views/data_mart.py:98 views/term.py:117
 msgid "The tree was sucessfully rebuilt"
 msgstr "Дерево успешно перестроено"
+
+#~ msgid "Update states for multiple entities"
+#~ msgstr "Обновление состояний списка объектов"
 
 #~ msgid "Password reset"
 #~ msgstr "Восстановление пароля"

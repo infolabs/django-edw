@@ -9,8 +9,8 @@ from edw.models.term import TermModel
 from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark
 
 
-@shared_task(name='entities_make_terms_from_additional_characteristics_or_marks')
-def entities_make_terms_from_additional_characteristics_or_marks(entities_ids):
+@shared_task(name='make_entities_terms_from_additional_characteristics_or_marks')
+def make_entities_terms_from_additional_characteristics_or_marks(entities_ids):
     does_not_exist_entities_ids = []
 
     entities = EntityModel.objects.filter(id__in=entities_ids)
