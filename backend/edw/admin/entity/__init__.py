@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
 
+from salmonella.filters import SalmonellaFilter
+
 from edw.models.entity import EntityModel
 
 from edw.models.related import (
@@ -41,7 +43,7 @@ from actions import (
     remove_additional_characteristics_or_marks_with_exists_value_term
 )
 
-edw_actions = [
+EDW_ACTIONS = [
     update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
     update_states, update_active, force_validate, make_terms_from_additional_characteristics_or_marks,
     remove_additional_characteristics_or_marks_with_exists_value_term
@@ -77,7 +79,7 @@ except (ImproperlyConfigured, ImportError):
 else:
     from actions import update_images
 
-    edw_actions.append(update_images)
+    EDW_ACTIONS.append(update_images)
 #===========================================================================================
 
 
@@ -191,9 +193,9 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 
-    list_filter = (TermsTreeFilter, 'active')
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', SalmonellaFilter))
 
-    actions = edw_actions
+    actions = EDW_ACTIONS
 
     save_on_top = True
 
@@ -247,13 +249,13 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
 
     list_display = ('get_name', 'get_type', 'active', 'created_at')
 
-    actions = edw_actions
+    actions = EDW_ACTIONS
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 
     save_on_top = True
 
-    list_filter = (TermsTreeFilter, 'active')
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', SalmonellaFilter))
 
     list_per_page = 250
 
