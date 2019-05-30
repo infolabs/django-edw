@@ -37,14 +37,13 @@ from actions import (
     update_states,
     update_active,
     force_validate,
-    make_terms_from_additional_characteristics_or_marks,
-    remove_additional_characteristics_or_marks_with_exists_value_term
+    make_terms_by_additional_attrs,
+    normalize_additional_attrs
 )
 
 edw_actions = [
     update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
-    update_states, update_active, force_validate, make_terms_from_additional_characteristics_or_marks,
-    remove_additional_characteristics_or_marks_with_exists_value_term
+    update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs
 ]
 
 DISABLED_ACTIONS = [
