@@ -20,17 +20,20 @@ def normalize_entities_additional_attrs(entities_ids):
     )
 
     for e in entities:
-        additional_characteristics_or_marks = AdditionalEntityCharacteristicOrMark.objects.filter(entity__id=e.id)
-        if additional_characteristics_or_marks:
+        additional_attrs = AdditionalEntityCharacteristicOrMark.objects.filter(entity__id=e.id)
+        if additional_attrs:
             add_terms_ids = []
-            for characteristic_or_mark in additional_characteristics_or_marks:
+            delete_attr_ids = []
+            for attr in additional_attrs:
                 values_terms_map = {x['name']: x['id'] for x in reversed(
-                    characteristic_or_mark.term.get_descendants(include_self=False).values('id', 'name'))}
-                if characteristic_or_mark.value in values_terms_map:
-                    add_terms_ids.append(values_terms_map[characteristic_or_mark.value])
-                    characteristic_or_mark.delete()
+                    attr.term.get_descendants(include_self=False).values('id', 'name'))}
+                if attr.value in values_terms_map:
+                    add_terms_ids.append(values_terms_map[attr.value])
+                    delete_attr_ids.append(attr.term.id)
             if add_terms_ids:
                 e.terms.add(*add_terms_ids)
+            if delete_attr_ids:
+                additional_attrs.filter(term__in=delete_attr_ids).delete()
 
     return {
         'entities_ids': entities_ids,
