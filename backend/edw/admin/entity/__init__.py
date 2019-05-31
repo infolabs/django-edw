@@ -83,6 +83,16 @@ else:
 
 
 #===========================================================================================
+# EntityRelationFilter
+#===========================================================================================
+class EntityRelationFilter(SalmonellaFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super(EntityRelationFilter, self).__init__(
+            field, request, params, model, model_admin, field_path)
+        self.title = _("Entity Relation")
+
+
+#===========================================================================================
 # TermsTreeFilter
 #===========================================================================================
 class TermsTreeFilter(admin.ListFilter):
@@ -192,7 +202,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 
-    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', SalmonellaFilter))
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', EntityRelationFilter))
 
     actions = EDW_ACTIONS
 
@@ -255,7 +265,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
 
     save_on_top = True
 
-    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', SalmonellaFilter))
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', EntityRelationFilter))
 
     list_per_page = 250
 
@@ -273,6 +283,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
         css = {
             'all': (
                 '/static/edw/css/admin/jqtree.css',
+                '/static/edw/css/admin/salmonella.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/term.min.css',
             )
