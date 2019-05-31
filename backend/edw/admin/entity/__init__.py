@@ -212,6 +212,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
         css = {
             'all': (
                 '/static/css/admin/entity.css',
+                '/static/edw/css/admin/salmonella.css',
                 '/static/edw/css/admin/jqtree.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/term.min.css',
