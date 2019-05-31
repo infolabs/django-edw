@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, date as datetime_date
 
 from django.conf import settings
 from django.utils import formats
@@ -25,7 +25,7 @@ def date(value, arg=None):
     """
     if value in (None, ''):
         return ''
-    if not isinstance(value, datetime):
+    if not (isinstance(value, datetime) or isinstance(value, datetime_date)):
         value = from_iso8601(value)
     if arg is None:
         arg = settings.DATE_FORMAT

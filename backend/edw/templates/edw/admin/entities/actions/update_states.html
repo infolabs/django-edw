@@ -1,14 +1,5 @@
-{% extends "admin/change_form.html" %}
-{% load i18n l10n admin_urls static %}
-
-{% block breadcrumbs %}
-    <div class="breadcrumbs">
-        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-        &rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{% trans app_label|capfirst|escape %}</a>
-        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
-        &rsaquo; {% trans 'Update states for multiple entities' %}
-    </div>
-{% endblock %}
+{% extends "edw/admin/entities/actions/_base_change_form.html" %}
+{% load i18n l10n %}
 
 {% block content %}
     <div class="container-fluid">

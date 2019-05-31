@@ -1,0 +1,13 @@
+.salmonellafilter input {
+    width: 78%!important;
+}
+
+.salmonellafilter .salmonella-related-lookup, .salmonellafilter .salmonella-clear-field {
+    display: inline-block!important;
+}
+
+#changelist-filter input[type="submit"] {
+    width: 100%;
+    padding: 6px;
+    margin-top: -5px;
+}
