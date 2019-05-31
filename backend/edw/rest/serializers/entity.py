@@ -28,6 +28,7 @@ from edw import settings as edw_settings
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.related import AdditionalEntityCharacteristicOrMarkModel
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
     DynamicFieldsListSerializerMixin,
@@ -444,49 +445,16 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         kwargs.setdefault('label', 'detail')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
 
-    def create(self, validated_data):
-
-        terms_ids = validated_data.pop('active_terms_ids', None)
-
-        # print (">> create terms_ids <<", terms_ids)
-
-        characteristics = validated_data.pop('characteristics', None)
-
-        # print (">> create characteristics <<", characteristics)
-
-        marks = validated_data.pop('marks', None)
-        #
-        # print (">> create marks <<", marks)
-
-        instance = super(EntityDetailSerializerBase, self).create(validated_data)
-
-        if terms_ids is not None:
-            data_mart = self.context['request'].GET.get('_data_mart', None)
-            if data_mart is not None:
-                terms_ids.extend(data_mart.active_terms_ids)
-                instance.terms = uniq(terms_ids)
-
-        # print (">>> create <<<", instance)
-
-        return instance
-
-    def update(self, instance, validated_data):
-
-        # print ("++++ UPDATE ++++", validated_data)
-
+    def _update_entity(self, instance, validated_data, action='update'):
         attr_terms_ids = []
-
         for (attr_name, attribute_mode) in [
             ('characteristics', TermModel.attributes.is_characteristic),
             ('marks', TermModel.attributes.is_mark)
         ]:
             attributes = validated_data.pop(attr_name, None)
             if attributes is not None:
-                # print("+++ ATTRIBUTE +++", attr_name)
-
                 for attribute in attributes:
                     path, values = attribute['path'], attribute['values']
-
                     terms = TermModel.objects.active().attribute_filter(attribute_mode)
                     try:
                         # Try find Term by `slug` or `path`
@@ -497,14 +465,26 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     values_terms_map = {x['name']: x['id'] for x in reversed(
                         term.get_descendants(include_self=False).filter(name__in=values).values('id', 'name'))}
 
-                    for value in values:
-                        if value in values_terms_map:
-                            print ("FIND TERM!!", value, values_terms_map[value])
-                            attr_terms_ids.append(values_terms_map[value])
-                            del values_terms_map[value]
-                        else:
-                            # print ("ADD EXTRA!!", value)
-                            pass
+                    if values:
+                        for value in values:
+                            if value in values_terms_map:
+                                attr_terms_ids.append(values_terms_map[value])
+                                del values_terms_map[value]
+                                AdditionalEntityCharacteristicOrMarkModel.objects.filter(
+                                    term=term, entity=instance, value=value).delete()
+                            else:
+                                try:
+                                    result, created = AdditionalEntityCharacteristicOrMarkModel.objects.update_or_create(
+                                        term=term,
+                                        entity=instance,
+                                        defaults={
+                                            'value': value
+                                        }
+                                    )
+                                except MultipleObjectsReturned as e:
+                                    raise serializers.ValidationError(str(e))
+                    else:
+                        AdditionalEntityCharacteristicOrMarkModel.objects.filter(term=term, entity=instance).delete()
 
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None or attr_terms_ids:
@@ -512,18 +492,42 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                 terms_ids = attr_terms_ids
             else:
                 terms_ids.extend(attr_terms_ids)
-
-            # print (">> update terms_ids <<", terms_ids)
-
-            data_mart = self.context.get('data_mart', None)
+            data_mart = self.context.get(
+                'data_mart', None) if action == 'update' else self.context['request'].GET.get('_data_mart', None)
             if data_mart is not None:
                 terms_ids.extend(data_mart.active_terms_ids)
                 instance.terms = uniq(terms_ids)
 
+    def create(self, validated_data):
+        origin_validated_data = validated_data.copy()
+        for key in ('active_terms_ids', 'characteristics', 'marks'):
+            validated_data.pop(key, None)
+
+        model = self.Meta.model
+        for id_attr in model._rest_meta.lookup_fields:
+            id_value = validated_data.pop(id_attr, empty)
+            if id_value != empty:
+                try:
+                    instance, created = model.objects.update_or_create(**{
+                        id_attr: id_value,
+                        'defaults': validated_data
+                    })
+                except MultipleObjectsReturned as e:
+                    raise exceptions.ValidationError(e)
+                break
+        else:
+            raise ValidationError('')
+
+        self._update_entity(instance, origin_validated_data, action='create')
+
+        # print (">>> create <<<", instance)
+        return instance
+
+    def update(self, instance, validated_data):
+        self._update_entity(instance, validated_data)
         result = super(EntityDetailSerializerBase, self).update(instance, validated_data)
 
         # print (">>> post update <<<", result)
-
         return result
 
     @cached_property
