@@ -170,6 +170,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     system_flags = BitField(flags=SYSTEM_FLAGS, verbose_name=_('system flags'), null=True, default=None)
 
+    subjects = deferred.ManyToManyField('BaseEntity', related_name='+', verbose_name = _('Subjects'), blank=True)
+
     _relations = deferred.ManyToManyField('BaseTerm', through=DataMartRelationModel,
                                          through_fields=('data_mart', 'term'))
 

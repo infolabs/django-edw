@@ -41,7 +41,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     search_fields = ['name', 'slug', 'parent', 'view_class']
 
-    salmonella_fields = ('parent', )
+    salmonella_fields = ('parent', 'subjects')
 
     change_tree_template = 'edw/admin/data_mart/change_list.html'
 
