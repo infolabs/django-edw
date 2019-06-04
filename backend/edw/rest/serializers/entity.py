@@ -154,16 +154,17 @@ class EntityValidator(object):
             attributes = validated_data.pop(attr_name, None)
             if attributes is not None:
                 errors = []
+                terms = TermModel.objects.active().attribute_filter(attribute_mode)
                 for attribute in attributes:
                     error = {}
                     path = attribute.get('path', None)
                     if path is not None:
-                        terms = TermModel.objects.active().attribute_filter(attribute_mode)
+                        # Try find Term by `slug` or `path`
+                        field = 'slug' if path.find('/') == -1 else 'path'
                         try:
-                            # Try find Term by `slug` or `path`
-                            terms.get(slug=path) if path.find('/') == -1 else terms.get(path=path)
+                            terms.get(**{field: path})
                         except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                            error.update({'path': str(e)})
+                            error.update({'path': _("{} `{}`='{}'").format(str(e), field, path)})
                     else:
                         error.update({'path': [self.FIELD_REQUIRED_ERROR_MESSAGE]})
                     values = attribute.get('values', None)
@@ -173,15 +174,29 @@ class EntityValidator(object):
                 if any(errors):
                     attr_errors[attr_name] = errors
 
-        if attr_errors:
-            raise serializers.ValidationError(attr_errors)
+        terms_paths = validated_data.pop('terms_paths', None)
+        if terms_paths is not None:
+            errors = []
+            terms = TermModel.objects.active().no_external_tagging_restriction()
+            for path in terms_paths:
+                # Try find Term by `slug` or `path`
+                field = 'slug' if path.find('/') == -1 else 'path'
+                try:
+                    terms.get(**{field: path})
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    errors.append(_("{} `{}`='{}'").format(str(e), field, path))
+            if any(errors):
+                attr_errors['terms_paths'] = errors
 
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None:
             not_found_ids = list(set(terms_ids) - set(self.serializer.data_mart_available_terms_ids))
             if not_found_ids:
-                raise serializers.ValidationError("Terms with id`s [{}] not found.".format(
-                    ', '.join(str(x) for x in not_found_ids)))
+                attr_errors['terms_ids'] = _("Terms with id`s [{}] not found.").format(
+                    ', '.join(str(x) for x in not_found_ids))
+
+        if attr_errors:
+            raise serializers.ValidationError(attr_errors)
 
         validate_unique = instance is None
         try:
@@ -270,7 +285,8 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
             # при POST запросе потребуется вычислить дерево терминов, поскольку фильтрация не производится
             data_mart = self.context['request'].GET['_data_mart']
             tree = TermModel.decompress(data_mart.active_terms_ids)
-        return tree.expand().keys()
+        # Удаляем термины с ограничением на установку извне
+        return [key for key, value in tree.expand().items() if not value.term.system_flags.external_tagging_restriction]
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
@@ -434,6 +450,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
     """
 
     terms_ids = serializers.ListSerializer(child=serializers.IntegerField(), required=False, source='active_terms_ids')
+    terms_paths = serializers.ListSerializer(child=serializers.CharField(), required=False, write_only=True)
 
     characteristics = AttributeSerializer(many=True, required=False)
     marks = AttributeSerializer(many=True, required=False)
@@ -453,9 +470,9 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         ]:
             attributes = validated_data.pop(attr_name, None)
             if attributes is not None:
+                terms = TermModel.objects.active().attribute_filter(attribute_mode)
                 for attribute in attributes:
                     path, values = attribute['path'], attribute['values']
-                    terms = TermModel.objects.active().attribute_filter(attribute_mode)
                     try:
                         # Try find Term by `slug` or `path`
                         term = terms.get(slug=path) if path.find('/') == -1 else terms.get(path=path)
@@ -463,7 +480,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                         raise serializers.ValidationError(str(e))
 
                     values_terms_map = {x['name']: x['id'] for x in reversed(
-                        term.get_descendants(include_self=False).filter(name__in=values).values('id', 'name'))}
+                        term.get_descendants(include_self=False).filter(
+                            name__in=values).no_external_tagging_restriction().values('id', 'name'))}
 
                     if values:
                         for value in values:
@@ -486,6 +504,21 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     else:
                         AdditionalEntityCharacteristicOrMarkModel.objects.filter(term=term, entity=instance).delete()
 
+
+        terms_paths = validated_data.pop('terms_paths', None)
+        if terms_paths is not None:
+            terms = TermModel.objects.active().no_external_tagging_restriction()
+            query_attrs = {
+                'path': [],
+                'slug': []
+            }
+            for path in terms_paths:
+                # Try find Term by `slug` or `path`
+                query_attrs['slug' if path.find('/') == -1 else 'path'].append(path)
+            for key, values in query_attrs.items():
+                if values:
+                    attr_terms_ids.extend(terms.filter(**{"{}__in".format(key): values}).values_list('id', flat=True))
+
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None or attr_terms_ids:
             if terms_ids is None:
@@ -500,7 +533,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def create(self, validated_data):
         origin_validated_data = validated_data.copy()
-        for key in ('active_terms_ids', 'characteristics', 'marks'):
+        for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks'):
             validated_data.pop(key, None)
 
         model = self.Meta.model

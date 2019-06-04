@@ -99,6 +99,9 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
     def attribute_is_relation(self):
         return self.filter(attributes=self.model.attributes.is_relation)
 
+    def no_external_tagging_restriction(self):
+        return self.exclude(system_flags=self.model.system_flags.external_tagging_restriction)
+
 
 #==============================================================================
 # BaseTermManager
