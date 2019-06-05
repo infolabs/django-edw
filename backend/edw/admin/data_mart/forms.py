@@ -2,10 +2,15 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+
+from salmonella.widgets import SalmonellaMultiIdWidget
 
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.entity import EntityModel
+from edw.models.related import DataMartRelationModel
 
 from edw.admin.term.widgets import TermTreeWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
@@ -42,3 +47,7 @@ class DataMartRelationInlineForm(forms.ModelForm):
 
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
+
+    subjects = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Subjects'),
+                                       widget=SalmonellaMultiIdWidget(
+                                           DataMartRelationModel._meta.get_field("subjects").rel, admin.site))
