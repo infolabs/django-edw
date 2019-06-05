@@ -26,7 +26,7 @@ def normalize_entities_additional_attrs(entities_ids):
             delete_attr_ids = []
             for attr in additional_attrs:
                 values_terms_map = {x['name']: x['id'] for x in reversed(
-                    attr.term.get_descendants(include_self=False).values('id', 'name'))}
+                    attr.term.get_descendants(include_self=False).no_external_tagging_restriction().values('id', 'name'))}
                 if attr.value in values_terms_map:
                     add_terms_ids.append(values_terms_map[attr.value])
                     delete_attr_ids.append(attr.term.id)
