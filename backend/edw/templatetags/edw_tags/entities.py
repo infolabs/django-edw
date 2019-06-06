@@ -102,19 +102,11 @@ class GetEntities(BaseRetrieveDataTag):
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.queryset_context = {
-            "extra": None,
-            "initial_filter_meta": query_params['_initial_filter_meta'],
-            "initial_queryset": query_params['_initial_queryset'],
-            "terms_filter_meta": query_params['_terms_filter_meta'],
             "data_mart": data_mart,
-            "terms_ids": query_params['_terms_ids'],
-            "subj_ids": query_params['_subj_ids'],
-            "ordering": query_params['_ordering'],
-            "view_component": query_params['_view_component'],
-            "annotation_meta": query_params['_annotation_meta'],
-            "aggregation_meta": query_params['_aggregation_meta'],
-            "group_by": query_params['_group_by'],
-            "alike": query_params['_alike'],
-            "filter_queryset": query_params['_filter_queryset']
+            "extra": None
         }
+        self.queryset_context.update({key: query_params['_{}'.format(key)] for key in (
+            "initial_filter_meta", "initial_queryset", "terms_filter_meta", "terms_ids", "subj_ids", "ordering",
+            "view_component", "annotation_meta", "aggregation_meta", "group_by", "alike", "filter_queryset")})
+
         return queryset

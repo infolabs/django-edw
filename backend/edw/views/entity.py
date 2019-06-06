@@ -130,6 +130,9 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         obj = getattr(self, '_obj', None)
         if obj is None:
             obj = self._obj = super(EntityViewSet, self).get_object()
+
+        # print ("*** GET OBJECT ***", obj)
+
         return obj
 
     def check_permissions(self, request):
@@ -220,20 +223,12 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.serializer_context = {
-            "initial_filter_meta": query_params['_initial_filter_meta'],
-            "initial_queryset": query_params['_initial_queryset'],
-            "terms_filter_meta": query_params['_terms_filter_meta'],
-            "data_mart": data_mart,
-            "terms_ids": query_params['_terms_ids'],
-            "subj_ids": query_params['_subj_ids'],
-            "ordering": query_params['_ordering'],
-            "view_component": query_params['_view_component'],
-            "annotation_meta": query_params['_annotation_meta'],
-            "aggregation_meta": query_params['_aggregation_meta'],
-            "group_by": query_params['_group_by'],
-            "alike": query_params['_alike'],
-            "filter_queryset": query_params['_filter_queryset']
+            "data_mart": data_mart
         }
+        self.serializer_context.update({key: query_params.get('_{}'.format(key), None) for key in (
+            "initial_filter_meta", "initial_queryset", "terms_filter_meta", "terms_ids", "subj_ids", "ordering",
+            "view_component", "annotation_meta", "aggregation_meta", "group_by", "alike", "filter_queryset")})
+
         return queryset
 
     def finalize_response(self, request, response, *args, **kwargs):

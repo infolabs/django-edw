@@ -399,13 +399,6 @@ class EntityMetaFilter(BaseFilterBackend):
                         field, name = None, None
                     aggregation_meta[key] = (aggregate, field, name)
 
-        # request.GET['_annotation_meta'] = annotation_meta
-        # request.GET['_aggregation_meta'] = aggregation_meta
-        # request.GET['_filter_queryset'] = queryset
-        # request.GET['_alike'] = alike
-        # request.GET['_alike_param'] = self.alike_param
-        # request.GET['_entity_model'] = model_class
-
         request.GET.update({
             '_annotation_meta': annotation_meta,
             '_aggregation_meta': aggregation_meta,
