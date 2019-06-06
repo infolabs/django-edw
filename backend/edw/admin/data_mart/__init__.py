@@ -39,9 +39,18 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     list_display = ['name', 'parent', 'view_class', 'active']
 
+    fieldsets = (
+        ("", {
+            'fields': ('parent', 'name', 'slug', 'path', 'view_component', 'ordering', 'limit',
+                       'view_class', 'active', 'system_flags', 'terms', 'description'),
+        }),
+    )
+
+    readonly_fields = ['path']
+
     search_fields = ['name', 'slug', 'parent', 'view_class']
 
-    salmonella_fields = ('parent', 'subjects')
+    salmonella_fields = ('parent',)
 
     change_tree_template = 'edw/admin/data_mart/change_list.html'
 
@@ -87,7 +96,13 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 #===========================================================================================
 class DataMartRelationInline(admin.TabularInline):
     model = DataMartRelationModel
-    fields=['term', 'direction']
+
+    fields=['term', 'direction', 'subjects']
+
+    salmonella_fields = ('parent', 'subjects')
+
     fk_name = 'data_mart'
+
     extra = 1
+
     form = DataMartRelationInlineForm

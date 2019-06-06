@@ -116,6 +116,7 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
                                           choices=RELATION_DIRECTIONS, default=RELATION_BIDIRECTIONAL,
                                           help_text=_(
                                               'Defines the direction of relation on which selection is carried out'))
+    subjects = deferred.ManyToManyField('BaseEntity', related_name='+', verbose_name = _('Subjects'), blank=True)
 
     class Meta:
         abstract = True

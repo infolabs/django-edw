@@ -142,7 +142,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255)
-    slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
+    slug = models.SlugField(_("Datamart slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True)
@@ -169,8 +169,6 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                                  help_text=_("Is this data mart active."))
 
     system_flags = BitField(flags=SYSTEM_FLAGS, verbose_name=_('system flags'), null=True, default=None)
-
-    subjects = deferred.ManyToManyField('BaseEntity', related_name='+', verbose_name = _('Subjects'), blank=True)
 
     _relations = deferred.ManyToManyField('BaseTerm', through=DataMartRelationModel,
                                          through_fields=('data_mart', 'term'))

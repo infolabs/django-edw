@@ -227,7 +227,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255, db_index=True)
-    slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
+    slug = models.SlugField(_("Term slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
     semantic_rule = models.PositiveSmallIntegerField(verbose_name=_('Semantic Rule'),
                                                           choices=SEMANTIC_RULES, default=OR_RULE)
