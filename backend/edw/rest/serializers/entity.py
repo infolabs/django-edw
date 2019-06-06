@@ -95,10 +95,18 @@ class EntityDynamicMetaMixin(object):
                             else:
                                 cls._update_meta(it, data_mart.entities_model)
                     else:
-                        entity_model = data.get('entity_model', None)
+                        # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
+                        if isinstance(data, list):
+                            entity_model = data[0].get('entity_model', None) if len(data) else None
+                        else:
+                            entity_model = data.get('entity_model', None)
+                        # пытаемся определить модель по параметру 'entity_model' словаря GET
+                        if entity_model is None:
+                            entity_model = request.GET.get('entity_model', None)
+
                         if entity_model is not None:
                             try:
-                                model_class = apps.get_model(it.Meta.model._meta.app_label, str(entity_model))
+                                model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
                             except LookupError:
                                 pass
                             else:
@@ -146,6 +154,8 @@ class EntityValidator(object):
 
         validated_data = dict(attrs)
 
+        available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
+
         attr_errors = {}
         for (attr_name, attribute_mode) in [
             ('characteristics', TermModel.attributes.is_characteristic),
@@ -162,9 +172,10 @@ class EntityValidator(object):
                         # Try find Term by `slug` or `path`
                         field = 'slug' if path.find('/') == -1 else 'path'
                         try:
-                            terms.get(**{field: path})
+                            terms.get(**{field: path, 'id__in': available_terms_ids})
                         except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                             error.update({'path': _("{} `{}`='{}'").format(str(e), field, path)})
+
                     else:
                         error.update({'path': [self.FIELD_REQUIRED_ERROR_MESSAGE]})
                     values = attribute.get('values', None)
@@ -182,7 +193,7 @@ class EntityValidator(object):
                 # Try find Term by `slug` or `path`
                 field = 'slug' if path.find('/') == -1 else 'path'
                 try:
-                    terms.get(**{field: path})
+                    terms.get(**{field: path, 'id__in': available_terms_ids})
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                     errors.append(_("{} `{}`='{}'").format(str(e), field, path))
             if any(errors):
@@ -190,7 +201,7 @@ class EntityValidator(object):
 
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None:
-            not_found_ids = list(set(terms_ids) - set(self.serializer.data_mart_available_terms_ids))
+            not_found_ids = list(set(terms_ids) - available_terms_ids)
             if not_found_ids:
                 attr_errors['terms_ids'] = _("Terms with id`s [{}] not found.").format(
                     ', '.join(str(x) for x in not_found_ids))
@@ -284,7 +295,10 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         if tree is None:
             # при POST запросе потребуется вычислить дерево терминов, поскольку фильтрация не производится
             data_mart = self.context['request'].GET['_data_mart']
-            tree = TermModel.decompress(data_mart.active_terms_ids)
+            if data_mart is not None:
+                tree = TermModel.decompress(data_mart.active_terms_ids)
+            else:
+                return []
         # Удаляем термины с ограничением на установку извне
         return [key for key, value in tree.expand().items() if not value.term.system_flags.external_tagging_restriction]
 
@@ -521,6 +535,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None or attr_terms_ids:
+            attr_terms_ids = list(set(attr_terms_ids) & set(self.data_mart_available_terms_ids))
             if terms_ids is None:
                 terms_ids = attr_terms_ids
             else:
@@ -546,10 +561,11 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                         'defaults': validated_data
                     })
                 except MultipleObjectsReturned as e:
-                    raise exceptions.ValidationError(e)
+                    raise serializers.ValidationError(e)
                 break
         else:
-            raise ValidationError('')
+            raise serializers.ValidationError(
+                _("Lookup fields not found [{}]").format(", ".join(model._rest_meta.lookup_fields)))
 
         self._update_entity(instance, origin_validated_data, action='create')
 

@@ -154,7 +154,15 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
                                                                           pk=data_mart_pk)
                 model_class = data_mart.entities_model
             else:
-                entity_model = request.data.get('entity_model', None)
+                # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
+                if isinstance(request.data, list):
+                    entity_model = request.data[0].get('entity_model', None) if len(request.data) else None
+                else:
+                    entity_model = request.data.get('entity_model', None)
+                # пытаемся определить модель по параметру 'entity_model' словаря GET
+                if entity_model is None:
+                    entity_model = request.GET.get('entity_model', None)
+
                 if entity_model is not None:
                     try:
                         model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))

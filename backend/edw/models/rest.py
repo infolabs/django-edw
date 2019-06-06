@@ -239,7 +239,7 @@ class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, Dynamic
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
 
     def get_id_attrs(self):
-        return self.rest_meta.lookup_fields
+        return self.rest_meta.lookup_fields if self.rest_meta is not None else RESTOptions.lookup_fields
 
     def __init__(self, *args, **kwargs):
         super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)

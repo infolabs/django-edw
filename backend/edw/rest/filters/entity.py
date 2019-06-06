@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 import urllib
 
+
+from django.apps import apps
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -18,7 +20,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
-from edw.models.entity import BaseEntity
+from edw.models.entity import BaseEntity, EntityModel
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
@@ -325,11 +327,11 @@ class EntityMetaFilter(BaseFilterBackend):
                 )
                 filter_kwargs = {view.lookup_field: view.kwargs[lookup_url_kwarg]}
                 obj = get_object_or_404(queryset, **filter_kwargs)
-                entity_model = obj.__class__
+                model_class = obj.__class__
             else:
-                entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+                model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = entity_model.get_summary_annotation()
+            annotation = model_class.get_summary_annotation()
             if isinstance(annotation, dict):
                 annotation_meta, annotate_kwargs = {}, {}
                 for key, value in annotation.items():
@@ -352,16 +354,33 @@ class EntityMetaFilter(BaseFilterBackend):
                         annotate_kwargs[key] = value
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
-        elif view.action in ("bulk_update", "partial_bulk_update"):
-            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-            # modify queryset for `bulk_update` and `partial_bulk_update`
-            queryset = entity_model.objects.filter(id__in=queryset.values_list('id', flat=True))
+
         else:
-            entity_model = queryset.model
+            model_class = queryset.model
+
+            if view.action in ("bulk_update", "partial_bulk_update"):
+                if data_mart is not None:
+                    model_class = data_mart.entities_model
+                else:
+                    # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
+                    if isinstance(request.data, list):
+                        entity_model = request.data[0].get('entity_model', None) if len(request.data) else None
+                    else:
+                        entity_model = request.data.get('entity_model', None)
+                    # пытаемся определить модель по параметру 'entity_model' словаря GET
+                    if entity_model is None:
+                        entity_model = request.GET.get('entity_model', None)
+                    if entity_model is not None:
+                        try:
+                            model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
+                        except LookupError:
+                            pass
+                # modify queryset for `bulk_update` and `partial_bulk_update`
+                queryset = model_class.objects.filter(id__in=queryset.values_list('id', flat=True))
 
         # aggregation
         if view.action == 'list':
-            aggregation = entity_model.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation()
             if isinstance(aggregation, dict):
                 aggregation_meta = {}
                 for key, value in aggregation.items():
@@ -380,12 +399,22 @@ class EntityMetaFilter(BaseFilterBackend):
                         field, name = None, None
                     aggregation_meta[key] = (aggregate, field, name)
 
-        request.GET['_annotation_meta'] = annotation_meta
-        request.GET['_aggregation_meta'] = aggregation_meta
-        request.GET['_filter_queryset'] = queryset
-        request.GET['_alike'] = alike
-        request.GET['_alike_param'] = self.alike_param
-        request.GET['_entity_model'] = entity_model
+        # request.GET['_annotation_meta'] = annotation_meta
+        # request.GET['_aggregation_meta'] = aggregation_meta
+        # request.GET['_filter_queryset'] = queryset
+        # request.GET['_alike'] = alike
+        # request.GET['_alike_param'] = self.alike_param
+        # request.GET['_entity_model'] = model_class
+
+        request.GET.update({
+            '_annotation_meta': annotation_meta,
+            '_aggregation_meta': aggregation_meta,
+            '_filter_queryset': queryset,
+            '_alike': alike,
+            '_alike_param': self.alike_param,
+            '_entity_model': model_class
+        })
+
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)
@@ -402,13 +431,13 @@ class EntityMetaFilter(BaseFilterBackend):
         # annotation & aggregation
         annotation_meta, aggregation_meta = [], []
         if view.action == 'list':
-            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = entity_model.get_summary_annotation()
+            annotation = model_class.get_summary_annotation()
             if isinstance(annotation, dict):
                 annotation_meta = annotation.keys()
 
-            aggregation = entity_model.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation()
             if isinstance(aggregation, dict):
                 aggregation_meta = [key for key, value in aggregation.items() if isinstance(value[0], BaseExpression)]
 
