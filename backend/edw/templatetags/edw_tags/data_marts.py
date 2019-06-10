@@ -39,6 +39,25 @@ class GetDataMart(BaseRetrieveDataTag):
         else:
             return self.to_json(data)
 
+    def get_object(self):
+        # try find object by `slug`
+        # save origin lookups for monkey path
+        origin_lookup_url_kwarg, origin_lookup_field = self.lookup_url_kwarg, self.lookup_field
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        # it was a string, not an int.
+        try:
+            int(self.initial_kwargs[lookup_url_kwarg])
+        except ValueError:
+            self.lookup_url_kwarg, self.lookup_field = 'pk', 'slug'
+
+        obj = super(GetDataMart, self).get_object()
+
+        self.lookup_url_kwarg, self.lookup_field = origin_lookup_url_kwarg, origin_lookup_field
+        return obj
+
 
 class GetDataMarts(BaseRetrieveDataTag):
     name = 'get_data_marts'
