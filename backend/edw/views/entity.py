@@ -228,10 +228,12 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         self.serializer_context = {
             "data_mart": data_mart
         }
-        self.serializer_context.update({key: query_params.get('_{}'.format(key), None) for key in (
-            "initial_filter_meta", "initial_queryset", "terms_filter_meta", "terms_ids", "subj_ids", "ordering",
-            "view_component", "annotation_meta", "aggregation_meta", "group_by", "alike", "filter_queryset")})
-
+        for key in ("initial_filter_meta", "initial_queryset", "terms_filter_meta", "terms_ids", "subj_ids", "ordering",
+                    "view_component", "annotation_meta", "aggregation_meta", "group_by", "alike", "filter_queryset"):
+            try:
+                self.serializer_context[key] = query_params['_{}'.format(key)]
+            except KeyError:
+                self.serializer_context[key] = None
         return queryset
 
     def finalize_response(self, request, response, *args, **kwargs):
