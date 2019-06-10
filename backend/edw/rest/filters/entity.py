@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import urllib
 
-
 from django.apps import apps
 from django.utils import six
 from django.utils.functional import cached_property
@@ -79,7 +78,7 @@ class BaseEntityFilter(filters.FilterSet):
         :return: `data_mart_id` value parse from `self._data_mart_id` or
             `self.data['data_mart_pk']`, default: None
         '''
-        return serializers.IntegerField().to_internal_value(value)
+        return serializers.CharField().to_internal_value(value)
 
     @cached_property
     def data_mart(self):
@@ -89,9 +88,15 @@ class BaseEntityFilter(filters.FilterSet):
         if self._data_mart is not None:
             return self._data_mart
 
-        pk = self.data_mart_id
-        if pk is not None:
-            return get_object_or_404(DataMartModel.objects.active(), pk=pk)
+        value = self.data_mart_id
+        if value is not None:
+            key = 'pk'
+            # it was a string, not an int. Try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                key = 'slug'
+            return get_object_or_404(DataMartModel.objects.active(), **{key: value})
         return None
 
     @cached_property
@@ -407,7 +412,6 @@ class EntityMetaFilter(BaseFilterBackend):
             '_alike_param': self.alike_param,
             '_entity_model': model_class
         })
-
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)

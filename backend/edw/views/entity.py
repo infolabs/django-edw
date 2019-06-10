@@ -130,9 +130,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         obj = getattr(self, '_obj', None)
         if obj is None:
             obj = self._obj = super(EntityViewSet, self).get_object()
-
-        # print ("*** GET OBJECT ***", obj)
-
         return obj
 
     def check_permissions(self, request):
@@ -151,10 +148,16 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             obj = self.get_object()
             model_class = obj.__class__
         elif self.action in ('create', 'list', 'bulk_update', 'partial_bulk_update', 'bulk_destroy'):
-            data_mart_pk = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
-            if data_mart_pk is not None:
-                request.GET['_data_mart'] = data_mart = get_object_or_404(DataMartModel.objects.active(),
-                                                                          pk=data_mart_pk)
+            value = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
+            if value is not None:
+                key = 'pk'
+                # it was a string, not an int. Try find object by `slug`
+                try:
+                    value = int(value)
+                except ValueError:
+                    key = 'slug'
+                request.GET['_data_mart'] = data_mart = get_object_or_404(
+                    DataMartModel.objects.active(), **{key: value})
                 model_class = data_mart.entities_model
             else:
                 # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента

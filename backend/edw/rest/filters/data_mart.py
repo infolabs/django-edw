@@ -32,8 +32,12 @@ class DataMartFilter(filters.FilterSet):
         fields = ['active']
 
     def filter_parent_id(self, name, queryset, value):
-        if isinstance(value, six.string_types) and value.lower() in ('none', 'null'):
-            value = None
-        else:
-            value = serializers.IntegerField().to_internal_value(value)
-        return queryset.filter(**{"{}__exact".format(name): value})
+        key = name
+        try:
+            value = int(value)
+        except ValueError:
+            if value.lower() in ('none', 'null'):
+                value = None
+            else:
+                key = 'parent__slug'
+        return queryset.filter(**{"{}__exact".format(key): value})

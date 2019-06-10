@@ -77,7 +77,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
     slug = serializers.SlugField(max_length=50, min_length=None, allow_blank=False)
     path = serializers.CharField(max_length=255, allow_blank=False, read_only=True)
     active = serializers.BooleanField(required=False, default=True)
-    description = serializers.CharField(required=False)
+    description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     data_mart_model = serializers.CharField(read_only=True)
     data_mart_url = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()

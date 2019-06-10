@@ -19,7 +19,7 @@ class TermFilter(filters.FilterSet):
     TermFilter
     """
     #active = filters.BooleanFilter()
-    parent_id = filters.NumberFilter()
+    parent_id = filters.MethodFilter(label=_("Parent Id"))
     semantic_rule = filters.ChoiceFilter(name="semantic_rule", choices=BaseTerm.SEMANTIC_RULES + (('', _('Any')), ))
     specification_mode = filters.ChoiceFilter(name="specification_mode",
                                               choices=BaseTerm.SPECIFICATION_MODES + (('', _('Any')), ))
@@ -36,16 +36,22 @@ class TermFilter(filters.FilterSet):
         :return: `data_mart_id` value parse from `self._data_mart_id` or
             `self.data['data_mart_pk']`, default: None
         '''
-        return serializers.IntegerField().to_internal_value(value)
+        return serializers.CharField().to_internal_value(value)
 
     @cached_property
     def data_mart(self):
         '''
         :return: active `DataMartModel` instance from `self.data_mart_id`
         '''
-        pk = self.data_mart_id
-        if pk is not None:
-            return get_object_or_404(DataMartModel.objects.active(), pk=pk)
+        value = self.data_mart_id
+        if value is not None:
+            key = 'pk'
+            # it was a string, not an int. Try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                key = 'slug'
+            return get_object_or_404(DataMartModel.objects.active(), **{key: value})
         return None
 
     @cached_property
@@ -57,6 +63,18 @@ class TermFilter(filters.FilterSet):
         if self.data_mart_id is None:
             return queryset
         return queryset.filter(id__in=TermModel.decompress(self.data_mart_term_ids, fix_it=True).keys())
+
+    def filter_parent_id(self, name, queryset, value):
+        key = name
+        try:
+            value = int(value)
+        except ValueError:
+            if value.lower() in ('none', 'null'):
+                value = None
+            else:
+                key = 'parent__slug'
+        return queryset.filter(**{"{}__exact".format(key): value})
+
 
 
 

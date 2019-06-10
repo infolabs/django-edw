@@ -81,15 +81,21 @@ class EntityDynamicMetaMixin(object):
                 context = kwargs.get('context', None)
                 if context is not None:
                     request = context['request']
-                    data_mart_pk = request.GET.get('data_mart_pk', None)
-                    if data_mart_pk is not None:
+                    value = request.GET.get('data_mart_pk', None)
+                    if value is not None:
                         # try find data_mart in cache
                         data_mart = request.GET.get('_data_mart', None)
                         if data_mart is not None and isinstance(data_mart, DataMartModel):
                             cls._update_meta(it, data_mart.entities_model)
                         else:
+                            key = 'pk'
+                            # it was a string, not an int. Try find object by `slug`
                             try:
-                                data_mart = DataMartModel.objects.active().get(pk=data_mart_pk)
+                                value = int(value)
+                            except ValueError:
+                                key = 'slug'
+                            try:
+                                data_mart = DataMartModel.objects.active().get(**{key: value})
                             except DataMartModel.DoesNotExist:
                                 pass
                             else:
