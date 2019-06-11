@@ -48,6 +48,9 @@ class DataMartRelationInlineForm(forms.ModelForm):
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
 
-    subjects = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Subjects'),
-                                       widget=SalmonellaMultiIdWidget(
-                                           DataMartRelationModel._meta.get_field("subjects").rel, admin.site))
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=EntityModel.objects.all(),
+        label=_('Subjects'),
+        widget=SalmonellaMultiIdWidget(DataMartRelationModel._meta.get_field("subjects").rel, admin.site),
+        required=False
+    )
