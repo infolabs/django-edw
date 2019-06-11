@@ -241,6 +241,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
     """
     entity_model = serializers.CharField(read_only=True)
     entity_name = serializers.CharField(read_only=True)
+    active = serializers.BooleanField(required=False)
 
     class Meta:
         model = EntityModel
@@ -669,7 +670,7 @@ class EntityDetailSerializer(EntityDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
     class Meta(EntityCommonSerializer.Meta):
-        exclude = ('active', 'polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
+        exclude = ('polymorphic_ctype', 'additional_characteristics_or_marks', '_relations', 'terms')
 
     def get_media(self, entity):
         return self.render_html(entity, 'media')
