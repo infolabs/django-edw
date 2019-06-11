@@ -187,7 +187,7 @@ class EntityFilter(BaseEntityFilter):
         :return: `is_active` value parse from `self._active` or
             `self.data['active']`, default: None
         '''
-        return serializers.BooleanField().to_internal_value(value)
+        return serializers.NullBooleanField().to_internal_value(value)
 
     def filter_active(self, name, queryset, value):
         self._is_active = value
