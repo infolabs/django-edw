@@ -519,6 +519,11 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
 
 class EntityOrderingFilter(OrderingFilter):
 
+    def filter_queryset(self, request, queryset, view):
+        if view.action in ("bulk_update", "partial_bulk_update"):
+            return queryset
+        return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
+
     def get_ordering(self, request, queryset, view):
         data_mart = request.GET['_data_mart']
         if data_mart is not None:
