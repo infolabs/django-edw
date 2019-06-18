@@ -62,9 +62,9 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('terms', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def term_ids(self, value):
-        '''
+        """
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
-        '''
+        """
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
 
     def filter_terms(self, name, queryset, value):
@@ -74,17 +74,17 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('data_mart_pk', None)
     def data_mart_id(self, value):
-        '''
+        """
         :return: `data_mart_id` value parse from `self._data_mart_id` or
             `self.data['data_mart_pk']`, default: None
-        '''
+        """
         return serializers.CharField().to_internal_value(value)
 
     @cached_property
     def data_mart(self):
-        '''
+        """
         :return: active `DataMartModel` instance from `self.data_mart_id`
-        '''
+        """
         if self._data_mart is not None:
             return self._data_mart
 
@@ -110,10 +110,10 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('use_cached_decompress', True)
     def use_cached_decompress(self, value):
-        '''
+        """
         :return: `use_cached_decompress` value parse from `self._use_cached_decompress` or
             `self.data['use_cached_decompress']`, default: True
-        '''
+        """
         return serializers.BooleanField().to_internal_value(value)
 
 
@@ -183,10 +183,10 @@ class EntityFilter(BaseEntityFilter):
     @cached_property
     @get_from_underscore_or_data('active', None)
     def is_active(self, value):
-        '''
+        """
         :return: `is_active` value parse from `self._active` or
             `self.data['active']`, default: None
-        '''
+        """
         return serializers.NullBooleanField().to_internal_value(value)
 
     def filter_active(self, name, queryset, value):
@@ -202,19 +202,47 @@ class EntityFilter(BaseEntityFilter):
         return queryset
 
     @cached_property
+    def data_mart_relations(self):
+        return list(self.data_mart.relations.all()) if self.data_mart else []
+
+    @cached_property
+    def data_mart_relations_subjects(self):
+        return {relation.term_id: list(
+            relation.subjects.values_list('id', flat=True)
+        ) for relation in self.data_mart_relations}
+
+    @cached_property
+    def is_data_mart_has_relations(self):
+        return any(self.data_mart_relations)
+
+    @cached_property
+    def is_data_mart_relations_has_subjects(self):
+        return any(self.data_mart_relations_subjects.values())
+
+    @cached_property
     def data_mart_rel_ids(self):
-        return ['{}{}'.format(relation.term_id, relation.direction) for relation in
-                self.data_mart.relations.all()] if self.data_mart else []
+        rel_f_ids, rel_r_ids = [], []
+        for relation in self.data_mart_relations:
+            if relation.direction == 'f':
+                rel_f_ids.append(relation.term_id)
+            elif relation.direction == 'r':
+                rel_r_ids.append(relation.term_id)
+            else:
+                rel_f_ids.append(relation.term_id)
+                rel_r_ids.append(relation.term_id)
+        return rel_f_ids, rel_r_ids
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
         self.data['_data_mart'] = self.data_mart
-        if 'rel' not in self.data:
-            rel_ids = self.data_mart_rel_ids
-            if rel_ids:
-                queryset = self.filter_rel(name, queryset, rel_ids)
+
+        if self.is_data_mart_has_relations and 'rel' not in self.data:
+            # patch rel_ids
+            self.rel_ids = self.data_mart_rel_ids
+            queryset = self.filter_rel(name, queryset, None)
+
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
@@ -238,22 +266,44 @@ class EntityFilter(BaseEntityFilter):
     @cached_property
     @get_from_underscore_or_data('subj', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def subj_ids(self, value):
-        '''
+        """
         :return: `subj_ids` value parse from `self._subj_ids` or `self.data['subj']`, default: []
-        '''
+        """
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
+
+    @cached_property
+    def rel_subj(self):
+        """
+        :return: `subj` value parse from `self.subj_ids` or dict of {relation: subject_ids...}
+        """
+        if self.is_data_mart_relations_has_subjects:
+            if self.subj_ids:
+                cleaned_relations_subjects = {}
+                for rel_id, subj_ids in self.data_mart_relations_subjects.items():
+                    if subj_ids:
+                        cleaned_subj_ids = list(set(self.subj_ids) & set(subj_ids))
+                        if not cleaned_subj_ids:
+                            cleaned_subj_ids = subj_ids
+                        cleaned_relations_subjects[rel_id] = cleaned_subj_ids
+                    else:
+                        cleaned_relations_subjects[rel_id] = self.subj_ids
+                return cleaned_relations_subjects
+            else:
+                return self.data_mart_relations_subjects
+        return self.subj_ids
 
     def filter_subj(self, name, queryset, value):
         self._subj_ids = value
-        if not self.subj_ids:
+        if not self.rel_subj:
             return queryset
+
         self.data['_subj_ids'] = self.subj_ids
         if self.rel_ids is None:
             self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
             return queryset.subj(self.subj_ids)
         else:
-            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.subj_ids, *self.rel_ids)
-            return queryset.subj_and_rel(self.subj_ids, *self.rel_ids)
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.rel_subj, *self.rel_ids)
+            return queryset.subj_and_rel(self.rel_subj, *self.rel_ids)
 
     @staticmethod
     def _separate_rel_by_key(rel, key, lst):
@@ -287,6 +337,14 @@ class EntityFilter(BaseEntityFilter):
         if rel_b_ids:
             rel_f_ids.extend(rel_b_ids)
             rel_r_ids.extend(rel_b_ids)
+
+        # Sanitize relations
+        if self.is_data_mart_has_relations:
+            rel_f_ids = list(set(rel_f_ids) & set(self.data_mart_rel_ids[0]))
+            rel_r_ids = list(set(rel_r_ids) & set(self.data_mart_rel_ids[1]))
+            if not any((rel_f_ids, rel_r_ids)):
+                return self.data_mart_rel_ids
+
         return rel_f_ids, rel_r_ids
 
     def filter_rel(self, name, queryset, value):
@@ -294,8 +352,13 @@ class EntityFilter(BaseEntityFilter):
         if self.rel_ids is None or 'subj' in self.data:
             return queryset
 
-        self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
-        return queryset.rel(*self.rel_ids)
+        if self.is_data_mart_relations_has_subjects:
+            # patch rel_subj
+            self.rel_subj = self.data_mart_relations_subjects
+            return self.filter_subj(name, queryset, [])
+        else:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
+            return queryset.rel(*self.rel_ids)
 
 
 class EntityMetaFilter(BaseFilterBackend):

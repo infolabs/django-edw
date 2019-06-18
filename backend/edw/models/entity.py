@@ -215,27 +215,48 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
             q_lst.append(models.Q(backward_relations__term__in=rel_r_ids))
         return self.filter(reduce(OR, q_lst)).distinct()
 
-    def _get_subj_and_rel_cache_key(self, subj_ids, *rel_ids):
+    def _get_subj_and_rel_cache_key(self, subj, *rel_ids):
+        if isinstance(subj, (tuple, list)):
+            subj_key=self._get_subj_cache_key(subj),
+        else:
+            subj_key = self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=",".join(["{}.{}".format(
+                rel_id, hash_unsorted_list(subj_ids) if subj_ids else '') for rel_id, subj_ids in sorted(subj.items())]))
         return "{subj_key}:{rel_key}".format(
-            subj_key=self._get_subj_cache_key(subj_ids),
+            subj_key=subj_key,
             rel_key=self._get_rel_cache_key(*rel_ids)
         )
 
     @add_cache_key(_get_subj_and_rel_cache_key)
-    def subj_and_rel(self, subj_ids, rel_f_ids, rel_r_ids):
+    def subj_and_rel(self, subj, rel_f_ids, rel_r_ids):
         """
-        :param subj_ids: subjects ids
+        :param subj: list [subjects ids] or dict - {relation_id: [subjects ids]...}
         :param rel_f_ids: forward relations ids
         :param rel_r_ids: backward (reverse) relations ids
         :return:
         """
         q_lst = []
-        if rel_r_ids:
-            q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
-                         models.Q(forward_relations__term__in=rel_r_ids))
-        if rel_f_ids:
-            q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
-                         models.Q(backward_relations__term__in=rel_f_ids))
+        if isinstance(subj, (tuple, list)):
+            if rel_f_ids:
+                q_lst.append(models.Q(backward_relations__from_entity__in=subj) &
+                             models.Q(backward_relations__term__in=rel_f_ids))
+            if rel_r_ids:
+                q_lst.append(models.Q(forward_relations__to_entity__in=subj) &
+                             models.Q(forward_relations__term__in=rel_r_ids))
+        else:
+            for rel_id in rel_f_ids:
+                subj_ids = subj[rel_id]
+                if subj_ids:
+                    q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
+                                 models.Q(backward_relations__term=rel_id))
+                else:
+                    q_lst.append(models.Q(forward_relations__term=rel_id))
+            for rel_id in rel_r_ids:
+                subj_ids = subj[rel_id]
+                if subj_ids:
+                    q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
+                                 models.Q(forward_relations__term=rel_id))
+                else:
+                    q_lst.append(models.Q(backward_relations__term=rel_id))
         return self.filter(reduce(OR, q_lst)).distinct()
 
     @cached_property
@@ -406,8 +427,8 @@ class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTMode
                             msg = "Class `{}` must provide a model field `{}`"
                             raise NotImplementedError(msg.format(Model.__name__, required_field))
 
-        #if not callable(getattr(Model, 'get_price', None)):
-        #    msg = "Class `{}` must provide a method implementing `get_price(request)`"
+        # if not callable(getattr(Model, 'get_some_data', None)):
+        #    msg = "Class `{}` must provide a method implementing `get_some_data(request)`"
         #    raise NotImplementedError(msg.format(Model.__name__))
 
 
@@ -850,12 +871,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             self.terms.add(term)
 
     def pre_save_entity(self, origin, *args, **kwargs):
-        '''
+        """
         Normally not needed.
         This function call before `.save()` method.
         :param origin:
         :return:
-        '''
+        """
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
