@@ -155,11 +155,16 @@ class RegisterUserForm(ModelForm):
         ]).render(context)
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
-        body = select_template([
+        text_message = select_template([
             '{}/email/activate-account-body.txt'.format(edw_settings.APP_LABEL),
             'edw/email/activate-account-body.txt',
         ]).render(context)
-        user.email_user(subject, body)
+        html_message = select_template([
+            '{}/email/activate-account-body.html'.format(edw_settings.APP_LABEL),
+            'edw/email/activate-account-body.html',
+        ]).render(context)
+
+        user.email_user(subject, text_message, html_message=html_message)
 
 
 #class ContinueAsGuestForm(ModelForm):
