@@ -91,13 +91,14 @@ class RegisterUserForm(ModelForm):
         self._parce_fio_to_fullname(self.instance.user, self.cleaned_data['fio'])
         customer = super(RegisterUserForm, self).save(commit)
         password = self.cleaned_data['password1']
-        if self.cleaned_data['preset_password']:
-            self._send_password(request, customer.user, password)
+        #пароль и ссылка на активацию в одном письме либо только пароль, если не требуется активация
         if do_activation:
+            if self.cleaned_data['preset_password']:
+                self._send_password(request, customer.user, password)
             user = authenticate(username=customer.user.username, password=password)
             login(request, user)
         else:
-            self._send_activation_email(request, customer.user)
+            self._send_activation_email(request, customer.user, password)
             logout(request)
         customer_registered.send_robust(sender=self.__class__, customer=customer, request=request)
 
@@ -125,7 +126,7 @@ class RegisterUserForm(ModelForm):
         ]).render(context)
         user.email_user(subject, body)
 
-    def _send_activation_email(self, request, user):
+    def _send_activation_email(self, request, user, password=None):
         """
         Send the activation email. The activation key is simply the
         username, signed using TimestampSigner.
@@ -138,21 +139,32 @@ class RegisterUserForm(ModelForm):
         activation_link = request.build_absolute_uri(reverse('registration_activate', kwargs={'activation_key': activation_key}))
         context = Context({
             'site_name': current_site.name,
+            'absolute_base_uri': request.build_absolute_uri('/'),
             'activation_link': activation_link,
             'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
-            'user': user,
+            'user': user
         })
+        if password:
+            context.update({
+                'password': password
+            })
+
         subject = select_template([
             '{}/email/activate-account-subject.txt'.format(edw_settings.APP_LABEL),
             'edw/email/activate-account-subject.txt',
         ]).render(context)
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
-        body = select_template([
+        text_message = select_template([
             '{}/email/activate-account-body.txt'.format(edw_settings.APP_LABEL),
             'edw/email/activate-account-body.txt',
         ]).render(context)
-        user.email_user(subject, body)
+        html_message = select_template([
+            '{}/email/activate-account-body.html'.format(edw_settings.APP_LABEL),
+            'edw/email/activate-account-body.html',
+        ]).render(context)
+
+        user.email_user(subject, text_message, html_message=html_message)
 
 
 #class ContinueAsGuestForm(ModelForm):
