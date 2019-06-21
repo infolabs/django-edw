@@ -137,7 +137,7 @@ class PasswordResetView(GenericAPIView):
             )
         else:
             if not user.is_active:
-                msg = _('For reset password you need first activate your account')
+                msg = _('Your account is inactive. To reset password you should activate it first or contact us via a callback form')
                 return Response(
                     dict(email=msg),
                     status=status.HTTP_400_BAD_REQUEST
