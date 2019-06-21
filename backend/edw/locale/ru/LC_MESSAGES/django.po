@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-21 13:56+0000\n"
-"PO-Revision-Date: 2019-06-21 16:59+0300\n"
+"POT-Creation-Date: 2019-06-21 14:45+0000\n"
+"PO-Revision-Date: 2019-06-21 17:53+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -1175,11 +1175,10 @@ msgid "Clear filter"
 msgstr "Сбросить всё"
 
 #: backend/edw/templates/edw/email/activate-account-body.html:3
-#: backend/edw/templates/edw/email/activate-account-body.txt:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for registration for your\n"
-"user account at «%(site_name)s»."
+"        user account at «%(site_name)s»."
 msgstr ""
 "Вы получили это письмо потому что этот адрес был указан при регистрации\n"
 "пользовательского аккаунта на «%(site_name)s»."
@@ -1191,17 +1190,25 @@ msgstr "Активировать"
 #: backend/edw/templates/edw/email/activate-account-body.html:8
 #, python-format
 msgid ""
-"Click a button above or this link: %(activation_link)s to activate your "
-"account %(user)s."
+"To activate your account сlick a button above or this link: "
+"%(activation_link)s."
 msgstr ""
-"Нажмите кнопку выше или перейдите по ссылке %(activation_link)s, чтобы "
-"активировать свой аккаунт %(user)s."
+"чтобы активировать аккаунт, нажмите кнопку выше или перейдите по ссылке "
+"%(activation_link)s."
 
 #: backend/edw/templates/edw/email/activate-account-body.html:10
 #: backend/edw/templates/edw/email/activate-account-body.txt:8
 #, python-format
 msgid "Link is valid for %(expiration_days)s days."
 msgstr "Ссылка будет активна в течение %(expiration_days)s дней."
+
+#: backend/edw/templates/edw/email/activate-account-body.html:10
+msgid ""
+"If links are disallowed in your post-manager just copy this link and paste "
+"it into url field of your browser."
+msgstr ""
+"Если ссылки запрещены в вашем почтовом сервисе, просто скопируйте ссылку и "
+"вставьте ее в адресную строку браузера."
 
 #: backend/edw/templates/edw/email/activate-account-body.html:13
 msgid "Your username:"
@@ -1225,6 +1232,15 @@ msgstr "Спасибо, что используете наш сайт!"
 #, python-format
 msgid "The «%(site_name)s» team"
 msgstr "Команда сайта «%(site_name)s»"
+
+#: backend/edw/templates/edw/email/activate-account-body.txt:3
+#, python-format
+msgid ""
+"You are receiving this email because you asked for registration for your\n"
+"user account at «%(site_name)s»."
+msgstr ""
+"Вы получили это письмо потому что этот адрес был указан при регистрации\n"
+"пользовательского аккаунта на «%(site_name)s»."
 
 #: backend/edw/templates/edw/email/activate-account-body.txt:6
 #, python-format
