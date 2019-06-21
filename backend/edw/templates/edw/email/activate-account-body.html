@@ -3,12 +3,16 @@
 {% blocktrans %}You are receiving this email because you asked for registration for your
 user account at «{{ site_name }}».{% endblocktrans %}
 
-<h1>{% blocktrans %}Click on link {{ activation_link }} for activate your account {{ user }}.{% endblocktrans %}</h1>
+<a href="{{ activation_link }}" style="display: block; text-align: center; text-transform: uppercase; padding: 6px 12px; font-size: 1.4rem; text-decoration: none; color: white; background: #26C6DA; max-width: 250px; margin: 20px auto;">{% blocktrans %}Activate{% endblocktrans %}</a>
+
+{% blocktrans %}Click a button above or this link: {{ activation_link }} to activate your account {{ user }}.{% endblocktrans %}
 
 {% blocktrans %}Link is valid for {{ expiration_days }} days.{% endblocktrans %}
 
-{% if password %}{% blocktrans %}In the future, please use username {{ user }} with password {{ password }} to sign
-into {{ absolute_base_uri }}.{% endblocktrans %}{% endif %}
+{% if password %}
+    <p><strong>{% blocktrans %}Your username:{% endblocktrans %}</strong> {{ user }} </p>
+    <p><strong>{% blocktrans %}Password:{% endblocktrans %}</strong> {{ password }}</p>
+{% endif %}
 
 {% trans "Thanks for using our site!" %}
 
