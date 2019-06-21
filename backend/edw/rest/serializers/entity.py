@@ -7,6 +7,12 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.expressions import BaseExpression
 from django.db import models
+
+from django.db.models.fields import NOT_PROVIDED
+
+from django.db.models.fields.reverse_related import ForeignObjectRel
+from django.db.models.fields.related import RelatedField
+
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -50,6 +56,14 @@ class AttributeSerializer(serializers.Serializer):
     path = serializers.CharField()
     values = serializers.ListField(child=serializers.CharField())
     view_class = serializers.ListField(child=serializers.CharField(), read_only=True)
+
+
+# class RelationSerializer(serializers.Serializer):
+#     """
+#     A serializer to convert the entity relations for rendering.
+#     """
+#     to_entity_id = serializers.IntegerField()
+#     term_id = serializers.IntegerField()
 
 
 class EntityDynamicMetaMixin(object):
@@ -215,9 +229,17 @@ class EntityValidator(object):
         if attr_errors:
             raise serializers.ValidationError(attr_errors)
 
+        exclude = None
+        request_method = getattr(getattr(self.serializer.context.get('view'), 'request'), 'method', '')
+        if request_method == 'PATCH':
+            required_fields = [f.name for f in model._meta.get_fields() if not isinstance(f, (
+                RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
+                f, 'default', NOT_PROVIDED) is NOT_PROVIDED]
+            exclude = list(set(required_fields) - set(validated_data.keys()))
+
         validate_unique = instance is None
         try:
-            model(**validated_data).full_clean(validate_unique=validate_unique)
+            model(**validated_data).full_clean(validate_unique=validate_unique, exclude=exclude)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
@@ -472,6 +494,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     terms_ids = serializers.ListSerializer(child=serializers.IntegerField(), required=False, source='active_terms_ids')
     terms_paths = serializers.ListSerializer(child=serializers.CharField(), required=False, write_only=True)
+
+    # relations = serializers.ListSerializer(child=RelationSerializer(), required=False, source='forward_relations')
 
     characteristics = AttributeSerializer(many=True, required=False)
     marks = AttributeSerializer(many=True, required=False)
