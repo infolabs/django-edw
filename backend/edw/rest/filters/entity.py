@@ -206,14 +206,12 @@ class EntityFilter(BaseEntityFilter):
         return list(self.data_mart.relations.all()) if self.data_mart else []
 
     @cached_property
-    def data_mart_relations_subjects(self):
-        return {relation.term_id: list(
-            relation.subjects.values_list('id', flat=True)
-        ) for relation in self.data_mart_relations}
-
-    @cached_property
     def is_data_mart_has_relations(self):
         return any(self.data_mart_relations)
+
+    @cached_property
+    def data_mart_relations_subjects(self):
+        return DataMartModel.get_relations_subjects(self.data_mart_relations)
 
     @cached_property
     def is_data_mart_relations_has_subjects(self):
@@ -221,16 +219,7 @@ class EntityFilter(BaseEntityFilter):
 
     @cached_property
     def data_mart_rel_ids(self):
-        rel_f_ids, rel_r_ids = [], []
-        for relation in self.data_mart_relations:
-            if relation.direction == 'f':
-                rel_f_ids.append(relation.term_id)
-            elif relation.direction == 'r':
-                rel_r_ids.append(relation.term_id)
-            else:
-                rel_f_ids.append(relation.term_id)
-                rel_r_ids.append(relation.term_id)
-        return rel_f_ids, rel_r_ids
+        return DataMartModel.separate_relations(self.data_mart_relations)
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
@@ -306,13 +295,9 @@ class EntityFilter(BaseEntityFilter):
             return queryset.subj_and_rel(self.rel_subj, *self.rel_ids)
 
     @staticmethod
-    def _separate_rel_by_key(rel, key, lst):
+    def separate_rel_by_key(rel, key):
         i = rel.find(key)
-        if i != -1:
-            lst.append(int(rel[:i] + rel[i + 1:]))
-            return True
-        else:
-            return False
+        return int(rel[:i] + rel[i + 1:]) if i != -1 else None
 
     @cached_property
     @get_from_underscore_or_data('rel', None, lambda value: urllib.unquote(value).decode('utf8').split(","))
@@ -330,10 +315,20 @@ class EntityFilter(BaseEntityFilter):
         raw_rel = serializers.ListField(child=serializers.RegexField(r'^\d+[bfr]?$')).to_internal_value(value)
         rel_b_ids, rel_f_ids, rel_r_ids = [], [], []
         for x in raw_rel:
-            if not EntityFilter._separate_rel_by_key(x, 'b', rel_b_ids):
-                if not EntityFilter._separate_rel_by_key(x, 'f', rel_f_ids):
-                    if not EntityFilter._separate_rel_by_key(x, 'r', rel_r_ids):
+            rel_id = EntityFilter.separate_rel_by_key(x, 'b')
+            if rel_id is None:
+                rel_id = EntityFilter.separate_rel_by_key(x, 'f')
+                if rel_id is None:
+                    rel_id = EntityFilter.separate_rel_by_key(x, 'r')
+                    if rel_id is None:
                         rel_b_ids.append(int(x))
+                    else:
+                        rel_r_ids.append(rel_id)
+                else:
+                    rel_f_ids.append(rel_id)
+            else:
+                rel_b_ids.append(rel_id)
+
         if rel_b_ids:
             rel_f_ids.extend(rel_b_ids)
             rel_r_ids.extend(rel_b_ids)
