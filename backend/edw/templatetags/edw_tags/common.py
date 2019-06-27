@@ -119,7 +119,6 @@ def intersection(value, arg):
     :param data:
     :return:
     '''
-    print(value, arg, list(set(value) & set(arg)))
     return list(set(value) & set(arg))
 
 
