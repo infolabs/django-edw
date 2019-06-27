@@ -438,6 +438,31 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def validate_term_model(cls):
         pass
 
+    @staticmethod
+    def separate_relations(relations):
+        """
+        Separate data mart relations into forward and backward (reverse) relations ids
+        """
+        rel_f_ids, rel_r_ids = [], []
+        for relation in relations:
+            if relation.direction == 'f':
+                rel_f_ids.append(relation.term_id)
+            elif relation.direction == 'r':
+                rel_r_ids.append(relation.term_id)
+            else:
+                rel_f_ids.append(relation.term_id)
+                rel_r_ids.append(relation.term_id)
+        return rel_f_ids, rel_r_ids
+
+    @staticmethod
+    def get_relations_subjects(relations):
+        """
+        Get data mart relations subjects
+        """
+        return {relation.term_id: list(
+            relation.subjects.values_list('id', flat=True)
+        ) for relation in relations}
+
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)
 

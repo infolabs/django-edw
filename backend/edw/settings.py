@@ -64,6 +64,6 @@ REST_PAGINATION.update(getattr(settings, 'EDW_REST_PAGINATION', {}))
 REGISTRATION_PROCESS = {
     'registration_salt': 'registration',
     'do_activation': False,
-    'account_activation_days': 2
+    'account_activation_days': 5
 }
 REGISTRATION_PROCESS.update(getattr(settings, 'EDW_REGISTRATION_PROCESS', {}))

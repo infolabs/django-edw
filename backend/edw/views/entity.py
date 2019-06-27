@@ -49,6 +49,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         'retrieve':  EntityDetailSerializer,
         'create': EntityDetailSerializer,
         'update': EntityDetailSerializer,
+        'bulk_update': EntityDetailSerializer,
         'partial_update': EntityDetailSerializer,
         'partial_bulk_update': EntityDetailSerializer,
         'bulk_destroy': EntityCommonSerializer

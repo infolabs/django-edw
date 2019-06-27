@@ -7,6 +7,12 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.expressions import BaseExpression
 from django.db import models
+
+from django.db.models.fields import NOT_PROVIDED
+
+from django.db.models.fields.reverse_related import ForeignObjectRel
+from django.db.models.fields.related import RelatedField
+
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.six import with_metaclass
@@ -39,6 +45,7 @@ from edw.models.rest import (
 )
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
+from edw.rest.filters.entity import EntityFilter
 from edw.utils.set_helpers import uniq
 
 
@@ -52,6 +59,17 @@ class AttributeSerializer(serializers.Serializer):
     view_class = serializers.ListField(child=serializers.CharField(), read_only=True)
 
 
+class RelationSerializer(serializers.Serializer):
+    """
+    A serializer to convert the entity relations for rendering.
+    """
+    rel = serializers.RegexField(r'^\d+[bfr]?$')
+    subj = serializers.ListField(child=serializers.IntegerField())
+
+
+#==============================================================================
+# EntityDynamicMetaMixin
+#==============================================================================
 class EntityDynamicMetaMixin(object):
     _meta_cache = {}
 
@@ -120,6 +138,9 @@ class EntityDynamicMetaMixin(object):
         return it
 
 
+#==============================================================================
+# EntityBulkListSerializer
+#==============================================================================
 class EntityBulkListSerializer(EntityDynamicMetaMixin,
                                CheckPermissionsBulkListSerializerMixin,
                                DynamicFieldsListSerializerMixin,
@@ -128,12 +149,6 @@ class EntityBulkListSerializer(EntityDynamicMetaMixin,
 
     class Meta:
         model = None
-
-    def __init__(self, *args, **kwargs):
-        super(EntityBulkListSerializer, self).__init__(*args, **kwargs)
-        # make sure that child model is correct
-        if self.Meta.model is not None:
-            self.child.Meta.model = self.Meta.model
 
 
 #==============================================================================
@@ -159,6 +174,7 @@ class EntityValidator(object):
         instance = getattr(self.serializer, 'instance', None)
 
         validated_data = dict(attrs)
+        request_method = self.serializer.request_method
 
         available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
 
@@ -202,7 +218,7 @@ class EntityValidator(object):
                     terms.get(**{field: path, 'id__in': available_terms_ids})
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
                     errors.append(_("{} `{}`='{}'").format(str(e), field, path))
-            if any(errors):
+            if errors:
                 attr_errors['terms_paths'] = errors
 
         terms_ids = validated_data.pop('active_terms_ids', None)
@@ -212,16 +228,70 @@ class EntityValidator(object):
                 attr_errors['terms_ids'] = _("Terms with id`s [{}] not found.").format(
                     ', '.join(str(x) for x in not_found_ids))
 
+        relations = validated_data.pop('relations', None)
+        if relations is not None:
+            rel_subj, rel_f_ids, rel_r_ids = self.serializer.parse_relations(relations)
+            rel_f_ids, rel_r_ids = set(rel_f_ids), set(rel_r_ids)
+            errors = []
+
+            # validate relations ids
+            rel_b_ids = rel_f_ids | rel_r_ids
+            not_found_ids = list(rel_b_ids - set(TermModel.objects.active().attribute_is_relation().filter(
+                id__in=rel_b_ids).values_list('id', flat=True)))
+            if not_found_ids:
+                errors.append(_("Terms with id`s [{}] not found.").format(', '.join(str(x) for x in not_found_ids)))
+
+            # validate subjects ids
+            subj_ids = []
+            for ids in rel_subj.values():
+                subj_ids.extend(ids)
+            not_found_ids = list(set(subj_ids) - set(EntityModel.objects.active().filter(
+                id__in=subj_ids).values_list('id', flat=True)))
+            if not_found_ids:
+                errors.append(_("Entities with id`s [{}] not found.").format(', '.join(str(x) for x in not_found_ids)))
+
+            if self.serializer.is_data_mart_has_relations:
+                not_found = ["`{}f`".format(x) for x in list(
+                    rel_f_ids - set(self.serializer.data_mart_rel_ids[0]))] + ["`{}r`".format(x) for x in list(
+                    rel_r_ids - set(self.serializer.data_mart_rel_ids[1]))]
+                if not_found:
+                    errors.append(
+                        _("The relations [{}] are forbidden.").format(', '.join(str(x) for x in not_found)))
+
+                if self.serializer.is_data_mart_relations_has_subjects:
+                    for rel_id, subj_ids in self.serializer.data_mart_relations_subjects.items():
+                        if subj_ids:
+                            not_found_ids = list(set(rel_subj.get(rel_id, [])) - set(subj_ids))
+                            if not_found_ids:
+                                errors.append(
+                                    _("The subjects with id`s [{}] are forbidden.").format(
+                                        ', '.join(str(x) for x in not_found_ids)))
+                elif not subj_ids:
+                    errors.append(_("The subjects cannot be the empty."))
+
+            if errors:
+                attr_errors['relations'] = errors
+        elif request_method == 'POST' and self.serializer.is_data_mart_has_relations and \
+                not self.serializer.is_data_mart_relations_has_subjects:
+            attr_errors['relations'] = _('This field is required.')
+
         if attr_errors:
             raise serializers.ValidationError(attr_errors)
 
+        exclude = None
+        if request_method == 'PATCH':
+            required_fields = [f.name for f in model._meta.get_fields() if not isinstance(f, (
+                RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
+                f, 'default', NOT_PROVIDED) is NOT_PROVIDED]
+            exclude = list(set(required_fields) - set(validated_data.keys()))
         validate_unique = instance is None
         try:
-            model(**validated_data).full_clean(validate_unique=validate_unique)
+            model(**validated_data).full_clean(validate_unique=validate_unique, exclude=exclude)
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
         except ValidationError as e:
             raise serializers.ValidationError(e)
+
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -293,6 +363,10 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
 
     @cached_property
+    def _data_mart_from_request(self):
+        return self.context['request'].GET.get('_data_mart', None)
+
+    @cached_property
     def data_mart_available_terms_ids(self):
         """
         Return available terms ids for current data mart and filters
@@ -301,13 +375,38 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         tree = self.context.get('initial_filter_meta', None)
         if tree is None:
             # при POST запросе потребуется вычислить дерево терминов, поскольку фильтрация не производится
-            data_mart = self.context['request'].GET['_data_mart']
+            data_mart = self._data_mart_from_request
             if data_mart is not None:
                 tree = TermModel.decompress(data_mart.active_terms_ids)
             else:
                 return []
         # Удаляем термины с ограничением на установку извне
         return [key for key, value in tree.expand().items() if not value.term.system_flags.external_tagging_restriction]
+
+    @cached_property
+    def data_mart_relations(self):
+        data_mart = self._data_mart_from_request
+        return list(data_mart.relations.all()) if data_mart else []
+
+    @cached_property
+    def is_data_mart_has_relations(self):
+        return any(self.data_mart_relations)
+
+    @cached_property
+    def data_mart_relations_subjects(self):
+        return DataMartModel.get_relations_subjects(self.data_mart_relations)
+
+    @cached_property
+    def is_data_mart_relations_has_subjects(self):
+        return any(self.data_mart_relations_subjects.values())
+
+    @cached_property
+    def data_mart_rel_ids(self):
+        return DataMartModel.separate_relations(self.data_mart_relations)
+
+    @cached_property
+    def request_method(self):
+        return getattr(getattr(self.context.get('view'), 'request'), 'method', '')
 
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
@@ -473,6 +572,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
     terms_ids = serializers.ListSerializer(child=serializers.IntegerField(), required=False, source='active_terms_ids')
     terms_paths = serializers.ListSerializer(child=serializers.CharField(), required=False, write_only=True)
 
+    relations = serializers.ListSerializer(child=RelationSerializer(), required=False, write_only=True)
+
     characteristics = AttributeSerializer(many=True, required=False)
     marks = AttributeSerializer(many=True, required=False)
     related_data_marts = serializers.SerializerMethodField()
@@ -482,6 +583,32 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
         super(EntityDetailSerializerBase, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def parse_relations(relations):
+        rel_subj = {}
+        rel_b_ids, rel_f_ids, rel_r_ids = [], [], []
+        for relation in relations:
+            raw_rel = relation['rel']
+            rel_id = EntityFilter.separate_rel_by_key(raw_rel, 'b')
+            if rel_id is None:
+                rel_id = EntityFilter.separate_rel_by_key(raw_rel, 'f')
+                if rel_id is None:
+                    rel_id = EntityFilter.separate_rel_by_key(raw_rel, 'r')
+                    if rel_id is None:
+                        rel_id = int(raw_rel)
+                        rel_b_ids.append(rel_id)
+                    else:
+                        rel_r_ids.append(rel_id)
+                else:
+                    rel_f_ids.append(rel_id)
+            else:
+                rel_b_ids.append(rel_id)
+            rel_subj[rel_id] = relation['subj']
+        if rel_b_ids:
+            rel_f_ids.extend(rel_b_ids)
+            rel_r_ids.extend(rel_b_ids)
+        return rel_subj, rel_f_ids, rel_r_ids
 
     def _update_entity(self, instance, validated_data, action='update'):
         attr_terms_ids = []
@@ -525,7 +652,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     else:
                         AdditionalEntityCharacteristicOrMarkModel.objects.filter(term=term, entity=instance).delete()
 
-
         terms_paths = validated_data.pop('terms_paths', None)
         if terms_paths is not None:
             terms = TermModel.objects.active().no_external_tagging_restriction()
@@ -548,14 +674,25 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             else:
                 terms_ids.extend(attr_terms_ids)
             data_mart = self.context.get(
-                'data_mart', None) if action == 'update' else self.context['request'].GET.get('_data_mart', None)
+                'data_mart', None) if action == 'update' else self._data_mart_from_request
             if data_mart is not None:
                 terms_ids.extend(data_mart.active_terms_ids)
                 instance.terms = uniq(terms_ids)
 
+        relations = validated_data.pop('relations', None)
+        # if relations is not None:
+        #
+        #     rel_subj, rel_f_ids, rel_r_ids = self.parse_relations(relations)
+        #
+        #     print ("*** UPDATE RELATIONS ***", rel_subj, rel_f_ids, rel_r_ids)
+        #
+        # print (">> RM", self.request_method)
+
+
+
     def create(self, validated_data):
         origin_validated_data = validated_data.copy()
-        for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks'):
+        for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
 
         model = self.Meta.model
@@ -576,7 +713,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         self._update_entity(instance, origin_validated_data, action='create')
 
-        # print (">>> create <<<", instance)
+        # print (">>> post create <<<", instance)
+
         return instance
 
     def update(self, instance, validated_data):
@@ -584,6 +722,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         result = super(EntityDetailSerializerBase, self).update(instance, validated_data)
 
         # print (">>> post update <<<", result)
+
         return result
 
     @cached_property
