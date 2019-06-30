@@ -296,7 +296,6 @@ class EntityValidator(object):
         except ValidationError as e:
             raise serializers.ValidationError(e)
 
-
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
             self.__class__.__name__
@@ -636,7 +635,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     values_terms_map = {x['name']: x['id'] for x in reversed(
                         term.get_descendants(include_self=False).filter(
                             name__in=values).no_external_tagging_restriction().values('id', 'name'))}
-
                     if values:
                         for value in values:
                             if value in values_terms_map:
@@ -646,12 +644,10 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                                     term=term, entity=instance, value=value).delete()
                             else:
                                 try:
-                                    result, created = AdditionalEntityCharacteristicOrMarkModel.objects.update_or_create(
+                                    AdditionalEntityCharacteristicOrMarkModel.objects.update_or_create(
                                         term=term,
                                         entity=instance,
-                                        defaults={
-                                            'value': value
-                                        }
+                                        defaults={'value': value}
                                     )
                                 except MultipleObjectsReturned as e:
                                     raise serializers.ValidationError(str(e))
