@@ -11,7 +11,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.core.cache import cache
 from django.db import models, connections
 from django.db.models.sql.datastructures import EmptyResultSet
-from django.db.models import Count
+from django.db.models import Q, Count
 
 from django.utils import six
 from django.utils.functional import cached_property
@@ -1149,6 +1149,93 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def common_terms_ids(self):
         return list(self.get_common_terms_ids())
+
+    @staticmethod
+    def _set_relations(rel_id, from_entity_id, to_entity_ids, direction='f'):
+        """
+        Set relations
+        :param rel_id: relation term id
+        :param from_entity_id: from entity id
+        :param to_entity_ids: to entity, list of id`s
+        :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
+        :return:
+        """
+        if direction == 'f':
+            from_entity_param, to_entity_param = 'from_entity', 'to_entity'
+        else:
+            from_entity_param, to_entity_param = 'to_entity', 'from_entity'
+        from_entity_id_key = '{}_id'.format(from_entity_param)
+        to_entity_id_key = '{}_id'.format(to_entity_param)
+        to_entity_id__in_key = '{}_id__in'.format(to_entity_param)
+
+        # delete excess relations
+        EntityRelationModel.objects.filter(**{
+            'term_id': rel_id, from_entity_id_key: from_entity_id
+        }).exclude(**{
+            to_entity_id__in_key: to_entity_ids
+        }).delete()
+
+        # add relations
+        if to_entity_ids:
+            in_db_ids = EntityRelationModel.objects.filter(**{
+                'term_id': rel_id,
+                from_entity_id_key: from_entity_id,
+                to_entity_id__in_key: to_entity_ids
+            }).values_list(to_entity_id_key, flat=True)
+
+            not_in_db_ids = list(set(to_entity_ids) - set(in_db_ids))
+            if not_in_db_ids:
+                to_insert = [EntityRelationModel(**{
+                    'term_id': rel_id,
+                    from_entity_id_key: from_entity_id,
+                    to_entity_id_key: x
+                }) for x in not_in_db_ids]
+                EntityRelationModel.objects.bulk_create(to_insert)
+
+    def set_relations(self, rel_id, to_entity_ids, direction):
+        """
+        Set relations forward/backward(reverse)
+        :param rel_id: relation term id
+        :param from_entity_id: from entity id
+        :param to_entity_ids: to entity, list of id`s
+        :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
+        :return:
+        """
+        self._set_relations(rel_id, self.id, to_entity_ids, direction=direction)
+
+    def set_forward_relations(self, rel_id, to_entity_ids):
+        """
+        Set forward relations, shortcut for set_relations(..., 'f')
+        """
+        self.set_relations(rel_id, to_entity_ids, 'f')
+
+    def set_reverse_relations(self, rel_id, to_entity_ids):
+        """
+        Set backward(reverse) relations, shortcut for set_relations(..., 'r')
+        """
+        self.set_relations(rel_id, to_entity_ids, 'r')
+
+    def set_bidirectional_relations(self, rel_id, to_entity_ids):
+        """
+        Set bidirectional relations
+        """
+        self.set_forward_relations(rel_id, to_entity_ids)
+        self.set_reverse_relations(rel_id, to_entity_ids)
+
+    @staticmethod
+    def _remove_relations(from_entity_id):
+        """
+        Remove forward and backward(reverse) relations
+        :param from_entity_id: from entity id
+        :return:
+        """
+        EntityRelationModel.objects.filter(Q(from_entity_id=from_entity_id) | Q(to_entity_id=from_entity_id)).delete()
+
+    def remove_relations(self):
+        """
+        Remove relations
+        """
+        self._remove_relations(self.id)
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
