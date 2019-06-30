@@ -101,6 +101,7 @@ def union(data):
     '''
     return _uniq(flatten(data))
 
+
 def uniq(data):
     '''
     Produces a duplicate-free version of the array, using === to test object equality.
@@ -109,6 +110,16 @@ def uniq(data):
     :return:
     '''
     return _uniq(data)
+
+
+def intersection(value, arg):
+    '''
+    Produces a duplicate-free version of the array, using === to test object equality.
+    In particular only the first occurrence of each value is kept.
+    :param data:
+    :return:
+    '''
+    return list(set(value) & set(arg))
 
 
 def append_value(data, value):
