@@ -18,7 +18,11 @@ class ViewComponents extends Component {
 
       // if the selected component isn't in the options list, select the first one
       let selected = view_components.selected;
-      const values = Object.values(view_components.options);
+
+      //const values = Object.values(view_components.options); not work in IE11
+      // IE 11 hack
+      const values = Object.keys(view_components.options).map(idx => view_components.options[idx]);
+
       if (values.length && values.indexOf(selected) < 0) {
         selected = values[0];
       }
