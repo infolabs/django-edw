@@ -677,7 +677,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             else:
                 terms_ids.extend(attr_terms_ids)
 
-        if terms_ids is not None:
             data_mart = self.data_mart_from_request
             if data_mart is not None:
                 terms_ids.extend(list(set(data_mart.active_terms_ids) & set(self.data_mart_available_terms_ids)))
@@ -685,15 +684,18 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         # relations
         relations = validated_data.pop('relations', None)
-        rel_subj = {}
-        rel_ids = [[], []]  # forward, backward
         if relations is not None or self.request_method == 'POST':
             if relations is None:
                 relations = []
             elif not relations:
-                instance.remove_relations()
+                if self.is_data_mart_has_relations:
+                    rel_ids = [x if x else None for x in self.data_mart_rel_ids]
+                    instance.remove_relations(*rel_ids)
+                else:
+                    instance.remove_relations()
 
-            rel_subj, rel_ids[0], rel_ids[1] = self.parse_relations(relations)
+            rel_subj, rel_f_ids, rel_r_ids = self.parse_relations(relations)
+            rel_ids = [rel_f_ids, rel_r_ids]  # forward, backward
 
             if self.is_data_mart_relations_has_subjects:
                 required_rel_subj = {}
@@ -715,7 +717,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
                 rel_subj.update(required_rel_subj)
 
-        if rel_subj:
             for i, direction in ((0, 'f'), (1, 'r')):
                 for rel_id in rel_ids[i]:
                     subj_ids = rel_subj[rel_id]
