@@ -175,10 +175,10 @@ class EntityValidator(object):
 
         validated_data = dict(attrs)
         request_method = self.serializer.request_method
-
         available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
-
         attr_errors = {}
+
+        # characteristics, marks
         for (attr_name, attribute_mode) in [
             ('characteristics', TermModel.attributes.is_characteristic),
             ('marks', TermModel.attributes.is_mark)
@@ -207,6 +207,7 @@ class EntityValidator(object):
                 if any(errors):
                     attr_errors[attr_name] = errors
 
+        # terms_paths
         terms_paths = validated_data.pop('terms_paths', None)
         if terms_paths is not None:
             errors = []
@@ -221,6 +222,7 @@ class EntityValidator(object):
             if errors:
                 attr_errors['terms_paths'] = errors
 
+        # terms_ids
         terms_ids = validated_data.pop('active_terms_ids', None)
         if terms_ids is not None:
             not_found_ids = list(set(terms_ids) - available_terms_ids)
@@ -228,6 +230,7 @@ class EntityValidator(object):
                 attr_errors['terms_ids'] = _("Terms with id`s [{}] not found.").format(
                     ', '.join(str(x) for x in not_found_ids))
 
+        # relations
         relations = validated_data.pop('relations', None)
         if relations is not None:
             rel_subj, rel_f_ids, rel_r_ids = self.serializer.parse_relations(relations)
@@ -278,6 +281,7 @@ class EntityValidator(object):
         if attr_errors:
             raise serializers.ValidationError(attr_errors)
 
+        # model validation
         exclude = None
         if request_method == 'PATCH':
             required_fields = [f.name for f in model._meta.get_fields() if not isinstance(f, (
@@ -291,7 +295,6 @@ class EntityValidator(object):
             raise exceptions.NotFound(e)
         except ValidationError as e:
             raise serializers.ValidationError(e)
-
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -351,7 +354,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
             'entity': entity,
             'ABSOLUTE_BASE_URI': absolute_base_uri
         }
-        data_mart = self.context.get('data_mart', None)
+        data_mart = self.data_mart_from_request
         if data_mart is not None:
             context['data_mart'] = data_mart
         content = strip_spaces_between_tags(template.render(context, request).strip())
@@ -363,7 +366,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         return self.Meta.model.objects.queryset_class.GROUP_SIZE_ALIAS
 
     @cached_property
-    def _data_mart_from_request(self):
+    def data_mart_from_request(self):
         return self.context['request'].GET.get('_data_mart', None)
 
     @cached_property
@@ -375,7 +378,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         tree = self.context.get('initial_filter_meta', None)
         if tree is None:
             # при POST запросе потребуется вычислить дерево терминов, поскольку фильтрация не производится
-            data_mart = self._data_mart_from_request
+            data_mart = self.data_mart_from_request
             if data_mart is not None:
                 tree = TermModel.decompress(data_mart.active_terms_ids)
             else:
@@ -385,7 +388,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
 
     @cached_property
     def data_mart_relations(self):
-        data_mart = self._data_mart_from_request
+        data_mart = self.data_mart_from_request
         return list(data_mart.relations.all()) if data_mart else []
 
     @cached_property
@@ -610,8 +613,10 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             rel_r_ids.extend(rel_b_ids)
         return rel_subj, rel_f_ids, rel_r_ids
 
-    def _update_entity(self, instance, validated_data, action='update'):
+    def _update_entity(self, instance, validated_data):
         attr_terms_ids = []
+
+        # characteristics, marks
         for (attr_name, attribute_mode) in [
             ('characteristics', TermModel.attributes.is_characteristic),
             ('marks', TermModel.attributes.is_mark)
@@ -630,7 +635,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     values_terms_map = {x['name']: x['id'] for x in reversed(
                         term.get_descendants(include_self=False).filter(
                             name__in=values).no_external_tagging_restriction().values('id', 'name'))}
-
                     if values:
                         for value in values:
                             if value in values_terms_map:
@@ -640,18 +644,17 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                                     term=term, entity=instance, value=value).delete()
                             else:
                                 try:
-                                    result, created = AdditionalEntityCharacteristicOrMarkModel.objects.update_or_create(
+                                    AdditionalEntityCharacteristicOrMarkModel.objects.update_or_create(
                                         term=term,
                                         entity=instance,
-                                        defaults={
-                                            'value': value
-                                        }
+                                        defaults={'value': value}
                                     )
                                 except MultipleObjectsReturned as e:
                                     raise serializers.ValidationError(str(e))
                     else:
                         AdditionalEntityCharacteristicOrMarkModel.objects.filter(term=term, entity=instance).delete()
 
+        # terms_paths
         terms_paths = validated_data.pop('terms_paths', None)
         if terms_paths is not None:
             terms = TermModel.objects.active().no_external_tagging_restriction()
@@ -666,29 +669,58 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                 if values:
                     attr_terms_ids.extend(terms.filter(**{"{}__in".format(key): values}).values_list('id', flat=True))
 
+        # terms_ids
         terms_ids = validated_data.pop('active_terms_ids', None)
-        if terms_ids is not None or attr_terms_ids:
-            attr_terms_ids = list(set(attr_terms_ids) & set(self.data_mart_available_terms_ids))
+        if terms_ids is not None or attr_terms_ids or self.request_method == 'POST':
             if terms_ids is None:
                 terms_ids = attr_terms_ids
             else:
                 terms_ids.extend(attr_terms_ids)
-            data_mart = self.context.get(
-                'data_mart', None) if action == 'update' else self._data_mart_from_request
+
+            data_mart = self.data_mart_from_request
             if data_mart is not None:
-                terms_ids.extend(data_mart.active_terms_ids)
-                instance.terms = uniq(terms_ids)
+                terms_ids.extend(list(set(data_mart.active_terms_ids) & set(self.data_mart_available_terms_ids)))
+            instance.terms.set(uniq(terms_ids))
 
+        # relations
         relations = validated_data.pop('relations', None)
-        # if relations is not None:
-        #
-        #     rel_subj, rel_f_ids, rel_r_ids = self.parse_relations(relations)
-        #
-        #     print ("*** UPDATE RELATIONS ***", rel_subj, rel_f_ids, rel_r_ids)
-        #
-        # print (">> RM", self.request_method)
+        if relations is not None or self.request_method == 'POST':
+            if relations is None:
+                relations = []
+            elif not relations:
+                if self.is_data_mart_has_relations:
+                    rel_ids = [x if x else None for x in self.data_mart_rel_ids]
+                    instance.remove_relations(*rel_ids)
+                else:
+                    instance.remove_relations()
 
+            rel_subj, rel_f_ids, rel_r_ids = self.parse_relations(relations)
+            rel_ids = [rel_f_ids, rel_r_ids]  # forward, backward
 
+            if self.is_data_mart_relations_has_subjects:
+                required_rel_subj = {}
+                for i in (0, 1):
+                    rel_ids[i] = set(rel_ids[i])
+                    for dm_rel_id in self.data_mart_rel_ids[i]:
+                        dm_subj_ids = self.data_mart_relations_subjects[dm_rel_id]
+                        if dm_subj_ids:
+                            if dm_rel_id in rel_ids[i]:
+                                required_rel_subj[dm_rel_id] = list(set(dm_subj_ids) & set(rel_subj[dm_rel_id]))
+                            else:
+                                rel_ids[i].add(dm_rel_id)
+                                required_rel_subj[dm_rel_id] = dm_subj_ids
+                    rel_ids[i] = list(rel_ids[i])
+
+                if not any(required_rel_subj.values()):
+                    for rel_id in required_rel_subj:
+                        required_rel_subj[rel_id] = self.data_mart_relations_subjects[rel_id]
+
+                rel_subj.update(required_rel_subj)
+
+            for i, direction in ((0, 'f'), (1, 'r')):
+                for rel_id in rel_ids[i]:
+                    subj_ids = rel_subj[rel_id]
+                    instance.set_relations(rel_id, subj_ids, direction)
 
     def create(self, validated_data):
         origin_validated_data = validated_data.copy()
@@ -711,19 +743,12 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             raise serializers.ValidationError(
                 _("Lookup fields not found [{}]").format(", ".join(model._rest_meta.lookup_fields)))
 
-        self._update_entity(instance, origin_validated_data, action='create')
-
-        # print (">>> post create <<<", instance)
-
+        self._update_entity(instance, origin_validated_data)
         return instance
 
     def update(self, instance, validated_data):
         self._update_entity(instance, validated_data)
-        result = super(EntityDetailSerializerBase, self).update(instance, validated_data)
-
-        # print (">>> post update <<<", result)
-
-        return result
+        return super(EntityDetailSerializerBase, self).update(instance, validated_data)
 
     @cached_property
     def is_root(self):
