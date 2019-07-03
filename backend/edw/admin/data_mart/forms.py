@@ -15,16 +15,25 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 # DataMartAdminForm
 #==============================================================================
 class DataMartAdminForm(forms.ModelForm):
+    """
+    Определяет данные формы администратора витрины данных
+    """
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, widget=TermTreeWidget(),
                                            label=_("Terms"))
     ordering = forms.ChoiceField(choices=(), required=True, label=_("Ordering"))
     view_component = forms.ChoiceField(choices=(), required=True, label=_("View component"))
 
     class Meta:
+        """
+        Определяет дополнительные параметры формы администратора витрины данных
+        """
         model = DataMartModel
         exclude = ()
 
     def __init__(self, *args, **kwargs):
+        """
+        Конструктор для корректного отображения объектов
+        """
         instance = kwargs.get('instance', None)
         super(DataMartAdminForm, self).__init__(*args, **kwargs)
         if instance is not None:
@@ -39,6 +48,8 @@ class DataMartAdminForm(forms.ModelForm):
 # DataMartRelationInlineForm
 #==============================================================================
 class DataMartRelationInlineForm(forms.ModelForm):
-
+    """
+    Определяет значение поля термина формы для узлов дерева
+    """
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
