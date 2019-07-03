@@ -3,9 +3,12 @@
 {% blocktrans %}You are receiving this email because you asked for registration for your
 user account at «{{ site_name }}».{% endblocktrans %}
 
-{% blocktrans %}Click on link {{ activation_link }} for activate your account {{ user.email }}.{% endblocktrans %}
+{% blocktrans %}Click on link {{ activation_link }} for activate your account {{ user }}.{% endblocktrans %}
 
 {% blocktrans %}Link is valid for {{ expiration_days }} days.{% endblocktrans %}
+
+{% if password %}{% blocktrans %}In the future, please use username {{ user }} with password {{ password }} to sign
+into {{ absolute_base_uri }}.{% endblocktrans %}{% endif %}
 
 {% trans "Thanks for using our site!" %}
 

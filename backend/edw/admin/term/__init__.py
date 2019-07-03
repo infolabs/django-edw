@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
@@ -44,6 +45,15 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
     list_filter = ('active', 'semantic_rule', 'specification_mode') #todo: Add ', ('attributes', BitFieldListFilter)', Django 1.7 support, fixes https://github.com/coagulant/django-bitfield/commit/fbbececd6e60c9a804846050da8bf258bd7f2937
 
     list_display = ['name', 'slug', 'parent', 'semantic_rule', 'specification_mode', 'view_class', 'active']
+
+    fieldsets = (
+        ("", {
+            'fields': ('parent', 'name', 'slug', 'path', 'attributes', 'semantic_rule', 'specification_mode',
+                       'view_class', 'active', 'system_flags', 'description'),
+        }),
+    )
+
+    readonly_fields = ['path']
 
     search_fields = ['name', 'slug', 'parent__slug', 'parent__name', 'view_class']
 

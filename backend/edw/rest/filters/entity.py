@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import urllib
 
+from django.apps import apps
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -18,7 +19,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
-from edw.models.entity import BaseEntity
+from edw.models.entity import BaseEntity, EntityModel
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
@@ -61,9 +62,9 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('terms', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def term_ids(self, value):
-        '''
+        """
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
-        '''
+        """
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
 
     def filter_terms(self, name, queryset, value):
@@ -73,23 +74,29 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('data_mart_pk', None)
     def data_mart_id(self, value):
-        '''
+        """
         :return: `data_mart_id` value parse from `self._data_mart_id` or
             `self.data['data_mart_pk']`, default: None
-        '''
-        return serializers.IntegerField().to_internal_value(value)
+        """
+        return serializers.CharField().to_internal_value(value)
 
     @cached_property
     def data_mart(self):
-        '''
+        """
         :return: active `DataMartModel` instance from `self.data_mart_id`
-        '''
+        """
         if self._data_mart is not None:
             return self._data_mart
 
-        pk = self.data_mart_id
-        if pk is not None:
-            return get_object_or_404(DataMartModel.objects.active(), pk=pk)
+        value = self.data_mart_id
+        if value is not None:
+            key = 'pk'
+            # it was a string, not an int. Try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                key = 'slug'
+            return get_object_or_404(DataMartModel.objects.active(), **{key: value})
         return None
 
     @cached_property
@@ -103,10 +110,10 @@ class BaseEntityFilter(filters.FilterSet):
     @cached_property
     @get_from_underscore_or_data('use_cached_decompress', True)
     def use_cached_decompress(self, value):
-        '''
+        """
         :return: `use_cached_decompress` value parse from `self._use_cached_decompress` or
             `self.data['use_cached_decompress']`, default: True
-        '''
+        """
         return serializers.BooleanField().to_internal_value(value)
 
 
@@ -176,11 +183,11 @@ class EntityFilter(BaseEntityFilter):
     @cached_property
     @get_from_underscore_or_data('active', None)
     def is_active(self, value):
-        '''
+        """
         :return: `is_active` value parse from `self._active` or
             `self.data['active']`, default: None
-        '''
-        return serializers.BooleanField().to_internal_value(value)
+        """
+        return serializers.NullBooleanField().to_internal_value(value)
 
     def filter_active(self, name, queryset, value):
         self._is_active = value
@@ -195,19 +202,36 @@ class EntityFilter(BaseEntityFilter):
         return queryset
 
     @cached_property
+    def data_mart_relations(self):
+        return list(self.data_mart.relations.all()) if self.data_mart else []
+
+    @cached_property
+    def is_data_mart_has_relations(self):
+        return any(self.data_mart_relations)
+
+    @cached_property
+    def data_mart_relations_subjects(self):
+        return DataMartModel.get_relations_subjects(self.data_mart_relations)
+
+    @cached_property
+    def is_data_mart_relations_has_subjects(self):
+        return any(self.data_mart_relations_subjects.values())
+
+    @cached_property
     def data_mart_rel_ids(self):
-        return ['{}{}'.format(relation.term_id, relation.direction) for relation in
-                self.data_mart.relations.all()] if self.data_mart else []
+        return DataMartModel.separate_relations(self.data_mart_relations)
 
     def filter_data_mart_pk(self, name, queryset, value):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
         self.data['_data_mart'] = self.data_mart
-        if 'rel' not in self.data:
-            rel_ids = self.data_mart_rel_ids
-            if rel_ids:
-                queryset = self.filter_rel(name, queryset, rel_ids)
+
+        if self.is_data_mart_has_relations and 'rel' not in self.data:
+            # patch rel_ids
+            self.rel_ids = self.data_mart_rel_ids
+            queryset = self.filter_rel(name, queryset, None)
+
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
@@ -231,31 +255,49 @@ class EntityFilter(BaseEntityFilter):
     @cached_property
     @get_from_underscore_or_data('subj', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
     def subj_ids(self, value):
-        '''
+        """
         :return: `subj_ids` value parse from `self._subj_ids` or `self.data['subj']`, default: []
-        '''
+        """
         return serializers.ListField(child=serializers.IntegerField()).to_internal_value(value)
+
+    @cached_property
+    def rel_subj(self):
+        """
+        :return: `subj` value parse from `self.subj_ids` or dict of {relation: subject_ids...}
+        """
+        if self.is_data_mart_relations_has_subjects:
+            if self.subj_ids:
+                cleaned_relations_subjects = {}
+                for rel_id, subj_ids in self.data_mart_relations_subjects.items():
+                    if subj_ids:
+                        cleaned_subj_ids = list(set(self.subj_ids) & set(subj_ids))
+                        if not cleaned_subj_ids:
+                            cleaned_subj_ids = subj_ids
+                        cleaned_relations_subjects[rel_id] = cleaned_subj_ids
+                    else:
+                        cleaned_relations_subjects[rel_id] = self.subj_ids
+                return cleaned_relations_subjects
+            else:
+                return self.data_mart_relations_subjects
+        return self.subj_ids
 
     def filter_subj(self, name, queryset, value):
         self._subj_ids = value
-        if not self.subj_ids:
+        if not self.rel_subj:
             return queryset
+
         self.data['_subj_ids'] = self.subj_ids
         if self.rel_ids is None:
             self.data['_initial_queryset'] = self.data['_initial_queryset'].subj(self.subj_ids)
             return queryset.subj(self.subj_ids)
         else:
-            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.subj_ids, *self.rel_ids)
-            return queryset.subj_and_rel(self.subj_ids, *self.rel_ids)
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].subj_and_rel(self.rel_subj, *self.rel_ids)
+            return queryset.subj_and_rel(self.rel_subj, *self.rel_ids)
 
     @staticmethod
-    def _separate_rel_by_key(rel, key, lst):
+    def separate_rel_by_key(rel, key):
         i = rel.find(key)
-        if i != -1:
-            lst.append(int(rel[:i] + rel[i + 1:]))
-            return True
-        else:
-            return False
+        return int(rel[:i] + rel[i + 1:]) if i != -1 else None
 
     @cached_property
     @get_from_underscore_or_data('rel', None, lambda value: urllib.unquote(value).decode('utf8').split(","))
@@ -273,13 +315,31 @@ class EntityFilter(BaseEntityFilter):
         raw_rel = serializers.ListField(child=serializers.RegexField(r'^\d+[bfr]?$')).to_internal_value(value)
         rel_b_ids, rel_f_ids, rel_r_ids = [], [], []
         for x in raw_rel:
-            if not EntityFilter._separate_rel_by_key(x, 'b', rel_b_ids):
-                if not EntityFilter._separate_rel_by_key(x, 'f', rel_f_ids):
-                    if not EntityFilter._separate_rel_by_key(x, 'r', rel_r_ids):
+            rel_id = EntityFilter.separate_rel_by_key(x, 'b')
+            if rel_id is None:
+                rel_id = EntityFilter.separate_rel_by_key(x, 'f')
+                if rel_id is None:
+                    rel_id = EntityFilter.separate_rel_by_key(x, 'r')
+                    if rel_id is None:
                         rel_b_ids.append(int(x))
+                    else:
+                        rel_r_ids.append(rel_id)
+                else:
+                    rel_f_ids.append(rel_id)
+            else:
+                rel_b_ids.append(rel_id)
+
         if rel_b_ids:
             rel_f_ids.extend(rel_b_ids)
             rel_r_ids.extend(rel_b_ids)
+
+        # Sanitize relations
+        if self.is_data_mart_has_relations:
+            rel_f_ids = list(set(rel_f_ids) & set(self.data_mart_rel_ids[0]))
+            rel_r_ids = list(set(rel_r_ids) & set(self.data_mart_rel_ids[1]))
+            if not any((rel_f_ids, rel_r_ids)):
+                return self.data_mart_rel_ids
+
         return rel_f_ids, rel_r_ids
 
     def filter_rel(self, name, queryset, value):
@@ -287,8 +347,13 @@ class EntityFilter(BaseEntityFilter):
         if self.rel_ids is None or 'subj' in self.data:
             return queryset
 
-        self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
-        return queryset.rel(*self.rel_ids)
+        if self.is_data_mart_relations_has_subjects:
+            # patch rel_subj
+            self.rel_subj = self.data_mart_relations_subjects
+            return self.filter_subj(name, queryset, [])
+        else:
+            self.data['_initial_queryset'] = self.data['_initial_queryset'].rel(*self.rel_ids)
+            return queryset.rel(*self.rel_ids)
 
 
 class EntityMetaFilter(BaseFilterBackend):
@@ -325,11 +390,11 @@ class EntityMetaFilter(BaseFilterBackend):
                 )
                 filter_kwargs = {view.lookup_field: view.kwargs[lookup_url_kwarg]}
                 obj = get_object_or_404(queryset, **filter_kwargs)
-                entity_model = obj.__class__
+                model_class = obj.__class__
             else:
-                entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+                model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = entity_model.get_summary_annotation()
+            annotation = model_class.get_summary_annotation()
             if isinstance(annotation, dict):
                 annotation_meta, annotate_kwargs = {}, {}
                 for key, value in annotation.items():
@@ -352,16 +417,33 @@ class EntityMetaFilter(BaseFilterBackend):
                         annotate_kwargs[key] = value
                 if annotate_kwargs:
                     queryset = queryset.annotate(**annotate_kwargs)
-        elif view.action in ("bulk_update", "partial_bulk_update"):
-            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
-            # modify queryset for `bulk_update` and `partial_bulk_update`
-            queryset = entity_model.objects.filter(id__in=queryset.values_list('id', flat=True))
+
         else:
-            entity_model = queryset.model
+            model_class = queryset.model
+
+            if view.action in ("bulk_update", "partial_bulk_update"):
+                if data_mart is not None:
+                    model_class = data_mart.entities_model
+                else:
+                    # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
+                    if isinstance(request.data, list):
+                        entity_model = request.data[0].get('entity_model', None) if len(request.data) else None
+                    else:
+                        entity_model = request.data.get('entity_model', None)
+                    # пытаемся определить модель по параметру 'entity_model' словаря GET
+                    if entity_model is None:
+                        entity_model = request.GET.get('entity_model', None)
+                    if entity_model is not None:
+                        try:
+                            model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
+                        except LookupError:
+                            pass
+                # modify queryset for `bulk_update` and `partial_bulk_update`
+                queryset = model_class.objects.filter(id__in=queryset.values_list('id', flat=True))
 
         # aggregation
         if view.action == 'list':
-            aggregation = entity_model.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation()
             if isinstance(aggregation, dict):
                 aggregation_meta = {}
                 for key, value in aggregation.items():
@@ -380,12 +462,14 @@ class EntityMetaFilter(BaseFilterBackend):
                         field, name = None, None
                     aggregation_meta[key] = (aggregate, field, name)
 
-        request.GET['_annotation_meta'] = annotation_meta
-        request.GET['_aggregation_meta'] = aggregation_meta
-        request.GET['_filter_queryset'] = queryset
-        request.GET['_alike'] = alike
-        request.GET['_alike_param'] = self.alike_param
-        request.GET['_entity_model'] = entity_model
+        request.GET.update({
+            '_annotation_meta': annotation_meta,
+            '_aggregation_meta': aggregation_meta,
+            '_filter_queryset': queryset,
+            '_alike': alike,
+            '_alike_param': self.alike_param,
+            '_entity_model': model_class
+        })
 
         # select view component
         raw_view_component = request.GET.get('view_component', None)
@@ -402,13 +486,13 @@ class EntityMetaFilter(BaseFilterBackend):
         # annotation & aggregation
         annotation_meta, aggregation_meta = [], []
         if view.action == 'list':
-            entity_model = data_mart.entities_model if data_mart is not None else queryset.model
+            model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = entity_model.get_summary_annotation()
+            annotation = model_class.get_summary_annotation()
             if isinstance(annotation, dict):
                 annotation_meta = annotation.keys()
 
-            aggregation = entity_model.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation()
             if isinstance(aggregation, dict):
                 aggregation_meta = [key for key, value in aggregation.items() if isinstance(value[0], BaseExpression)]
 
@@ -492,6 +576,11 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
 
 
 class EntityOrderingFilter(OrderingFilter):
+
+    def filter_queryset(self, request, queryset, view):
+        if view.action in ("bulk_update", "partial_bulk_update"):
+            return queryset
+        return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
 
     def get_ordering(self, request, queryset, view):
         data_mart = request.GET['_data_mart']

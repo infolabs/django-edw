@@ -42,7 +42,7 @@ data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name
 
 try:
     from edw.models.related.data_mart_image import DataMartImageModel
-    DataMartImageModel() # Test pass if model materialized
+    DataMartImageModel()  # Test pass if model materialized
 
     from edw.views.related.data_mart_image import DataMartImageViewSet
 
@@ -53,7 +53,7 @@ except (ImproperlyConfigured, ImportError):
 
 try:
     from edw.models.related.entity_image import EntityImageModel
-    EntityImageModel() # Test pass if model materialized
+    EntityImageModel()  # Test pass if model materialized
 
     from edw.views.related.entity_image import EntityImageViewSet
 
@@ -64,7 +64,7 @@ except (ImproperlyConfigured, ImportError):
 
 try:
     from edw.models.related.entity_file import EntityFileModel
-    EntityFileModel() # Test pass if model materialized
+    EntityFileModel()  # Test pass if model materialized
 
     from edw.views.related.entity_file import EntityFileViewSet
 

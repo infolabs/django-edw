@@ -49,6 +49,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         'retrieve':  EntityDetailSerializer,
         'create': EntityDetailSerializer,
         'update': EntityDetailSerializer,
+        'bulk_update': EntityDetailSerializer,
         'partial_update': EntityDetailSerializer,
         'partial_bulk_update': EntityDetailSerializer,
         'bulk_destroy': EntityCommonSerializer
@@ -148,13 +149,27 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             obj = self.get_object()
             model_class = obj.__class__
         elif self.action in ('create', 'list', 'bulk_update', 'partial_bulk_update', 'bulk_destroy'):
-            data_mart_pk = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
-            if data_mart_pk is not None:
-                request.GET['_data_mart'] = data_mart = get_object_or_404(DataMartModel.objects.active(),
-                                                                          pk=data_mart_pk)
+            value = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
+            if value is not None:
+                key = 'pk'
+                # it was a string, not an int. Try find object by `slug`
+                try:
+                    value = int(value)
+                except ValueError:
+                    key = 'slug'
+                request.GET['_data_mart'] = data_mart = get_object_or_404(
+                    DataMartModel.objects.active(), **{key: value})
                 model_class = data_mart.entities_model
             else:
-                entity_model = request.data.get('entity_model', None)
+                # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
+                if isinstance(request.data, list):
+                    entity_model = request.data[0].get('entity_model', None) if len(request.data) else None
+                else:
+                    entity_model = request.data.get('entity_model', None)
+                # пытаемся определить модель по параметру 'entity_model' словаря GET
+                if entity_model is None:
+                    entity_model = request.GET.get('entity_model', None)
+
                 if entity_model is not None:
                     try:
                         model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
@@ -212,20 +227,14 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
 
         self.serializer_context = {
-            "initial_filter_meta": query_params['_initial_filter_meta'],
-            "initial_queryset": query_params['_initial_queryset'],
-            "terms_filter_meta": query_params['_terms_filter_meta'],
-            "data_mart": data_mart,
-            "terms_ids": query_params['_terms_ids'],
-            "subj_ids": query_params['_subj_ids'],
-            "ordering": query_params['_ordering'],
-            "view_component": query_params['_view_component'],
-            "annotation_meta": query_params['_annotation_meta'],
-            "aggregation_meta": query_params['_aggregation_meta'],
-            "group_by": query_params['_group_by'],
-            "alike": query_params['_alike'],
-            "filter_queryset": query_params['_filter_queryset']
+            "data_mart": data_mart
         }
+        for key in ("initial_filter_meta", "initial_queryset", "terms_filter_meta", "terms_ids", "subj_ids", "ordering",
+                    "view_component", "annotation_meta", "aggregation_meta", "group_by", "alike", "filter_queryset"):
+            try:
+                self.serializer_context[key] = query_params['_{}'.format(key)]
+            except KeyError:
+                self.serializer_context[key] = None
         return queryset
 
     def finalize_response(self, request, response, *args, **kwargs):

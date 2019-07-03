@@ -112,10 +112,12 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
 
     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='relations')
     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+')
-    direction = models.CharField(_("Relation direction"), max_length=1,
-                                          choices=RELATION_DIRECTIONS, default=RELATION_BIDIRECTIONAL,
-                                          help_text=_(
-                                              'Defines the direction of relation on which selection is carried out'))
+    direction = models.CharField(_("Relation direction"),
+                                 max_length=1,
+                                 choices=RELATION_DIRECTIONS,
+                                 default=RELATION_BIDIRECTIONAL,
+                                 help_text=_('Defines the direction of relation on which selection is carried out'))
+    subjects = deferred.ManyToManyField('BaseEntity', related_name='+', verbose_name=_('Subjects'), blank=True)
 
     class Meta:
         abstract = True
@@ -125,7 +127,13 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
 
     def __str__(self):
         relation_directions = dict(self.RELATION_DIRECTIONS)
-        return "{} ← {}: {}".format(self.data_mart.name, relation_directions[self.direction], self.term.name)
+        return "{} `{}{}` ← {}: {}".format(
+            self.data_mart.name,
+            self.term_id,
+            self.direction,
+            relation_directions[self.direction],
+            self.term.name
+        )
 
 
 DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)

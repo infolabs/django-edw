@@ -48,6 +48,7 @@ class BaseRetrieveDataTag(Tag):
     action = None
 
     lookup_field = 'pk'
+    lookup_url_kwarg = None
 
     # The filter backend classes to use for queryset filtering
     filter_backends = api_settings.DEFAULT_FILTER_BACKENDS
@@ -191,8 +192,9 @@ class BaseRetrieveDataTag(Tag):
         queryset = self.filter_queryset(self.get_queryset())
 
         # Perform the lookup filtering.
-        filter_kwargs = {self.lookup_field: self.initial_kwargs[self.lookup_field]}
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
+        filter_kwargs = {self.lookup_field: self.initial_kwargs[lookup_url_kwarg]}
         obj = get_object_or_404(queryset, **filter_kwargs)
 
         # May raise a permission denied

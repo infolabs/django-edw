@@ -64,15 +64,49 @@ class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     def initialize_request(self, *args, **kwargs):
         return super(DataMartViewSet, self).initialize_request(*args, **kwargs)
 
+    def get_object(self):
+        # try find object by `slug`
+        # save origin lookups for monkey path
+        origin_lookup_url_kwarg, origin_lookup_field = self.lookup_url_kwarg, self.lookup_field
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        # it was a string, not an int.
+        try:
+            int(self.kwargs[lookup_url_kwarg])
+        except ValueError:
+            self.lookup_url_kwarg, self.lookup_field = 'pk', 'slug'
+
+        obj = super(DataMartViewSet, self).get_object()
+
+        self.lookup_url_kwarg, self.lookup_field = origin_lookup_url_kwarg, origin_lookup_field
+        return obj
+
     @list_route(filter_backends=())
     def tree(self, request, data_mart_pk=None, *args, **kwargs):
         if data_mart_pk is not None:
             request.GET.setdefault('parent_id', data_mart_pk)
-        parent_id = request.query_params.get('parent_id', None)
-        if parent_id is not None:
-            parent = get_object_or_404(DataMartModel.objects.all(),
-                                       pk=serializers.IntegerField().to_internal_value(parent_id))
-            queryset = parent.get_children()
+        value = request.query_params.get('parent_id', None)
+        if value is not None:
+            # try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                # it was a string, not an int.
+                if value.lower() in ('none', 'null'):
+                    queryset = DataMartModel.objects.toplevel()
+                else:
+                    queryset = get_object_or_404(DataMartModel.objects.all(), slug=value).get_children()
+            else:
+                queryset = get_object_or_404(DataMartModel.objects.all(), pk=value).get_children()
         else:
             queryset = DataMartModel.objects.toplevel()
         serializer = DataMartTreeSerializer(queryset, many=True, context={"request": request})

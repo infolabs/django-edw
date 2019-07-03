@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from edw.models.term import BaseTerm, TermModel
+from edw.models.term import TermModel
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
 

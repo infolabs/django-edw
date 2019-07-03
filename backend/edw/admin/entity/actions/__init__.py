@@ -19,3 +19,5 @@ from update_related_data_marts import update_related_data_marts
 from update_states import update_states
 from update_active import update_active
 from force_validate import force_validate
+from make_terms_by_additional_attrs import make_terms_by_additional_attrs
+from normalize_additional_attrs import normalize_additional_attrs

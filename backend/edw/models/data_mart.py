@@ -142,7 +142,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255)
-    slug = models.SlugField(_("Slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
+    slug = models.SlugField(_("Datamart slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)
 
     terms = deferred.ManyToManyField('BaseTerm', related_name='+', verbose_name=_('Terms'), blank=True)
@@ -437,6 +437,31 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     @classmethod
     def validate_term_model(cls):
         pass
+
+    @staticmethod
+    def separate_relations(relations):
+        """
+        Separate data mart relations into forward and backward (reverse) relations ids
+        """
+        rel_f_ids, rel_r_ids = [], []
+        for relation in relations:
+            if relation.direction == 'f':
+                rel_f_ids.append(relation.term_id)
+            elif relation.direction == 'r':
+                rel_r_ids.append(relation.term_id)
+            else:
+                rel_f_ids.append(relation.term_id)
+                rel_r_ids.append(relation.term_id)
+        return rel_f_ids, rel_r_ids
+
+    @staticmethod
+    def get_relations_subjects(relations):
+        """
+        Get data mart relations subjects
+        """
+        return {relation.term_id: list(
+            relation.subjects.values_list('id', flat=True)
+        ) for relation in relations}
 
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)

@@ -1,0 +1,21 @@
+{% load i18n %}{% autoescape off %}
+    <div style="max-width: 650px; padding: 20px; margin: 0px auto; border: 2px solid #e5f9f6; border-radius: 5px;">
+        {% blocktrans %}You are receiving this email because you asked for registration for your
+        user account at «{{ site_name }}».{% endblocktrans %}
+
+        <a href="{{ activation_link }}" style="display: block; text-align: center; text-transform: uppercase; padding: 6px 12px; font-size: 1.4rem; text-decoration: none; color: white; background: #26C6DA; max-width: 250px; margin: 20px auto;">{% blocktrans %}Activate{% endblocktrans %}</a>
+
+        {% blocktrans %}To activate your account сlick a button above or this link: {{ activation_link }}.{% endblocktrans %}
+
+        {% blocktrans %}Link is valid for {{ expiration_days }} days.{% endblocktrans %} {% blocktrans %}If links are disallowed in your post-manager just copy this link and paste it into url field of your browser.{% endblocktrans %}
+
+        {% if password %}
+            <p><strong>{% blocktrans %}Your username:{% endblocktrans %}</strong> {{ user }} </p>
+            <p><strong>{% blocktrans %}Password:{% endblocktrans %}</strong> {{ password }}</p>
+        {% endif %}
+
+        {% trans "Thanks for using our site!" %}
+
+        {% blocktrans %}The «{{ site_name }}» team{% endblocktrans %}
+    </div>
+    {% endautoescape %}

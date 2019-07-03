@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
 
+from salmonella.filters import SalmonellaFilter
+
 from edw.models.entity import EntityModel
 
 from edw.models.related import (
@@ -36,11 +38,15 @@ from actions import (
     update_related_data_marts,
     update_states,
     update_active,
-    force_validate
+    force_validate,
+    make_terms_by_additional_attrs,
+    normalize_additional_attrs
 )
 
-edw_actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate]
+EDW_ACTIONS = [
+    update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
+    update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs
+]
 
 DISABLED_ACTIONS = [
     "update_terms",
@@ -50,7 +56,9 @@ DISABLED_ACTIONS = [
     "update_states",
     "update_active",
     "update_images",
-    "force_validate"
+    "force_validate",
+    "make_terms_from_additional_characteristics_or_marks",
+    "remove_additional_characteristics_or_marks_with_exists_value_term"
 ]
 
 
@@ -70,8 +78,18 @@ except (ImproperlyConfigured, ImportError):
 else:
     from actions import update_images
 
-    edw_actions.append(update_images)
+    EDW_ACTIONS.append(update_images)
 #===========================================================================================
+
+
+#===========================================================================================
+# EntityRelationFilter
+#===========================================================================================
+class EntityRelationFilter(SalmonellaFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        super(EntityRelationFilter, self).__init__(
+            field, request, params, model, model_admin, field_path)
+        self.title = _("Entity Relation")
 
 
 #===========================================================================================
@@ -184,9 +202,9 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 
-    list_filter = (TermsTreeFilter, 'active')
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', EntityRelationFilter))
 
-    actions = edw_actions
+    actions = EDW_ACTIONS
 
     save_on_top = True
 
@@ -204,6 +222,7 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
         css = {
             'all': (
                 '/static/css/admin/entity.css',
+                '/static/edw/css/admin/salmonella.css',
                 '/static/edw/css/admin/jqtree.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/term.min.css',
@@ -240,14 +259,13 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
 
     list_display = ('get_name', 'get_type', 'active', 'created_at')
 
-    actions = [update_terms, update_relations, update_additional_characteristics_or_marks,
-               update_related_data_marts, update_states, update_active, force_validate]
+    actions = EDW_ACTIONS
 
     inlines = [EntityCharacteristicOrMarkInline, EntityRelationInline, EntityRelatedDataMartInline]
 
     save_on_top = True
 
-    list_filter = (TermsTreeFilter, 'active')
+    list_filter = (TermsTreeFilter, 'active', ('forward_relations__to_entity', EntityRelationFilter))
 
     list_per_page = 250
 
@@ -265,6 +283,7 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
         css = {
             'all': (
                 '/static/edw/css/admin/jqtree.css',
+                '/static/edw/css/admin/salmonella.css',
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/term.min.css',
             )

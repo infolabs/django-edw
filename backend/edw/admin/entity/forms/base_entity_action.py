@@ -5,7 +5,7 @@ from django import forms
 
 
 #==============================================================================
-# EntitiesForceValidateAdminForm
+# BaseEntityActionAdminForm
 #==============================================================================
-class EntitiesForceValidateAdminForm(forms.Form):
+class BaseEntityActionAdminForm(forms.Form):
     pass

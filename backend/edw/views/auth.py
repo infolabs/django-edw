@@ -137,7 +137,7 @@ class PasswordResetView(GenericAPIView):
             )
         else:
             if not user.is_active:
-                msg = _('For reset password you need first activate your account')
+                msg = _('Your account is inactive. To reset password you should activate it first or contact us via a callback form')
                 return Response(
                     dict(email=msg),
                     status=status.HTTP_400_BAD_REQUEST
@@ -242,9 +242,10 @@ class ActivationView(APIView):
         if not activated_user:
             return Response({
                 'is_activate': False,
-                'message': _("Error validate account. Validate link wrong or expired validate code.")
+                'message': _("Error validate account. Validate link wrong or expired validate code. You can try register again.")
             })
         else:
+            # todo: auto login after activate?
             #user = authenticate(username=customer.user.username, password=password)
             #login(request, user)
             return Response({
@@ -268,6 +269,26 @@ class ActivationView(APIView):
         # SignatureExpired is a subclass of BadSignature, so this will
         # catch either one.
         except signing.BadSignature:
+
+            # Try find user by validation code without test on expired code
+            # Ищем пользователя по коду активации без учета ограничения на срок действия кода.
+            try:
+                username = signing.loads(
+                    activation_key,
+                    salt=edw_settings.REGISTRATION_PROCESS['registration_salt'],
+                )
+            # If catch error then activation code invalid. Do nothing
+            # Если не нашли значит код не валидный и ничего не делаем
+            except signing.BadSignature:
+                pass
+            else:
+                # if username found then activation code valid but expired.
+                # Delete expired user and give him the opportunity to register again
+                # Нашли, но так как раньше получилась ошибка проверки - значит код просрочен и надо удалить
+                # пользователя для последующей возможности зарегистрироваться с этим email
+                user = self.get_user(username)
+                if user:
+                    user.delete()
             return None
 
     def get_user(self, username):

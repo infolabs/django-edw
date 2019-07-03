@@ -63,6 +63,32 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     def initialize_request(self, *args, **kwargs):
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
 
+    def get_object(self):
+        # try find object by `slug`
+        # save origin lookups for monkey path
+        origin_lookup_url_kwarg, origin_lookup_field = self.lookup_url_kwarg, self.lookup_field
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        # it was a string, not an int.
+        try:
+            int(self.kwargs[lookup_url_kwarg])
+        except ValueError:
+            self.lookup_url_kwarg, self.lookup_field = 'pk', 'slug'
+
+        obj = super(TermViewSet, self).get_object()
+
+        self.lookup_url_kwarg, self.lookup_field = origin_lookup_url_kwarg, origin_lookup_field
+        return obj
+
     @list_route(filter_backends=())
     def tree(self, request, data_mart_pk=None, term_pk=None, format=None):
         '''
@@ -82,13 +108,24 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
         if term_pk is not None:
             request.GET.setdefault('parent_id', term_pk)
-        parent_id = request.query_params.get('parent_id', None)
+        value = request.query_params.get('parent_id', None)
 
-        if parent_id is not None:
-            parent_id = serializers.IntegerField().to_internal_value(parent_id)
-            parent = get_object_or_404(TermModel.objects.all(), pk=parent_id)
-            context['root_pk'] = parent_id
-            queryset = parent.get_children()
+        if value is not None:
+            # try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                # it was a string, not an int.
+                if value.lower() in ('none', 'null'):
+                    queryset = TermModel.objects.toplevel()
+                else:
+                    parent = get_object_or_404(TermModel.objects.all(), slug=value)
+                    context['root_pk'] = parent.id
+                    queryset = parent.get_children()
+            else:
+                parent = get_object_or_404(TermModel.objects.all(), pk=value)
+                context['root_pk'] = value
+                queryset = parent.get_children()
         else:
             queryset = TermModel.objects.toplevel()
 
