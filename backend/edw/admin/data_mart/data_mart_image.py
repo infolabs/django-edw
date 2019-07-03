@@ -13,6 +13,9 @@ from edw.models.related.data_mart_image import DataMartImageModel
 # EntityImageInline
 # ===========================================================================================
 class DataMartImageInline(SortableInlineAdminMixin, admin.StackedInline):
+    """
+     Определяет параметры изображения для витрины данных
+    """
     model = DataMartImageModel
     fk_name = 'data_mart'
     extra = 1

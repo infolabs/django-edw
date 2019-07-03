@@ -25,6 +25,9 @@ from edw.models.related import DataMartRelationModel
 
 
 class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
+    """
+    Определяет данные панели администратора витрины данных
+    """
     form = DataMartAdminForm
 
     save_on_top = True
@@ -48,6 +51,9 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
     autoescape = False
 
     class Media:
+        """
+            Файл стилей CSS (иконочные шрифты, стиль для витрины данных)
+        """
         css = {
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
@@ -56,6 +62,9 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
         }
 
     def delete_model(self, request, obj):
+        """
+        Удаляет объект, содержащий системные флаги, у которых нет ограничения на удаление
+        """
         if obj.system_flags.delete_restriction:
             storage = messages.get_messages(request)
             storage.used = True
@@ -64,7 +73,18 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             obj.delete()
 
     def get_tree_data(self, qs, max_level):
+        """
+        Возвращает данные дерева панели администратора MPTT в виде html-шаблона, 
+        соответсвующие условиям запроса, отображающий максимальный уровень 
+        
+        """
+
         def handle_create_node(instance, node_info):
+            """
+            Обновляет панель администрирования MPTT в виде шаблона html
+            """
+            return:
+
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
@@ -74,6 +94,9 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
         return get_tree_from_queryset(qs, handle_create_node, max_level)
 
     def i18n_javascript(self, request):
+        """
+        Возвращает каталог библиотеки Javascript для перевода текста
+        """
         if settings.USE_I18N:
             from django.views.i18n import javascript_catalog
         else:
