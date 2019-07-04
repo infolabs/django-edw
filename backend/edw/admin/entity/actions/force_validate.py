@@ -11,7 +11,8 @@ from edw.tasks import entities_force_validate
 
 def force_validate(modeladmin, request, queryset):
     """
-    Save multiple entities with force validate terms
+    ENG: Save multiple entities with force validate terms
+    RUS: Сохраняет объекты с принудительной проверкой терминов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_ENTITIES_FORCE_VALIDATE_ACTION_CHUNK_SIZE', 100)
 

@@ -17,7 +17,10 @@ from edw.admin.entity.forms import BaseEntityActionAdminForm
 
 
 def base_entity_action(modeladmin, request, queryset, action, action_task, title, chunk_size):
-
+    """
+    Создает цепочку Celery в случае отправки запроса методом POST и валидности формы.
+    Возвращает шаблон подтверждения
+    """
     opts = modeladmin.model._meta
     app_label = opts.app_label
 
