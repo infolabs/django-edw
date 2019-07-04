@@ -21,7 +21,8 @@ from edw.admin.entity.forms import EntitiesUpdateRelationAdminForm
 
 def update_relations(modeladmin, request, queryset):
     """
-    Update relations for multiple entities
+    ENG: Update relations for multiple entities
+    RUS: Обновляет отношения для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATIONS_ACTION_CHUNK_SIZE', 100)
 
