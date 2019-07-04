@@ -20,7 +20,8 @@ from edw.tasks import update_entities_additional_characteristics_or_marks
 
 def update_additional_characteristics_or_marks(modeladmin, request, queryset):
     """
-    Update additional marks for multiple entities
+    ENG: Update additional marks for multiple entities
+    RUS: Обновление дополнительных характеристик или меток для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_ADDITIONAL_CHARACTERISTICS_OR_MARKS_ACTION_CHUNK_SIZE', 100)
 

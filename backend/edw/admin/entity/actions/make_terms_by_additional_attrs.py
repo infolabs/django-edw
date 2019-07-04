@@ -11,7 +11,8 @@ from edw.tasks import entities_make_terms_by_additional_attrs
 
 def make_terms_by_additional_attrs(modeladmin, request, queryset):
     """
-    Make terms by additional attributes
+    ENG: Make terms by additional attributes
+    RUS: Создает термины по дополнительным атрибутам
     """
     CHUNK_SIZE = getattr(settings, 'EDW_MAKE_TERMS_BY_ADDITIONAL_ATTRS_ACTION_CHUNK_SIZE', 100)
 

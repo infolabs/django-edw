@@ -20,7 +20,8 @@ from edw.tasks import update_entities_active
 
 def update_active(modeladmin, request, queryset):
     """
-    Update active for multiple entities
+    ENG: Update active for multiple entities
+    RUS: Обновление активных элементов для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATIONS_ACTION_CHUNK_SIZE', 100)
 
