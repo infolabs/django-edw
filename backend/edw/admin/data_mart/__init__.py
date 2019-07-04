@@ -92,8 +92,6 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             """
             Обновляет панель администрирования MPTT в виде шаблона html
             """
-            return:
-
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
