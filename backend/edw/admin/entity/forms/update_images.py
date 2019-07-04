@@ -15,7 +15,9 @@ from edw.models.related.entity_image import EntityImageModel
 # EntitiesUpdateImagesAdminForm
 #==============================================================================
 class EntitiesUpdateImagesAdminForm(forms.Form):
-
+    """
+    Форма обновления изображений объекта
+    """
     to_set = forms.ModelMultipleChoiceField(queryset=Image.objects.all(), label=_('Images to set'),
                                               required=False, widget=SalmonellaMultiIdWidget(
             EntityImageModel._meta.get_field("image").rel, admin.site))
@@ -25,6 +27,9 @@ class EntitiesUpdateImagesAdminForm(forms.Form):
             EntityImageModel._meta.get_field("image").rel, admin.site))
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы обновления изображений объекта
+        """
         cleaned_data = super(EntitiesUpdateImagesAdminForm, self).clean()
         to_set = cleaned_data.get("to_set")
         to_unset = cleaned_data.get("to_unset")

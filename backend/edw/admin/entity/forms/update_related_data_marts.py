@@ -15,6 +15,9 @@ from edw.models.related import EntityRelatedDataMartModel
 # EntitiesUpdateRelatedDataMartsAdminForm
 #==============================================================================
 class EntitiesUpdateRelatedDataMartsAdminForm(forms.Form):
+    """
+    Форма обновления связанных витрин данных объекта
+    """
     to_set_datamarts = forms.ModelMultipleChoiceField(
         queryset=DataMartModel.objects.all(),
         label=_('Data marts to set'),
@@ -36,6 +39,9 @@ class EntitiesUpdateRelatedDataMartsAdminForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы обновления связанных витрин данных объектаs
+        """
         cleaned_data = super(EntitiesUpdateRelatedDataMartsAdminForm, self).clean()
         to_set_datamarts = cleaned_data.get("to_set_datamarts")
         to_unset_datamarts = cleaned_data.get("to_unset_datamarts")
