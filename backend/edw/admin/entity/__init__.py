@@ -63,6 +63,9 @@ DISABLED_ACTIONS = [
 
 
 def filter_actions(request, actions):
+    """
+     Фильтр разграничения прав доступа к выполнению задач в зависимости от категорий пользователя
+    """
     if not request.user.is_superuser:
         for a in DISABLED_ACTIONS:
             if a in actions.keys():

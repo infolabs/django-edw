@@ -13,6 +13,9 @@ from edw.models.related.entity_file import EntityFileModel
 # EntityFileInline
 #===========================================================================================
 class EntityFileInline(SortableInlineAdminMixin, admin.StackedInline):
+    """
+    Определяет параметры загрузчика файлов
+    """
     model = EntityFileModel
     fk_name = 'entity'
     extra = 1
