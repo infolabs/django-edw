@@ -14,6 +14,9 @@ from edw.models.term import TermModel
 # TermsUpdateParentAdminForm
 #==============================================================================
 class TermsUpdateParentAdminForm(forms.Form):
+    """
+    Административная форма обновления термина родителя
+    """
     to_set_parent_term_id = forms.ModelChoiceField(
         queryset=TermModel.objects.all(),
         label=_('Term to set'),
