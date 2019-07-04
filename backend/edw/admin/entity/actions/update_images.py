@@ -24,7 +24,8 @@ from edw.admin.entity.forms.update_images import EntitiesUpdateImagesAdminForm
 
 def update_images(modeladmin, request, queryset):
     """
-    Update images for multiple entities
+    ENG: Update images for multiple entities
+    RUS: Обновление картинок для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_IMAGES_ACTION_CHUNK_SIZE', 100)
 

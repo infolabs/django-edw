@@ -11,7 +11,8 @@ from edw.tasks import normalize_entities_additional_attrs
 
 def normalize_additional_attrs(modeladmin, request, queryset):
     """
-    Normalize additional attributes
+    ENG: Normalize additional attributes
+    RUS: Нормализует дополнительные атрибуты
     """
     CHUNK_SIZE = getattr(settings, 'EDW_NORMALIZE_ADDITIONAL_ATTRS_ACTION_CHUNK_SIZE', 100)
 
