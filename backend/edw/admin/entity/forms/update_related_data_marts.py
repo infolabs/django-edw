@@ -40,7 +40,7 @@ class EntitiesUpdateRelatedDataMartsAdminForm(forms.Form):
 
     def clean(self):
         """
-        Словарь проверенных и нормализованных данных формы обновления связанных витрин данных объектаs
+        Словарь проверенных и нормализованных данных формы обновления связанных витрин данных объекта
         """
         cleaned_data = super(EntitiesUpdateRelatedDataMartsAdminForm, self).clean()
         to_set_datamarts = cleaned_data.get("to_set_datamarts")
