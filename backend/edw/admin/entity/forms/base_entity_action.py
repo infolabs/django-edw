@@ -8,4 +8,7 @@ from django import forms
 # BaseEntityActionAdminForm
 #==============================================================================
 class BaseEntityActionAdminForm(forms.Form):
+    """
+     Базовая форма администратора объекта
+    """
     pass
