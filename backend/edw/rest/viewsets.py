@@ -5,7 +5,8 @@ from functools import wraps
 
 def remove_empty_params_from_request(exclude=None):
     """
-    Remove empty query params from request
+    ENG: Remove empty query params from request
+    RUS: Удаляет пустые параметры из запроса
     """
     if exclude is None:
         exclude = []
