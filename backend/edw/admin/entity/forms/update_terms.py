@@ -12,6 +12,9 @@ from edw.admin.term.widgets import TermTreeWidget
 # EntitiesUpdateTermsAdminForm
 #==============================================================================
 class EntitiesUpdateTermsAdminForm(forms.Form):
+    """
+    Форма обновления терминов объектов
+    """
     to_set = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to set"),
                                             widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
     to_unset = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to unset"),
@@ -19,6 +22,9 @@ class EntitiesUpdateTermsAdminForm(forms.Form):
 
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы обновления терминов объектов
+        """
         cleaned_data = super(EntitiesUpdateTermsAdminForm, self).clean()
         to_set = cleaned_data.get("to_set")
         to_unset = cleaned_data.get("to_unset")

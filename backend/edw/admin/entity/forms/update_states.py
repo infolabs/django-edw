@@ -12,10 +12,15 @@ from edw.models.data_mart import DataMartModel
 # EntitiesUpdateStateAdminForm
 #==============================================================================
 class EntitiesUpdateStateAdminForm(forms.Form):
-
+    """
+    Форма обновления состояния (статуса) объектов
+    """
     state = forms.ChoiceField(choices=(('', _("-"*9)),), label=_('State'))
 
     def __init__(self, *args, **kwargs):
+        """
+        Конструктор для корректного отображения объектов
+        """
         entities_model = kwargs.pop('entities_model', None)
         super(EntitiesUpdateStateAdminForm, self).__init__(*args, **kwargs)
         if entities_model is None:
@@ -28,6 +33,9 @@ class EntitiesUpdateStateAdminForm(forms.Form):
             self.fields['state'].choices = choices
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы обновления состояния (статуса) объектов
+        """
         cleaned_data = super(EntitiesUpdateStateAdminForm, self).clean()
         state = cleaned_data.get("state")
 

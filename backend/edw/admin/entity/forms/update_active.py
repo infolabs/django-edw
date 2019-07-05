@@ -17,6 +17,9 @@ BOOLE = (
 )
 
 class EntitiesUpdateActiveAdminForm(forms.Form):
+    """
+    Форма обновления активности объекта
+    """
     to_set_active = forms.TypedChoiceField(label=_("Active"), choices=BOOLE, initial="",
                                            coerce=lambda x: x == 'True',
                                            widget=forms.Select())

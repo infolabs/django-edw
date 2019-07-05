@@ -18,6 +18,9 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 # EntitiesUpdateRelationAdminForm
 #==============================================================================
 class EntitiesUpdateRelationAdminForm(forms.Form):
+    """
+    Форма обновления отношений объектов
+    """
 
     to_set_term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(), required=False,
                                        joiner=' / ', label=_('Relation to set'))
@@ -34,6 +37,9 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
             EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы обновления отношений объектов
+        """
         cleaned_data = super(EntitiesUpdateRelationAdminForm, self).clean()
         to_set_term = cleaned_data.get("to_set_term")
         to_set_targets = cleaned_data.get("to_set_targets")

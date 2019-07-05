@@ -21,7 +21,8 @@ from edw.admin.entity.forms import EntitiesUpdateRelatedDataMartsAdminForm
 
 def update_related_data_marts(modeladmin, request, queryset):
     """
-    Update related data marts for multiple entities
+    ENG: Update related data marts for multiple entities
+    RUS: Обновляет связанные витрины данных для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_RELATED_DATA_MARTS_ACTION_CHUNK_SIZE', 100)
 

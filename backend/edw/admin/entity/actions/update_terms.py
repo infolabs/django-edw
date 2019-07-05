@@ -21,7 +21,8 @@ from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm
 
 def update_terms(modeladmin, request, queryset):
     """
-    Update terms for multiple entities
+    ENG: Update terms for multiple entities
+    RUS: Обновляет термины для нескольких объектов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_TERMS_ACTION_CHUNK_SIZE', 100)
 

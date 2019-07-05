@@ -12,6 +12,9 @@ from edw.models.related.entity_image import EntityImageModel
 # EntityImageInline
 #===========================================================================================
 class EntityImageInline(SortableInlineAdminMixin, admin.StackedInline):
+    """
+    Определяет параметры загрузчика изображений
+    """
     model = EntityImageModel
     fk_name = 'entity'
     extra = 1

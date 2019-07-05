@@ -12,7 +12,9 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 # EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm
 # ==============================================================================
 class EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm(forms.Form):
-
+    """
+    Форма обновления дополнительных характеристик или меток объекта
+    """
     to_set_term = FullPathTreeNodeChoiceField(
         queryset=TermModel.objects.attribute_is_characteristic_or_mark(),
         required=False,
@@ -42,6 +44,9 @@ class EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Словарь проверенных и нормализованных данных формы дополнительных характеристик или меток объекта
+        """
         cleaned_data = super(EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm, self).clean()
         to_set_term = cleaned_data.get("to_set_term")
         to_unset_term = cleaned_data.get("to_unset_term")

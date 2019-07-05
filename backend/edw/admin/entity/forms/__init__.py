@@ -31,7 +31,9 @@ from base_entity_action import BaseEntityActionAdminForm
 # EntityAdminForm
 #==============================================================================
 class EntityAdminForm(forms.ModelForm):
-
+    """
+    Форма администратора объекта
+    """
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all().exclude(
         system_flags=BaseTerm.system_flags.external_tagging_restriction),
         required=False, widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False, active_only=1), label=_("Terms"))
@@ -41,7 +43,9 @@ class EntityAdminForm(forms.ModelForm):
 # EntityCharacteristicOrMarkInlineForm
 #==============================================================================
 class EntityCharacteristicOrMarkInlineForm(forms.ModelForm):
-
+    """
+    Форма характеристик или меток объекта
+    """
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_characteristic_or_mark(),
                                        joiner=' / ', label=_('Characteristic or mark'))
 
@@ -50,7 +54,9 @@ class EntityCharacteristicOrMarkInlineForm(forms.ModelForm):
 # EntityRelationInlineForm
 #==============================================================================
 class EntityRelationInlineForm(forms.ModelForm):
-
+    """
+    Форма отношений объекта 
+    """
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
 
@@ -63,6 +69,9 @@ class EntityRelationInlineForm(forms.ModelForm):
 # EntityRelatedDataMartInlineForm
 #==============================================================================
 class EntityRelatedDataMartInlineForm(forms.ModelForm):
+    """
+    Форма связанной витрины данных
+    """
     data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Data mart'),
                                        widget=SalmonellaIdWidget(
                                            EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))

@@ -21,7 +21,8 @@ from edw.admin.term.forms import TermsUpdateParentAdminForm
 
 def update_terms_parent(modeladmin, request, queryset):
     """
-    Update related data marts for multiple entities
+    ENG: Update related data marts for multiple entities
+    RUS: Обновляет множество родительских терминов
     """
     CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_TERMS_PARENT_ACTION_CHUNK_SIZE', 100)
 
