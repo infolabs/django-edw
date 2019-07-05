@@ -7,8 +7,14 @@ from django.template.loader import render_to_string
 
 
 class TermTreeWidget(forms.SelectMultiple):
+    """
+    Приложение терминов дерева
+    """
 
     def __init__(self, attrs=None, external_tagging_restriction=False, node_template='extended', fix_it=True, active_only=0):
+        """
+        Конструктор класса
+        """
         self.external_tagging_restriction = external_tagging_restriction
         self.node_template = node_template
         self.fix_it = fix_it
@@ -16,6 +22,9 @@ class TermTreeWidget(forms.SelectMultiple):
         super(TermTreeWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None, choices=()):
+        """
+        Выполняет запрос и возвращает страницу терминов
+        """
         if value is None:
             value = []
         return render_to_string(
@@ -30,6 +39,9 @@ class TermTreeWidget(forms.SelectMultiple):
             })
 
     class Media:
+        """
+        Подключаемые стили CSS и JavaScript
+        """
         css = {
             'all': (
                 '/static/edw/css/admin/jqtree.css',

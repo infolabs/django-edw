@@ -33,7 +33,9 @@ from edw.admin.term.actions import update_terms_parent
 
 
 class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
-
+    """
+    Административная форма добавления/редактирования терминов
+    """
     save_on_top = True
 
     prepopulated_fields = {"slug": ("name",)}
@@ -68,6 +70,9 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
     autoescape = False
 
     class Media:
+        """
+        Подключаемые JavaScript, CSS-стили
+        """
         js = [
             '/static/edw/js/admin/term.js',
         ]
@@ -79,8 +84,17 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         }
 
     def get_urls(self):
+        """
+        возвращает URL, которые используются для ModelAdmin в URLCONF
+        """
         def wrap(view, cacheable=False):
+            """
+            Функция-обертка для проверки прав и отключения кэширования
+            """
             def wrapper(*args, **kwargs):
+                """
+                Возвращает Функцию-обертку для проверки прав и отключения кэширования
+                """
                 return self.admin_site.admin_view(view, cacheable)(*args, **kwargs)
             return update_wrapper(wrapper, view)
 
@@ -90,6 +104,9 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         ] + super(TermAdmin, self).get_urls()
 
     def delete_model(self, request, obj):
+        """
+        Удаляет объект, если не существует ограничения к удалению
+        """
         if obj.system_flags.delete_restriction:
             storage = messages.get_messages(request)
             storage.used = True
@@ -98,7 +115,14 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
             obj.delete()
 
     def get_tree_data(self, qs, max_level):
+        """
+        Создает дерево витрины данных
+        """
         def handle_create_node(instance, node_info):
+            """
+            Вспомогательная функция создания дерева витрины данных.
+            Возвращает обновленную html-страницу дерева
+            """
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
@@ -107,6 +131,9 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         return get_tree_from_queryset(qs, handle_create_node, max_level)
 
     def i18n_javascript(self, request):
+        """
+        Библиотека переводов текста
+        """
         if settings.USE_I18N:
             from django.views.i18n import javascript_catalog
         else:
@@ -115,7 +142,15 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
     @remove_empty_params_from_request()
+    """
+    ENG: Remove empty query params from request
+    RUS: Удаляет пустые параметры из запроса
+    """
+
     def term_select_json_view(self, request):
+        """
+        Предоставляет возможность выбрать (отметить) термин при соответствии указанных параметров
+        """
         node_id = request.GET.get('node')
         name = request.GET.get('name')
         node_template = request.GET.get('node_template')
