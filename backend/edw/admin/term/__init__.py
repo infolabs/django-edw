@@ -142,11 +142,6 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         return javascript_catalog(request, domain='django', packages=['django_mptt_admin', 'edw'])
 
     @remove_empty_params_from_request()
-    """
-    ENG: Remove empty query params from request
-    RUS: Удаляет пустые параметры из запроса
-    """
-
     def term_select_json_view(self, request):
         """
         Предоставляет возможность выбрать (отметить) термин при соответствии указанных параметров
