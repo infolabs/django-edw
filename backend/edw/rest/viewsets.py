@@ -15,9 +15,6 @@ def remove_empty_params_from_request(exclude=None):
          RUS: Удаляет пустые параметры из запроса в результате применения декоратора
         """
         @wraps(func)
-        """
-        Декоратор, дополняющий функцию-обертку
-        """
         def func_wrapper(self, request, *args, **kwargs):
             """
             Функция-обертка
