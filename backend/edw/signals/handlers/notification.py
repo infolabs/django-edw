@@ -66,9 +66,10 @@ def entity_event_notification(sender, instance=None, **kwargs):
                 continue
 
         # emulate a request object which behaves similar to that one, when the customer submitted its order
-        emulated_request = EmulateHttpRequest(instance.customer, instance.stored_request)
+        stored_request = instance.stored_request[0] if isinstance(instance.stored_request, (tuple, list)) else instance.stored_request
+        emulated_request = EmulateHttpRequest(instance.customer, stored_request)
         entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
-        language = instance.stored_request.get('language')
+        language = stored_request.get('language')
         context = {
             'customer': CustomerSerializer(instance.customer).data,
             'data': entity_serializer.data,
