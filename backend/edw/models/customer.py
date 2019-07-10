@@ -24,9 +24,10 @@ SessionStore = import_module(settings.SESSION_ENGINE).SessionStore()
 class CustomerQuerySet(models.QuerySet):
     def _filter_or_exclude(self, negate, *args, **kwargs):
         """
-        Emulate filter queries on a Customer using attributes from the User object.
+        ENG: Emulate filter queries on a Customer using attributes from the User object.
         Example: Customer.objects.filter(last_name__icontains='simpson') will return
         a queryset with customers whose last name contains "simpson".
+        RUS: Эмуляция отфильтрованных запросов к пользователю  Customer с использованием атрибутов объекта User
         """
         opts = self.model._meta
         lookup_kwargs = {}
@@ -55,6 +56,12 @@ class CustomerQuerySet(models.QuerySet):
 
 
 class CustomerManager(models.Manager):
+    """
+    ENG: Manager for the Customer database model. This manager can also cope with customers, which have
+    an entity in the database but otherwise are considered as anonymous. The username of these
+    so called unrecognized customers is a compact version of the session key.
+    RUS: Менеджер модели пользователя Customer.
+    """
     BASE64_ALPHABET = string.digits + string.ascii_uppercase + string.ascii_lowercase + '.@'
     REVERSE_ALPHABET = dict((c, i) for i, c in enumerate(BASE64_ALPHABET))
     BASE36_ALPHABET = string.digits + string.ascii_lowercase
@@ -64,16 +71,19 @@ class CustomerManager(models.Manager):
     @classmethod
     def encode_session_key(cls, session_key):
         """
-        Session keys have base 36 and length 32. Since the field ``username`` accepts only up
+        ENG: Session keys have base 36 and length 32. Since the field ``username`` accepts only up
         to 30 characters, the session key is converted to a base 64 representation, resulting
         in a length of approximately 28.
+        RUS: Преобразует ключ сеанса в представление base64,
+         в результате чего длина ключа равна приблизительно 28.
         """
         return cls._encode(int(session_key[:32], 36), cls.BASE64_ALPHABET)
 
     @classmethod
     def decode_session_key(cls, compact_session_key):
         """
-        Decode a compact session key back to its original length and base.
+        ENG: Decode a compact session key back to its original length and base.
+        RUS: Декодирует сеансовый ключ до его исходной длины и основания.
         """
         base_length = len(cls.BASE64_ALPHABET)
         n = 0
@@ -83,6 +93,9 @@ class CustomerManager(models.Manager):
 
     @classmethod
     def _encode(cls, n, base_alphabet):
+        """
+        RUS: Переводит из кодировки сессионного ключа Base36 в кодировку Base64.
+        """
         base_length = len(base_alphabet)
         s = []
         while True:
@@ -94,13 +107,18 @@ class CustomerManager(models.Manager):
 
     def get_queryset(self):
         """
-        Whenever we fetch from the Customer table, inner join with the User table to reduce the
+        ENG: Whenever we fetch from the Customer table, inner join with the User table to reduce the
         number of queries to the database.
+        RUS: Возвращает объект запроса, который включает в выборку данные связанных 
+        объектов при выполнении запроса между таблицами Customer и User.
         """
         qs = self._queryset_class(self.model, using=self._db).select_related('user')
         return qs
 
     def create(self, *args, **kwargs):
+        """
+        RUS: Создает пользователя Customer, если он аутентифицирован.
+        """
         customer = super(CustomerManager, self).create(*args, **kwargs)
         if 'user' in kwargs and kwargs['user'].is_authenticated():
             customer.recognized = self.model.REGISTERED
@@ -108,8 +126,10 @@ class CustomerManager(models.Manager):
 
     def _get_visiting_user(self, session_key):
         """
-        Since the Customer has a 1:1 relation with the User object, look for an entity for a
+        ENG: Since the Customer has a 1:1 relation with the User object, look for an entity for a
         User object. As its ``username`` (which must be unique), use the given session key.
+        RUS: Проверка пользователя объектов Customer и User. Если данных о нем нет в сессионном ключе,
+        то пользователь считается анонимным.
         """
         username = self.encode_session_key(session_key)
         try:
@@ -120,7 +140,8 @@ class CustomerManager(models.Manager):
 
     def get_from_request(self, request):
         """
-        Return an Customer object for the current User object.
+        ENG: Return an Customer object for the current User object.
+        RUS: Возвращает объект Customer для текущего объекта User. 
         """
         if request.user.is_anonymous() and request.session.session_key:
             # the visitor is determined through the session key
@@ -142,6 +163,10 @@ class CustomerManager(models.Manager):
         return customer
 
     def get_or_create_from_request(self, request):
+        """
+        RUS: Возвращает объект Customer при прохождении аутентификации 
+        или создает новый объект.
+        """
         if request.user.is_authenticated():
             user = request.user
             recognized = self.model.REGISTERED
@@ -164,11 +189,13 @@ class CustomerManager(models.Manager):
 @python_2_unicode_compatible
 class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    Base class for edw customers.
+    ENG: Base class for edw customers.
 
     Customer is a profile model that extends
     the django User model if a customer is authenticated. On checkout, a User
     object is created for anonymous customers also (with unusable password).
+    RUS: Базовый класс пользвателей EDW, который расширяет модель пользователя django, 
+    если клиент аутентифицирован.
     """
     SALUTATION = (('mrs', _("Mrs.")), ('mr', _("Mr.")), ('na', _("(n/a)")))
     UNRECOGNIZED = 0
@@ -190,96 +217,145 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         abstract = True
 
     def __str__(self):
+        """
+        RUS: Возвращает имя пользователя модели Customer в строковом виде.
+        """
         return self.get_username()
 
     def get_username(self):
+        """
+        RUS: Возвращает имя пользователя модели Customer.
+        """
         return self.user.get_username()
 
     def get_full_name(self):
+        """
+        RUS: Возвращает полное имя пользователя модели Customer.
+        """
         return self.user.get_full_name()
 
     @property
     def first_name(self):
+        """
+        RUS: Возвращает имя пользователя модели Customer.
+        """
         return self.user.first_name
 
     @first_name.setter
     def first_name(self, value):
+        """
+        ENG: Pending deprecation: warnings.warn("Property first_name is deprecated and will be removed").
+        RUS: Имя будет заменено новым значением, если яявляется устаревшим.
+        """
         self.user.first_name = value
 
     @property
     def last_name(self):
+        """
+        ENG: Pending deprecation: warnings.warn("Property last_name is deprecated and will be removed").
+        RUS: Фамилия будет удалена, если является устаревшей.
+        """
         return self.user.last_name
 
     @last_name.setter
     def last_name(self, value):
+        """
+        ENG: Pending deprecation: warnings.warn("Property last_name is deprecated and will be removed").
+        RUS: Фамилия будет заменена новым значением, если яявляется устаревшей.
+        """
         self.user.last_name = value
 
     @property
     def email(self):
+        """
+        RUS: Определяет email пользователя модели Customer.
+        """
         return self.user.email
 
     @email.setter
     def email(self, value):
+        """
+        RUS: Присваивает новое значение email пользователя модели Customer.
+        """
         self.user.email = value
 
     @property
     def date_joined(self):
+        """
+        RUS: Возвращает дату и время создания аккаунта пользователя модели Customer.
+        """
         return self.user.date_joined
 
     @property
     def last_login(self):
+        """
+        RUS: Определяет дату и время последнего входа пользователя модели Customer в систему.
+        """
         return self.user.last_login
 
     def is_anonymous(self):
+        """
+        RUS: Определяет статус не прошедшего аутентификацию ипользователя модели Customer.
+        """
         return self.recognized in (self.UNRECOGNIZED, self.GUEST)
 
     def is_authenticated(self):
+        """
+        RUS: Определяет статус прошедшего аутентификацию ипользователя модели Customer.
+        """
         return self.recognized == self.REGISTERED
 
     def is_recognized(self):
         """
-        Return True if the customer is associated with a User account.
+        ENG: Return True if the customer is associated with a User account.
         Unrecognized customers have accessed the shop, but did not register
         an account nor declared themselves as guests.
+        RUS: Разграничивает права прошедших аутентификацию пользователей и непрошедших.
         """
         return self.recognized != self.UNRECOGNIZED
 
     def is_guest(self):
         """
-        Return true if the customer isn't associated with valid User account, but declared
+        ENG: Return true if the customer isn't associated with valid User account, but declared
         himself as a guest, leaving their email address.
+        RUS: У пользователя появляется статус Гость, если он незарегистрирован, но оставил свой email. 
         """
         return self.recognized == self.GUEST
 
     def recognize_as_guest(self):
         """
-        Recognize the current customer as guest customer.
+        ENG: Recognize the current customer as guest customer.
+        RUS: Определяет статус пользователя в качестве Гостя
         """
         self.recognized = self.GUEST
 
     def is_registered(self):
         """
-        Return true if the customer has registered himself.
+        ENG: Return true if the customer has registered himself.
+        RUS: Проверяет регистрацию пользователя
         """
         return self.recognized == self.REGISTERED
 
     def recognize_as_registered(self):
         """
-        Recognize the current customer as registered customer.
+        ENG: Recognize the current customer as registered customer.
+        RUS: Определяет статус пользователя в качестве зарегистрированного
         """
         self.recognized = self.REGISTERED
 
     def is_visitor(self):
         """
-        Always False for instantiated Customer objects.
+        ENG: Always False for instantiated Customer objects.
+        RUS: Пользователь со статусом посетитель не является объектом модели Customer
         """
         return False
 
     def is_expired(self):
         """
-        Return true if the session of an unrecognized customer expired.
+        ENG: Return true if the session of an unrecognized customer expired.
         Registered customers never expire.
         Guest customers only expire, if they failed fulfilling the purchase (currently not implemented).
+        RUS: Проверяет, является ли сессия истекшей для незарегистрированных пользователей.
         """
         if self.recognized == self.UNRECOGNIZED:
             session_key = CustomerManager.decode_session_key(self.user.username)
@@ -288,24 +364,32 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 
     def get_or_assign_number(self):
         """
-        Hook to get or to assign the customers number. It shall be invoked, every time an Order
+        ENG: Hook to get or to assign the customers number. It shall be invoked, every time an Order
         object is created. If the customer number shall be different from the primary key, then
         override this method.
+        RUS: Получает или при отсутствии присваивает номер id зарегистрированного пользователя.
         """
         return self.get_number()
 
     def get_number(self):
         """
-        Hook to get the customers number. Customers haven't purchased anything may return None.
+        ENG: Hook to get the customers number. Customers haven't purchased anything may return None.
+        RUS: Возвращает номер id зарегистрированного пользователя в строковом формате.
         """
         return str(self.user_id)
 
     def save(self, **kwargs):
+        """
+        RUS: Сохраняет данные пользователя.
+        """
         if 'update_fields' not in kwargs:
             self.user.save(using=kwargs.get('using', DEFAULT_DB_ALIAS))
         super(BaseCustomer, self).save(**kwargs)
 
     def delete(self, *args, **kwargs):
+        """
+        RUS: Удаляет данные неаутентифицированного пользователя и аутентифицированного через каскадное удаление.
+        """
         if self.user.is_active and self.recognized == self.UNRECOGNIZED:
             # invalid state of customer, keep the referred User
             super(BaseCustomer, self).delete(*args, **kwargs)
@@ -318,48 +402,83 @@ CustomerModel = deferred.MaterializedModel(BaseCustomer)
 
 class VisitingCustomer(object):
     """
-    This dummy object is used for customers which just visit the site. Whenever a VisitingCustomer
+    ENG: This dummy object is used for customers which just visit the site. Whenever a VisitingCustomer
     adds something to the cart, this object is replaced against a real Customer object.
+    RUS: Класс анонимного (незарегистрированного) пользователя-посетителя сайта, статус которого может меняться
+    в зависимости от совершенных действий.
     """
     user = AnonymousUser()
 
     def __str__(self):
+        """
+        RUS: Возвращает строковое представление объекта.
+        """
         return 'Visitor'
 
     @property
     def email(self):
+        """
+        RUS: Пользователь со статусом посетитель может не указывать при регистрации свой email адрес.
+        """
         return ''
 
     @email.setter
     def email(self, value):
+        """
+        RUS: Email адрес пользователя неуказан и поэтому не хранится и не возвращается.
+        """
         pass
 
     def is_anonymous(self):
+        """
+        RUS: Проверка анонимности пользователя.
+        """
         return True
 
     def is_authenticated(self):
+        """
+        RUS: Проверка аутентификации пользователя. Анонимный пользователь не является аутентифицированным.
+        """
         return False
 
     def is_recognized(self):
+        """
+        RUS: Проверка регистрации пользователя в модели. Анонимный пользователь не зарегистрирован.
+        """
         return False
 
     def is_guest(self):
+        """
+        RUS: Проверка статуса Гость пользователя. Анонимный пользователь не является гостем,
+        поскольку не оставил свой email адрес.
+        """
         return False
 
     def is_registered(self):
+        """
+        RUS: Проверяет, является пользователь зарегистрированным. 
+        Анонимный пользователь не является зарегистрированным.
+        """
         return False
 
     def is_visitor(self):
+        """
+        RUS: Проверка статуса Посетитель пользователя. Анонимный пользователь является посетителем.
+        """
         return True
 
     def save(self, **kwargs):
+        """
+        RUS: Сохраняет у пользователя статус Посетитель.
+        """
         pass
 
 
 @receiver(user_logged_in)
 def handle_customer_login(sender, **kwargs):
     """
-    Update request.customer to an authenticated Customer
+    ENG: Update request.customer to an authenticated Customer.
+    RUS: Авторизовывает аутентифицированного пользователя и уведомляет его об этом.
     """
     try:
         kwargs['request'].customer = kwargs['request'].user.customer
@@ -370,7 +489,8 @@ def handle_customer_login(sender, **kwargs):
 @receiver(user_logged_out)
 def handle_customer_logout(sender, **kwargs):
     """
-    Update request.customer to a visiting Customer
+    ENG: Update request.customer to a visiting Customer.
+    RUS: Используется для отмены авторизации пользователя и очистки данных сессии и его уведомлении.
     """
     # defer assignment to anonymous customer, since the session_key is not yet rotated
     kwargs['request'].customer = SimpleLazyObject(lambda: CustomerModel.objects.get_from_request(kwargs['request']))
