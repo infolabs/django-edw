@@ -11,8 +11,14 @@ def remove_empty_params_from_request(exclude=None):
     if exclude is None:
         exclude = []
     def remove_empty_params_from_request_decorator(func):
+        """
+         RUS: Удаляет пустые параметры из запроса в результате применения декоратора
+        """
         @wraps(func)
         def func_wrapper(self, request, *args, **kwargs):
+            """
+            Функция-обертка
+            """
             query_params = request.GET.copy()
             for k, v in query_params.items():
                 if v == '' and k not in exclude:
@@ -24,8 +30,14 @@ def remove_empty_params_from_request(exclude=None):
 
 
 class CustomSerializerViewSetMixin(object):
+    """
+    Сериалайзер для запросов
+    """
     def get_serializer_class(self):
-        """ Return the class to use for serializer w.r.t to the request method."""
+        """ 
+        ENG: Return the class to use for serializer w.r.t to the request method.
+        RUS: Возвращает класс для использования сериалайзера к методу запроса
+        """
         try:
             return self.custom_serializer_classes[self.action]
         except (KeyError, AttributeError):

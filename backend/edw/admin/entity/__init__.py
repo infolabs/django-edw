@@ -89,7 +89,13 @@ else:
 # EntityRelationFilter
 #===========================================================================================
 class EntityRelationFilter(SalmonellaFilter):
+    """
+    Фильтр связанных объектов
+    """
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Конструктор класса
+        """
         super(EntityRelationFilter, self).__init__(
             field, request, params, model, model_admin, field_path)
         self.title = _("Entity Relation")
@@ -99,6 +105,9 @@ class EntityRelationFilter(SalmonellaFilter):
 # TermsTreeFilter
 #===========================================================================================
 class TermsTreeFilter(admin.ListFilter):
+    """
+    Фильтр терминов дерева
+    """
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
     title = _('Terms')
@@ -108,6 +117,9 @@ class TermsTreeFilter(admin.ListFilter):
     parameter_name = 'terms'
 
     def __init__(self, request, params, model, model_admin):
+        """
+        Конструктор класса
+        """
         super(TermsTreeFilter, self).__init__(
             request, params, model, model_admin)
 
@@ -122,15 +134,27 @@ class TermsTreeFilter(admin.ListFilter):
                 self.used_parameters[self.parameter_name] = value
 
     def has_output(self):
+        """
+        Возвращает истину, если для этого фильтра будут выведены некоторые варианты
+        """
         return True
 
     def value(self):
+        """
+        Возвращает значение, указанное в запросе если оно есть и пустое значение, если его нет
+        """
         return self.used_parameters.get(self.parameter_name, None)
 
     def expected_parameters(self):
+        """
+        Возвращает значение указанных параметров, если эти параметры были переданы
+        """
         return [self.parameter_name]
 
     def choices(self, cl):
+        """
+        Кодировка значенией в UTF-8
+        """
         value = self.value()
         if value:
             values = urllib.unquote(value).decode('utf8').split(',')
@@ -144,9 +168,11 @@ class TermsTreeFilter(admin.ListFilter):
 
     def queryset(self, request, queryset):
         """
-        Returns the filtered queryset based on the value
+        ENG: Returns the filtered queryset based on the value
         provided in the query string and retrievable via
         request.
+        RUS: Возвращает отфильтрованный объект запроса 
+        на основе извлеченного значения из строки запроса
         """
         f = EntityFilter(request.GET, queryset=queryset)
         return f.qs
@@ -156,6 +182,9 @@ class TermsTreeFilter(admin.ListFilter):
 # EntityCharacteristicOrMarkInline
 #===========================================================================================
 class EntityCharacteristicOrMarkInline(admin.TabularInline):
+    """
+    Параметры класса Характеристики или метки объекта
+    """
     model = AdditionalEntityCharacteristicOrMarkModel
     fields = ['term', 'value', 'view_class']
     extra = 1
@@ -166,6 +195,9 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
 # EntityRelationInline
 #===========================================================================================
 class EntityRelationInline(admin.TabularInline):
+    """
+    Параметры класса Связанные объекты
+    """
     model = EntityRelationModel
     fields = ['term', 'to_entity']
     fk_name = 'from_entity'
@@ -177,6 +209,9 @@ class EntityRelationInline(admin.TabularInline):
 # EntityRelatedDataMartInline
 #===========================================================================================
 class EntityRelatedDataMartInline(admin.TabularInline):
+    """
+    Параметры класса Связанные витрины данных
+    """
     model = EntityRelatedDataMartModel
     fields=['data_mart']
     fk_name = 'entity'
@@ -188,7 +223,9 @@ class EntityRelatedDataMartInline(admin.TabularInline):
 # EntityChildModelAdmin
 #===========================================================================================
 class EntityChildModelAdmin(PolymorphicChildModelAdmin):
-
+    """
+    Параметры класса для интерфейса администратора дочерней модели
+    """
     base_model = EntityModel
 
     base_form = EntityAdminForm
@@ -214,14 +251,23 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
     show_in_index = True
 
     def get_name(self, object):
+        """
+        Возвращает имя объекта, которому присваивается значение
+        """
         return object.get_real_instance().entity_name
     get_name.short_description = _("Name")
 
     def get_type(self, object):
+        """
+         Возвращает наименование типа объекта, которому присваивается значение
+        """
         return object.get_real_instance().entity_type()
     get_type.short_description = _("Entity type")
 
     class Media:
+        """
+        CSS-стили и Java-Script
+        """
         css = {
             'all': (
                 '/static/css/admin/entity.css',
@@ -239,6 +285,9 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
         )
 
     def get_actions(self, request):
+       """
+        Возвращает фильтр задач администратора дочерней модели
+        """
        actions = super(EntityChildModelAdmin, self).get_actions(request)
        return filter_actions(request, actions)
 
@@ -247,6 +296,9 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 # EntityParentModelAdmin
 # ===========================================================================================
 class EntityParentModelAdmin(PolymorphicParentModelAdmin):
+    """
+    Параметры класса для интерфейса администратора родительской (базовой) модели
+    """
 
     base_model = EntityModel
 
@@ -275,14 +327,23 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
     list_max_show_all = 1000
 
     def get_name(self, object):
+        """
+        Возвращает имя объекта, которому присваивается значение
+        """
         return object.get_real_instance().entity_name
     get_name.short_description = _("Name")
 
     def get_type(self, object):
+        """
+        Возвращает наименование типа объекта, которому присваивается значение
+        """
         return object.get_real_instance().entity_type()
     get_type.short_description = _("Entity type")
 
     class Media:
+        """
+        CSS-стили и Java-Script
+        """
         css = {
             'all': (
                 '/static/edw/css/admin/jqtree.css',
@@ -299,5 +360,8 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
         )
 
     def get_actions(self, request):
+        """
+        Возвращает фильтр задач администратора базовой модели
+        """
        actions = super(EntityParentModelAdmin, self).get_actions(request)
        return filter_actions(request, actions)

@@ -16,7 +16,8 @@ from rest_framework.renderers import JSONRenderer
 
 def _get_count(queryset):
     """
-    Determine an object count, supporting either querysets or regular lists.
+    ENG: Determine an object count, supporting either querysets or regular lists.
+    RUS: Возвращает количество объектов, поддерживающих запрос к базе данных с помощью метода .count() или len().
     """
     try:
         return queryset.count()
@@ -27,22 +28,33 @@ def _get_count(queryset):
 class Request(request.Request):
 
     def __init__(self, request, query_params=None, *args, **kwargs):
+        """
+        ENG: The class constructor
+        RUS: Конструктор класса
+        """
         self._query_params = query_params
         super(Request, self).__init__(request, *args, **kwargs)
 
     @cached_property
     def query_params(self):
         """
-        More semantically correct name for request.GET.
+        ENG: More semantically correct name for request.GET.
+        RUS: Параметры запроса  HTTP методов
         """
         return self._query_params if self._query_params is not None else self._request.GET
 
     @property
     def GET(self):
+        """
+        RUS: Возвращает параметры запроса
+        """
         return self.query_params
 
 
 class BaseRetrieveDataTag(Tag):
+    """
+    Основные настройки, управляющие поведением тегов
+    """
     queryset = None
     serializer_class = None
     action = None
@@ -62,7 +74,9 @@ class BaseRetrieveDataTag(Tag):
 
     def permission_denied(self, request, message=None):
         """
-        If request is not permitted, determine what kind of exception to raise.
+        ENG: If request is not permitted, determine what kind of exception to raise.
+        RUS: Вызов исключения в случае, если неаутентифицированный запрос 
+        не проходит проверку разрешений.
         """
         if not request.successful_authenticator:
             raise exceptions.NotAuthenticated()
@@ -70,14 +84,17 @@ class BaseRetrieveDataTag(Tag):
 
     def get_permissions(self):
         """
-        Instantiates and returns the list of permissions that this view requires.
+        ENG: Instantiates and returns the list of permissions that this view requires.
+        RUS: Возвращает список разрешений для данных представлений.
         """
         return [permission() for permission in self.permission_classes]
 
     def check_object_permissions(self, request, obj):
         """
-        Check if the request should be permitted for a given object.
+        ENG: Check if the request should be permitted for a given object.
         Raises an appropriate exception if the request is not permitted.
+        RUS: Проверяет, разрешен ли запрос для данного объекта.
+        Если не разрешен, создается сообщение об отказе в доступе.
         """
         permissions = [permission() for permission in obj._rest_meta.permission_classes]
         if not permissions:
@@ -90,6 +107,9 @@ class BaseRetrieveDataTag(Tag):
                 )
 
     def initialize(self, origin_request, tag_kwargs):
+        """
+        Преобразует параметры  запросов внутренних тегов html шаблонов в запросы к REST интерфейсу
+        """
         request = Request(origin_request, query_params=QueryDict('', mutable=True))
 
         initial_kwargs = tag_kwargs.copy()
@@ -115,6 +135,10 @@ class BaseRetrieveDataTag(Tag):
         self.request = request
 
     def render(self, context):
+        """
+        Возвращает результат обработки html шаблонов, преобразованного 
+        в запросы к REST интерфейсу.
+        """
         items = self.kwargs.items()
         kwargs = dict([(key, value.resolve(context)) for key, value in items])
         kwargs.update(self.blocks)
@@ -130,9 +154,11 @@ class BaseRetrieveDataTag(Tag):
 
     def get_queryset(self):
         """
-        Get the list of items for this Tag.
+        ENG: Get the list of items for this Tag.
         This must be an iterable, and may be a queryset.
         Defaults to using `self.queryset`.
+        RUS: Возвращает преобразованные объекты запроса Тега,
+        если они являются запросами к базе данных.
         """
         assert self.queryset is not None, (
             "'%s' should either include a `queryset` attribute, "
@@ -148,7 +174,8 @@ class BaseRetrieveDataTag(Tag):
 
     def get_serializer(self, *args, **kwargs):
         """
-        Return the serializer instance.
+        ENG: Return the serializer instance.
+        RUS: Возвращает экземпляр сериалайзера.
         """
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
@@ -156,8 +183,10 @@ class BaseRetrieveDataTag(Tag):
 
     def get_serializer_class(self):
         """
-        Return the class to use for the serializer.
+        ENG: Return the class to use for the serializer.
         Defaults to using `self.serializer_class`.
+        RUS: Возвращает класс для сериалайзера.
+        По умолчанию используется класс 'self.serializer_class'.
         """
         assert self.serializer_class is not None, (
             "'%s' should either include a `serializer_class` attribute, "
@@ -169,7 +198,8 @@ class BaseRetrieveDataTag(Tag):
 
     def get_serializer_context(self):
         """
-        Extra context provided to the serializer class.
+        ENG: Extra context provided to the serializer class.
+        RUS: Дополнительный контекст для класса сериалайзера
         """
         return {
             'request': self.request,
@@ -179,7 +209,8 @@ class BaseRetrieveDataTag(Tag):
 
     def filter_queryset(self, queryset):
         """
-        Given a queryset, filter it with whichever filter backend is in use.
+        ENG: Given a queryset, filter it with whichever filter backend is in use.
+        RUS: Возвращает объект запроса с установленным фильтром DjangoFilterBackend.
         """
         for backend in list(self.filter_backends):
             queryset = backend().filter_queryset(self.request, queryset, self)
@@ -187,7 +218,9 @@ class BaseRetrieveDataTag(Tag):
 
     def get_object(self):
         """
-        Returns the object.
+        ENG: Returns the object.
+        RUS: Возвращает отфильтрованный объект запроса или возбуждает исключение,
+        если объект не найден.
         """
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -205,7 +238,8 @@ class BaseRetrieveDataTag(Tag):
     @property
     def paginator(self):
         """
-        The paginator instance associated with the templatetag, or `None`.
+        ENG: The paginator instance associated with the templatetag, or `None`.
+        RUS: Функция-пагинатор для управления разбитыми на страницы данными.
         """
         if not hasattr(self, '_paginator'):
             if self.pagination_class is None:
@@ -216,7 +250,9 @@ class BaseRetrieveDataTag(Tag):
 
     def paginate_queryset(self, queryset):
         """
-        Return a single page of results, or `None` if pagination is disabled.
+        ENG: Return a single page of results, or `None` if pagination is disabled.
+        RUS: Возвращает страницы, содержащие запрашиваемые данные, 
+        в результате обработки запроса.
         """
         if self.paginator is None:
             return None
@@ -228,7 +264,8 @@ class BaseRetrieveDataTag(Tag):
 
     def get_paginated_data(self, data):
         """
-        Return a paginated style data object for the given output data.
+        ENG: Return a paginated style data object for the given output data.
+        RUS: Определяет стиль нумерации страниц
         """
         assert self.paginator is not None
 
@@ -239,4 +276,9 @@ class BaseRetrieveDataTag(Tag):
         }
 
     def to_json(self, data):
+        """
+        ENG: Renders the request data into JSON, using utf-8 encoding.
+        RUS: Возвращает отрендеренные данные запроса JSON, используя кодировку utf-8,
+        с помощью класса JSONRenderer.
+        """
         return JSONRenderer().render(data, renderer_context={'indent': self.indent})

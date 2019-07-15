@@ -40,36 +40,52 @@ from .. import settings as edw_settings
 
 
 class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
+    """
+    RUS: Запрос к базе данных витрины данных.
+    """
 
     @add_cache_key('actv')
     def active(self):
+        """
+        RUS: Возвращает объекты запроса, являющимися активными.
+        """
         return self.filter(active=True)
 
     def hard_delete(self):
+        """
+        RUS: Принудительное удаление объекта.
+        """
         return super(BaseDataMartQuerySet, self).delete()
 
     def delete(self):
+        """
+        RUS: Удаляет объект, если нет системного флага ограничения на удаление.
+        """
         return super(BaseDataMartQuerySet,
                      self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
     @add_cache_key('toplvl')
     def toplevel(self):
         """
-        Return all nodes which have no parent.
+        ENG: Return all nodes which have no parent.
+        RUS: Возвращает витрины данных вехнего уровня, у которых нет родителей.
         """
         return self.filter(parent__isnull=True)
 
 
 class TreePolymorphicManager(TreeManager, PolymorphicManager):
     """
-    Combine TreeManager & PolymorphicManager
+    ENG: Combine TreeManager & PolymorphicManager
+    RUS: Объединяет TreeManager и PolymorphicManager, создает комбинированый запрос 
+    к базе данных витрины данных.
     """
     queryset_class = BaseDataMartQuerySet
 
 
 class BaseDataMartManager(RebuildTreeMixin, TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
     """
-    Customized model manager for our DataMart model.
+    ENG: Customized model manager for our DataMart model.
+    RUS: Адаптированный менеджер модели для модели витрины данных.
     """
 
     '''
@@ -87,13 +103,16 @@ class BaseDataMartManager(RebuildTreeMixin, TreePolymorphicManager.from_queryset
 
 class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, PolymorphicModelBase, RESTModelBase):
     """
-    The BaseDataMart class must refer to their materialized model definition, for instance when
+    ENG: The BaseDataMart class must refer to their materialized model definition, for instance when
     accessing its model manager.
+    RUS: Базовый метакласс витрины данных.
     """
     @classmethod
     def perform_model_checks(cls, Model):
         """
-        Perform some safety checks on the DataMartModel being created.
+        ENG: Perform some safety checks on the DataMartModel being created.
+        RUS: Выполняет проверку безопасности созданной витрины данных.
+        Если это - не экземпляр класса BaseDataMartManager, вызывается исключение.
         """
         if not isinstance(Model.objects, BaseDataMartManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from `{}`"
@@ -103,7 +122,8 @@ class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, Polymorph
 @python_2_unicode_compatible
 class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel)):
     """
-    The data marts for a enterprise data warehouse.
+    ENG: The data marts for a enterprise data warehouse.
+    RUS: Витрины данных для корпоративного хранилища данных, определяет поля и их значения.
     """
     ALL_ACTIVE_TERMS_COUNT_CACHE_KEY = 'dm_act_t_cnt'
     ALL_ACTIVE_TERMS_IDS_CACHE_KEY = 'dm_act_t_ids'
@@ -179,17 +199,29 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     can_have_children = True
 
     class Meta:
+        """
+        RUS: Метакласс для определения специальных параметров.
+        """
         abstract = True
         verbose_name = _("Data mart")
         verbose_name_plural = _("Data marts")
 
     class MPTTMeta:
+        """
+        RUS: Метакласс Django MPTT для определения специальных параметров.
+        """
         order_insertion_by = ['created_at']
 
     def __str__(self):
+        """
+        RUS: Возвращает данные в строковом формате.
+        """
         return self.name
 
     def __cmp__(self, other):
+        """
+        RUS: Сравнивает узлы витрины данных по id для построения дерева.
+        """
         tree_opts = self._mptt_meta
         self_tree_id, other_tree_id = getattr(self, tree_opts.tree_id_attr), getattr(other, tree_opts.tree_id_attr)
         self_tree_left, other_tree_left = getattr(self, tree_opts.left_attr), getattr(other, tree_opts.left_attr)
@@ -208,7 +240,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     def data_mart_type(self):
         """
-        Returns the polymorphic type of the object.
+        ENG: Returns the polymorphic type of the object.
+        RUS: Возвращает полиморфный тип объекта
         """
         return force_text(self.polymorphic_ctype)
     data_mart_type.short_description = _("Data mart type")
@@ -216,19 +249,25 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     @property
     def data_mart_model(self):
         """
-        Returns the polymorphic model name of the object's class.
+        ENG: Returns the polymorphic model name of the object's class.
+        RUS: Возвращает полиморфную модель имени класса объекта
         """
         return self.polymorphic_ctype.model
 
     def get_absolute_url(self, request=None, format=None):
         """
-        Hook for returning the canonical Django URL of this object.
+        ENG: Hook for returning the canonical Django URL of this object.
+        RUS: Вычисляет URL объекта, который должен быть реализован подклассом.
         """
         msg = "Method get_absolute_url() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
 
     @classmethod
     def get_all_subclasses(cls):
+        """
+        ENG: Helper function to get all the subclasses of a class.
+        RUS: Вспомогательная функция для получения всех подклассов класса.
+        """
         for subclass in cls.__subclasses__():
             for subsubclass in subclass.get_all_subclasses():
                 yield subsubclass
@@ -236,9 +275,19 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @cached_property
     def ancestors_list(self):
+        """
+        ENG: Creates a QuerySet containing the ancestors of the model instance 
+        (root ancestor first, immediate parent last).
+        RUS: Получает список родительских элементов (предков) указанного экземпляра, включая сам экземпляр модели.
+        """
         return list(self.parent.get_ancestors(include_self=True)) if self.parent else []
 
     def clean(self, *args, **kwargs):
+        """
+        ENG: Validate the model as a whole.
+        RUS: Проверка всей модели на уникальность. 
+        Первичный ключ должен быть равен id объекта.
+        """
         model_class = self.__class__
         try:
             origin = model_class._default_manager.get(pk=self.id)
@@ -256,14 +305,23 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         return super(BaseDataMart, self).clean(*args, **kwargs)
 
     def need_terms_validation(self, origin, **kwargs):
+        """
+        RUS: Обязательная проверка id терминов.
+        """
         return origin is None
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Дополнительная проверка id терминов.
+        """
         pass
 
     def _make_path(self, items):
 
         def join_path(joiner, field, ancestors):
+            """
+            RUS: Формирует путь к объекту (термину).
+            """
             return joiner.join([force_text(getattr(i, field)) for i in ancestors])
 
         self.path = join_path('/', 'slug', items)
@@ -274,6 +332,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             self.path = '/'.join([short_path.rstrip('/'), get_unique_slug(self.slug, self.id)])
 
     def save(self, *args, **kwargs):
+        """
+        RUS: Сохраняет объекты, если они соответствуют определенным условиям и их нет в базе данных.
+        """
         # determine whether this instance is already in the db
         force_update = kwargs.get('force_update', False)
         if not force_update:
@@ -315,13 +376,23 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         return result
 
     def delete(self):
+        """
+        RUS: Удаляет объекты, если не проставлены  системные флаги с ограничениями на удаление.
+        """
         if not self.system_flags.delete_restriction:
             super(BaseDataMart, self).delete()
 
     def hard_delete(self):
+        """
+        RUS: Принудительное удаление объекта из витрины данных.
+        """
         super(BaseDataMart, self).delete()
 
     def move_to(self, target, position='first-child'):
+        """
+        RUS: Перемещает объект по дереву витрины данных с возможностью изменения родителя или добавления потомка, 
+        если непроставлены системные флаги на ограничение.
+        """
         if position in ('left', 'right'):
             if target.parent_id != self.parent_id:
                 if self.system_flags.change_parent_restriction:
@@ -342,21 +413,33 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         super(BaseDataMart, self).move_to(target, position)
 
     def get_children_cache_key(self):
+        """
+        RUS: Получает ключ кэша для объекта запроса, содержащего дочерние элементы.
+        """
         return self.CHILDREN_CACHE_KEY_PATTERN.format(
             parent_id=self.id
         )
 
     @add_cache_key(get_children_cache_key)
     def get_children(self):
+        """
+        RUS: Возвращает объект запроса, содержащий дочерние элементы, хранящиеся в кэше.
+        """
         return super(BaseDataMart, self).get_children()
 
     @staticmethod
     def get_children_buffer():
+        """
+        RUS: Помещает в буффер результат запроса, содержащий дочерние элементы.
+        """
         return RingBuffer.factory(BaseDataMart.CHILDREN_BUFFER_CACHE_KEY,
                                   max_size=BaseDataMart.CHILDREN_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_children_buffer():
+        """
+        RUS: Очищает из буффера результат запроса, содержащий дочерние элементы.
+        """
         buf = BaseDataMart.get_children_buffer()
         keys = buf.get_all()
         buf.clear()
@@ -364,6 +447,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @staticmethod
     def get_all_active_terms_ids():
+        """
+        RUS: Возвращает id всех активных терминов из кэша и добавляет в кэш, если их там нет.
+        """
         key = BaseDataMart.ALL_ACTIVE_TERMS_IDS_CACHE_KEY
         result = cache.get(key, None)
         if result is None:
@@ -375,6 +461,10 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @staticmethod
     def get_all_active_terms_count():
+        """
+        RUS: Возвращает id всех активных терминов из кэша с вычислением их количества 
+        и добавляет в кэш, если их там нет.
+        """
         key = BaseDataMart.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY
         result = cache.get(key, None)
         if result is None:
@@ -388,10 +478,16 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @cached_property
     def active_terms_ids(self):
+        """
+        RUS: Возвращает кэш id всех активных терминов.
+        """
         return list(self.terms.active().values_list('id', flat=True))
 
     @staticmethod
     def get_base_entity_model():
+        """
+        RUS: Возвращает базовую модель объекта (сущности).
+        """
         base_entity_model = getattr(DataMartModel, "_base_entity_model_cache", None)
         if base_entity_model is None:
             from .entity import EntityModel
@@ -402,6 +498,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @staticmethod
     def get_entities_model(terms_ids):
+        """
+        RUS: Создает модель сущности со связанными с ней терминами, унаследованную от базовой модели сущности.
+        """
         base_entity_model = DataMartModel.get_base_entity_model()
         entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
         entities_types_terms_ids = entities_types.keys()
@@ -413,35 +512,46 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     @cached_property
     def is_subjective(self):
+        """
+        RUS: Возвращает запрос со связанными субъектами сущности.
+        ENG: Returns a QuerySet with entity objects.
+        """
         return self.relations.all().exists()
 
     @cached_property
     def entities_model(self):
         """
-        Return Data Mart entities collection Model
+        ENG: Return Data Mart entities collection Model.
+        RUS: Возвращает витрины данных модели сущности с активными терминами.
         """
         return self.get_entities_model(self.active_terms_ids)
 
     def get_summary_extra(self, context):
         """
-        Return extra data for summary serializer
+        RUS: Возвращает дополнительные данные для итогового сериалайзера.
+        ENG: Return extra data for summary serializer.
         """
         return None
 
     def get_tree_extra(self):
         """
-        Return extra data for tree serializer
+        ENG: Return extra data for tree serializer.
+        RUS: Возвращает дополнительные данные для дерева сериалайзера.
         """
         return None
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Проверка соответствия модели терминов.
+        """
         pass
 
     @staticmethod
     def separate_relations(relations):
         """
-        Separate data mart relations into forward and backward (reverse) relations ids
+        ENG: Separate data mart relations into forward and backward (reverse) relations ids.
+        RUS: Разделяет связи объектов витрины данных на прямые и обратные связи с созданием реляционного ключа. 
         """
         rel_f_ids, rel_r_ids = [], []
         for relation in relations:
@@ -457,7 +567,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     @staticmethod
     def get_relations_subjects(relations):
         """
-        Get data mart relations subjects
+        ENG: Get data mart relations subjects. 
+        RUS: Получает список связанных субъектов витрин данных. 
         """
         return {relation.term_id: list(
             relation.subjects.values_list('id', flat=True)
@@ -469,11 +580,13 @@ DataMartModel = deferred.MaterializedModel(BaseDataMart)
 
 class ApiReferenceMixin(object):
     """
-    Add this mixin to DataMart classes to add a ``get_absolute_url()`` method.
+    ENG: Add this mixin to DataMart classes to add a ``get_absolute_url()`` method.
+    RUS: Добавляет данный миксин в витрину данных для добавления метода get_absolute_url().
     """
     def get_absolute_url(self, request=None, format=None):
         """
-        Return the absolute URL of a entity
+        ENG: Return the absolute URL of a entity. 
+        RUS: Возвращает абсолютный путь URL данной сущности.
         """
         return reverse('edw:{}-detail'.format(DataMartModel._meta.model_name), kwargs={'pk': self.pk}, request=request,
                        format=format)
