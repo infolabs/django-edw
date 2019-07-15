@@ -360,8 +360,6 @@ class EntityParentModelAdmin(PolymorphicParentModelAdmin):
         )
 
     def get_actions(self, request):
-        """
-        Возвращает фильтр задач администратора базовой модели
-        """
-       actions = super(EntityParentModelAdmin, self).get_actions(request)
-       return filter_actions(request, actions)
+        # Возвращает фильтр задач администратора базовой модели
+        actions = super(EntityParentModelAdmin, self).get_actions(request)
+        return filter_actions(request, actions)
