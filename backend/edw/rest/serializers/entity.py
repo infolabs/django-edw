@@ -282,13 +282,21 @@ class EntityValidator(object):
             raise serializers.ValidationError(attr_errors)
 
         # model validation
+        model_fields = model._meta.get_fields()
+        validated_data_keys = set(validated_data.keys())
+
         # exclude fields from RESTMeta
         exclude = model._rest_meta.exclude
+
+        # exclude not model fields from validate data
+        for x in list(validated_data_keys - set(model_fields)):
+            validated_data.pop(x)
+
         if request_method == 'PATCH':
-            required_fields = [f.name for f in model._meta.get_fields() if not isinstance(f, (
+            required_fields = [f.name for f in model_fields if not isinstance(f, (
                 RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
                 f, 'default', NOT_PROVIDED) is NOT_PROVIDED]
-            exclude = list((set(required_fields) - set(validated_data.keys())) | set(exclude))
+            exclude = list((set(required_fields) - validated_data_keys) | set(exclude))
         validate_unique = instance is None
         try:
             model(**validated_data).full_clean(validate_unique=validate_unique, exclude=exclude)
