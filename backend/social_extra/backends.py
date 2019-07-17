@@ -115,16 +115,22 @@ class EsiaOAuth2(BaseOAuth2):
         return self.add_and_sign_params(params)
 
     def get_user_details(self, response):
-        return {'username': response['email'],
-                'email': response['email'],
-                'fullname': response['fullname'],
-                'first_name': response['first_name'],
-                'last_name': response['last_name']}
+        response['username'] = response['email']
+        keys = [
+            'username',
+            'email',
+            'fullname',
+            'first_name',
+            'last_name',
+            'is_trusted'
+        ]
+        return {k: v for k, v in response.items() if k in keys}
 
     def user_data(self, access_token, *args, **kwargs):
         id_token = kwargs['response']['id_token']
         payload = jwt.decode(id_token, verify=False)
         oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
+        is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
         headers = {'Authorization': "Bearer %s" % access_token}
 
         url = '{base}{info}/{oid}'.format(
@@ -153,4 +159,5 @@ class EsiaOAuth2(BaseOAuth2):
                 'email': email,
                 'fullname': fullname,
                 'first_name': first_name,
-                'last_name': last_name}
+                'last_name': last_name,
+                'is_trusted': bool(is_trusted)}
