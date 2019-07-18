@@ -107,6 +107,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         return validated_data
 
     def create(self, validated_data):
+        # todo: if updated - permissions check
         validated_data = self._prepare_validated_data(validated_data)
         for id_attr in self.Meta.lookup_fields:
             id_value = validated_data.pop(id_attr, empty)

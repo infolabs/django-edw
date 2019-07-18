@@ -732,6 +732,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     instance.set_relations(rel_id, subj_ids, direction)
 
     def create(self, validated_data):
+        # todo: if updated - permissions check
         origin_validated_data = validated_data.copy()
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
