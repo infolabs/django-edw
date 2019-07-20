@@ -7,6 +7,7 @@ from django.utils.six.moves.urllib.parse import urlparse
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.utils import translation
 
 from post_office import mail
 from post_office.models import EmailTemplate
@@ -70,6 +71,7 @@ def entity_event_notification(sender, instance=None, **kwargs):
         emulated_request = EmulateHttpRequest(instance.customer, stored_request)
         entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
         language = stored_request.get('language')
+        translation.activate(language)
         context = {
             'customer': CustomerSerializer(instance.customer).data,
             'data': entity_serializer.data,
