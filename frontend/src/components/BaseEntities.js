@@ -86,11 +86,11 @@ class BaseEntities extends Component {
     const { entities } = this.props;
 
     if (!entities.items.loading && prevProps.entities.items.loading) {
-      const { initialized } = this.state;
+      const { initialized } = this.state,
+            area = ReactDOM.findDOMNode(this);
 
-      if (initialized) {
-        const area = ReactDOM.findDOMNode(this),
-              areaRect = area.getBoundingClientRect(),
+      if (initialized && area) {
+        const areaRect = area.getBoundingClientRect(),
               bodyRect = document.body.getBoundingClientRect(),
               areaOffsetTop = areaRect.top - bodyRect.top,
               screenHeight = window.innerHeight;
