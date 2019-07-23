@@ -14,15 +14,18 @@ DEFAULT_CACHE_TIMEOUT = 300  # 5 minutes
 
 class empty:
     """
-    This class is used to represent no data being provided for a given input
+    ENG: This class is used to represent no data being provided for a given input
     or output value.
-
     It is required because `None` may be a valid input or output value.
+    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении
     """
     pass
 
 
 def _parse_cache_key(self, cache_key, *args, **kwargs):
+    """
+    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении
+    """
     if hasattr(cache_key, '__call__'):
         if hasattr(self, cache_key.__name__):
             return cache_key(self, *args, **kwargs)
@@ -38,7 +41,13 @@ def add_cache_key(cache_key,
                   trim_key_pattern='{model}:~{hash}',
                   key_max_len=50,
                   **dkwargs):
+    """
+    Добавляет ключ кэша
+    """
     def add_cache_key_decorator(func):
+        """
+        Добавляет декоратор ключа кэша
+        """
         @wraps(func)
         def func_wrapper(self, *args, **kwargs):
             cache_key_attr = dkwargs.get('cache_key_attr', getattr(self, '_cache_key_attr', DEFAULT_CACHE_KEY_ATTR))
@@ -66,9 +75,11 @@ def add_cache_key(cache_key,
 
 
 class QuerySetCachedResultMixin(object):
-    '''
-    Try find result in cache, otherwise calculate it
-    '''
+    """
+    ENG: Try find result in cache, otherwise calculate it
+    RUS: Пытается найти результат кэширования
+    """
+
     @staticmethod
     def prepare_for_cache(data):
         return _ReadyForCache(data)
