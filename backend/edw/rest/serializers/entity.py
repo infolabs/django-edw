@@ -284,14 +284,11 @@ class EntityValidator(object):
         # model validation
         model_fields = model._meta.get_fields()
         validated_data_keys = set(validated_data.keys())
-
         # exclude fields from RESTMeta
         exclude = model._rest_meta.exclude
-
         # exclude not model fields from validate data
-        for x in list(validated_data_keys - set(model_fields)):
+        for x in list(validated_data_keys - set([f.name for f in model_fields])):
             validated_data.pop(x)
-
         if request_method == 'PATCH':
             required_fields = [f.name for f in model_fields if not isinstance(f, (
                 RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
