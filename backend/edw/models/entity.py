@@ -770,7 +770,6 @@ class EntityCharacteristicOrMarkGetter(object):
 # BaseEntity terms ManyRelatedManager patched methods
 #==============================================================================
 def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
-
     self._origin_add(*objs, **kwargs)
 
     if getattr(self.instance, '_during_terms_validation', False) and objs:
@@ -793,7 +792,7 @@ def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
 @python_2_unicode_compatible
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
-    An abstract basic object model for the EDW. It is intended to be overridden by one or
+    ENG: An abstract basic object model for the EDW. It is intended to be overridden by one or
     more polymorphic models, adding all the fields and relations, required to describe this
     type of object.
 
@@ -803,6 +802,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
     and etc. See below for details.
+    RUS: Абстрактная базовая объектная модель для EDW.
+    Она предназначен для переопределения одной или более полиморфной модели, добавляет все поля
+    и отношения, необходимые для описания этого типа объекта.
     """
     SHORT_CHARACTERISTICS_MAX_COUNT = 3
     SHORT_MARKS_MAX_COUNT = 5
@@ -871,7 +873,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def entity_type(self):
         """
-        Returns the polymorphic type of the object.
+        ENG: Returns the polymorphic type of the object.
+        RUS: Возвращает полиморфный тип объекта.
         """
         return force_text(self.polymorphic_ctype)
     entity_type.short_description = _("Entity type")
@@ -879,27 +882,38 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @property
     def entity_model(self):
         """
-        Returns the polymorphic model name of the object's class.
+        ENG: Returns the polymorphic model name of the object's class.
+        RUS: Возвращает имя полиморфной модели класса объекта.
         """
         return self.polymorphic_ctype.model
 
     def get_absolute_url(self, request=None, format=None):
         """
-        Hook for returning the canonical Django URL of this object.
+        ENG: Hook for returning the canonical Django URL of this object.
+        RUS: Возвращает абсолютные путь URL объекта.
         """
         msg = "Method get_absolute_url() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
 
     @classmethod
     def get_ordering_modes(cls, **kwargs):
+        """
+        RUS: Возвращает отсортированные модели, являющиеся методами класса.
+        """
         return cls.ORDERING_MODES
 
     @classmethod
     def get_view_components(cls, **kwargs):
+        """
+        RUS: Возвращает view components (компоненты представлений): табличное представление, плиточное представление.
+        """
         return cls.VIEW_COMPONENTS
 
     @classmethod
     def get_all_subclasses(cls):
+        """
+        RUS: Возвращает все подклассы и их наследники.
+        """
         for subclass in cls.__subclasses__():
             for subsubclass in subclass.get_all_subclasses():
                 yield subsubclass
@@ -935,6 +949,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @staticmethod
     def get_entities_types(from_cache=True):
+        """
+        RUS: Возвращает типы сущности.
+        """
         entities_types = getattr(EntityModel, "_entities_types_cache", None)
         if entities_types is None or not from_cache:
             entities_types = {}
@@ -957,6 +974,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Проверяет условия создания терминов модели, создает термины и сохраняет.
+        """
         if EntityModel.materialized.__subclasses__():
             parent = None
             for Model in get_polymorphic_ancestors_models(cls):
@@ -986,6 +1006,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 parent = term
 
     def need_terms_validation_after_save(self, origin, **kwargs):
+        """
+        RUS: Проверяет термины после сохранения, являются они оригинальными и входит Модель сущности в субкласс.
+        """
         if origin is None and EntityModel.materialized.__subclasses__():
             do_validate = kwargs["context"]["validate_entity_type"] = True
         else:
@@ -993,6 +1016,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return do_validate
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Создает ключ кэша терминов и добавляет термин с ключом.
+        """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_entity_type", False):
             key = self.__class__.__name__.lower()
@@ -1011,6 +1037,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
 
     def save(self, *args, **kwargs):
+        """
+        RUS: Сохраняет термины с использованием принудительного обновления и принудительной валидации.
+        """
         force_update = kwargs.get('force_update', False)
         if not force_update:
             model_class = self.__class__
@@ -1041,12 +1070,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return result
 
     def patch_terms_many_related_manager(self):
+        """
+        RUS: Переопределяет методы менеджера множественных связей терминов.
+        """
         patch_class_method(self.terms.__class__, 'add', _entity_terms_many_related_manager_add)
 
     @cached_property
     def additional_characteristics(self):
         """
-        Return additional characteristics of current entity
+        ENG: Return additional characteristics of current entity.
+        RUS: Возвращает дополнительные характеристики текущей сущности.
         """
         tree_opts = TermModel._mptt_meta
         return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
@@ -1056,7 +1089,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def additional_marks(self):
         """
-        Return additional marks of current entity
+        ENG: Return additional marks of current entity.
+        RUS: Возвращает дополнительные метки текущей сущности.
         """
         tree_opts = TermModel._mptt_meta
         return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
@@ -1066,7 +1100,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def _active_terms_for_characteristics(self):
         """
-        Return terms for characteristics of current entity
+        ENG: Return terms for characteristics of current entity.
+        RUS: Возвращает активные термины характеристик потомков текущей сущности.
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
@@ -1075,7 +1110,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def _active_terms_for_marks(self):
         """
-        Return terms for marks of current entity
+        ENG: Return terms for marks of current entity.
+        RUS: Возвращает термины потомков для меток текущей сущности.
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_marks_descendants_ids()
@@ -1083,6 +1119,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @cached_property
     def characteristics_getter(self):
+        """
+        RUS: Получает характеристики объекта текущей сущности.
+        """
         tree_opts = TermModel._mptt_meta
         return EntityCharacteristicOrMarkGetter(
             self._active_terms_for_characteristics,
@@ -1095,16 +1134,23 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def characteristics(self):
         """
-        Return all characteristics objects of current entity
+        ENG: Return all characteristics objects of current entity.
+        RUS: Возвращает все характеристики объектов текущей сущности.
         """
         return self.characteristics_getter.all()
 
     @cached_property
     def short_characteristics(self):
+        """
+        RUS: Возвращает короткие характеристики с ограничением максимального размера.
+        """
         return self.characteristics_getter[:self.SHORT_CHARACTERISTICS_MAX_COUNT]
 
     @cached_property
     def marks_getter(self):
+        """
+        RUS: Получает все метки объектов текущей сущности.
+        """
         tree_opts = TermModel._mptt_meta
         return EntityCharacteristicOrMarkGetter(
             self._active_terms_for_marks,
@@ -1117,7 +1163,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def marks(self):
         """
-        Return all marks objects of current entity
+        ENG: Return all marks objects of current entity.
+        RUS: Возвращает все метки объектов текущей сущности.
         """
         return self.marks_getter.all()
 
