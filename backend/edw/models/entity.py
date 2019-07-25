@@ -1170,15 +1170,22 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @cached_property
     def short_marks(self):
+        """
+        RUS: Возвращает короткие характеристики с ограничением максимального размера.
+        """
         return self.marks_getter[:self.SHORT_MARKS_MAX_COUNT]
 
     @cached_property
     def active_terms_ids(self):
+        """
+        RUS: Возвращает список id активных терминов.
+        """
         return list(self.terms.active().values_list('id', flat=True))
 
     def get_data_mart(self):
         """
-        Return entity data mart
+        ENG: Return entity data mart.
+        RUS: Возвращает экземпляр витрины данных.
         """
         entity_terms_ids = self.active_terms_ids
         all_entity_terms_ids = TermModel.decompress(entity_terms_ids, fix_it=False).keys()
@@ -1201,22 +1208,34 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @staticmethod
     def get_data_mart_cache_buffer():
+        """
+        RUS: Помещает ключ кэша витрины данных в кольцевой буфер.
+        """
         return RingBuffer.factory(BaseEntity.DATA_MART_BUFFER_CACHE_KEY,
                                   max_size=BaseEntity.DATA_MART_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_data_mart_cache_buffer():
+        """
+        RUS: Очищает ключ кэша витрины данных из буфера.
+        """
         buf = BaseEntity.get_data_mart_cache_buffer()
         keys = buf.get_all()
         buf.clear()
         cache.delete_many(keys)
 
     def get_data_mart_cache_key(self):
+        """
+        RUS: Возвращает шаблон ключа кэша витрины данных.
+        """
         return self.DATA_MART_CACHE_KEY_PATTERN.format(
             id=self.id
         )
 
     def get_cached_data_mart(self):
+        """
+        RUS: Возвращает витрину данных с ключом кэша.
+        """
         key = self.get_data_mart_cache_key()
         data_mart = cache.get(key, empty)
         if data_mart == empty:
@@ -1230,15 +1249,24 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     @cached_property
     def data_mart(self):
+        """
+        RUS: Возвращает витрину данных с ключом кэша с применением декоратора.
+        """
         return self.get_cached_data_mart()
 
     @staticmethod
     def get_terms_cache_buffer():
+        """
+        RUS: Помещает ключ кэша терминов базовой сущности в кольцевой буфер.
+        """
         return RingBuffer.factory(BaseEntity.TERMS_BUFFER_CACHE_KEY,
                                   max_size=BaseEntity.TERMS_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_terms_cache_buffer():
+        """
+        RUS: Очищает ключ кэша терминов из буфера.
+        """
         buf = BaseEntity.get_terms_cache_buffer()
         keys = buf.get_all()
         buf.clear()
@@ -1247,7 +1275,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def get_related_data_marts_ids_from_attributes(cls, *attrs):
         """
-        :return: Related data marts ids from characteristics or marks
+        :return: Related data marts ids from characteristics or marks.
+        RUS: Возвращает связанные id витрин данных с характеристиками или метками.
         """
         result = []
         for attr in attrs:
@@ -1259,13 +1288,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def get_summary_extra(self, context):
         """
-        Return extra data for summary serializer
+        ENG: Return extra data for summary serializer.
+        RUS: Возвращает дополнительные данные для сводного сериалайзера.
         """
         return None
 
     def get_group_extra(self, context):
         """
-        Return extra data for group
+        ENG: Return extra data for group.
+        RUS: Возвращает дополнительные данные для группы.
         """
         return {
             'group_name': self.entity_name
@@ -1274,7 +1305,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def get_summary_annotation(cls):
         """
-        Return annotate data for summary serializer.
+        ENG: Return annotate data for summary serializer.
         Example:
             from django.db.models import ExpressionWrapper, F
             from edw.models.expressions import ToSeconds
@@ -1298,13 +1329,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             return {
                 'duration': ExpressionWrapper(F('updated_at') - F('created_at'), output_field=models.DurationField())
             }
+        RUS: Возвращает аннотированные данные для сводного сериалайзера.
         """
         return None
 
     @classmethod
     def get_summary_aggregation(cls):
         """
-        Return aggregate data for summary serializer.
+        ENG: Return aggregate data for summary serializer.
         Example:
             from django.db.models import ExpressionWrapper, Avg
             ...
@@ -1315,29 +1347,36 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     _("Mean value of duration")
                 )
             }
+        RUS: Возвращает агрегированные данные для сводного сериалайзера.
         """
         return None
 
     def get_common_terms_ids(self):
         """
-        Return common terms ids
+        ENG: Return common terms ids.
+        RUS: Возвращает id общих терминов.
         """
         return self.terms.exclude(system_flags=TermModel.system_flags.external_tagging_restriction).values_list(
             'id', flat=True)
 
     @cached_property
     def common_terms_ids(self):
+        """
+        RUS: Возвращает список id общих терминов.
+        """
         return list(self.get_common_terms_ids())
 
     @staticmethod
     def _set_relations(rel_id, from_entity_id, to_entity_ids, direction='f'):
         """
-        Set relations
+        ENG: Set relations
         :param rel_id: relation term id
         :param from_entity_id: from entity id
         :param to_entity_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
         :return:
+        RUS: Добавляет прямые и обратные связи.
+        Удаляет избыточные связи.
         """
         if direction == 'f':
             from_entity_param, to_entity_param = 'from_entity', 'to_entity'
@@ -1373,30 +1412,34 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def set_relations(self, rel_id, to_entity_ids, direction):
         """
-        Set relations forward/backward(reverse)
+        ENG: Set relations forward/backward(reverse)
         :param rel_id: relation term id
         :param from_entity_id: from entity id
         :param to_entity_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
         :return:
+        RUS: Устанавливает прямые и обратные связи.
         """
         self._set_relations(rel_id, self.id, to_entity_ids, direction=direction)
 
     def set_forward_relations(self, rel_id, to_entity_ids):
         """
-        Set forward relations, shortcut for set_relations(..., 'f')
+        ENG: Set forward relations, shortcut for set_relations(..., 'f').
+        RUS: Устанавливает прямые связи, сокращенное обозначение 'f'.
         """
         self.set_relations(rel_id, to_entity_ids, 'f')
 
     def set_reverse_relations(self, rel_id, to_entity_ids):
         """
-        Set backward(reverse) relations, shortcut for set_relations(..., 'r')
+        ENG: Set backward(reverse) relations, shortcut for set_relations(..., 'r').
+        RUS: Устанавливает обратные (реверсивные) связи, сокращенное обозначение 'r'.
         """
         self.set_relations(rel_id, to_entity_ids, 'r')
 
     def set_bidirectional_relations(self, rel_id, to_entity_ids):
         """
-        Set bidirectional relations
+        ENG: Set bidirectional relations.
+        RUS: Устанавливает двунаправленные связи (прямые и обратные (реверсивные)).
         """
         self.set_forward_relations(rel_id, to_entity_ids)
         self.set_reverse_relations(rel_id, to_entity_ids)
@@ -1404,13 +1447,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @staticmethod
     def _remove_relations(from_entity_id, rel_f_ids, rel_r_ids):
         """
-        Remove forward and backward(reverse) relations
+        ENG: Remove forward and backward(reverse) relations.
         :param from_entity_id: from entity id
         :param rel_f_ids: forward relations id's filter. If `None` - relations do not delete,
         `[]` - delete all relations, else only contained in the list.
         :param rel_r_ids: reverse relations id's filter. If `None` - relations do not delete,
         `[]` - delete all relations, else only contained in the list.
         :return:
+        RUS: Удаляет прямые и обратные связи в зависимости от их статуса,
+        если у них нет статуса `None`.
         """
         if rel_f_ids is None:
             q_f = None
@@ -1440,6 +1485,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         :param rel_r_ids: reverse relations id's filter. If `None` - relations do not delete,
         `[]` - delete all relations, else only contained in the list. Default - delete all reverse relations
         :return:
+        RUS: Удаляет прямые и обратные связи, если они являются пустыми.
         """
         if rel_f_ids == empty:
             rel_f_ids = []
@@ -1453,11 +1499,13 @@ EntityModel = deferred.MaterializedModel(BaseEntity)
 
 class ApiReferenceMixin(object):
     """
-    Add this mixin to Entity classes to add a ``get_absolute_url()`` method.
+    ENG: Add this mixin to Entity classes to add a ``get_absolute_url()`` method.
+    RUS: Добавляет миксин ApiReferenceMixin к классам сущности для метода ``get_absolute_url()``.
     """
     def get_absolute_url(self, request=None, format=None):
         """
-        Return the absolute URL of a entity
+        ENG: Return the absolute URL of a entity.
+        RUS: Возвращает абсолютный URL сущности.
         """
         return reverse('edw:{}-detail'.format(EntityModel._meta.model_name.lower()), kwargs={'pk': self.pk}, request=request,
                        format=format)
