@@ -13,7 +13,8 @@ from edw.settings import APP_LABEL
 
 class Notification(models.Model):
     """
-    A task executed on receiving a signal.
+    ENG: A task executed on receiving a signal.
+    RUS: Диспетчер сигналов. Задача выполняется при получении сигнала.
     """
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     transition_target = models.CharField(max_length=255, verbose_name=_("Event"))
@@ -30,10 +31,17 @@ class Notification(models.Model):
 
     @staticmethod
     def get_transition_target(sender, target):
+        """
+        RUS: Возвращает уведомление вида 'отправитель: объект'.
+        """
         return '{}:{}'.format(sender.__name__.lower(), target)
 
 
 class NotificationAttachment(models.Model):
+    """
+    RUS: Приложение для уведомлений.
+    Определяет поле для хранения файлов-уведомлений.
+    """
     notification = models.ForeignKey(Notification)
     attachment = FilerFileField(null=True, blank=True, related_name='email_attachment', verbose_name=_("Attachment"))
 

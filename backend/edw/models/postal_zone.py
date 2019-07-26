@@ -15,16 +15,31 @@ from .term import TermModel
 # BasePostZoneQuerySet
 #==============================================================================
 class BasePostZoneQuerySet(models.QuerySet):
+    """
+    RUS: Запрос к базе данных базовой почтовой зоны.
+    """
     def active(self):
+        """
+        RUS: Возвращает все активные элементы.
+        """
         return self.filter(active=True)
 
 
 class BasePostZoneManager(models.Manager):
+    """
+    RUS: Менеджер базовой почтовой зоны.
+    """
 
     def get_queryset(self):
+        """
+        RUS: Возвращает запрос к базе данных базовой почтовой зоны.
+        """
         return BasePostZoneQuerySet(self.model, using=self._db)
 
     def active(self):
+        """
+        RUS: Возвращает запрос к базе данных базовой почтовой зоны с активными элементами.
+        """
         return self.get_queryset().active()
 
 
@@ -35,6 +50,8 @@ class BasePostZoneManager(models.Manager):
 class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     '''
     Related to Term postal zones
+    RUS: Класс базовая почтовая зона, связанная с термином.
+    Определяет поля (Термин, Почтовые индексы, статус Активен).
     '''
     term = models.ForeignKey(TermModel, verbose_name=_('Term'), related_name='+', db_index=True)
     postal_codes = models.TextField(verbose_name=_('Postal codes'), null=True, blank=True, help_text=_(
@@ -48,6 +65,9 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     objects = BasePostZoneManager()
 
     class Meta:
+        """
+        RUS: Переопределяет метаданные модели.
+        """
         abstract = True
         verbose_name = _("Postal zone")
         verbose_name_plural = _("Postal zones")
@@ -55,6 +75,9 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         ordering = ('term__{}'.format(TermModel._mptt_meta.tree_id_attr), 'term__{}'.format(TermModel._mptt_meta.left_attr))
 
     def __str__(self):
+        """
+        RUS: Переопределяет имя в строковом формате.
+        """
         return self.name
 
     @property

@@ -16,7 +16,7 @@ import rest_framework_filters as filters
 
 class RESTOptions(object):
     """
-    Options class for REST models. Use this as an inner class called ``RESTMeta``::
+    ENG: Options class for REST models. Use this as an inner class called ``RESTMeta``::
 
         class MyModel(Model):
             class RESTMeta:
@@ -83,7 +83,7 @@ class RESTOptions(object):
                     if self.data_mart is not None and self.queryset.count() <= self.data_mart.limit:
                         return []
                     return self.group_by
-
+    RUS: Класс опций для REST модели.
     """
 
     exclude = []
@@ -107,7 +107,10 @@ class RESTOptions(object):
     get_group_by = None
 
     def __init__(self, opts=None, **kwargs):
-        # Override defaults with options provided
+        """
+        ENG: Override defaults with options provided
+        RUS: Переопределяет значение опций по умолчанию.
+        """
         if opts:
             opts = list(opts.__dict__.items())
         else:
@@ -120,17 +123,25 @@ class RESTOptions(object):
             setattr(self, key, value)
 
     def __iter__(self):
+        """
+        ENG: Override defaults with options provided
+        RUS: Возвращает объект итератора.
+        """
         return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
 
 
 class RESTModelBase(ModelBase):
     """
-    Metaclass for REST models
+    ENG: Metaclass for REST models.
+    RUS: Метакласс для REST моделей.
     """
     def __new__(cls, name, bases, attrs):
         """
-        Create subclasses of Model. This:
+        ENG: Create subclasses of Model. This:
          - adds the RESTMeta fields to the class
+        RUS: Создает подклассы Модели.
+        Добавляет метакласс RESTMeta поля для класса.
+        Расширяет RESTMeta с базовыми классами.
         """
         new = super(RESTModelBase, cls).__new__(cls, name, bases, attrs)
         # Grab `Model.RESTMeta`, and rename it `_rest_meta`
@@ -172,6 +183,10 @@ class RESTModelBase(ModelBase):
 class RESTMetaSerializerMixin(object):
 
     def __init__(self, *args, **kwargs):
+        """
+        RUS: Конструктор объектов класса.
+        Переопределяет значение rest_meta.
+        """
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
             self.rest_meta = instance._rest_meta
@@ -190,16 +205,26 @@ class RESTMetaSerializerMixin(object):
         super(RESTMetaSerializerMixin, self).__init__(*args, **kwargs)
 
     def get_serializer_to_patch(self):
+        """
+        RUS: Функция-сериалайзер для патча объекта.
+        """
         return self
 
 
 class RESTMetaListSerializerPatchMixin(object):
 
     def get_serializer_to_patch(self):
+        """
+        RUS: Функция-сериалайзер для экземпляров полей.
+        """
         return self.child
 
 
 class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
+    """
+    RUS: Миксин для динамической сериализации полей базы данных.
+    Проверка, очистка полей данных, их замена, добавление данных в сериализованное представление объекта.
+    """
 
     def __init__(self, *args, **kwargs):
         super(DynamicFieldsSerializerMixin, self).__init__(*args, **kwargs)
@@ -238,11 +263,21 @@ class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, Dynamic
 
 
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
+    """
+    RUS: Миксин для динамического создания, обновления, проверки полей сериалайзера.
+    """
 
     def get_id_attrs(self):
+        """
+        RUS: Возвращает поле для поиска с метаданными.
+        """
         return self.rest_meta.lookup_fields if self.rest_meta is not None else RESTOptions.lookup_fields
 
     def __init__(self, *args, **kwargs):
+        """
+        RUS: Конструктор объектов класса.
+        Добавляет методы  создания, обновления, проверки в поля rest_meta.
+        """
         super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)
         if self.rest_meta:
             patch_target = self.get_serializer_to_patch()
@@ -267,17 +302,22 @@ class DynamicCreateUpdateValidateListSerializerMixin(RESTMetaListSerializerPatch
 
 
 class BasePermissionsSerializerMixin(object):
+    """
+    RUS: Миксин базовых разрешений сериалайзера.
+    """
 
     @staticmethod
     def _get_permissions(permission_classes):
         """
-        Instantiates and returns the list of permissions that view requires.
+        ENG: Instantiates and returns the list of permissions that view requires.
+        RUS: Создает и возвращает список разрешений, необходимых для представления.
         """
         return [permission() for permission in permission_classes]
 
     def permission_denied(self, request, message=None):
         """
-        If request is not permitted, determine what kind of exception to raise.
+        ENG: If request is not permitted, determine what kind of exception to raise.
+        RUS: Возбуждает исключение, если запрос запрещен при отсутствии аутентификации.
         """
         if not request.successful_authenticator:
             raise exceptions.NotAuthenticated()
@@ -319,6 +359,9 @@ class BasePermissionsSerializerMixin(object):
 
 
 class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
+    """
+    Миксин проверки разрешений сериалайзера.
+    """
 
     def __init__(self, *args, **kwargs):
         instance = args[0] if args else None
@@ -328,6 +371,7 @@ class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
     def to_representation(self, data):
         """
         Check permissions
+        RUS: Проверка разрешений. Переданы метаданные '_rest_meta' в объект data.
         """
         if self._permissions_cache is None:
             """
