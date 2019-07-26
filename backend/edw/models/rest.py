@@ -6,6 +6,7 @@ import types
 
 from django.db.models.base import ModelBase
 from django.utils.module_loading import import_string
+from django.utils.functional import cached_property
 
 from rest_framework import serializers
 from rest_framework import exceptions
@@ -282,6 +283,40 @@ class BasePermissionsSerializerMixin(object):
             raise exceptions.NotAuthenticated()
         raise exceptions.PermissionDenied(detail=message)
 
+    def get_permission_classes(self, data):
+        return data._rest_meta.permission_classes if hasattr(data, '_rest_meta') else self.__view.permission_classes
+
+    @cached_property
+    def __request(self):
+        request = self.context.get('request', None)
+        assert request is not None, (
+                "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
+                % self.__class__.__name__
+        )
+        return request
+
+    @cached_property
+    def __view(self):
+        return self.context.get('view')
+
+    def check_object_permissions(self, data):
+        permission_classes = self.get_permission_classes(data)
+        for permission in self._get_permissions(permission_classes):
+            if not permission.has_object_permission(self.__request, self.__view, data):
+                self.permission_denied(
+                    self.__request, message=getattr(permission, 'message', None)
+                )
+        return permission_classes
+
+    def check_permissions(self, data):
+        permission_classes = self.get_permission_classes(data)
+        for permission in self._get_permissions(permission_classes):
+            if not permission.has_permission(self.__request, self.__view):
+                self.permission_denied(
+                    self.__request, message=getattr(permission, 'message', None)
+                )
+        return permission_classes
+
 
 class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
 
@@ -294,44 +329,21 @@ class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
         """
         Check permissions
         """
-        if hasattr(data, '_rest_meta'):
-            context = self.context
-            request = context.get('request', None)
-            assert request is not None, (
-                "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
-                % self.__class__.__name__
-            )
-            view = context.get('view')
-
-            if self._permissions_cache is None:
-                """
-                Check if the request should be permitted for a given object.
-                Raises an appropriate exception if the request is not permitted.
-                """
-                permission_classes = data._rest_meta.permission_classes
-
-                for permission in self._get_permissions(permission_classes):
-                    if not permission.has_object_permission(request, view, data):
-                        self.permission_denied(
-                            request, message=getattr(permission, 'message', None)
-                        )
-            else:
-                """
-                Check if the request should be permitted for list.
-                Raises an appropriate exception if the request is not permitted.
-                """
-                permission_classes = self._permissions_cache.get(data.__class__, None)
-
-                if permission_classes is None:
-                    permission_classes = data._rest_meta.permission_classes
-
-                    for permission in self._get_permissions(permission_classes):
-                        if not permission.has_permission(request, view):
-                            self.permission_denied(
-                                request, message=getattr(permission, 'message', None)
-                            )
-
-                    self._permissions_cache[data.__class__] = permission_classes
+        if self._permissions_cache is None:
+            """
+            Check if the request should be permitted for a given object.
+            Raises an appropriate exception if the request is not permitted.
+            """
+            self.check_object_permissions(data)
+        else:
+            """
+            Check if the request should be permitted for list.
+            Raises an appropriate exception if the request is not permitted.
+            """
+            permission_classes = self._permissions_cache.get(data.__class__, None)
+            if permission_classes is None:
+                permission_classes = self.check_permissions(data)
+                self._permissions_cache[data.__class__] = permission_classes
 
         return super(CheckPermissionsSerializerMixin, self).to_representation(data)
 
@@ -342,21 +354,8 @@ class CheckPermissionsBulkListSerializerMixin(BasePermissionsSerializerMixin):
         """
         Hook to ensure that the bulk update should be allowed.
         """
-        context = self.context
-        request = context.get('request', None)
-        assert request is not None, (
-            "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
-            % self.__class__.__name__
-        )
-        view = context.get('view')
         for obj in objects:
-            permission_classes = obj._rest_meta.permission_classes
-
-            for permission in self._get_permissions(permission_classes):
-                if not permission.has_object_permission(request, view, obj):
-                    self.permission_denied(
-                        request, message=getattr(permission, 'message', None)
-                    )
+            self.check_object_permissions(obj)
 
 
 class DynamicFilterSetMixin(object):

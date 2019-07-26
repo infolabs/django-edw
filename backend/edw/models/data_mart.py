@@ -76,8 +76,7 @@ class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
 class TreePolymorphicManager(TreeManager, PolymorphicManager):
     """
     ENG: Combine TreeManager & PolymorphicManager
-    RUS: Объединяет TreeManager и PolymorphicManager, создает комбинированый запрос 
-    к базе данных витрины данных.
+    RUS: Объединяет TreeManager и PolymorphicManager, создает комбинированый запрос к витрине данных.
     """
     queryset_class = BaseDataMartQuerySet
 
@@ -85,7 +84,7 @@ class TreePolymorphicManager(TreeManager, PolymorphicManager):
 class BaseDataMartManager(RebuildTreeMixin, TreePolymorphicManager.from_queryset(BaseDataMartQuerySet)):
     """
     ENG: Customized model manager for our DataMart model.
-    RUS: Адаптированный менеджер модели для модели витрины данных.
+    RUS: Адаптированный менеджер модели для витрины данных.
     """
 
     '''
@@ -111,9 +110,9 @@ class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, Polymorph
     def perform_model_checks(cls, Model):
         """
         ENG: Perform some safety checks on the DataMartModel being created.
-        RUS: Выполняет проверку безопасности созданной витрины данных.
-        Если это - не экземпляр класса BaseDataMartManager, вызывается исключение.
+        RUS: Выполняет проверку целосности класса.
         """
+        # Если это - не экземпляр класса BaseDataMartManager, вызывается исключение.
         if not isinstance(Model.objects, BaseDataMartManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from `{}`"
             raise NotImplementedError(msg.format(Model.__name__, BaseDataMartManager.__name__))
@@ -123,7 +122,10 @@ class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, Polymorph
 class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel)):
     """
     ENG: The data marts for a enterprise data warehouse.
-    RUS: Витрины данных для корпоративного хранилища данных, определяет поля и их значения.
+    RUS: Витрина данных для MDM – системы (корпоративного хранилища),
+    Системы управления мастер-данными (MDM – Master Data Management)
+    применяются для согласования данных различных информационных систем и создания целостного представления о клиентах,
+    поставщиках, партнерах, продуктах, услугах или учетных записях.
     """
     ALL_ACTIVE_TERMS_COUNT_CACHE_KEY = 'dm_act_t_cnt'
     ALL_ACTIVE_TERMS_IDS_CACHE_KEY = 'dm_act_t_ids'
@@ -200,7 +202,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     class Meta:
         """
-        RUS: Метакласс для определения специальных параметров.
+        RUS: Метакласс для определения специальных параметров модели.
         """
         abstract = True
         verbose_name = _("Data mart")
@@ -208,19 +210,23 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     class MPTTMeta:
         """
-        RUS: Метакласс Django MPTT для определения специальных параметров.
+        RUS: Метакласс Django MPTT для определения параметров дерева.
         """
         order_insertion_by = ['created_at']
 
+    class RESTMeta:
+        """
+        RUS: Метакласс для определения параметров сериалайзера.
+        """
+        lookup_fields = ('id', 'slug')
+
     def __str__(self):
-        """
-        RUS: Возвращает данные в строковом формате.
-        """
+        # Возвращаем наименование витрины данных.
         return self.name
 
     def __cmp__(self, other):
         """
-        RUS: Сравнивает узлы витрины данных по id для построения дерева.
+        RUS: Сравнивает узлы витрины данных для организации сортировки согласно структуре дерева.
         """
         tree_opts = self._mptt_meta
         self_tree_id, other_tree_id = getattr(self, tree_opts.tree_id_attr), getattr(other, tree_opts.tree_id_attr)
@@ -266,7 +272,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def get_all_subclasses(cls):
         """
         ENG: Helper function to get all the subclasses of a class.
-        RUS: Вспомогательная функция для получения всех подклассов класса.
+        RUS: Вспомогательная функция для получения всех подклассов текущего класса.
         """
         for subclass in cls.__subclasses__():
             for subsubclass in subclass.get_all_subclasses():
@@ -306,13 +312,13 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     def need_terms_validation(self, origin, **kwargs):
         """
-        RUS: Обязательная проверка id терминов.
+        RUS: Тест на необходимость проведения валидации терминов.
         """
         return origin is None
 
     def validate_terms(self, origin, **kwargs):
         """
-        RUS: Дополнительная проверка id терминов.
+        RUS: Валидация терминов.
         """
         pass
 
@@ -320,7 +326,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
         def join_path(joiner, field, ancestors):
             """
-            RUS: Формирует путь к объекту (термину).
+            RUS: Формирует путь к объекту (витрине данных).
             """
             return joiner.join([force_text(getattr(i, field)) for i in ancestors])
 
@@ -332,14 +338,11 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             self.path = '/'.join([short_path.rstrip('/'), get_unique_slug(self.slug, self.id)])
 
     def save(self, *args, **kwargs):
-        """
-        RUS: Сохраняет объекты, если они соответствуют определенным условиям и их нет в базе данных.
-        """
-        # determine whether this instance is already in the db
         force_update = kwargs.get('force_update', False)
         if not force_update:
             model_class = self.__class__
             ancestors = self.ancestors_list
+            # determine whether this instance is already in the db
             try:
                 origin = model_class._default_manager.get(pk=self.id)
             except model_class.DoesNotExist:
@@ -377,7 +380,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
 
     def delete(self):
         """
-        RUS: Удаляет объекты, если не проставлены  системные флаги с ограничениями на удаление.
+        RUS: Удаляет объекты, если не проставлен системный флаг с ограничением на удаление.
         """
         if not self.system_flags.delete_restriction:
             super(BaseDataMart, self).delete()
@@ -391,7 +394,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     def move_to(self, target, position='first-child'):
         """
         RUS: Перемещает объект по дереву витрины данных с возможностью изменения родителя или добавления потомка, 
-        если непроставлены системные флаги на ограничение.
+        если непроставлен системный флаг на ограничение.
         """
         if position in ('left', 'right'):
             if target.parent_id != self.parent_id:

@@ -3,13 +3,17 @@ from __future__ import unicode_literals
 
 
 from django.core.cache import cache
-from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import (
+    ValidationError,
+    ObjectDoesNotExist,
+    MultipleObjectsReturned
+)
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.compat import unicode_to_repr
 from rest_framework.fields import empty
@@ -21,8 +25,20 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
+from edw.models.rest import BasePermissionsSerializerMixin, CheckPermissionsBulkListSerializerMixin
 
 
+#==============================================================================
+# TermBulkListSerializer
+#==============================================================================
+class DataMartBulkListSerializer(CheckPermissionsBulkListSerializerMixin,
+                                 BulkListSerializer):
+    pass
+
+
+#==============================================================================
+# TermValidator
+#==============================================================================
 class TermValidator(object):
     """
     Term Validator
@@ -39,22 +55,43 @@ class TermValidator(object):
         # Determine the existing instance, if this is an update operation.
         instance = getattr(self.serializer, 'instance', None)
         validated_data = dict(attrs)
+        request_method = self.serializer.request_method
+
+        attr_errors = {}
+
+        # check update for POST method
+        if request_method == 'POST':
+            for id_attr in self.serializer.Meta.lookup_fields:
+                id_value = validated_data.get(id_attr, empty)
+                if id_value != empty:
+                    try:
+                        instance = model.objects.get(**{id_attr: id_value})
+                    except ObjectDoesNotExist:
+                        pass
+                    except MultipleObjectsReturned as e:
+                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
+                    else:
+                        # try check object permissions, see the BasePermissionsSerializerMixin
+                        self.serializer.check_object_permissions(instance)
+                    break
+
+        # parent__slug
         parent__slug = validated_data.pop('parent__slug', None)
-        if instance is not None:
-            validate_unique = False
-            if parent__slug is not None:
-                try:
-                    TermModel.objects.get(slug=parent__slug)
-                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                    raise exceptions.NotFound(e)
-        else:
-            validate_unique = True
+        if parent__slug is not None:
+            try:
+                TermModel.objects.get(slug=parent__slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                attr_errors['parent__slug'] = str(e)
+
+        if attr_errors:
+            raise serializers.ValidationError(attr_errors)
+
+        validate_unique = instance is None
+        # model full clean
         try:
             model(**validated_data).full_clean(validate_unique=validate_unique)
-        except ObjectDoesNotExist as e:
-            raise exceptions.NotFound(e)
-        except ValidationError as e:
-            raise serializers.ValidationError(e)
+        except (ObjectDoesNotExist, ValidationError) as e:
+            raise serializers.ValidationError(str(e))
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -62,7 +99,10 @@ class TermValidator(object):
         ))
 
 
-class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+#==============================================================================
+# TermSerializer
+#==============================================================================
+class TermSerializer(BasePermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
     """
     A simple serializer to convert the terms data for rendering.
     """
@@ -82,7 +122,7 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = TermModel
-        list_serializer_class = BulkListSerializer
+        list_serializer_class = DataMartBulkListSerializer
         lookup_fields = ('id', 'slug')
         validators = [TermValidator()]
 
@@ -93,7 +133,7 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
                 try:
                     parent = TermModel.objects.get(slug=parent__slug)
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                    raise exceptions.NotFound(e)
+                    raise serializers.ValidationError({'parent__slug': str(e)})
                 else:
                     validated_data['parent_id'] = parent.id
             else:
@@ -101,7 +141,6 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
         return validated_data
 
     def create(self, validated_data):
-        # todo: if updated - permissions check
         validated_data = self._prepare_validated_data(validated_data)
         for id_attr in self.Meta.lookup_fields:
             id_value = validated_data.pop(id_attr, empty)
@@ -112,10 +151,11 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
                         'defaults': validated_data
                     })
                 except MultipleObjectsReturned as e:
-                    raise exceptions.ValidationError(e)
+                    raise serializers.ValidationError(e)
                 break
         else:
-            raise ValidationError('')
+            raise serializers.ValidationError(
+                _("Lookup fields not found [{}]").format(", ".join(self.Meta.lookup_fields)))
         return result
 
     def update(self, instance, validated_data):
@@ -133,6 +173,10 @@ class TermSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
     def get_url(self, instance):
         return instance.get_absolute_url(request=self.context.get('request'), format=self.context.get('format'))
+
+    @cached_property
+    def request_method(self):
+        return getattr(getattr(self.context.get('view'), 'request'), 'method', '')
 
 
 class TermDetailSerializer(TermSerializer):

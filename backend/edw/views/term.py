@@ -42,9 +42,9 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     custom_serializer_classes = {
         'list':  TermSummarySerializer,
         'retrieve':  TermDetailSerializer,
-
         'create': TermDetailSerializer,
         'update': TermDetailSerializer,
+        'bulk_update': TermDetailSerializer,
         'partial_update': TermDetailSerializer,
         'partial_bulk_update': TermDetailSerializer,
         'bulk_destroy': TermSerializer

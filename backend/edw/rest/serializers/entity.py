@@ -2,9 +2,13 @@
 from __future__ import unicode_literals
 
 
-from django.core import exceptions
 from django.core.cache import cache
-from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import (
+    ValidationError,
+    ObjectDoesNotExist,
+    MultipleObjectsReturned,
+    ImproperlyConfigured
+)
 from django.db.models.expressions import BaseExpression
 from django.db import models
 
@@ -175,8 +179,26 @@ class EntityValidator(object):
 
         validated_data = dict(attrs)
         request_method = self.serializer.request_method
+
         available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
         attr_errors = {}
+
+        # check update for POST method
+        if request_method == 'POST':
+            # for id_attr in model._rest_meta.lookup_fields:
+            for id_attr in self.serializer.get_id_attrs():
+                id_value = validated_data.get(id_attr, empty)
+                if id_value != empty:
+                    try:
+                        instance = model.objects.get(**{id_attr: id_value})
+                    except ObjectDoesNotExist:
+                        pass
+                    except MultipleObjectsReturned as e:
+                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
+                    else:
+                        # try check object permissions, see the CheckPermissionsSerializerMixin
+                        self.serializer.check_object_permissions(instance)
+                    break
 
         # characteristics, marks
         for (attr_name, attribute_mode) in [
@@ -294,13 +316,13 @@ class EntityValidator(object):
                 RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
                 f, 'default', NOT_PROVIDED) is NOT_PROVIDED]
             exclude = list((set(required_fields) - validated_data_keys) | set(exclude))
+
         validate_unique = instance is None
+        # model full clean
         try:
             model(**validated_data).full_clean(validate_unique=validate_unique, exclude=exclude)
-        except ObjectDoesNotExist as e:
-            raise exceptions.NotFound(e)
-        except ValidationError as e:
-            raise serializers.ValidationError(e)
+        except (ObjectDoesNotExist, ValidationError) as e:
+            raise serializers.ValidationError(str(e))
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -336,7 +358,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         """
         if not self.label:
             msg = "The Entity Serializer must be configured using a `label` field."
-            raise exceptions.ImproperlyConfigured(msg)
+            raise ImproperlyConfigured(msg)
         app_label = entity._meta.app_label.lower()
         request = self.context['request']
         cache_key = self.HTML_SNIPPET_CACHE_KEY_PATTERN.format(entity.id, app_label, self.label, entity.entity_model,
@@ -429,7 +451,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
         global entity_summary_serializer_class
         if entity_summary_serializer_class:
             msg = "Class `{}` inheriting from `EntitySummarySerializerBase` already registred."
-            raise exceptions.ImproperlyConfigured(msg.format(entity_summary_serializer_class.__name__))
+            raise ImproperlyConfigured(msg.format(entity_summary_serializer_class.__name__))
         new_class = super(cls, SerializerRegistryMetaclass).__new__(cls, clsname, bases, attrs)
         if clsname != 'EntitySummarySerializerBase':
             entity_summary_serializer_class = new_class
@@ -729,13 +751,13 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     instance.set_relations(rel_id, subj_ids, direction)
 
     def create(self, validated_data):
-        # todo: if updated - permissions check
         origin_validated_data = validated_data.copy()
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
 
         model = self.Meta.model
-        for id_attr in model._rest_meta.lookup_fields:
+        # for id_attr in model._rest_meta.lookup_fields:
+        for id_attr in self.get_id_attrs():
             id_value = validated_data.pop(id_attr, empty)
             if id_value != empty:
                 try:
