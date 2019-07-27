@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import types
 
+from django.db import models
 from django.db.models.base import ModelBase
 from django.utils.module_loading import import_string
 from django.utils.functional import cached_property
@@ -125,7 +126,7 @@ class RESTOptions(object):
     def __iter__(self):
         """
         ENG: Override defaults with options provided
-        RUS: Возвращает объект итератора.
+        RUS: Возвращает объект итератора. Переписываем опции по умолчанию передоставленными данными
         """
         return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
 
@@ -206,7 +207,7 @@ class RESTMetaSerializerMixin(object):
 
     def get_serializer_to_patch(self):
         """
-        RUS: Функция-сериалайзер для патча объекта.
+        RUS: Определяет путь к сериалайзеру который необходимо пропатчить
         """
         return self
 
@@ -215,7 +216,7 @@ class RESTMetaListSerializerPatchMixin(object):
 
     def get_serializer_to_patch(self):
         """
-        RUS: Функция-сериалайзер для экземпляров полей.
+        RUS: В случае списочного сериалайзера патчим `self.child`
         """
         return self.child
 
@@ -223,7 +224,7 @@ class RESTMetaListSerializerPatchMixin(object):
 class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
     """
     RUS: Миксин для динамической сериализации полей базы данных.
-    Проверка, очистка полей данных, их замена, добавление данных в сериализованное представление объекта.
+    Позволяет удалять и добавлять поля в сериализованное представление объекта.
     """
 
     def __init__(self, *args, **kwargs):
@@ -264,7 +265,7 @@ class DynamicFieldsListSerializerMixin(RESTMetaListSerializerPatchMixin, Dynamic
 
 class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
     """
-    RUS: Миксин для динамического создания, обновления, проверки полей сериалайзера.
+    RUS: Миксин для динамической модификации процедуры создания, обновления и проверки в сериалайзере.
     """
 
     def get_id_attrs(self):
@@ -276,7 +277,7 @@ class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
     def __init__(self, *args, **kwargs):
         """
         RUS: Конструктор объектов класса.
-        Добавляет методы  создания, обновления, проверки в поля rest_meta.
+        Добавляет методы создания, обновления, проверки по метаданным rest_meta.
         """
         super(DynamicCreateUpdateValidateSerializerMixin, self).__init__(*args, **kwargs)
         if self.rest_meta:
@@ -303,27 +304,28 @@ class DynamicCreateUpdateValidateListSerializerMixin(RESTMetaListSerializerPatch
 
 class BasePermissionsSerializerMixin(object):
     """
-    RUS: Миксин базовых разрешений сериалайзера.
+    RUS: Базовы миксин для проверки разрешений в сериалайзере.
     """
 
     @staticmethod
     def _get_permissions(permission_classes):
         """
         ENG: Instantiates and returns the list of permissions that view requires.
-        RUS: Создает и возвращает список разрешений, необходимых для представления.
+        RUS: Создает и возвращает список разрешений.
         """
         return [permission() for permission in permission_classes]
 
     def permission_denied(self, request, message=None):
         """
         ENG: If request is not permitted, determine what kind of exception to raise.
-        RUS: Возбуждает исключение, если запрос запрещен при отсутствии аутентификации.
+        RUS: Возбуждает исключение если доступ запрещен, либо при отсутствии аутентификации.
         """
         if not request.successful_authenticator:
             raise exceptions.NotAuthenticated()
         raise exceptions.PermissionDenied(detail=message)
 
     def get_permission_classes(self, data):
+        # Пытаемся получить права доступа из метаданных '_rest_meta' в противном случае из представления 'view'.
         return data._rest_meta.permission_classes if hasattr(data, '_rest_meta') else self.__view.permission_classes
 
     @cached_property
@@ -360,18 +362,19 @@ class BasePermissionsSerializerMixin(object):
 
 class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
     """
-    Миксин проверки разрешений сериалайзера.
+    Миксин проверки прав доступа на уровне сериалайзера.
     """
 
     def __init__(self, *args, **kwargs):
-        instance = args[0] if args else None
-        self._permissions_cache = None if instance is not None else {}
         super(CheckPermissionsSerializerMixin, self).__init__(*args, **kwargs)
+        # Если сериалайзер создается не под конкретный объект - инициализируем кеш
+        self._permissions_cache = None if self.instance and isinstance(self.instance, models.Model) else {}
 
     def to_representation(self, data):
         """
         Check permissions
-        RUS: Проверка разрешений. Переданы метаданные '_rest_meta' в объект data.
+        RUS: Проверка разрешений. Для конкретного объекта вызываем 'check_object_permissions',
+        иначе 'check_permissions'. Кешуруем результат проверки по классу переданных данных 'data'
         """
         if self._permissions_cache is None:
             """
