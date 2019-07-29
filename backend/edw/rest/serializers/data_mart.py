@@ -3,10 +3,14 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 
-from django.core import exceptions
 from django.core.cache import cache
 from django.db import models
-from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import (
+    ValidationError,
+    ObjectDoesNotExist,
+    MultipleObjectsReturned,
+    ImproperlyConfigured
+)
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.functional import cached_property
@@ -14,6 +18,7 @@ from django.utils.six import with_metaclass
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
+from django.utils.translation import ugettext_lazy as _
 from django.utils.text import Truncator
 
 from rest_framework import serializers
@@ -25,10 +30,67 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
-from edw.models.rest import DynamicFieldsSerializerMixin, CheckPermissionsSerializerMixin
+
+from edw.models.rest import (
+    DynamicFieldsSerializerMixin,
+    DynamicFieldsListSerializerMixin,
+    DynamicCreateUpdateValidateSerializerMixin,
+    DynamicCreateUpdateValidateListSerializerMixin,
+    CheckPermissionsSerializerMixin,
+    CheckPermissionsBulkListSerializerMixin,
+)
+
 from edw.rest.serializers.decorators import get_from_context_or_request
 
 
+#==============================================================================
+# DataMartDynamicMetaMixin
+#==============================================================================
+class DataMartDynamicMetaMixin(object):
+    _meta_cache = {}
+
+    @staticmethod
+    def _get_meta_class(base, model_class):
+        class Meta(base):
+            model = model_class
+
+        return Meta
+
+    @classmethod
+    def _update_meta(cls, it, model_class):
+        key = model_class.__name__
+        meta_class = cls._meta_cache.get(key, None)
+        if meta_class is None:
+            cls._meta_cache[key] = meta_class = DataMartDynamicMetaMixin._get_meta_class(it.Meta, model_class)
+        setattr(it, 'Meta', meta_class)
+
+    def __new__(cls, *args, **kwargs):
+        it = super(DataMartDynamicMetaMixin, cls).__new__(cls, *args, **kwargs)
+        if args and isinstance(args[0], models.Model):
+            cls._update_meta(it, args[0].__class__)
+        else:
+            # todo: необходимо проработать определение подкласов витрины данных
+            #  по аналогии с определением модели сущьности
+            cls._update_meta(it, DataMartModel)
+        return it
+
+
+#==============================================================================
+# DataMartBulkListSerializer
+#==============================================================================
+class DataMartBulkListSerializer(DataMartDynamicMetaMixin,
+                                 CheckPermissionsBulkListSerializerMixin,
+                                 DynamicFieldsListSerializerMixin,
+                                 DynamicCreateUpdateValidateListSerializerMixin,
+                                 BulkListSerializer):
+
+    class Meta:
+        model = None
+
+
+#==============================================================================
+# DataMartValidator
+#==============================================================================
 class DataMartValidator(object):
     """
     DataMart Validator
@@ -45,22 +107,43 @@ class DataMartValidator(object):
         # Determine the existing instance, if this is an update operation.
         instance = getattr(self.serializer, 'instance', None)
         validated_data = dict(attrs)
+        request_method = self.serializer.request_method
+
+        attr_errors = {}
+
+        # check update for POST method
+        if request_method == 'POST':
+            for id_attr in self.serializer.get_id_attrs():
+                id_value = validated_data.get(id_attr, empty)
+                if id_value != empty:
+                    try:
+                        instance = model.objects.get(**{id_attr: id_value})
+                    except ObjectDoesNotExist:
+                        pass
+                    except MultipleObjectsReturned as e:
+                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
+                    else:
+                        # try check object permissions, see the CheckPermissionsSerializerMixin
+                        self.serializer.check_object_permissions(instance)
+                    break
+
+        # parent__slug
         parent__slug = validated_data.pop('parent__slug', None)
-        if instance is not None:
-            validate_unique = False
-            if parent__slug is not None:
-                try:
-                    DataMartModel.objects.get(slug=parent__slug)
-                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                    raise exceptions.NotFound(e)
-        else:
-            validate_unique = True
+        if parent__slug is not None:
+            try:
+                DataMartModel.objects.get(slug=parent__slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                attr_errors['parent__slug'] = str(e)
+
+        if attr_errors:
+            raise serializers.ValidationError(attr_errors)
+
+        validate_unique = instance is None
+        # model full clean
         try:
             model(**validated_data).full_clean(validate_unique=validate_unique)
-        except ObjectDoesNotExist as e:
-            raise exceptions.NotFound(e)
-        except ValidationError as e:
-            raise serializers.ValidationError(e)
+        except (ObjectDoesNotExist, ValidationError) as e:
+            raise serializers.ValidationError(str(e))
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
@@ -88,8 +171,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
     class Meta:
         model = DataMartModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
-        list_serializer_class = BulkListSerializer
-        lookup_fields = ('id', 'slug')
+        list_serializer_class = DataMartBulkListSerializer
         validators = [DataMartValidator()]
 
     def _prepare_validated_data(self, validated_data):
@@ -99,7 +181,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
                 try:
                     parent = DataMartModel.objects.get(slug=parent__slug)
                 except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-                    raise exceptions.NotFound(e)
+                    raise serializers.ValidationError({'parent__slug': str(e)})
                 else:
                     validated_data['parent_id'] = parent.id
             else:
@@ -107,9 +189,8 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         return validated_data
 
     def create(self, validated_data):
-        # todo: if updated - permissions check
         validated_data = self._prepare_validated_data(validated_data)
-        for id_attr in self.Meta.lookup_fields:
+        for id_attr in self.get_id_attrs():
             id_value = validated_data.pop(id_attr, empty)
             if id_value != empty:
                 try:
@@ -118,10 +199,11 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
                         'defaults': validated_data
                     })
                 except MultipleObjectsReturned as e:
-                    raise exceptions.ValidationError(e)
+                    raise serializers.ValidationError(e)
                 break
         else:
-            raise ValidationError('')
+            raise serializers.ValidationError(
+                _("Lookup fields not found [{}]").format(", ".join(self.Meta.lookup_fields)))
         return result
 
     def update(self, instance, validated_data):
@@ -137,7 +219,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         """
         if not self.label:
             msg = "The DataMart Serializer must be configured using a `label` field."
-            raise exceptions.ImproperlyConfigured(msg)
+            raise ImproperlyConfigured(msg)
         app_label = data_mart._meta.app_label.lower()
         request = self.context['request']
         cache_key = self.HTML_SNIPPET_CACHE_KEY_PATTERN.format(data_mart.id, app_label, self.label,
@@ -178,6 +260,10 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         return mark_safe(
             Truncator(Truncator(instance.description).words(10, truncate=" ...")).chars(80, truncate="..."))
 
+    @cached_property
+    def request_method(self):
+        return getattr(getattr(self.context.get('view'), 'request'), 'method', '')
+
 
 class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
     """
@@ -190,7 +276,7 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
         global data_mart_summary_serializer_class
         if data_mart_summary_serializer_class:
             msg = "Class `{}` inheriting from `DataMartSummarySerializerBase` already registred."
-            raise exceptions.ImproperlyConfigured(msg.format(data_mart_summary_serializer_class.__name__))
+            raise ImproperlyConfigured(msg.format(data_mart_summary_serializer_class.__name__))
         new_class = super(cls, SerializerRegistryMetaclass).__new__(cls, clsname, bases, attrs)
         if clsname != 'DataMartSummarySerializerBase':
             data_mart_summary_serializer_class = new_class
@@ -200,7 +286,10 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 data_mart_summary_serializer_class = None
 
 
-class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonSerializer):
+class DataMartDetailSerializerBase(DataMartDynamicMetaMixin,
+                                   DynamicFieldsSerializerMixin,
+                                   DynamicCreateUpdateValidateSerializerMixin,
+                                   DataMartCommonSerializer):
     """
     Serialize all fields of the DataMart model, for the data mart detail view.
     """
@@ -211,30 +300,6 @@ class DataMartDetailSerializerBase(DynamicFieldsSerializerMixin, DataMartCommonS
     view_components = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
     limit = serializers.SerializerMethodField()
-
-    _meta_cache = {}
-
-    @staticmethod
-    def _get_meta_class(base, model_class):
-        class Meta(base):
-            model = model_class
-
-        return Meta
-
-    @classmethod
-    def _update_meta(cls, it, instance):
-        model_class = instance.__class__
-        key = model_class.__name__
-        meta_class = cls._meta_cache.get(key, None)
-        if meta_class is None:
-            cls._meta_cache[key] = meta_class = DataMartDetailSerializerBase._get_meta_class(it.Meta, model_class)
-        setattr(it, 'Meta', meta_class)
-
-    def __new__(cls, *args, **kwargs):
-        it = super(DataMartDetailSerializerBase, cls).__new__(cls, *args, **kwargs)
-        if args and isinstance(args[0], models.Model):
-            cls._update_meta(it, args[0])
-        return it
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')

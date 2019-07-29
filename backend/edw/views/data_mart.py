@@ -43,9 +43,9 @@ class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     custom_serializer_classes = {
         'list': DataMartSummarySerializer,
         'retrieve': DataMartDetailSerializer,
-
         'create': DataMartDetailSerializer,
         'update': DataMartDetailSerializer,
+        'bulk_update': DataMartDetailSerializer,
         'partial_update': DataMartDetailSerializer,
         'partial_bulk_update': DataMartDetailSerializer,
         'bulk_destroy': DataMartCommonSerializer

@@ -299,33 +299,6 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
                                  models.Q(backward_relations__term=rel_id))
                 else:
                     q_lst.append(models.Q(forward_relations__term=rel_id))
-        # ===========================================================================================
-        # Старый механизм работы фильтров
-        # ===========================================================================================
-        # if isinstance(subj, (tuple, list)):
-        #     # субъекты представлены списком для прямых и обратных связей. он общий для всех связей
-        #     if rel_f_ids:
-        #         q_lst.append(models.Q(backward_relations__from_entity__in=subj) &
-        #                      models.Q(backward_relations__term__in=rel_f_ids))
-        #     if rel_r_ids:
-        #         q_lst.append(models.Q(forward_relations__to_entity__in=subj) &
-        #                      models.Q(forward_relations__term__in=rel_r_ids))
-        # else:
-        #     # отдельные списки под каждый вид связей
-        #     for rel_id in rel_f_ids:
-        #         subj_ids = subj[rel_id]
-        #         if subj_ids:
-        #             q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
-        #                          models.Q(backward_relations__term=rel_id))
-        #         else:
-        #             q_lst.append(models.Q(forward_relations__term=rel_id))
-        #     for rel_id in rel_r_ids:
-        #         subj_ids = subj[rel_id]
-        #         if subj_ids:
-        #             q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
-        #                          models.Q(forward_relations__term=rel_id))
-        #         else:
-        #             q_lst.append(models.Q(backward_relations__term=rel_id))
         return self.filter(reduce(OR, q_lst)).distinct()
 
     @cached_property
