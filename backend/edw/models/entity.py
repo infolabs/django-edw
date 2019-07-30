@@ -1340,12 +1340,73 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return list(self.get_common_terms_ids())
 
     @staticmethod
-    def _set_relations(rel_id, from_entity_id, to_entity_ids, direction='f'):
+    def _get_related_entities_ids(rel_id, from_entity_id, direction='f'):
+        """
+        Get related entities ids
+        :param rel_id: relation term `id` or `slug`
+        :param from_entity_id: from entity id
+        :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
+        :return:
+        """
+        if direction == 'f':
+            from_entity_param, to_entity_param = 'from_entity', 'to_entity'
+        else:
+            from_entity_param, to_entity_param = 'to_entity', 'from_entity'
+
+        term_key = 'id'
+        # it was a string, not an int. Try find object by `slug`
+        try:
+            rel_id = int(rel_id)
+        except ValueError:
+            term_key = 'slug'
+
+        from_entity_id_key = '{}_id'.format(from_entity_param)
+        to_entity_id_key = '{}_id'.format(to_entity_param)
+        term_id_key = 'term__{}'.format(term_key)
+
+        return EntityRelationModel.objects.filter(**{
+            term_id_key: rel_id, from_entity_id_key: from_entity_id
+        }).values_list(to_entity_id_key, flat=True)
+
+    @staticmethod
+    def _get_related_entities(rel_id, from_entity_id, direction):
+        """
+        Get related entities
+        """
+        return EntityModel.objects.filter(
+            id__in=EntityModel._get_related_entities_ids(rel_id, from_entity_id, direction=direction))
+
+    def get_related_entities(self, rel_id, direction):
+        """
+        ENG: Get related entities, forward/backward(reverse)
+        :param rel_id: relation term id
+        :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
+        :return:
+        RUS: Получаем связаные объекты, прямыя или обратная связи.
+        """
+        return self._get_related_entities(rel_id, self.id, direction)
+
+    def get_forward_related_entities(self, rel_id):
+        """
+        ENG: Get related entities for forward relations, shortcut for get_related_entities(..., 'f').
+        RUS: Получаем объекты связанные прямым отношением.
+        """
+        return self.get_related_entities(rel_id, 'f')
+
+    def get_reverse_related_entities(self, rel_id):
+        """
+        ENG: Get related entities for backward(reverse) relations, shortcut for get_related_entities(..., 'r').
+        RUS: Получаем объекты связанные обратным отношением.
+        """
+        return self.get_related_entities(rel_id, 'r')
+
+    @staticmethod
+    def _set_relations(rel_id, from_entity_id, to_entities_ids, direction='f'):
         """
         ENG: Set relations
         :param rel_id: relation term id
         :param from_entity_id: from entity id
-        :param to_entity_ids: to entity, list of id`s
+        :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
         :return:
         RUS: Добавляет прямые и обратные связи.
@@ -1363,18 +1424,18 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         EntityRelationModel.objects.filter(**{
             'term_id': rel_id, from_entity_id_key: from_entity_id
         }).exclude(**{
-            to_entity_id__in_key: to_entity_ids
+            to_entity_id__in_key: to_entities_ids
         }).delete()
 
         # add relations
-        if to_entity_ids:
+        if to_entities_ids:
             in_db_ids = EntityRelationModel.objects.filter(**{
                 'term_id': rel_id,
                 from_entity_id_key: from_entity_id,
-                to_entity_id__in_key: to_entity_ids
+                to_entity_id__in_key: to_entities_ids
             }).values_list(to_entity_id_key, flat=True)
 
-            not_in_db_ids = list(set(to_entity_ids) - set(in_db_ids))
+            not_in_db_ids = list(set(to_entities_ids) - set(in_db_ids))
             if not_in_db_ids:
                 to_insert = [EntityRelationModel(**{
                     'term_id': rel_id,
@@ -1383,39 +1444,39 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 }) for x in not_in_db_ids]
                 EntityRelationModel.objects.bulk_create(to_insert)
 
-    def set_relations(self, rel_id, to_entity_ids, direction):
+    def set_relations(self, rel_id, to_entities_ids, direction):
         """
         ENG: Set relations forward/backward(reverse)
         :param rel_id: relation term id
         :param from_entity_id: from entity id
-        :param to_entity_ids: to entity, list of id`s
+        :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
         :return:
         RUS: Устанавливает прямые и обратные связи.
         """
-        self._set_relations(rel_id, self.id, to_entity_ids, direction=direction)
+        self._set_relations(rel_id, self.id, to_entities_ids, direction=direction)
 
-    def set_forward_relations(self, rel_id, to_entity_ids):
+    def set_forward_relations(self, rel_id, to_entities_ids):
         """
         ENG: Set forward relations, shortcut for set_relations(..., 'f').
         RUS: Устанавливает прямые связи, сокращенное обозначение 'f'.
         """
-        self.set_relations(rel_id, to_entity_ids, 'f')
+        self.set_relations(rel_id, to_entities_ids, 'f')
 
-    def set_reverse_relations(self, rel_id, to_entity_ids):
+    def set_reverse_relations(self, rel_id, to_entities_ids):
         """
         ENG: Set backward(reverse) relations, shortcut for set_relations(..., 'r').
         RUS: Устанавливает обратные (реверсивные) связи, сокращенное обозначение 'r'.
         """
-        self.set_relations(rel_id, to_entity_ids, 'r')
+        self.set_relations(rel_id, to_entities_ids, 'r')
 
-    def set_bidirectional_relations(self, rel_id, to_entity_ids):
+    def set_bidirectional_relations(self, rel_id, to_entities_ids):
         """
         ENG: Set bidirectional relations.
         RUS: Устанавливает двунаправленные связи (прямые и обратные (реверсивные)).
         """
-        self.set_forward_relations(rel_id, to_entity_ids)
-        self.set_reverse_relations(rel_id, to_entity_ids)
+        self.set_forward_relations(rel_id, to_entities_ids)
+        self.set_reverse_relations(rel_id, to_entities_ids)
 
     @staticmethod
     def _remove_relations(from_entity_id, rel_f_ids, rel_r_ids):
