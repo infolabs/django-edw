@@ -53,53 +53,87 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
     @add_cache_key('actv')
     def active(self):
+        """
+        RUS: Запрос к терминам.
+        Возвращает только активные элементы.
+        """
         return self.filter(active=True)
 
     def hard_delete(self):
-        return super(BaseTermQuerySet, self).delete()
+        """
+        RUS: Запрос на принудительное удаление терминов.
+        """
+        return (BaseTermQuerySet, self).delete()
 
     def delete(self):
+        """
+        RUS: Запрос на удаление терминов. за исключением объектов с запретом на удаление.
+        """
         return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
     @add_cache_key('toplvl')
     def toplevel(self):
         """
         :return: all nodes which have no parent
+        RUS: Возвращает все узлы дерева, у которых нет родителя, в результате применения фильтра.
         """
         return self.filter(parent__isnull=True)
 
     def leaf_only(self):
         """
         :return: all leaf nodes
+        RUS: Возвращает все конечные узлы, в результате применения фильтра,
+        где левый узел равен правому узлу, уменьшив значение поля на 1.
         """
         return self.filter(lft=F('rght')-1)
 
     def attribute_is_characteristic_or_mark(self):
+        """
+        RUS: Фильтр возвращает атрибуты с характеристиками или атрибуты с метками.
+        """
         return self.filter(Q(attributes=self.model.attributes.is_characteristic) |
                            Q(attributes=self.model.attributes.is_mark))
 
     def _get_attribute_filter_cache_key(self, attribute_mode):
+        """
+        RUS: Создает закэшированные атрибуты с фильтрацией в целочисленном формате.
+        """
         return self.model.ATTRIBUTE_FILTER_CACHE_KEY_PATTERN.format(
             mode=int(attribute_mode)
         )
 
     @add_cache_key(_get_attribute_filter_cache_key)
     def attribute_filter(self, attribute_mode):
+        """
+        RUS: Возвращает закэшированные атрибуты с применением фильтра в целочисленном формате.
+        """
         return self.filter(attributes=attribute_mode)
 
     def _get_select_related_cache_key(self, *fields):
+        """
+        RUS: Получает закэшированные связанные объекты.
+        """
         return self.model.SELECT_RELATED_CACHE_KEY_PATTERN.format(
             fields=':'.join(fields)
         )
 
     @add_cache_key(_get_select_related_cache_key)
     def select_related(self, *fields):
+        """
+        RUS: Возвращает связанные объекты запроса к терминам с применением кэша.
+        """
         return super(BaseTermQuerySet, self).select_related(*fields)
 
     def attribute_is_relation(self):
+        """
+        RUS: Возвращает связанные атрибуты с применением кэша.
+        """
         return self.filter(attributes=self.model.attributes.is_relation)
 
     def no_external_tagging_restriction(self):
+        """
+        RUS: Возвращает атрибуты, у которых нет ограничения на внешние теги.
+        """
         return self.exclude(system_flags=self.model.system_flags.external_tagging_restriction)
 
 
@@ -108,7 +142,8 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 #==============================================================================
 class BaseTermManager(RebuildTreeMixin, TreeManager.from_queryset(BaseTermQuerySet)):
     """
-    Customized model manager for our Term model.
+    ENG: Customized model manager for our Term model.
+    RUS: Адаптированная модель менеджера для модели Терминов.
     """
 
     '''
@@ -129,13 +164,16 @@ class BaseTermManager(RebuildTreeMixin, TreeManager.from_queryset(BaseTermQueryS
 #==============================================================================
 class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
     """
-    The BaseTerm class must refer to their materialized model definition, for instance when
+    ENG: The BaseTerm class must refer to their materialized model definition, for instance when
     accessing its model manager.
+    RUS: Метакласс базовых терминов
     """
     @classmethod
     def perform_model_checks(cls, Model):
         """
-        Perform some safety checks on the TermModel being created.
+        ENG: Perform some safety checks on the TermModel being created.
+        RUS: Выполняет некоторые проверки безопасности для создаваемой модели терминов TermModel.
+        Создаваемый класс должен являться объектом ModelManager, наследуемой от BaseTermManager.
         """
         if not isinstance(Model.objects, BaseTermManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseTermManager"

@@ -396,18 +396,31 @@ class CheckPermissionsSerializerMixin(BasePermissionsSerializerMixin):
 
 
 class CheckPermissionsBulkListSerializerMixin(BasePermissionsSerializerMixin):
+    """
+    RUS: Миксин разрешений доступа к массовому обновлению списка объектов сериалайзера.
+    """
 
     def validate_bulk_update(self, objects):
         """
-        Hook to ensure that the bulk update should be allowed.
+        ENG: Hook to ensure that the bulk update should be allowed.
+        RUS: Проверка массового обновления.
+        Объект запроса должен содержать атрибут.
+        Проверка пользовательских разрешений.
         """
         for obj in objects:
             self.check_object_permissions(obj)
 
 
 class DynamicFilterSetMixin(object):
+    """
+    RUS: Миксин для динамического фильтра.
+    """
 
     def __new__(cls, data=None, queryset=None, **kwargs):
+        """
+        RUS: Извлекает фильтр rest_meta.
+        Проверяет наличие и наименование фильтра.
+        """
         it = super(DynamicFilterSetMixin, cls).__new__(cls, data=data, queryset=queryset, **kwargs)
         it._extra_method_filters = {}
         if data:
@@ -431,6 +444,9 @@ class DynamicFilterSetMixin(object):
         return it
 
     def __init__(self, *arg, **kwargs):
+        """
+        RUS: Конструктор класса.
+        """
         for method_name, method in self._extra_method_filters.items():
             setattr(self, method_name, types.MethodType(method, self, self.__class__))
         super(DynamicFilterSetMixin, self).__init__(*arg, **kwargs)
@@ -440,10 +456,17 @@ class DynamicFilterMixin(object):
     dynamic_filter_set_class = None
 
     def __init__(self):
+        """
+        RUS: Производится проверка доступа к динамическому фильтру класса.
+        """
         assert self.dynamic_filter_set_class, \
             'Using DynamicFilterMixin, but `dynamic_filter_set_class` is is not defined'
 
     def filter_queryset(self, request, queryset, view):
+        """
+        RUS: Запрос к базе данных с применением фильтра.
+        Добавляет фильтр к запросу к базе данных объекта rest_meta.
+        """
         self.dynamic_filter_set = self.dynamic_filter_set_class(request.GET, queryset)
 
         queryset = self.dynamic_filter_set.qs
@@ -463,6 +486,11 @@ class DynamicFilterMixin(object):
 class DynamicGroupByMixin(object):
 
     def initialize(self, request, queryset, view):
+        """
+        RUS: Объект запроса, который передается методу-обработчику, является экземпляром Request инфраструктуры REST,
+        а не обычным Django HttpRequest.
+        Переопределяет значения объектов.
+        """
         self.request = request
         self.queryset = queryset
         self.view = view
@@ -476,4 +504,7 @@ class DynamicGroupByMixin(object):
             setattr(self, 'get_group_by', types.MethodType(method, self, self.__class__))
 
     def get_group_by(self):
+        """
+        RUS: Получает переопределенный метод группировки данных объектов rest_meta.
+        """
         return self.group_by
