@@ -187,7 +187,8 @@ class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
 class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilterMixin,
                               MPTTModelSignalSenderMixin, MPTTModel)):
     """
-    The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
+    ENG: The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
+    RUS: Основные части корпоративного хранилища данных. Иерархический словарь терминов.
     """
     DECOMPRESS_BUFFER_CACHE_KEY = 'dc_bf'
     DECOMPRESS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['term_decompress']
@@ -289,17 +290,27 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     can_have_children = True
 
     class Meta:
+        """
+        RUS: Метахарактеристики объекта.
+        """
         abstract = True
         verbose_name = _("Term")
         verbose_name_plural = _("Topic model")
 
     class MPTTMeta:
+        """
+        RUS: Определяет порядок данных в дереве.
+        """
         order_insertion_by = ['created_at']
 
     def __str__(self):
         return self.name
 
     def make_filters(self, *args, **kwargs):
+        """
+        RUS: Если семантическое правило «И», применяется миксин фильтра для семантического правила «И»,
+        иначе применяется миксин фильтра для правила «ИЛИ».
+        """
         if self.semantic_rule == self.AND_RULE:
             return AndRuleFilterMixin.make_filters(self, *args, **kwargs)
         else:
@@ -307,9 +318,15 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @cached_property
     def ancestors_list(self):
+        """
+        RUS: Возвращает список предков объекта.
+        """
         return list(self.parent.get_ancestors(include_self=True)) if self.parent else []
 
     def clean(self, *args, **kwargs):
+        """
+        RUS: Проверка уникальности тега и ограничения в системных флагах.
+        """
         model_class = self.__class__
         origin = None
         if bool(self.pk) and not inspect.isclass(self.pk) or self.pk == 0:
@@ -333,6 +350,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     def _make_path(self, items):
 
         def join_path(joiner, field, ancestors):
+            """
+            RUS: Создает путь термина.
+            """
             return joiner.join([force_text(getattr(i, field)) for i in ancestors])
 
         self.path = join_path('/', 'slug', items)
@@ -344,6 +364,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     def save(self, *args, **kwargs):
         # determine whether this instance is already in the db
+        """
+        RUS: Определяет, создан ли объект в базе данных и сохраняет, если является уникальным,
+        обновляя список id.
+        """
         force_update = kwargs.get('force_update', False)
         do_correct_term_unique_error = kwargs.pop('do_correct_term_unique_error', True)
         if not force_update:
@@ -380,13 +404,22 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return result
 
     def delete(self):
+        """
+        RUS: Удаляет объект, если нет системного флага с ограничением на удаление.
+        """
         if not self.system_flags.delete_restriction:
             super(BaseTerm, self).delete()
 
     def hard_delete(self):
+        """
+        RUS: Принудительно удаляет объект.
+        """
         super(BaseTerm, self).delete()
 
     def move_to(self, target, position='first-child'):
+        """
+        RUS: Перемещает термин, являющийся потомком, по дереву, если нет ограничений на перемещение.
+        """
         if position in ('left', 'right'):
             if target.parent_id != self.parent_id:
                 if self.system_flags.change_parent_restriction:
@@ -407,15 +440,24 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         super(BaseTerm, self).move_to(target, position)
 
     def get_children_cache_key(self):
+        """
+        RUS: Получает ключ кэша детей терминов.
+        """
         return self.CHILDREN_CACHE_KEY_PATTERN.format(
             parent_id=self.id
         )
 
     @add_cache_key(get_children_cache_key)
     def get_children(self):
+        """
+        RUS: Применяет ключ кэша детей терминов.
+        """
         return super(BaseTerm, self).get_children()
 
     def get_ancestors_cache_key(self, ascending=False, include_self=False):
+        """
+        RUS: Получает ключ кэша предков терминов.
+        """
         return self.ANCESTORS_CACHE_KEY_PATTERN.format(
             id=self.id,
             ascending=ascending,
@@ -424,22 +466,32 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @add_cache_key(get_ancestors_cache_key)
     def get_ancestors(self, ascending=False, include_self=False):
+        """
+        RUS: Применяет ключ кэша предков терминов.
+        """
         return super(BaseTerm, self).get_ancestors(ascending, include_self)
     
     @staticmethod
     def decompress(*args, **kwars):
         """
         Shortcut to TermInfo.decompress method
+        RUS: Собирает дерево из класса TermInfo.
         """
         return TermInfo.decompress(TermModel, *args, **kwars)
 
     @staticmethod
     def get_decompress_buffer():
+        """
+        RUS: Собирает кольцевой буфер с ключом кэша и указанием максимального размера.
+        """
         return RingBuffer.factory(BaseTerm.DECOMPRESS_BUFFER_CACHE_KEY,
                                   max_size=BaseTerm.DECOMPRESS_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_decompress_buffer():
+        """
+        RUS: Очищает буфер, удаляя по указанным ключам.
+        """
         buf = BaseTerm.get_decompress_buffer()
         keys = buf.get_all()
         buf.clear()
@@ -447,6 +499,10 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def cached_decompress(value=None, fix_it=False):
+        """
+        RUS: Собирает дерево из терминов, применяя к нему ключ кэша и удаляя старый кэш по ключу,
+        если он не является акутуальным.
+        """
         key = BaseTerm.DECOMPRESS_CACHE_KEY_PATTERN.format(**{
             "value_hash": hash_unsorted_list(value) if value else '',
             "fix_it": 'Y' if fix_it else 'N'
@@ -463,11 +519,17 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_children_buffer():
+        """
+        RUS: Собирает буфер детей с ключом кэша и ограничением максимального размера.
+        """
         return RingBuffer.factory(BaseTerm.CHILDREN_BUFFER_CACHE_KEY,
                                   max_size=BaseTerm.CHILDREN_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_children_buffer():
+        """
+        RUS: Очищает буфер детей, удаляет кэш по ключам.
+        """
         buf = BaseTerm.get_children_buffer()
         keys = buf.get_all()
         buf.clear()
@@ -475,11 +537,17 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_attribute_ancestors_buffer():
+        """
+        RUS: Собирает буфер предков с ключом кэша и ограничением максимального размера.
+        """
         return RingBuffer.factory(BaseTerm.ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY,
                                   max_size=BaseTerm.ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE)
 
     @staticmethod
     def clear_attribute_ancestors_buffer():
+        """
+        RUS: Очищает буфер атрибутов предков, удаляет кэш по ключам.
+        """
         buf = BaseTerm.get_attribute_ancestors_buffer()
         keys = buf.get_all()
         buf.clear()
@@ -487,6 +555,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_all_active_characteristics_descendants_ids():
+        """
+        RUS: Получает кэшированные id всех характеристик потомков со статусом активен.
+        """
         key = BaseTerm.ALL_ACTIVE_CHARACTERISTICS_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
@@ -502,6 +573,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_all_active_marks_descendants_ids():
+        """
+        RUS: Получает кэшированные id всех меток потомков со статусом активен.
+        """
         key = BaseTerm.ALL_ACTIVE_MARKS_DESCENDANTS_IDS_CACHE_KEY
         descendants_ids = cache.get(key, None)
         if descendants_ids is None:
@@ -516,6 +590,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     @staticmethod
     def get_all_active_root_ids(use_cache=True):
+        """
+        RUS: Получает кэшированные id всех пользователей со статусом активен.
+        """
         key = BaseTerm.ALL_ACTIVE_ROOT_IDS_CACHE_KEY
         root_ids = cache.get(key, None) if use_cache else None
         if root_ids is None:
@@ -525,7 +602,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
     def get_absolute_url(self, request=None, format=None):
         """
-        Return the absolute URL of a entity
+        ENG: Return the absolute URL of a entity.
+        RUS: Возвращает абсолютный URL сущности.
         """
         return reverse('edw:{}-detail'.format(self.__class__._meta.model_name.lower()), kwargs={'pk': self.pk},
                        request=request, format=format)
@@ -541,6 +619,10 @@ TermModel = deferred.MaterializedModel(BaseTerm)
 # get_queryset_descendants
 #==============================================================================
 def get_queryset_descendants(nodes, include_self=False):
+    """
+    RUS: Запрос к базе данных потомков. Если нет узлов,
+    то возвращается пустой запрос.
+    """
     if not nodes:
         #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
         return EmptyQuerySet(MPTTModel)
@@ -568,12 +650,17 @@ def get_queryset_descendants(nodes, include_self=False):
 class TermTreeInfo(dict):
     """
     Helper class TermTreeInfo
+    RUS: Вспомогательный класс
     """
     def __init__(self, root=None, *args, **kwargs):
         self.root = root
         super(TermTreeInfo, self).__init__(*args, **kwargs)
 
     def get_hash(self):
+        """
+        RUS: Получает список захэшированных неупорядоченных ключей,
+        если они несозданы.
+        """
         keys = [x.term.id for x in self.values() if x.is_leaf]
         return hash_unsorted_list(keys) if keys else ''
 
