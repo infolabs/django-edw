@@ -7,7 +7,11 @@ import re
 from operator import __or__ as OR
 from functools import reduce
 
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    ObjectDoesNotExist,
+    MultipleObjectsReturned
+)
 from django.core.cache import cache
 from django.db import models, connections
 from django.db.models.sql.datastructures import EmptyResultSet
@@ -1353,16 +1357,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         else:
             from_entity_param, to_entity_param = 'to_entity', 'from_entity'
 
-        term_key = 'id'
         # it was a string, not an int. Try find object by `slug`
         try:
             rel_id = int(rel_id)
         except ValueError:
-            term_key = 'slug'
+            term_id_key = 'term__slug'
+        else:
+            term_id_key = 'term_id'
 
         from_entity_id_key = '{}_id'.format(from_entity_param)
         to_entity_id_key = '{}_id'.format(to_entity_param)
-        term_id_key = 'term__{}'.format(term_key)
 
         return EntityRelationModel.objects.filter(**{
             term_id_key: rel_id, from_entity_id_key: from_entity_id
@@ -1404,7 +1408,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def _set_relations(rel_id, from_entity_id, to_entities_ids, direction='f'):
         """
         ENG: Set relations
-        :param rel_id: relation term id
+        :param rel_id: relation term `id` or `slug`
         :param from_entity_id: from entity id
         :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
@@ -1416,6 +1420,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             from_entity_param, to_entity_param = 'from_entity', 'to_entity'
         else:
             from_entity_param, to_entity_param = 'to_entity', 'from_entity'
+
+        # it was a string, not an int. Try find object by `slug`
+        try:
+            rel_id = int(rel_id)
+        except ValueError:
+            try:
+                rel_id = TermModel.objects.get(slug=rel_id).id
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                # do nothing
+                return
+
         from_entity_id_key = '{}_id'.format(from_entity_param)
         to_entity_id_key = '{}_id'.format(to_entity_param)
         to_entity_id__in_key = '{}_id__in'.format(to_entity_param)
@@ -1447,7 +1462,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def set_relations(self, rel_id, to_entities_ids, direction):
         """
         ENG: Set relations forward/backward(reverse)
-        :param rel_id: relation term id
+        :param rel_id: relation term `id` or `slug`
         :param from_entity_id: from entity id
         :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
