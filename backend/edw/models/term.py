@@ -665,16 +665,25 @@ class TermTreeInfo(dict):
         return hash_unsorted_list(keys) if keys else ''
 
     def trim(self, ids=None):
+        """
+        RUS: Создает копию дерева. Расширяет его. Возвращает дерево, у которого удалены id лишних узлов.
+        """
         tree = self.deepcopy()
         tree._expand()
         return tree._trim(ids)
 
     def expand(self):
+        """
+        RUS: Добавляет в дерево ребенка к предкам.
+        """
         tree = self.deepcopy()
         tree._expand()
         return tree
 
     def _expand(self):
+        """
+        RUS: Приватный метод, добавляет в дерево ребенка к предкам.
+        """
         terms = [x.term for x in self.values() if x.is_leaf]
         if terms:
             for term in get_queryset_descendants(terms, include_self=False).filter(active=True):
@@ -684,6 +693,9 @@ class TermTreeInfo(dict):
                 ancestor.append(child)
 
     def _trim(self, ids=None):
+        """
+        RUS: Создает дерево, у которого удалены id лишних узлов.
+        """
         if ids is None:
             ids = []
         # ids = uniq(ids)
@@ -719,12 +731,18 @@ class TermTreeInfo(dict):
         return tree
 
     def _copy_recursively(self, src_node):
+        """
+        RUS: Рекурсивно создает копию узла и его элементов.
+        """
         node = self[src_node.term.id] = TermInfo(term=src_node.term, is_leaf=src_node.is_leaf)
         for src_child in src_node:
             node.append(self._copy_recursively(src_child))
         return node
 
     def deepcopy(self):
+        """
+        RUS: Создает копию дерева.
+        """
         root_model_class = self.root.term.__class__
         root = TermInfo(term=root_model_class())
         tree = TermTreeInfo(root)
@@ -740,19 +758,29 @@ class TermInfo(list):
     """
     Class TermInfo
     Usage: tree = TermInfo.decompress(term_model, term_ids_set, fix_it=True), result type is TermTreeInfo
+    Для собирания дерева терминов TermTreeInfo.
     """
     def __init__(self, term=None, is_leaf=False, children=(), attrs=None):
+        """
+        RUS: Конструктор класса объекта.
+        """
         super(TermInfo, self).__init__(children)
         self.attrs = attrs or {}
         self.term, self.is_leaf = term, is_leaf
 
     def get_children_dict(self):
+        """
+        RUS: Возвращает по id термина ребенка значение.
+        """
         result = {}
         for child in self:
             result[child.term.id] = child
         return result
 
     def get_descendants_ids(self):
+        """
+        RUS: Возвращает список из id термина ребенка и id его предков.
+        """
         result = []
         for child in self:
             result.append(child.term.id)
@@ -761,6 +789,9 @@ class TermInfo(list):
 
     @staticmethod
     def decompress(model_class, value=None, fix_it=False):
+        """
+        RUS: Собирает дерево.
+        """
         if value is None:
             value = []
         value = uniq(value)

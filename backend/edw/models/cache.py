@@ -17,14 +17,14 @@ class empty:
     ENG: This class is used to represent no data being provided for a given input
     or output value.
     It is required because `None` may be a valid input or output value.
-    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении
+    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении.
     """
     pass
 
 
 def _parse_cache_key(self, cache_key, *args, **kwargs):
     """
-    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении
+    RUS: Возвращает ключ кэша.
     """
     if hasattr(cache_key, '__call__'):
         if hasattr(self, cache_key.__name__):
@@ -42,11 +42,11 @@ def add_cache_key(cache_key,
                   key_max_len=50,
                   **dkwargs):
     """
-    Добавляет ключ кэша
+    RUS: Добавляет ключ кэша.
     """
     def add_cache_key_decorator(func):
         """
-        Добавляет декоратор ключа кэша
+        RUS: Добавляет декоратор ключа кэша.
         """
         @wraps(func)
         def func_wrapper(self, *args, **kwargs):
@@ -76,8 +76,8 @@ def add_cache_key(cache_key,
 
 class QuerySetCachedResultMixin(object):
     """
-    ENG: Try find result in cache, otherwise calculate it
-    RUS: Пытается найти результат кэширования
+    ENG: Try find result in cache, otherwise calculate it.
+    RUS: Пытается найти результат кэширования или вычислить его.
     """
 
     @staticmethod
@@ -85,6 +85,9 @@ class QuerySetCachedResultMixin(object):
         return _ReadyForCache(data)
 
     def _get_from_global_cache(self, key, on_cache_set, timeout):
+        """
+        RUS: Получает результат кэширования по ключу из глобального кэша.
+        """
 
         result = cache.get(key, empty)
         if result == empty:
@@ -99,6 +102,10 @@ class QuerySetCachedResultMixin(object):
               on_cache_set=None,
               timeout=DEFAULT_CACHE_TIMEOUT,
               local_cache=None):
+        """
+        RUS: Возвращает результат кэширования по ключу из локального кэша.
+        Если ключ пустой, возбуждается исключение.
+        """
         cache_key_attr = getattr(self, '_cache_key_attr', DEFAULT_CACHE_KEY_ATTR)
         key = getattr(self, cache_key_attr, empty)
         if key != empty:
@@ -107,7 +114,7 @@ class QuerySetCachedResultMixin(object):
                 if result == empty:
                     result = self._get_from_global_cache(key, on_cache_set, timeout)
                     local_cache[key] = result
-                # создаем поверхностную копию что-бы минимизировать возможность "затереть" кеш
+                # создаем поверхностную копию чтобы минимизировать возможность "затереть" кеш
                 result = result[:]
             else:
                 result = self._get_from_global_cache(key, on_cache_set, timeout)
@@ -124,6 +131,10 @@ class QuerySetCachedResultMixin(object):
 class _ReadyForCache(QuerySetCachedResultMixin, list):
 
     def __init__(self, data):
+        """
+        RUS: Извлекает атрибут ключа кэша, если он не пустой, извлекается ключ, если он не пустой,
+        ключ кэша переопределяется.
+        """
         cache_key_attr = getattr(data, '_cache_key_attr', empty)
         if cache_key_attr != empty:
             cache_key = getattr(data, cache_key_attr, empty)
