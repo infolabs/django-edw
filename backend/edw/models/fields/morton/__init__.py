@@ -12,6 +12,7 @@ def dummy_interleave_fn(*args):
     """
     :param args: Fi(*arg) --> morton code
     :return: morton code string
+    RUS: Возвращает пустую строку.
     """
     return ''
 
@@ -20,6 +21,7 @@ def dummy_deinterleave_fn(mortoncode):
     """
     :param mortoncode: Fd(mortoncode) --> (arg1, arg2, ... , argn)
     :return: *args
+    RUS: Возвращает пустой список.
     """
     return []
 
@@ -27,6 +29,9 @@ def dummy_deinterleave_fn(mortoncode):
 class BaseMortonOrder(object):
 
     def __init__(self, *args, **kwargs):
+        """
+        RUS: Конструктор объекта класса.
+        """
         mortoncode = kwargs.get('mortoncode', None)
         self.interleave_fn = kwargs.get('interleave_fn', dummy_interleave_fn)
         self.deinterleave_fn= kwargs.get('deinterleave_fn', dummy_deinterleave_fn)
@@ -44,32 +49,67 @@ class BaseMortonOrder(object):
 
     @property
     def mortoncode(self):
+        """
+        RUS: Возвращает переопределенный код Мортона.
+        """
         return self._mortoncode
 
     @mortoncode.setter
     def mortoncode(self, value):
+        """
+        RUS: Создает код Мортона.
+        """
         self._do_invalidate_args = True
         self._mortoncode = value
 
     def __str__(self):
+        """
+        RUS: Метод перегрузки оператора. Возвращает строковое представление кода Мортона.
+        """
         return "{}".format(self.mortoncode)
 
     def __repr__(self):
+        """
+        RUS: Метод перегрузки оператора. Возвращает строковое представление кода Мортона.
+        """
         return "{}({}: [{}])".format(self.__class__.__name__, str(self), ", ".join([str(x) for x in self.args]))
 
     def __len__(self):
+        """
+        RUS: Метод перегрузки оператора. Возвращает длину объекта.
+        """
         return len(str(self))
 
     def __eq__(self, other):
+        """
+        RUS: Метод перегрузки оператора.
+        Определяет поведение оператора равенства. Проверяет, является объект экземпляром класса BaseMortonOrder.
+        Возвращает булевое значение.
+        """
         return isinstance(other, BaseMortonOrder) and self.mortoncode == other.mortoncode
 
     def __ne__(self, other):
+        """
+        RUS: Метод перегрузки оператора.
+        Определяет поведение оператора неравенства. Проверяет, не является объект экземпляром класса BaseMortonOrder.
+        Возвращает булевое значение.
+        """
         return not isinstance(other, BaseMortonOrder) or self.mortoncode != other.mortoncode
 
     def __gt__(self, other):
+        """
+        RUS: Метод перегрузки оператора.
+        Определяет поведение оператора больше. Проверяет, не является объект экземпляром класса BaseMortonOrder.
+        Возвращает булевое значение.
+        """
         return not isinstance(other, BaseMortonOrder) or self.mortoncode > other.mortoncode
 
     def __lt__(self, other):
+        """
+        RUS: Метод перегрузки оператора.
+        Определяет поведение оператора меньше. Проверяет, не является объект экземпляром класса BaseMortonOrder.
+        Возвращает булевое значение.
+        """
         return not isinstance(other, BaseMortonOrder) or self.mortoncode < other.mortoncode
 
     def interleave(self):
@@ -86,6 +126,9 @@ class BaseMortonOrder(object):
 
 
 class BaseMortonField(models.Field):
+    """
+    RUS: Отображение полей базы данных.
+    """
     description = _("BaseMortonOrder field")
     value_class = BaseMortonOrder
 
@@ -94,9 +137,15 @@ class BaseMortonField(models.Field):
         super(BaseMortonField, self).__init__(*args, **kwargs)
 
     def get_internal_type(self):
+        """
+        RUS: Возвращает текстовое название типа поля.
+        """
         return 'CharField'
 
     def to_python(self, value):
+        """
+        RUS: Преобразует значения из базы данных в объект Python.
+        """
         if not value:
             return None
         if isinstance(value, BaseMortonField):
@@ -105,20 +154,34 @@ class BaseMortonField(models.Field):
         return self.value_class(mortoncode=value)
 
     def from_db_value(self, value, expression, connection, context):
+        """
+        RUS: Преобразует значения из базы данных в объект Python.
+        """
         return self.value_class(mortoncode=value)
 
     def get_prep_value(self, value):
+        """
+        RUS: Для преобразования типов Python в тип в базе данных.
+        """
         if isinstance(value, self.value_class):
             return value.interleave()
         return str(value)
 
     def value_to_string(self, obj):
+        """
+        RUS: Преобразует значение в строку.
+        Возвращает текстовый объект, представляющий значение в юникоде.
+        ENG: Return a text object representing self – unicode.
+        """
         value = self._get_val_from_obj(obj)
         return smart_text(value)
 
 
 @BaseMortonField.register_lookup
 class MortonSearchMatchedLookup(Lookup):
+    """
+    RUS: Поиск.
+    """
     lookup_name = 'mortonsearch'
 
     def __init__(self, lhs, rhs):
@@ -143,6 +206,9 @@ class MortonSearchMatchedLookup(Lookup):
 
 @BaseMortonField.register_lookup
 class MortonPreciseSearchMatchedLookup(PatternLookup):
+    """
+    RUS: Точный поиск.
+    """
     lookup_name = 'mortonprecise'
 
     def __init__(self, lhs, rhs):
