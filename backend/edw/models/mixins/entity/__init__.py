@@ -20,6 +20,9 @@ ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN = "{}_wrapper"
 
 
 def get_or_create_model_class_wrapper_term(cls):
+    """
+    RUS: Получает или создает модель класса пользователя model_root_term.
+    """
     system_flags = _default_system_flags_restriction
     cls_name_lower = cls.__name__.lower()
 
