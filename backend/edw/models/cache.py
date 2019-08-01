@@ -24,7 +24,7 @@ class empty:
 
 def _parse_cache_key(self, cache_key, *args, **kwargs):
     """
-    RUS: Возвращает ключ кэша.
+    RUS: Возвращает ключ кэша, если в ключе содержится метод '__call__', то ключ кэша может быть переопределен.
     """
     if hasattr(cache_key, '__call__'):
         if hasattr(self, cache_key.__name__):
@@ -42,11 +42,11 @@ def add_cache_key(cache_key,
                   key_max_len=50,
                   **dkwargs):
     """
-    RUS: Добавляет ключ кэша.
+    RUS: Добавляет ключ кэша с определенными параметрами.
     """
     def add_cache_key_decorator(func):
         """
-        RUS: Добавляет декоратор ключа кэша.
+        RUS: Создает декоратор ключа кэша. Если длина ключа больше его максимальной длины, то ключ обрезается.
         """
         @wraps(func)
         def func_wrapper(self, *args, **kwargs):
@@ -103,7 +103,8 @@ class QuerySetCachedResultMixin(object):
               timeout=DEFAULT_CACHE_TIMEOUT,
               local_cache=None):
         """
-        RUS: Возвращает результат кэширования по ключу из локального кэша.
+        RUS: Возвращает результат кэширования по ключу из локального кэша, если пустой результат,
+        то ключ локального кэша создаетсяиз глобального.
         Если ключ пустой, возбуждается исключение.
         """
         cache_key_attr = getattr(self, '_cache_key_attr', DEFAULT_CACHE_KEY_ATTR)
