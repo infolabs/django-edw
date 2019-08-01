@@ -6,6 +6,12 @@ from edw.models.related.entity_file import BaseEntityFile
 
 
 class EntityFile(BaseEntityFile):
-    """Materialize many-to-many relation with files"""
+    """
+    ENG: Materialize many-to-many relation with files.
+    RUS: Материализованная связь многие-ко многим с документами.
+    """
     class Meta(BaseEntityFile.Meta):
+        """
+        RUS: Метаданные класса EntityFile.
+        """
         abstract = False

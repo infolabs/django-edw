@@ -13,7 +13,8 @@ class DataMartManager(BaseDataMartManager):
 
 class DataMart(ApiReferenceMixin, BaseDataMart):
     """
-    Default materialized model for DataMart containing common fields
+    ENG: Default materialized model for DataMart containing common fields.
+    RUS: Материализованная по умолчанию модель Витрины данных, содержащая общие поля.
     """
     ENTITIES_TILE_VIEW_COMPONENT = 'tile'
 
@@ -24,6 +25,9 @@ class DataMart(ApiReferenceMixin, BaseDataMart):
     objects = DataMartManager()
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = False
         verbose_name = _("Data mart")
         verbose_name_plural = _("Data marts")

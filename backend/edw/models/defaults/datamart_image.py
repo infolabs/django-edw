@@ -6,6 +6,9 @@ from edw.models.related.data_mart_image import BaseDataMartImage
 
 
 class DataMartImage(BaseDataMartImage):
-    """Materialize many-to-many relation with images"""
+    """
+    ENG: Materialize many-to-many relation with images.
+    RUS: Материализованная связь многие-ко многим с картинками.
+    """
     class Meta(BaseDataMartImage.Meta):
         abstract = False

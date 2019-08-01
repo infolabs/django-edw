@@ -13,11 +13,15 @@ class TermManager(BaseTermManager):
 
 class Term(BaseTerm):
     """
-    Default materialized model for BaseTerm containing common fields
+    ENG: Default materialized model for BaseTerm containing common fields.
+    RUS: Материализованная по умолчанию модель для BaseTerm, содержащая общие поля.
     """
     objects = TermManager()
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = False
         verbose_name = _("Term")
         verbose_name_plural = _("Topic model")

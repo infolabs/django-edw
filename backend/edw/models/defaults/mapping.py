@@ -11,24 +11,48 @@ from edw.models.related import (
 
 
 class AdditionalEntityCharacteristicOrMark(BaseAdditionalEntityCharacteristicOrMark):
-    """Materialize many-to-many relation with terms"""
+    """
+    ENG: Materialize many-to-many relation with terms.
+    RUS: Материализованная связь многие-ко многим с терминами.
+    """
     class Meta(BaseAdditionalEntityCharacteristicOrMark.Meta):
+        """
+        RUS: Метаданные класса AdditionalEntityCharacteristicOrMark.
+        """
         abstract = False
 
 
 class EntityRelation(BaseEntityRelation):
-    """Materialize many-to-many relation with entities"""
+    """
+    ENG: Materialize many-to-many relation with entities.
+    RUS: Материализованная связь многие-ко многим с сущностями.
+    """
     class Meta(BaseEntityRelation.Meta):
+        """
+        RUS: Метаданные класса EntityRelation.
+        """
         abstract = False
 
 
 class EntityRelatedDataMart(BaseEntityRelatedDataMart):
-    """Materialize many-to-many relation with data marts"""
+    """
+    ENG: Materialize many-to-many relation with data marts.
+    RUS: Материализованная связь многие-ко многим с витринами данных.
+    """
     class Meta(BaseEntityRelatedDataMart.Meta):
+        """
+        RUS: Метаданные класса EntityRelation.
+        """
         abstract = False
 
 
 class DataMartRelation(BaseDataMartRelation):
-    """Materialize many-to-many data_mart with relations"""
+    """
+    ENG: Materialize many-to-many data_mart with relations.
+    RUS: Материализованная связь многие-ко многим связанных витрин данных.
+    """
     class Meta(BaseDataMartRelation.Meta):
+        """
+        RUS: Метаданные класса DataMartRelation.
+        """
         abstract = False
