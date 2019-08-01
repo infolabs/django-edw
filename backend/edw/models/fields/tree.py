@@ -10,6 +10,8 @@ from mptt import fields
 class TreeForeignKey(fields.TreeForeignKey):
     """
     A foreignkey that limits the node types the parent can be.
+    RUS: Внешний ключ отображает поля формы в виде дерева.
+    Ограничивает типы узлов, у которых могут быть родители.
     """
     default_error_messages = {
         'no_children_allowed': _("The selected node cannot have child nodes."),
@@ -18,11 +20,18 @@ class TreeForeignKey(fields.TreeForeignKey):
         }
 
     def clean(self, value, model_instance):
+        """
+        RUS: Возвращает проверенные данные, которые затем помещаются в словарь cleaned_data формы.
+        """
         value = super(TreeForeignKey, self).clean(value, model_instance)
         self._validate_parent(value, model_instance)
         return value
 
     def _validate_parent(self, value, instance):
+        """
+        RUS: Проверка родителей. Родителем может быть объект, у которого значение равно первичному ключу,
+        в противном случае возбуждается исключение.
+        """
         if not value:
             return
         elif isinstance(value, (int, long)):
