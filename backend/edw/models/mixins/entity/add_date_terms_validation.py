@@ -23,6 +23,9 @@ class BaseAddedDateTermsValidationMixin(object):
     REQUIRED_FIELDS = ('created_at',)
 
     def need_terms_validation_after_save(self, origin, **kwargs):
+        """
+        RUS: Проверка терминов после сохранения.
+        """
         if origin is None or (
                 make_aware(origin.created_at) if is_naive(origin.created_at) else origin.created_at) != (
                 make_aware(self.created_at) if is_naive(self.created_at) else self.created_at):
