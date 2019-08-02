@@ -23,6 +23,9 @@ class PlaceMixin(object):
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Добавляет термин Регион и Другие регионы в модель терминов TermModel при их отсутствии.
+        """
         try: # region
             region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
         except TermModel.DoesNotExist:
@@ -79,6 +82,9 @@ class PlaceMixin(object):
 
     @classmethod
     def get_all_regions_terms_ids_set(cls):
+        """
+        RUS: Добавляет список ids регионов, если есть термин Регион в модели.
+        """
         region = PlaceMixin.get_region_term()
         if region is not None:
             ids = region.get_descendants(include_self=True).values_list('id', flat=True)
@@ -88,6 +94,9 @@ class PlaceMixin(object):
 
     @cached_property
     def all_regions_terms_ids_set(self):
+        """
+        RUS: Кэширует список ids регионов.
+        """
         return self.get_all_regions_terms_ids_set()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
@@ -98,13 +107,23 @@ class PlaceMixin(object):
         return super(PlaceMixin, self).need_terms_validation_after_save(origin, **kwargs) or do_validate
 
     def get_location(self):
+        """
+        RUS: Определяет местоположение объекта.
+        """
         return get_location_from_geocoder(geoposition=self.geoposition)
 
     @cached_property
     def location(self):
+        """
+        RUS: Кэширует местоположение объекта.
+        """
         return self.get_location()
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Добавляет id почтовой зоны в случае определения местположения,
+        в случае если местоположение не определяется, то id добавляется в другие регионы.
+        """
         context = kwargs["context"]
         if (context.get("force_validate_terms", False) and not context.get("bulk_force_validate_terms", False)
         ) or context.get("validate_place", False):
