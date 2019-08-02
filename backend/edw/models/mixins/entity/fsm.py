@@ -46,6 +46,9 @@ class FSMMixin(object):
         return CustomerModel.objects.get(pk=notification_recipient).email
 
     def state_name(self):
+        """
+        RUS: Возбуждает исключение, когда абстрактные методы класса требуют переопределения в дочерних классах.
+        """
         raise NotImplementedError(
             '{cls}.state_name must be implemented.'.format(
                 cls=self.__class__.__name__
