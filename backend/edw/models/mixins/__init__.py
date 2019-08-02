@@ -12,13 +12,15 @@ from django.dispatch import receiver
 
 class ModelMixin(object):
     """
-    Base class for model mixins
+    ENG: Base class for model mixins
+    RUS: Базовый класс для модели миксинов.
     """
 
     @classmethod
     def model_mixin(cls, target):
         """
-        Adds the fields of the class to the target passed in.
+        ENG: Adds the fields of the class to the target passed in.
+        RUS: Добавляет поля класса переданному объекту.
         """
         assert issubclass(target, models.Model)
 
@@ -34,6 +36,9 @@ class ModelMixin(object):
 
 @receiver(class_prepared)
 def mixin(sender, **kwargs):
+    """
+    RUS: Определяет получателя сигналов.
+    """
     for base in sender.__bases__:
         if issubclass(base, ModelMixin):
             base.model_mixin(sender)
