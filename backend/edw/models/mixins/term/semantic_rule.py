@@ -9,10 +9,14 @@ from django.db import models
 # SemanticRuleFilterMixin
 #==============================================================================
 class SemanticRuleFilterMixin(object):
+    """
+    RUS: Миксин фильтр Семантическое правило.
+    """
 
     def make_filters(self, *args, **kwargs):
         '''
         :return: queryset filters
+        RUS: Возбуждает исключение, метод make_filters должен быть переопределен в дочерних классах.
         '''
         raise NotImplementedError(
             '{cls}.make_filters must be implemented.'.format(
