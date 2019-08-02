@@ -44,6 +44,10 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Добавляет день в модель терминов. Проверяет, есть ли день в модели TermModel,
+        и при его отсутствии создает диапазон дат и разбивку по дням в этих диапазонах.
+        """
         system_flags = _default_system_flags_restriction
         try: # added day
             added_day = TermModel.objects.get(slug=cls.ADDED_DAY_ROOT_TERM_SLUG, parent=None)
@@ -118,6 +122,10 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Добавляет месяц в модель терминов TermModel. Проверяет, есть ли месяц в модели TermModel,
+        и при его отсутствии создает диапазон месяцев (1-12) и разбивку по месяцам в этих диапазонах.
+        """
         system_flags = _default_system_flags_restriction
         try: # added month
             added_month = TermModel.objects.get(slug=cls.ADDED_MONTH_ROOT_TERM_SLUG, parent=None)
@@ -176,6 +184,9 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Добавляет год в модель терминов TermModel.
+        """
         system_flags = _default_system_flags_restriction
         try: # added year
             TermModel.objects.get(slug=cls.ADDED_YEAR_ROOT_TERM_SLUG)
