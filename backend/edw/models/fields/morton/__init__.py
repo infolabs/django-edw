@@ -185,9 +185,15 @@ class MortonSearchMatchedLookup(Lookup):
     lookup_name = 'mortonsearch'
 
     def __init__(self, lhs, rhs):
+        """
+        RUS: Конструктор объекта класса.
+        """
         super(MortonSearchMatchedLookup, self).__init__(lhs, rhs)
 
     def process_rhs(self, compiler, connection):
+        """
+        RUS: Возвращает кортеж, содержащий SQL и параметры для интерполяции в этот SQL для правой части запроса.
+        """
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = super(MortonSearchMatchedLookup, self).process_rhs(compiler, connection)
         rhs = ''
@@ -198,6 +204,9 @@ class MortonSearchMatchedLookup(Lookup):
         return rhs, rhs_params
 
     def as_sql(self, compiler, connection):
+        """
+        RUS: Для преобразования выражения запроса в SQL-запрос.
+        """
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
         params = lhs_params + rhs_params
@@ -218,6 +227,9 @@ class MortonPreciseSearchMatchedLookup(PatternLookup):
         return connection.operators['startswith'] % rhs
 
     def process_rhs(self, qn, connection):
+        """
+        RUS: Возвращает кортеж, содержащий SQL и параметры для интерполяции в этот SQL для правой части запроса.
+        """
         rhs, params = super(MortonPreciseSearchMatchedLookup, self).process_rhs(qn, connection)
         if params and not self.bilateral_transforms:
             params[0] = "%s%%" % connection.ops.prep_for_like_query(params[0])

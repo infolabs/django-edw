@@ -55,6 +55,10 @@ class PlaceMixin(object):
 
     @staticmethod
     def get_region_term():
+        """
+        RUS: Ищет регион в модели TermModel с применением PlaceMixin (слаг = "region").
+        Если регион уже создан, то добавляет регион в EntityModel, кэшируя значение.
+        """
         region = getattr(EntityModel, "_region_term_cache", None)
         if region is None:
             try:
