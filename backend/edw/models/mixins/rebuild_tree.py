@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from time import gmtime, mktime
 from datetime import timedelta, datetime
 from django.utils import timezone

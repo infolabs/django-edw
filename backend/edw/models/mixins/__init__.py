@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Mixin support for django models
 """
