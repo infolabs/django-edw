@@ -17,7 +17,8 @@ from edw import deferred
 @python_2_unicode_compatible
 class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    ManyToMany relation from the polymorphic Entity to a set of Terms.
+    ENG: ManyToMany relation from the polymorphic Entity to a set of Terms.
+    RUS: Связь многие-ко многим от полиморфной Сущности к Терминам.
     """
     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
     entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='+')
@@ -27,14 +28,23 @@ class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKe
                                   _('Space delimited class attribute, specifies one or more classnames for an entity.'))
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = True
         verbose_name = _("Additional Entity Characteristic or Mark")
         verbose_name_plural = _("Additional Entity Characteristics or Marks")
 
     def __str__(self):
+        """
+        RUS: Строковое представление данных.
+        """
         return "{}: {}".format(self.term.name, self.value)
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        """
+        RUS: Сохраняет объект в базе данных.
+        """
         if not force_update:
             self.view_class = ' '.join([x.lower() for x in self.view_class.split()]) if self.view_class else None
         return super(BaseAdditionalEntityCharacteristicOrMark, self).save(force_insert, force_update, *args, **kwargs)
@@ -49,19 +59,26 @@ AdditionalEntityCharacteristicOrMarkModel = deferred.MaterializedModel(BaseAddit
 @python_2_unicode_compatible
 class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    Allows to be attached related entities.
+    ENG: Allows to be attached related entities.
+    RUS: Позволяет присоединять связанные сущности.
     """
     from_entity = deferred.ForeignKey('BaseEntity', related_name='forward_relations', verbose_name=_('From Entity'))
     to_entity = deferred.ForeignKey('BaseEntity', related_name='backward_relations', verbose_name=_('To Entity'))
     term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = True
         verbose_name = _("Entity Relation")
         verbose_name_plural = _("Entity Relations")
         unique_together = (('term', 'from_entity', 'to_entity'),)
 
     def __str__(self):
+        """
+        RUS: Строковое представление данных.
+        """
         return "{} → {} → {}".format(self.from_entity.get_real_instance().entity_name, self.term.name,
                                      self.to_entity.get_real_instance().entity_name)
 
@@ -75,17 +92,24 @@ EntityRelationModel = deferred.MaterializedModel(BaseEntityRelation)
 @python_2_unicode_compatible
 class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    Entity related data marts
+    ENG: Entity related data marts.
+    RUS: Сущность связанных витрин данных.
     """
     entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='+')
     data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = True
         verbose_name = _("Related data mart")
         verbose_name_plural = _("Entity related data marts")
 
     def __str__(self):
+        """
+        RUS: Строковое представление данных.
+        """
         return "{} → {}".format(self.entity.get_real_instance().entity_name, self.data_mart.name)
 
 
@@ -98,7 +122,8 @@ EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMar
 @python_2_unicode_compatible
 class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     """
-    Entity related data marts
+    ENG: Entity related data marts.
+    RUS: Сущность связанных витрин данных.
     """
     RELATION_BIDIRECTIONAL = "b"
     RELATION_FORWARD = "f"
@@ -120,12 +145,18 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
     subjects = deferred.ManyToManyField('BaseEntity', related_name='+', verbose_name=_('Subjects'), blank=True)
 
     class Meta:
+        """
+        RUS: Метаданные класса.
+        """
         abstract = True
         verbose_name = _("Data mart relation")
         verbose_name_plural = _("Data mart relations")
         unique_together = (('data_mart', 'term'),)
 
     def __str__(self):
+        """
+        RUS: Строковое представление данных.
+        """
         relation_directions = dict(self.RELATION_DIRECTIONS)
         return "{} `{}{}` ← {}: {}".format(
             self.data_mart.name,
