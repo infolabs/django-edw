@@ -15,6 +15,9 @@ from edw.models.entity import EntityModel
 
 
 class PlaceMixin(object):
+    """
+    RUS: Определяет поля модели.
+    """
 
     REQUIRED_FIELDS = ('geoposition',)
 
@@ -57,7 +60,7 @@ class PlaceMixin(object):
     def get_region_term():
         """
         RUS: Ищет регион в модели TermModel с применением PlaceMixin (слаг = "region").
-        Если регион уже создан, то добавляет регион в EntityModel, кэшируя значение.
+        Если регион уже создан, то добавляет регион в EntityModel.
         """
         region = getattr(EntityModel, "_region_term_cache", None)
         if region is None:
@@ -71,6 +74,9 @@ class PlaceMixin(object):
 
     @staticmethod
     def get_terra_incognita_term():
+        """
+        RUS: добавляет Другие регионы в модель EntityModel, если они отсутствуют.
+        """
         terra_incognita = getattr(EntityModel, "_terra_incognita_cache", None)
         if terra_incognita is None:
             region = PlaceMixin.get_region_term()
@@ -126,7 +132,7 @@ class PlaceMixin(object):
     def validate_terms(self, origin, **kwargs):
         """
         RUS: Добавляет id почтовой зоны в случае определения местположения,
-        в случае если местоположение не определяется, то id добавляется в другие регионы.
+        если местоположение не определяется, то id добавляется в другие регионы.
         """
         context = kwargs["context"]
         if (context.get("force_validate_terms", False) and not context.get("bulk_force_validate_terms", False)
