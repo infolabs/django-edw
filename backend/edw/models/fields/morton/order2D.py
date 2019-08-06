@@ -14,6 +14,7 @@ def interleave_fn(*args):
     """
     :param args: Fi(*arg) --> morton code
     :return: morton code string
+    RUS: Возвращает хэш в строковом формате, представляющий  координаты широты и долготы (x, y).
     """
     return str(pm.interleave2(*args))
 
@@ -22,6 +23,8 @@ def deinterleave_fn(mortoncode):
     """
     :param mortoncode: Fd(mortoncode) --> (arg1, arg2, ... , argn)
     :return: *args
+    RUS: Возвращает кортеж из кодированного хэша,
+    представляющий аргументы для соответствующего вызова interleave2 ().
     """
     try:
         value = pm.deinterleave2(int(mortoncode))
@@ -32,6 +35,9 @@ def deinterleave_fn(mortoncode):
 
 
 class MortonOrder2D(BaseMortonOrder):
+    """
+    RUS: Класс для 2D-хеширования.
+    """
 
     def __init__(self, *args, **kwargs):
         kwargs['interleave_fn'] = interleave_fn
