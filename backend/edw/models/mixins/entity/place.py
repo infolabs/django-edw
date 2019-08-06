@@ -16,7 +16,7 @@ from edw.models.entity import EntityModel
 
 class PlaceMixin(object):
     """
-    RUS: Определяет поля модели.
+    RUS: Определяет поля модели. Добавляет в модели Регион и Другие регионы.
     """
 
     REQUIRED_FIELDS = ('geoposition',)
