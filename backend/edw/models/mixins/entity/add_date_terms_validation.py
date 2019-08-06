@@ -102,6 +102,9 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @staticmethod
     def get_added_days():
+        """
+        RUS: Возвращает дни. Если дни отсутствуют в TermModel, то возвращает дни из EntityModel.
+        """
         added_days = getattr(EntityModel, "_added_days_cache", None)
         if added_days is None:
             added_days = {}
@@ -163,6 +166,9 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @staticmethod
     def get_added_months():
+        """
+        RUS: добавляет месяцы в модель EntityModel, если они отсутствуют.
+        """
         added_months = getattr(EntityModel, "_added_months_cache", None)
         if added_months is None:
             added_months = {}
@@ -215,6 +221,11 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     @staticmethod
     def get_added_years(year):
+        """
+        RUS: Возвращает термин Год, если его нет в TermModel, то из списка наследников.
+        Если синонима нет в годах, снимаем ограничения из системных флагов
+         и если не находим в модели TermModel, то создаем его.
+        """
         year_key = EntityModel.ADDED_YEAR_KEY.format(year)
         added_years = getattr(EntityModel, "_added_years_cache", {})
         if year_key not in added_years:
