@@ -18,6 +18,9 @@ _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
 
 
 class FSMMixin(object):
+    """
+    RUS: Добавляет Состояние в модель, автоматически обновляет Состояние при изменении статуса.
+    """
 
     REQUIRED_FIELDS = ('status',)
 
@@ -34,10 +37,16 @@ class FSMMixin(object):
 
     @classmethod
     def get_transition_name(cls, target):
-        """Return the human readable name for a given transition target"""
+        """
+        ENG: Return the human readable name for a given transition target.
+        RUS: Возвращает удобочитаемое имя для данного целевого объекта перехода.
+        """
         return target
 
     def get_recipient(self, notification_recipient):
+        """
+        RUS: Отправляет уведомление получателю на электронную почту.
+        """
         if notification_recipient is None or not hasattr(self, 'customer') or getattr(self, 'customer') is None:
             return None
         if notification_recipient == 0:
@@ -57,6 +66,9 @@ class FSMMixin(object):
 
     @classmethod
     def get_states(cls):
+        """
+        RUS: Добавляет термин Состояние в модель fsm_model при его отсутствии.
+        """
         fsm_model = cls._meta.get_field('status').model
         cache_key = "_{cls}_states_cache".format(cls=fsm_model)
         states = getattr(fsm_model, cache_key, None)
@@ -77,6 +89,9 @@ class FSMMixin(object):
 
     @classmethod
     def validate_term_model(cls):
+        """
+        RUS: Добавляет Состояние родителя и объекта в модель TermModel при их отсутствии и сохраняет их.
+        """
         super(FSMMixin, cls).validate_term_model()
 
         if not cls._meta.abstract and cls._meta.get_field('status').model == cls:
@@ -109,6 +124,9 @@ class FSMMixin(object):
                     state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
+        """
+        RUS: Автоматически проставляет Состояние в терминах после сохранения объекта.
+        """
         if origin is None or origin.status != self.status:
             do_validate = kwargs["context"]["validate_entity_state"] = True
         else:
@@ -117,6 +135,9 @@ class FSMMixin(object):
             origin, **kwargs) or do_validate
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Обновляет Состояние объекта при его изменении.
+        """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_entity_state", False):
             states = self.get_states()

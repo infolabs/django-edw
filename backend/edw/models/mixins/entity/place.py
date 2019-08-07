@@ -110,6 +110,10 @@ class PlaceMixin(object):
         return self.get_all_regions_terms_ids_set()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
+        """
+        RUS: Проставляет автоматически термины, связанные с местоположением объекта,
+        после сохранения его геопозиции.
+        """
         if (origin is None or origin.geoposition != self.geoposition) and self.geoposition:
             do_validate = kwargs["context"]["validate_place"] = True
         else:

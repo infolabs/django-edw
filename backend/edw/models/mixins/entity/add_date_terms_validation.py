@@ -19,12 +19,15 @@ _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
 
 
 class BaseAddedDateTermsValidationMixin(object):
+    """
+    RUS: Миксин управления терминами даты.
+    """
 
     REQUIRED_FIELDS = ('created_at',)
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
-        RUS: Проверка терминов после сохранения.
+        RUS: Проставляет метки в термин Дата после сохранеия объекта.
         """
         if origin is None or (
                 make_aware(origin.created_at) if is_naive(origin.created_at) else origin.created_at) != (
@@ -90,6 +93,9 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         super(AddedDayTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Проставляет по данным объектам соответствующий термин День создания.
+        """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_days = self.get_added_days()
@@ -154,6 +160,9 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         super(AddedMonthTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Проставляет по данным объектам соответствующий термин Месяц создания.
+        """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_months = self.get_added_months()
@@ -207,6 +216,9 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         super(AddedYearTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Проставляет по данным объектам соответствующий термин Год создания.
+        """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_year = self.created_at.year
