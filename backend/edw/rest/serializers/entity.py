@@ -10,7 +10,7 @@ from django.core.exceptions import (
     ImproperlyConfigured
 )
 from django.db.models.expressions import BaseExpression
-from django.db import models
+from django.db import models, transaction
 
 from django.db.models.fields import NOT_PROVIDED
 
@@ -19,7 +19,8 @@ from django.db.models.fields.related import RelatedField
 
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
-from django.utils.six import with_metaclass
+from django.utils import six
+
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
@@ -348,6 +349,7 @@ class EntityCommonSerializer(CheckPermissionsSerializerMixin,
         model = EntityModel
         list_serializer_class = EntityBulkListSerializer
         validators = [EntityValidator()]
+        need_add_lookup_fields_request_methods = True
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
 
@@ -463,7 +465,7 @@ entity_summary_serializer_class = None
 #==============================================================================
 # EntitySummarySerializerBase
 #==============================================================================
-class EntitySummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
+class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
     """
     Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
     """
@@ -752,25 +754,34 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def create(self, validated_data):
         origin_validated_data = validated_data.copy()
+
+        print ("! origin_validated_data !", origin_validated_data)
+
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
 
         model = self.Meta.model
-        # for id_attr in model._rest_meta.lookup_fields:
         for id_attr in self.get_id_attrs():
             id_value = validated_data.pop(id_attr, empty)
             if id_value != empty:
                 try:
-                    instance, created = model.objects.update_or_create(**{
-                        id_attr: id_value,
-                        'defaults': validated_data
-                    })
+                    # instance, created = model.objects.update_or_create(**{
+                    #     id_attr: id_value,
+                    #     'defaults': validated_data
+                    # })
+                    instance = model.objects.get(**{id_attr: id_value})
+                except ObjectDoesNotExist:
+                    instance = model.objects.create(**validated_data)
                 except MultipleObjectsReturned as e:
                     raise serializers.ValidationError(e)
+                else:
+                    for k, v in six.iteritems(validated_data):
+                        setattr(instance, k, v)
+                    with transaction.atomic(using=model.objects.db, savepoint=False):
+                        instance.save(using=model.objects.db)
                 break
         else:
-            raise serializers.ValidationError(
-                _("Lookup fields not found [{}]").format(", ".join(model._rest_meta.lookup_fields)))
+            instance = model.objects.create(**validated_data)
 
         self._update_entity(instance, origin_validated_data)
         return instance

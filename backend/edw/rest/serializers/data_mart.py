@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import models
+from django.db import models, transaction
 from django.core.exceptions import (
     ValidationError,
     ObjectDoesNotExist,
@@ -14,7 +14,7 @@ from django.core.exceptions import (
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils.functional import cached_property
-from django.utils.six import with_metaclass
+from django.utils import six
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
@@ -173,6 +173,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
         list_serializer_class = DataMartBulkListSerializer
         validators = [DataMartValidator()]
+        need_add_lookup_fields_request_methods = True
 
     def _prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)
@@ -194,17 +195,20 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
             id_value = validated_data.pop(id_attr, empty)
             if id_value != empty:
                 try:
-                    result, created = DataMartModel.objects.update_or_create(**{
-                        id_attr: id_value,
-                        'defaults': validated_data
-                    })
+                    instance = DataMartModel.objects.get(**{id_attr: id_value})
+                except ObjectDoesNotExist:
+                    instance = DataMartModel.objects.create(**validated_data)
                 except MultipleObjectsReturned as e:
                     raise serializers.ValidationError(e)
+                else:
+                    for k, v in six.iteritems(validated_data):
+                        setattr(instance, k, v)
+                    with transaction.atomic(using=DataMartModel.objects.db, savepoint=False):
+                        instance.save(using=DataMartModel.objects.db)
                 break
         else:
-            raise serializers.ValidationError(
-                _("Lookup fields not found [{}]").format(", ".join(self.Meta.lookup_fields)))
-        return result
+            instance = DataMartModel.objects.create(**validated_data)
+        return instance
 
     def update(self, instance, validated_data):
         validated_data = self._prepare_validated_data(validated_data)
@@ -355,7 +359,7 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
         return self.render_html(data_mart, 'media')
 
 
-class DataMartSummarySerializerBase(with_metaclass(SerializerRegistryMetaclass, DataMartCommonSerializer)):
+class DataMartSummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass, DataMartCommonSerializer)):
     """
     Serialize a summary of the polymorphic DataMart model.
     """

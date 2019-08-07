@@ -8,6 +8,8 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
+from django.db import transaction
+from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
@@ -125,6 +127,7 @@ class TermSerializer(BasePermissionsSerializerMixin, BulkSerializerMixin, serial
         list_serializer_class = DataMartBulkListSerializer
         lookup_fields = ('id', 'slug')
         validators = [TermValidator()]
+        need_add_lookup_fields_request_methods = True
 
     def _prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)
@@ -146,17 +149,20 @@ class TermSerializer(BasePermissionsSerializerMixin, BulkSerializerMixin, serial
             id_value = validated_data.pop(id_attr, empty)
             if id_value != empty:
                 try:
-                    result, created = TermModel.objects.update_or_create(**{
-                        id_attr: id_value,
-                        'defaults': validated_data
-                    })
+                    instance = TermModel.objects.get(**{id_attr: id_value})
+                except ObjectDoesNotExist:
+                    instance = TermModel.objects.create(**validated_data)
                 except MultipleObjectsReturned as e:
                     raise serializers.ValidationError(e)
+                else:
+                    for k, v in six.iteritems(validated_data):
+                        setattr(instance, k, v)
+                    with transaction.atomic(using=TermModel.objects.db, savepoint=False):
+                        instance.save(using=TermModel.objects.db)
                 break
         else:
-            raise serializers.ValidationError(
-                _("Lookup fields not found [{}]").format(", ".join(self.Meta.lookup_fields)))
-        return result
+            instance = TermModel.objects.create(**validated_data)
+        return instance
 
     def update(self, instance, validated_data):
         validated_data = self._prepare_validated_data(validated_data)
