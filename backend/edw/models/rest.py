@@ -4,13 +4,19 @@ from __future__ import unicode_literals
 
 import types
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models.base import ModelBase
+from django.utils import six
 from django.utils.module_loading import import_string
 from django.utils.functional import cached_property
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    MultipleObjectsReturned,
+)
 
 from rest_framework import serializers
 from rest_framework import exceptions
+from rest_framework.fields import empty
 
 import rest_framework_filters as filters
 
@@ -508,3 +514,27 @@ class DynamicGroupByMixin(object):
         RUS: Получает переопределенный метод группировки данных объектов rest_meta.
         """
         return self.group_by
+
+
+class UpdateOrCreateSerializerMixin(object):
+
+    @staticmethod
+    def _update_or_create_instance(model_class, id_attrs, validated_data):
+        for id_attr in id_attrs:
+            id_value = validated_data.pop(id_attr, empty)
+            if id_value != empty:
+                try:
+                    instance = model_class.objects.get(**{id_attr: id_value})
+                except ObjectDoesNotExist:
+                    instance = model_class.objects.create(**validated_data)
+                except MultipleObjectsReturned as e:
+                    raise serializers.ValidationError(e)
+                else:
+                    for k, v in six.iteritems(validated_data):
+                        setattr(instance, k, v)
+                    with transaction.atomic(using=model_class.objects.db, savepoint=False):
+                        instance.save(using=model_class.objects.db)
+                break
+        else:
+            instance = model_class.objects.create(**validated_data)
+        return instance

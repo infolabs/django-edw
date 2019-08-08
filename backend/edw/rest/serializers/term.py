@@ -8,8 +8,6 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
-from django.db import transaction
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
@@ -27,7 +25,11 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
-from edw.models.rest import BasePermissionsSerializerMixin, CheckPermissionsBulkListSerializerMixin
+from edw.models.rest import (
+    BasePermissionsSerializerMixin,
+    CheckPermissionsBulkListSerializerMixin,
+    UpdateOrCreateSerializerMixin
+)
 
 
 #==============================================================================
@@ -104,7 +106,10 @@ class TermValidator(object):
 #==============================================================================
 # TermSerializer
 #==============================================================================
-class TermSerializer(BasePermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
+class TermSerializer(UpdateOrCreateSerializerMixin,
+                     BasePermissionsSerializerMixin,
+                     BulkSerializerMixin,
+                     serializers.ModelSerializer):
     """
     A simple serializer to convert the terms data for rendering.
     """
@@ -145,23 +150,7 @@ class TermSerializer(BasePermissionsSerializerMixin, BulkSerializerMixin, serial
 
     def create(self, validated_data):
         validated_data = self._prepare_validated_data(validated_data)
-        for id_attr in self.Meta.lookup_fields:
-            id_value = validated_data.pop(id_attr, empty)
-            if id_value != empty:
-                try:
-                    instance = TermModel.objects.get(**{id_attr: id_value})
-                except ObjectDoesNotExist:
-                    instance = TermModel.objects.create(**validated_data)
-                except MultipleObjectsReturned as e:
-                    raise serializers.ValidationError(e)
-                else:
-                    for k, v in six.iteritems(validated_data):
-                        setattr(instance, k, v)
-                    with transaction.atomic(using=TermModel.objects.db, savepoint=False):
-                        instance.save(using=TermModel.objects.db)
-                break
-        else:
-            instance = TermModel.objects.create(**validated_data)
+        instance = self._update_or_create_instance(TermModel, self.Meta.lookup_fields, validated_data)
         return instance
 
     def update(self, instance, validated_data):

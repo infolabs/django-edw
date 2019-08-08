@@ -10,7 +10,7 @@ from django.core.exceptions import (
     ImproperlyConfigured
 )
 from django.db.models.expressions import BaseExpression
-from django.db import models, transaction
+from django.db import models
 
 from django.db.models.fields import NOT_PROVIDED
 
@@ -47,6 +47,7 @@ from edw.models.rest import (
     DynamicCreateUpdateValidateListSerializerMixin,
     CheckPermissionsSerializerMixin,
     CheckPermissionsBulkListSerializerMixin,
+    UpdateOrCreateSerializerMixin
 )
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
@@ -334,7 +335,8 @@ class EntityValidator(object):
 #==============================================================================
 # EntityCommonSerializer
 #==============================================================================
-class EntityCommonSerializer(CheckPermissionsSerializerMixin,
+class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
+                             CheckPermissionsSerializerMixin,
                              BulkSerializerMixin,
                              serializers.ModelSerializer):
     """
@@ -754,35 +756,9 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def create(self, validated_data):
         origin_validated_data = validated_data.copy()
-
-        print ("! origin_validated_data !", origin_validated_data)
-
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
-
-        model = self.Meta.model
-        for id_attr in self.get_id_attrs():
-            id_value = validated_data.pop(id_attr, empty)
-            if id_value != empty:
-                try:
-                    # instance, created = model.objects.update_or_create(**{
-                    #     id_attr: id_value,
-                    #     'defaults': validated_data
-                    # })
-                    instance = model.objects.get(**{id_attr: id_value})
-                except ObjectDoesNotExist:
-                    instance = model.objects.create(**validated_data)
-                except MultipleObjectsReturned as e:
-                    raise serializers.ValidationError(e)
-                else:
-                    for k, v in six.iteritems(validated_data):
-                        setattr(instance, k, v)
-                    with transaction.atomic(using=model.objects.db, savepoint=False):
-                        instance.save(using=model.objects.db)
-                break
-        else:
-            instance = model.objects.create(**validated_data)
-
+        instance = self._update_or_create_instance(self.Meta.model, self.get_id_attrs(), validated_data)
         self._update_entity(instance, origin_validated_data)
         return instance
 

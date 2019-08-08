@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import models, transaction
+from django.db import models
 from django.core.exceptions import (
     ValidationError,
     ObjectDoesNotExist,
@@ -13,8 +13,8 @@ from django.core.exceptions import (
 )
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
-from django.utils.functional import cached_property
 from django.utils import six
+from django.utils.functional import cached_property
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
@@ -38,6 +38,7 @@ from edw.models.rest import (
     DynamicCreateUpdateValidateListSerializerMixin,
     CheckPermissionsSerializerMixin,
     CheckPermissionsBulkListSerializerMixin,
+    UpdateOrCreateSerializerMixin
 )
 
 from edw.rest.serializers.decorators import get_from_context_or_request
@@ -151,7 +152,10 @@ class DataMartValidator(object):
         ))
 
 
-class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMixin, serializers.ModelSerializer):
+class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
+                               CheckPermissionsSerializerMixin,
+                               BulkSerializerMixin,
+                               serializers.ModelSerializer):
     """
     A simple serializer to convert the data mart items for rendering.
     """
@@ -191,23 +195,7 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin, BulkSerializerMi
 
     def create(self, validated_data):
         validated_data = self._prepare_validated_data(validated_data)
-        for id_attr in self.get_id_attrs():
-            id_value = validated_data.pop(id_attr, empty)
-            if id_value != empty:
-                try:
-                    instance = DataMartModel.objects.get(**{id_attr: id_value})
-                except ObjectDoesNotExist:
-                    instance = DataMartModel.objects.create(**validated_data)
-                except MultipleObjectsReturned as e:
-                    raise serializers.ValidationError(e)
-                else:
-                    for k, v in six.iteritems(validated_data):
-                        setattr(instance, k, v)
-                    with transaction.atomic(using=DataMartModel.objects.db, savepoint=False):
-                        instance.save(using=DataMartModel.objects.db)
-                break
-        else:
-            instance = DataMartModel.objects.create(**validated_data)
+        instance = self._update_or_create_instance(DataMartModel, self.get_id_attrs(), validated_data)
         return instance
 
     def update(self, instance, validated_data):
