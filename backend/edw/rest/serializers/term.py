@@ -134,7 +134,7 @@ class TermSerializer(UpdateOrCreateSerializerMixin,
         validators = [TermValidator()]
         need_add_lookup_fields_request_methods = True
 
-    def _prepare_validated_data(self, validated_data):
+    def __prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)
         if parent__slug != empty:
             if parent__slug is not None:
@@ -149,12 +149,12 @@ class TermSerializer(UpdateOrCreateSerializerMixin,
         return validated_data
 
     def create(self, validated_data):
-        validated_data = self._prepare_validated_data(validated_data)
+        validated_data = self.__prepare_validated_data(validated_data)
         instance = self._update_or_create_instance(TermModel, self.Meta.lookup_fields, validated_data)
         return instance
 
     def update(self, instance, validated_data):
-        validated_data = self._prepare_validated_data(validated_data)
+        validated_data = self.__prepare_validated_data(validated_data)
         return super(TermSerializer, self).update(instance, validated_data)
 
     def get_is_leaf(self, instance):

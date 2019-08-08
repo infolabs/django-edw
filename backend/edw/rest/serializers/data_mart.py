@@ -179,7 +179,7 @@ class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
         validators = [DataMartValidator()]
         need_add_lookup_fields_request_methods = True
 
-    def _prepare_validated_data(self, validated_data):
+    def __prepare_validated_data(self, validated_data):
         parent__slug = validated_data.pop('parent__slug', empty)
         if parent__slug != empty:
             if parent__slug is not None:
@@ -194,12 +194,12 @@ class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
         return validated_data
 
     def create(self, validated_data):
-        validated_data = self._prepare_validated_data(validated_data)
+        validated_data = self.__prepare_validated_data(validated_data)
         instance = self._update_or_create_instance(DataMartModel, self.get_id_attrs(), validated_data)
         return instance
 
     def update(self, instance, validated_data):
-        validated_data = self._prepare_validated_data(validated_data)
+        validated_data = self.__prepare_validated_data(validated_data)
         return super(DataMartCommonSerializer, self).update(instance, validated_data)
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'data_mart:{0}|{1}-{2}-{3}-{4}-{5}'

@@ -187,7 +187,6 @@ class EntityValidator(object):
 
         # check update for POST method
         if request_method == 'POST':
-            # for id_attr in model._rest_meta.lookup_fields:
             for id_attr in self.serializer.get_id_attrs():
                 id_value = validated_data.get(id_attr, empty)
                 if id_value != empty:
@@ -325,6 +324,8 @@ class EntityValidator(object):
             model(**validated_data).full_clean(validate_unique=validate_unique, exclude=exclude)
         except (ObjectDoesNotExist, ValidationError) as e:
             raise serializers.ValidationError(str(e))
+        # side effect, return instance
+        return instance
 
     def __repr__(self):
         return unicode_to_repr('<%s>' % (
