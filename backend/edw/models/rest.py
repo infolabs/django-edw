@@ -241,8 +241,17 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
             patch_target = self.get_serializer_to_patch()
 
             for field_name, field in include_fields.items():
+                # Конструктор сериалайзера в формате
+                # ('rest_framework.serializers.CharField', <(arg1, arg2)>, <{kwarg1: val1, kwarg2: val2}>)
                 if isinstance(field, (tuple, list)):
-                    field = import_string(field[0])(**field[1])
+                    if isinstance(field[1], (tuple, list)):
+                        if len(field) == 3:
+                            field = import_string(field[0])(*field[1], **field[2])
+                        else:
+                            field = import_string(field[0])(*field[1])
+                    else:
+                        field = import_string(field[0])(**field[1])
+
                 if isinstance(field, serializers.SerializerMethodField):
                     default_method_name = 'get_{field_name}'.format(field_name=field_name)
                     if field.method_name is None:
