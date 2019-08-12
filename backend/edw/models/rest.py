@@ -530,7 +530,7 @@ class UpdateOrCreateSerializerMixin(object):
     @staticmethod
     def _update_or_create_instance(model_class, id_attrs, validated_data):
         for id_attr in id_attrs:
-            id_value = validated_data.pop(id_attr, empty)
+            id_value = validated_data.pop(id_attr, empty) if id_attr == 'id' else validated_data.get(id_attr, empty)
             if id_value != empty:
                 try:
                     instance = model_class.objects.get(**{id_attr: id_value})
