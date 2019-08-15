@@ -66,7 +66,7 @@ class YMapInner extends AbstractMap {
     actions.hideDescription(marker.item.id);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
@@ -92,7 +92,9 @@ class YMapInner extends AbstractMap {
       </div>
     `;
 
-    this.circleLayout = this.props.ymaps.templateLayoutFactory.createClass(circle);
+    this.setState({
+      circleLayout: this.props.ymaps.templateLayoutFactory.createClass(circle)
+    });
   }
 
   render() {
@@ -133,7 +135,7 @@ class YMapInner extends AbstractMap {
         const radius = diameter / 2;
         marker.properties.iconContent = label;
         marker.options = {
-          preset: {iconLayout: this.circleLayout},
+          preset: {iconLayout: this.state.circleLayout},
           iconColor: 'white',
           iconDiameter: diameter,
           iconOffset: [-radius / 2, -radius / 2],

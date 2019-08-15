@@ -99,11 +99,10 @@ export default class Map extends AbstractMap {
     return pinShadow;
   }
 
-  componentWillReceiveProps(nextProps) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({
-      markers: []
-    });
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.state.markers.length)
+      this.setState({markers: []});
   }
 
   handleMapMounted(map) {

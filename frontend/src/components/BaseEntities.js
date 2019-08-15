@@ -32,10 +32,6 @@ class BaseEntities extends Component {
     getTemplates: BaseEntities.getTemplates
   };
 
-  componentWillMount() {
-    this.templates = this.props.getTemplates();
-  }
-
   getCookiePreferences() {
     const entry_point_id = this.props.entry_point_id,
           cookie_data = cookie.loadAll(),
@@ -54,6 +50,8 @@ class BaseEntities extends Component {
   }
 
   componentDidMount() {
+    this.templates = this.props.getTemplates();
+
     const { entry_points, entry_point_id } = this.props,
           request_params = entry_points[entry_point_id].request_params || [];
 

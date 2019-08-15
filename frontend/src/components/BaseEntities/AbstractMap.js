@@ -23,8 +23,10 @@ export default class AbstractMap extends Component {
     itemsChanged: false
   };
 
-  componentWillReceiveProps(nextProps) {
-    this.state.itemsChanged = nextProps.items != this.props.items;
+  componentDidUpdate(prevProps, prevState) {
+    const itemsChanged = this.props.items != prevProps.items;
+    if (prevState.itemsChanged != itemsChanged)
+      this.setState({itemsChanged});
   }
 
   componentDidMount(x, y, z) {
