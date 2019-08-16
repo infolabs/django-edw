@@ -17,11 +17,10 @@ import {closest} from "../../utils/querySelector";
 
 export class DataMart extends Component {
 
-  componentWillReceiveProps(nextProps) {
-
+  componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
-    const prevCount = this.props.entities && this.props.entities.meta.count,
-        { entities, entry_point_id } = nextProps,
+    const prevCount = prevProps.entities && prevProps.entities.meta.count,
+        { entities, entry_point_id } = this.props,
         count = entities.meta && entities.meta.count;
     if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');

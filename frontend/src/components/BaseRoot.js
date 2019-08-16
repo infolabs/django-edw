@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider, connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 import DataMart from 'components/BaseRoot/DataMart';
 import Related from 'components/BaseRoot/Related';
 
@@ -13,14 +13,15 @@ class BaseRoot extends Component {
     return {
       "data_mart": DataMart,
       "related": Related
-    }
+    };
   }
 
   static defaultProps = {
     getTemplates: BaseRoot.getTemplates
   };
 
-  componentWillMount() {
+  constructor(props) {
+    super(props);
     this.templates = this.props.getTemplates();
   }
 

@@ -1,21 +1,20 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import Actions from '../../actions/index'
+import Actions from '../../actions/index';
 import Paginator from 'components/Paginator';
 import Entities from 'components/Entities';
-import DataMartsList from 'components/DataMartsList'
+import DataMartsList from 'components/DataMartsList';
 import Statistics from 'components/Statistics';
 import { closest } from '../../utils/querySelector';
 
 
 class Related extends Component {
 
-  componentWillReceiveProps(nextProps) {
-
+  componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
-    const prevCount = this.props.entities && this.props.entities.meta.count,
-        { entities, entry_point_id } = nextProps,
+    const prevCount = prevProps.entities && prevProps.entities.meta.count,
+        { entities, entry_point_id } = this.props,
         count = entities.meta && entities.meta.count;
     if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');

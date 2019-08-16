@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 import TermsTreeItem from './TermsTreeItem';
 import parseRequestParams from 'utils/parseRequestParams';
 
@@ -32,13 +32,13 @@ class TermsTree extends Component {
     this.props.actions.readTree(entry_point_id, term_ids);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const entry_points = this.props.entry_points,
-          entry_point_id = this.props.entry_point_id,
+  componentDidUpdate(prevProps) {
+    const entry_points = prevProps.entry_points,
+          entry_point_id = prevProps.entry_point_id,
           request_params = entry_points[entry_point_id.toString()].request_params || [],
-          tagged_current = this.props.terms.tagged,
-          tagged_next = nextProps.terms.tagged,
-          meta = this.props.entities.items.meta;
+          tagged_current = prevProps.terms.tagged,
+          tagged_next = this.props.terms.tagged,
+          meta = prevProps.entities.items.meta;
 
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
       // reload tree
@@ -98,7 +98,7 @@ class TermsTree extends Component {
         <ul className={ul_class}>
           {tree}
         </ul>
-    )
+    );
   }
 }
 
