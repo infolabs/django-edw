@@ -1280,7 +1280,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         }
 
     @classmethod
-    def get_summary_annotation(cls):
+    def get_summary_annotation(cls, request):
         """
         ENG: Return annotate data for summary serializer.
         Example:
@@ -1311,7 +1311,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return None
 
     @classmethod
-    def get_summary_aggregation(cls):
+    def get_summary_aggregation(cls, request):
         """
         ENG: Return aggregate data for summary serializer.
         Example:

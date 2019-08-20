@@ -394,7 +394,7 @@ class EntityMetaFilter(BaseFilterBackend):
             else:
                 model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = model_class.get_summary_annotation()
+            annotation = model_class.get_summary_annotation(request)
             if isinstance(annotation, dict):
                 annotation_meta, annotate_kwargs = {}, {}
                 for key, value in annotation.items():
@@ -443,7 +443,7 @@ class EntityMetaFilter(BaseFilterBackend):
 
         # aggregation
         if view.action == 'list':
-            aggregation = model_class.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation(request)
             if isinstance(aggregation, dict):
                 aggregation_meta = {}
                 for key, value in aggregation.items():
@@ -488,11 +488,11 @@ class EntityMetaFilter(BaseFilterBackend):
         if view.action == 'list':
             model_class = data_mart.entities_model if data_mart is not None else queryset.model
 
-            annotation = model_class.get_summary_annotation()
+            annotation = model_class.get_summary_annotation(request)
             if isinstance(annotation, dict):
                 annotation_meta = annotation.keys()
 
-            aggregation = model_class.get_summary_aggregation()
+            aggregation = model_class.get_summary_aggregation(request)
             if isinstance(aggregation, dict):
                 aggregation_meta = [key for key, value in aggregation.items() if isinstance(value[0], BaseExpression)]
 
