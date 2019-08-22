@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from edw.signals.place import zone_changed
 from edw.utils.geo import get_location_from_geocoder, get_postcode, GeocoderException
 
-from edw.models.postal_zone import get_all_postal_zone_terms_ids, get_postal_zone
+from edw.models.postal_zone import get_postal_zone
 from edw.models.term import TermModel
 from edw.models.entity import EntityModel
 
