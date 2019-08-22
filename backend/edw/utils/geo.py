@@ -89,8 +89,15 @@ def _get_location_from_geocoder_by_query(query, config):
     :param config: dict of params for geocoder
     :return: location: location object
     '''
-    # todo: реализовать функционал получения location по названию
-    return None
+    location = None
+    geocoder = get_geocoder_for_service(config.get('service', None))
+    if geocoder is not None:
+        geolocator = geocoder(**config.get('init', {}))
+        location = geolocator.geocode(
+            query,
+            **config.get('reverse', {})
+        )
+    return location
 
 
 #=================================================

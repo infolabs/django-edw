@@ -79,10 +79,13 @@ class ListItem extends Component {
 
       if (lastIsHover === isHover) {
         if (isHover) {
-          const area = ReactDOM.findDOMNode(context),
-            areaRect = area.getBoundingClientRect();
-
-          context.setState({minHeight: areaRect.height});
+          try {
+            const area = ReactDOM.findDOMNode(context),
+                  areaRect = area.getBoundingClientRect();
+            context.setState({minHeight: areaRect.height});
+          } catch (err) {
+            // pass
+          }
 
           actions.showDescription(id);
 
