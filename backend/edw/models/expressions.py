@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.db.models.expressions import Func, F, Expression
-
 
 
 class ToSeconds(Func):
@@ -62,6 +60,22 @@ class Acos(Func):
     RUS: Возвращает арккосинус числа.
     """
     function = 'ACOS'
+
+
+class Ln(Func):
+    """
+    ENG: Return the Natural Logarithm of a Number.
+    RUS: Возвращает натуральный логарифм числа.
+    """
+    function = 'LN'
+
+
+class Power(Func):
+    """
+    ENG: Returns the value of a number raised to the power of another number.
+    RUS: Возвращает число возведенное в степень.
+    """
+    function = 'POWER'
 
 
 class Radians(Func):
