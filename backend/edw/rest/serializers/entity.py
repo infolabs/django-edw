@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.apps import apps
 from django.core.cache import cache
 from django.core.exceptions import (
     ValidationError,
@@ -9,36 +9,26 @@ from django.core.exceptions import (
     MultipleObjectsReturned,
     ImproperlyConfigured
 )
-from django.db.models.expressions import BaseExpression
 from django.db import models
-
+from django.db.models.expressions import BaseExpression
 from django.db.models.fields import NOT_PROVIDED
-
-from django.db.models.fields.reverse_related import ForeignObjectRel
 from django.db.models.fields.related import RelatedField
-
+from django.db.models.fields.reverse_related import ForeignObjectRel
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils import six
-
+from django.utils.functional import cached_property
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
-from django.utils.functional import cached_property
-
-from django.apps import apps
-
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from rest_framework.compat import unicode_to_repr
-
-from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
+from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
-from edw.models.entity import EntityModel
-from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.entity import EntityModel
 from edw.models.related import AdditionalEntityCharacteristicOrMarkModel
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
@@ -49,10 +39,12 @@ from edw.models.rest import (
     CheckPermissionsBulkListSerializerMixin,
     UpdateOrCreateSerializerMixin
 )
+from edw.models.term import TermModel
+from edw.rest.filters.entity import EntityFilter
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
 from edw.rest.serializers.decorators import empty
-from edw.rest.filters.entity import EntityFilter
 from edw.utils.set_helpers import uniq
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 
 class AttributeSerializer(serializers.Serializer):
@@ -936,8 +928,10 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
                         field.root = self.root
                     value = aggregation.get(key, empty)
                     if value == empty:
-                        value = [aggregation[x] for x in alias] if isinstance(alias, (tuple, list)
-                                                                              ) else aggregation[alias]
+                        # Пытаемся получить значения поля из словаря агрегации,
+                        # иначе используем в качестве значения alias
+                        value = [aggregation.get(x, x) for x in alias] if isinstance(
+                            alias, (tuple, list)) else aggregation.get(alias, alias)
                     if value is None:
                         try:
                             value = field.to_representation(value)
