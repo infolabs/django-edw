@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.db import transaction
 from django.utils.encoding import force_text
 
-from edw.models.term import TermModel
 from edw.models.customer import CustomerModel
 from edw.models.mixins.entity import get_or_create_model_class_wrapper_term, ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN
-
+from edw.models.term import TermModel
 
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
                                      TermModel.system_flags.change_parent_restriction |
@@ -98,30 +97,32 @@ class FSMMixin(object):
             system_flags = _default_system_flags_restriction
 
             model_root_term = get_or_create_model_class_wrapper_term(cls)
-            try:
-                states_parent_term = TermModel.objects.get(slug=cls.STATE_ROOT_TERM_SLUG, parent=model_root_term)
-            except TermModel.DoesNotExist:
-                states_parent_term = TermModel(
-                    slug=cls.STATE_ROOT_TERM_SLUG,
-                    parent_id=model_root_term.id,
-                    name=force_text(cls._meta.get_field('status').verbose_name),
-                    semantic_rule=TermModel.XOR_RULE,
-                    system_flags=system_flags
-                )
-                states_parent_term.save()
-            transition_states = cls.TRANSITION_TARGETS
-            for state_key, state_name  in transition_states.items():
+            with transaction.atomic():
                 try:
-                    states_parent_term.get_descendants(include_self=False).get(slug=state_key)
+                    states_parent_term = TermModel.objects.get(slug=cls.STATE_ROOT_TERM_SLUG, parent=model_root_term)
                 except TermModel.DoesNotExist:
-                    state = TermModel(
-                        slug=state_key,
-                        parent_id=states_parent_term.id,
-                        name=force_text(state_name),
-                        semantic_rule=TermModel.OR_RULE,
+                    states_parent_term = TermModel(
+                        slug=cls.STATE_ROOT_TERM_SLUG,
+                        parent_id=model_root_term.id,
+                        name=force_text(cls._meta.get_field('status').verbose_name),
+                        semantic_rule=TermModel.XOR_RULE,
                         system_flags=system_flags
                     )
-                    state.save()
+                    states_parent_term.save()
+            transition_states = cls.TRANSITION_TARGETS
+            for state_key, state_name  in transition_states.items():
+                with transaction.atomic():
+                    try:
+                        states_parent_term.get_descendants(include_self=False).get(slug=state_key)
+                    except TermModel.DoesNotExist:
+                        state = TermModel(
+                            slug=state_key,
+                            parent_id=states_parent_term.id,
+                            name=force_text(state_name),
+                            semantic_rule=TermModel.OR_RULE,
+                            system_flags=system_flags
+                        )
+                        state.save()
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
