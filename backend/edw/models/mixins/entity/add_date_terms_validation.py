@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 import calendar
 
-from django.utils.translation import ugettext_lazy as _
+from django.db import transaction
 from django.utils.timezone import make_aware, is_naive
+from django.utils.translation import ugettext_lazy as _
 
-from edw.models.term import TermModel
 from edw.models.entity import EntityModel
-
+from edw.models.term import TermModel
 
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
                                      TermModel.system_flags.change_parent_restriction |
@@ -52,44 +52,47 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         и при его отсутствии создает диапазон дат и разбивку по дням в этих диапазонах.
         """
         system_flags = _default_system_flags_restriction
-        try: # added day
-            added_day = TermModel.objects.get(slug=cls.ADDED_DAY_ROOT_TERM_SLUG, parent=None)
-        except TermModel.DoesNotExist:
-            added_day = TermModel(
-                slug=cls.ADDED_DAY_ROOT_TERM_SLUG,
-                parent=None,
-                name=_('Added day'),
-                semantic_rule=TermModel.OR_RULE,
-                system_flags=system_flags
-            )
-            added_day.save()
-        day_ranges = ((1, 11), (11, 21), (21, 32))
-        for r in day_ranges: # added day range
-            day_range_key = cls.ADDED_DAY_RANGE_KEY.format(r[0], r[1] - 1)
-            try:
-                added_day_range = TermModel.objects.get(slug=day_range_key, parent=added_day)
+        with transaction.atomic():
+            try: # added day
+                added_day = TermModel.objects.get(slug=cls.ADDED_DAY_ROOT_TERM_SLUG, parent=None)
             except TermModel.DoesNotExist:
-                added_day_range = TermModel(
-                    slug=day_range_key,
-                    parent_id=added_day.id,
-                    name="{} - {}".format(r[0], r[1] - 1),
+                added_day = TermModel(
+                    slug=cls.ADDED_DAY_ROOT_TERM_SLUG,
+                    parent=None,
+                    name=_('Added day'),
                     semantic_rule=TermModel.OR_RULE,
                     system_flags=system_flags
                 )
-            added_day_range.save()
-            for i in range(r[0], r[1]): # added day
-                day_key = cls.ADDED_DAY_KEY.format(i)
+                added_day.save()
+        day_ranges = ((1, 11), (11, 21), (21, 32))
+        for r in day_ranges: # added day range
+            day_range_key = cls.ADDED_DAY_RANGE_KEY.format(r[0], r[1] - 1)
+            with transaction.atomic():
                 try:
-                    TermModel.objects.get(slug=day_key)
+                    added_day_range = TermModel.objects.get(slug=day_range_key, parent=added_day)
                 except TermModel.DoesNotExist:
-                    day = TermModel(
-                        slug=day_key,
-                        parent_id=added_day_range.id,
-                        name="{:02d}".format(i),
+                    added_day_range = TermModel(
+                        slug=day_range_key,
+                        parent_id=added_day.id,
+                        name="{} - {}".format(r[0], r[1] - 1),
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=system_flags
                     )
-                    day.save()
+                added_day_range.save()
+            for i in range(r[0], r[1]): # added day
+                day_key = cls.ADDED_DAY_KEY.format(i)
+                with transaction.atomic():
+                    try:
+                        TermModel.objects.get(slug=day_key)
+                    except TermModel.DoesNotExist:
+                        day = TermModel(
+                            slug=day_key,
+                            parent_id=added_day_range.id,
+                            name="{:02d}".format(i),
+                            semantic_rule=TermModel.OR_RULE,
+                            system_flags=system_flags
+                        )
+                        day.save()
         super(AddedDayTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):
@@ -136,27 +139,29 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         и при его отсутствии создает диапазон месяцев (1-12) и разбивку по месяцам в этих диапазонах.
         """
         system_flags = _default_system_flags_restriction
-        try: # added month
-            added_month = TermModel.objects.get(slug=cls.ADDED_MONTH_ROOT_TERM_SLUG, parent=None)
-        except TermModel.DoesNotExist:
-            added_month = TermModel(
-                slug=cls.ADDED_MONTH_ROOT_TERM_SLUG,
-                parent=None,
-                name=_('Added month'),
-                semantic_rule=TermModel.OR_RULE,
-                system_flags=system_flags)
-            added_month.save()
+        with transaction.atomic():
+            try: # added month
+                added_month = TermModel.objects.get(slug=cls.ADDED_MONTH_ROOT_TERM_SLUG, parent=None)
+            except TermModel.DoesNotExist:
+                added_month = TermModel(
+                    slug=cls.ADDED_MONTH_ROOT_TERM_SLUG,
+                    parent=None,
+                    name=_('Added month'),
+                    semantic_rule=TermModel.OR_RULE,
+                    system_flags=system_flags)
+                added_month.save()
         for i in range(1, 13):
             month_key = cls.ADDED_MONTH_KEY.format(i)
-            try:
-                TermModel.objects.get(slug=month_key, parent=added_month)
-            except TermModel.DoesNotExist:
-                month = TermModel(slug=month_key,
-                                  parent_id=added_month.id,
-                                  name=_(calendar.month_name[i]),
-                                  semantic_rule=TermModel.OR_RULE,
-                                  system_flags=system_flags)
-                month.save()
+            with transaction.atomic():
+                try:
+                    TermModel.objects.get(slug=month_key, parent=added_month)
+                except TermModel.DoesNotExist:
+                    month = TermModel(slug=month_key,
+                                      parent_id=added_month.id,
+                                      name=_(calendar.month_name[i]),
+                                      semantic_rule=TermModel.OR_RULE,
+                                      system_flags=system_flags)
+                    month.save()
         super(AddedMonthTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):
@@ -203,16 +208,17 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Добавляет год в модель терминов TermModel.
         """
         system_flags = _default_system_flags_restriction
-        try: # added year
-            TermModel.objects.get(slug=cls.ADDED_YEAR_ROOT_TERM_SLUG)
-        except TermModel.DoesNotExist:
-            added_year = TermModel(
-                slug=cls.ADDED_YEAR_ROOT_TERM_SLUG,
-                parent=None,
-                name=_('Added year'),
-                semantic_rule=TermModel.XOR_RULE,
-                system_flags=system_flags)
-            added_year.save()
+        with transaction.atomic():
+            try: # added year
+                TermModel.objects.get(slug=cls.ADDED_YEAR_ROOT_TERM_SLUG)
+            except TermModel.DoesNotExist:
+                added_year = TermModel(
+                    slug=cls.ADDED_YEAR_ROOT_TERM_SLUG,
+                    parent=None,
+                    name=_('Added year'),
+                    semantic_rule=TermModel.XOR_RULE,
+                    system_flags=system_flags)
+                added_year.save()
         super(AddedYearTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):

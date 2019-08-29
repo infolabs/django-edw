@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.db import transaction
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from edw.models.entity import EntityModel
+from edw.models.postal_zone import get_postal_zone
+from edw.models.term import TermModel
 from edw.signals.place import zone_changed
 from edw.utils.geo import get_location_from_geocoder, get_postcode, GeocoderException
-
-from edw.models.postal_zone import get_all_postal_zone_terms_ids, get_postal_zone
-from edw.models.term import TermModel
-from edw.models.entity import EntityModel
 
 
 class PlaceMixin(object):
@@ -29,31 +28,33 @@ class PlaceMixin(object):
         """
         RUS: Добавляет термин Регион и Другие регионы в модель терминов TermModel при их отсутствии.
         """
-        try: # region
-            region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
-        except TermModel.DoesNotExist:
-            region = TermModel(
-                slug=cls.REGION_ROOT_TERM_SLUG,
-                parent=None,
-                name=_('Region'),
-                semantic_rule=TermModel.XOR_RULE,
-                system_flags=(TermModel.system_flags.delete_restriction |
-                              TermModel.system_flags.change_parent_restriction |
-                              TermModel.system_flags.change_slug_restriction))
-            region.save()
-        try: # terra-incognita
-            region.get_descendants(include_self=False).get(slug=cls.TERRA_INCOGNITA_TERM_SLUG)
-        except TermModel.DoesNotExist:
-            terra_incognita = TermModel(
-                slug=cls.TERRA_INCOGNITA_TERM_SLUG,
-                parent_id=region.id,
-                name=_('Terra Incognita'),
-                semantic_rule=TermModel.OR_RULE,
-                system_flags=(TermModel.system_flags.delete_restriction |
-                              TermModel.system_flags.change_parent_restriction |
-                              TermModel.system_flags.change_slug_restriction |
-                              TermModel.system_flags.has_child_restriction))
-            terra_incognita.save()
+        with transaction.atomic():
+            try: # region
+                region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
+            except TermModel.DoesNotExist:
+                region = TermModel(
+                    slug=cls.REGION_ROOT_TERM_SLUG,
+                    parent=None,
+                    name=_('Region'),
+                    semantic_rule=TermModel.XOR_RULE,
+                    system_flags=(TermModel.system_flags.delete_restriction |
+                                  TermModel.system_flags.change_parent_restriction |
+                                  TermModel.system_flags.change_slug_restriction))
+                region.save()
+        with transaction.atomic():
+            try: # terra-incognita
+                region.get_descendants(include_self=False).get(slug=cls.TERRA_INCOGNITA_TERM_SLUG)
+            except TermModel.DoesNotExist:
+                terra_incognita = TermModel(
+                    slug=cls.TERRA_INCOGNITA_TERM_SLUG,
+                    parent_id=region.id,
+                    name=_('Terra Incognita'),
+                    semantic_rule=TermModel.OR_RULE,
+                    system_flags=(TermModel.system_flags.delete_restriction |
+                                  TermModel.system_flags.change_parent_restriction |
+                                  TermModel.system_flags.change_slug_restriction |
+                                  TermModel.system_flags.has_child_restriction))
+                terra_incognita.save()
         super(PlaceMixin, cls).validate_term_model()
 
     @staticmethod

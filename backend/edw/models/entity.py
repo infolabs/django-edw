@@ -1,55 +1,50 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import types
 import re
-
-from operator import __or__ as OR
+import types
 from functools import reduce
+from operator import __or__ as OR
 
+from django.core.cache import cache
 from django.core.exceptions import (
     FieldDoesNotExist,
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
-from django.core.cache import cache
-from django.db import models, connections
-from django.db.models.sql.datastructures import EmptyResultSet
+from django.db import models, connections, transaction
 from django.db.models import Q, Count
-
+from django.db.models.sql.datastructures import EmptyResultSet
 from django.utils import six
-from django.utils.functional import cached_property
-from django.utils.encoding import python_2_unicode_compatible, force_text
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import get_language_from_request
 from django.utils import timezone
-
+from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.functional import cached_property
+from django.utils.translation import get_language_from_request
+from django.utils.translation import ugettext_lazy as _
+from ipware import ip
+from polymorphic.base import PolymorphicModelBase
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
-from polymorphic.base import PolymorphicModelBase
-
 from rest_framework.reverse import reverse
 
-from ipware import ip
-
-from .. import deferred
 from .cache import add_cache_key, QuerySetCachedResultMixin
-from .term import TermModel
 from .data_mart import DataMartModel
+from .mixins.group_by import CustomGroupByQuerySetMixin
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
     EntityRelatedDataMartModel
 )
 from .rest import RESTModelBase
-from .mixins.group_by import CustomGroupByQuerySetMixin
-from ..utils.set_helpers import uniq
+from .term import TermModel
+from .. import deferred
+from .. import settings as edw_settings
+from ..signals.entity import post_save as entity_post_save
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
-from ..signals.entity import post_save as entity_post_save
-from .. import settings as edw_settings
+from ..utils.set_helpers import uniq
 
 
 #==============================================================================
@@ -958,28 +953,29 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             parent = None
             for Model in get_polymorphic_ancestors_models(cls):
                 slug = Model.__name__.lower()
-                try:
-                    if parent is None:
-                        term = TermModel.objects.get(slug=slug, parent=parent)
-                    else:
-                        try:
-                            parent = TermModel.objects.get(id=parent.id)
-                        except TermModel.DoesNotExist:
-                            pass
-                        term = TermModel.objects.get(slug=slug, id__in=list(
-                            parent.get_descendants(include_self=False).values_list('id', flat=True)))
-                except TermModel.DoesNotExist:
-                    term = TermModel(slug=slug,
-                                     parent_id=parent.id if parent else None,
-                                     name=force_text(Model._meta.verbose_name),
-                                     semantic_rule=TermModel.XOR_RULE,
-                                     system_flags=(TermModel.system_flags.delete_restriction |
-                                                   TermModel.system_flags.change_parent_restriction |
-                                                   TermModel.system_flags.change_slug_restriction |
-                                                   TermModel.system_flags.change_semantic_rule_restriction |
-                                                   TermModel.system_flags.has_child_restriction |
-                                                   TermModel.system_flags.external_tagging_restriction))
-                    term.save(do_correct_term_unique_error=False)
+                with transaction.atomic():
+                    try:
+                        if parent is None:
+                            term = TermModel.objects.get(slug=slug, parent=parent)
+                        else:
+                            try:
+                                parent = TermModel.objects.get(id=parent.id)
+                            except TermModel.DoesNotExist:
+                                pass
+                            term = TermModel.objects.get(slug=slug, id__in=list(
+                                parent.get_descendants(include_self=False).values_list('id', flat=True)))
+                    except TermModel.DoesNotExist:
+                        term = TermModel(slug=slug,
+                                         parent_id=parent.id if parent else None,
+                                         name=force_text(Model._meta.verbose_name),
+                                         semantic_rule=TermModel.XOR_RULE,
+                                         system_flags=(TermModel.system_flags.delete_restriction |
+                                                       TermModel.system_flags.change_parent_restriction |
+                                                       TermModel.system_flags.change_slug_restriction |
+                                                       TermModel.system_flags.change_semantic_rule_restriction |
+                                                       TermModel.system_flags.has_child_restriction |
+                                                       TermModel.system_flags.external_tagging_restriction))
+                        term.save(do_correct_term_unique_error=False)
                 parent = term
 
     def need_terms_validation_after_save(self, origin, **kwargs):
