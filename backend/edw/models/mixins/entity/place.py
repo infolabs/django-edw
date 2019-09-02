@@ -86,6 +86,7 @@ class PlaceMixin(object):
                     terra_incognita = region.get_descendants(include_self=False).get(
                         slug=PlaceMixin.TERRA_INCOGNITA_TERM_SLUG)
                 except TermModel.DoesNotExist:
+                    #todo: может вернуть none
                     pass
                 else:
                     EntityModel._terra_incognita_cache = terra_incognita
