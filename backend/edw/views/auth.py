@@ -135,6 +135,12 @@ class PasswordResetView(GenericAPIView):
                 dict(email=msg),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        except User.MultipleObjectsReturned:
+            msg = _("Account does not exists. You must register first")
+            return Response(
+                dict(email=msg),
+                status=status.HTTP_400_BAD_REQUEST
+            )
         else:
             if not user.is_active:
                 msg = _('Your account is inactive. To reset password you should activate it first or contact us via a callback form')
