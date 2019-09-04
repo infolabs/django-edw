@@ -1,36 +1,32 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import urllib
 
+import rest_framework_filters as filters
 from django.apps import apps
+from django.db.models.expressions import BaseExpression
+from django.template import loader
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
-from django.template import loader
-from django.db.models.expressions import BaseExpression
-
-import rest_framework_filters as filters
-
-from rest_framework.compat import template_render
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
+from rest_framework.compat import template_render
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
+from rest_framework.generics import get_object_or_404
 
-from edw.models.entity import BaseEntity, EntityModel
-from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
+from edw.models.entity import BaseEntity, EntityModel
 from edw.models.rest import (
     DynamicFilterSetMixin,
     DynamicFilterMixin,
     DynamicGroupByMixin
 )
+from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
-from edw.utils.hash_helpers import get_cookie_setting
-
+from edw.utils.hash_helpers import get_data_mart_cookie_setting
 from .common import NumberInFilter
 
 
@@ -474,6 +470,8 @@ class EntityMetaFilter(BaseFilterBackend):
         # select view component
         raw_view_component = request.GET.get('view_component', None)
         if raw_view_component is None:
+            raw_view_component = get_data_mart_cookie_setting(request, "view_component")
+        if raw_view_component is None:
             view_component = data_mart.view_component if data_mart is not None else None
         else:
             view_component = serializers.CharField().to_internal_value(raw_view_component)
@@ -583,16 +581,18 @@ class EntityOrderingFilter(OrderingFilter):
         return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
 
     def get_ordering(self, request, queryset, view):
+        ordering = get_data_mart_cookie_setting(request, "ordering")
+        if ordering is not None:
+            # %2C is an ASCII keycode in hexadecimal for a comma
+            ordering = ordering.split("%2C")
         data_mart = request.GET['_data_mart']
         if data_mart is not None:
             self._extra_ordering = data_mart.entities_model.get_ordering_modes(context={'request': request})
-            setattr(view, 'ordering', data_mart.ordering.split(','))
-        ordering = get_cookie_setting(request, "ordering")
-        if ordering:
-            # %2C is an ASCII keycode in hexadecimal for a comma
-            result = ordering.split("%2C")
-        else:
-            result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
+            if ordering is None:
+                ordering = data_mart.ordering.split(',')
+        if ordering is not None:
+            setattr(view, 'ordering', ordering)
+        result = super(EntityOrderingFilter, self).get_ordering(request, queryset, view)
         request.GET['_ordering'] = result
         return result
 
