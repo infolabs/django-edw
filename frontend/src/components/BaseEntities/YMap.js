@@ -7,7 +7,7 @@ import { MAP_HEIGHT } from 'constants/Components';
 
 
 const defaultState = {
-  bounds: [[50.1, 30.2],[60.3, 20.4]],
+  bounds: [[50.1, 30.2], [60.3, 20.4]],
   margin: 50,
   type: 'yandex#map',
   controls: [
@@ -164,9 +164,10 @@ class YMapInner extends AbstractMap {
     } else if (geoItems.length == 1) {
       // expand collapsed bounds to a square
       const dl = 0.0005;
-      mapState.bounds = [[latMin - dl, lngMin - dl],[latMax + dl, lngMax + dl]];
+      mapState.bounds = [[latMin - dl, lngMin - dl], [latMax + dl, lngMax + dl]];
     } else if (lngMin != null && latMin != null && lngMax != null && latMax != null) {
-      mapState.bounds = [[latMin, lngMin],[latMax, lngMax]];
+      const dl = Math.min(0.054 * Math.pow(latMax - latMin, 2), 0.1);
+      mapState.bounds = [[latMin + dl, lngMin], [latMax, lngMax]];
     } else {
       mapState.bounds = defaultState.bounds;
     }
