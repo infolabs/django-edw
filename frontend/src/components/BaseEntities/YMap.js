@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { withYMaps, YMaps, Map, Placemark } from 'react-yandex-maps';
+import {Map, Placemark, withYMaps, YMaps} from 'react-yandex-maps';
 
 import AbstractMap from 'components/BaseEntities/AbstractMap';
-import { MAP_HEIGHT } from 'constants/Components';
+import {MAP_HEIGHT} from 'constants/Components';
 
 
 const defaultState = {
@@ -65,6 +65,11 @@ class YMapInner extends AbstractMap {
     const { actions } = this.props;
     actions.hideDescription(marker.item.id);
   }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   super.componentDidUpdate(prevProps, prevState);
+  //   console.log(">>>> UPDATE", this.props)
+  // }
 
   componentDidMount() {
     const style = `width: {{ options.diameter }}px;
