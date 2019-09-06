@@ -457,6 +457,46 @@ class SerializerRegistryMetaclass(serializers.SerializerMetaclass):
 entity_summary_serializer_class = None
 
 
+def _get_aggregation(queryset, aggregation_meta, root):
+    """
+    Процедура агрегации запроса
+    :param queryset: Запрос (общий либо подзапрос `alike`)
+    :param aggregation_meta: Метаданные агрегации
+    :param root: Корень сериалайзера
+    :return:
+    """
+    if aggregation_meta:
+        aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()
+                                 if isinstance(value[0], BaseExpression)])
+        aggregation = queryset.aggregate(**aggregate_kwargs)
+        result = {}
+        name_field = serializers.CharField()
+        for key, (alias, field, name) in aggregation_meta.items():
+            if field is not None:
+                if field == field.root:
+                    field.root = root
+                value = aggregation.get(key, empty)
+                if value == empty:
+                    # Пытаемся получить значения поля из словаря агрегации,
+                    # иначе используем в качестве значения alias
+                    value = [aggregation.get(x, x) for x in alias] if isinstance(
+                        alias, (tuple, list)) else aggregation.get(alias, alias)
+                if value is None:
+                    try:
+                        value = field.to_representation(value)
+                    except TypeError:
+                        value = None
+                else:
+                    value = field.to_representation(value)
+                result[key] = {
+                    'value': value,
+                    'name': name_field.to_representation(name) if name is not None else None
+                }
+        return result
+    else:
+        return None
+
+
 #==============================================================================
 # EntitySummarySerializerBase
 #==============================================================================
@@ -488,7 +528,7 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
             group_size = getattr(data, self.group_size_alias, 0)
             if group_size > 1:
                 queryset = self.context['filter_queryset']
-                group_queryset = queryset.alike(data.id, *self.group_by)
+                self._group_queryset = group_queryset = queryset.alike(data.id, *self.group_by)
                 # inject local cache to entities group
                 group_queryset.attributes_ancestors_local_cache = self.attributes_ancestors_local_cache
                 # patch short_characteristics & short_marks
@@ -525,6 +565,9 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
                 extra = {}
             extra[self.group_size_alias] = self._group_size
             extra.update(instance.get_group_extra(self.context))
+            group_aggregation = _get_aggregation(self._group_queryset, self.context['aggregation_meta'], self.root)
+            if group_aggregation:
+                extra.update(group_aggregation)
             return extra
 
         if self.annotation_meta:
@@ -914,38 +957,7 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
         return self.context.get('extra', None)
 
     def get_aggregation(self, instance):
-        aggregation_meta = self.context['aggregation_meta']
-        if aggregation_meta:
-            aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()
-                                     if isinstance(value[0], BaseExpression)])
-            queryset = self.context['filter_queryset']
-            aggregation = queryset.aggregate(**aggregate_kwargs)
-            result = {}
-            name_field = serializers.CharField()
-            for key, (alias, field, name) in aggregation_meta.items():
-                if field is not None:
-                    if field == field.root:
-                        field.root = self.root
-                    value = aggregation.get(key, empty)
-                    if value == empty:
-                        # Пытаемся получить значения поля из словаря агрегации,
-                        # иначе используем в качестве значения alias
-                        value = [aggregation.get(x, x) for x in alias] if isinstance(
-                            alias, (tuple, list)) else aggregation.get(alias, alias)
-                    if value is None:
-                        try:
-                            value = field.to_representation(value)
-                        except TypeError:
-                            value = None
-                    else:
-                        value = field.to_representation(value)
-                    result[key] = {
-                        'value': value,
-                        'name': name_field.to_representation(name) if name is not None else None
-                    }
-            return result
-        else:
-            return None
+        return _get_aggregation(self.context['filter_queryset'], self.context['aggregation_meta'], self.root)
 
     def get_group_by(self, instance):
         return self.context['group_by']

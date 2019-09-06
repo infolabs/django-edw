@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from collections import OrderedDict
 
-from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
 
 from edw import settings as edw_settings
-from edw.utils.hash_helpers import get_cookie_setting
+from edw.utils.hash_helpers import get_data_mart_cookie_setting
 
 
 class EDWLimitOffsetPagination(LimitOffsetPagination):
@@ -61,5 +60,5 @@ class EntityPagination(EDWLimitOffsetPagination):
         """
         Возвращает максимальное количество элементов запроса
         """
-        limit = get_cookie_setting(request, "limit")
+        limit = get_data_mart_cookie_setting(request, "limit")
         return int(limit) if limit else super(EntityPagination, self).get_limit(request)

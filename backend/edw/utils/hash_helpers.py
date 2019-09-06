@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import os
 import hashlib
+import os
 from binascii import hexlify
+
 from django.template.defaultfilters import slugify
 
 
@@ -62,12 +63,12 @@ def cookie_hash(s):
     return abs(hash_code)
 
 
-def cookie_key(data_mart_id, path, setting):
+def data_mart_cookie_key(data_mart_id, path, setting):
     return "dm_{}_{}_{}".format(data_mart_id, str(cookie_hash(path)), setting)
 
 
-def get_cookie_setting(request, setting):
+def get_data_mart_cookie_setting(request, setting):
     data_mart = request.GET['_data_mart']
     if data_mart is not None:
-        key = cookie_key(data_mart.pk, request.path, setting)
+        key = data_mart_cookie_key(data_mart.pk, request.path, setting)
         return request.COOKIES.get(key, None)
