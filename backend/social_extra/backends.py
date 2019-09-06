@@ -58,8 +58,8 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
 
 
 def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
-    plaintext = (params.get('scope', '') + params.get('timestamp', '') +
-                 params.get('client_id', '') + params.get('state', ''))
+    plaintext = ''.join([params.get('scope', ''), params.get('timestamp', ''),
+                        params.get('client_id', ''), params.get('state', '')])
     raw_client_secret = smime_sign(certificate_file, private_key_file, plaintext, backend)
     params.update(
         client_secret=base64.urlsafe_b64encode(raw_client_secret).decode('utf-8'),
@@ -114,50 +114,62 @@ class EsiaOAuth2(BaseOAuth2):
         params['state'] = state
         return self.add_and_sign_params(params)
 
+    DETAILS_MAP = {
+        'info': {
+            'first_name': 'firstName',
+            'middle_name': 'middleName',
+            'last_name': 'lastName',
+            'birth_date': 'birthDate',
+            'gender': 'gender',
+        },
+        'contacts': {
+            'email': 'EML',
+            'mobile': 'MBT',
+            'reg_addr': 'PRG',
+            'liv_addr': 'PLV',
+        }
+    }
+
     def get_user_details(self, response):
+        response['mobile'] = response['mobile'].get('value', '')
+        response['email'] = response['email'].get('value', '')
         response['username'] = response['email']
-        keys = [
-            'username',
-            'email',
-            'fullname',
-            'first_name',
-            'last_name',
-            'is_trusted'
-        ]
-        return {k: v for k, v in response.items() if k in keys}
+        response['fullname'] = " ".join(filter(
+            None, [response['first_name'], response['middle_name'], response['last_name']])
+        )
+
+        fields = ['is_trusted', 'username', 'fullname']
+        for k in ['info', 'contacts']:
+            fields.extend(self.DETAILS_MAP[k].keys())
+        return {k: v for k, v in response.items() if k in fields}
 
     def user_data(self, access_token, *args, **kwargs):
         id_token = kwargs['response']['id_token']
         payload = jwt.decode(id_token, verify=False)
+
         oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
         is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
         headers = {'Authorization': "Bearer %s" % access_token}
 
-        url = '{base}{info}/{oid}'.format(
-            base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid
-        )
-        info = self.get_json(url, headers=headers)
+        base_url = '{base}{info}/{oid}'.format(base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid)
+        info = self.get_json(base_url, headers=headers)
+        contacts = self.get_json(base_url + '/ctts?embed=(elements)', headers=headers)
+        elements = contacts['elements']
 
-        url = '{base}{info}/{oid}/ctts?embed=(elements)'.format(
-            base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid
-        )
-        contacts = self.get_json(url, headers=headers)
+        if 'contacts' in self.get_scope():
+            addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
+            elements.extend(addresses['elements'])
 
-        first_name = info.get('firstName', '')
-        last_name = info.get('lastName', '')
-        middle_name = info.get('middleName', '')
-        fullname = " ".join(filter(None, [first_name, middle_name, last_name]))
+        ret = {'id': oid, 'is_trusted': bool(is_trusted)}
 
-        email = ''
-        for e in contacts['elements']:
-            value = e['value']
-            if self.MAIL_REGEX.match(value):
-                email = value
-                break
+        for k, v in self.DETAILS_MAP['info'].items():
+            ret[k] = info.get(v, '')
 
-        return {'id': oid,
-                'email': email,
-                'fullname': fullname,
-                'first_name': first_name,
-                'last_name': last_name,
-                'is_trusted': bool(is_trusted)}
+        for k, v in self.DETAILS_MAP['contacts'].items():
+            if k not in ret.keys():
+                ret[k] = ''
+            for e in elements:
+                if e['type'] == v:
+                    ret[k] = e
+
+        return ret
