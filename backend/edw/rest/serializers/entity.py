@@ -528,6 +528,9 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
             group_size = getattr(data, self.group_size_alias, 0)
             if group_size > 1:
                 queryset = self.context['filter_queryset']
+
+                # print(">> queryset <<", queryset.query.__str__())
+
                 self._group_queryset = group_queryset = queryset.alike(data.id, *self.group_by)
                 # inject local cache to entities group
                 group_queryset.attributes_ancestors_local_cache = self.attributes_ancestors_local_cache
@@ -842,13 +845,11 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def get_extra(self, instance):
         extra = self.context.get('extra', None)
-
         if self._group_size > 1:
             if extra is None:
                 extra = {}
             extra[self.group_size_alias] = self._group_size
             extra.update(instance.get_group_extra(self.context))
-
         return extra
 
     def to_representation(self, data):
@@ -866,7 +867,6 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         else:
             group_size = 0
         self._group_size = group_size
-
         self.context['_entity_pk'] = data.id
         return super(EntityDetailSerializerBase, self).to_representation(data)
 

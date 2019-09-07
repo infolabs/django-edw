@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
 
@@ -24,6 +24,9 @@ export default class AbstractMap extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
+
+    // вызвать close_baloon
+
     const itemsChanged = this.props.items != prevProps.items;
     if (prevState.itemsChanged != itemsChanged)
       this.setState({itemsChanged});
