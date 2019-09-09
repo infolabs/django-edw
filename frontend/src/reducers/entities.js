@@ -126,18 +126,15 @@ class Descriptions {
   }
 
   show(id) {
-    this.opened = {id: true};
+    this.opened = {};
+    this.opened[id] = true;
     return Object.assign(new Descriptions(), this);
   }
 
   hide(id) {
 
-    // console.log(">> hide baloon <<", id, this.opened);
-
     var ret = this;
     if (!id || this.opened[id]) {
-
-      // console.log(">>> hide!!!!!!");
 
       this.opened = {};
       ret = Object.assign(new Descriptions(), this);
@@ -201,12 +198,12 @@ function loading(state = false, action) {
 
 
 function loadingItems(state = {}, action) {
-    switch (action.type) {
-        case consts.NOTIFY_LOADING_ENTITIE_ITEM:
-            return Object.assign({}, state, {[action.id]: true});
-        default:
-          return state;
-    }
+  switch (action.type) {
+    case consts.NOTIFY_LOADING_ENTITIE_ITEM:
+      return Object.assign({}, state, {[action.id]: true});
+    default:
+      return state;
+  }
 }
 
 /**
@@ -217,14 +214,12 @@ function loadingItems(state = {}, action) {
  */
 function descriptions(state = new Descriptions(), action) {
 
-  // console.log("++++++++", action);
-
   switch (action.type) {
     case consts.SHOW_ENTITY_DESC:
       return state.show(action.entity_id);
     case consts.HIDE_ENTITY_DESC:
       return state.hide(action.entity_id);
-    case consts.LOAD_ENTITIES:
+    case consts.LOAD_ENTITIES: // скрываем description при загрузке данных
       return state.hide();
     case consts.LOAD_ENTITY_ITEM:
       return state.load(action.json);
