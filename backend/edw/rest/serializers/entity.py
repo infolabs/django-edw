@@ -528,9 +528,6 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
             group_size = getattr(data, self.group_size_alias, 0)
             if group_size > 1:
                 queryset = self.context['filter_queryset']
-
-                # print(">> queryset <<", queryset.query.__str__())
-
                 self._group_queryset = group_queryset = queryset.alike(data.id, *self.group_by)
                 # inject local cache to entities group
                 group_queryset.attributes_ancestors_local_cache = self.attributes_ancestors_local_cache
