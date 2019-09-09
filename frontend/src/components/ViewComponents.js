@@ -12,7 +12,8 @@ class ViewComponents extends Component {
           { meta } = this.props.entities.items,
           { view_components } = dropdowns;
 
-    let ret = <div></div>;
+    let ret = <div></div>,
+        request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении view components
 
     if (view_components && Object.keys(view_components.options).length > 1) {
 
@@ -38,7 +39,7 @@ class ViewComponents extends Component {
                 request_var={view_components.request_var}
                 entry_point_id={entry_point_id}
                 subj_ids={meta.subj_ids}
-                request_options={meta.request_options}
+                request_options={request_options}
                 open={view_components.open}
                 actions={actions}
                 selected={selected}

@@ -12,7 +12,9 @@ class Ordering extends Component {
           { meta } = this.props.entities.items,
           { ordering } = dropdowns;
 
-    let ret = <div></div>;
+    let ret = <div></div>,
+        request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении сортировки
+
     if (ordering && Object.keys(ordering.options).length > 1) {
       ret = (
         <ul className="ex-inline">
@@ -23,7 +25,7 @@ class Ordering extends Component {
             <Dropdown name='ordering'
                       entry_point_id={entry_point_id}
                       request_var={ordering.request_var}
-                      request_options={meta.request_options}
+                      request_options={request_options}
                       subj_ids={meta.subj_ids}
                       open={ordering.open}
                       actions={actions}

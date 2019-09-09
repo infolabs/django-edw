@@ -15,4 +15,3 @@ export function getPinColor(item) {
   }
   return pinColor;
 }
-
