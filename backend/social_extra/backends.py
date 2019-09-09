@@ -163,7 +163,7 @@ class EsiaOAuth2(BaseOAuth2):
         ret = {'id': oid, 'is_trusted': bool(is_trusted)}
 
         for k, v in self.DETAILS_MAP['info'].items():
-            ret[k] = info.get(v, '')
+            ret[k] = info.get(v, {})
 
         for k, v in self.DETAILS_MAP['contacts'].items():
             if k not in ret.keys():
