@@ -167,7 +167,7 @@ class EsiaOAuth2(BaseOAuth2):
 
         for k, v in self.DETAILS_MAP['contacts'].items():
             if k not in ret.keys():
-                ret[k] = ''
+                ret[k] = {}
             for e in elements:
                 if e['type'] == v:
                     ret[k] = e
