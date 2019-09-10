@@ -545,6 +545,8 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
                 alike_id = request.GET.get('_alike', None)
                 if alike_id is not None:
                     queryset = queryset.alike(alike_id, *group_by)
+                    # добавляем в информацию о фильтре
+                    request.GET['_filter_queryset'] = queryset
 
                 queryset_with_counts = queryset.group_by(*group_by)
                 if queryset_with_counts.count() > 1:
