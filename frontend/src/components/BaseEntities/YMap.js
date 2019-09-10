@@ -6,7 +6,7 @@ import AbstractMap from 'components/BaseEntities/AbstractMap';
 import { MAP_HEIGHT } from 'constants/Components';
 
 
-const defaultState = {
+export const defaultState = {
   bounds: [[50.1, 30.2], [60.3, 20.4]],
   margin: 50,
   type: 'yandex#map',
@@ -23,18 +23,18 @@ const defaultState = {
   ]
 };
 
-const mapModules = [
+export const mapModules = [
   'control.FullscreenControl',
   'control.GeolocationControl',
   'control.ZoomControl'
 ];
 
-const markerModules = [
+export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
 
-class YMapInner extends AbstractMap {
+export class YMapInner extends AbstractMap {
   setMapRef = ref => { this._map = ref; };
 
   // Пока не нужен, см todo ниже
@@ -97,6 +97,14 @@ class YMapInner extends AbstractMap {
     });
   }
 
+  adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax) {
+    lngMin = lngMin != null && lngMin < lng ? lngMin : lng;
+    lngMax = lngMax != null && lngMax > lng ? lngMax : lng;
+    latMin = latMin != null && latMin < lat ? latMin : lat;
+    latMax = latMax != null && latMax > lat ? latMax : lat;
+    return { lngMin, lngMax, latMin, latMax };
+  }
+
   render() {
     const { items, meta, loading, descriptions } = this.props;
     const geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
@@ -110,10 +118,8 @@ class YMapInner extends AbstractMap {
       const coords = item.extra.geoposition.split(','),
             lng = parseFloat(coords[1]),
             lat = parseFloat(coords[0]);
-      lngMin = lngMin != null && lngMin < lng ? lngMin : lng;
-      lngMax = lngMax != null && lngMax > lng ? lngMax : lng;
-      latMin = latMin != null && latMin < lat ? latMin : lat;
-      latMax = latMax != null && latMax > lat ? latMax : lat;
+
+      ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
       const pinColor = this.getPinColor(item),
             descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
@@ -129,14 +135,17 @@ class YMapInner extends AbstractMap {
         item: item
       };
 
+      marker.prefix = '';
+
       if (item.extra && item.extra.group_size) {
+        marker.prefix = 'group-';
         const label = item.extra.group_size.toString();
         const diameter = 17 + label.length * 12;
         const radius = diameter / 2;
         marker.properties.iconContent = label;
         marker.options = {
           preset: {iconLayout: this.state.circleLayout},
-          iconColor: 'white',
+          iconColor: this.getGroupColor(item),
           iconDiameter: diameter,
           iconOffset: [-radius / 2, -radius / 2],
           iconShape: {
@@ -186,11 +195,11 @@ class YMapInner extends AbstractMap {
              instanceRef={this.setMapRef}>
           {markers.map(
             (marker, i) => 
-            <Placemark key={i}
+            <Placemark key={marker.prefix + marker.item.id}
                        modules={markerModules}
-                       geometry={marker.center}
-                       properties={marker.properties}
-                       options={marker.options}
+                       defaultGeometry={marker.center}
+                       defaultProperties={marker.properties}
+                       defaultOptions={marker.options}
                        onBalloonopen={e => this.handleBalloonOpen(e, marker)}
                        onBalloonclose={e => this.handleBalloonClose(e, marker)}
                        // todo: Работает даже просто при перерендере карты при загрузке данных,

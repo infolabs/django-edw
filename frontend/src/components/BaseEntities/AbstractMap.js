@@ -75,6 +75,10 @@ export default class AbstractMap extends Component {
     return pinColor;
   }
 
+  getGroupColor(item) {
+    return "white";
+  }
+
   handleInfoMouseClick(e, data) {
     const { actions, meta } = this.props;
     if (data.extra.group_size) {
@@ -83,7 +87,8 @@ export default class AbstractMap extends Component {
     }
   }
 
-  assembleInfo(item, meta, description) {
+
+  assembleInfoVars(item, meta, description) {
     const url = item.extra.url ? item.extra.url : item.entity_url,
           marks = description ? description.marks : item.short_marks || [],
           characteristics = description ? description.characteristics : item.short_characteristics || [];
@@ -97,6 +102,11 @@ export default class AbstractMap extends Component {
         media = media.replace(/<a\b[^>]*>/i,"").replace(/<\/a>/i, "");
         header = title;
     }
+    return { marks, characteristics, media, header };
+  }
+
+  assembleInfo(item, meta, description) {
+    const { marks, characteristics, media, header } = this.assembleInfoVars(item, meta, description);
 
     return (
       <div className="ex-map-info"

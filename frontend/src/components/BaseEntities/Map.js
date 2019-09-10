@@ -99,8 +99,8 @@ export default class Map extends AbstractMap {
     return pinShadow;
   }
 
-  componentDidUpdate(prevProps) {
-    super.componentDidUpdate(prevProps);
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
     if (this.state.markers.length)
       this.setState({markers: []});
   }
