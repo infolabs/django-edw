@@ -58,7 +58,6 @@ export class YMapInner extends AbstractMap {
       actions.getEntityItem(data);
 
     actions.showDescription(id);
-
   }
 
   handleBalloonClose(e1, marker) {
@@ -198,7 +197,7 @@ export class YMapInner extends AbstractMap {
             <Placemark key={marker.prefix + marker.item.id}
                        modules={markerModules}
                        defaultGeometry={marker.center}
-                       defaultProperties={marker.properties}
+                       properties={marker.properties}
                        defaultOptions={marker.options}
                        onBalloonopen={e => this.handleBalloonOpen(e, marker)}
                        onBalloonclose={e => this.handleBalloonClose(e, marker)}
