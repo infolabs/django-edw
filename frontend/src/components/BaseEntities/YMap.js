@@ -4,8 +4,6 @@ import {Map, Placemark, withYMaps, YMaps} from 'react-yandex-maps';
 
 import AbstractMap from 'components/BaseEntities/AbstractMap';
 import {MAP_HEIGHT} from 'constants/Components';
-import { connect } from 'react-redux';
-
 
 
 const defaultState = {
@@ -68,13 +66,10 @@ class YMapInner extends AbstractMap {
     actions.hideDescription(marker.item.id);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const has_changed = super.componentDidUpdate(prevProps, prevState);
-    const {descriptions} = this.props;
-    if ( has_changed && Object.keys(descriptions.opened).length == 0 ){
-      this._map.balloon._balloon._state = "CLOSED";
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   super.componentDidUpdate(prevProps, prevState);
+  //   console.log(">>>> UPDATE", this.props)
+  // }
 
   componentDidMount() {
     const style = `width: {{ options.diameter }}px;
@@ -207,6 +202,7 @@ class YMapInner extends AbstractMap {
                        //       надо придумать другой механизм закрытия всплывашек при изменении размеров окна.
                        // onGeometrychange={this.onGeometryChange}
             />
+
           )}
         </Map>
       </div>
@@ -217,6 +213,7 @@ class YMapInner extends AbstractMap {
 
 const YMapWrapped = withYMaps(YMapInner, true, ['templateLayoutFactory']);
 
+
 export default class YMap extends React.Component {
   render() {
     return (
@@ -226,19 +223,4 @@ export default class YMap extends React.Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  return {
-    descriptions: state.entities.descriptions
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
-  };
-}
-
-connect(mapStateToProps, mapDispatchToProps)(YMap);
 

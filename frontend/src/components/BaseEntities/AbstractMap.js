@@ -23,16 +23,14 @@ export default class AbstractMap extends Component {
     itemsChanged: false
   };
 
-
   componentDidUpdate(prevProps, prevState) {
-    const itemsChanged = this.props.items != prevProps.items;
-    if (prevState.itemsChanged != itemsChanged) {
-      this.setState({itemsChanged});
-      return true
-    }
-    return false
-  }
 
+    // вызвать close_baloon
+
+    const itemsChanged = this.props.items != prevProps.items;
+    if (prevState.itemsChanged != itemsChanged)
+      this.setState({itemsChanged});
+  }
 
   componentDidMount(x, y, z) {
     this.setState({
