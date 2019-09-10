@@ -1,4 +1,4 @@
-import {combineReducers} from 'redux';
+import { combineReducers } from 'redux';
 import * as consts from 'constants/TermsTree';
 
 /* Entities */
@@ -126,19 +126,14 @@ class Descriptions {
   }
 
   show(id) {
-    this.opened = {id: true};
+    this.opened = {};
+    this.opened[id] = true;
     return Object.assign(new Descriptions(), this);
   }
 
   hide(id) {
-
-    // console.log(">> hide baloon <<", id, this.opened);
-
     var ret = this;
-    if (!id || this.opened[id]) {
-
-      // console.log(">>> hide!!!!!!");
-
+    if (this.opened[id]) {
       this.opened = {};
       ret = Object.assign(new Descriptions(), this);
     }
@@ -155,12 +150,7 @@ class Descriptions {
   }
 }
 
-/**
- * редюсер загрузки данных из витрины
- * @param state
- * @param action
- * @returns {EntitiesManager}
- */
+
 function items(state = new EntitiesManager(), action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
@@ -209,23 +199,13 @@ function loadingItems(state = {}, action) {
     }
 }
 
-/**
- * редюсер дополнительной информации (облачко)
- * @param state
- * @param action
- * @returns {any | Descriptions|Descriptions}
- */
+
 function descriptions(state = new Descriptions(), action) {
-
-  // console.log("++++++++", action);
-
   switch (action.type) {
     case consts.SHOW_ENTITY_DESC:
       return state.show(action.entity_id);
     case consts.HIDE_ENTITY_DESC:
       return state.hide(action.entity_id);
-    case consts.LOAD_ENTITIES:
-      return state.hide();
     case consts.LOAD_ENTITY_ITEM:
       return state.load(action.json);
     default:
