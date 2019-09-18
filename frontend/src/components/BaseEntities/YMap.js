@@ -33,9 +33,40 @@ export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
+export function addRegions(map, osmArray) { // Добавление границ регионов на карту
+    if (osmArray.length) {
+        for (let i = 0; i < osmArray.length; i++) {
+            osmeRegions.geoJSON(osmArray[i].address, {
+                lang: 'ru',
+                quality: 3
+            }, (data, pure) => {
+                let collection = osmeRegions.toYandex(data, ymaps);
+                collection.add(map);
+                // osmArray[i]._collection = collection;
+                collection.setStyles((object, yobject) => {
+                  return ({
+                    strokeWidth: 1,
+                    strokeStyle: "longdashdotdot",
+                    strokeColor: "#5CA5C1",
+                    fillColor: osmArray[i].color
+                  });
+                });
+            });
+        }
+    }
+}
+
 
 export class YMapInner extends AbstractMap {
-  setMapRef = ref => { this._map = ref; };
+
+  setMapRef = ref => {
+      this._map = ref;
+      if(ref && !this.firstMapLoading){
+          this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
+          this.osmArrayPrev = this.osmArray;
+          addRegions(this._map, this.osmArray);
+      }
+  };
 
   // Пока не нужен, см todo ниже
   // onGeometryChange(e) {
@@ -80,7 +111,7 @@ export class YMapInner extends AbstractMap {
              width="100%" height="100%"
              viewBox="0 0 100 100">
            <circle cx="50" cy="50" r="40"
-            stroke="#121212"
+            stroke="{{ options.stroke }}"
             stroke-width="1.5"
             fill="{{ options.color }}"
             vector-effect="non-scaling-stroke"/>
@@ -105,26 +136,68 @@ export class YMapInner extends AbstractMap {
   }
 
   render() {
-    const { items, meta, loading, descriptions } = this.props;
-    const geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
+    const { items, meta, loading, descriptions } = this.props,
+          geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
 
     let entitiesClass = "entities";
     entitiesClass = loading ? entitiesClass + " ex-state-loading" : entitiesClass;
 
     let lngMin = null, latMin = null, lngMax = null, latMax = null, markers = [];
 
+    this.osmArray = [];
+    const osmAddrPattern = "osm-id-";
+
+    let address = 0;
+
     for (const item of geoItems) {
-      const coords = item.extra.geoposition.split(','),
+
+      const shortCharacteristics = item.short_characteristics[0].view_class,
+            coords = item.extra.geoposition.split(','),
             lng = parseFloat(coords[1]),
             lat = parseFloat(coords[0]);
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
-      const pinColor = this.getPinColor(item),
+
+      const groupColor = this.getGroupColor(item),
+            borderGroupColor = this.getBorderColor(item),
+            pinColor = this.getPinColor(item),
+            regionColor = this.getRegionColor(item),
             descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
             description = !descriptions_data[item.id] && descriptions.groups ? descriptions.groups[item.id] : descriptions_data[item.id],
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
+
+
+      let osmObj = {};
+
+
+      if (item.short_characteristics.length) {
+        for (const sm of item.short_characteristics) {
+          if (sm.view_class.length) {
+            for (const cl of sm.view_class) {
+              if(cl.startsWith(osmAddrPattern)) {
+                address = parseInt(cl.replace(osmAddrPattern, ""));
+              }
+            }
+          }
+        }
+      }
+
+      function checkOsm(obj) {
+        for (let i=0; i<obj.length; i++){
+          if(obj[i].address == address){
+            return true
+          }
+        }
+        return false
+      }
+
+      if(!checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
+        osmObj.address = address;
+        osmObj.color = regionColor;
+        this.osmArray.push(osmObj);
+      }
 
       let marker = {
         center: [lat, lng],
@@ -144,7 +217,8 @@ export class YMapInner extends AbstractMap {
         marker.properties.iconContent = label;
         marker.options = {
           preset: {iconLayout: this.state.circleLayout},
-          iconColor: this.getGroupColor(item),
+          iconColor: groupColor,
+          iconStroke: borderGroupColor,
           iconDiameter: diameter,
           iconOffset: [-radius / 2, -radius / 2],
           iconShape: {

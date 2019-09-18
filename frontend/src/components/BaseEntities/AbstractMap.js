@@ -79,6 +79,14 @@ export default class AbstractMap extends Component {
     return "white";
   }
 
+  getBorderColor(item) {
+    return "black";
+  }
+
+  getRegionColor(item) {
+    return "rgba(0,0,0,0)";
+  }
+
   handleInfoMouseClick(e, data) {
     const { actions, meta } = this.props;
     if (data.extra.group_size) {
