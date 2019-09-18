@@ -9,7 +9,10 @@ import jwt
 import re
 
 from django.conf import settings
+
 from social_core.backends.oauth import BaseOAuth2
+
+from edw.utils.hash_helpers import create_hash
 
 
 # https://github.com/sokolovs/esia-oauth2/blob/master/esia/utils.py
@@ -133,7 +136,8 @@ class EsiaOAuth2(BaseOAuth2):
     def get_user_details(self, response):
         response['mobile'] = response['mobile'].get('value', '')
         response['email'] = response['email'].get('value', '')
-        response['username'] = response['email']
+        # У поля username ограничение 30 символов
+        response['username'] = create_hash(response['email'])[:30]
         response['fullname'] = " ".join(filter(
             None, [response['first_name'], response['middle_name'], response['last_name']])
         )
