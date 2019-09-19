@@ -157,7 +157,6 @@ export class YMapInner extends AbstractMap {
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
-
       const groupColor = this.getGroupColor(item),
             borderGroupColor = this.getBorderColor(item),
             pinColor = this.getPinColor(item),
@@ -167,9 +166,7 @@ export class YMapInner extends AbstractMap {
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
-
       let osmObj = {};
-
 
       if (item.short_characteristics.length) {
         for (const sm of item.short_characteristics) {
@@ -177,6 +174,7 @@ export class YMapInner extends AbstractMap {
             for (const cl of sm.view_class) {
               if(cl.startsWith(osmAddrPattern)) {
                 osmId = parseInt(cl.replace(osmAddrPattern, ""));
+                break
               }
             }
           }
