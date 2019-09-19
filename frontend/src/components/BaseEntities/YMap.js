@@ -33,16 +33,16 @@ export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
-export function addRegions(map, osmArray) { // Добавление границ регионов на карту
+export function addRegions(map, osmArray) { // Добавление регионов
     if (osmArray.length) {
         for (let i = 0; i < osmArray.length; i++) {
-            osmeRegions.geoJSON(osmArray[i].address, {
+            osmeRegions.geoJSON(osmArray[i].osmId, {
                 lang: 'ru',
                 quality: 3
             }, (data, pure) => {
                 let collection = osmeRegions.toYandex(data, ymaps);
                 collection.add(map);
-                // osmArray[i]._collection = collection;
+                osmArray[i]._collection = collection;
                 collection.setStyles((object, yobject) => {
                   return ({
                     strokeWidth: 1,
@@ -63,8 +63,8 @@ export class YMapInner extends AbstractMap {
       this._map = ref;
       if(ref && !this.firstMapLoading){
           this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
-          this.osmArrayPrev = this.osmArray;
           addRegions(this._map, this.osmArray);
+          this.osmArrayPrev = this.osmArray;
       }
   };
 
@@ -146,8 +146,7 @@ export class YMapInner extends AbstractMap {
 
     this.osmArray = [];
     const osmAddrPattern = "osm-id-";
-
-    let address = 0;
+    let osmId;
 
     for (const item of geoItems) {
 
@@ -177,7 +176,7 @@ export class YMapInner extends AbstractMap {
           if (sm.view_class.length) {
             for (const cl of sm.view_class) {
               if(cl.startsWith(osmAddrPattern)) {
-                address = parseInt(cl.replace(osmAddrPattern, ""));
+                osmId = parseInt(cl.replace(osmAddrPattern, ""));
               }
             }
           }
@@ -186,15 +185,15 @@ export class YMapInner extends AbstractMap {
 
       function checkOsm(obj) {
         for (let i=0; i<obj.length; i++){
-          if(obj[i].address == address){
-            return true
+          if(obj[i].osmId == osmId){
+            return false
           }
         }
-        return false
+        return true
       }
 
-      if(!checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
-        osmObj.address = address;
+      if (checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
+        osmObj.osmId = osmId;
         osmObj.color = regionColor;
         this.osmArray.push(osmObj);
       }
