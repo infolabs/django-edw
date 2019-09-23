@@ -43,17 +43,22 @@ export function addRegions(map, osmArray) { // Добавление регион
                 let collection = osmeRegions.toYandex(data, ymaps);
                 collection.add(map);
                 osmArray[i]._collection = collection;
-                collection.setStyles((object, yobject) => {
-                  return ({
-                    strokeWidth: 1,
-                    strokeStyle: "longdashdotdot",
-                    strokeColor: "#5CA5C1",
-                    fillColor: osmArray[i].color
-                  });
+
+                collection.setStyles(() => {
+                    return getRegionsStyle(osmArray[i])
                 });
             });
         }
     }
+}
+
+function getRegionsStyle(osmArray){
+    return ({
+        strokeWidth: 1,
+        strokeStyle: "longdashdotdot",
+        strokeColor: "#5CA5C1",
+        fillColor: osmArray.color
+    });
 }
 
 
@@ -61,7 +66,7 @@ export class YMapInner extends AbstractMap {
 
   setMapRef = ref => {
       this._map = ref;
-      if(ref && !this.firstMapLoading){
+      if(ref && !this.firstMapLoading && this.osm_region){
           this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
           addRegions(this._map, this.osmArray);
           this.osmArrayPrev = this.osmArray;
@@ -97,6 +102,8 @@ export class YMapInner extends AbstractMap {
   }
 
   componentDidMount() {
+    this.osm_region = this.props.data_mart.osm_region || null;
+
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
