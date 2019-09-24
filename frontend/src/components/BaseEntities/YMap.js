@@ -5,6 +5,8 @@ import { withYMaps, YMaps, Map, Placemark } from 'react-yandex-maps';
 import AbstractMap from 'components/BaseEntities/AbstractMap';
 import { MAP_HEIGHT } from 'constants/Components';
 
+// import `color` lib
+const Color = require('color');
 
 export const defaultState = {
   bounds: [[50.1, 30.2], [60.3, 20.4]],
@@ -55,12 +57,31 @@ export function addRegions(map, osmArray, osmRegion) { // Добавление �
 }
 
 function getRegionsStyle(osmArray, osmRegion){
-    return ({
-        strokeWidth: 1,
-        strokeStyle: "longdashdotdot",
-        strokeColor: "#5CA5C1",
-        fillColor: osmArray.colors
-    });
+  switch (osmRegion){
+    case 'avg':
+      const nm = osmArray.colors.length;
+      if(nm > 1){
+        let [r, g, b] = [0, 0, 0];
+        osmArray.colors.map((array, i) => {
+          const color = Color(array).rgb().array();
+          r += color[0];
+          g += color[1];
+          b += color[2];
+        });
+        osmArray.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.08)`;
+      } else {
+        osmArray.colors = osmArray.colors[0];
+      }
+      break;
+    default :
+      osmArray.colors = osmArray.colors[0];
+  }
+  return ({
+      strokeWidth: 1,
+      strokeStyle: "longdashdotdot",
+      strokeColor: "#5CA5C1",
+      fillColor: osmArray.colors
+  });
 }
 
 
@@ -175,7 +196,10 @@ export class YMapInner extends AbstractMap {
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
-      let osmObj = {};
+      let osmObj = {
+            osmId : "",
+            colors : []
+          };
 
       if (item.short_characteristics.length) {
         for (const sm of item.short_characteristics) {
@@ -201,8 +225,10 @@ export class YMapInner extends AbstractMap {
 
       if (checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
         osmObj.osmId = osmId;
-        osmObj.colors = regionColor;
+        osmObj.colors[0] = regionColor;
         this.osmArray.push(osmObj);
+      } else {
+        this.osmArray[0].colors.push(regionColor);
       }
 
       let marker = {
