@@ -33,31 +33,33 @@ export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
-export function addRegions(map, osmArray) { // Добавление регионов
+export function addRegions(map, osmArray, osmRegion) { // Добавление регионов
     if (osmArray.length) {
         for (let i = 0; i < osmArray.length; i++) {
             osmeRegions.geoJSON(osmArray[i].osmId, {
                 lang: 'ru',
-                quality: 3
+                quality: 3,
+                postFilter: function(region){
+                    return region.osmId==osmArray[i].osmId;
+                }
             }, (data, pure) => {
                 let collection = osmeRegions.toYandex(data, ymaps);
                 collection.add(map);
                 osmArray[i]._collection = collection;
-
                 collection.setStyles(() => {
-                    return getRegionsStyle(osmArray[i])
+                    return getRegionsStyle(osmArray[i], osmRegion)
                 });
             });
         }
     }
 }
 
-function getRegionsStyle(osmArray){
+function getRegionsStyle(osmArray, osmRegion){
     return ({
         strokeWidth: 1,
         strokeStyle: "longdashdotdot",
         strokeColor: "#5CA5C1",
-        fillColor: osmArray.color
+        fillColor: osmArray.colors
     });
 }
 
@@ -66,9 +68,9 @@ export class YMapInner extends AbstractMap {
 
   setMapRef = ref => {
       this._map = ref;
-      if(ref && !this.firstMapLoading && this.osm_region){
+      if(ref && !this.firstMapLoading && this.osmRegion){
           this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
-          addRegions(this._map, this.osmArray);
+          addRegions(this._map, this.osmArray, this.osmRegion);
           this.osmArrayPrev = this.osmArray;
       }
   };
@@ -102,7 +104,7 @@ export class YMapInner extends AbstractMap {
   }
 
   componentDidMount() {
-    this.osm_region = this.props.data_mart.osm_region || null;
+    this.osmRegion = this.props.data_mart.osm_region || null;
 
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
@@ -199,7 +201,7 @@ export class YMapInner extends AbstractMap {
 
       if (checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
         osmObj.osmId = osmId;
-        osmObj.color = regionColor;
+        osmObj.colors = regionColor;
         this.osmArray.push(osmObj);
       }
 
