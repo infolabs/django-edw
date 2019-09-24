@@ -76,7 +76,7 @@ export default class AbstractMap extends Component {
   }
 
   getGroupColor(item) {
-    return "rgba(0,0,0,0)";
+    return "white";
   }
 
   getBorderColor(item) {
