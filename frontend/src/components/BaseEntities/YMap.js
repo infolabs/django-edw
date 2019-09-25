@@ -36,6 +36,13 @@ export const markerModules = [
 ];
 
 export function addRegions(map, osmArray, osmRegion) { // Добавление регионов
+    /*
+    TODO:
+    1. No need to check the length, an empty array won't be iterated anyway
+    2. You don't use the variable i, a C-style iteration is abundant
+       iterate over contents e.g: for (const osm of osmArray) {...}
+       check similar occurrences in other files as well
+    */
     if (osmArray.length) {
         for (let i = 0; i < osmArray.length; i++) {
             osmeRegions.geoJSON(osmArray[i].osmId, {
@@ -213,6 +220,14 @@ export class YMapInner extends AbstractMap {
           }
         }
       }
+
+    /*
+    TODO:
+    The function is not needed here, can be written as one short call within "if" condition below
+      See
+      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+    */
 
       function checkOsm(obj) {
         for (let i=0; i<obj.length; i++){
