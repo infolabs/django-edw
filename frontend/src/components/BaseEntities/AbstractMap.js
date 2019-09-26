@@ -75,16 +75,11 @@ export default class AbstractMap extends Component {
     return pinColor;
   }
 
-  getGroupColor(item) {
-    return "white";
-  }
-
-  getBorderColor(item) {
-    return "black";
-  }
-
-  getRegionColor(item) {
-    return "rgba(0,0,0,0)";
+  getColor() {
+    const backgroundColorContent = "white",
+          borderColor = "black",
+          regionColor = "rgba(0,0,0,0)";
+    return {backgroundColorContent, borderColor, regionColor};
   }
 
   handleInfoMouseClick(e, data) {

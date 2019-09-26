@@ -35,59 +35,50 @@ export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
-export function addRegions(map, osmArray, osmRegion) { // Добавление регионов
-    /*
-    TODO:
-    1. No need to check the length, an empty array won't be iterated anyway
-    2. You don't use the variable i, a C-style iteration is abundant
-       iterate over contents e.g: for (const osm of osmArray) {...}
-       check similar occurrences in other files as well
-    */
-    if (osmArray.length) {
-        for (let i = 0; i < osmArray.length; i++) {
-            osmeRegions.geoJSON(osmArray[i].osmId, {
-                lang: 'ru',
-                quality: 3,
-                postFilter: function(region){
-                    return region.osmId==osmArray[i].osmId;
-                }
-            }, (data, pure) => {
-                let collection = osmeRegions.toYandex(data, ymaps);
-                collection.add(map);
-                osmArray[i]._collection = collection;
-                collection.setStyles(() => {
-                    return getRegionsStyle(osmArray[i], osmRegion)
-                });
+export function addRegions(map, osmArray, osmRegion) {
+    for (const osm of osmArray) {
+        osmeRegions.geoJSON(osm.osmId, {
+            lang: 'ru',
+            quality: 3,
+            postFilter: function(region){
+                return region.osmId == osm.osmId;
+            }
+        }, (data) => {
+            let collection = osmeRegions.toYandex(data, ymaps);
+            collection.add(map);
+            osm._collection = collection;
+            collection.setStyles(() => {
+                return getRegionsStyle(osm, osmRegion)
             });
-        }
+        });
     }
 }
 
-function getRegionsStyle(osmArray, osmRegion){
+function getRegionsStyle(osm, osmRegion){
   switch (osmRegion){
     case 'avg':
-      const nm = osmArray.colors.length;
+      const nm = osm.colors.length;
       if(nm > 1){
         let [r, g, b] = [0, 0, 0];
-        osmArray.colors.map((array, i) => {
+        osm.colors.map((array, i) => {
           const color = Color(array).rgb().array();
           r += color[0];
           g += color[1];
           b += color[2];
         });
-        osmArray.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.08)`;
+        osm.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.08)`;
       } else {
-        osmArray.colors = osmArray.colors[0];
+        osm.colors = osm.colors[0];
       }
       break;
     default :
-      osmArray.colors = osmArray.colors[0];
+      osm.colors = osm.colors[0];
   }
   return ({
       strokeWidth: 1,
       strokeStyle: "longdashdotdot",
       strokeColor: "#5CA5C1",
-      fillColor: osmArray.colors
+      fillColor: osm.colors
   });
 }
 
@@ -194,10 +185,11 @@ export class YMapInner extends AbstractMap {
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
-      const groupColor = this.getGroupColor(item),
-            borderGroupColor = this.getBorderColor(item),
+      const colorItems = this.getColor(item),
+            groupColor = colorItems.backgroundColorContent,
+            borderGroupColor = colorItems.borderColor,
             pinColor = this.getPinColor(item),
-            regionColor = this.getRegionColor(item),
+            regionColor = colorItems.regionColor,
             descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
             description = !descriptions_data[item.id] && descriptions.groups ? descriptions.groups[item.id] : descriptions_data[item.id],
             info = this.assembleInfo(item, meta, description),
@@ -221,26 +213,9 @@ export class YMapInner extends AbstractMap {
         }
       }
 
-    /*
-    TODO:
-    The function is not needed here, can be written as one short call within "if" condition below
-      See
-      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-    */
-
-      function checkOsm(obj) {
-        for (let i=0; i<obj.length; i++){
-          if(obj[i].osmId == osmId){
-            return false
-          }
-        }
-        return true
-      }
-
-      if (checkOsm(this.osmArray)){ // Не добавлять адрес, если  уже есть в объекте
+      if (!this.osmArray.some(osm => osm.osmId == osmId)){
         osmObj.osmId = osmId;
-        osmObj.colors[0] = regionColor;
+        osmObj.colors.push(regionColor);
         this.osmArray.push(osmObj);
       } else {
         this.osmArray[0].colors.push(regionColor);
@@ -258,9 +233,9 @@ export class YMapInner extends AbstractMap {
 
       if (item.extra && item.extra.group_size) {
         marker.prefix = 'group-';
-        const label = item.extra.group_size.toString();
-        const diameter = 17 + label.length * 12;
-        const radius = diameter / 2;
+        const label = item.extra.group_size.toString(),
+              diameter = 17 + label.length * 12,
+              radius = diameter / 2;
         marker.properties.iconContent = label;
         marker.options = {
           preset: {iconLayout: this.state.circleLayout},
