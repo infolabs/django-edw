@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import calendar
 
-from django.core.cache import cache
 from django.db import transaction
 from django.utils.timezone import make_aware, is_naive
 from django.utils.translation import ugettext_lazy as _
@@ -26,8 +25,6 @@ class BaseAddedDateTermsValidationMixin(object):
 
     REQUIRED_FIELDS = ('created_at',)
 
-    VALIDATE_TERM_MODEL_CACHE_TIMEOUT = 60
-
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
         RUS: Проставляет метки в термин Дата после сохранеия объекта.
@@ -47,7 +44,6 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
     ADDED_DAY_ROOT_TERM_SLUG = "added-day"
     ADDED_DAY_KEY = 'added-day-{:02d}'
     ADDED_DAY_RANGE_KEY = 'added-day-{0:02d}-{1:02d}'
-    VALIDATE_ADDED_DAY_CACHE_KEY = 'day_add:vldt'
 
     @classmethod
     def validate_term_model(cls):
@@ -56,9 +52,10 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         и при его отсутствии создает диапазон дат и разбивку по дням в этих диапазонах.
         """
         # Устанавливаем таймаут для валидации
-        need_validation = cache.get(cls.VALIDATE_ADDED_DAY_CACHE_KEY, True)
+        key = 'vldt:day_add'
+        need_validation = EntityModel._validate_term_model_cache.get(key, True)
         if need_validation:
-            cache.set(cls.VALIDATE_ADDED_DAY_CACHE_KEY, False, cls.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
+            EntityModel._validate_term_model_cache[key] = False
 
             system_flags = _default_system_flags_restriction
             with transaction.atomic():
@@ -141,7 +138,6 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     ADDED_MONTH_ROOT_TERM_SLUG = "added-month"
     ADDED_MONTH_KEY = 'added-month-{:02d}'
-    VALIDATE_ADDED_MONTH_CACHE_KEY = 'mnth_add:vldt'
 
     @classmethod
     def validate_term_model(cls):
@@ -150,9 +146,10 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         и при его отсутствии создает диапазон месяцев (1-12) и разбивку по месяцам в этих диапазонах.
         """
         # Устанавливаем таймаут для валидации
-        need_validation = cache.get(cls.VALIDATE_ADDED_MONTH_CACHE_KEY, True)
+        key = 'vldt:mnth_add'
+        need_validation = EntityModel._validate_term_model_cache.get(key, True)
         if need_validation:
-            cache.set(cls.VALIDATE_ADDED_MONTH_CACHE_KEY, False, cls.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
+            EntityModel._validate_term_model_cache[key] = False
 
             system_flags = _default_system_flags_restriction
             with transaction.atomic():
@@ -178,7 +175,6 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                                           semantic_rule=TermModel.OR_RULE,
                                           system_flags=system_flags)
                         month.save()
-
 
         super(AddedMonthTermsValidationMixin, cls).validate_term_model()
 
@@ -219,7 +215,6 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
     ADDED_YEAR_ROOT_TERM_SLUG = "added-year"
     ADDED_YEAR_KEY = 'added-year-{}'
-    VALIDATE_ADDED_YEAR_CACHE_KEY = 'year_add:vldt'
 
     @classmethod
     def validate_term_model(cls):
@@ -227,9 +222,10 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Добавляет год в модель терминов TermModel.
         """
         # Устанавливаем таймаут для валидации
-        need_validation = cache.get(cls.VALIDATE_ADDED_YEAR_CACHE_KEY, True)
+        key = 'vldt:year_add'
+        need_validation = EntityModel._validate_term_model_cache.get(key, True)
         if need_validation:
-            cache.set(cls.VALIDATE_ADDED_YEAR_CACHE_KEY, False, cls.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
+            EntityModel._validate_term_model_cache[key] = False
 
             system_flags = _default_system_flags_restriction
             with transaction.atomic():
@@ -243,6 +239,7 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                         semantic_rule=TermModel.XOR_RULE,
                         system_flags=system_flags)
                     added_year.save()
+
         super(AddedYearTermsValidationMixin, cls).validate_term_model()
 
     def validate_terms(self, origin, **kwargs):

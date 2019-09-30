@@ -39,7 +39,12 @@ class FullPathTreeNodeChoiceFieldMixin(object):
         Creates labels which represent full path of each node when
         generating option labels.
         """
+        # todo: Fixit!!!!
         ancestors = list(obj.get_ancestors(include_self=True))
+
+        # print ("*** Get label for ID", obj.id, smart_text(obj))
+
+        # ancestors = []
         return mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in ancestors])) # todo: limit label length
 
     def _get_choices(self):
@@ -55,6 +60,14 @@ class FullPathTreeNodeChoiceFieldMixin(object):
             return []
 
         current_queryset_hash = hash.hexdigest()
+
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
+        # print ("&&&& GET CHOICES", current_queryset_hash)
 
         if hasattr(self.queryset, '_queryset_hash') and self.queryset._queryset_hash == current_queryset_hash:
             return self.queryset._choices_cache

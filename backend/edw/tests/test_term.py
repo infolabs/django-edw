@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
+
 from edw.models.defaults.term import Term
-from edw.models.term import TermModel, TermInfo
+from edw.models.term import TermModel
 
 
 class TermTestHandler(TestCase):

@@ -2,41 +2,35 @@
 from __future__ import unicode_literals
 
 import inspect
-
 import operator
 from functools import reduce
 
-from six import with_metaclass
-
-from django.core.exceptions import ValidationError
+from bitfield import BitField
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q, F
 from django.db.models.query import EmptyQuerySet
 from django.utils.encoding import python_2_unicode_compatible, force_text
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
-
-from mptt.models import MPTTModel, MPTTModelBase
-from mptt.managers import TreeManager
-from mptt.querysets import TreeQuerySet
+from django.utils.translation import ugettext_lazy as _
 from mptt.exceptions import InvalidMove
-
-from bitfield import BitField
-
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, MPTTModelBase
+from mptt.querysets import TreeQuerySet
 from rest_framework.reverse import reverse
+from six import with_metaclass
 
-from .. import deferred
-from .mixins.term.semantic_rule import (OrRuleFilterMixin, AndRuleFilterMixin,)
-from .mixins.rebuild_tree import RebuildTreeMixin
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields.tree import TreeForeignKey
+from .mixins.rebuild_tree import RebuildTreeMixin
+from .mixins.term.semantic_rule import (OrRuleFilterMixin, AndRuleFilterMixin, )
+from .. import deferred
+from .. import settings as edw_settings
+from ..signals.mptt import MPTTModelSignalSenderMixin
+from ..utils.circular_buffer_in_cache import RingBuffer
 from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
-from ..utils.circular_buffer_in_cache import RingBuffer
-from ..signals.mptt import MPTTModelSignalSenderMixin
-
-from .. import settings as edw_settings
 
 
 #==============================================================================
@@ -789,6 +783,8 @@ class TermInfo(list):
 
     @staticmethod
     def decompress(model_class, value=None, fix_it=False):
+    # todo:
+    # def decompress(root_term, value=None, fix_it=False):
         """
         RUS: Собирает дерево.
         """
@@ -796,6 +792,9 @@ class TermInfo(list):
             value = []
         value = uniq(value)
         root = TermInfo(term=model_class(semantic_rule=model_class.ROOT_RULE, active=True))
+        # root = TermInfo(term=root_term)
+        # model_class = root_term.__class__
+
         tree = TermTreeInfo(root)
         for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
             if not term.id in tree:
@@ -822,6 +821,7 @@ class TermInfo(list):
                 else:
                     root.append(node)
 
+        # todo:
         if fix_it:
             invalid_ids = []
             for x in [x for x in tree.values() if not x.is_leaf]:

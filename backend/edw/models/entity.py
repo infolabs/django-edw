@@ -784,6 +784,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj_hash}'
     RELATION_CACHE_KEY_PATTERN = 'rel:{rel_hash}'
 
+    # таймаут для кеширования при валидации, необходим при оптимазации старта сервера в несколько потоков
+    VALIDATE_TERM_MODEL_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_validate_term_model']
+
     TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
     TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']
     TERMS_IDS_CACHE_KEY_PATTERN = 'e_t_ids:{tree_hash}'
@@ -953,29 +956,34 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             parent = None
             for Model in get_polymorphic_ancestors_models(cls):
                 slug = Model.__name__.lower()
-                with transaction.atomic():
-                    try:
-                        if parent is None:
-                            term = TermModel.objects.get(slug=slug, parent=parent)
-                        else:
-                            try:
-                                parent = TermModel.objects.get(id=parent.id)
-                            except TermModel.DoesNotExist:
-                                pass
-                            term = TermModel.objects.get(slug=slug, id__in=list(
-                                parent.get_descendants(include_self=False).values_list('id', flat=True)))
-                    except TermModel.DoesNotExist:
-                        term = TermModel(slug=slug,
-                                         parent_id=parent.id if parent else None,
-                                         name=force_text(Model._meta.verbose_name),
-                                         semantic_rule=TermModel.XOR_RULE,
-                                         system_flags=(TermModel.system_flags.delete_restriction |
-                                                       TermModel.system_flags.change_parent_restriction |
-                                                       TermModel.system_flags.change_slug_restriction |
-                                                       TermModel.system_flags.change_semantic_rule_restriction |
-                                                       TermModel.system_flags.has_child_restriction |
-                                                       TermModel.system_flags.external_tagging_restriction))
-                        term.save(do_correct_term_unique_error=False)
+                key = 'vldt:{parent_slug}:{slug}:tm'.format(parent_slug=parent.slug if parent else None, slug=slug)
+                # EntityModel._validate_term_model_cache init in `edw/signals/handlers/entity.py`
+                term = EntityModel._validate_term_model_cache.get(key, None)
+                if term is None:
+                    with transaction.atomic():
+                        try:
+                            if parent is None:
+                                term = TermModel.objects.get(slug=slug, parent=parent)
+                            else:
+                                try:
+                                    parent = TermModel.objects.get(id=parent.id)
+                                except TermModel.DoesNotExist:
+                                    pass
+                                term = TermModel.objects.get(slug=slug, id__in=list(
+                                    parent.get_descendants(include_self=False).values_list('id', flat=True)))
+                        except TermModel.DoesNotExist:
+                            term = TermModel(slug=slug,
+                                             parent_id=parent.id if parent else None,
+                                             name=force_text(Model._meta.verbose_name),
+                                             semantic_rule=TermModel.XOR_RULE,
+                                             system_flags=(TermModel.system_flags.delete_restriction |
+                                                           TermModel.system_flags.change_parent_restriction |
+                                                           TermModel.system_flags.change_slug_restriction |
+                                                           TermModel.system_flags.change_semantic_rule_restriction |
+                                                           TermModel.system_flags.has_child_restriction |
+                                                           TermModel.system_flags.external_tagging_restriction))
+                            term.save(do_correct_term_unique_error=False)
+                    EntityModel._validate_term_model_cache[key] = term
                 parent = term
 
     def need_terms_validation_after_save(self, origin, **kwargs):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import itertools
 
 from django.conf import settings
@@ -13,12 +12,11 @@ from django.db.models.signals import (
 )
 from django.dispatch import receiver
 
+from edw.models.entity import EntityModel
+from edw.models.term import TermModel
+from edw.rest.serializers.entity import EntityCommonSerializer
 from edw.signals import make_dispatch_uid
 from edw.signals.entity import external_add_terms, external_remove_terms
-
-from edw.models.term import TermModel
-from edw.models.entity import EntityModel
-from edw.rest.serializers.entity import EntityCommonSerializer
 
 
 def get_HTML_snippets_keys(sender):
@@ -104,6 +102,9 @@ def invalidate_entity_before_delete(sender, instance, **kwargs):
 #   &
 # Term model validation
 #==============================================================================
+# init cache for .validate_term_model()
+EntityModel._validate_term_model_cache = {}
+
 Model = EntityModel.materialized
 for clazz in itertools.chain([Model], Model.get_all_subclasses()):
     pre_delete.connect(invalidate_entity_before_delete, clazz,
@@ -111,4 +112,11 @@ for clazz in itertools.chain([Model], Model.get_all_subclasses()):
     post_save.connect(invalidate_entity_after_save, clazz,
                       dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_save, clazz))
 
-    clazz.validate_term_model()
+    # Устанавливаем таймаут для валидации
+    key = 'vldt:{cls}:cls'.format(cls=clazz.__name__.lower())
+    is_valid = cache.get(key, False)
+    if not is_valid:
+        cache.set(key, True, clazz.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
+        clazz.validate_term_model()
+
+del EntityModel._validate_term_model_cache
