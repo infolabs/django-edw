@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.conf import settings
-
 from rest_framework.settings import api_settings
 
 APP_LABEL = settings.EDW_APP_LABEL  # mandatory setting without default
@@ -31,6 +29,7 @@ CACHE_DURATIONS = {
     'entity_html_snippet': 86400,
     'entity_terms_ids': 3600,
     'entity_data_mart': 3600,
+    'entity_validate_term_model': 30,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 
