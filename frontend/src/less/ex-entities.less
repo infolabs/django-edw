@@ -757,6 +757,15 @@
     padding: 13px;
     overflow: hidden;
     z-index: 11;
+    .ex-attrs {
+      .ex-list-unstyled();
+
+      & > * {
+        &[data-view-class~="hidden"], &[data-view-class~="hide-in-baloon"] {
+          display: none;
+        }
+      }
+    }
     .ex-tags {
       .ex-tag {
         font-size: 86%;
