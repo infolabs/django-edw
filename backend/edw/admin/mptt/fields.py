@@ -2,10 +2,11 @@
 """
 Form components for working with trees.
 """
-from django import forms
+import hashlib
 
+from django import forms
+from django.core.cache import cache
 from django.forms.fields import ChoiceField
-from django.forms.models import ModelChoiceIterator
 
 try:
     from django.utils.encoding import smart_text
@@ -15,12 +16,15 @@ except ImportError:
 from django.utils.html import conditional_escape, mark_safe
 from django.db.utils import ProgrammingError
 
-import hashlib
+from edw.models.mptt_info import TermInfo
+
 
 __all__ = ('FullPathTreeNodeChoiceField',)
 
 
 class FullPathTreeNodeChoiceFieldMixin(object):
+
+    CHOICES_CACHE_TIMEOUT = 60
 
     def __init__(self, queryset, *args, **kwargs):
 
@@ -28,24 +32,11 @@ class FullPathTreeNodeChoiceFieldMixin(object):
         self.to_field_name = kwargs.pop('to_field_name', None)
 
         # if a queryset is supplied, enforce ordering
-        if hasattr(queryset, 'model'):
+        if hasattr(queryset.model, '_mptt_meta'):
             mptt_opts = queryset.model._mptt_meta
             queryset = queryset.order_by(mptt_opts.tree_id_attr, mptt_opts.left_attr)
 
         super(FullPathTreeNodeChoiceFieldMixin, self).__init__(queryset, *args, **kwargs)
-
-    def label_from_instance(self, obj):
-        """
-        Creates labels which represent full path of each node when
-        generating option labels.
-        """
-        # todo: Fixit!!!!
-        ancestors = list(obj.get_ancestors(include_self=True))
-
-        # print ("*** Get label for ID", obj.id, smart_text(obj))
-
-        # ancestors = []
-        return mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in ancestors])) # todo: limit label length
 
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
@@ -53,29 +44,38 @@ class FullPathTreeNodeChoiceFieldMixin(object):
         hash = hashlib.md5()
 
         try:
-            hash.update(';'.join(str(x) for x in self.queryset.values_list('id', flat=True)))
+            ids = list(self.queryset.values_list('id', flat=True))
         except ProgrammingError as e:
             # initial migrations hack
             print e.args
             return []
 
+        hash.update(';'.join(str(x) for x in ids))
         current_queryset_hash = hash.hexdigest()
-
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
-        # print()
-        # print ("&&&& GET CHOICES", current_queryset_hash)
 
         if hasattr(self.queryset, '_queryset_hash') and self.queryset._queryset_hash == current_queryset_hash:
             return self.queryset._choices_cache
 
-        self.queryset._queryset_hash = current_queryset_hash
-        self.queryset._choices_cache = list(ModelChoiceIterator(self))
+        key = "flPthTrNdChFld:{}".format(current_queryset_hash)
+        choices = cache.get(key, None)
+        if choices is None:
+            tree = TermInfo.decompress(self.queryset.model(), value=ids)
+            choices = []
+            for id in ids:
+                term = tree[id].term
+                path = [term]
+                parent_id = term.parent_id
+                while parent_id is not None:
+                    term = tree[parent_id].term
+                    path.insert(0, term)
+                    parent_id = term.parent_id
+                choices.append((id, mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in path]))))
 
-        return self.queryset._choices_cache
+            self.queryset._queryset_hash = current_queryset_hash
+            self.queryset._choices_cache = choices
+            cache.set(key, choices, self.CHOICES_CACHE_TIMEOUT)
+
+        return choices
 
     choices = property(_get_choices, ChoiceField._set_choices)
 

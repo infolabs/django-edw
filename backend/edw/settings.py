@@ -29,7 +29,7 @@ CACHE_DURATIONS = {
     'entity_html_snippet': 86400,
     'entity_terms_ids': 3600,
     'entity_data_mart': 3600,
-    'entity_validate_term_model': 30,
+    'entity_validate_term_model': 60,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 
