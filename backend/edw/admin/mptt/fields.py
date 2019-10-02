@@ -52,7 +52,7 @@ class FullPathTreeNodeChoiceFieldMixin(object):
 
         hash.update(';'.join(str(x) for x in ids))
 
-        required = self.empty_label is not None
+        required = self.empty_label is not None and self.initial is not None
 
         key = "flPthTrNdChFld:{hash}:{required}".format(hash=hash.hexdigest(), required=required)
 
