@@ -464,12 +464,15 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return super(BaseTerm, self).get_ancestors(ascending, include_self)
     
     @staticmethod
-    def decompress(fix_it=False, *args, **kwars):
+    def decompress(*args, **kwargs):
         """
         Shortcut to TermInfo.decompress method
         RUS: Собирает дерево из класса TermInfo.
         """
-        tree = TermInfo.decompress(TermModel(semantic_rule=TermModel.ROOT_RULE, active=True), *args, **kwars)
+        fix_it = kwargs.pop('fix_it', False)
+        value = kwargs.pop('value', None)
+
+        tree = TermInfo.decompress(TermModel(semantic_rule=TermModel.ROOT_RULE, active=True), value)
 
         if fix_it:
             invalid_ids = []
@@ -503,11 +506,14 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         cache.delete_many(keys)
 
     @staticmethod
-    def cached_decompress(value=None, fix_it=False):
+    def cached_decompress(*args, **kwargs):
         """
         RUS: Собирает дерево из терминов, применяя к нему ключ кэша и удаляя старый кэш по ключу,
         если он не является акутуальным.
         """
+        value = kwargs.pop('value', None)
+        fix_it = kwargs.pop('fix_it', False)
+
         key = BaseTerm.DECOMPRESS_CACHE_KEY_PATTERN.format(**{
             "value_hash": hash_unsorted_list(value) if value else '',
             "fix_it": 'Y' if fix_it else 'N'

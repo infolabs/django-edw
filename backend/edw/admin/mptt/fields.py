@@ -51,16 +51,19 @@ class FullPathTreeNodeChoiceFieldMixin(object):
             return []
 
         hash.update(';'.join(str(x) for x in ids))
-        current_queryset_hash = hash.hexdigest()
 
-        if hasattr(self.queryset, '_queryset_hash') and self.queryset._queryset_hash == current_queryset_hash:
+        required = self.empty_label is not None
+
+        key = "flPthTrNdChFld:{hash}:{required}".format(hash=hash.hexdigest(), required=required)
+
+        if hasattr(self.queryset, '_queryset_hash') and self.queryset._queryset_hash == key:
             return self.queryset._choices_cache
 
-        key = "flPthTrNdChFld:{}".format(current_queryset_hash)
         choices = cache.get(key, None)
         if choices is None:
-            tree = TermInfo.decompress(self.queryset.model(), value=ids)
-            choices = []
+            tree = TermInfo.decompress(self.queryset.model(), ids)
+
+            choices = [] if required else [("", self.empty_label)]
             for id in ids:
                 term = tree[id].term
                 path = [term]
@@ -71,7 +74,7 @@ class FullPathTreeNodeChoiceFieldMixin(object):
                     parent_id = term.parent_id
                 choices.append((id, mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in path]))))
 
-            self.queryset._queryset_hash = current_queryset_hash
+            self.queryset._queryset_hash = key
             self.queryset._choices_cache = choices
             cache.set(key, choices, self.CHOICES_CACHE_TIMEOUT)
 

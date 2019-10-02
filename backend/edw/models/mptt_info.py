@@ -185,7 +185,7 @@ class TermInfo(list):
         return result
 
     @staticmethod
-    def decompress(root_term, value=None):
+    def decompress(root_term, value):
         """
         RUS: Собирает дерево.
         """
