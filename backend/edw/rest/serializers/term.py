@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.core.cache import cache
 from django.core.exceptions import (
     ValidationError,
@@ -12,24 +11,21 @@ from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
-
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.compat import unicode_to_repr
 from rest_framework.fields import empty
-
+from rest_framework.generics import get_object_or_404
 from rest_framework_recursive.fields import RecursiveField
 
-from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
-
-from edw.models.term import TermModel
 from edw.models.data_mart import DataMartModel
-from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 from edw.models.rest import (
     BasePermissionsSerializerMixin,
     CheckPermissionsBulkListSerializerMixin,
     UpdateOrCreateSerializerMixin
 )
+from edw.models.term import TermModel
+from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 
 #==============================================================================
@@ -270,7 +266,7 @@ class _TermsFilterMixin(object):
         if self.cached:
             return data.cache(on_cache_set=_TermsFilterMixin.on_cache_set, timeout=TermModel.CHILDREN_CACHE_TIMEOUT)
         else:
-            return data.prepare_for_cache(data)
+            return list(data)
 
     def to_representation(self, data):
         next_depth = self.depth + 1

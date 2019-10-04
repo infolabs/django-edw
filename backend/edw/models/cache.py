@@ -7,7 +7,6 @@ from django.core.cache import cache
 
 from edw.utils.hash_helpers import create_hash
 
-
 DEFAULT_CACHE_KEY_ATTR = '_cache_key'
 DEFAULT_CACHE_TIMEOUT = 300  # 5 minutes
 
@@ -88,7 +87,6 @@ class QuerySetCachedResultMixin(object):
         """
         RUS: Получает результат кэширования по ключу из глобального кэша.
         """
-
         result = cache.get(key, empty)
         if result == empty:
             result = self.prepare_for_cache(self)
@@ -141,5 +139,4 @@ class _ReadyForCache(QuerySetCachedResultMixin, list):
             cache_key = getattr(data, cache_key_attr, empty)
             if cache_key != empty:
                 setattr(self, cache_key_attr, cache_key)
-
         super(_ReadyForCache, self).__init__(data)

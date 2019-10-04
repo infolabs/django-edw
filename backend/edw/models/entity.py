@@ -18,7 +18,7 @@ from django.db.models.sql.datastructures import EmptyResultSet
 from django.utils import six
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible, force_text
-from django.utils.functional import cached_property
+from django.utils.functional import cached_property, lazy
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from ipware import ip
@@ -66,6 +66,17 @@ def get_polymorphic_ancestors_models(ChildModel):
 #==============================================================================
 # BaseEntityQuerySet
 #==============================================================================
+
+def _get_terms_ids(entities_qs, tree):
+    """
+    RUS: Возвращает список id, актуализированного согласно выборке объектов, дерева терминов.
+    """
+    result = getattr(entities_qs, '_terms_ids_cache', None)
+    if result is None:
+        result = entities_qs._terms_ids_cache = tree.trim(entities_qs.get_related_terms_ids()).keys()
+    return result
+
+
 class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, PolymorphicQuerySet):
     """
     RUS: Запрос к базовой сущности базы данных.
@@ -175,10 +186,11 @@ class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, 
 
     @add_cache_key(_get_terms_ids_cache_key)
     def get_terms_ids(self, tree):
-        """
-        RUS: Кэшируются id терминов дерева тематической модели.
-        """
-        return self.prepare_for_cache(tree.trim(self.get_related_terms_ids()).keys())
+        # отложенное вычисление
+        result = lazy(_get_terms_ids, list)(self, tree)
+        # примиксовываем вычислитель кэша
+        result.__class__ = type(str('LazyQuerySetCachedResult'), (QuerySetCachedResultMixin, result.__class__), {})
+        return result
 
     def get_similar(self, value, use_cached_decompress=False, fix_it=False):
         """

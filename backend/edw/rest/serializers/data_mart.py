@@ -4,33 +4,29 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.core.cache import cache
-from django.db import models
 from django.core.exceptions import (
     ValidationError,
     ObjectDoesNotExist,
     MultipleObjectsReturned,
     ImproperlyConfigured
 )
+from django.db import models
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
+from django.utils.text import Truncator
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
-from django.utils.text import Truncator
-
 from rest_framework import serializers
-from rest_framework.fields import empty
 from rest_framework.compat import unicode_to_repr
+from rest_framework.fields import empty
 from rest_framework_recursive.fields import RecursiveField
-
-from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
-
 from edw.models.rest import (
     DynamicFieldsSerializerMixin,
     DynamicFieldsListSerializerMixin,
@@ -40,8 +36,8 @@ from edw.models.rest import (
     CheckPermissionsBulkListSerializerMixin,
     UpdateOrCreateSerializerMixin
 )
-
 from edw.rest.serializers.decorators import get_from_context_or_request
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 
 #==============================================================================
@@ -445,7 +441,7 @@ class _DataMartFilterMixin(object):
             return data.cache(on_cache_set=_DataMartFilterMixin.on_cache_set,
                               timeout=DataMartModel.CHILDREN_CACHE_TIMEOUT)
         else:
-            return data.prepare_for_cache(data)
+            return list(data)
 
     def to_representation(self, data):
         max_depth = self.max_depth
