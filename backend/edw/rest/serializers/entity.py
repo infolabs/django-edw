@@ -289,7 +289,7 @@ class EntityValidator(object):
 
             if errors:
                 attr_errors['relations'] = errors
-        elif request_method == 'POST' and self.serializer.is_data_mart_has_relations and \
+        elif instance is None and self.serializer.is_data_mart_has_relations and \
                 not self.serializer.is_data_mart_relations_has_subjects:
             attr_errors['relations'] = _('This field is required.')
 
@@ -681,9 +681,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             rel_r_ids.extend(rel_b_ids)
         return rel_subj, rel_f_ids, rel_r_ids
 
-    def _update_entity(self, instance, validated_data):
+    def _update_entity(self, instance, is_created, validated_data):
         attr_terms_ids = []
-
         # characteristics, marks
         for (attr_name, attribute_mode) in [
             ('characteristics', TermModel.attributes.is_characteristic),
@@ -739,7 +738,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         # terms_ids
         terms_ids = validated_data.pop('active_terms_ids', None)
-        if terms_ids is not None or attr_terms_ids or self.request_method == 'POST':
+        if terms_ids is not None or attr_terms_ids or is_created:
             if terms_ids is None:
                 terms_ids = attr_terms_ids
             else:
@@ -752,7 +751,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
         # relations
         relations = validated_data.pop('relations', None)
-        if relations is not None or self.request_method == 'POST':
+        if relations is not None or is_created:
             if relations is None:
                 relations = []
             elif not relations:
@@ -794,12 +793,12 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
         origin_validated_data = validated_data.copy()
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
-        instance = self._update_or_create_instance(self.Meta.model, self.get_id_attrs(), validated_data)
-        self._update_entity(instance, origin_validated_data)
+        instance, is_created = self._update_or_create_instance(self.Meta.model, self.get_id_attrs(), validated_data)
+        self._update_entity(instance, is_created, origin_validated_data)
         return instance
 
     def update(self, instance, validated_data):
-        self._update_entity(instance, validated_data)
+        self._update_entity(instance, False, validated_data)
         return super(EntityDetailSerializerBase, self).update(instance, validated_data)
 
     @cached_property

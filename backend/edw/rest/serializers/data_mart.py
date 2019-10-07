@@ -191,7 +191,7 @@ class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
 
     def create(self, validated_data):
         validated_data = self.__prepare_validated_data(validated_data)
-        instance = self._update_or_create_instance(DataMartModel, self.get_id_attrs(), validated_data)
+        instance, is_created = self._update_or_create_instance(DataMartModel, self.get_id_attrs(), validated_data)
         return instance
 
     def update(self, instance, validated_data):
