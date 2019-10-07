@@ -37,7 +37,7 @@ CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 CACHE_BUFFERS_SIZES = {
     'term_decompress': 500,
     'term_children': 500,
-    'term_attribute_ancestors': 500,
+    'term_attribute_ancestors': 1000,
 
     'data_mart_children': 500,
 

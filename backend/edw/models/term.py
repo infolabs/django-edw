@@ -63,6 +63,13 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         """
         return super(BaseTermQuerySet, self.exclude(system_flags=self.model.system_flags.delete_restriction)).delete()
 
+    @add_cache_key('slc1st')
+    def slice_first(self):
+        """
+        RUS: Срез первого элемента
+        """
+        return self[:1]
+
     @add_cache_key('toplvl')
     def toplevel(self):
         """
@@ -88,7 +95,7 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
     def _get_attribute_filter_cache_key(self, attribute_mode):
         """
-        RUS: Создает закэшированные атрибуты с фильтрацией в целочисленном формате.
+        RUS: Возвращает ключь для кеширования по указаным атрибутам
         """
         return self.model.ATTRIBUTE_FILTER_CACHE_KEY_PATTERN.format(
             mode=int(attribute_mode)
@@ -97,13 +104,28 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
     @add_cache_key(_get_attribute_filter_cache_key)
     def attribute_filter(self, attribute_mode):
         """
-        RUS: Возвращает закэшированные атрибуты с применением фильтра в целочисленном формате.
+        RUS: Возвращает термины содержащие указанный режим атрибута.
         """
         return self.filter(attributes=attribute_mode)
 
+    def _get_attribute_exclude_cache_key(self, attribute_mode):
+        """
+        RUS: Возвращает ключь для кеширования по исключаемым атрибутам
+        """
+        return self.model.ATTRIBUTE_EXCLUDE_CACHE_KEY_PATTERN.format(
+            mode=int(attribute_mode)
+        )
+
+    @add_cache_key(_get_attribute_exclude_cache_key)
+    def attribute_exclude(self, attribute_mode):
+        """
+        RUS: Возвращает термины в которых отсутствует указанный режим атрибута.
+        """
+        return self.exclude(attributes=attribute_mode)
+
     def _get_select_related_cache_key(self, *fields):
         """
-        RUS: Получает закэшированные связанные объекты.
+        RUS: Получает ключ для кэширования по связанным полям.
         """
         return self.model.SELECT_RELATED_CACHE_KEY_PATTERN.format(
             fields=':'.join(fields)
@@ -207,6 +229,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     ATTRIBUTE_ANCESTORS_BUFFER_CACHE_KEY = 't_a_anc_bf'
     ATTRIBUTE_ANCESTORS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['term_attribute_ancestors']
     ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
+    ATTRIBUTE_EXCLUDE_CACHE_KEY_PATTERN = '{mode}:ate'
     ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_attribute_ancestors']
 
     OR_RULE = 10
@@ -465,7 +488,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     
     @staticmethod
     def decompress(value=None, fix_it=False):
-
         """
         Shortcut to TermInfo.decompress method
         RUS: Собирает дерево из класса TermInfo.

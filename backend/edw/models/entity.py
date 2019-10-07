@@ -618,7 +618,7 @@ class EntityCharacteristicOrMarkGetter(object):
     @staticmethod
     def _get_attribute_ancestors(term, attribute_mode, local_cache):
         """
-        RUS: Получает атрибуты предков.
+        RUS: Получает родительские термины содержащие заданный режим атрибута.
         """
         ancestors = term.get_ancestors(ascending=True, include_self=False).attribute_filter(
             attribute_mode=attribute_mode).select_related('parent').cache(
@@ -627,6 +627,22 @@ class EntityCharacteristicOrMarkGetter(object):
             local_cache=local_cache
         )
         return ancestors
+
+    @staticmethod
+    def _get_no_attribute_ancestor(term, attribute_mode, local_cache):
+        """
+        RUS: Получает родительский термин у которого отсудствует заданный режим атрибута.
+        """
+        try:
+            term = term.get_ancestors(ascending=True, include_self=False).attribute_exclude(
+                attribute_mode=attribute_mode).slice_first().cache(
+                on_cache_set=EntityCharacteristicOrMarkGetter.on_attribute_ancestors_cache_set,
+                timeout=TermModel.ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT,
+                local_cache=local_cache
+            )[0]
+        except IndexError:
+            term = None
+        return term
 
     def _get_attributes(self, limit=None):
         """
@@ -675,11 +691,8 @@ class EntityCharacteristicOrMarkGetter(object):
                                                                   getattr(attr, self.tree_opts.left_attr)))
                     cnt += 1
                 if term.attributes & self.attribute_mode:
-                    try:
-                        term = term.get_ancestors(ascending=True, include_self=False).exclude(
-                            attributes=self.attribute_mode)[0]
-                    except IndexError:
-                        term = None
+                    term = EntityCharacteristicOrMarkGetter._get_no_attribute_ancestor(term, self.attribute_mode,
+                                                                                  self.attributes_ancestors_local_cache)
                 if term is not None:
                     index = seen_attrs.get(attr0.id)
                     if index is None:
