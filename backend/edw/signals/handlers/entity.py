@@ -102,6 +102,9 @@ def invalidate_entity_before_delete(sender, instance, **kwargs):
 #   &
 # Term model validation
 #==============================================================================
+# init cache for .entity_model
+EntityModel._content_type_cache = {}
+
 # init cache for .validate_term_model()
 EntityModel._validate_term_model_cache = {}
 
@@ -119,4 +122,5 @@ for clazz in itertools.chain([Model], Model.get_all_subclasses()):
         cache.set(key, True, clazz.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
         clazz.validate_term_model()
 
+# delete cache for .validate_term_model()
 del EntityModel._validate_term_model_cache

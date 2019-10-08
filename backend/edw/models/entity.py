@@ -879,13 +879,19 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return force_text(self.polymorphic_ctype)
     entity_type.short_description = _("Entity type")
 
-    @property
+    @cached_property
     def entity_model(self):
         """
         ENG: Returns the polymorphic model name of the object's class.
         RUS: Возвращает имя полиморфной модели класса объекта.
         """
-        return self.polymorphic_ctype.model
+        # init in `edw/signals/handlers/entity.py`
+        content_type_cache = self._content_type_cache
+        polymorphic_ctype_id = self.polymorphic_ctype_id
+        model = content_type_cache.get(polymorphic_ctype_id, None)
+        if model is None:
+            model = content_type_cache[polymorphic_ctype_id] = self.polymorphic_ctype.model
+        return model
 
     def get_absolute_url(self, request=None, format=None):
         """
