@@ -365,15 +365,15 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         '''
         :return: active `DataMartModel` instance from context, if `data_mart` not set, try find object by parsing request
         '''
-        def get_queryset():
-            return DataMartModel.objects.active()
-        pk = self.data_mart_pk
-        if pk is not None:
-            return get_object_or_404(get_queryset(), pk=pk)
-        else:
-            path = self.data_mart_path
-            if path is not None:
-                return get_object_or_404(get_queryset(), path=path)
+        value = self.data_mart_pk
+        if value is not None:
+            key = 'pk'
+            # it was a string, not an int. Try find object by `slug`
+            try:
+                value = int(value)
+            except ValueError:
+                key = 'slug'
+            return get_object_or_404(DataMartModel.objects.active(), **{key: value})
         return None
 
     @cached_property
@@ -381,14 +381,6 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def data_mart_pk(self, value):
         '''
         :return: `data_mart_pk` data mart id in context or request, default: None
-        '''
-        return serializers.IntegerField().to_internal_value(value)
-
-    @cached_property
-    @get_from_context_or_request('data_mart_path', None)
-    def data_mart_path(self, value):
-        '''
-        :return: `data_mart_path` data mart path in context or request, default: None
         '''
         return serializers.CharField().to_internal_value(value)
 
