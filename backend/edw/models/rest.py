@@ -546,5 +546,4 @@ class UpdateOrCreateSerializerMixin(object):
         else:
             instance = model_class.objects.create(**validated_data)
 
-        print ("++++ is_created", is_created)
         return instance, is_created
