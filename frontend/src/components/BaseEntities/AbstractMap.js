@@ -138,6 +138,9 @@ export default class AbstractMap extends Component {
         <div className="ex-map-descr">
           <h5>{header}</h5>
           <ul className="ex-attrs">
+            {messageId &&
+              <li><strong>{gettext('Message')} №: </strong>{messageId}</li>
+            }
             {characteristics.map(
               (child, i) =>
                 <li data-path={child.path} key={i}
@@ -146,9 +149,6 @@ export default class AbstractMap extends Component {
                   {child.values.join("; ")}
                 </li>
             )}
-            {messageId &&
-                <li><strong>{gettext('Message')} №: </strong>{messageId}</li>
-            }
           </ul>
           <ul className="ex-tags">
             {marks.map(
