@@ -10,7 +10,7 @@ class Aggregation extends Component {
 
     let ret = <span></span>;
     if (aggregation && Object.keys(aggregation).length) {
-      let aggr = {}
+      let aggr = {};
       for (let k of Object.keys(aggregation)) {
         if (aggregation[k].name != null && aggregation[k].value != null)
           aggr[k] = aggregation[k];

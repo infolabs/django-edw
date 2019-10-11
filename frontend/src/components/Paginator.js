@@ -44,13 +44,13 @@ class Paginator extends Component {
     const meta = this.props.entities.items.meta;
 
     let range = function(start = 0, stop, step = 1) {
-      let ret = []
+      let ret = [];
       let cur = (stop === undefined) ? 0 : start;
       let max = (stop === undefined) ? start : stop;
       for (let i = cur; step < 0 ? i > max : i < max; i += step)
         ret.push(i);
       return ret;
-    }
+    };
 
     // Digg-style pagination settings
     const leadingPageRangeDisplayed = 8,

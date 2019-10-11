@@ -111,6 +111,11 @@ export default class AbstractMap extends Component {
   assembleInfo(item, meta, description) {
     const { marks, characteristics, media, header } = this.assembleInfoVars(item, meta, description);
 
+    let messageId;
+    if (description && description.entity_model == "particularproblem"){
+       messageId = description.id
+    }
+
     return (
       <div className="ex-map-info"
            onClick={e => {this.handleInfoMouseClick(e, item);}}
@@ -141,6 +146,9 @@ export default class AbstractMap extends Component {
                   {child.values.join("; ")}
                 </li>
             )}
+            {messageId &&
+                <li><strong>{gettext('Message')} №: </strong>{messageId}</li>
+            }
           </ul>
           <ul className="ex-tags">
             {marks.map(
