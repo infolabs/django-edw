@@ -1,4 +1,4 @@
-{% load thumbnail edw_media_tags %}
+{% load thumbnail edw_media_tags %}{% spaceless %}
 {% if image.file %}{% if crop %}
     {% thumbnail image.file size crop='True' replace_alpha=replace_alpha as thumb %}
 {% else %}
@@ -11,4 +11,4 @@
     <a href="{{ ABSOLUTE_BASE_URI }}{{ href }}" style="{{ center_thumb_styles.inner }}">
         <img src="{{ thumb.url }}" {% if image.file %} data-original-src="{{ image.file }}"{% endif %} alt="{{ entity.entity_name }}">
     </a>
-</div>
+</div>{% endspaceless %}
