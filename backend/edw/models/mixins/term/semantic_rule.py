@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.db import models
 
 
@@ -26,7 +25,8 @@ class SemanticRuleFilterMixin(object):
 
     def make_leaf_filters(self, field_name):
         if self.active and self.pk is not None:
-            ids = list(self.get_descendants(include_self=True).active().values_list('id', flat=True))
+            ids = [self.pk] if self.is_leaf_node() else list(
+                self.get_descendants(include_self=True).active().values_list('id', flat=True))
             return [models.Q(**{field_name + '__in': ids})] if len(ids) > 1 else [models.Q(**{field_name: ids[0]})]
         else:
             return []
