@@ -108,61 +108,78 @@ export default class AbstractMap extends Component {
     return { marks, characteristics, media, header };
   }
 
+  exRibbons(marks){
+    return(
+      <ul className="ex-ribbons">
+        {marks.map(
+          (child, i) =>
+            <li className="ex-wrap-ribbon"
+                key={i}
+                data-name={child.name}
+                data-path={child.path}
+                data-view-class={child.view_class.join(" ")}>
+              <div className="ex-ribbon">{child.values.join(", ")}</div>
+            </li>
+        )}
+      </ul>
+    )
+  }
+
+  exAttrs(characteristics){
+    return(
+      <ul className="ex-attrs">
+        {characteristics.map(
+          (child, i) =>
+            child.values.length < 5 ?
+            <li data-path={child.path} key={i}
+                data-view-class={child.view_class.join(" ")}>
+              <strong>{child.name}:</strong>&nbsp;
+              {child.values.join("; ")}
+            </li>
+                :
+            <li data-path={child.path} key={i}
+                data-view-class={child.view_class.join(" ")}>
+              <strong>{child.name}:</strong>&nbsp;
+              {child.values.join("; ").split('; ',5).join("; ")}...
+            </li>
+        )}
+      </ul>
+    )
+  }
+
+  exTags(marks){
+    return(
+      <ul className="ex-tags">
+        {marks.map(
+          (child, i) =>
+            <li className="ex-tag"
+                key={i}
+                data-name={child.name}
+                data-path={child.path}
+                data-view-class={child.view_class.join(" ")}>
+              <i className="fa fa-tag"></i>&nbsp;
+              {child.values.join(", ")}
+            </li>
+        )}
+      </ul>
+    )
+  }
+
   assembleInfo(item, meta, description) {
     const { marks, characteristics, media, header } = this.assembleInfoVars(item, meta, description);
-
-    let messageId;
-    if (description && description.entity_model == "particularproblem"){
-       messageId = description.id
-    }
-
+    let exRibbons = this.exRibbons(marks),
+        exAttrs = this.exAttrs(characteristics),
+        exTags = this.exTags(marks);
     return (
       <div className="ex-map-info"
            onClick={e => {this.handleInfoMouseClick(e, item);}}
            style={item.extra.group_size && {cursor: 'pointer'}}>
         <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}} />
-
-        <ul className="ex-ribbons">
-          {marks.map(
-            (child, i) =>
-              <li className="ex-wrap-ribbon"
-                  key={i}
-                  data-name={child.name}
-                  data-path={child.path}
-                  data-view-class={child.view_class.join(" ")}>
-                <div className="ex-ribbon">{child.values.join(", ")}</div>
-              </li>
-          )}
-        </ul>
-
+        {exRibbons}
         <div className="ex-map-descr">
           <h5>{header}</h5>
-          <ul className="ex-attrs">
-            {messageId &&
-              <li><strong>{gettext('Message')} №: </strong>{messageId}</li>
-            }
-            {characteristics.map(
-              (child, i) =>
-                <li data-path={child.path} key={i}
-                    data-view-class={child.view_class.join(" ")}>
-                  <strong>{child.name}:</strong>&nbsp;
-                  {child.values.join("; ")}
-                </li>
-            )}
-          </ul>
-          <ul className="ex-tags">
-            {marks.map(
-              (child, i) =>
-                <li className="ex-tag"
-                    key={i}
-                    data-name={child.name}
-                    data-path={child.path}
-                    data-view-class={child.view_class.join(" ")}>
-                  <i className="fa fa-tag"></i>&nbsp;
-                  {child.values.join(", ")}
-                </li>
-            )}
-          </ul>
+          {exAttrs}
+          {exTags}
         </div>
       </div>
     );
