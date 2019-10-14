@@ -30,7 +30,7 @@ from rest_framework.reverse import reverse
 
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .data_mart import DataMartModel
-from .mixins.group_by import CustomGroupByQuerySetMixin
+from .mixins.query import CustomGroupByQuerySetMixin, CustomCountQuerySetMixin
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
@@ -77,7 +77,8 @@ def _get_terms_ids(entities_qs, tree):
     return result
 
 
-class BaseEntityQuerySet(CustomGroupByQuerySetMixin, QuerySetCachedResultMixin, PolymorphicQuerySet):
+class BaseEntityQuerySet(CustomCountQuerySetMixin, CustomGroupByQuerySetMixin, QuerySetCachedResultMixin,
+                         PolymorphicQuerySet):
     """
     RUS: Запрос к базовой сущности базы данных.
     """
