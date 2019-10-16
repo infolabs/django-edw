@@ -1441,16 +1441,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return self.get_related_entities(rel_id, 'r')
 
     @staticmethod
-    def _set_relations(rel_id, from_entity_id, to_entities_ids, direction='f'):
+    def _set_relations(rel_id, from_entity_id, to_entities_ids, direction='f', rewrite=True):
         """
         ENG: Set relations
         :param rel_id: relation term `id` or `slug`
         :param from_entity_id: from entity id
         :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`. default - `f`
+        :param rewrite: if value is False - don't delete excess relations, default - True
         :return:
         RUS: Добавляет прямые и обратные связи.
-        Удаляет избыточные связи.
+        По умолчанию удаляет избыточные связи.
         """
         if direction == 'f':
             from_entity_param, to_entity_param = 'from_entity', 'to_entity'
@@ -1471,12 +1472,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         to_entity_id_key = '{}_id'.format(to_entity_param)
         to_entity_id__in_key = '{}_id__in'.format(to_entity_param)
 
-        # delete excess relations
-        EntityRelationModel.objects.filter(**{
-            'term_id': rel_id, from_entity_id_key: from_entity_id
-        }).exclude(**{
-            to_entity_id__in_key: to_entities_ids
-        }).delete()
+        if rewrite:
+            # delete excess relations
+            EntityRelationModel.objects.filter(**{
+                'term_id': rel_id, from_entity_id_key: from_entity_id
+            }).exclude(**{
+                to_entity_id__in_key: to_entities_ids
+            }).delete()
 
         # add relations
         if to_entities_ids:
@@ -1495,39 +1497,40 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 }) for x in not_in_db_ids]
                 EntityRelationModel.objects.bulk_create(to_insert)
 
-    def set_relations(self, rel_id, to_entities_ids, direction):
+    def set_relations(self, rel_id, to_entities_ids, direction, rewrite=True):
         """
         ENG: Set relations forward/backward(reverse)
         :param rel_id: relation term `id` or `slug`
         :param from_entity_id: from entity id
         :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
+        :param rewrite: if value is False - don't delete excess relations, default - True
         :return:
         RUS: Устанавливает прямые и обратные связи.
         """
-        self._set_relations(rel_id, self.id, to_entities_ids, direction=direction)
+        self._set_relations(rel_id, self.id, to_entities_ids, direction=direction, rewrite=rewrite)
 
-    def set_forward_relations(self, rel_id, to_entities_ids):
+    def set_forward_relations(self, rel_id, to_entities_ids, rewrite=True):
         """
         ENG: Set forward relations, shortcut for set_relations(..., 'f').
-        RUS: Устанавливает прямые связи, сокращенное обозначение 'f'.
+        RUS: Устанавливает прямые связи, сокращенние для set_relations(..., 'f').
         """
-        self.set_relations(rel_id, to_entities_ids, 'f')
+        self.set_relations(rel_id, to_entities_ids, 'f', rewrite=rewrite)
 
-    def set_reverse_relations(self, rel_id, to_entities_ids):
+    def set_reverse_relations(self, rel_id, to_entities_ids, rewrite=True):
         """
         ENG: Set backward(reverse) relations, shortcut for set_relations(..., 'r').
-        RUS: Устанавливает обратные (реверсивные) связи, сокращенное обозначение 'r'.
+        RUS: Устанавливает обратные (реверсивные) связи, сокращенние для set_relations(..., 'r').
         """
-        self.set_relations(rel_id, to_entities_ids, 'r')
+        self.set_relations(rel_id, to_entities_ids, 'r', rewrite=rewrite)
 
-    def set_bidirectional_relations(self, rel_id, to_entities_ids):
+    def set_bidirectional_relations(self, rel_id, to_entities_ids, rewrite=True):
         """
         ENG: Set bidirectional relations.
         RUS: Устанавливает двунаправленные связи (прямые и обратные (реверсивные)).
         """
-        self.set_forward_relations(rel_id, to_entities_ids)
-        self.set_reverse_relations(rel_id, to_entities_ids)
+        self.set_forward_relations(rel_id, to_entities_ids, rewrite=rewrite)
+        self.set_reverse_relations(rel_id, to_entities_ids, rewrite=rewrite)
 
     @staticmethod
     def _remove_relations(from_entity_id, rel_f_ids, rel_r_ids):
