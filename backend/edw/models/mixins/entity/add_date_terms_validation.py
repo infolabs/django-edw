@@ -106,6 +106,9 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин День создания.
         """
+
+        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
+
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_days = self.get_added_days()
@@ -182,6 +185,9 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин Месяц создания.
         """
+
+        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
+
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_months = self.get_added_months()
@@ -246,6 +252,9 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин Год создания.
         """
+
+        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
+
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_year = self.created_at.year
