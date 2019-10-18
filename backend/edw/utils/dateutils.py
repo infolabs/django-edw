@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-
-from datetime import datetime
+from django.utils import timezone
 
 
 def years_ago(years, from_date=None):
@@ -30,3 +30,16 @@ def num_years(begin, end=None):
         end = datetime.now().date()
     years = int((end - begin).days / 365.2425)
     return years - 1 if begin > years_ago(years, end) else years
+
+
+# get local timezone
+local_tz = timezone.get_current_timezone()
+
+
+def datetime_to_local(dt):
+    """
+    Return datetime in current timezone
+    :param dt: datetime
+    :return:
+    """
+    return dt.replace(tzinfo=timezone.utc).astimezone(local_tz)
