@@ -8,23 +8,6 @@ import { MAP_HEIGHT } from 'constants/Components';
 // import `color` lib
 const Color = require('color');
 
-export const defaultState = {
-  bounds: [[50.1, 30.2], [60.3, 20.4]],
-  margin: 50,
-  type: 'yandex#map',
-  controls: [
-    'fullscreenControl',
-    'geolocationControl',
-    'zoomControl',
-  ],
-  behaviors: [
-    'drag',
-    'dblClickZoom',
-    'rightMouseButtonMagnifier',
-    'multiTouch'
-  ]
-};
-
 export const mapModules = [
   'control.FullscreenControl',
   'control.GeolocationControl',
@@ -94,6 +77,30 @@ export class YMapInner extends AbstractMap {
       }
   };
 
+  static getMapConfig(){
+    return {
+        bounds: [[50.1, 30.2], [60.3, 20.4]],
+        margin: 50,
+        type: 'yandex#map',
+        controls: [
+          'fullscreenControl',
+          'geolocationControl',
+          'zoomControl',
+        ],
+        behaviors: [
+          'drag',
+          'dblClickZoom',
+          'rightMouseButtonMagnifier',
+          'multiTouch',
+          'scrollZoom'
+        ]
+    }
+  }
+
+  static defaultProps = {
+    getMapConfig: YMapInner.getMapConfig
+  };
+
   // Пока не нужен, см todo ниже
   // onGeometryChange(e) {
   //   e.get('target').balloon.close();
@@ -124,6 +131,7 @@ export class YMapInner extends AbstractMap {
 
   componentDidMount() {
     this.osmRegion = this.props.data_mart.osm_region || null;
+    this.mapConfig = this.props.getMapConfig();
 
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
@@ -261,7 +269,7 @@ export class YMapInner extends AbstractMap {
       markers.push(marker);
     }
 
-    let mapState = defaultState;
+    let mapState = this.mapConfig ? this.mapConfig : YMapInner.getMapConfig();
 
     if ((!geoItems.length || !this.state.itemsChanged) && this._map) {
       mapState.bounds = this._map.getBounds();
