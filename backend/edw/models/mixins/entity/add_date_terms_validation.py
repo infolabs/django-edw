@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 import calendar
 
 from django.db import transaction
-from django.utils.timezone import make_aware, is_naive
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel
+from edw.utils.dateutils import datetime_to_local
 
 _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
                                      TermModel.system_flags.change_parent_restriction |
@@ -22,16 +23,17 @@ class BaseAddedDateTermsValidationMixin(object):
     """
     RUS: Миксин управления терминами даты.
     """
-
     REQUIRED_FIELDS = ('created_at',)
+
+    @cached_property
+    def local_created_at(self):
+        return datetime_to_local(self.created_at)
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
         RUS: Проставляет метки в термин Дата после сохранеия объекта.
         """
-        if origin is None or (
-                make_aware(origin.created_at) if is_naive(origin.created_at) else origin.created_at) != (
-                make_aware(self.created_at) if is_naive(self.created_at) else self.created_at):
+        if origin is None or origin.local_created_at != self.local_created_at:
             do_validate = kwargs["context"]["validate_added_date"] = True
         else:
             do_validate = False
@@ -106,16 +108,13 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин День создания.
         """
-
-        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
-
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_days = self.get_added_days()
             if origin is not None:
-                term = added_days[self.ADDED_DAY_KEY.format(origin.created_at.day)]
+                term = added_days[self.ADDED_DAY_KEY.format(origin.local_created_at.day)]
                 self.terms.remove(term)
-            term = added_days[self.ADDED_DAY_KEY.format(self.created_at.day)]
+            term = added_days[self.ADDED_DAY_KEY.format(self.local_created_at.day)]
             self.terms.add(term)
         super(AddedDayTermsValidationMixin, self).validate_terms(origin, **kwargs)
 
@@ -185,16 +184,13 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин Месяц создания.
         """
-
-        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
-
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
             added_months = self.get_added_months()
             if origin is not None:
-                term = added_months[self.ADDED_MONTH_KEY.format(origin.created_at.month)]
+                term = added_months[self.ADDED_MONTH_KEY.format(origin.local_created_at.month)]
                 self.terms.remove(term)
-            term = added_months[self.ADDED_MONTH_KEY.format(self.created_at.month)]
+            term = added_months[self.ADDED_MONTH_KEY.format(self.local_created_at.month)]
             self.terms.add(term)
         super(AddedMonthTermsValidationMixin, self).validate_terms(origin, **kwargs)
 
@@ -252,15 +248,12 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         """
         RUS: Проставляет по данным объектам соответствующий термин Год создания.
         """
-
-        # todo: исправить с учетом локального времени, edw.utils.dateutils.datetime_to_local
-
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
-            added_year = self.created_at.year
+            added_year = self.local_created_at.year
             added_years = self.get_added_years(added_year)
             if origin is not None:
-                term = added_years.get(self.ADDED_YEAR_KEY.format(origin.created_at.year), None)
+                term = added_years.get(self.ADDED_YEAR_KEY.format(origin.local_created_at.year), None)
                 if term is not None:
                     self.terms.remove(term)
             term = added_years[self.ADDED_YEAR_KEY.format(added_year)]
