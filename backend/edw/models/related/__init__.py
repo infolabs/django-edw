@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
-from six import with_metaclass
-
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from django.db import models
+from six import with_metaclass
 
 from edw import deferred
 
@@ -170,4 +168,37 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
 DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
 
 
+#==============================================================================
+# BaseDataMartPermission
+#==============================================================================
+@python_2_unicode_compatible
+class BaseDataMartPermission(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+    """
+    Data marts permissions per customer
+    """
+    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='permissions')
+    customer = deferred.ForeignKey('BaseCustomer', verbose_name=_('Customer'), related_name='+')
+    can_add = models.BooleanField(default=True, verbose_name=_("Can add"), db_index=True,
+                                  help_text=_("Has this customer add entity to data mart permission."))
+    can_change = models.BooleanField(default=True, verbose_name=_("Can change"), db_index=True,
+                                     help_text=_("Has this customer change entity from data mart permission."))
+    can_delete = models.BooleanField(default=True, verbose_name=_("Can delete"), db_index=True,
+                                     help_text=_("Has this customer delete entity from data mart permission."))
 
+    class Meta:
+        abstract = True
+        verbose_name = _("Data mart permission")
+        verbose_name_plural = _("Data mart permissions")
+        unique_together = (('data_mart', 'customer'),)
+
+    def __str__(self):
+        return "{} | {} {} {} | {}".format(
+            self.data_mart.name,
+            '⦿' if self.can_add else '⦾',
+            '⦿' if self.can_change else '⦾',
+            '⦿' if self.can_delete else '⦾',
+            self.customer.get_username()
+        )
+
+
+DataMartPermissionModel = deferred.MaterializedModel(BaseDataMartPermission)

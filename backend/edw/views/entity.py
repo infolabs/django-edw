@@ -1,27 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.apps import apps
-
 from rest_framework.decorators import detail_route
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.generics import get_object_or_404
-
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
+from rest_framework.response import Response
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from rest_framework_bulk.generics import BulkModelViewSet
-
-from edw.rest.serializers.entity import (
-    EntityCommonSerializer,
-    EntityTotalSummarySerializer,
-    EntityDetailSerializer,
-    # EntitySummarySerializer
-)
-
-from edw.models.entity import EntityModel
 from edw.models.data_mart import DataMartModel
+from edw.models.entity import EntityModel
 from edw.rest.filters.entity import (
     EntityFilter,
     EntityMetaFilter,
@@ -29,10 +17,17 @@ from edw.rest.filters.entity import (
     EntityGroupByFilter,
     EntityOrderingFilter
 )
-from edw.rest.serializers.data_mart import DataMartDetailSerializer
-from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import EntityPagination
 from edw.rest.permissions import IsReadOnly
+from edw.rest.serializers.data_mart import DataMartDetailSerializer
+from edw.rest.serializers.entity import (
+    EntityCommonSerializer,
+    EntityTotalSummarySerializer,
+    EntityDetailSerializer,
+    # EntitySummarySerializer
+)
+from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from rest_framework_bulk.generics import BulkModelViewSet
 
 
 class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
@@ -144,6 +139,12 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             request.GET = request.GET.copy()
         request.GET['_data_mart'] = None
 
+        request.GET['_data_mart_permissions'] = {
+            'can_add': False,
+            'can_change': False,
+            'can_delete': False
+        }
+
         model_class = EntityModel
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
             obj = self.get_object()
@@ -159,6 +160,18 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
                     key = 'slug'
                 request.GET['_data_mart'] = data_mart = get_object_or_404(
                     DataMartModel.objects.active(), **{key: value})
+
+                # check data mart permissions
+                if self.action != 'list':
+                    request.GET['_data_mart_permissions'] = data_mart_permissions = \
+                        data_mart.get_permissions_from_request(request)
+                    if (self.action == 'create' and not data_mart_permissions['can_add'] or
+                            self.action in ('bulk_update', 'partial_bulk_update'
+                                            ) and not data_mart_permissions['can_change'] or
+                            self.action == 'bulk_destroy' and not data_mart_permissions['can_delete']):
+                        self.permission_denied(request)
+
+                # set model class
                 model_class = data_mart.entities_model
             else:
                 # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента

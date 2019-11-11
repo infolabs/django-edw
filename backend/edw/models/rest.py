@@ -325,6 +325,7 @@ class BasePermissionsSerializerMixin(object):
         ENG: Instantiates and returns the list of permissions that view requires.
         RUS: Создает и возвращает список разрешений.
         """
+        # todo: Добавить в permission_class информацию о вызове
         return [permission() for permission in permission_classes]
 
     def permission_denied(self, request, message=None):

@@ -1,42 +1,35 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
-from six import with_metaclass
-from django.core.exceptions import ValidationError
+from bitfield import BitField
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, IntegrityError, transaction
 from django.utils.encoding import python_2_unicode_compatible, force_text
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
-
-from mptt.models import MPTTModel, MPTTModelBase
-from mptt.managers import TreeManager
+from django.utils.translation import ugettext_lazy as _
 from mptt.exceptions import InvalidMove
-
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, MPTTModelBase
+from polymorphic.base import PolymorphicModelBase
 from polymorphic.manager import PolymorphicManager
 from polymorphic.models import PolymorphicModel
-from polymorphic.base import PolymorphicModelBase
 from polymorphic.query import PolymorphicQuerySet
-
-from bitfield import BitField
-
 from rest_framework.reverse import reverse
+from six import with_metaclass
 
-from .. import deferred
-from .rest import RESTModelBase
-from .term import TermModel
-from .mixins.rebuild_tree import RebuildTreeMixin
-
-from .related import DataMartRelationModel
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields.tree import TreeForeignKey
-from ..utils.hash_helpers import get_unique_slug
-from ..utils.circular_buffer_in_cache import RingBuffer
-from ..signals.mptt import MPTTModelSignalSenderMixin
-
+from .mixins.rebuild_tree import RebuildTreeMixin
+from .related import DataMartRelationModel, DataMartPermissionModel
+from .rest import RESTModelBase
+from .term import TermModel
+from .. import deferred
 from .. import settings as edw_settings
+from ..signals.mptt import MPTTModelSignalSenderMixin
+from ..utils.circular_buffer_in_cache import RingBuffer
+from ..utils.hash_helpers import get_unique_slug
 
 
 class BaseDataMartQuerySet(QuerySetCachedResultMixin, PolymorphicQuerySet):
@@ -576,6 +569,31 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         return {relation.term_id: list(
             relation.subjects.values_list('id', flat=True)
         ) for relation in relations}
+
+    def get_permissions_from_request(self, request):
+        """
+        Get data mart permissions from request.
+        """
+        result = {
+            'can_add': False,
+            'can_change': False,
+            'can_delete': False
+        }
+        user = request.user
+        if user.is_authenticated() and user.is_active:
+            if user.is_superuser or not DataMartPermissionModel.objects.filter(data_mart_id=self.id).exists():
+                result = {
+                    'can_add': True,
+                    'can_change': True,
+                    'can_delete': True
+                }
+            else:
+                try:
+                    result = DataMartPermissionModel.objects.values('can_add', 'can_change', 'can_delete').get(
+                        customer__user_id=user.id, data_mart_id=self.id)
+                except DataMartPermissionModel.DoesNotExist:
+                    pass
+        return result
 
 
 DataMartModel = deferred.MaterializedModel(BaseDataMart)

@@ -47,7 +47,7 @@ class IsSuperuserOrReadOnly(IsReadOnly):
 
     def has_permission(self, request, view):
         """
-        Разрешает полный доступ для  аутентифицированных суперпользователей 
+        Разрешает полный доступ для аутентифицированных суперпользователей
         или суперпользователей со стасусом активен на уровне представления.
         """
         return super(IsSuperuserOrReadOnly, self).has_permission(request, view) or (

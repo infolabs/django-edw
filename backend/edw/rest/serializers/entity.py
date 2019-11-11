@@ -189,6 +189,11 @@ class EntityValidator(object):
                     except MultipleObjectsReturned as e:
                         attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
                     else:
+                        # try check data mart permissions
+                        if (self.serializer.data_mart_from_request is not None and
+                                not self.serializer.data_mart_permissions_from_request['can_change']):
+                            self.serializer.permission_denied(self.serializer.context['request'])
+
                         # try check object permissions, see the CheckPermissionsSerializerMixin
                         self.serializer.check_object_permissions(instance)
                     break
@@ -393,6 +398,10 @@ class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
     @cached_property
     def data_mart_from_request(self):
         return self.context['request'].GET.get('_data_mart', None)
+
+    @cached_property
+    def data_mart_permissions_from_request(self):
+        return self.context['request'].GET.get('_data_mart_permissions', None)
 
     @cached_property
     def data_mart_available_terms_ids(self):

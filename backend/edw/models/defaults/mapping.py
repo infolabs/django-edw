@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from edw.models.related import (
     BaseAdditionalEntityCharacteristicOrMark,
     BaseEntityRelation,
     BaseEntityRelatedDataMart,
-    BaseDataMartRelation
+    BaseDataMartRelation,
+    BaseDataMartPermission
 )
 
 
@@ -54,5 +54,17 @@ class DataMartRelation(BaseDataMartRelation):
     class Meta(BaseDataMartRelation.Meta):
         """
         RUS: Метаданные класса DataMartRelation.
+        """
+        abstract = False
+
+
+class DataMartPermission(BaseDataMartPermission):
+    """
+    ENG: Materialize many-to-many data_mart with customer.
+    RUS: Материализованная связь многие-ко многим витрина данных - полномочия пользователя.
+    """
+    class Meta(BaseDataMartPermission.Meta):
+        """
+        RUS: Метаданные класса DataMartPermission.
         """
         abstract = False

@@ -1,27 +1,24 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from bitfield import BitField
+from bitfield.forms import BitFieldCheckboxSelectMultiple
 from django.conf import settings
 from django.contrib import (
     messages,
     admin
 )
-
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
-
-from bitfield import BitField
-from bitfield.forms import BitFieldCheckboxSelectMultiple
-
 from salmonella.admin import SalmonellaMixin
 
 from edw.admin.data_mart.forms import (
     DataMartAdminForm,
-    DataMartRelationInlineForm
+    DataMartRelationInlineForm,
+    DataMartPermissionInlineForm,
 )
 from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
-from edw.models.related import DataMartRelationModel
+from edw.models.related import DataMartRelationModel, DataMartPermissionModel
 
 
 class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
@@ -113,7 +110,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
 
 #===========================================================================================
-# EntityRelatedDataMartInline
+# DataMartRelationInline
 #===========================================================================================
 class DataMartRelationInline(admin.TabularInline):
     model = DataMartRelationModel
@@ -127,3 +124,21 @@ class DataMartRelationInline(admin.TabularInline):
     extra = 1
 
     form = DataMartRelationInlineForm
+
+
+#===========================================================================================
+# DataMartPermissionInline
+#===========================================================================================
+class DataMartPermissionInline(admin.TabularInline):
+    model = DataMartPermissionModel
+
+    fields = ['customer', 'can_add', 'can_change', 'can_delete']
+
+    salmonella_fields = ('customer', )
+
+    fk_name = 'data_mart'
+
+    extra = 1
+
+    form = DataMartPermissionInlineForm
+

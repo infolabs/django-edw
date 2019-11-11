@@ -4,16 +4,16 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-
 from salmonella.widgets import SalmonellaMultiIdWidget
 
-from edw.models.term import TermModel
+from edw.admin.customer.widgets import CustomerIdWidget
+from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
+from edw.admin.term.widgets import TermTreeWidget
+from edw.models.customer import CustomerModel
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
 from edw.models.related import DataMartRelationModel
-
-from edw.admin.term.widgets import TermTreeWidget
-from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
+from edw.models.term import TermModel
 
 
 #==============================================================================
@@ -21,7 +21,7 @@ from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 #==============================================================================
 class DataMartAdminForm(forms.ModelForm):
     """
-    Определяет данные формы администратора витрины данных
+    Определяет данные формы витрины данных
     """
     terms = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, widget=TermTreeWidget(),
                                            label=_("Terms"))
@@ -54,7 +54,7 @@ class DataMartAdminForm(forms.ModelForm):
 #==============================================================================
 class DataMartRelationInlineForm(forms.ModelForm):
     """
-    Определяет значение поля термина формы для узлов дерева
+    Отношения для витрины данных
     """
     term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(),
                                        joiner=' / ', label=_('Relation'))
@@ -65,3 +65,14 @@ class DataMartRelationInlineForm(forms.ModelForm):
         widget=SalmonellaMultiIdWidget(DataMartRelationModel._meta.get_field("subjects").rel, admin.site),
         required=False
     )
+
+
+#==============================================================================
+# DataMartPermissionInlineForm
+#==============================================================================
+class DataMartPermissionInlineForm(forms.ModelForm):
+    """
+    Полномочия для витрины данных
+    """
+    customer = forms.ModelChoiceField(queryset=CustomerModel.objects.all(), widget=CustomerIdWidget(admin.site),
+                                      label=_('Customer'))
