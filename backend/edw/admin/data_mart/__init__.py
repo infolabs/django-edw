@@ -48,7 +48,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     readonly_fields = ['path']
 
-    search_fields = ['name', 'slug', 'parent__name', 'view_class']
+    search_fields = ['name', 'id', 'slug', 'parent__name', 'view_class']
 
     salmonella_fields = ('parent',)
 

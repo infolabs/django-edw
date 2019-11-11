@@ -57,7 +57,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
     readonly_fields = ['path']
 
-    search_fields = ['name', 'slug', 'parent__slug', 'parent__name', 'view_class']
+    search_fields = ['name', 'slug', 'id', 'parent__slug', 'parent__name', 'view_class']
 
     tree_auto_open = 0
 

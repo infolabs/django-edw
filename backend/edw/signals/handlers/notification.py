@@ -14,6 +14,7 @@ from post_office.models import EmailTemplate
 
 from django_fsm.signals import post_transition
 
+from rest_framework.request import Request
 from edw.models.entity import EntityModel
 from edw.models.notification import Notification
 
@@ -69,7 +70,7 @@ def entity_event_notification(sender, instance=None, **kwargs):
         # emulate a request object which behaves similar to that one, when the customer submitted its order
         stored_request = instance.stored_request[0] if isinstance(instance.stored_request, (tuple, list)) else instance.stored_request
         emulated_request = EmulateHttpRequest(instance.customer, stored_request)
-        entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
+        entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
         language = stored_request.get('language')
         translation.activate(language)
         context = {
