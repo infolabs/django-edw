@@ -577,7 +577,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         result = {
             'can_add': False,
             'can_change': False,
-            'can_delete': False
+            'can_delete': False,
+            'has_owner': False
         }
         user = request.user
         if user.is_authenticated() and user.is_active:
@@ -585,7 +586,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                 result = {
                     'can_add': True,
                     'can_change': True,
-                    'can_delete': True
+                    'can_delete': True,
+                    'has_owner': False
                 }
             else:
                 try:
@@ -593,6 +595,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
                         customer__user_id=user.id, data_mart_id=self.id)
                 except DataMartPermissionModel.DoesNotExist:
                     pass
+                result['has_owner'] = True
         return result
 
 

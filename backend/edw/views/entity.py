@@ -142,7 +142,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         request.GET['_data_mart_permissions'] = {
             'can_add': False,
             'can_change': False,
-            'can_delete': False
+            'can_delete': False,
+            'has_owner': False
         }
 
         model_class = EntityModel

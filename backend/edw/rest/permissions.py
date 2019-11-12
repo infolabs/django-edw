@@ -54,6 +54,24 @@ class IsSuperuserOrReadOnly(IsReadOnly):
                 request.user.is_active and request.user.is_superuser)
 
 
+class IsSuperuserOrDataMartHasOwnerOrReadOnly(IsSuperuserOrReadOnly):
+    """
+    Разрешает доступ на чтение, либо
+    разрешает доступ на редактирование в следующих случаях:
+    1. Пользователь - администратор
+    2. У витрины данных есть владелец, полномочия проверяются встроенными во вьюв и валидатор механизмами
+    """
+    def has_object_permission(self, request, view, obj):
+        data_mart_permissions = request.GET.get('_data_mart_permissions', None)
+        return super(IsSuperuserOrDataMartHasOwnerOrReadOnly, self).has_object_permission(request, view, obj) or (
+            data_mart_permissions is not None and data_mart_permissions['has_owner'])
+
+    def has_permission(self, request, view):
+        data_mart_permissions = request.GET.get('_data_mart_permissions', None)
+        return super(IsSuperuserOrDataMartHasOwnerOrReadOnly, self).has_permission(request, view) or (
+            data_mart_permissions is not None and data_mart_permissions['has_owner'])
+
+
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     ENG: Object-level permission to only allow owners of an object to edit it.
