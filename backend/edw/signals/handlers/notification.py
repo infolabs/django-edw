@@ -19,7 +19,8 @@ from edw.models.entity import EntityModel
 from edw.models.notification import Notification
 
 from edw.rest.serializers.entity import EntityDetailSerializer
-from edw.rest.serializers.customer import CustomerSerializer
+# todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
+# from edw.rest.serializers.customer import CustomerSerializer
 
 
 class EmulateHttpRequest(HttpRequest):
@@ -42,7 +43,10 @@ class EmulateHttpRequest(HttpRequest):
         self.method = 'GET'
         self.LANGUAGE_CODE = self.COOKIES['django_language'] = stored_request.get('language')
         self.customer = customer
-        self.user = customer.is_anonymous() and AnonymousUser or customer.user
+        if customer is not None:
+            self.user = customer.is_anonymous() and AnonymousUser or customer.user
+        else:
+            self.user = AnonymousUser
         self.current_page = None
 
 email_validator = EmailValidator()
@@ -74,7 +78,8 @@ def entity_event_notification(sender, instance=None, **kwargs):
         language = stored_request.get('language')
         translation.activate(language)
         context = {
-            'customer': CustomerSerializer(instance.customer).data,
+            # todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
+            # 'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
             'data': entity_serializer.data,
             'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
             'render_language': language,
