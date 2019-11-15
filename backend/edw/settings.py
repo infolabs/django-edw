@@ -18,6 +18,7 @@ CACHE_DURATIONS = {
     'data_mart_children': 3600,
     'data_mart_all_active_terms': 3600,
     'data_mart_html_snippet': 86400,
+    'data_mart_validate_term_model': 60,
 
     'term_decompress': 3600,
     'term_children': 3600,
@@ -30,6 +31,7 @@ CACHE_DURATIONS = {
     'entity_terms_ids': 3600,
     'entity_data_mart': 3600,
     'entity_validate_term_model': 60,
+    'entity_validate_data_mart_model': 60,
 }
 CACHE_DURATIONS.update(getattr(settings, 'EDW_CACHE_DURATIONS', {}))
 

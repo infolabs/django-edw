@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
-import itertools
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F
@@ -13,18 +10,16 @@ from django.db.models.signals import (
 )
 from django.dispatch import receiver
 
+from edw.models.data_mart import DataMartModel
+from edw.models.entity import EntityModel
+from edw.models.term import TermModel
+from edw.rest.serializers.data_mart import DataMartCommonSerializer
 from edw.signals import make_dispatch_uid
 from edw.signals.mptt import (
     move_to_done,
     pre_save,
     post_save
 )
-
-from edw.models.data_mart import DataMartModel
-from edw.models.term import TermModel
-from edw.models.entity import EntityModel
-
-from edw.rest.serializers.data_mart import DataMartCommonSerializer
 
 
 def get_children_keys(sender, parent_id):
@@ -161,7 +156,11 @@ def invalidate_data_mart_after_move(sender, instance, target, position, prev_par
 
 
 Model = DataMartModel.materialized
-for clazz in itertools.chain([Model], Model.get_all_subclasses()):
+
+subclasses = list(Model.get_all_subclasses())
+subclasses.append(Model)
+subclasses.reverse()
+for clazz in subclasses:
     pre_save.connect(invalidate_data_mart_before_save, sender=clazz,
                      dispatch_uid=make_dispatch_uid(
                          pre_save,
@@ -186,5 +185,13 @@ for clazz in itertools.chain([Model], Model.get_all_subclasses()):
                              invalidate_data_mart_after_move,
                              clazz
                          ))
-    clazz.validate_term_model()
+
+    cls_key = clazz.__name__.lower()
+
+    # Устанавливаем таймаут для валидации терминов
+    key = 'vldt:{cls}:tr'.format(cls=cls_key)
+    is_valid = cache.get(key, False)
+    if not is_valid:
+        cache.set(key, True, clazz.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
+        clazz.validate_term_model()
 

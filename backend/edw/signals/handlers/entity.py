@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import itertools
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models.signals import (
@@ -109,18 +107,31 @@ EntityModel._content_type_cache = {}
 EntityModel._validate_term_model_cache = {}
 
 Model = EntityModel.materialized
-for clazz in itertools.chain([Model], Model.get_all_subclasses()):
+
+subclasses = list(Model.get_all_subclasses())
+subclasses.append(Model)
+subclasses.reverse()
+for clazz in subclasses:
     pre_delete.connect(invalidate_entity_before_delete, clazz,
                        dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_delete, clazz))
     post_save.connect(invalidate_entity_after_save, clazz,
                       dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_save, clazz))
 
-    # Устанавливаем таймаут для валидации
-    key = 'vldt:{cls}:cls'.format(cls=clazz.__name__.lower())
+    cls_key = clazz.__name__.lower()
+
+    # Устанавливаем таймаут для валидации терминов
+    key = 'vldt:{cls}:tr'.format(cls=cls_key)
     is_valid = cache.get(key, False)
     if not is_valid:
         cache.set(key, True, clazz.VALIDATE_TERM_MODEL_CACHE_TIMEOUT)
         clazz.validate_term_model()
+
+    # Устанавливаем таймаут для валидации витрин данных
+    key = 'vldt:{cls}:dm'.format(cls=cls_key)
+    is_valid = cache.get(key, False)
+    if not is_valid:
+        cache.set(key, True, clazz.VALIDATE_DATA_MART_MODEL_CACHE_TIMEOUT)
+        clazz.validate_data_mart_model()
 
 # delete cache for .validate_term_model()
 del EntityModel._validate_term_model_cache

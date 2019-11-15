@@ -129,6 +129,9 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     CHILDREN_CACHE_KEY_PATTERN = '{parent_id}:chld'
     CHILDREN_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_children']
 
+    # таймаут для кеширования при валидации, необходим при оптимазации старта сервера в несколько потоков
+    VALIDATE_TERM_MODEL_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['data_mart_validate_term_model']
+
     messages = {
         'delete_restriction': _('Delete restriction'),
         'change_parent_restriction': _('Change parent restriction'),

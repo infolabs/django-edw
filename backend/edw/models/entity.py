@@ -812,6 +812,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     # таймаут для кеширования при валидации, необходим при оптимазации старта сервера в несколько потоков
     VALIDATE_TERM_MODEL_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_validate_term_model']
+    VALIDATE_DATA_MART_MODEL_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['entity_validate_data_mart_model']
 
     TERMS_BUFFER_CACHE_KEY = 'e_t_bf'
     TERMS_BUFFER_CACHE_SIZE = edw_settings.CACHE_BUFFERS_SIZES['entity_terms_ids']
@@ -926,34 +927,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 yield subsubclass
             yield subclass
 
-    '''
-    def get_price(self, request):
-        """
-        Hook for returning the current price of this object.
-        The price shall be of type Money. Read the appropriate section on how to create a Money
-        type for the chosen currency.
-        Use the `request` object to vary the price according to the logged in user,
-        its country code or the language.
-        """
-        msg = "Method get_price() must be implemented by subclass: `{}`"
-        raise NotImplementedError(msg.format(self.__class__.__name__))
-
-    def is_in_cart(self, cart, watched=False, **kwargs):
-        """
-        Checks if the object is already in the given cart, and if so, returns the corresponding
-        cart_item, otherwise this method returns None.
-        The boolean `watched` is used to determine if this check shall only be performed for the
-        watch-list.
-        Optionally one may pass arbitrary information about the object using `**kwargs`. This can
-        be used to determine if a object with variations shall be considered as the same cart item
-        increasing it quantity, or if it shall be considered as a separate cart item, resulting in
-        the creation of a new cart item.
-        """
-        from .cart import CartItemModel
-        cart_item_qs = CartItemModel.objects.filter(cart=cart, object=self)
-        return cart_item_qs.first()
-    '''
-
     @staticmethod
     def get_entities_types(from_cache=True):
         """
@@ -982,13 +955,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def validate_term_model(cls):
         """
-        RUS: Проверяет условия создания терминов модели, создает термины и сохраняет.
+        Валидация модели терминов.
+        Добавляет термины класса объекта в дерево согласно структуре наследования.
         """
         if EntityModel.materialized.__subclasses__():
             parent = None
             for Model in get_polymorphic_ancestors_models(cls):
                 slug = Model.__name__.lower()
-                key = 'vldt:{parent_slug}:{slug}:tm'.format(parent_slug=parent.slug if parent else None, slug=slug)
+                key = 'vldt:{parent_slug}:{slug}:tr'.format(parent_slug=parent.slug if parent else None, slug=slug)
                 # EntityModel._validate_term_model_cache init in `edw/signals/handlers/entity.py`
                 term = EntityModel._validate_term_model_cache.get(key, None)
                 if term is None:
@@ -1017,6 +991,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                             term.save(do_correct_term_unique_error=False)
                     EntityModel._validate_term_model_cache[key] = term
                 parent = term
+
+    @classmethod
+    def validate_data_mart_model(cls):
+        """
+        Validate data mart model
+        """
+        pass
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
