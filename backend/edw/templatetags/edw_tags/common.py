@@ -3,19 +3,17 @@ from __future__ import unicode_literals
 
 from datetime import datetime, date as datetime_date
 
+from dateutil.parser import parse as parse_datetime
 from django.conf import settings
 from django.utils import formats
-from django.utils.dateformat import time_format
 from django.utils.dateformat import format as date_format
+from django.utils.dateformat import time_format
 
 from edw.utils.set_helpers import uniq as _uniq
 
 
 def from_iso8601(value):
-    try:
-        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
-    except ValueError:
-        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    return parse_datetime(value)
 
 
 def date(value, arg=None):
