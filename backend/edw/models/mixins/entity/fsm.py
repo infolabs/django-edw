@@ -42,6 +42,7 @@ class FSMMixin(object):
         """
         return target
 
+    # todo get_email_recipients()
     def get_recipient(self, notification_recipient):
         """
         RUS: Отправляет уведомление получателю на электронную почту.
