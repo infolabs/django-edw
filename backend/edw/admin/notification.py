@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+from bitfield import BitField
+from bitfield.forms import BitFieldCheckboxSelectMultiple
+
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.forms import widgets
 from django.utils.translation import ugettext_lazy as _
-
-from collections import OrderedDict
 
 from edw.models.notification import NotificationAttachment
 from edw.models.entity import EntityModel
@@ -23,12 +25,16 @@ class NotificationAdmin(admin.ModelAdmin):
         (0, _("Customer")),
     )
 
+    formfield_overrides = {
+        BitField: {'widget': BitFieldCheckboxSelectMultiple},
+    }
+
     list_display = (
         'name',
         'transition_model',
         'transition',
         'recipient',
-        'mail_template',
+        'template',
         'num_attachments'
     )
 
@@ -42,7 +48,7 @@ class NotificationAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         kwargs.update(widgets={
             'transition_target': widgets.Select(choices=self.get_transition_choices()),
-            'mail_to': widgets.Select(choices=self.get_mailto_choices()),
+            'notify_to': widgets.Select(choices=self.get_mailto_choices()),
         })
         return super(NotificationAdmin, self).get_form(request, obj, **kwargs)
 
@@ -98,11 +104,11 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def recipient(self, obj):
         try:
-            if obj.mail_to > 0:
-                user = get_user_model().objects.get(id=obj.mail_to, is_staff=True)
+            if obj.notify_to > 0:
+                user = get_user_model().objects.get(id=obj.notify_to, is_staff=True)
                 return '{0} {1} <{2}>'.format(user.first_name, user.last_name, user.email)
             else:
-                return OrderedDict(self.USER_CHOICES)[obj.mail_to]
+                return OrderedDict(self.USER_CHOICES)[obj.notify_to]
         except (get_user_model().DoesNotExist, KeyError):
             return _("Nobody")
     recipient.short_description = _("Recipient")
