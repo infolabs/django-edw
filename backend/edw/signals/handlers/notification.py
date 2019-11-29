@@ -49,54 +49,59 @@ class EmulateHttpRequest(HttpRequest):
             self.user = AnonymousUser
         self.current_page = None
 
+
 email_validator = EmailValidator()
+
+
+def notify_by_email(recipient, notification, instance, target, kwargs):
+    try:
+        email_validator(recipient)
+    except ValidationError:
+        default_email = getattr(settings, "DEFAULT_TO_EMAIL", None)
+        if default_email:
+            recipient = default_email
+        else:
+            return
+
+    # emulate a request object which behaves similar to that one, when the customer submitted its order
+    stored_request = instance.stored_request[0] if isinstance(
+        instance.stored_request, (tuple, list)) else instance.stored_request
+    emulated_request = EmulateHttpRequest(instance.customer, stored_request)
+    entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
+    language = stored_request.get('language')
+    translation.activate(language)
+    context = {
+        # todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
+        # 'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
+        'data': entity_serializer.data,
+        'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
+        'render_language': language,
+        'transition': {
+            'name': kwargs['name'],
+            'source': kwargs['source'],
+            'target': target
+        }
+    }
+    try:
+        template = notification.mail_template.translated_templates.get(language=language)
+    except EmailTemplate.DoesNotExist:
+        template = notification.mail_template
+    attachments = {}
+    for notiatt in notification.notificationattachment_set.all():
+        attachments[notiatt.attachment.original_filename] = notiatt.attachment.file.file
+    mail.send(recipient, template=template, context=context,
+              attachments=attachments, render_on_delivery=True)
+
 
 def entity_event_notification(sender, instance=None, **kwargs):
     if not isinstance(instance, EntityModel.materialized):
         return
 
     target = kwargs['target']
-    for notification in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
-        recipient = instance.get_recipient(notification.mail_to)
+    for n in Notification.objects.filter(transition_target=Notification.get_transition_target(sender, target)):
+        if n.mode.email:
+            for r in instance.get_email_recipients(n.notify_to):
+                notify_by_email(r, n, instance, target, kwargs)
 
-        if recipient is None:
-            continue
-
-        try:
-            email_validator(recipient)
-        except ValidationError:
-            default_email = getattr(settings, "DEFAULT_TO_EMAIL", None)
-            if default_email:
-                recipient = default_email
-            else:
-                continue
-
-        # emulate a request object which behaves similar to that one, when the customer submitted its order
-        stored_request = instance.stored_request[0] if isinstance(instance.stored_request, (tuple, list)) else instance.stored_request
-        emulated_request = EmulateHttpRequest(instance.customer, stored_request)
-        entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
-        language = stored_request.get('language')
-        translation.activate(language)
-        context = {
-            # todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
-            # 'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
-            'data': entity_serializer.data,
-            'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
-            'render_language': language,
-            'transition': {
-                'name': kwargs['name'],
-                'source': kwargs['source'],
-                'target': target
-            }
-        }
-        try:
-            template = notification.mail_template.translated_templates.get(language=language)
-        except EmailTemplate.DoesNotExist:
-            template = notification.mail_template
-        attachments = {}
-        for notiatt in notification.notificationattachment_set.all():
-            attachments[notiatt.attachment.original_filename] = notiatt.attachment.file.file
-        mail.send(recipient, template=template, context=context,
-                  attachments=attachments, render_on_delivery=True)
 
 post_transition.connect(entity_event_notification)
