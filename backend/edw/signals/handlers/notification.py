@@ -12,6 +12,8 @@ from django.utils import translation
 from post_office import mail
 from post_office.models import EmailTemplate
 
+from fcm_async import push
+
 from django_fsm.signals import post_transition
 
 from rest_framework.request import Request
@@ -83,14 +85,38 @@ def notify_by_email(recipient, notification, instance, target, kwargs):
         }
     }
     try:
-        template = notification.mail_template.translated_templates.get(language=language)
+        template = notification.template.translated_templates.get(language=language)
     except EmailTemplate.DoesNotExist:
-        template = notification.mail_template
+        template = notification.template
     attachments = {}
     for notiatt in notification.notificationattachment_set.all():
         attachments[notiatt.attachment.original_filename] = notiatt.attachment.file.file
     mail.send(recipient, template=template, context=context,
               attachments=attachments, render_on_delivery=True)
+
+
+def notify_by_push(recipient, notification, instance, target, kwargs):
+    stored_request = instance.stored_request[0] if isinstance(
+        instance.stored_request, (tuple, list)) else instance.stored_request
+    emulated_request = EmulateHttpRequest(instance.customer, stored_request)
+    entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
+    language = stored_request.get('language')
+    translation.activate(language)
+    context = {
+        'data': entity_serializer.data,
+        'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
+        'render_language': language,
+        'transition': {
+            'name': kwargs['name'],
+            'source': kwargs['source'],
+            'target': target
+        }
+    }
+    try:
+        template = notification.template.translated_templates.get(language=language)
+    except EmailTemplate.DoesNotExist:
+        template = notification.template
+    push.send(recipient, template=template, context=context, render_on_delivery=True)
 
 
 def entity_event_notification(sender, instance=None, **kwargs):
@@ -102,6 +128,9 @@ def entity_event_notification(sender, instance=None, **kwargs):
         if n.mode.email:
             for r in instance.get_email_recipients(n.notify_to):
                 notify_by_email(r, n, instance, target, kwargs)
+        if n.mode.push:
+            for r in instance.get_push_recipients(n.notify_to):
+                notify_by_push(r, n, instance, target, kwargs)
 
 
 post_transition.connect(entity_event_notification)

@@ -42,10 +42,9 @@ class FSMMixin(object):
         """
         return target
 
-    # todo get_email_recipients()
     def get_email_recipients(self, notification_recipient):
         """
-        RUS: Отправляет уведомление получателю на электронную почту.
+        RUS: Отправляет уведомление получателям на электронную почту.
         """
         if notification_recipient is None or not hasattr(self, 'customer') or getattr(self, 'customer') is None:
             return None
@@ -53,6 +52,12 @@ class FSMMixin(object):
             customer = getattr(self, 'customer')
             return customer.email
         return [CustomerModel.objects.get(pk=notification_recipient).email]
+
+    def get_push_recipients(self, notification_recipient):
+        """
+        RUS: Отправляет PUSH уведомление получателям.
+        """
+        return []
 
     def state_name(self):
         """
