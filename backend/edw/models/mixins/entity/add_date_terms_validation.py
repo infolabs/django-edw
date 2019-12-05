@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import calendar
-
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -53,7 +52,7 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Добавляет день в модель терминов. Проверяет, есть ли день в модели TermModel,
         и при его отсутствии создает диапазон дат и разбивку по дням в этих диапазонах.
         """
-        # Устанавливаем таймаут для валидации
+        # валидируем только один раз
         key = 'vldt:day_add'
         need_validation = EntityModel._validate_term_model_cache.get(key, True)
         if need_validation:

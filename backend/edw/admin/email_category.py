@@ -4,22 +4,22 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from salmonella.admin import SalmonellaMixin
 
-from edw.models.postal_zone import PostZoneModel
+from edw.models.email_category import EmailCategoryModel
 
 
 # ===========================================================================================
-# PostalZoneAdmin
+# EmailCategoryAdmin
 # ===========================================================================================
-class PostalZoneAdmin(SalmonellaMixin, admin.ModelAdmin):
-    model = PostZoneModel
+class EmailCategoryAdmin(SalmonellaMixin, admin.ModelAdmin):
+    model = EmailCategoryModel
 
     list_display = ['name', 'active']
 
-    fields = ['term', 'postal_codes', 'active']
+    fields = ['term', 'email_masks', 'active']
 
-    search_fields = ('term__name', 'postal_codes')
+    search_fields = ('term__name', 'email_masks')
 
     salmonella_fields = ('term',)
 
 
-admin.site.register(PostZoneModel, PostalZoneAdmin)
+admin.site.register(EmailCategoryModel, EmailCategoryAdmin)

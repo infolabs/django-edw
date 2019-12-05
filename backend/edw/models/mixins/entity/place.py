@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import transaction
 from django.db.models import Q
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,40 +29,46 @@ class PlaceMixin(object):
         """
         RUS: Добавляет термин Регион и Другие регионы в модель терминов TermModel при их отсутствии.
         """
-        with transaction.atomic():
-            try: # region
-                region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
-            except TermModel.DoesNotExist:
-                region = TermModel(
-                    slug=cls.REGION_ROOT_TERM_SLUG,
-                    parent=None,
-                    name=_('Region'),
-                    semantic_rule=TermModel.XOR_RULE,
-                    system_flags=(TermModel.system_flags.delete_restriction |
-                                  TermModel.system_flags.change_parent_restriction |
-                                  TermModel.system_flags.change_slug_restriction))
-                region.save()
-        with transaction.atomic():
-            try: # terra-incognita
-                region.get_descendants(include_self=False).get(slug=cls.TERRA_INCOGNITA_TERM_SLUG)
-            except TermModel.DoesNotExist:
-                terra_incognita = TermModel(
-                    slug=cls.TERRA_INCOGNITA_TERM_SLUG,
-                    parent_id=region.id,
-                    name=_('Terra Incognita'),
-                    semantic_rule=TermModel.OR_RULE,
-                    system_flags=(TermModel.system_flags.delete_restriction |
-                                  TermModel.system_flags.change_parent_restriction |
-                                  TermModel.system_flags.change_slug_restriction |
-                                  TermModel.system_flags.has_child_restriction))
-                terra_incognita.save()
+        # валидируем только один раз
+        key = 'vldt:place'
+        need_validation = EntityModel._validate_term_model_cache.get(key, True)
+        if need_validation:
+            EntityModel._validate_term_model_cache[key] = False
+
+            with transaction.atomic():
+                try:  # region
+                    region = TermModel.objects.get(slug=cls.REGION_ROOT_TERM_SLUG, parent=None)
+                except TermModel.DoesNotExist:
+                    region = TermModel(
+                        slug=cls.REGION_ROOT_TERM_SLUG,
+                        parent=None,
+                        name=force_text(_('Region')),
+                        semantic_rule=TermModel.XOR_RULE,
+                        system_flags=(TermModel.system_flags.delete_restriction |
+                                      TermModel.system_flags.change_parent_restriction |
+                                      TermModel.system_flags.change_slug_restriction))
+                    region.save()
+            with transaction.atomic():
+                try:  # terra-incognita
+                    region.get_descendants(include_self=False).get(slug=cls.TERRA_INCOGNITA_TERM_SLUG)
+                except TermModel.DoesNotExist:
+                    terra_incognita = TermModel(
+                        slug=cls.TERRA_INCOGNITA_TERM_SLUG,
+                        parent_id=region.id,
+                        name=force_text(_('Terra Incognita')),
+                        semantic_rule=TermModel.OR_RULE,
+                        system_flags=(TermModel.system_flags.delete_restriction |
+                                      TermModel.system_flags.change_parent_restriction |
+                                      TermModel.system_flags.change_slug_restriction |
+                                      TermModel.system_flags.has_child_restriction))
+                    terra_incognita.save()
         super(PlaceMixin, cls).validate_term_model()
 
     @staticmethod
     def get_region_term():
         """
         RUS: Ищет регион в модели TermModel с применением PlaceMixin (слаг = "region").
-        Если регион уже создан, то добавляет регион в EntityModel.
+        Результат кешируется.
         """
         region = getattr(EntityModel, "_region_term_cache", None)
         if region is None:
@@ -86,7 +93,7 @@ class PlaceMixin(object):
                     terra_incognita = region.get_descendants(include_self=False).get(
                         slug=PlaceMixin.TERRA_INCOGNITA_TERM_SLUG)
                 except TermModel.DoesNotExist:
-                    #todo: может вернуть none
+                    # может вернуть None
                     pass
                 else:
                     EntityModel._terra_incognita_cache = terra_incognita

@@ -13,11 +13,11 @@ from .. import deferred
 
 
 #==============================================================================
-# BasePostZoneQuerySet
+# BaseEmailCategoryQuerySet
 #==============================================================================
-class BasePostZoneQuerySet(models.QuerySet):
+class BaseEmailCategoryQuerySet(models.QuerySet):
     """
-    RUS: Запрос к базе данных базовой почтовой зоны.
+    RUS: Запрос к базе почтовых категорий.
     """
     def active(self):
         """
@@ -26,52 +26,52 @@ class BasePostZoneQuerySet(models.QuerySet):
         return self.filter(active=True)
 
 
-class BasePostZoneManager(models.Manager):
+class BaseEmailCategoryManager(models.Manager):
     """
-    RUS: Менеджер базовой почтовой зоны.
+    RUS: Менеджер почтовых категорий.
     """
 
     def get_queryset(self):
         """
-        RUS: Возвращает запрос к базе данных базовой почтовой зоны.
+        RUS: Возвращает запрос к базе почтовых категорий.
         """
-        return BasePostZoneQuerySet(self.model, using=self._db)
+        return BaseEmailCategoryQuerySet(self.model, using=self._db)
 
     def active(self):
         """
-        RUS: Возвращает запрос к базе данных базовой почтовой зоны с активными элементами.
+        RUS: Возвращает запрос к базе почтовых категорий с активными элементами.
         """
         return self.get_queryset().active()
 
 
 # =========================================================================================================
-# BasePostalZone
+#  BaseEmailCategory
 # =========================================================================================================
 @python_2_unicode_compatible
-class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseEmailCategory(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     '''
-    Related to Term postal zones
-    RUS: Класс базовая почтовая зона, связанная с термином.
-    Определяет поля (Термин, Почтовые индексы, статус Активен).
+    Related to Term email category
+    RUS: Класс базовая почтовая категория, связанная с термином.
+    Определяет поля (Термин, Маска почтового адреса, статус Активен).
     '''
     term = models.ForeignKey(TermModel, verbose_name=_('Term'), related_name='+', db_index=True)
-    postal_codes = models.TextField(verbose_name=_('Postal codes'), null=True, blank=True, help_text=_(
-        """You enter on one index in line. Use '?' and '*' as universal substitutes. """
+    email_masks = models.TextField(verbose_name=_('Email Address Masks'), null=True, blank=True, help_text=_(
+        """You enter on one mask in line. Use '?' and '*' as universal substitutes. """
         """'?' replaces any symbol, '*' replaces any sequence of symbols (including I am empty). """
-        """Gaps are ignored. '_' replaces any quantity of gaps (but at least one). """
-        """Example: 2204*, 38?45, 23*, 123_4??."""))
+        """Gaps are ignored. """
+        """Example: *@mail.ru, admin@*.??, *.edu.ru, smith????@yahoo.com."""))
 
     active = models.BooleanField(verbose_name=_('Active'), default=True, db_index=True)
 
-    objects = BasePostZoneManager()
+    objects = BaseEmailCategoryManager()
 
     class Meta:
         """
         RUS: Переопределяет метаданные модели.
         """
         abstract = True
-        verbose_name = _("Postal zone")
-        verbose_name_plural = _("Postal zones")
+        verbose_name = _("Email category")
+        verbose_name_plural = _("Email categories")
         unique_together = (('term', 'active'),)
         ordering = ('term__{}'.format(TermModel._mptt_meta.tree_id_attr), 'term__{}'.format(TermModel._mptt_meta.left_attr))
 
@@ -90,30 +90,30 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     name.fget.short_description = _('Name')
 
     @cached_property
-    def code_pattern(self):
-        raw_patterns = re.split(r'\s+', self.postal_codes.strip())
-        patterns = [re.sub(r'_+', '\s+', re.sub(r'\*', '.*?', re.sub(r'\?', '.', x))) for x in raw_patterns]
+    def email_pattern(self):
+        raw_patterns = re.split(r'\s+', self.email_masks.strip())
+        patterns = [re.sub(r'\*', '.*?', re.sub(r'\?', '.', x)) for x in raw_patterns]
         return r'^(?:%s)$' % '|'.join(patterns)
 
-    def is_postal_code_match(self, code):
-        return re.match(self.code_pattern, code) is not None
+    def is_email_pattern_match(self, code):
+        return re.match(self.email_pattern, code) is not None
 
 
-PostZoneModel = deferred.MaterializedModel(BasePostZone)
+EmailCategoryModel = deferred.MaterializedModel(BaseEmailCategory)
 
 
-def get_postal_zone(postcode):
+def get_email_category(email):
     tree_opts = TermModel._mptt_meta
-    zones = PostZoneModel.objects.active().order_by(
+    categories = EmailCategoryModel.objects.active().order_by(
         '-' + 'term__{}'.format(tree_opts.level_attr),
         'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
-    for zone in zones:
-        if zone.is_postal_code_match(postcode):
+    for category in categories:
+        if category.is_email_pattern_match(email):
             break
     else:
-        zone = None
-    return zone
+        category = None
+    return category
 
 
-def get_all_postal_zone_terms_ids():
-    return PostZoneModel.objects.all().values_list('term_id', flat=True)
+def get_all_email_category_terms_ids():
+    return EmailCategoryModel.objects.all().values_list('term_id', flat=True)
