@@ -21,8 +21,7 @@ from edw.models.entity import EntityModel
 from edw.models.notification import Notification
 
 from edw.rest.serializers.entity import EntityDetailSerializer
-# todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
-# from edw.rest.serializers.customer import CustomerSerializer
+from edw.rest.serializers.customer import CustomerSerializer
 
 
 class EmulateHttpRequest(HttpRequest):
@@ -103,6 +102,7 @@ def notify_by_push(recipient, notification, instance, target, kwargs):
     language = stored_request.get('language')
     translation.activate(language)
     context = {
+        'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
         'data': entity_serializer.data,
         'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
         'render_language': language,

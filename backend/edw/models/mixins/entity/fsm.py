@@ -47,10 +47,10 @@ class FSMMixin(object):
         RUS: Отправляет уведомление получателям на электронную почту.
         """
         if notification_recipient is None or not hasattr(self, 'customer') or getattr(self, 'customer') is None:
-            return None
+            return []
         if notification_recipient == 0:
             customer = getattr(self, 'customer')
-            return customer.email
+            return [customer.email]
         return [CustomerModel.objects.get(pk=notification_recipient).email]
 
     def get_push_recipients(self, notification_recipient):
