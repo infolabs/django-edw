@@ -12,7 +12,10 @@ from django.utils import translation
 from post_office import mail
 from post_office.models import EmailTemplate
 
-from fcm_async import push
+if getattr(settings, 'FIREBASE_KEY_PATH', None):
+    from fcm_async import push
+else:
+    push = None
 
 from django_fsm.signals import post_transition
 
@@ -116,7 +119,8 @@ def notify_by_push(recipient, notification, instance, target, kwargs):
         template = notification.template.translated_templates.get(language=language)
     except EmailTemplate.DoesNotExist:
         template = notification.template
-    push.send(recipient, template=template, context=context, render_on_delivery=True)
+    if push is not None:
+        push.send(recipient, template=template, context=context, render_on_delivery=True)
 
 
 def entity_event_notification(sender, instance=None, **kwargs):
