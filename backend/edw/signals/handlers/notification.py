@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from post_office import mail
+from post_office.models import EmailTemplate
+from rest_framework.request import Request
+from django_fsm.signals import post_transition
+
+from django.conf import settings
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest
 from django.utils.six.moves.urllib.parse import urlparse
-from django.core.validators import EmailValidator
-from django.core.exceptions import ValidationError
-from django.conf import settings
 from django.utils import translation
 
-from post_office import mail
-from post_office.models import EmailTemplate
-
+from edw.models.entity import EntityModel
+from edw.models.notification import Notification
+from edw.rest.serializers.entity import EntityDetailSerializer
 if getattr(settings, 'FIREBASE_KEY_PATH', None):
     from fcm_async import push
 else:
     push = None
 
-from django_fsm.signals import post_transition
-
-from rest_framework.request import Request
-from edw.models.entity import EntityModel
-from edw.models.notification import Notification
-
-from edw.rest.serializers.entity import EntityDetailSerializer
-from edw.rest.serializers.customer import CustomerSerializer
 
 
 class EmulateHttpRequest(HttpRequest):
@@ -51,7 +48,6 @@ class EmulateHttpRequest(HttpRequest):
             self.user = customer.is_anonymous() and AnonymousUser or customer.user
         else:
             self.user = AnonymousUser
-        self.current_page = None
 
 
 email_validator = EmailValidator()
@@ -71,12 +67,14 @@ def notify_by_email(recipient, notification, instance, target, kwargs):
     stored_request = instance.stored_request[0] if isinstance(
         instance.stored_request, (tuple, list)) else instance.stored_request
     emulated_request = EmulateHttpRequest(instance.customer, stored_request)
-    entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
+    authenticators = getattr(settings, 'AUTHENTICATION_BACKENDS', None)
+    entity_serializer = EntityDetailSerializer(
+        instance,
+        context={'request': Request(emulated_request, authenticators=authenticators)}
+    )
     language = stored_request.get('language')
     translation.activate(language)
     context = {
-        # todo: скорее всего не нужен. в уведомлениях применяется контекст объекта, владелец объекта там не нужен
-        # 'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
         'data': entity_serializer.data,
         'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
         'render_language': language,
@@ -101,11 +99,10 @@ def notify_by_push(recipient, notification, instance, target, kwargs):
     stored_request = instance.stored_request[0] if isinstance(
         instance.stored_request, (tuple, list)) else instance.stored_request
     emulated_request = EmulateHttpRequest(instance.customer, stored_request)
-    entity_serializer = EntityDetailSerializer(instance, context={'request': Request(emulated_request)})
+    entity_serializer = EntityDetailSerializer(instance, context={'request': emulated_request})
     language = stored_request.get('language')
     translation.activate(language)
     context = {
-        'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
         'data': entity_serializer.data,
         'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
         'render_language': language,
