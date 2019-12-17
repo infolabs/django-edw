@@ -17,11 +17,11 @@ from django.utils import translation
 from edw.models.entity import EntityModel
 from edw.models.notification import Notification
 from edw.rest.serializers.entity import EntityDetailSerializer
+from edw.rest.serializers.customer import CustomerSerializer
 if getattr(settings, 'FIREBASE_KEY_PATH', None):
     from fcm_async import push
 else:
     push = None
-
 
 
 class EmulateHttpRequest(HttpRequest):
@@ -47,7 +47,7 @@ class EmulateHttpRequest(HttpRequest):
         if customer is not None:
             self.user = customer.is_anonymous() and AnonymousUser or customer.user
         else:
-            self.user = AnonymousUser
+            self.user = AnonymousUser()
 
 
 email_validator = EmailValidator()
@@ -103,6 +103,8 @@ def notify_by_push(recipient, notification, instance, target, kwargs):
     language = stored_request.get('language')
     translation.activate(language)
     context = {
+        # Нужно для опроса, для обращения пользователю в заголовке
+        'customer': CustomerSerializer(instance.customer).data if instance.customer is not None else None,
         'data': entity_serializer.data,
         'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
         'render_language': language,
