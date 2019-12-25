@@ -892,6 +892,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         polymorphic_ctype_id = self.polymorphic_ctype_id
         model = content_type_cache.get(polymorphic_ctype_id, None)
         if model is None:
+            # todo: если делать вставку дампа в entity через loaddata то в этом месте выдает ошибку, потому что нет еще
+            #  self.polymorphic_ctype до сохранения
             model = content_type_cache[polymorphic_ctype_id] = self.polymorphic_ctype.model
         return model
 
