@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import Actions from '../actions/index';
 import TermsTreeItem from './TermsTreeItem';
 import parseRequestParams from 'utils/parseRequestParams';
+import { setDatamartHash, getDatamartsData } from "../utils/locationHash";
 
 
 function isArraysEqual(a, b) {
@@ -40,24 +41,35 @@ class TermsTree extends Component {
           tagged_next = this.props.terms.tagged,
           meta = prevProps.entities.items.meta;
 
+    const parms = parseRequestParams(request_params),
+          subj_req_ids = parms.subj_ids,
+          options_arr = parms.options_arr;
+
+    let request_options = meta.request_options,
+        subj_ids = meta.subj_ids || subj_req_ids;
+
+
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
+      // get from hash if exist
+      const datamartData = getDatamartsData()[entry_point_id];
+      const fromHash = !tagged_current.items.length && datamartData && datamartData.terms && datamartData.terms.length;
+      if (fromHash)
+        tagged_next.items = datamartData.terms;
+
+      if (tagged_current.items.length)
+        setDatamartHash(entry_point_id, tagged_next.items, request_options.offset);
+
       // reload tree
-      if (!tagged_next.isInCache()) {
+      if (!tagged_next.isInCache() || fromHash) {
         this.props.actions.notifyLoading();
-        this.props.actions.reloadTree(entry_point_id, tagged_next.items);
+        const func = fromHash ? this.props.actions.loadTree : this.props.actions.reloadTree;
+        func(entry_point_id, tagged_next.items);
       }
       // reload entities
-      if (!tagged_next.entities_ignore) {
-        const parms = parseRequestParams(request_params),
-              subj_req_ids = parms.subj_ids,
-              options_arr = parms.options_arr;
-
-        let request_options = meta.request_options,
-            subj_ids = meta.subj_ids || subj_req_ids;
-
+      if (!tagged_next.entities_ignore || fromHash) {
         delete request_options["alike"];
         request_options['terms'] = tagged_next.items;
-        request_options['offset'] = 0;
+        request_options['offset'] = fromHash ? datamartData.offset : 0;
         this.props.actions.notifyLoadingEntities();
 
         this.props.actions.getEntities(
@@ -79,7 +91,7 @@ class TermsTree extends Component {
           real_potential = terms.real_potential;
 
     let tree = "";
-    if ( !!term ) {
+    if (term) {
       tree = (
         <TermsTreeItem key={term.id}
                        term={term}
