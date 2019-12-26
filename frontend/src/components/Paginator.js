@@ -14,7 +14,7 @@ class Paginator extends Component {
     const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, request_options['offset']);
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
@@ -25,7 +25,7 @@ class Paginator extends Component {
     const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, request_options['offset']);
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
@@ -36,7 +36,7 @@ class Paginator extends Component {
     const { subj_ids, limit, request_options } = meta;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, request_options['offset']);
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
