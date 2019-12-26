@@ -9,17 +9,26 @@ const TERMS_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + TERMS_REGEX_POSTFIX, 'g
 const OFFSET_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + OFFSET_REGEX_POSTFIX, 'g');
 
 
+function replaceHash(newhash) {
+  if ((''+newhash).charAt(0) !== '#')
+    newhash = '#' + newhash;
+  history.replaceState(undefined, undefined, newhash);
+}
+
+
 function setHash(hash, head, postfix, data) {
   let newHash = head + data;
   hash = hash.replace(new RegExp(head + postfix, 'g'), '');
   return hash + newHash;
 }
 
+
 export function setOffset(datamart_id, offset) {
   let hash = window.location.hash;
   const hashHead = DM_PREFIX + datamart_id;
   hash = setHash(hash, hashHead, OFFSET_REGEX_POSTFIX, OFFSET_PREFIX + (offset || 0));
-  window.location.hash = hash;
+
+  replaceHash(hash);
 }
 
 
@@ -30,7 +39,7 @@ export function setDatamartHash(datamart_id, terms_ids, offset=0) {
   hash = setHash(hash, hashHead, TERMS_REGEX_POSTFIX, TERMS_PREFIX + terms_ids.join(','));
   hash = setHash(hash, hashHead, OFFSET_REGEX_POSTFIX, OFFSET_PREFIX + (offset || 0));
 
-  window.location.hash = hash;
+  replaceHash(hash);
 }
 
 
