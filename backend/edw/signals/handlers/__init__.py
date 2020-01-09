@@ -7,12 +7,19 @@ try:
         term,
         data_mart,
         entity,
-        auth,
+        # auth,
         # notification,
     )
 
+    # try import `postal_zone`
     try:
         from . import postal_zone
+    except ImproperlyConfigured:
+        pass
+
+    # try import `email_category`
+    try:
+        from . import email_category
     except ImproperlyConfigured:
         pass
 

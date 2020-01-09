@@ -34,16 +34,17 @@ def on_pre_delete_postzone(sender, instance, **kwargs):
 def on_pre_save_postzone(sender, instance, **kwargs):
     if instance.pk is not None:
         try:
-            origin = PostZoneModel.objects.get(pk=instance.pk)
+            origin = sender.objects.get(pk=instance.pk)
+        except sender.DoesNotExist:
+            pass
+        else:
             if origin.term != instance.term:
                 origin_zone_term_id = origin.term.id
-                zone_term_id= instance.term.id
+                zone_term_id = instance.term.id
                 entities_ids = EntityModel.objects.instance_of(*_model_with_place_mixin).filter(
                     terms__id=origin_zone_term_id).values_list('id', flat=True)
                 EntityModel.terms.through.objects.filter(
                     entity_id__in=list(entities_ids), term_id=origin_zone_term_id).update(term_id=zone_term_id)
-        except sender.DoesNotExist:
-            pass
 
 
 #==============================================================================

@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 from django.db import transaction
 from django.utils.encoding import force_text
-# from django.db.models import Q
-# from django.utils.functional import cached_property
+from django.db.models import Q
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import EntityModel
-# from edw.models.postal_zone import get_postal_zone
+from edw.models.email_category import get_email_category
 from edw.models.term import TermModel
 
 
@@ -70,6 +70,23 @@ class CustomerCategoryMixin(object):
                     unknown_customer.save()
         super(CustomerCategoryMixin, cls).validate_term_model()
 
+    @staticmethod
+    def customer_category_root_term():
+        """
+        RUS: Ищет корневой термин категории пользователей в модели TermModel (slug = "customer-category").
+        Результат кешируется.
+        """
+        customer_category_root = getattr(EntityModel, "_customer_category_root_term_cache", None)
+        if customer_category_root is None:
+            try:
+                customer_category_root = TermModel.objects.get(
+                    slug=CustomerCategoryMixin.CUSTOMER_CATEGORY_ROOT_TERM_SLUG, parent=None)
+            except TermModel.DoesNotExist:
+                pass
+            else:
+                EntityModel._customer_category_root_term_cache = customer_category_root
+        return customer_category_root
+
     # @staticmethod
     # def get_region_term():
     #     """
@@ -85,7 +102,28 @@ class CustomerCategoryMixin(object):
     #         else:
     #             EntityModel._region_term_cache = region
     #     return region
-    #
+
+
+    @staticmethod
+    def get_unknown_customer_term():
+        """
+        RUS: Ищет термин - неизвестная категория пользователей в модели TermModel (slug = "unknown-customer").
+        Результат кешируется.
+        """
+        unknown_customer = getattr(EntityModel, "_unknown_customer_term_cache", None)
+        if unknown_customer is None:
+            customer_category_root = CustomerCategoryMixin.customer_category_root_term()
+            if unknown_customer is not None:
+                try:
+                    unknown_customer = customer_category_root.get_descendants(include_self=False).get(
+                        slug=CustomerCategoryMixin.UNKNOWN_CUSTOMER_TERM_SLUG)
+                except TermModel.DoesNotExist:
+                    pass
+                else:
+                    EntityModel._unknown_customer_term_cache = unknown_customer
+        return unknown_customer
+
+
     # @staticmethod
     # def get_terra_incognita_term():
     #     """
@@ -104,7 +142,29 @@ class CustomerCategoryMixin(object):
     #             else:
     #                 EntityModel._terra_incognita_cache = terra_incognita
     #     return terra_incognita
-    #
+
+
+    @classmethod
+    def get_all_customer_categories_terms_ids_set(cls):
+        """
+        RUS: Добавляет список ids терминов категорий пользователей.
+        """
+        customer_category_root = CustomerCategoryMixin.customer_category_root_term()
+        if customer_category_root is not None:
+
+
+
+            ids = customer_category_root.get_descendants(include_self=True).values_list('id', flat=True)
+
+            print ("#### get_all_customer_categories_terms_ids_set", ids)
+        else:
+            ids = []
+
+
+
+        return set(ids)
+
+
     # @classmethod
     # def get_all_regions_terms_ids_set(cls):
     #     """
@@ -116,14 +176,51 @@ class CustomerCategoryMixin(object):
     #     else:
     #         ids = []
     #     return set(ids)
-    #
+
+    @cached_property
+    def all_customer_categories_terms_ids_set(self):
+        """
+        RUS: Кэширует список ids категорий терминов.
+        """
+        return self.get_all_customer_categories_terms_ids_set()
+
     # @cached_property
     # def all_regions_terms_ids_set(self):
     #     """
     #     RUS: Кэширует список ids регионов.
     #     """
     #     return self.get_all_regions_terms_ids_set()
-    #
+
+
+    def need_terms_validation_after_save(self, origin, **kwargs):
+        """
+        RUS: Термины зависят от модели CustomerModel, валидируем при создании либо валидация вызывается сигналом.
+        """
+        
+        print ("+++ need_terms_validation_after_save +++", origin.customer_id , self.customer_id)
+
+
+
+        if origin is None or origin.customer_id != self.customer_id:
+            do_validate = kwargs["context"]["validate_customer_category"] = True
+        else:
+
+            tmp1 = EntityModel.terms.through.objects.filter(
+                Q(entity_id=self.id) &
+                Q(term_id__in=self.all_customer_categories_terms_ids_set)
+            ).values_list('term_id', flat=True)
+
+            print ("%%%% SELF TERMS $$$$$", tmp1)
+
+            # todo: here!!!
+
+            do_validate = kwargs["context"]["validate_customer_category"] = True
+
+            # do_validate = kwargs["context"].get("validate_customer_category", True)
+            # do_validate = kwargs["context"].get("validate_customer_category", False)
+        return super(CustomerCategoryMixin, self).need_terms_validation_after_save(origin, **kwargs) or do_validate
+
+
     # def need_terms_validation_after_save(self, origin, **kwargs):
     #     """
     #     RUS: Проставляет автоматически термины, связанные с местоположением объекта,
@@ -147,7 +244,62 @@ class CustomerCategoryMixin(object):
     #     RUS: Кэширует местоположение объекта.
     #     """
     #     return self.get_location()
-    #
+
+    def get_customer_category_term(self):
+        email_category = get_email_category(self.customer.email)
+        return email_category.term if email_category else None
+
+    @cached_property
+    def customer_category_term(self):
+        return self.get_customer_category_term()
+
+    def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Добавляет id категории пользоватя
+        """
+        context = kwargs["context"]
+
+        print (">>>>>> !!! validate_terms", self, kwargs)
+
+
+        print ("%%%%%%% instance._clean_terms %%%%%%", getattr(self, "_clean_terms", None))
+
+        if context.get("force_validate_terms", False) or context.get("validate_customer_category", False):
+
+
+
+            if origin is not None:
+                to_remove = EntityModel.terms.through.objects.filter(
+                    Q(entity_id=self.id) &
+                    Q(term_id__in=self.all_customer_categories_terms_ids_set)
+                ).values_list('term_id', flat=True)
+
+
+                print ("*** to_remove ***", to_remove)
+                # self.terms.remove(*to_remove)
+
+            else:
+                to_remove = []
+
+            if self.customer_category_term:
+                if to_remove:
+                    self.terms.remove(*to_remove)
+
+                print ("- REMOVE", to_remove)
+                print ("+ ADD", self.customer_category_term.id)
+
+                self.terms.add(self.customer_category_term.id)
+            else:
+                if not to_remove:
+                    print ("+ ADD", self.get_unknown_customer_term().id)
+
+                    self.term.add(self.get_unknown_customer_term().id)
+
+            print ("#### customer_category_term ####", self.customer_category_term)
+
+
+        super(CustomerCategoryMixin, self).validate_terms(origin, **kwargs)
+
     # def validate_terms(self, origin, **kwargs):
     #     """
     #     RUS: Добавляет id почтовой зоны в случае определения местположения,
