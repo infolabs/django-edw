@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
+import { setOffset } from "../utils/locationHash";
 
 
 class Paginator extends Component {
@@ -10,10 +11,10 @@ class Paginator extends Component {
     e.preventDefault();
     e.stopPropagation();
     const meta = this.props.entities.items.meta;
-    const { subj_ids, limit, offset, count, request_options } = meta;
-    const actions = this.props.actions;
+    const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
@@ -21,10 +22,10 @@ class Paginator extends Component {
     e.preventDefault();
     e.stopPropagation();
     const meta = this.props.entities.items.meta;
-    const { subj_ids, limit, offset, count, request_options } = meta;
-    const actions = this.props.actions;
+    const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
@@ -32,10 +33,10 @@ class Paginator extends Component {
     e.preventDefault();
     e.stopPropagation();
     const meta = this.props.entities.items.meta;
-    const { subj_ids, limit, offset, count, request_options } = meta;
-    const actions = this.props.actions;
+    const { subj_ids, limit, request_options } = meta;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
+    setOffset(this.props.entry_point_id, options['offset']);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
   }
 
@@ -113,7 +114,7 @@ class Paginator extends Component {
     let previous = "";
     if (hasPrevious) {
       previous = (
-        <li key='prev' onClick={e => { ::this.handlePrevClick(e)}}>
+        <li key='prev' onClick={e => { ::this.handlePrevClick(e);}}>
           <a href="#"><i className="ex-icon-chevron-left"></i></a>
         </li>
       );
@@ -131,7 +132,7 @@ class Paginator extends Component {
     if ( !inLeadingRange ) {
       pagesOutsideTrailingRange.forEach(function(n) {
         pages.push(
-          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n);}}>
             <a href="#">{n}</a>
           </li>
         );
@@ -148,7 +149,7 @@ class Paginator extends Component {
         );
       } else {
         pages.push(
-          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n);}}>
             <a href="#">{n}</a>
           </li>
         );
@@ -161,7 +162,7 @@ class Paginator extends Component {
       );
       pagesOutsideLeadingRange.reverse().forEach(function(n) {
         pages.push(
-          <li key={n} onClick={e => { ::self.handlePageClick(e, n)}}>
+          <li key={n} onClick={e => { ::self.handlePageClick(e, n);}}>
             <a href="#">{n}</a>
           </li>
         );
@@ -171,7 +172,7 @@ class Paginator extends Component {
     let next = "";
     if (hasNext) {
       next = (
-        <li key='next' onClick={e => { ::this.handleNextClick(e)}}>
+        <li key='next' onClick={e => { ::this.handleNextClick(e);}}>
           <a href="#"><i className="ex-icon-chevron-right"></i></a>
         </li>
       );

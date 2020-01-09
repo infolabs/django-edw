@@ -221,12 +221,14 @@ export class YMapInner extends AbstractMap {
         }
       }
 
-      if (!this.osmArray.some(osm => osm.osmId == osmId)){
-        osmObj.osmId = osmId;
-        osmObj.colors.push(regionColor);
-        this.osmArray.push(osmObj);
-      } else {
-        this.osmArray[0].colors.push(regionColor);
+      if (osmId){
+        if (!this.osmArray.some(osm => osm.osmId == osmId)){
+            osmObj.osmId = osmId;
+            osmObj.colors.push(regionColor);
+            this.osmArray.push(osmObj);
+        } else {
+            this.osmArray[0].colors.push(regionColor);
+        }
       }
 
       let marker = {
