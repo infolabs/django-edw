@@ -19,6 +19,7 @@ from edw.rest.filters.entity import (
     EntityOrderingFilter
 )
 from edw.rest.pagination import EntityPagination
+from edw import settings as edw_settings
 
 
 class GetEntity(BaseRetrieveDataTag):
@@ -98,8 +99,11 @@ class GetEntities(BaseRetrieveDataTag):
         query_params = self.request.GET
 
         data_mart = query_params['_data_mart']
+
         if data_mart is not None:
-            query_params.setdefault(self.paginator.limit_query_param, str(data_mart.limit))
+            query_params.setdefault(self.paginator.limit_query_param, str(
+                data_mart.limit if data_mart.limit is not None else edw_settings.REST_PAGINATION['entity_default_limit']
+            ))
 
         self.queryset_context = {
             "data_mart": data_mart,
