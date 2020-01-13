@@ -1565,6 +1565,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             rel_r_ids = []
         self._remove_relations(self.id, rel_f_ids, rel_r_ids)
 
+    def clean_terms(self, terms):
+        """
+        Метод вызывается при валидации поля `terms` в `EntityAdminForm`,
+        необходим для обеспечения валидации "не системных" терминов в модуле администрирования
+        """
+        return terms
+
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
 

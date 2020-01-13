@@ -55,49 +55,24 @@ def on_pre_save_email_category(sender, instance, **kwargs):
 # ==============================================================================
 # Customer model event handlers
 # ==============================================================================
-def on_pre_delete_customer(sender, instance, **kwargs):
-    print (">>> Customer - on_pre_delete_customer", sender, instance)
-
-
-
-
 def on_pre_save_customer(sender, instance, **kwargs):
-    print (">>> Customer - on_pre_save_customer", sender, instance)
-
     if instance.pk is not None:
         try:
             origin = sender.objects.get(pk=instance.pk)
         except sender.DoesNotExist:
             pass
         else:
-
-            print ("_____ ORIG MAIL", origin.email, instance.email)
-
             if origin.email != instance.email:
-                # todo: HERE!!!
-                # try:
-                #     entity = EntityModel.objects.instance_of(*_model_with_customer_category_mixin).filter()[0]
-                # except IndexError:
-                #     pass
-                # else:
-                #     print ("*** FIND !!! ***", entity)
-
-                print (">>>> instance.id <<<<", instance.pk)
-
                 q_lst = [Q(
                     **{"{}___customer_id".format(x.__name__): instance.pk}
                 ) for x in _model_with_customer_category_mixin]
-
-                print ("+++ q_lst +++", q_lst)
-
                 entities = EntityModel.objects.filter(reduce(OR, q_lst))
-                # filter(reduce(OR, q_lst)
-
                 for entity in entities:
-                    print ("*** FIND !!! ***", entity)
-
                     entity.save(validate_customer_category=True)
 
+
+# def on_pre_delete_customer(sender, instance, **kwargs):
+#     pass
 
 
 #==============================================================================
@@ -115,7 +90,7 @@ pre_save.connect(on_pre_save_email_category, email_category_model,
 # Customer
 customer_model = CustomerModel.materialized
 
-pre_delete.connect(on_pre_delete_customer, customer_model,
-                   dispatch_uid=make_dispatch_uid(pre_delete, on_pre_delete_customer, customer_model))
+# pre_delete.connect(on_pre_delete_customer, customer_model,
+#                    dispatch_uid=make_dispatch_uid(pre_delete, on_pre_delete_customer, customer_model))
 pre_save.connect(on_pre_save_customer, customer_model,
                  dispatch_uid=make_dispatch_uid(pre_save, on_pre_save_customer, customer_model))
