@@ -84,6 +84,9 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
 
+        if self.action in ('retrieve', 'list'):
+            request.GET.setdefault('active', True)
+
     @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
         '''
@@ -113,7 +116,6 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         return super(EntityViewSet, self).get_format_suffix(**kwargs)
 
     def list(self, request, *args, **kwargs):
-        request.GET.setdefault('active', True)
         if self.terms is not None:
             request.GET['terms'] = ','.join([str(x) for x in self.terms]) if isinstance(
                 self.terms, (list, tuple)) else str(self.terms)

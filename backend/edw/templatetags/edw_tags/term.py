@@ -13,6 +13,7 @@ class GetTermTree(BaseRetrieveDataTag):
     name = 'get_term_tree'
     queryset = TermModel.objects.toplevel()
     serializer_class = TermTreeSerializer
+    action = 'tree'
 
     options = Options(
         MultiKeywordArgument('kwargs', required=False),

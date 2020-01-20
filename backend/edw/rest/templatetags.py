@@ -129,6 +129,9 @@ class BaseRetrieveDataTag(Tag):
         for key in self.disallow_kwargs:
             initial_kwargs.pop(key, None)
 
+        if self.action in ('retrieve', 'list'):
+            request.GET.setdefault('active', True)
+
         request.query_params.update(initial_kwargs)
         self.initial_kwargs = initial_kwargs
 
