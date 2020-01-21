@@ -71,7 +71,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     REQUEST_CACHED_SERIALIZED_DATA_KEY = '_cached_serialized_data'
 
-    @remove_empty_params_from_request(exclude=('active',))
+    @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 

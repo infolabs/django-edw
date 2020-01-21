@@ -180,6 +180,9 @@ class EntityFilter(BaseEntityFilter):
     @get_from_underscore_or_data('active', None)
     def is_active(self, value):
         """
+        TRUE - 't', 'T', 'true', 'True', 'TRUE', '1', 1, True
+        FALSE - 'f', 'F', 'false', 'False', 'FALSE', '0', 0, 0.0, False
+        NULL - 'n', 'N', 'null', 'Null', 'NULL', '', None
         :return: `is_active` value parse from `self._active` or
             `self.data['active']`, default: None
         """
