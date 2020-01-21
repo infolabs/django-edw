@@ -3,14 +3,35 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination, _get_count
 from rest_framework.response import Response
 
 from edw import settings as edw_settings
 from edw.utils.hash_helpers import get_data_mart_cookie_setting
 
 
-class EDWLimitOffsetPagination(LimitOffsetPagination):
+class SetQueryset2NoneIfEmptyPaginationMixin(object):
+    """
+    В случаи когда количесто элементов равно нулю, возвращаем пустой список без запроса к БД
+    """
+    def paginate_queryset(self, queryset, request, view=None):
+        self.limit = self.get_limit(request)
+        if self.limit is None:
+            return None
+
+        self.offset = self.get_offset(request)
+        self.count = _get_count(queryset)
+        self.request = request
+
+        if not self.count:
+            return []
+
+        if self.count > self.limit and self.template is not None:
+            self.display_page_controls = True
+        return list(queryset[self.offset:self.offset + self.limit])
+
+
+class EDWLimitOffsetPagination(SetQueryset2NoneIfEmptyPaginationMixin, LimitOffsetPagination):
     """
     Определяет стиль нумерации страниц, используемый при поиске нескольких записей базы данных
     """
