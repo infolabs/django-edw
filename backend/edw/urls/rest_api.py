@@ -43,35 +43,35 @@ data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name
 try:
     from edw.models.related.data_mart_image import DataMartImageModel
     DataMartImageModel()  # Test pass if model materialized
-
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
     from edw.views.related.data_mart_image import DataMartImageViewSet
 
     router.register(r'data-marts-images', DataMartImageViewSet)
     data_mart_nested_router.register(r'images', DataMartImageViewSet, base_name='entity-image')
-except (ImproperlyConfigured, ImportError):
-    pass
 
 try:
     from edw.models.related.entity_image import EntityImageModel
     EntityImageModel()  # Test pass if model materialized
-
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
     from edw.views.related.entity_image import EntityImageViewSet
 
     router.register(r'entities-images', EntityImageViewSet)
     entity_nested_router.register(r'images', EntityImageViewSet, base_name='entity-image')
-except (ImproperlyConfigured, ImportError):
-    pass
 
 try:
     from edw.models.related.entity_file import EntityFileModel
     EntityFileModel()  # Test pass if model materialized
-
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
     from edw.views.related.entity_file import EntityFileViewSet
 
     router.register(r'entities-files', EntityFileViewSet)
     entity_nested_router.register(r'files', EntityFileViewSet, base_name='entity-file')
-except (ImproperlyConfigured, ImportError):
-    pass
 
 
 #==============================================================================

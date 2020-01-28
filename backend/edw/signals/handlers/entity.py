@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import (
     m2m_changed,
     pre_delete,
@@ -28,7 +29,10 @@ def get_HTML_snippets_keys(sender):
 #==============================================================================
 # Entity model event handlers
 #==============================================================================
+
+# invalidate after terms set changed
 Model = EntityModel.terms.through
+
 @receiver(m2m_changed, sender=Model, dispatch_uid=make_dispatch_uid(
     m2m_changed, 'invalidate_after_terms_set_changed', Model))
 def invalidate_after_terms_set_changed(sender, instance, **kwargs):
@@ -78,6 +82,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
                 external_remove_terms.send(sender=instance.__class__, instance=instance, pk_set=pk_set)
 
 
+# invalidate after entity changed
 def invalidate_entity_after_save(sender, instance, **kwargs):
     # Clear terms ids buffer
     EntityModel.clear_terms_cache_buffer()
@@ -90,9 +95,33 @@ def invalidate_entity_after_save(sender, instance, **kwargs):
 
     cache.delete_many(keys)
 
-
 def invalidate_entity_before_delete(sender, instance, **kwargs):
     invalidate_entity_after_save(sender, instance, **kwargs)
+
+
+# invalidate after images set changed
+try:
+    from edw.models.related.entity_image import EntityImageModel
+    EntityImageModel()  # Test pass if model materialized
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
+    Model = EntityImageModel.materialized
+
+    def invalidate_entity_after_image_save(sender, instance, **kwargs):
+        # Clear HTML snippets
+        keys = get_HTML_snippets_keys(instance.entity)
+        cache.delete_many(keys)
+
+    def invalidate_entity_before_image_delete(sender, instance, **kwargs):
+        invalidate_entity_after_image_save(sender, instance, **kwargs)
+
+
+    post_save.connect(invalidate_entity_after_image_save, Model,
+                      dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_image_save, Model))
+
+    pre_delete.connect(invalidate_entity_before_image_delete, Model,
+                       dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_image_delete, Model))
 
 
 #==============================================================================
