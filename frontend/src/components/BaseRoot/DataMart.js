@@ -57,15 +57,16 @@ export class DataMart extends Component {
 
     return (
       <div className="row">
-        <div className="col-sm-12 col-md-12">
-            {
-              Object.keys(entry_points).length > 1 ? <DataMartsList
-                entry_points={entry_points}
-                entry_point_id={entry_point_id}
-                actions={actions}
-              /> : null
-            }
-        </div>
+        {
+          Object.keys(entry_points).length > 1 &&
+            <div className="col-sm-12 col-md-12">
+                <DataMartsList
+                  entry_points={entry_points}
+                  entry_point_id={entry_point_id}
+                  actions={actions}
+                />
+            </div>
+        }
         <div className="col-sm-4 col-md-3 sidebar-filter">
           <TermsTree entry_points={entry_points} entry_point_id={entry_point_id} />
         </div>
