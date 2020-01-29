@@ -10,7 +10,6 @@ import {
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
-import { getDatamartsData } from '../utils/locationHash';
 import compareArrays from '../utils/compareArrays';
 
 const globalStore = new Singleton();
@@ -71,7 +70,7 @@ function loadingEntityItem(id) {
 let inFetch = 0;
 
 export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
-  return dispatch => {
+  return (dispatch, getState) => {
     // eslint-disable-next-line no-undef
     let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
     url = reCache(url);
@@ -99,18 +98,19 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
 
       inFetch--;
 
-      if (inFetch == 0) {
-        const currentSelection = getDatamartsData(),
-              dataMartId = json.results.meta.data_mart.id,
-              offset = json.offset,
-              terms = json.results.meta.terms_ids;
-        const currentData = currentSelection[dataMartId];
+      const state = getState(),
+            stateRootLength = state.terms.tree.root.children.length,
+            stateDataMartId = state.entities.items.meta.data_mart.id,
+            responseDataMartId = json.results.meta.data_mart.id;
 
-        // if it is the last response in the queue and it mismatches with
-        // the selected terms or offset, call the function again
-        if (!currentData || currentData.offset != offset || !compareArrays(currentData.terms, terms)) {
-          options_obj.terms = terms;
-          options_obj.offset = offset;
+      if (inFetch == 0 && stateDataMartId == responseDataMartId && stateRootLength) {
+        const stateTerms = state.terms.tagged.items,
+              responseTerms = json.results.meta.terms_ids;
+
+        // if datamarts match, tree exists and it is the last response in the queue
+        // and it mismatches with the selected terms, call the function again
+        if (!compareArrays(stateTerms, responseTerms)) {
+          options_obj.terms = stateTerms;
           dispatch(
             getEntities(mart_id, subj_ids, options_obj, options_arr)
           );
