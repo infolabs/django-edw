@@ -71,6 +71,14 @@ let inFetch = 0;
 
 export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
   return (dispatch, getState) => {
+    // ignore more than 3 simultaneous requests from tree
+    const currentMeta = getState().entities.items.meta,
+          treeRootLength = getState().terms.tree.root.children.length,
+          currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
+
+    if (treeRootLength && currentDataMartId == mart_id && inFetch > 3)
+      return;
+
     // eslint-disable-next-line no-undef
     let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
     url = reCache(url);
@@ -100,7 +108,8 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
 
       const state = getState(),
             stateRootLength = state.terms.tree.root.children.length,
-            stateDataMartId = state.entities.items.meta.data_mart.id,
+            stateMeta = state.entities.items.meta,
+            stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
             responseDataMartId = json.results.meta.data_mart.id;
 
       if (inFetch == 0 && stateDataMartId == responseDataMartId && stateRootLength) {
