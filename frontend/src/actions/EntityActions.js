@@ -105,7 +105,6 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
     }).then(response => response.json()).then(json => {
 
       inFetch--;
-
       const state = getState(),
             stateRootLength = state.terms.tree.root.children.length,
             stateMeta = state.entities.items.meta,
@@ -119,9 +118,10 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
         // if datamarts match, tree exists and it is the last response in the queue
         // and it mismatches with the selected terms, call the function again
         if (!compareArrays(stateTerms, responseTerms)) {
+          options_obj = stateMeta.request_options;
           options_obj.terms = stateTerms;
           dispatch(
-            getEntities(mart_id, subj_ids, options_obj, options_arr)
+            getEntities(mart_id, subj_ids, options_obj)
           );
           return;
         }
