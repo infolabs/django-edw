@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import re
-import types
 from functools import reduce
 from operator import __or__ as OR
 
@@ -12,7 +11,8 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
-from django.db import models, connections, transaction
+
+from django.db import models, transaction, connections
 from django.db.models import Q, Count
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.utils import six
@@ -30,7 +30,12 @@ from rest_framework.reverse import reverse
 
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .data_mart import DataMartModel
-from .mixins.query import CustomGroupByQuerySetMixin, CustomCountQuerySetMixin
+from .mixins.query import (
+    CustomGroupByQuerySetMixin,
+    CustomCountQuerySetMixin,
+    JoinQuerySetMixin,
+    inner_join_to,
+)
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
@@ -42,7 +47,7 @@ from .. import deferred
 from .. import settings as edw_settings
 from ..signals.entity import post_save as entity_post_save
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
-from ..utils.hash_helpers import hash_unsorted_list
+from ..utils.hash_helpers import hash_unsorted_list, get_unique_slug
 from ..utils.monkey_patching import patch_class_method
 from ..utils.set_helpers import uniq
 
@@ -77,8 +82,8 @@ def _get_terms_ids(entities_qs, tree):
     return result
 
 
-class BaseEntityQuerySet(CustomCountQuerySetMixin, CustomGroupByQuerySetMixin, QuerySetCachedResultMixin,
-                         PolymorphicQuerySet):
+class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGroupByQuerySetMixin,
+                         QuerySetCachedResultMixin, PolymorphicQuerySet):
     """
     RUS: Запрос к базовой сущности базы данных.
     """
@@ -129,10 +134,53 @@ class BaseEntityQuerySet(CustomCountQuerySetMixin, CustomGroupByQuerySetMixin, Q
         tree = decompress(value, fix_it=True)
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
         if filters:
+            """
+            # Pythonic, but working to slow, try refactor queryset
+            
             result = self.filter(filters[0])
             for x in filters[1:]:
                 result = result.filter(x)
             result = result.distinct()
+            """
+            outer_qs = self
+            base_inner_qs = outer_qs.model.objects.all().filter(filters[0])
+            for x in filters[1:]:
+                base_inner_qs = base_inner_qs.filter(x)
+            base_inner_qs = base_inner_qs.distinct().values_list('id', flat=True)
+
+            try:
+                base_raw_sql, sql_params = base_inner_qs.query.get_compiler(self.db).as_sql()
+            except EmptyResultSet:
+                result = []
+            else:
+                db_ops = connections[self.db].ops
+                qn = db_ops.quote_name
+
+                inner_model = getattr(self.model, field_name).through
+
+                outer_table = outer_qs.query.get_initial_alias()
+                inner_table = inner_model.objects.all().query.get_initial_alias()
+                safe_inner_table, safe_outer_table = qn(inner_table), qn(outer_table)
+
+                entity_alias = "{}_id".format(self.model._meta.object_name.lower())
+
+                safe_full_inner_id_alias = "{}.{}".format(safe_inner_table, qn(entity_alias))
+                safe_full_outer_id_alias = "{}.{}".format(safe_outer_table, qn("id"))
+
+                # Switch tables
+                raw_sql = base_raw_sql.replace(safe_full_outer_id_alias, safe_full_inner_id_alias).replace(
+                    safe_outer_table, safe_inner_table)
+
+                # Cut garbage INNER JOIN
+                s = safe_full_inner_id_alias.replace('.', '\.')
+                regex = re.compile("\s+INNER\s+JOIN.+?\s+ON\s+\(\s*{}\s*?=\s*{}\s*?\)".format(s, s), re.IGNORECASE)
+                raw_sql = regex.sub('', raw_sql)
+
+                inner_qs = inner_model.objects.raw(raw_sql, sql_params)
+                inner_alias = get_unique_slug(inner_table).upper()
+
+                # Make queryset
+                result = outer_qs.inner_join(inner_qs, 'id', entity_alias, inner_alias)
         else:
             result = self
         result.semantic_filter_meta = tree
@@ -140,43 +188,25 @@ class BaseEntityQuerySet(CustomCountQuerySetMixin, CustomGroupByQuerySetMixin, Q
 
     def get_related_terms_ids(self):
         """
-        # Pythonic, but working to slow, use connection.ops.quote_name monkey-path
+        # Pythonic, but working to slow, try improve speed by using INNER JOIN
         result = self.model.terms.through.objects.filter(**{
             "{entity}_id__in".format(
                 entity_model=self.model._meta.object_name.lower()
             ): self.values_list('pk', flat=True)}).distinct().values_list('term_id', flat=True)
         RUS: Возвращает тематическую модель, сформированную в результате SQL-запроса к реляционным данным.
         """
-        # Re-support subqueries by disabling the auto-quote feature with the following monkey-patch
-        db_ops = connections[self.db].ops
-        if not hasattr(db_ops, '_MP_quote_name'):
-            db_ops._MP_quote_name = db_ops.quote_name
-            db_ops.quote_name = types.MethodType(
-                lambda self, name: name if name.startswith('(') else self._MP_quote_name(name), db_ops)
+        outer_model = self.model.terms.through
+        outer_qs = outer_model.objects.distinct().values_list('term_id', flat=True)
+
+        inner_qs = self.order_by().values_list('pk', flat=True)
+        inner_table = self.query.get_initial_alias()
+        inner_alias = get_unique_slug(inner_table).upper()
+
+        entity_alias = "{}_id".format(self.model._meta.object_name.lower())
 
         # Make queryset
-        model = self.model.terms.through
-        inner_alias = self.query.get_initial_alias() + "_after_filtering"
-        outer_qs = model.objects.distinct().values_list('term_id', flat=True)
-        outer_alias = outer_qs.query.get_initial_alias()
-        inner_qs = self.order_by().values_list('pk', flat=True)
-        try:
-            raw_subquery, subquery_params = inner_qs.query.get_compiler(self.db).as_sql()
-        except EmptyResultSet:
-            result = []
-        else:
-            result = outer_qs.extra(
-                tables=['({select}) AS {alias}'.format(
-                    select=raw_subquery,
-                    alias=inner_alias
-                )],
-                where=['{outer_alias}.{entity}_id = {inner_alias}.id'.format(
-                    entity=self.model._meta.object_name.lower(),
-                    outer_alias=outer_alias,
-                    inner_alias=inner_alias
-                )],
-                params=subquery_params
-            )
+        result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', inner_alias)
+
         return result
 
     def _get_terms_ids_cache_key(self, tree):
