@@ -11,7 +11,7 @@ import Map from 'components/BaseEntities/Map';
 import YMap from 'components/BaseEntities/YMap';
 import parseRequestParams from 'utils/parseRequestParams';
 import cookieKey from "../utils/hashUtils";
-
+import { getDatamartsData } from "../utils/locationHash";
 
 class BaseEntities extends Component {
 
@@ -74,6 +74,18 @@ class BaseEntities extends Component {
     request_options = Object.assign(request_options, preferences);
 
     this.props.actions.notifyLoadingEntities();
+
+    // if there's no tree and there's an offset in the location hash, make a request
+    if (this.props.terms.tree.root.children.length <= 0) {
+      const datamartData = getDatamartsData()[entry_point_id];
+      if (datamartData && datamartData.offset && datamartData.offset != request_options.offset) {
+          request_options.offset = datamartData.offset;
+          this.props.actions.getEntities(
+            entry_point_id, subj_ids, request_options, options_arr
+          );
+          return;
+      }
+    }
 
     this.props.actions.readEntities(
       entry_point_id, subj_ids, request_options, options_arr
@@ -147,6 +159,7 @@ class BaseEntities extends Component {
 
 function mapState(state) {
   return {
+    terms: state.terms,
     entities: state.entities,
   };
 }

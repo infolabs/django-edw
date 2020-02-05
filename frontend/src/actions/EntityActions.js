@@ -10,7 +10,7 @@ import {
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
-
+import compareArrays from '../utils/compareArrays';
 
 const globalStore = new Singleton();
 
@@ -19,7 +19,7 @@ function opts2gets(options = {}) {
   let gets = '';
   for (let key in options) {
     let value = options[key];
-    if (typeof value == 'array')
+    if (Array.isArray(value))
       value = value.join();
     gets += '&' + key + '=' + value;
   }
@@ -66,13 +66,25 @@ function loadingEntityItem(id) {
     };
 }
 
+// count sent requests so as to match last response with selected terms
+let inFetch = 0;
 
 export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    // ignore more than 3 simultaneous requests from tree
+    const currentMeta = getState().entities.items.meta,
+          treeRootLength = getState().terms.tree.root.children.length,
+          currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
+
+    if (treeRootLength && currentDataMartId == mart_id && inFetch > 3)
+      return;
+
+    // eslint-disable-next-line no-undef
     let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
     url = reCache(url);
     if (subj_ids.length) {
         subj_ids.join();
+        // eslint-disable-next-line no-undef
         url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
     }
     url += opts2gets(options_obj);
@@ -81,6 +93,8 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
       url += "&" + options_arr.join("&");
     }
 
+    inFetch++;
+
     fetch(url, {
       credentials: 'include',
       method: 'get',
@@ -88,11 +102,38 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-    }).then(response => response.json()).then(json => dispatch({
-      type: LOAD_ENTITIES,
-      json: json,
-      request_options: options_obj
-    }));
+    }).then(response => response.json()).then(json => {
+
+      inFetch--;
+      const state = getState(),
+            stateRootLength = state.terms.tree.root.children.length,
+            stateMeta = state.entities.items.meta,
+            stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
+            responseDataMartId = json.results.meta.data_mart.id;
+
+      if (inFetch == 0 && stateDataMartId == responseDataMartId && stateRootLength) {
+        const stateTerms = state.terms.tagged.items,
+              responseTerms = json.results.meta.terms_ids;
+
+        // if datamarts match, tree exists and it is the last response in the queue
+        // and it mismatches with the selected terms, call the function again
+        if (!compareArrays(stateTerms, responseTerms)) {
+          options_obj = stateMeta.request_options;
+          options_obj.terms = stateTerms;
+          dispatch(
+            getEntities(mart_id, subj_ids, options_obj)
+          );
+          return;
+        }
+      }
+
+      dispatch({
+        type: LOAD_ENTITIES,
+        json: json,
+        request_options: options_obj
+      });
+
+    });
   };
 }
 
