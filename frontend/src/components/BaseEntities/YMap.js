@@ -186,7 +186,7 @@ export class YMapInner extends AbstractMap {
 
     for (const item of geoItems) {
 
-      const shortCharacteristics = item.short_characteristics[0].view_class,
+      const
             coords = item.extra.geoposition.split(','),
             lng = parseFloat(coords[1]),
             lat = parseFloat(coords[0]);
