@@ -175,7 +175,7 @@ export class YMapInner extends AbstractMap {
     const { items, meta, loading, descriptions } = this.props,
           geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
 
-    let entitiesClass = "entities";
+    let entitiesClass = "entities ex-ymap";
     entitiesClass = loading ? entitiesClass + " ex-state-loading" : entitiesClass;
 
     let lngMin = null, latMin = null, lngMax = null, latMax = null, markers = [];
