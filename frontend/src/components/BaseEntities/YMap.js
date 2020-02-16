@@ -28,7 +28,8 @@ export function addRegions(map, osmArray, osmRegion) {
             }
         }, (data) => {
             let collection = osmeRegions.toYandex(data, ymaps);
-            collection.add(map);
+            if (map != null)
+              collection.add(map);
             osm._collection = collection;
             collection.setStyles(() => {
                 return getRegionsStyle(osm, osmRegion)
