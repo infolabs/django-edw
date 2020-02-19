@@ -1,12 +1,12 @@
+/* global osmeRegions, ymaps */
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { withYMaps, YMaps, Map, Placemark } from 'react-yandex-maps';
+import Color from 'color';
 
 import AbstractMap from 'components/BaseEntities/AbstractMap';
 import { MAP_HEIGHT } from 'constants/Components';
 
-// import `color` lib
-const Color = require('color');
 
 export const mapModules = [
   'control.FullscreenControl',
@@ -14,35 +14,38 @@ export const mapModules = [
   'control.ZoomControl'
 ];
 
+
 export const markerModules = [
   'geoObject.addon.balloon',
 ];
 
+
 export function addRegions(map, osmArray, osmRegion) {
-    for (const osm of osmArray) {
-        osmeRegions.geoJSON(osm.osmId, {
-            lang: 'ru',
-            quality: 3,
-            postFilter: function(region){
-                return region.osmId == osm.osmId;
-            }
-        }, (data) => {
-            let collection = osmeRegions.toYandex(data, ymaps);
-            if (map != null)
-              collection.add(map);
-            osm._collection = collection;
-            collection.setStyles(() => {
-                return getRegionsStyle(osm, osmRegion)
-            });
-        });
-    }
+  for (const osm of osmArray) {
+    osmeRegions.geoJSON(osm.osmId, {
+      lang: 'ru',
+      quality: 3,
+      postFilter: function(region){
+          return region.osmId == osm.osmId;
+      }
+    }, (data) => {
+      let collection = osmeRegions.toYandex(data, ymaps);
+      if (map != null)
+        collection.add(map);
+      osm._collection = collection;
+      collection.setStyles(() => {
+          return getRegionsStyle(osm, osmRegion);
+      });
+    });
+  }
 }
 
+
 function getRegionsStyle(osm, osmRegion){
-  switch (osmRegion){
+  const nm = osm.colors.length;
+  switch (osmRegion) {
     case 'avg':
-      const nm = osm.colors.length;
-      if(nm > 1){
+      if (nm > 1) {
         let [r, g, b] = [0, 0, 0];
         osm.colors.map((array, i) => {
           const color = Color(array).rgb().array();
@@ -59,10 +62,10 @@ function getRegionsStyle(osm, osmRegion){
       osm.colors = osm.colors[0];
   }
   return ({
-      strokeWidth: 1,
-      strokeStyle: "longdashdotdot",
-      strokeColor: "#5CA5C1",
-      fillColor: osm.colors
+    strokeWidth: 1,
+    strokeStyle: "longdashdotdot",
+    strokeColor: "#5CA5C1",
+    fillColor: osm.colors
   });
 }
 
@@ -70,32 +73,32 @@ function getRegionsStyle(osm, osmRegion){
 export class YMapInner extends AbstractMap {
 
   setMapRef = ref => {
-      this._map = ref;
-      if(ref && !this.firstMapLoading && this.osmRegion){
-          this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
-          addRegions(this._map, this.osmArray, this.osmRegion);
-          this.osmArrayPrev = this.osmArray;
-      }
+    this._map = ref;
+    if (ref && !this.firstMapLoading && this.osmRegion) {
+      this.firstMapLoading = true; // Флаг загрузки региона при инициализации карты
+      addRegions(this._map, this.osmArray, this.osmRegion);
+      this.osmArrayPrev = this.osmArray;
+    }
   };
 
-  static getMapConfig(){
+  static getMapConfig() {
     return {
-        bounds: [[50.1, 30.2], [60.3, 20.4]],
-        margin: 50,
-        type: 'yandex#map',
-        controls: [
-          'fullscreenControl',
-          'geolocationControl',
-          'zoomControl',
-        ],
-        behaviors: [
-          'drag',
-          'dblClickZoom',
-          'rightMouseButtonMagnifier',
-          'multiTouch',
-          'scrollZoom'
-        ]
-    }
+      bounds: [[50.1, 30.2], [60.3, 20.4]],
+      margin: 50,
+      type: 'yandex#map',
+      controls: [
+        'fullscreenControl',
+        'geolocationControl',
+        'zoomControl',
+      ],
+      behaviors: [
+        'drag',
+        'dblClickZoom',
+        'rightMouseButtonMagnifier',
+        'multiTouch',
+        'scrollZoom'
+      ]
+    };
   }
 
   static defaultProps = {
@@ -186,9 +189,7 @@ export class YMapInner extends AbstractMap {
     let osmId;
 
     for (const item of geoItems) {
-
-      const
-            coords = item.extra.geoposition.split(','),
+      const coords = item.extra.geoposition.split(','),
             lng = parseFloat(coords[1]),
             lat = parseFloat(coords[0]);
 
@@ -200,35 +201,32 @@ export class YMapInner extends AbstractMap {
             pinColor = this.getPinColor(item),
             regionColor = colorItems.regionColor,
             descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
-            description = !descriptions_data[item.id] && descriptions.groups ? descriptions.groups[item.id] : descriptions_data[item.id],
+            description = !descriptions_data[item.id] && descriptions.groups ?
+                          descriptions.groups[item.id] : descriptions_data[item.id],
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
-      let osmObj = {
-            osmId : "",
-            colors : []
-          };
+      const osmObj = {
+        osmId : "",
+        colors : []
+      };
 
-      if (item.short_characteristics.length) {
-        for (const sm of item.short_characteristics) {
-          if (sm.view_class.length) {
-            for (const cl of sm.view_class) {
-              if(cl.startsWith(osmAddrPattern)) {
-                osmId = parseInt(cl.replace(osmAddrPattern, ""));
-                break
-              }
-            }
+      for (const sm of item.short_characteristics) {
+        for (const cl of sm.view_class) {
+          if (cl.startsWith(osmAddrPattern)) {
+            osmId = parseInt(cl.replace(osmAddrPattern, ""));
+            break;
           }
         }
       }
 
       if (osmId){
-        if (!this.osmArray.some(osm => osm.osmId == osmId)){
-            osmObj.osmId = osmId;
-            osmObj.colors.push(regionColor);
-            this.osmArray.push(osmObj);
+        if (!this.osmArray.some(osm => osm.osmId == osmId)) {
+          osmObj.osmId = osmId;
+          osmObj.colors.push(regionColor);
+          this.osmArray.push(osmObj);
         } else {
-            this.osmArray[0].colors.push(regionColor);
+          this.osmArray[0].colors.push(regionColor);
         }
       }
 
@@ -249,7 +247,7 @@ export class YMapInner extends AbstractMap {
               radius = diameter / 2;
         marker.properties.iconContent = label;
         marker.options = {
-          preset: {iconLayout: this.state.circleLayout},
+          preset: { iconLayout: this.state.circleLayout },
           iconColor: groupColor,
           iconStroke: borderGroupColor,
           iconDiameter: diameter,
@@ -284,7 +282,7 @@ export class YMapInner extends AbstractMap {
       const dl = Math.min(0.054 * Math.pow(latMax - latMin, 2), 0.1);
       mapState.bounds = [[latMin + dl, lngMin], [latMax, lngMax]];
     } else {
-      mapState.bounds = defaultState.bounds;
+      mapState.bounds = YMapInner.getMapConfig().bounds;
     }
 
     // explicitly update map
