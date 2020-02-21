@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import BtnGroup from './BtnGroup';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 
 
 class ViewComponents extends Component {
@@ -47,7 +47,7 @@ class ViewComponents extends Component {
             />
           </li>
         </ul>
-      )
+      );
     }
 
     return ret;

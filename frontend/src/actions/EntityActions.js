@@ -156,9 +156,17 @@ export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr
   if (globalStore.initial_entities && globalStore.initial_entities[mart_id]) {
     const options_obj2 = optArrToObj(options_arr);
     let json = globalStore.initial_entities[mart_id];
+
     json.results.meta = Object.assign(json.results.meta, options_obj);
     json.results.meta = Object.assign(json.results.meta, options_obj2);
-    return dispatch => {
+
+    return (dispatch, getState) => {
+        // set computed initial terms for the loaded data from html
+        const terms = getState().terms,
+              treeRootLength = terms.tree.root.children.length,
+              tagged = terms.tagged.items;
+        if (treeRootLength && !json.results.meta.terms_ids.length)
+          options_obj.terms = json.results.meta.terms_ids = tagged;
         dispatch({
             type: LOAD_ENTITIES,
             json: json,
