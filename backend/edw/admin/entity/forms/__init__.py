@@ -18,13 +18,13 @@ from edw.models.related import (
 from edw.admin.term.widgets import TermTreeWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
-from update_terms import EntitiesUpdateTermsAdminForm
-from update_relations import EntitiesUpdateRelationAdminForm
-from update_additional_characteristics_or_marks import EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm
-from update_related_data_marts import EntitiesUpdateRelatedDataMartsAdminForm
-from update_states import EntitiesUpdateStateAdminForm
-from update_active import EntitiesUpdateActiveAdminForm
-from base_entity_action import BaseEntityActionAdminForm
+from .update_terms import EntitiesUpdateTermsAdminForm
+from .update_relations import EntitiesUpdateRelationAdminForm
+from .update_additional_characteristics_or_marks import EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm
+from .update_related_data_marts import EntitiesUpdateRelatedDataMartsAdminForm
+from .update_states import EntitiesUpdateStateAdminForm
+from .update_active import EntitiesUpdateActiveAdminForm
+from .base_entity_action import BaseEntityActionAdminForm
 
 
 #==============================================================================

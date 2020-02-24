@@ -7,7 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.core import urlresolvers
 
 from rest_framework import filters
-from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
@@ -30,6 +29,16 @@ from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_
 from edw.rest.pagination import TermPagination
 from edw.rest.permissions import IsSuperuserOrReadOnly
 
+try:
+    # rest_framework 3.3.3
+    from rest_framework.decorators import list_route
+except ImportError:
+    # rest_framework 3.10.3
+    from rest_framework.decorators import action
+
+    def list_route(methods=None, **kwargs):
+        return action(detail=False, **kwargs)
+
 
 class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
@@ -40,8 +49,8 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     queryset = TermModel.objects.all()
     serializer_class = TermSerializer
     custom_serializer_classes = {
-        'list':  TermSummarySerializer,
-        'retrieve':  TermDetailSerializer,
+        'list': TermSummarySerializer,
+        'retrieve': TermDetailSerializer,
         'create': TermDetailSerializer,
         'update': TermDetailSerializer,
         'bulk_update': TermDetailSerializer,
@@ -72,10 +81,10 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         assert lookup_url_kwarg in self.kwargs, (
-                'Expected view %s to be called with a URL keyword argument '
-                'named "%s". Fix your URL conf, or set the `.lookup_field` '
-                'attribute on the view correctly.' %
-                (self.__class__.__name__, lookup_url_kwarg)
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
         )
 
         # it was a string, not an int.

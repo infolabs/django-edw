@@ -7,7 +7,10 @@ from functools import reduce
 
 from django.core.cache import cache
 from django.conf import settings
-from django.utils.encoding import force_unicode
+try:
+    from django.utils.encoding import force_unicode as force_text
+except ImportError:
+    from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
@@ -48,7 +51,7 @@ def update_images(modeladmin, request, queryset):
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
                     for obj in chunk:
-                        obj_display = force_unicode(obj)
+                        obj_display = force_text(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
                     entities_ids = []
@@ -81,10 +84,9 @@ def update_images(modeladmin, request, queryset):
         form = EntitiesUpdateImagesAdminForm()
 
     if len(queryset) == 1:
-        objects_name = force_unicode(opts.verbose_name)
+        objects_name = force_text(opts.verbose_name)
     else:
-        objects_name = force_unicode(opts.verbose_name_plural)
-
+        objects_name = force_text(opts.verbose_name_plural)
 
     title = _("Update images for multiple entities")
     context = {

@@ -5,6 +5,7 @@ import hashlib
 import os
 from binascii import hexlify
 
+from django.utils import six
 from django.template.defaultfilters import slugify
 
 
@@ -13,6 +14,8 @@ from django.template.defaultfilters import slugify
 #==============================================================================
 def create_hash(key):
     _hash = hashlib.md5()
+    if six.PY3:
+        key = key.encode('utf-8')
     _hash.update(key)
     return _hash.hexdigest()
 
@@ -21,14 +24,15 @@ def create_hash(key):
 # create_uid
 #==============================================================================
 def create_uid():
-    return hexlify(os.urandom(16))
+    ret = hexlify(os.urandom(16))
+    return ret.decode('utf-8') if six.PY3 else ret
 
 
 #==============================================================================
 # get_unique_slug
 #==============================================================================
 def get_unique_slug(slug, key=None):
-    return ''.join([slugify(slug)[:18], create_uid() if key is None else create_hash(str(key))])
+    return ''.join([slugify(slug)[:18], str(create_uid()) if key is None else create_hash(str(key))])
 
 
 #==============================================================================

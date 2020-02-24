@@ -4,6 +4,11 @@ from __future__ import unicode_literals
 import urllib
 
 import rest_framework_filters as filters
+try:
+    from rest_framework_filters import MethodFilter
+except ImportError:
+    from .common import MethodFilter
+
 from django.apps import apps
 from django.db.models.expressions import BaseExpression
 from django.template import loader
@@ -12,10 +17,10 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import template_render
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from rest_framework.generics import get_object_or_404
 
+from edw.utils.common import template_render
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import BaseEntity, EntityModel
 from edw.models.rest import (
@@ -34,8 +39,8 @@ class BaseEntityFilter(filters.FilterSet):
     """
     BaseEntityFilter
     """
-    terms = filters.MethodFilter(widget=CSVWidget(), label=_("Terms"))
-    data_mart_pk = filters.MethodFilter(label=_("Data mart"))
+    terms = MethodFilter(widget=CSVWidget(), label=_("Terms"))
+    data_mart_pk = MethodFilter(label=_("Data mart"))
 
     def __init__(self, data, **kwargs):
         try:
@@ -137,9 +142,9 @@ class EntityFilter(BaseEntityFilter):
     EntityFilter
     """
     id__in = NumberInFilter(name='id', label=_("IDs"))
-    active = filters.MethodFilter(label=_("Active"))
-    subj = filters.MethodFilter(widget=CSVWidget(), label=_("Subjects"))
-    rel = filters.MethodFilter(widget=CSVWidget(), label=_("Relations"))
+    active = MethodFilter(label=_("Active"))
+    subj = MethodFilter(widget=CSVWidget(), label=_("Subjects"))
+    rel = MethodFilter(widget=CSVWidget(), label=_("Relations"))
     created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
     created_at__date_range = filters.DateRangeFilter(name='created_at', label=_format_label(
@@ -601,7 +606,7 @@ class EntityOrderingFilter(OrderingFilter):
         request.GET['_ordering'] = result
         return result
 
-    def get_valid_fields(self, queryset, view):
+    def get_valid_fields(self, queryset, view, context={}):
         result = super(EntityOrderingFilter, self).get_valid_fields(queryset, view)
         extra_ordering = getattr(self, '_extra_ordering', None)
         if extra_ordering is not None:

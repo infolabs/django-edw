@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.apps import apps
-from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
@@ -29,6 +28,16 @@ from edw.rest.serializers.entity import (
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from rest_framework_bulk.generics import BulkModelViewSet
 
+try:
+    # rest_framework 3.3.3
+    from rest_framework.decorators import detail_route
+except ImportError:
+    # rest_framework 3.10.3
+    from rest_framework.decorators import action
+
+    def detail_route(methods=None, **kwargs):
+        return action(detail=True, **kwargs)
+
 
 class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     """
@@ -40,8 +49,8 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     serializer_class = EntityCommonSerializer
     custom_serializer_classes = {
         # 'list':  EntitySummarySerializer,
-        'list':  EntityTotalSummarySerializer,
-        'retrieve':  EntityDetailSerializer,
+        'list': EntityTotalSummarySerializer,
+        'retrieve': EntityDetailSerializer,
         'create': EntityDetailSerializer,
         'update': EntityDetailSerializer,
         'bulk_update': EntityDetailSerializer,

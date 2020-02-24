@@ -23,10 +23,10 @@ from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import unicode_to_repr
 from rest_framework.reverse import reverse
 
 from edw import settings as edw_settings
+from edw.utils.common import unicode_to_repr
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
 from edw.models.related import AdditionalEntityCharacteristicOrMarkModel
@@ -483,7 +483,7 @@ def _get_aggregation(queryset, aggregation_meta, root):
         for key, (alias, field, name) in aggregation_meta.items():
             if field is not None:
                 if field == field.root:
-                    field.root = root
+                    field.parent = root
                 value = aggregation.get(key, empty)
                 if value == empty:
                     # Пытаемся получить значения поля из словаря агрегации,
@@ -584,7 +584,7 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
             name_field = serializers.CharField()
             for key, (alias, field, name) in self.annotation_meta.items():
                 if field == field.root:
-                    field.root = self.root
+                    field.parent = self.root
                 value = getattr(instance, key, empty)
                 if value == empty:
                     value = [getattr(instance, x) for x in alias] if isinstance(
@@ -831,10 +831,10 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
             data_marts = []
             while data_marts0 and data_marts1:
-                if data_marts0[0] == data_marts1[0]:
+                if data_marts0[0].pk == data_marts1[0].pk:
                     data_marts.append(data_marts1.pop(0))
                     data_marts0.pop(0)
-                elif data_marts0[0] < data_marts1[0]:
+                elif data_marts0[0].pk < data_marts1[0].pk:
                     data_marts.append(data_marts0.pop(0))
                 else:
                     data_marts.append(data_marts1.pop(0))

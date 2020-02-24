@@ -64,7 +64,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/datamart.min.css',
-                ]
+            ]
         }
 
     def delete_model(self, request, obj):
@@ -78,11 +78,10 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
         else:
             obj.delete()
 
-    def get_tree_data(self, qs, max_level):
+    def get_tree_data(self, qs, max_level, filters_params=None):
         """
         Возвращает данные дерева панели администратора MPTT в виде html-шаблона, 
         соответсвующие условиям запроса, отображающий максимальный уровень 
-        
         """
 
         def handle_create_node(instance, node_info):
@@ -94,8 +93,11 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
                                                       instance=instance,
                                                       node_info=node_info,
                                                       )
-
-        return get_tree_from_queryset(qs, handle_create_node, max_level)
+        try:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level, 'name')
+        except TypeError:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level)
+        return ret
 
     def i18n_javascript(self, request):
         """

@@ -7,6 +7,10 @@ import six
 from django.utils.translation import ugettext_lazy as _
 
 import rest_framework_filters as filters
+try:
+    from rest_framework_filters import MethodFilter
+except ImportError:
+    from .common import MethodFilter
 
 from rest_framework import serializers
 
@@ -20,7 +24,7 @@ class DataMartFilter(filters.FilterSet):
     DataMartFilter
     """
     #active = filters.BooleanFilter()
-    parent_id = filters.MethodFilter(label=_("Parent Id"))
+    parent_id = MethodFilter(label=_("Parent Id"))
     id__in = NumberInFilter(name='id', label=_("IDs"))
     slug = filters.CharFilter(lookup_expr='iexact', label=_("Slug"))
     slug__icontains = filters.CharFilter(name='slug', lookup_expr='icontains', label=_("Slug (icontains)"))

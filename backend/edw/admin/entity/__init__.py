@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import urllib
 
+from django.utils import six
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
@@ -19,7 +20,7 @@ from edw.models.related import (
     EntityRelatedDataMartModel,
 )
 
-from forms import (
+from .forms import (
     EntityAdminForm,
     EntityCharacteristicOrMarkInlineForm,
     EntityRelationInlineForm,
@@ -31,7 +32,7 @@ from edw.rest.filters.entity import EntityFilter
 #===========================================================================================
 # import edw actions
 #===========================================================================================
-from actions import (
+from .actions import (
     update_terms,
     update_relations,
     update_additional_characteristics_or_marks,
@@ -79,7 +80,7 @@ try:
 except (ImproperlyConfigured, ImportError):
     pass
 else:
-    from actions import update_images
+    from .actions import update_images
 
     EDW_ACTIONS.append(update_images)
 #===========================================================================================
@@ -157,7 +158,12 @@ class TermsTreeFilter(admin.ListFilter):
         """
         value = self.value()
         if value:
-            values = urllib.unquote(value).decode('utf8').split(',')
+            try:
+                unquote = urllib.unquote
+            except AttributeError:
+                unquote = urllib.parse.unquote
+            values = str(unquote(value)) if six.PY3 else unquote(value).decode('utf8')
+            values = values.split(',')
         else:
             values = list()
 
