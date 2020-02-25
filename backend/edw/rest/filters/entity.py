@@ -32,6 +32,7 @@ from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 from edw.utils.hash_helpers import get_data_mart_cookie_setting
+from .widgets import parse_query
 from .common import NumberInFilter
 
 
@@ -61,7 +62,7 @@ class BaseEntityFilter(filters.FilterSet):
         })
 
     @cached_property
-    @get_from_underscore_or_data('terms', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('terms', [], parse_query)
     def term_ids(self, value):
         """
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
@@ -257,7 +258,7 @@ class EntityFilter(BaseEntityFilter):
         return queryset
 
     @cached_property
-    @get_from_underscore_or_data('subj', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('subj', [], parse_query)
     def subj_ids(self, value):
         """
         :return: `subj_ids` value parse from `self._subj_ids` or `self.data['subj']`, default: []
@@ -304,7 +305,7 @@ class EntityFilter(BaseEntityFilter):
         return int(rel[:i] + rel[i + 1:]) if i != -1 else None
 
     @cached_property
-    @get_from_underscore_or_data('rel', None, lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('rel', None, parse_query)
     def rel_ids(self, value):
         """
         `value` - raw relations list

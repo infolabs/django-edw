@@ -8,6 +8,8 @@ from django.contrib import (
     messages,
     admin
 )
+from django.utils import six
+
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
 from salmonella.admin import SalmonellaMixin
@@ -88,14 +90,16 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             """
             Обновляет панель администрирования MPTT в виде шаблона html
             """
+            if six.PY3:
+                node_info['label'] = node_info['name']
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
                                                       node_info=node_info,
                                                       )
-        try:
+        if six.PY3:
             ret = get_tree_from_queryset(qs, handle_create_node, max_level, 'name')
-        except TypeError:
+        else:
             ret = get_tree_from_queryset(qs, handle_create_node, max_level)
         return ret
 
