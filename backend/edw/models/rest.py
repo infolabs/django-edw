@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 import types
 
-import rest_framework_filters as filters
+try:
+    from rest_framework_filters import MethodFilter
+except ImportError:
+    from edw.rest.filters.common import MethodFilter
 from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned,
@@ -259,7 +262,11 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
                         if field.method_name == default_method_name:
                             field.method_name = None
                     method = getattr(self.rest_meta, method_name)
-                    setattr(patch_target, method_name, types.MethodType(method, patch_target, patch_target.__class__))
+
+                    t_args = [method, patch_target]
+                    six.PY2 and t_args.append(patch_target.__class__)
+                    setattr(patch_target, method_name, types.MethodType(*t_args))
+
                 elif isinstance(field, serializers.ListField):
                     # hack for ListField.__init__ method
                     field.child.source = None
@@ -301,12 +308,13 @@ class DynamicCreateUpdateValidateSerializerMixin(RESTMetaSerializerMixin):
             for method_name in ('create', 'update', 'validate'):
                 method = getattr(self.rest_meta, method_name, None)
                 if method is not None:
-                    setattr(patch_target, method_name, types.MethodType(getattr(method, '__func__', method),
-                                                                        patch_target, patch_target.__class__))
+                    t_args = [getattr(method, '__func__', method), patch_target]
+                    six.PY2 and t_args.append(patch_target.__class__)
+                    setattr(patch_target, method_name, types.MethodType(*t_args))
 
             for method_name in self.rest_meta._fields_validators:
                 method = getattr(self.rest_meta, method_name)
-                setattr(patch_target, method_name, types.MethodType(method, patch_target, patch_target.__class__))
+                setattr(patch_target, method_name, types.MethodType(method, patch_target))
 
 
 class DynamicCreateUpdateValidateListSerializerMixin(RESTMetaListSerializerPatchMixin,
@@ -345,8 +353,8 @@ class BasePermissionsSerializerMixin(object):
     def __request(self):
         request = self.context.get('request', None)
         assert request is not None, (
-                "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
-                % self.__class__.__name__
+            "'%s' `.__init__()` method parameter `context` should include a `request` attribute."
+            % self.__class__.__name__
         )
         return request
 
@@ -434,7 +442,7 @@ class DynamicFilterSetMixin(object):
         RUS: Извлекает фильтр rest_meta.
         Проверяет наличие и наименование фильтра.
         """
-        it = super(DynamicFilterSetMixin, cls).__new__(cls, data=data, queryset=queryset, **kwargs)
+        it = super(DynamicFilterSetMixin, cls).__new__(cls)
         it._extra_method_filters = {}
         if data:
             data_mart = data['_data_mart']
@@ -445,7 +453,7 @@ class DynamicFilterSetMixin(object):
                     if isinstance(filter_, (tuple, list)):
                         filter_ = import_string(filter_[0])(**filter_[1])
 
-                    if isinstance(filter_, filters.MethodFilter):
+                    if isinstance(filter_, MethodFilter):
                         method_name = 'filter_{0}'.format(filter_name)
                         filter_.action = method_name
                         it._extra_method_filters[method_name] = getattr(rest_meta, method_name)
@@ -461,7 +469,9 @@ class DynamicFilterSetMixin(object):
         RUS: Конструктор класса.
         """
         for method_name, method in self._extra_method_filters.items():
-            setattr(self, method_name, types.MethodType(method, self, self.__class__))
+            t_args = [method, self]
+            six.PY2 and t_args.append(self.__class__)
+            setattr(self, method_name, types.MethodType(*t_args))
         super(DynamicFilterSetMixin, self).__init__(*arg, **kwargs)
 
 
@@ -489,8 +499,9 @@ class DynamicFilterMixin(object):
         if rest_meta:
             filter_qs = getattr(rest_meta, 'filter_queryset', None)
             if filter_qs:
-                setattr(self, '_extra_filter_queryset',
-                        types.MethodType(filter_qs, self, self.__class__))
+                t_args = [filter_qs, self]
+                six.PY2 and t_args.append(self.__class__)
+                setattr(self, '_extra_filter_queryset', types.MethodType(*t_args))
                 queryset = self._extra_filter_queryset(request, queryset, view)
 
         return queryset
@@ -514,7 +525,9 @@ class DynamicGroupByMixin(object):
 
         method = self.entity_model._rest_meta.get_group_by
         if method is not None:
-            setattr(self, 'get_group_by', types.MethodType(method, self, self.__class__))
+            t_args = [method, self]
+            six.PY2 and t_args.append(self.__class__)
+            setattr(self, 'get_group_by', types.MethodType(*t_args))
 
     def get_group_by(self):
         """

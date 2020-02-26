@@ -27,6 +27,20 @@ function opts2gets(options = {}) {
 }
 
 
+function optArrToObj(arr) {
+  let ret = {};
+  if (!arr.length)
+    return ret;
+  for (const arg of arr) {
+    if (arg.includes("=")) {
+      const query = arg.split("=");
+      ret[query[0]] = query[1];
+    }
+  }
+  return ret;
+}
+
+
 export function getEntityItem(data, meta=false) {
   data.entity_url = data.entity_url.replace(/\.html$/,'.json');
   let url = reCache(data.entity_url);
@@ -78,6 +92,13 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
 
     if (treeRootLength && currentDataMartId == mart_id && inFetch > 3)
       return;
+
+    // set computed initial terms if not set
+    const terms = getState().terms,
+          tagged = terms.tagged.items,
+          options_obj2 = optArrToObj(options_arr);
+    if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
+      options_obj.terms = tagged;
 
     // eslint-disable-next-line no-undef
     let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
@@ -138,27 +159,15 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
 }
 
 
-function optArrToObj(arr) {
-  let ret = {};
-  if (!arr.length)
-    return ret;
-  for (const arg of arr) {
-    if (arg.includes("=")) {
-      const query = arg.split("=");
-      ret[query[0]] = query[1];
-    }
-  }
-  return ret;
-}
-
-
 export function readEntities(mart_id, subj_ids=[], options_obj = {}, options_arr = []) {
   if (globalStore.initial_entities && globalStore.initial_entities[mart_id]) {
     const options_obj2 = optArrToObj(options_arr);
     let json = globalStore.initial_entities[mart_id];
+
     json.results.meta = Object.assign(json.results.meta, options_obj);
     json.results.meta = Object.assign(json.results.meta, options_obj2);
-    return dispatch => {
+
+    return (dispatch, getState) => {
         dispatch({
             type: LOAD_ENTITIES,
             json: json,

@@ -6,7 +6,10 @@ from operator import __or__ as OR
 from functools import reduce
 
 from django.conf import settings
-from django.utils.encoding import force_unicode
+try:
+    from django.utils.encoding import force_unicode as force_text
+except ImportError:
+    from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
@@ -45,7 +48,7 @@ def update_relations(modeladmin, request, queryset):
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
                     for obj in chunk:
-                        obj_display = force_unicode(obj)
+                        obj_display = force_text(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
                     tasks.append(update_entities_relations.si([x.id for x in chunk],
@@ -69,9 +72,9 @@ def update_relations(modeladmin, request, queryset):
         form = EntitiesUpdateRelationAdminForm()
 
     if len(queryset) == 1:
-        objects_name = force_unicode(opts.verbose_name)
+        objects_name = force_text(opts.verbose_name)
     else:
-        objects_name = force_unicode(opts.verbose_name_plural)
+        objects_name = force_text(opts.verbose_name_plural)
 
     title = _("Update relations for multiple entities")
     context = {

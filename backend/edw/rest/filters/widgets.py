@@ -5,7 +5,15 @@ from __future__ import unicode_literals
 import urllib
 
 from django import forms
+from django.utils import six
 from django_filters.widgets import CSVWidget as OriginCSVWidget
+
+if six.PY3:
+    def parse_query(value):
+        return urllib.parse.unquote(value).split(',')
+else:
+    def parse_query(value):
+        return urllib.unquote(value).decode('utf8').split(',')
 
 
 class CSVWidget(OriginCSVWidget):
@@ -15,7 +23,7 @@ class CSVWidget(OriginCSVWidget):
 
         if value is not None:
             try:
-                return urllib.unquote(value).decode('utf8').split(',')
+                return parse_query(value)
             except AttributeError:
                 if isinstance(value, (tuple, list)):
                     return [str(x) for x in value]

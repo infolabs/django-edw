@@ -108,9 +108,12 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Проставляет по данным объектам соответствующий термин День создания.
         """
         context = kwargs["context"]
-        if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
+        force_validate_terms = context.get("force_validate_terms", False)
+        if force_validate_terms or context.get("validate_added_date", False):
             added_days = self.get_added_days()
-            if origin is not None:
+            if force_validate_terms:
+                self.terms.remove(*[x.id for x in added_days.values()])
+            elif origin is not None:
                 term = added_days[self.ADDED_DAY_KEY.format(origin.local_created_at.day)]
                 self.terms.remove(term)
             term = added_days[self.ADDED_DAY_KEY.format(self.local_created_at.day)]
@@ -184,9 +187,12 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Проставляет по данным объектам соответствующий термин Месяц создания.
         """
         context = kwargs["context"]
-        if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
+        force_validate_terms = context.get("force_validate_terms", False)
+        if force_validate_terms or context.get("validate_added_date", False):
             added_months = self.get_added_months()
-            if origin is not None:
+            if force_validate_terms:
+                self.terms.remove(*[x.id for x in added_months.values()])
+            elif origin is not None:
                 term = added_months[self.ADDED_MONTH_KEY.format(origin.local_created_at.month)]
                 self.terms.remove(term)
             term = added_months[self.ADDED_MONTH_KEY.format(self.local_created_at.month)]
@@ -248,10 +254,13 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
         RUS: Проставляет по данным объектам соответствующий термин Год создания.
         """
         context = kwargs["context"]
-        if context.get("force_validate_terms", False) or context.get("validate_added_date", False):
+        force_validate_terms = context.get("force_validate_terms", False)
+        if force_validate_terms or context.get("validate_added_date", False):
             added_year = self.local_created_at.year
             added_years = self.get_added_years(added_year)
-            if origin is not None:
+            if force_validate_terms:
+                self.terms.remove(*[x.id for x in added_years.values()])
+            elif origin is not None:
                 term = added_years.get(self.ADDED_YEAR_KEY.format(origin.local_created_at.year), None)
                 if term is not None:
                     self.terms.remove(term)

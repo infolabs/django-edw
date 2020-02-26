@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
@@ -80,7 +80,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/term.min.css',
-                ]
+            ]
         }
 
     def get_urls(self):
@@ -100,7 +100,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
 
         # prepend new urls to existing urls
         return [
-           url(r'^select_json/$', wrap(self.term_select_json_view), name="edw_term_select_json")
+            url(r'^select_json/$', wrap(self.term_select_json_view), name="edw_term_select_json")
         ] + super(TermAdmin, self).get_urls()
 
     def delete_model(self, request, obj):
@@ -114,7 +114,7 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
         else:
             obj.delete()
 
-    def get_tree_data(self, qs, max_level):
+    def get_tree_data(self, qs, max_level, filters_params=None):
         """
         Создает дерево витрины данных
         """
@@ -123,12 +123,19 @@ class TermAdmin(SalmonellaMixin, DjangoMpttAdmin):
             Вспомогательная функция создания дерева витрины данных.
             Возвращает обновленную html-страницу дерева
             """
+
+            if six.PY3:
+                node_info['label'] = node_info['name']
+
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
                                                       node_info=node_info)
-
-        return get_tree_from_queryset(qs, handle_create_node, max_level)
+        if six.PY3:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level, 'name')
+        else:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level)
+        return ret
 
     def i18n_javascript(self, request):
         """

@@ -7,4 +7,4 @@
 {% block load_on_demand %}{% if not node.structure %}{{ block.super }}{% endif %}{% endblock %}
 
 
-{% block checkbox_extra %}{% if node.structure = "limb" %} checked='checked'{% endif %}{% if node.structure %} autoopen='autoopen'{% endif %}{% endblock %}
+{% block checkbox_extra %}{% if node.structure == "limb" %} checked='checked'{% endif %}{% if node.structure %} autoopen='autoopen'{% endif %}{% endblock %}

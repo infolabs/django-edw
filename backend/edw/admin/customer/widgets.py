@@ -10,10 +10,18 @@ from edw.admin.customer import CustomerProxy
 #==============================================================================
 # CustomerRel
 #==============================================================================
+class Field(object):
+    name = 'customer'
+
+
 class CustomerRel(object):
     def __init__(self):
         self.to = CustomerProxy
         self.limit_choices_to = {}
+        self.model = CustomerProxy
+
+    def get_related_field(self):
+        return Field()
 
 
 #==============================================================================

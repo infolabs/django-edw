@@ -8,6 +8,8 @@ from django.contrib import (
     messages,
     admin
 )
+from django.utils import six
+
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
 from salmonella.admin import SalmonellaMixin
@@ -64,7 +66,7 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
             'all': [
                 '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/datamart.min.css',
-                ]
+            ]
         }
 
     def delete_model(self, request, obj):
@@ -78,24 +80,28 @@ class DataMartAdmin(SalmonellaMixin, DjangoMpttAdmin):
         else:
             obj.delete()
 
-    def get_tree_data(self, qs, max_level):
+    def get_tree_data(self, qs, max_level, filters_params=None):
         """
         Возвращает данные дерева панели администратора MPTT в виде html-шаблона, 
         соответсвующие условиям запроса, отображающий максимальный уровень 
-        
         """
 
         def handle_create_node(instance, node_info):
             """
             Обновляет панель администрирования MPTT в виде шаблона html
             """
+            if six.PY3:
+                node_info['label'] = node_info['name']
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
                                                       node_info=node_info,
                                                       )
-
-        return get_tree_from_queryset(qs, handle_create_node, max_level)
+        if six.PY3:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level, 'name')
+        else:
+            ret = get_tree_from_queryset(qs, handle_create_node, max_level)
+        return ret
 
     def i18n_javascript(self, request):
         """

@@ -23,7 +23,10 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from ipware import ip
 from polymorphic.base import PolymorphicModelBase
-from polymorphic.manager import PolymorphicManager
+try:
+    from polymorphic.manager import PolymorphicManager
+except ImportError:
+    from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from rest_framework.reverse import reverse
@@ -125,7 +128,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         return self.filter(active=False)
 
-    @add_cache_key('sf') # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
+    @add_cache_key('sf')  # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
     def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
         """
         RUS: Добавляет фиктивный ключ не для кэширования. Возвращает отфильтрованные по семантическим правилам
@@ -272,7 +275,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         lvl_expr = 'terms__{}'.format(TermModel._mptt_meta.level_attr)
         similar_entities_ids = self.values_list('id', flat=True)
         similar_entities = EntityModel.objects.filter(
-            models.Q(id__in=similar_entities_ids) & models.Q(terms__id__in=terms_tree.keys())
+            models.Q(id__in=similar_entities_ids) & models.Q(terms__id__in=list(terms_tree.keys()))
         ).annotate(
             num=models.Count('terms__id'),
             avg_lvl=models.Avg(lvl_expr),

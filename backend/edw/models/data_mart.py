@@ -13,7 +13,10 @@ from mptt.exceptions import InvalidMove
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, MPTTModelBase
 from polymorphic.base import PolymorphicModelBase
-from polymorphic.manager import PolymorphicManager
+try:
+    from polymorphic.manager import PolymorphicManager
+except ImportError:
+    from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from rest_framework.reverse import reverse
@@ -455,7 +458,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             active_terms_ids = DataMartModel.terms.through.objects.distinct().filter(term__active=True).values_list(
                 'term__id', flat=True)
             result = TermModel.decompress(active_terms_ids, fix_it=False).keys()
-            cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
+            cache.set(key, list(result), BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
 
     @staticmethod

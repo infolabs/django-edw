@@ -12,11 +12,11 @@ from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import unicode_to_repr
 from rest_framework.fields import empty
 from rest_framework.generics import get_object_or_404
 from rest_framework_recursive.fields import RecursiveField
 
+from edw.utils.common import unicode_to_repr
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     BasePermissionsSerializerMixin,
@@ -326,7 +326,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             tree = trunk
 
-        for k, v in trunk.items():
+        for k, v in list(trunk.items()):
             x = tree.get(k)
             if x is not None:
                 if v.is_leaf:

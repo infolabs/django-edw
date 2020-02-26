@@ -8,6 +8,10 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 import rest_framework_filters as filters
+try:
+    from rest_framework_filters import MethodFilter
+except ImportError:
+    from .common import MethodFilter
 
 from edw.models.term import BaseTerm, TermModel
 from edw.models.data_mart import DataMartModel
@@ -19,11 +23,11 @@ class TermFilter(filters.FilterSet):
     TermFilter
     """
     #active = filters.BooleanFilter()
-    parent_id = filters.MethodFilter(label=_("Parent Id"))
+    parent_id = MethodFilter(label=_("Parent Id"))
     semantic_rule = filters.ChoiceFilter(name="semantic_rule", choices=BaseTerm.SEMANTIC_RULES + (('', _('Any')), ))
     specification_mode = filters.ChoiceFilter(name="specification_mode",
                                               choices=BaseTerm.SPECIFICATION_MODES + (('', _('Any')), ))
-    data_mart_pk = filters.MethodFilter()
+    data_mart_pk = MethodFilter()
 
     class Meta:
         model = BaseTerm

@@ -4,6 +4,11 @@ from __future__ import unicode_literals
 import urllib
 
 import rest_framework_filters as filters
+try:
+    from rest_framework_filters import MethodFilter
+except ImportError:
+    from .common import MethodFilter
+
 from django.apps import apps
 from django.db.models.expressions import BaseExpression
 from django.template import loader
@@ -12,10 +17,10 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import template_render
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 from rest_framework.generics import get_object_or_404
 
+from edw.utils.common import template_render
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import BaseEntity, EntityModel
 from edw.models.rest import (
@@ -27,6 +32,7 @@ from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 from edw.utils.hash_helpers import get_data_mart_cookie_setting
+from .widgets import parse_query
 from .common import NumberInFilter
 
 
@@ -34,8 +40,8 @@ class BaseEntityFilter(filters.FilterSet):
     """
     BaseEntityFilter
     """
-    terms = filters.MethodFilter(widget=CSVWidget(), label=_("Terms"))
-    data_mart_pk = filters.MethodFilter(label=_("Data mart"))
+    terms = MethodFilter(widget=CSVWidget(), label=_("Terms"))
+    data_mart_pk = MethodFilter(label=_("Data mart"))
 
     def __init__(self, data, **kwargs):
         try:
@@ -56,7 +62,7 @@ class BaseEntityFilter(filters.FilterSet):
         })
 
     @cached_property
-    @get_from_underscore_or_data('terms', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('terms', [], parse_query)
     def term_ids(self, value):
         """
         :return: `term_ids` value parse from `self._term_ids` or `self.data['terms']`, default: []
@@ -137,9 +143,9 @@ class EntityFilter(BaseEntityFilter):
     EntityFilter
     """
     id__in = NumberInFilter(name='id', label=_("IDs"))
-    active = filters.MethodFilter(label=_("Active"))
-    subj = filters.MethodFilter(widget=CSVWidget(), label=_("Subjects"))
-    rel = filters.MethodFilter(widget=CSVWidget(), label=_("Relations"))
+    active = MethodFilter(label=_("Active"))
+    subj = MethodFilter(widget=CSVWidget(), label=_("Subjects"))
+    rel = MethodFilter(widget=CSVWidget(), label=_("Relations"))
     created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
     created_at__date_range = filters.DateRangeFilter(name='created_at', label=_format_label(
@@ -252,7 +258,7 @@ class EntityFilter(BaseEntityFilter):
         return queryset
 
     @cached_property
-    @get_from_underscore_or_data('subj', [], lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('subj', [], parse_query)
     def subj_ids(self, value):
         """
         :return: `subj_ids` value parse from `self._subj_ids` or `self.data['subj']`, default: []
@@ -299,7 +305,7 @@ class EntityFilter(BaseEntityFilter):
         return int(rel[:i] + rel[i + 1:]) if i != -1 else None
 
     @cached_property
-    @get_from_underscore_or_data('rel', None, lambda value: urllib.unquote(value).decode('utf8').split(","))
+    @get_from_underscore_or_data('rel', None, parse_query)
     def rel_ids(self, value):
         """
         `value` - raw relations list
@@ -601,7 +607,7 @@ class EntityOrderingFilter(OrderingFilter):
         request.GET['_ordering'] = result
         return result
 
-    def get_valid_fields(self, queryset, view):
+    def get_valid_fields(self, queryset, view, context={}):
         result = super(EntityOrderingFilter, self).get_valid_fields(queryset, view)
         extra_ordering = getattr(self, '_extra_ordering', None)
         if extra_ordering is not None:

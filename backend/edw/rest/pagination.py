@@ -3,11 +3,21 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 
-from rest_framework.pagination import LimitOffsetPagination, _get_count
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from edw import settings as edw_settings
 from edw.utils.hash_helpers import get_data_mart_cookie_setting
+
+
+def _get_count(queryset):
+    """
+    Determine an object count, supporting either querysets or regular lists.
+    """
+    try:
+        return queryset.count()
+    except (AttributeError, TypeError):
+        return len(queryset)
 
 
 class SetQueryset2NoneIfEmptyPaginationMixin(object):

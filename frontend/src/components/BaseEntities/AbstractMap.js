@@ -122,7 +122,7 @@ export default class AbstractMap extends Component {
             </li>
         )}
       </ul>
-    )
+    );
   }
 
   exAttrs(characteristics){
@@ -144,7 +144,7 @@ export default class AbstractMap extends Component {
             </li>
         )}
       </ul>
-    )
+    );
   }
 
   exTags(marks){
@@ -162,7 +162,7 @@ export default class AbstractMap extends Component {
             </li>
         )}
       </ul>
-    )
+    );
   }
 
   assembleInfo(item, meta, description) {

@@ -877,6 +877,9 @@
           li {
             padding-right: 10px;
             display: inline-block;
+            &[data-view-class~="hide-in-ribbon"], &[data-view-class~="hide-in-attrs"]{
+              display: none!important;
+            }
           }
         }
 

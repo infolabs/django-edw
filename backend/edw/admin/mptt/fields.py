@@ -4,6 +4,7 @@ Form components for working with trees.
 """
 import hashlib
 
+from django.utils import six
 from django import forms
 from django.core.cache import cache
 from django.forms.fields import ChoiceField
@@ -47,10 +48,14 @@ class FullPathTreeNodeChoiceFieldMixin(object):
             ids = list(self.queryset.values_list('id', flat=True))
         except ProgrammingError as e:
             # initial migrations hack
-            print e.args
+            print(e.args)
+
             return []
 
-        hash.update(';'.join(str(x) for x in ids))
+        hash_ids = ';'.join(str(x) for x in ids)
+        if six.PY3:
+            hash_ids = hash_ids.encode('utf-8')
+        hash.update(hash_ids)
 
         required = self.empty_label is not None and self.initial is not None
 

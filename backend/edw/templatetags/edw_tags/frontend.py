@@ -7,6 +7,7 @@ from functools import reduce
 from classytags.core import Tag
 from classytags.core import Options
 from classytags.arguments import Argument
+from django.utils import six
 from django.utils.functional import Promise
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
@@ -65,7 +66,7 @@ def jsondumps(value):
     Example usage: {{ value|jsondumps }}
     """
     res = json.dumps(value, ensure_ascii=False, cls=LazyEncoder)
-    res = res.encode('utf-8')
+    res = str(res) if six.PY3 else res.encode('utf-8')
     return mark_safe(res)
 
 

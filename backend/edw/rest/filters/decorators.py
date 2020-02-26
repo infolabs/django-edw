@@ -35,4 +35,3 @@ def get_from_underscore_or_data(var_name, default, from_datadict=empty):
             return result
         return func_wrapper
     return get_from_underscore_or_data_decorator
-

@@ -21,10 +21,10 @@ from django.utils.text import Truncator
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import unicode_to_repr
 from rest_framework.fields import empty
 from rest_framework_recursive.fields import RecursiveField
 
+from edw.utils.common import unicode_to_repr
 from edw import settings as edw_settings
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
@@ -50,7 +50,10 @@ class DataMartDynamicMetaMixin(object):
     def _get_meta_class(base, model_class):
         class Meta(base):
             model = model_class
-
+        if hasattr(Meta, 'exclude') and hasattr(Meta, 'fields'):
+           Meta.fields = None
+        if not hasattr(Meta, 'exclude') and not hasattr(Meta, 'fields'):
+           Meta.fields = '__all__'
         return Meta
 
     @classmethod
@@ -169,6 +172,7 @@ class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
                                          allow_blank=True, write_only=True, required=False)
 
     class Meta:
+        fields = '__all__'
         model = DataMartModel
         extra_kwargs = {'url': {'view_name': 'edw:{}-detail'.format(model._meta.model_name)}}
         list_serializer_class = DataMartBulkListSerializer
@@ -335,9 +339,12 @@ class DataMartDetailSerializerBase(DataMartDynamicMetaMixin,
 class DataMartDetailSerializer(DataMartDetailSerializerBase):
     media = serializers.SerializerMethodField()
 
+    active = None
+
     class Meta(DataMartCommonSerializer.Meta):
         exclude = ('active', 'polymorphic_ctype', '_relations', 'terms', 'parent', 'lft', 'rght', 'tree_id', 'level',
-                   'short_description')
+                   )
+                   #'short_description')
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')

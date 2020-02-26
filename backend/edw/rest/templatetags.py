@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.utils.functional import cached_property
 from django.db.models.query import QuerySet
-from django.http import QueryDict
+from django.http import QueryDict, HttpRequest
 
 from classytags.core import Tag
 
@@ -32,6 +32,8 @@ class Request(request.Request):
         ENG: The class constructor
         RUS: Конструктор класса
         """
+        if not isinstance(request, HttpRequest):
+            request = request._request
         self._query_params = query_params
         super(Request, self).__init__(request, *args, **kwargs)
 
@@ -118,7 +120,7 @@ class BaseRetrieveDataTag(Tag):
 
         if inner_kwargs is not None:
             # удаляем пустые параметры
-            for k, v in inner_kwargs.items():
+            for k, v in list(inner_kwargs.items()):
                 if v == '':
                     del inner_kwargs[k]
             initial_kwargs.update(inner_kwargs)
