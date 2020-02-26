@@ -81,7 +81,7 @@ def _get_terms_ids(entities_qs, tree):
     """
     result = getattr(entities_qs, '_terms_ids_cache', None)
     if result is None:
-        result = entities_qs._terms_ids_cache = tree.trim(entities_qs.get_related_terms_ids()).keys()
+        result = entities_qs._terms_ids_cache = list(tree.trim(entities_qs.get_related_terms_ids()).keys())
     return result
 
 
@@ -1114,7 +1114,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             validation_context = {
                 'force_validate_terms': force_validate_terms
             }
-            for key in kwargs.keys():
+            for key in list(kwargs.keys()):
                 if key.find('validate') != -1:
                     validation_context[key] = kwargs.pop(key)
             result = super(BaseEntity, self).save(*args, **kwargs)
@@ -1123,7 +1123,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     del self._valid_pk_set
                 self._during_terms_validation = True
 
-                self.patch_terms_many_related_manager() # HACK!: monkey patch terms ManyRelatedManager instance
+                self.patch_terms_many_related_manager()  # HACK!: monkey patch terms ManyRelatedManager instance
 
                 self.validate_terms(origin, context=validation_context)
                 del self._during_terms_validation
@@ -1251,7 +1251,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         RUS: Возвращает экземпляр витрины данных.
         """
         entity_terms_ids = self.active_terms_ids
-        all_entity_terms_ids = TermModel.decompress(entity_terms_ids, fix_it=False).keys()
+        all_entity_terms_ids = list(TermModel.decompress(entity_terms_ids, fix_it=False).keys())
         all_data_mart_terms_ids = DataMartModel.get_all_active_terms_ids()
         crossing_terms_ids = list(set(all_entity_terms_ids) & set(all_data_mart_terms_ids))
         tree_opts = DataMartModel._mptt_meta
