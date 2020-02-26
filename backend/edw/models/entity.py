@@ -47,7 +47,7 @@ from .. import deferred
 from .. import settings as edw_settings
 from ..signals.entity import post_save as entity_post_save
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
-from ..utils.hash_helpers import hash_unsorted_list, get_unique_slug
+from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
 from ..utils.set_helpers import uniq
 
@@ -89,6 +89,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     """
 
     GROUP_SIZE_ALIAS = 'group_size'
+    _JOIN_INDEX_KEY = '_join_idx'
 
     def group_by(self, *fields):
         """
@@ -136,51 +137,80 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         if filters:
             """
             # Pythonic, but working to slow, try refactor queryset
-            
-            result = self.filter(filters[0])
-            for x in filters[1:]:
-                result = result.filter(x)
-            result = result.distinct()
             """
+
+            # result = self.filter(filters[0])
+            # for x in filters[1:]:
+            #     result = result.filter(x)
+            # result = result.distinct()
+            #
+            # print ("*********** ORIGIN QS *************")
+            # print (result.query.__str__())
+            # print ("*********************************")
+
             outer_qs = self
-            base_inner_qs = outer_qs.model.objects.all().filter(filters[0])
+            base_model = next(get_polymorphic_ancestors_models(outer_qs.model))
+
+            base_qs = base_model.objects.all().filter(filters[0])
             for x in filters[1:]:
-                base_inner_qs = base_inner_qs.filter(x)
-            base_inner_qs = base_inner_qs.distinct().values_list('id', flat=True)
+                base_qs = base_qs.filter(x)
+            base_qs = base_qs.distinct().values_list('id', flat=True)
 
             try:
-                base_raw_sql, sql_params = base_inner_qs.query.get_compiler(self.db).as_sql()
+                base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
             except EmptyResultSet:
                 result = []
             else:
+                idx = self.query.get_context(self._JOIN_INDEX_KEY, 1)
+
+                inner_model = getattr(base_qs.model, field_name).through
+                outer_table = base_qs.query.get_initial_alias()
+                inner_table = inner_model.objects.all().query.get_initial_alias()
+
+                entity_alias = "{}_id".format(base_model._meta.object_name.lower())
+
+                # Make safe names
                 db_ops = connections[self.db].ops
                 qn = db_ops.quote_name
+                safe_inner_table, safe_outer_table, safe_entity_alias = [
+                    qn(x) for x in (inner_table, outer_table, entity_alias)
+                ]
 
-                inner_model = getattr(self.model, field_name).through
+                # Aliases for inner subquery and nested first table
+                sk_alias = qn("sk{}".format(idx))
+                s = inner_model._meta.object_name.upper()
+                inner_table_alias = "{}{}".format(s, idx)
+                join_alias = "{}_IJ{}".format(s, idx)
 
-                outer_table = outer_qs.query.get_initial_alias()
-                inner_table = inner_model.objects.all().query.get_initial_alias()
-                safe_inner_table, safe_outer_table = qn(inner_table), qn(outer_table)
+                # Black magic, transform queryset
+                regex = re.compile("{}.+?(\s+FROM\s+){}(.+?)INNER\s+JOIN\s+{}\s+ON.+?\)\s*".format(
+                    safe_outer_table, safe_outer_table, safe_inner_table), re.IGNORECASE)
+                raw_sql = regex.sub(r'{}.{} AS {}\1{} AS {}\2'.format(
+                    inner_table_alias, safe_entity_alias, sk_alias, safe_inner_table, inner_table_alias
+                ), base_raw_sql, 1).replace(
+                    '{}.{}'.format(safe_outer_table, qn("id")), '{}.{}'.format(inner_table_alias, safe_entity_alias)
+                ).replace('{}.'.format(safe_inner_table), '{}.'.format(inner_table_alias))
 
-                entity_alias = "{}_id".format(self.model._meta.object_name.lower())
+                # print ("========= RESULT INNER ==========")
+                # print (raw_sql % sql_params)
 
-                safe_full_inner_id_alias = "{}.{}".format(safe_inner_table, qn(entity_alias))
-                safe_full_outer_id_alias = "{}.{}".format(safe_outer_table, qn("id"))
-
-                # Switch tables
-                raw_sql = base_raw_sql.replace(safe_full_outer_id_alias, safe_full_inner_id_alias).replace(
-                    safe_outer_table, safe_inner_table)
-
-                # Cut garbage INNER JOIN
-                s = safe_full_inner_id_alias.replace('.', '\.')
-                regex = re.compile("\s+INNER\s+JOIN.+?\s+ON\s+\(\s*{}\s*?=\s*{}\s*?\)".format(s, s), re.IGNORECASE)
-                raw_sql = regex.sub('', raw_sql)
-
+                # Make inner queryset
                 inner_qs = inner_model.objects.raw(raw_sql, sql_params)
-                inner_alias = get_unique_slug(inner_table).upper()
+
+                # TODO: оптимизировать запрос за сщёт получения списка id объектов
+                # from django.db import connection
+                # cursor = connection.cursor()
+                # cursor.execute(raw_sql, sql_params)
+                # print(cursor.fetchall())
 
                 # Make queryset
-                result = outer_qs.inner_join(inner_qs, 'id', entity_alias, inner_alias)
+                result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias, join_alias)
+
+                # print ("*********** RESULT QS *************")
+                # print (result.query.__str__())
+                # print ("***********************************")
+
+                result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
         else:
             result = self
         result.semantic_filter_meta = tree
@@ -199,14 +229,17 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         outer_qs = outer_model.objects.distinct().values_list('term_id', flat=True)
 
         inner_qs = self.order_by().values_list('pk', flat=True)
-        inner_table = self.query.get_initial_alias()
-        inner_alias = get_unique_slug(inner_table).upper()
+        inner_model_name = self.model._meta.object_name
 
-        entity_alias = "{}_id".format(self.model._meta.object_name.lower())
+        idx = self.query.get_context(self._JOIN_INDEX_KEY, 1)
+        join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
+
+        entity_alias = "{}_id".format(inner_model_name.lower())
 
         # Make queryset
-        result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', inner_alias)
+        result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
 
+        result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
         return result
 
     def _get_terms_ids_cache_key(self, tree):

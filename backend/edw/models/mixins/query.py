@@ -46,7 +46,6 @@ class CustomCountQuerySetMixin(object):
     В оригинале работает `return self.query.get_count(using=self.db)` довольно медленно,
     попробуем немного оптимизировать...
     """
-
     def count(self):
         """
         Performs a SELECT COUNT() and returns the number of records as an
@@ -100,11 +99,14 @@ def join_to(queryset, subquery, table_field, subquery_field, alias, join_type, n
         subquery_sql, subquery_params, table._meta.db_table,
         alias, join_type, foreign_object, nullable)
 
+    # init first alias for this query
+    queryset.query.get_initial_alias()
+
+    # join subquery
     queryset.query.join(join)
 
     # hook for set alias
     join.table_alias = alias
-    queryset.query.external_aliases.add(alias)
 
     return queryset
 
