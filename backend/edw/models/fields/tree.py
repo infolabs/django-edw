@@ -7,6 +7,12 @@ from django.utils.translation import ugettext_lazy as _
 from mptt import fields
 
 
+try:
+    long_type = long
+except NameError:
+    long_type = int
+
+
 class TreeForeignKey(fields.TreeForeignKey):
     """
     A foreignkey that limits the node types the parent can be.
@@ -17,7 +23,7 @@ class TreeForeignKey(fields.TreeForeignKey):
         'no_children_allowed': _("The selected node cannot have child nodes."),
         'no_child_of_itself': _("A node may not be made a child of itself."),
         'unknown_parent_value': _("Unknown parent value.")
-        }
+    }
 
     def clean(self, value, model_instance):
         """
@@ -34,7 +40,7 @@ class TreeForeignKey(fields.TreeForeignKey):
         """
         if not value:
             return
-        elif isinstance(value, (int, long)):
+        elif isinstance(value, (int, long_type)):
             model_class = instance.__class__
             try:
                 parent = model_class._default_manager.get(pk=value)
