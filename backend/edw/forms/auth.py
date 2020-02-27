@@ -10,6 +10,7 @@ from django.forms import fields, widgets, ModelForm
 from django.template import Context
 from django.template.loader import select_template
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
@@ -108,12 +109,13 @@ class RegisterUserForm(ModelForm):
 
     def _send_password(self, request, user, password):
         current_site = get_current_site(request)
-        context = Context({
+        context = {
             'site_name': current_site.name,
             'absolute_base_uri': request.build_absolute_uri('/'),
             'password': password,
             'user': user,
-        })
+        }
+        context = Context(context)
         subject = select_template([
             '{}/email/register-user-subject.txt'.format(edw_settings.APP_LABEL),
             'edw/email/register-user-subject.txt',
@@ -137,18 +139,20 @@ class RegisterUserForm(ModelForm):
             salt=edw_settings.REGISTRATION_PROCESS['registration_salt']
         )
         activation_link = request.build_absolute_uri(reverse('registration_activate', kwargs={'activation_key': activation_key}))
-        context = Context({
+        context = {
             'site_name': current_site.name,
             'absolute_base_uri': request.build_absolute_uri('/'),
             'activation_link': activation_link,
             'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
             'user': user
-        })
+        }
         if password:
             context.update({
                 'password': password
             })
 
+        if six.PY2:
+            context = Context(context)
         subject = select_template([
             '{}/email/activate-account-subject.txt'.format(edw_settings.APP_LABEL),
             'edw/email/activate-account-subject.txt',
