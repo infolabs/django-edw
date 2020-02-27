@@ -31,7 +31,7 @@ class CustomerQuerySet(models.QuerySet):
         """
         opts = self.model._meta
         lookup_kwargs = {}
-        for key, lookup in kwargs.items():
+        for key, lookup in list(kwargs.items()):
             try:
                 field_name = key[:key.index('__')]
             except ValueError:

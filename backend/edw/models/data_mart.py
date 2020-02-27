@@ -457,7 +457,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         if result is None:
             active_terms_ids = DataMartModel.terms.through.objects.distinct().filter(term__active=True).values_list(
                 'term__id', flat=True)
-            result = TermModel.decompress(active_terms_ids, fix_it=False).keys()
+            result = list(TermModel.decompress(active_terms_ids, fix_it=False).keys())
             cache.set(key, list(result), BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
 
@@ -504,8 +504,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         RUS: Создает модель сущности со связанными с ней терминами, унаследованную от базовой модели сущности.
         """
         base_entity_model = DataMartModel.get_base_entity_model()
-        entities_types = dict([(term.id, term) for term in base_entity_model.get_entities_types().values()])
-        entities_types_terms_ids = entities_types.keys()
+        entities_types = dict([(term.id, term) for term in list(base_entity_model.get_entities_types().values())])
+        entities_types_terms_ids = list(entities_types.keys())
         crossing_terms_ids = list(set(entities_types_terms_ids) & set(terms_ids))
         try:
             return entities_types[crossing_terms_ids[0]]._entity_model_class

@@ -33,7 +33,7 @@ class DialogFormMixin(NgModelFormMixin, NgFormValidationMixin):
         This is useful to render a summary of a previously filled out form.
         """
         output = []
-        for name in self.fields.keys():
+        for name in list(self.fields.keys()):
             bound_field = self[name]
             value = bound_field.value()
             if bound_field.is_hidden:

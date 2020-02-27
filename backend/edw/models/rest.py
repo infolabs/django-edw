@@ -134,7 +134,7 @@ class RESTOptions(object):
         ENG: Override defaults with options provided
         RUS: Возвращает объект итератора. Переписываем опции по умолчанию передоставленными данными
         """
-        return ((k, v) for k, v in self.__dict__.items() if k[0] != '_')
+        return ((k, v) for k, v in list(self.__dict__.items()) if k[0] != '_')
 
 
 class RESTModelBase(ModelBase):
@@ -174,7 +174,7 @@ class RESTModelBase(ModelBase):
             include_fields[field_name] = None
         for field_name in opts.exclude:
             include_fields.pop(field_name, None)
-        field_level_validators_names = ["validate_{}".format(field_name) for field_name in include_fields.keys()]
+        field_level_validators_names = ["validate_{}".format(field_name) for field_name in list(include_fields.keys())]
 
         fields_validators = []
         for name in field_level_validators_names:
@@ -240,7 +240,7 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
 
             patch_target = self.get_serializer_to_patch()
 
-            for field_name, field in include_fields.items():
+            for field_name, field in list(include_fields.items()):
                 # Конструктор сериалайзера в формате
                 # ('rest_framework.serializers.CharField', <(arg1, arg2)>, <{kwarg1: val1, kwarg2: val2}>)
                 if isinstance(field, (tuple, list)):
@@ -449,7 +449,7 @@ class DynamicFilterSetMixin(object):
             entity_model = data_mart.entities_model if data_mart is not None else queryset.model
             it._rest_meta = rest_meta = getattr(entity_model, '_rest_meta', None)
             if rest_meta:
-                for filter_name, filter_ in rest_meta.filters.items():
+                for filter_name, filter_ in list(rest_meta.filters.items()):
                     if isinstance(filter_, (tuple, list)):
                         filter_ = import_string(filter_[0])(**filter_[1])
 
@@ -468,7 +468,7 @@ class DynamicFilterSetMixin(object):
         """
         RUS: Конструктор класса.
         """
-        for method_name, method in self._extra_method_filters.items():
+        for method_name, method in list(self._extra_method_filters.items()):
             t_args = [method, self]
             six.PY2 and t_args.append(self.__class__)
             setattr(self, method_name, types.MethodType(*t_args))

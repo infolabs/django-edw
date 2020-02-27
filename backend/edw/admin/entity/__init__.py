@@ -69,7 +69,7 @@ def filter_actions(request, actions):
     """
     if not request.user.is_superuser:
         for a in DISABLED_ACTIONS:
-            if a in actions.keys():
+            if a in list(actions.keys()):
                 del actions[a]
     return actions
 

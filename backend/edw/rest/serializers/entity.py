@@ -266,7 +266,7 @@ class EntityValidator(object):
 
             # validate subjects ids
             subj_ids = []
-            for ids in rel_subj.values():
+            for ids in list(rel_subj.values()):
                 subj_ids.extend(ids)
             not_found_ids = list(set(subj_ids) - set(EntityModel.objects.active().filter(
                 id__in=subj_ids).values_list('id', flat=True)))
@@ -276,13 +276,13 @@ class EntityValidator(object):
             if self.serializer.is_data_mart_has_relations:
                 not_found = ["`{}f`".format(x) for x in list(
                     rel_f_ids - set(self.serializer.data_mart_rel_ids[0]))] + ["`{}r`".format(x) for x in list(
-                    rel_r_ids - set(self.serializer.data_mart_rel_ids[1]))]
+                        rel_r_ids - set(self.serializer.data_mart_rel_ids[1]))]
                 if not_found:
                     errors.append(
                         _("The relations [{}] are forbidden.").format(', '.join(str(x) for x in not_found)))
 
                 if self.serializer.is_data_mart_relations_has_subjects:
-                    for rel_id, subj_ids in self.serializer.data_mart_relations_subjects.items():
+                    for rel_id, subj_ids in list(self.serializer.data_mart_relations_subjects.items()):
                         if subj_ids:
                             not_found_ids = list(set(rel_subj.get(rel_id, [])) - set(subj_ids))
                             if not_found_ids:
@@ -418,7 +418,7 @@ class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
             else:
                 return []
         # Удаляем термины с ограничением на установку извне
-        return [key for key, value in tree.expand().items() if not value.term.system_flags.external_tagging_restriction]
+        return [key for key, value in list(tree.expand().items()) if not value.term.system_flags.external_tagging_restriction]
 
     @cached_property
     def data_mart_relations(self):
@@ -435,7 +435,7 @@ class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
 
     @cached_property
     def is_data_mart_relations_has_subjects(self):
-        return any(self.data_mart_relations_subjects.values())
+        return any(list(self.data_mart_relations_subjects.values()))
 
     @cached_property
     def data_mart_rel_ids(self):
@@ -475,12 +475,12 @@ def _get_aggregation(queryset, aggregation_meta, root):
     :return:
     """
     if aggregation_meta:
-        aggregate_kwargs = dict([(key, value[0]) for key, value in aggregation_meta.items()
+        aggregate_kwargs = dict([(key, value[0]) for key, value in list(aggregation_meta.items())
                                  if isinstance(value[0], BaseExpression)])
         aggregation = queryset.aggregate(**aggregate_kwargs)
         result = {}
         name_field = serializers.CharField()
-        for key, (alias, field, name) in aggregation_meta.items():
+        for key, (alias, field, name) in list(aggregation_meta.items()):
             if field is not None:
                 if field == field.root:
                     field.parent = root
@@ -582,7 +582,7 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
         if self.annotation_meta:
             annotation = {}
             name_field = serializers.CharField()
-            for key, (alias, field, name) in self.annotation_meta.items():
+            for key, (alias, field, name) in list(self.annotation_meta.items()):
                 if field == field.root:
                     field.parent = self.root
                 value = getattr(instance, key, empty)
@@ -741,7 +741,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             for path in terms_paths:
                 # Try find Term by `slug` or `path`
                 query_attrs['slug' if path.find('/') == -1 else 'path'].append(path)
-            for key, values in query_attrs.items():
+            for key, values in list(query_attrs.items()):
                 if values:
                     attr_terms_ids.extend(terms.filter(**{"{}__in".format(key): values}).values_list('id', flat=True))
 
@@ -787,7 +787,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                                 required_rel_subj[dm_rel_id] = dm_subj_ids
                     rel_ids[i] = list(rel_ids[i])
 
-                if not any(required_rel_subj.values()):
+                if not any(list(required_rel_subj.values())):
                     for rel_id in required_rel_subj:
                         required_rel_subj[rel_id] = self.data_mart_relations_subjects[rel_id]
 

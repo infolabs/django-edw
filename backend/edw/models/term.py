@@ -496,7 +496,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
 
         if fix_it:
             invalid_ids = []
-            for x in [x for x in tree.values() if not x.is_leaf]:
+            for x in [x for x in list(tree.values()) if not x.is_leaf]:
                 if len(x) > 1 and (x.term.semantic_rule == BaseTerm.XOR_RULE):
                     invalid_ids.extend(x.get_descendants_ids())
                     x.is_leaf = True

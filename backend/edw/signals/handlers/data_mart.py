@@ -79,7 +79,7 @@ def invalidate_after_terms_set_changed(sender, instance, **kwargs):
             # normalize terms set
             origin_pk_set = set(instance.terms.values_list('id', flat=True))
             tree = TermModel.decompress(origin_pk_set | pk_set, fix_it=True)
-            normal_pk_set = set([x.term.id for x in tree.values() if x.is_leaf])
+            normal_pk_set = set([x.term.id for x in list(tree.values()) if x.is_leaf])
             # pk set to add
             pk_set_difference = normal_pk_set - origin_pk_set
             pk_set.clear()

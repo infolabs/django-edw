@@ -144,8 +144,8 @@ class EsiaOAuth2(BaseOAuth2):
 
         fields = ['is_trusted', 'username', 'fullname']
         for k in ['info', 'contacts']:
-            fields.extend(self.DETAILS_MAP[k].keys())
-        return {k: v for k, v in response.items() if k in fields}
+            fields.extend(list(self.DETAILS_MAP[k].keys()))
+        return {k: v for k, v in list(response.items()) if k in fields}
 
     def user_data(self, access_token, *args, **kwargs):
         id_token = kwargs['response']['id_token']
@@ -166,11 +166,11 @@ class EsiaOAuth2(BaseOAuth2):
 
         ret = {'id': oid, 'is_trusted': bool(is_trusted)}
 
-        for k, v in self.DETAILS_MAP['info'].items():
+        for k, v in list(self.DETAILS_MAP['info'].items()):
             ret[k] = info.get(v, '')
 
-        for k, v in self.DETAILS_MAP['contacts'].items():
-            if k not in ret.keys():
+        for k, v in list(self.DETAILS_MAP['contacts'].items()):
+            if k not in list(ret.keys()):
                 ret[k] = {}
             for e in elements:
                 if e['type'] == v:

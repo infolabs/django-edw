@@ -144,7 +144,7 @@ class BaseRetrieveDataTag(Tag):
         Возвращает результат обработки html шаблонов, преобразованного 
         в запросы к REST интерфейсу.
         """
-        items = self.kwargs.items()
+        items = list(self.kwargs.items())
         kwargs = dict([(key, value.resolve(context)) for key, value in items])
         kwargs.update(self.blocks)
 

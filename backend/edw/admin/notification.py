@@ -67,7 +67,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def get_transition_choices(self):
         choices = {}
-        for clazz in self.get_senders().values():
+        for clazz in list(self.get_senders().values()):
             status_fields = [f for f in clazz._meta.fields if f.name == 'status']
             if status_fields:
                 for transition in status_fields.pop().get_all_transitions(clazz):
@@ -77,7 +77,7 @@ class NotificationAdmin(admin.ModelAdmin):
                             clazz.get_transition_name(transition.target)
                         )
                         choices[self.model.get_transition_target(clazz, transition.target)] = transition_name
-        return choices.items()
+        return list(choices.items())
 
     def get_mailto_choices(self):
         choices = list(self.USER_CHOICES)
