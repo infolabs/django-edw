@@ -28,7 +28,7 @@ class EntitiesUpdateStateAdminForm(forms.Form):
         transition_states = getattr(entities_model, 'TRANSITION_TARGETS', {})
         if transition_states:
             choices = []
-            for k, v in list(transition_states.items()):
+            for k, v in transition_states.items():
                 choices.append((k, v))
             self.fields['state'].choices = choices
 

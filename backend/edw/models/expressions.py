@@ -292,7 +292,7 @@ except ImportError:
 
             resolve_all(clone.queryset.query.where)
 
-            for key, value in list(clone.queryset.query.annotations.items()):
+            for key, value in clone.queryset.query.annotations.items():
                 if isinstance(value, Subquery):
                     clone.queryset.query.annotations[key] = resolve(value)
 
@@ -320,7 +320,7 @@ except ImportError:
             clone = self.copy()
             clone.queryset.query = clone.queryset.query.relabeled_clone(change_map)
             clone.queryset.query.external_aliases.update(
-                alias for alias in list(change_map.values())
+                alias for alias in change_map.values()
                 if alias not in clone.queryset.query.alias_map
             )
             return clone
