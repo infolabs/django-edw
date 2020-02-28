@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from post_office import mail
 from post_office.models import EmailTemplate
 from rest_framework.request import Request
+from rest_framework.settings import api_settings
 from django_fsm.signals import post_transition
 
 from django.conf import settings
@@ -67,7 +68,7 @@ def notify_by_email(recipient, notification, instance, target, kwargs):
     stored_request = instance.stored_request[0] if isinstance(
         instance.stored_request, (tuple, list)) else instance.stored_request
     emulated_request = EmulateHttpRequest(instance.customer, stored_request)
-    authenticators = getattr(settings, 'AUTHENTICATION_BACKENDS', None)
+    authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
     entity_serializer = EntityDetailSerializer(
         instance,
         context={'request': Request(emulated_request, authenticators=authenticators)}
