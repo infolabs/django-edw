@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.db.models import BigIntegerField
 from django.db.models.expressions import Func, F, Expression
 
 
@@ -14,6 +15,7 @@ class ToSeconds(Func):
     template = "%(expressions)s"
 
     def __init__(self, expression, **extra):
+        extra.setdefault('output_field', BigIntegerField())
         self.__expression = expression
         super(ToSeconds, self).__init__(expression, **extra)
 
