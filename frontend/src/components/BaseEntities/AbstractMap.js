@@ -171,7 +171,8 @@ export default class AbstractMap extends Component {
         exAttrs = this.exAttrs(characteristics),
         exTags = this.exTags(marks);
     return (
-      <div className="ex-map-info"
+      <div className={item.extra.group_size ? "ex-map-info ex-catalog-item-variants" :
+          "ex-map-info"}
            onClick={e => {this.handleInfoMouseClick(e, item);}}
            style={item.extra.group_size && {cursor: 'pointer'}}>
         <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}} />
