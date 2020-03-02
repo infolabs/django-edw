@@ -305,7 +305,7 @@ export class YMapInner extends AbstractMap {
                        modules={markerModules}
                        defaultGeometry={marker.center}
                        properties={marker.properties}
-                       defaultOptions={marker.options}
+                       options={marker.options}
                        onBalloonopen={e => this.handleBalloonOpen(e, marker)}
                        onBalloonclose={e => this.handleBalloonClose(e, marker)}
                        // todo: Работает даже просто при перерендере карты при загрузке данных,
