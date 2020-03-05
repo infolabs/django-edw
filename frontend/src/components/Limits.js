@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Dropdown from './Dropdown';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 
 
 class Limits extends Component {
@@ -18,23 +18,28 @@ class Limits extends Component {
     if (meta.count <= 1)
       return ret;
 
+    let max_opt_value = 0;
     if (limits) {
       // cut limits lower than count
-      let max_opt_value = 0,
-          max_value = 0;
+      let max_value = 0;
+
       for (const key of Object.keys(limits.options)) {
-        const value = limits.options[key]
+        const value = limits.options[key];
         max_opt_value = value > max_opt_value ? value : max_opt_value;
+        if (meta.count < max_opt_value) {
+          break;
+        }
         if (key == meta.selected || value <= meta.count) {
           max_value = value > max_value ? value : max_value;
           limit_options[key] = value;
         }
       }
       if (max_value < meta.count && meta.count < max_opt_value)
-        limit_options[meta.count] = gettext("All");
+        limit_options[max_opt_value] = gettext("All");
     }
 
     if (limits && Object.keys(limit_options).length > 1) {
+      let selectedLabel = limits.selected >= max_opt_value ? gettext("All") : limits.selected;
       ret = (
         <ul className="ex-inline">
           <li>
@@ -48,13 +53,13 @@ class Limits extends Component {
                       subj_ids={meta.subj_ids}
                       open={limits.open}
                       actions={actions}
-                      selected={limits.selected}
+                      selected={selectedLabel}
                       count={meta.count}
                       options={limit_options}/>
 
           </li>
         </ul>
-      )
+      );
     }
 
     return ret;

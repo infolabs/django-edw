@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import urllib
+from collections import OrderedDict
 
 import rest_framework_filters as filters
 try:
@@ -450,7 +450,7 @@ class EntityMetaFilter(BaseFilterBackend):
         if view.action == 'list':
             aggregation = model_class.get_summary_aggregation(request)
             if isinstance(aggregation, dict):
-                aggregation_meta = {}
+                aggregation_meta = OrderedDict()
                 for key, value in aggregation.items():
                     assert isinstance(value, (tuple, list)), (
                         "type of value getting from dictionary key '%s' should be `tuple` or `list`"

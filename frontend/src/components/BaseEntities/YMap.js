@@ -195,13 +195,15 @@ export class YMapInner extends AbstractMap {
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
+      const isGroup = item.extra && item.extra.group_size;
+
       const colorItems = this.getColor(item),
             groupColor = colorItems.backgroundColorContent,
             borderGroupColor = colorItems.borderColor,
             pinColor = this.getPinColor(item),
             regionColor = colorItems.regionColor,
-            descriptions_data = item.extra && item.extra.group_size ? descriptions.groups : descriptions,
-            description = !descriptions_data[item.id] && descriptions.groups ?
+            descriptions_data = isGroup ? descriptions.groups : descriptions,
+            description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
                           descriptions.groups[item.id] : descriptions_data[item.id],
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
@@ -303,7 +305,7 @@ export class YMapInner extends AbstractMap {
                        modules={markerModules}
                        defaultGeometry={marker.center}
                        properties={marker.properties}
-                       defaultOptions={marker.options}
+                       options={marker.options}
                        onBalloonopen={e => this.handleBalloonOpen(e, marker)}
                        onBalloonclose={e => this.handleBalloonClose(e, marker)}
                        // todo: Работает даже просто при перерендере карты при загрузке данных,

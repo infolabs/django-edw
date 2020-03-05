@@ -9,6 +9,7 @@ import jwt
 import re
 
 from django.conf import settings
+from django.utils import six
 
 from social_core.backends.oauth import BaseOAuth2
 
@@ -56,6 +57,31 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         os.unlink(source_path)
         os.unlink(destination_path)
         return signed_message
+
+    elif backend == 'openssl-gost':
+        source_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        source_file.write(data)
+        source_path = source_file.name
+        source_file.close()
+
+        destination_file = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+        destination_path = destination_file.name
+        destination_file.close()
+
+        # openssl compiled with gost 2012 support
+        cmd = '/usr/local/ssl/bin/openssl smime -sign -md sha256 -signer {cert} -engine gost -in {f_in} -out {f_out} -outform DER'
+
+        os.system(cmd.format(
+            f_in=source_path,
+            cert=certificate_file,
+            f_out=destination_path,
+        ))
+
+        with open(destination_path, 'rb') as content_file:
+            signed_message = content_file.read()
+        os.unlink(source_path)
+        os.unlink(destination_path)
+        return signed_message
     else:
         raise Exception('Unknown cryptography backend. Use openssl or m2crypto value.')
 
@@ -64,8 +90,11 @@ def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
     plaintext = ''.join([params.get('scope', ''), params.get('timestamp', ''),
                         params.get('client_id', ''), params.get('state', '')])
     raw_client_secret = smime_sign(certificate_file, private_key_file, plaintext, backend)
+    client_secret = base64.urlsafe_b64encode(raw_client_secret)
+    if six.PY2:
+        client_secret = client_secret.decode('utf-8')
     params.update(
-        client_secret=base64.urlsafe_b64encode(raw_client_secret).decode('utf-8'),
+        client_secret=client_secret,
     )
     return params
 
