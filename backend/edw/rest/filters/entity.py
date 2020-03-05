@@ -220,7 +220,7 @@ class EntityFilter(BaseEntityFilter):
 
     @cached_property
     def is_data_mart_relations_has_subjects(self):
-        return any(list(self.data_mart_relations_subjects.values()))
+        return any(self.data_mart_relations_subjects.values())
 
     @cached_property
     def data_mart_rel_ids(self):
@@ -273,7 +273,7 @@ class EntityFilter(BaseEntityFilter):
         if self.is_data_mart_relations_has_subjects:
             if self.subj_ids:
                 cleaned_relations_subjects = {}
-                for rel_id, subj_ids in list(self.data_mart_relations_subjects.items()):
+                for rel_id, subj_ids in self.data_mart_relations_subjects.items():
                     if subj_ids:
                         cleaned_subj_ids = list(set(self.subj_ids) & set(subj_ids))
                         if not cleaned_subj_ids:
@@ -402,7 +402,7 @@ class EntityMetaFilter(BaseFilterBackend):
             annotation = model_class.get_summary_annotation(request)
             if isinstance(annotation, dict):
                 annotation_meta, annotate_kwargs = {}, {}
-                for key, value in list(annotation.items()):
+                for key, value in annotation.items():
                     if isinstance(value, (tuple, list)):
                         annotate = value[0]
                         if isinstance(annotate, BaseExpression):
@@ -451,7 +451,7 @@ class EntityMetaFilter(BaseFilterBackend):
             aggregation = model_class.get_summary_aggregation(request)
             if isinstance(aggregation, dict):
                 aggregation_meta = {}
-                for key, value in list(aggregation.items()):
+                for key, value in aggregation.items():
                     assert isinstance(value, (tuple, list)), (
                         "type of value getting from dictionary key '%s' should be `tuple` or `list`"
                         % key
@@ -501,7 +501,7 @@ class EntityMetaFilter(BaseFilterBackend):
 
             aggregation = model_class.get_summary_aggregation(request)
             if isinstance(aggregation, dict):
-                aggregation_meta = [key for key, value in list(aggregation.items()) if isinstance(value[0], BaseExpression)]
+                aggregation_meta = [key for key, value in aggregation.items() if isinstance(value[0], BaseExpression)]
 
         context = {
             'annotation_meta': annotation_meta,
@@ -528,7 +528,7 @@ class EntityDynamicFilter(DynamicFilterMixin, BaseFilterBackend):
         dynamic_filter_set = self.dynamic_filter_set_class(request.GET, queryset)
         rest_meta = getattr(dynamic_filter_set, '_rest_meta', None)
         if view.action == 'list' and rest_meta is not None and rest_meta.filters:
-            for filter_name in list(rest_meta.filters.keys()):
+            for filter_name in rest_meta.filters.keys():
                 dynamic_filter_set.data.setdefault(filter_name, '')
             context = {
                 'form': dynamic_filter_set.form

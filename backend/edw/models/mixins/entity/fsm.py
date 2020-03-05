@@ -116,7 +116,7 @@ class FSMMixin(object):
                     )
                     states_parent_term.save()
             transition_states = cls.TRANSITION_TARGETS
-            for state_key, state_name in list(transition_states.items()):
+            for state_key, state_name in transition_states.items():
                 with transaction.atomic():
                     try:
                         states_parent_term.get_descendants(include_self=False).get(slug=state_key)
@@ -149,7 +149,7 @@ class FSMMixin(object):
         if context.get("force_validate_terms", False) or context.get("validate_entity_state", False):
             states = self.get_states()
             # remove old state term
-            self.terms.remove(*[term.id for term in list(states.values())])
+            self.terms.remove(*[term.id for term in states.values()])
             # add new state term
             new_state = states[self.status]
             self.terms.add(new_state)
