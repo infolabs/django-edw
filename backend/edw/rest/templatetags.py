@@ -141,10 +141,9 @@ class BaseRetrieveDataTag(Tag):
 
     def render(self, context):
         """
-        Возвращает результат обработки html шаблонов, преобразованного 
-        в запросы к REST интерфейсу.
+        Render template tag
         """
-        items = list(self.kwargs.items())
+        items = self.kwargs.items()
         kwargs = dict([(key, value.resolve(context)) for key, value in items])
         kwargs.update(self.blocks)
 

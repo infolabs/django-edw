@@ -58,7 +58,7 @@ class TermTreeInfo(dict):
         RUS: Получает список захэшированных неупорядоченных ключей,
         если они несозданы.
         """
-        keys = [x.term.id for x in list(self.values()) if x.is_leaf]
+        keys = [x.term.id for x in self.values() if x.is_leaf]
         return hash_unsorted_list(keys) if keys else ''
 
     def trim(self, ids=None):
@@ -81,7 +81,7 @@ class TermTreeInfo(dict):
         """
         RUS: Приватный метод, добавляет в дерево ребенка к предкам.
         """
-        terms = [x.term for x in list(self.values()) if x.is_leaf]
+        terms = [x.term for x in self.values() if x.is_leaf]
         if terms:
             for term in get_queryset_descendants(terms, include_self=False).filter(active=True):
                 ancestor = self.get(term.parent_id)
@@ -119,7 +119,7 @@ class TermTreeInfo(dict):
                         src_ancestor = self.get(src_ancestor.term.parent_id)
                     else:
                         root.append(node)
-        for ancestor in [x for x in list(tree.values()) if x.is_leaf]:
+        for ancestor in [x for x in tree.values() if x.is_leaf]:
             src_ancestor = self[ancestor.term.id]
             if len(src_ancestor):
                 ancestor.is_leaf = False
@@ -209,7 +209,7 @@ class TermInfo(list):
                     else:
                         node = tree[term_parent.id] = TermInfo(term=term_parent, is_leaf=False, children=[node])
                         if term_parent.parent_id is not None:
-                            for term_ancestor in term_parent.get_ancestors(ascending=True).exclude(pk__in=list(tree.keys())):
+                            for term_ancestor in term_parent.get_ancestors(ascending=True).exclude(pk__in=tree.keys()):
                                 node = tree[term_ancestor.id] = TermInfo(term=term_ancestor, is_leaf=False, children=[node])
                             ancestor = tree.get(node.term.parent_id)
                             if ancestor is not None:

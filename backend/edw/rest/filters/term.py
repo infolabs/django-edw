@@ -66,7 +66,7 @@ class TermFilter(filters.FilterSet):
         self._data_mart_id = value
         if self.data_mart_id is None:
             return queryset
-        return queryset.filter(id__in=list(TermModel.decompress(self.data_mart_term_ids, fix_it=True).keys()))
+        return queryset.filter(id__in=TermModel.decompress(self.data_mart_term_ids, fix_it=True).keys())
 
     def filter_parent_id(self, name, queryset, value):
         key = name
