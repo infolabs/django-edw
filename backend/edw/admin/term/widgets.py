@@ -37,26 +37,19 @@ class TermTreeWidget(forms.SelectMultiple):
                 'tagging_restriction': self.external_tagging_restriction
             })
 
-    # todo: Вся медийка добавляется в ModelAdmin которые используют виджет дерева. Соответственнно второй
-    #  раз добавлять нет смысла. Этот код был сделан в расчете, что этот виджет встраивает себя и свою медийку сам,
-    #  но на страницах со списками элементов, в фильтрах, эта медийка не грузится, а грузится только медийка прописанная
-    #  непосредственно в ModelAdmin, так как Django грузит медийку виджетов только в виджетах детальки и фильтр
-    #  по терминам не работает тогда. Поэтому если этот виджет встраивается куда-то кроме Entity объектов - надо
-    #  позаботится о добавлении этой медийки в соответствующих админках. Не удалять блок внизу. В нем описано какие
-    #  стили и яваскрипт надо добавить.
-    # class Media:
-    #     """
-    #     Подключаемые стили CSS и JavaScript
-    #     """
-    #     css = {
-    #         'all': (
-    #             '/static/edw/css/admin/jqtree.css',
-    #             '/static/edw/lib/font-awesome/css/font-awesome.min.css',
-    #             '/static/edw/css/admin/term.min.css',
-    #         )
-    #     }
-    #     js = (
-    #         '/static/edw/lib/spin/spin.min.js',
-    #         '/static/edw/js/admin/jquery.compat.js',
-    #         '/static/edw/js/admin/tree.jquery.js'
-    #     )
+    class Media:
+        """
+        Подключаемые стили CSS и JavaScript
+        """
+        css = {
+            'all': (
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.min.css',
+            )
+        }
+        js = (
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/jquery.compat.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
