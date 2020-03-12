@@ -326,7 +326,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         else:
             tree = trunk
 
-        for k, v in list(trunk.items()):
+        for k, v in trunk.items():
             x = tree.get(k)
             if x is not None:
                 if v.is_leaf:
