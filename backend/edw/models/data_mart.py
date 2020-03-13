@@ -223,17 +223,13 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         # Возвращаем наименование витрины данных.
         return self.name
 
-    @cached_property
-    def _tree_cmp_info(self):
-        tree_opts = self._mptt_meta
-        return getattr(self, tree_opts.tree_id_attr), getattr(self, tree_opts.left_attr)
-
     def __lt__(self, other):
         """
         RUS: Сравнивает узлы витрины данных для организации сортировки согласно структуре дерева.
         """
-        self_tree_id, self_tree_left = self._tree_cmp_info
-        other_tree_id, other_tree_left = other._tree_cmp_info
+        tree_opts = self._mptt_meta
+        self_tree_id, self_tree_left = getattr(self, tree_opts.tree_id_attr), getattr(self, tree_opts.left_attr)
+        other_tree_id, other_tree_left = getattr(other, tree_opts.tree_id_attr), getattr(other, tree_opts.left_attr)
         if self_tree_id == other_tree_id:
             return self_tree_left < other_tree_left
         else:
@@ -243,9 +239,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         if not isinstance(other, type(self)):
             # Delegate comparison to the other instance's __eq__.
             return NotImplemented
-        self_tree_id, self_tree_left = self._tree_cmp_info
-        other_tree_id, other_tree_left = other._tree_cmp_info
-        return self_tree_id == other_tree_id and self_tree_left == other_tree_left
+        return self.pk == other.pk
 
     def data_mart_type(self):
         """
