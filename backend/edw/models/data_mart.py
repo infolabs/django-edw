@@ -13,7 +13,7 @@ from mptt.exceptions import InvalidMove
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, MPTTModelBase
 from polymorphic.base import PolymorphicModelBase
-try:
+try:  # six.PY2
     from polymorphic.manager import PolymorphicManager
 except ImportError:
     from polymorphic.managers import PolymorphicManager
@@ -223,25 +223,29 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         # Возвращаем наименование витрины данных.
         return self.name
 
-    def __cmp__(self, other):
+    @cached_property
+    def _tree_cmp_info(self):
+        tree_opts = self._mptt_meta
+        return getattr(self, tree_opts.tree_id_attr), getattr(self, tree_opts.left_attr)
+
+    def __lt__(self, other):
         """
         RUS: Сравнивает узлы витрины данных для организации сортировки согласно структуре дерева.
         """
-        tree_opts = self._mptt_meta
-        self_tree_id, other_tree_id = getattr(self, tree_opts.tree_id_attr), getattr(other, tree_opts.tree_id_attr)
-        self_tree_left, other_tree_left = getattr(self, tree_opts.left_attr), getattr(other, tree_opts.left_attr)
-
+        self_tree_id, self_tree_left = self._tree_cmp_info
+        other_tree_id, other_tree_left = other._tree_cmp_info
         if self_tree_id == other_tree_id:
-            if self_tree_left == other_tree_left:
-                return 0
-            elif self_tree_left < other_tree_left:
-                return -1
-            else:
-                return 1
-        elif self_tree_id < other_tree_id:
-            return -1
+            return self_tree_left < other_tree_left
         else:
-            return 1
+            return self_tree_id < other_tree_id
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            # Delegate comparison to the other instance's __eq__.
+            return NotImplemented
+        self_tree_id, self_tree_left = self._tree_cmp_info
+        other_tree_id, other_tree_left = other._tree_cmp_info
+        return self_tree_id == other_tree_id and self_tree_left == other_tree_left
 
     def data_mart_type(self):
         """

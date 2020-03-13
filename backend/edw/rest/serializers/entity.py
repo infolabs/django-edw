@@ -825,7 +825,7 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
     def get_related_data_marts(self, entity):
         ids = entity.get_related_data_marts_ids_from_attributes(entity.marks, entity.characteristics)
-        data_marts0 = entity.related_data_marts.active() # todo: необходимо найти все связанные с группой витрины данных
+        data_marts0 = entity.related_data_marts.active()  # todo: необходимо найти все связанные с группой витрины данных
 
         if ids:
             data_marts0 = list(data_marts0)
@@ -833,10 +833,10 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
 
             data_marts = []
             while data_marts0 and data_marts1:
-                if data_marts0[0].pk == data_marts1[0].pk:
+                if data_marts0[0] == data_marts1[0]:
                     data_marts.append(data_marts1.pop(0))
                     data_marts0.pop(0)
-                elif data_marts0[0].pk < data_marts1[0].pk:
+                elif data_marts0[0] < data_marts1[0]:
                     data_marts.append(data_marts0.pop(0))
                 else:
                     data_marts.append(data_marts1.pop(0))
