@@ -153,20 +153,21 @@
             // add to django-fluent-contents
             var cp_plugins = window.cp_plugins || {};
             if ( !cp_plugins._init_tree_monkey_patch ) {
-
                 var origin_add_formset_item = cp_plugins.add_formset_item;
                 cp_plugins.add_formset_item = function( placeholder_slot, model_name, options ) {
-                    options = options || {
-                        on_post_add: function ($fs_item) {
-                            var $el = $('.tree-widget', $fs_item).get(0); // tree-widget
-                            if ( $el ) {
-                                window._init_terms_tree_fn('#' + $($el).attr('id'));
-                            }
+                    options = options || {};
+                    var origin_on_post_add = options.on_post_add;
+                    options.on_post_add = function ($fs_item) {
+                        var $el = $('.tree-widget', $fs_item).get(0); // tree-widget
+                        if ( $el ) {
+                            window._init_terms_tree_fn('#' + $($el).attr('id'));
+                        }
+                        if (origin_on_post_add) {
+                            origin_on_post_add($fs_item)
                         }
                     };
                     origin_add_formset_item(placeholder_slot, model_name, options)
                 };
-
                 cp_plugins._init_tree_monkey_patch = true
             }
             $('body').removeClass('loading');
@@ -176,7 +177,7 @@
         }
 
     });
-})(django.jQuery);
+})(edw_jQuery || django.jQuery); // monkey patch for django-fluent-contents double jquery init
 
 
 </script>

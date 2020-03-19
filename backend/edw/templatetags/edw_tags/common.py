@@ -121,7 +121,14 @@ def intersection(value, arg):
 
 
 def append_value(data, value):
-    data.append(value)
+    '''
+    Добавляет ненулевые элементы в данные
+    :param data:
+    :param value:
+    :return:
+    '''
+    if value:
+        data.append(value)
     return data
 
 

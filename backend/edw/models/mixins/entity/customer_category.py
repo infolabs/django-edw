@@ -100,8 +100,8 @@ class CustomerCategoryMixin(object):
                     EntityModel._unknown_customer_term_cache = unknown_customer
         return unknown_customer
 
-    @classmethod
-    def get_all_customer_categories_terms_ids_set(cls):
+    @staticmethod
+    def get_all_customer_categories_terms_ids_set():
         """
         RUS: Добавляет список ids терминов категорий пользователей.
         """
@@ -151,8 +151,7 @@ class CustomerCategoryMixin(object):
                 c_c_c_terms_ids_set = getattr(self, '_clean_customer_categories_terms_ids_set', None)
                 do_validate = kwargs["context"]["validate_customer_category"] = (
                     not self.customer_categories_terms_ids_set or
-                    c_c_c_terms_ids_set is not None and
-                    c_c_c_terms_ids_set != self.customer_categories_terms_ids_set
+                    c_c_c_terms_ids_set is not None
                 )
         return super(CustomerCategoryMixin, self).need_terms_validation_after_save(origin, **kwargs) or do_validate
 
