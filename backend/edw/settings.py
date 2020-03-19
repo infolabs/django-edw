@@ -68,3 +68,10 @@ REGISTRATION_PROCESS = {
     'account_activation_days': 5
 }
 REGISTRATION_PROCESS.update(getattr(settings, 'EDW_REGISTRATION_PROCESS', {}))
+
+
+SEMANTIC_FILTER = {
+    'fast_subquery_results_limit': 1000,
+    'fast_subquery_filters_default': 3
+}
+SEMANTIC_FILTER.update(getattr(settings, 'EDW_SEMANTIC_FILTER', {}))
