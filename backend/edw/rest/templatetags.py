@@ -4,10 +4,12 @@ from __future__ import unicode_literals
 from django.utils.functional import cached_property
 from django.db.models.query import QuerySet
 from django.http import QueryDict
+from django.conf import settings
 
 from classytags.core import Tag
 
 from rest_framework import request
+from rest_framework.request import Empty, ForcedAuthentication
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.settings import api_settings
@@ -27,13 +29,35 @@ def _get_count(queryset):
 
 class Request(request.Request):
 
-    def __init__(self, request, query_params=None, *args, **kwargs):
+    def __init__(self, request, query_params=None, parsers=None, authenticators=None,
+                     negotiator=None, parser_context=None):
         """
-        ENG: The class constructor
-        RUS: Конструктор класса
+        Добовляет в rest_framework.request.Request возможность устанавливать query_params в конструкторе
         """
         self._query_params = query_params
-        super(Request, self).__init__(request, *args, **kwargs)
+
+        # copy from: rest_framework.request.Request.__init__
+        self._request = request
+        self.parsers = parsers or ()
+        self.authenticators = authenticators or ()
+        self.negotiator = negotiator or self._default_negotiator()
+        self.parser_context = parser_context
+        self._data = Empty
+        self._files = Empty
+        self._full_data = Empty
+        self._content_type = Empty
+        self._stream = Empty
+
+        if self.parser_context is None:
+            self.parser_context = {}
+        self.parser_context['request'] = self
+        self.parser_context['encoding'] = request.encoding or settings.DEFAULT_CHARSET
+
+        force_user = getattr(request, '_force_auth_user', None)
+        force_token = getattr(request, '_force_auth_token', None)
+        if force_user is not None or force_token is not None:
+            forced_auth = ForcedAuthentication(force_user, force_token)
+            self.authenticators = (forced_auth,)
 
     @cached_property
     def query_params(self):
