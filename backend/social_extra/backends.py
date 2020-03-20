@@ -12,6 +12,7 @@ from django.conf import settings
 from django.utils import six
 
 from social_core.backends.oauth import BaseOAuth2
+from social_core.backends.vk import VKOAuth2
 
 from edw.utils.hash_helpers import create_hash
 
@@ -206,3 +207,7 @@ class EsiaOAuth2(BaseOAuth2):
                     ret[k] = e
 
         return ret
+
+
+class VKOAuth2Https(VKOAuth2):
+    AUTHORIZATION_URL = 'https://oauth.vk.com/authorize'
