@@ -304,11 +304,12 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 #===========================================================================================
 class EntityChildActiveOnlyModelAdmin(EntityChildModelAdmin):
     def changelist_view(self, request, extra_context=None):
-        if 'active__exact' not in list(request.GET.keys()):
-            q = request.GET.copy()
-            q['active__exact'] = 1
-            request.GET = q
-            request.META['QUERY_STRING'] = request.GET.urlencode()
+        # todo: некорректно работает. разобраться почему и переписать
+        # if 'active__exact' not in list(request.GET.keys()):
+        #     q = request.GET.copy()
+        #     q['active__exact'] = 1
+        #     request.GET = q
+        #     request.META['QUERY_STRING'] = request.GET.urlencode()
         return super(EntityChildActiveOnlyModelAdmin, self).changelist_view(request, extra_context=extra_context)
 
 
