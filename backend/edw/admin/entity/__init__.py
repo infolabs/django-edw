@@ -2,11 +2,13 @@
 from __future__ import unicode_literals
 
 import urllib
+import re
 
 from django.utils import six
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.utils.http import urlencode
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
 
@@ -304,13 +306,66 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
 #===========================================================================================
 class EntityChildActiveOnlyModelAdmin(EntityChildModelAdmin):
     def changelist_view(self, request, extra_context=None):
-        # todo: некорректно работает. разобраться почему и переписать
-        # if 'active__exact' not in list(request.GET.keys()):
-        #     q = request.GET.copy()
-        #     q['active__exact'] = 1
-        #     request.GET = q
-        #     request.META['QUERY_STRING'] = request.GET.urlencode()
+        # При нахождении в списке объектов патчим запрос
+        match = request.resolver_match
+        opts = self.model._meta
+        current_url = '%s:%s' % (match.app_name, match.url_name)
+        changelist_url = 'admin:%s_%s_changelist' % (opts.app_label, opts.model_name)
+        if current_url == changelist_url and 'active__exact' not in list(request.GET.keys()):
+            req = request.GET.copy()
+            req['active__exact'] = 1
+            request.GET = req
         return super(EntityChildActiveOnlyModelAdmin, self).changelist_view(request, extra_context=extra_context)
+
+    def get_preserved_filters(self, request):
+        preserved_filters = super(EntityChildActiveOnlyModelAdmin, self).get_preserved_filters(request)
+
+        filter_params = ''
+        if '_changelist_filters' in preserved_filters:
+            # Получили список всех паттернов для поиска по списку параметров фильтров модели и закешировали его
+            list_filter_re = getattr(self, '_list_filter_re', None)
+            if list_filter_re is None:
+                list_filter_re = []
+                for flt in self.list_filter:
+                    if isinstance(flt, (str, unicode)):  # Simple field filter
+                        list_filter_re.append('{}_.*|{}'.format(flt, flt))
+                    elif isinstance(flt, (tuple, list)):  # Salmonella filter
+                        list_filter_re.append(flt[0])
+                    else:  # ListFilter class filter
+                        parameter_name = getattr(flt, 'parameter_name', None)
+                        if parameter_name:
+                            list_filter_re.append(flt.parameter_name)
+                setattr(self, '_list_filter_re', list_filter_re)
+
+            # Получаем правильный parse в зависимости от версии Python
+            if six.PY3:
+                parse = urllib.parse
+            else:
+                import urlparse
+                parse = urlparse
+
+            # Получили параметры фильтров _changelist_filters в виде словаря
+            changelist_filters = parse.parse_qs(parse.parse_qs(preserved_filters)['_changelist_filters'][0])
+
+            # Получаем строку параметров фильтров для запроса
+            r = re.compile('|'.join(x for x in list_filter_re))
+
+            # Получили список параметров запроса подпадающих под фильтры, остальные параметры не должны
+            # добавляться в _changelist_filters
+            match_list_filter = list(filter(r.match, changelist_filters.keys()))
+
+            # Получили список фильтров со значениями в виде строки
+            params_string_list = []
+            for f in match_list_filter:
+                params_string_list.append('{}={}'.format(f, ','.join(changelist_filters[f])))
+
+            # Собрали строку значений фильтров для добавления в _changelist_filters
+            filter_params = '&'.join(x for x in params_string_list)
+
+        # Установили правильные предустановленные фильтры в запросе, это нужно для того, чтоб после добавления
+        # или редактирования объекта мы возвращались в список с теми же параметрами, что были установлены в листе
+        preserved_filters = urlencode({'_changelist_filters': filter_params})
+        return preserved_filters
 
 
 # ===========================================================================================
