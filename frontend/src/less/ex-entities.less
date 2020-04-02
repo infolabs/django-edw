@@ -626,7 +626,7 @@
 
   .ex-wrap-ribbon {
     position: relative;
-    margin-bottom: 7px;
+    //margin-bottom: 7px;
 
     .ex-ribbon {
       .ex-ribbon(@ex-catalog-item-ribbon-default-bg, contrast(@ex-catalog-item-ribbon-default-bg), @ex-catalog-item-ribbon-font-size, @ex-catalog-item-ribbon-font-weight, @ex-catalog-item-ribbon-text-transform);
@@ -913,8 +913,13 @@
       }
 
       .ex-ribbons {
+        max-width: 185px;
         left: 14px;
         top: 30px;
+
+        .ex-ribbon {
+          max-width: 185px;
+        }
       }
     }
 
