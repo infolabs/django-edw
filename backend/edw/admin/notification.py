@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-from collections import OrderedDict
+import json
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
+from salmonella.admin import SalmonellaMixin
+from salmonella.widgets import SalmonellaMultiIdWidget
 
 from django.contrib import admin
-from django.contrib.auth import get_user_model
-from django.forms import widgets
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.notification import NotificationAttachment
-from edw.models.entity import EntityModel
+from edw.forms.notification import NotificationForm, SelectMultiple
 
 
 class NotificationAttachmentAdmin(admin.TabularInline):
@@ -19,96 +19,74 @@ class NotificationAttachmentAdmin(admin.TabularInline):
     extra = 0
 
 
-class NotificationAdmin(admin.ModelAdmin):
-    USER_CHOICES = (
-        ('', _("Nobody")),
-        (0, _("Customer")),
-    )
+class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
+
+    form = NotificationForm
+    readonly_fields = ('avaliable_roles',)
 
     formfield_overrides = {
         BitField: {'widget': BitFieldCheckboxSelectMultiple},
     }
 
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'transition', 'notify_to_roles','copy_to', 'template', 'mode', 'active',)
+        }),
+        #TODO: удалить
+        ('temp', {
+            'fields': ('transition_target', 'notify_to',)
+        }),
+        # Скрытие служебного поля доступных ролей
+        ('Hidden', {
+            'classes': ('hidden',),
+            'fields': ('avaliable_roles',),
+        }),
+    )
+
     list_display = (
         'name',
-        'transition_model',
-        'transition',
-        'recipient',
         'template',
-        'num_attachments'
+        'num_attachments',
+        'active'
     )
 
     inlines = (NotificationAttachmentAdmin,)
 
     save_as = True
     save_on_top = True
-
     search_fields = ('name',)
 
+    def avaliable_roles(self, instance):
+        """
+        Скрытое поле для передачи JSON списка доступных ролей для состояний
+        :param instance:
+        :return: html разметку поля
+        """
+
+        avaliable = self.model.get_avalible_recipients_roles_for_notifications()
+
+        return mark_safe(
+            '<div class="avaliable-roles" data-source-field="transition" data-target-field="notify_to_roles" style="display: none;">%s</div>' % json.dumps(
+                avaliable))
+
+    avaliable_roles.short_description = ""
+
     def get_form(self, request, obj=None, **kwargs):
+        # инициализация значений виджетов
         kwargs.update(widgets={
-            'transition_target': widgets.Select(choices=self.get_transition_choices()),
-            'notify_to': widgets.Select(choices=self.get_mailto_choices()),
-        })
+            'transition': SelectMultiple(_('Transition'), False, choices=self.model.get_transition_choices()),
+            'copy_to': SalmonellaMultiIdWidget(self.model._meta.get_field("copy_to").rel, admin.site)
+        },
+        field_classes={'avaliable_roles': 'hidden'} )
+
         return super(NotificationAdmin, self).get_form(request, obj, **kwargs)
 
-    @staticmethod
-    def get_senders():
-        result = {}
-        Model = EntityModel.materialized
-        result[Model.__name__.lower()] = Model
-        for clazz in Model.__subclasses__():
-            if clazz.__subclasses__():
-                for subclazz in clazz.__subclasses__():
-                    result[subclazz.__name__.lower()] = subclazz
-            else:
-                result[clazz.__name__.lower()] = clazz
-        return result
-
-    def get_transition_choices(self):
-        choices = {}
-        for clazz in list(self.get_senders().values()):
-            status_fields = [f for f in clazz._meta.fields if f.name == 'status']
-            if status_fields:
-                for transition in status_fields.pop().get_all_transitions(clazz):
-                    if transition.target:
-                        transition_name = "{} - {}".format(
-                            clazz._meta.verbose_name,
-                            clazz.get_transition_name(transition.target)
-                        )
-                        choices[self.model.get_transition_target(clazz, transition.target)] = transition_name
-        return list(choices.items())
-
-    def get_mailto_choices(self):
-        choices = list(self.USER_CHOICES)
-        for user in get_user_model().objects.filter(is_staff=True):
-            email = '{0} {1} <{2}>'.format(user.first_name, user.last_name, user.email)
-            choices.append((user.id, email))
-        return choices
-
-    def transition_model(self, obj):
-        sender, target = obj.transition_target.split(':')
-        Model = self.get_senders()[sender]
-        return Model._meta.verbose_name
-    transition_model.short_description = _("Entity")
-
-    def transition(self, obj):
-        sender, target = obj.transition_target.split(':')
-        Model = self.get_senders()[sender]
-        return Model.get_transition_name(target)
-    transition.short_description = _("Status")
-
     def num_attachments(self, obj):
+        """
+        Получение количества прикрепленных файлов
+        :param obj: - объект Notification
+        :return: - int количество вложений
+        """
         return obj.notificationattachment_set.count()
     num_attachments.short_description = _("Attachments")
 
-    def recipient(self, obj):
-        try:
-            if obj.notify_to > 0:
-                user = get_user_model().objects.get(id=obj.notify_to, is_staff=True)
-                return '{0} {1} <{2}>'.format(user.first_name, user.last_name, user.email)
-            else:
-                return OrderedDict(self.USER_CHOICES)[obj.notify_to]
-        except (get_user_model().DoesNotExist, KeyError):
-            return _("Nobody")
-    recipient.short_description = _("Recipient")
