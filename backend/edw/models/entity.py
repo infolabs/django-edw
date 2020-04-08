@@ -11,8 +11,7 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
-
-from django.db import models, transaction, connections
+from django.db import models, transaction, connections, connection
 from django.db.models import Q, Count
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.utils import six
@@ -23,7 +22,7 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from ipware import ip
 from polymorphic.base import PolymorphicModelBase
-try:
+try:  # six.PY2
     from polymorphic.manager import PolymorphicManager
 except ImportError:
     from polymorphic.managers import PolymorphicManager
@@ -90,7 +89,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     """
     RUS: Запрос к базовой сущности базы данных.
     """
-
+    SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT = edw_settings.SEMANTIC_FILTER['fast_subquery_results_limit']
     GROUP_SIZE_ALIAS = 'group_size'
     _JOIN_INDEX_KEY = '_join_idx'
 
@@ -137,7 +136,8 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         tree = decompress(value, fix_it=True)
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
-        if filters:
+        filters_cnt = len(filters)
+        if filters_cnt:
             """
             # Pythonic, but working to slow, try refactor queryset
             """
@@ -146,7 +146,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             # for x in filters[1:]:
             #     result = result.filter(x)
             # result = result.distinct()
-            #
+
             # print ("*********** ORIGIN QS *************")
             # print (result.query.__str__())
             # print ("*********************************")
@@ -155,8 +155,15 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             base_model = next(get_polymorphic_ancestors_models(outer_qs.model))
 
             base_qs = base_model.objects.all().filter(filters[0])
+
             for x in filters[1:]:
                 base_qs = base_qs.filter(x)
+
+            # # todo: оценитьь "сложность запроса" complexity
+            # print ("++++++++++++++++++++")
+            # print ("+++ JOIN COUNT +++", filters_cnt)
+            # print ("++++++++++++++++++++")
+
             base_qs = base_qs.distinct().values_list('id', flat=True)
 
             try:
@@ -200,14 +207,32 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                 # Make inner queryset
                 inner_qs = inner_model.objects.raw(raw_sql, sql_params)
 
-                # TODO: оптимизировать запрос за сщёт получения списка id объектов
-                # from django.db import connection
+                # # TODO: оптимизировать запрос за счёт получения списка id объектов
+                #
+                # # try simplify query
                 # cursor = connection.cursor()
-                # cursor.execute(raw_sql, sql_params)
-                # print(cursor.fetchall())
+                # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
+                #                sql_params)
+                #
+                #
+                # ids = [item[0] for item in cursor.fetchall()]
+                #
+                # ids_cnt = len(ids)
+                #
+                # if ids_cnt < self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT:
+                #     result = outer_qs.filter(id__in=ids) if ids_cnt else outer_qs.filter(id=None)
+                #
+                #     print ("---------------------------------")
+                #     print(ids , ids_cnt)
+                # else:
+                #
+                #     # Make queryset
+                #     result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias,
+                #                                  join_alias)
 
                 # Make queryset
-                result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias, join_alias)
+                result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias,
+                                             join_alias)
 
                 # print ("*********** RESULT QS *************")
                 # print (result.query.__str__())
@@ -243,6 +268,11 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
 
         result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
+
+        # print ("*__________ get_related_terms_ids __________*")
+        # print (result.query.__str__())
+        # print ("*___________________________________________*")
+
         return result
 
     def _get_terms_ids_cache_key(self, tree):
@@ -605,21 +635,14 @@ class EntityCharacteristicOrMarkInfo(object):
         self.tree_id = tree_id
         self.tree_left = tree_left
 
-    def __cmp__(self, other):
-        """
-        RUS: Сравнивает id деревьев тематической модели.
-        """
+    def __lt__(self, other):
         if self.tree_id == other.tree_id:
-            if self.tree_left == other.tree_left:
-                return 0
-            elif self.tree_left < other.tree_left:
-                return -1
-            else:
-                return 1
-        elif self.tree_id < other.tree_id:
-            return -1
+            return self.tree_left < other.tree_left
         else:
-            return 1
+            return self.tree_id < other.tree_id
+
+    def __eq__(self, other):
+        return self.tree_id == other.tree_id and self.tree_left == other.tree_left
 
     def __repr__(self):
         """
@@ -1244,6 +1267,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         RUS: Возвращает список id активных терминов.
         """
         return list(self.terms.active().values_list('id', flat=True))
+
+    @cached_property
+    def category(self):
+        """
+        ENG: Return object which is considered this object’s category. Override in child models.
+        RUS: Вернуть объект, который считается категорией этого объекта. Перекрывайте дочерних моделях.
+        """
+        return NotImplementedError()
 
     def get_data_mart(self):
         """

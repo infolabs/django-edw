@@ -14,38 +14,62 @@ class EntityIndex(indexes.SearchIndex):
     """
     Abstract base class used to index all entities for this edw
     """
-    entity_name = indexes.CharField(stored=True, indexed=True, model_attr='entity_name')
-    entity_model = indexes.CharField(stored=True, indexed=True, model_attr='entity_model')
+    entity_name = indexes.CharField(
+        stored=True,
+        indexed=True,
+        model_attr='entity_name',
+    )
+    entity_model = indexes.CharField(
+        stored=True,
+        indexed=True,
+        model_attr='entity_model',
+    )
 
-    # entity_url = indexes.CharField(stored=True, indexed=False, model_attr='get_absolute_url')
+    terms = indexes.MultiValueField(
+        stored=True,
+        indexed=True,
+        model_attr='active_terms_ids',
+    )
+    characteristics = indexes.MultiValueField(
+        stored=True,
+        indexed=True,
+    )
 
-    terms = indexes.MultiValueField(stored=True, indexed=True, model_attr='active_terms_ids')
+    text = indexes.CharField(
+        stored=True,
+        indexed=True,
+        document=True,
+        use_template=True,
+    )
+    categories = indexes.MultiValueField(
+        stored=True,
+        indexed=True,
+    )
 
-    text = indexes.CharField(document=True, use_template=True)
-
-    autocomplete = indexes.EdgeNgramField(use_template=True)
+    autocomplete = indexes.EdgeNgramField(
+        use_template=True,
+    )
 
     def get_model(self):
         """
-        Hook to refer to the used Entity model. Override this to create indices of
-        specialized entity models.
+        Hook to refer to the used Entity model.
+        Override this to create indices of specialized entity models.
         """
         return EntityModel
 
-    def prepare(self, obj):
+    def prepare(self, entity):
         """
         Fetches and adds/alters data before indexing.
         """
-        prepared_data = super(EntityIndex, self).prepare(obj)
-        prepared_data.update({
-            DJANGO_CT: get_model_ct(self.get_model()())
-        })
-
-        # print '-----------------------------'
-        # print prepared_data
-        # print '-----------------------------'
-
+        prepared_data = super(EntityIndex, self).prepare(entity)
+        prepared_data.update({DJANGO_CT: get_model_ct(self.get_model()())})
         return prepared_data
+
+    def prepare_characteristics(self, entity):
+        return [
+            '{}: {}'.format(term.name, ', '.join(term.values))
+            for term in entity.characteristics
+        ]
 
     '''
     def render_html(self, prefix, entity, postfix):
@@ -71,5 +95,4 @@ class EntityIndex(indexes.SearchIndex):
             self.language = using
         else:
             self.language = settings.LANGUAGE_CODE
-        return self.get_model().objects.all()
-
+        return self.get_model().objects.active()
