@@ -70,14 +70,19 @@ class Notification(models.Model):
 
     RECIPIENTS_EMPTY_CHOICES_VALUE = ('0', _("Nobody"))
 
+    """
+        "1":  "owner",
+        "2": "moderate_person",
+        "3": "responsible_person",
+        "4": "private_person",
+        "5": "auditory_persons",
+        "6": "regional_persons"
+    """
     RECIPIENTS_ROLES_CHOICES = (
         RECIPIENTS_EMPTY_CHOICES_VALUE,
-        #1: ('moder', _("Moderate person")),
-        #2: (2, _("Responsible person")),
-        #3: (3, _("Owner")),
-        #4: (4, _("Auditory")),
-        #5: (5, _("Geographical affiliation")),
+
     )
+
 
     SPLIT_CHARSET = ','
 
