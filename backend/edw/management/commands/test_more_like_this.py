@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 
 from collections import Counter
 
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext_lazy as _
 
 from haystack.utils import get_model_ct
 
@@ -13,18 +15,24 @@ from edw.search.classify import get_more_like_this, analyze_suggestions
 
 
 class Command(BaseCommand):
-    def show_entity_info(self, entity, suggestions, is_guessed, category_name, category_id):
-        print('Объект {}, категория {}'.format(entity.id, category_id))
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'entity_model',
+            help=_('Run tests against this entity model. Example: nash_region.particularproblem')
+        ),
+
+    def show_entity_info(self, entity, suggestions, is_guessed):
+        print('Объект {}, категория {}'.format(entity.id, entity.category.id))
 
         if suggestions:
             print('Текст:')
             print('  {}'.format(' '.join(entity.description.splitlines())))
             print('Правильная категория:')
-            print('  {}'.format(category_name))
+            print('  {}'.format(entity.category.entity_name))
 
             if is_guessed:
                 print('Определилась как:')
-                print('✓ ' + category_name)
+                print('✓ ' + entity.category.entity_name)
                 print()
                 pass
             else:
@@ -33,7 +41,7 @@ class Command(BaseCommand):
 
                 suggestion_coefficients = []
                 for i, suggestion in enumerate(suggestions):
-                    is_right = '→ ' if suggestion['category'] == category_name else ''
+                    is_right = '→ ' if suggestion['category'] == entity.category.entity_name else ''
                     suggestion_row = [is_right + suggestion['category'][:80]]
                     for key, value in suggestion['coefficients'].items():
                         suggestion_row.append(round(value, 2))
@@ -44,20 +52,22 @@ class Command(BaseCommand):
 
                 # Some kind of tabulate package replacement.
                 # Didn't want to bring another package in project just for this case
-                print(['category', *[key for key in suggestion['coefficients']]])
+                head_row = ['category']
+                for key in suggestion['coefficients']:
+                    head_row.append(key)
                 for row in suggestion_coefficients:
                     print(row)
 
                 print()
                 print('Сводка по словам:')
                 for i, suggestion in enumerate(suggestions):
-                    is_right = '→' if suggestion['category'] == category_name else ' '
-                    print(f'{is_right} {i+1}. {suggestion["category"]}')
+                    is_right = '→' if suggestion['category'] == entity.category.entity_name else ' '
+                    print('{is_right} {i+1}. {suggestion["category"]}'.format(**locals()))
 
                     print('     Самые весомые слова в полях:')
                     for field, words in suggestion['words'].items():
                         if words:
-                            print(f'       {field}: {words}')
+                            print('       {field}: {words}'.format(**locals()))
 
                     print()
 
@@ -95,16 +105,9 @@ class Command(BaseCommand):
         with `created_at__year__lt='2020'` instances
         """
 
-        # Not same for all models.
-        # Needs to be rewritten, but I don't know how to do it yet
-        model = apps.get_model('nash_region.particularproblem')
-        get_category_name = lambda entity: entity.typical_problem.name
-        get_category_id = lambda entity: entity.typical_problem.id
-
-        # Same for all models until the bottom of file
-
+        model = apps.get_model(options['entity_model'])
         entity_model = get_model_ct(model).split('.')[1]
-        queryset = EntityModel.objects \
+        queryset = model.objects \
             .instance_of(model) \
             .filter(active=True) \
             .filter(description__isnull=False) \
@@ -125,7 +128,7 @@ class Command(BaseCommand):
             suggestions = analyze_suggestions(search_result)
 
             if suggestions:
-                if suggestions[0]['category'] == get_category_name(entity):
+                if suggestions[0]['category'] == entity.category.entity_name:
                     is_guessed = True
                     total_info['guessed_right_count'] += 1
                     total_info['right_indexes'].append(1)
@@ -133,7 +136,7 @@ class Command(BaseCommand):
                 else:
                     is_guessed = False
                     for i, suggestion in enumerate(suggestions):
-                        if suggestion['category'] == get_category_name(entity):
+                        if suggestion['category'] == entity.category.entity_name:
                             total_info['right_indexes'].append(i + 1)
                             is_guessed = True
 
@@ -148,8 +151,6 @@ class Command(BaseCommand):
                 'entity': entity,
                 'suggestions': suggestions,
                 'is_guessed': is_guessed,
-                'category_id': get_category_id(entity),
-                'category_name': get_category_name(entity),
             }
 
             self.show_entity_info(**entity_info)

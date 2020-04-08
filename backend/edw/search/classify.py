@@ -6,7 +6,7 @@ from math import log
 from haystack import connections
 
 
-def get_more_like_this(text, entity_model, stop_words=None):
+def get_more_like_this(text, entity_model=None, stop_words=None):
     """
     Perform `more_like_this` query to find similar model instances.
 
@@ -20,32 +20,34 @@ def get_more_like_this(text, entity_model, stop_words=None):
     backend = connections['default'].get_backend()
 
     payload = {
-        "query": {
-            "bool": {
-                "filter": [
+        'query': {
+            'bool': {
+                'must': [
                     {
-                        "term": {
-                            "entity_model": entity_model,
-                        }
-                    },
-                ],
-                "must": [
-                    {
-                        "more_like_this": {
-                            "fields": ['text', 'category', 'characteristics'],
-                            "like": text,
-                            "min_term_freq": 1,
-                            "min_doc_freq": 1,
-                            "max_query_terms": 200,
-                            "minimum_should_match": "0%",
-                            "analyzer": "default",
-                            "stop_words": stop_words or []
+                        'more_like_this': {
+                            'fields': ['text', 'category', 'characteristics'],
+                            'like': text,
+                            'min_term_freq': 1,
+                            'min_doc_freq': 1,
+                            'max_query_terms': 200,
+                            'minimum_should_match': '0%',
+                            'analyzer': 'default',
+                            'stop_words': stop_words or []
                         }
                     }
                 ]
             }
         }
     }
+    if entity_model:
+        payload['query']['bool']['filter'] = [
+            {
+                'term': {
+                    'entity_model': entity_model,
+                }
+            }
+        ]
+
     search_result = backend.conn.search(
         body=payload,
         index=backend.index_name,
@@ -68,11 +70,17 @@ def analyze_suggestions(search_result):
     # Parse search result to get score and words per suggestion
     suggestions = []
     for hit in search_result['hits']['hits']:
+        # When querying all models at the same time,
+        # some of them may have [None] in category field,
+        # so we ignore them
+        categories = hit['_source']['categories']
+        if not categories:
+            continue
+
         suggestion = {
-            'coefficients': {
-                'score': hit['_score'],
-            },
-            'category': hit['_source']['categories'][0],
+            'coefficients': {'score': hit['_score']},
+            'category': categories[0],
+            'source': hit['_source'],
             'words': {},
         }
 
@@ -109,31 +117,14 @@ def analyze_suggestions(search_result):
     for suggestion in suggestions:
         category = suggestion['category']
 
-        # Will become arithmetic mean
         if suggestion['category'] in category_score_sums:
             category_score_sums[category] += suggestion['coefficients']['score']
         else:
             category_score_sums[category] = suggestion['coefficients']['score']
 
-        # Will become geometric mean
-        if suggestion['category'] in category_score_mults:
-            category_score_mults[category] *= suggestion['coefficients']['score']
-        else:
-            category_score_mults[category] = suggestion['coefficients']['score']
-
     for suggestion in suggestions:
         category = suggestion['category']
-
-        # Calculate arithmetic mean
         suggestion['coefficients']['score_sum'] = category_score_sums[category]
-        suggestion['coefficients']['arithmetic_mean'] = category_score_sums[category] / category_counter[category]
-
-        # Calculate geometric mean
-        suggestion['coefficients']['score_mult'] = category_score_mults[category]
-        suggestion['coefficients']['geometric_mean'] = pow(category_score_mults[category], 1 / category_counter[category])
-
-        # Draft weight calculating algorithm
-        suggestion['coefficients']['foobar_mean'] = suggestion['coefficients']['arithmetic_mean'] * log(suggestion['coefficients']['count'] + 1)
 
     # Sort by coefficient
     suggestions = sorted(
