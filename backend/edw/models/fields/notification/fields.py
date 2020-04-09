@@ -7,7 +7,7 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core import exceptions
 
-from edw.forms.notification import MultiSelectFormField
+from edw.admin.notification.forms import MultiSelectFormField
 
 
 if sys.version_info < (3,):
@@ -38,6 +38,7 @@ class MaxValueMultiFieldValidator(validators.MaxLengthValidator):
 
     def clean(self, x):
         return len(','.join(x))
+
 
 
 class MultiSelectField(models.CharField):

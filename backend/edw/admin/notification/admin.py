@@ -12,7 +12,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.notification import NotificationAttachment
-from edw.forms.notification import NotificationForm, SelectMultiple
+from edw.admin.notification.forms import NotificationForm
+from edw.admin.notification.widgets import SelectMultiple
 
 
 class NotificationAttachmentAdmin(admin.TabularInline):
