@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import json
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
