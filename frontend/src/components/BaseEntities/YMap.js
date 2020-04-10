@@ -53,7 +53,7 @@ function getRegionsStyle(osm, osmRegion){
           g += color[1];
           b += color[2];
         });
-        osm.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.08)`;
+        osm.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.3)`;
       } else {
         osm.colors = osm.colors[0];
       }
@@ -213,6 +213,7 @@ export class YMapInner extends AbstractMap {
         colors : []
       };
 
+      //todo: add short_marks
       for (const sm of item.short_characteristics) {
         for (const cl of sm.view_class) {
           if (cl.startsWith(osmAddrPattern)) {
@@ -264,7 +265,7 @@ export class YMapInner extends AbstractMap {
       } else {
         marker.options = {
           preset: 'islands#dotIcon',
-          iconColor: '#' + pinColor,
+          iconColor: pinColor,
           hideIconOnBalloonOpen: false
         };
       }
