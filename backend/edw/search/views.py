@@ -34,21 +34,30 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
     #     return [self.request.current_page.get_template()]
 
 
-def more_like_this(request, entity_model=None):
+def more_like_this(request):
     results = []
     text = request.GET.get('q')
+    entity_model = request.GET.get('m')
     if text:
+        import pdb; pdb.set_trace()
+
         search_result = get_more_like_this(text, entity_model)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:
-            suggestion_data = {
-                'id': suggestion['source']['django_id'],
-                'model': suggestion['source']['django_ct'],
-                'title': suggestion['category'],
-                'url': 'https://google.com/',  # TODO
-            }
-            results.append(suggestion_data)
+            entity_id = suggestion['source']['django_id']  # Just for detail URL
+            try:
+                entity = EntityModel.objects.get(id=entity_id)
+            except EntityModel.DoesNotExist:
+                pass
+            else:
+                suggestion_data = {
+                    'id': suggestion['source']['django_id'],
+                    'model': suggestion['source']['django_ct'],
+                    'title': suggestion['category'],
+                    'url': entity.get_detail_url()
+                }
+                results.append(suggestion_data)
 
     return HttpResponse(
         json.dumps({'results': results}),
