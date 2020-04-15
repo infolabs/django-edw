@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import re
 from functools import reduce
 from operator import __or__ as OR
+from math import ceil
 
 from django.core.cache import cache
 from django.core.exceptions import (
@@ -89,7 +90,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     """
     RUS: Запрос к базовой сущности базы данных.
     """
-    SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT = edw_settings.SEMANTIC_FILTER['fast_subquery_results_limit']
+    SEMANTIC_FILTERS_CHUNK_LIMIT = edw_settings.SEMANTIC_FILTER['filters_chunk_limit']
     GROUP_SIZE_ALIAS = 'group_size'
     _JOIN_INDEX_KEY = '_join_idx'
 
@@ -136,111 +137,94 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         tree = decompress(value, fix_it=True)
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
+
+        result = self
         filters_cnt = len(filters)
         if filters_cnt:
             """
             # Pythonic, but working to slow, try refactor queryset
             """
-
             # result = self.filter(filters[0])
             # for x in filters[1:]:
             #     result = result.filter(x)
             # result = result.distinct()
 
-            # print ("*********** ORIGIN QS *************")
-            # print (result.query.__str__())
-            # print ("*********************************")
+            base_model = next(get_polymorphic_ancestors_models(self.model))
+            pk_alias = self.model._meta.pk.get_attname_column()[1]
 
-            outer_qs = self
-            base_model = next(get_polymorphic_ancestors_models(outer_qs.model))
+            # формируем пачки из фильтров, это позволяет СУБД формировать более оптимальный план запроса
+            j = i = filters_cnt / ceil(filters_cnt / self.SEMANTIC_FILTERS_CHUNK_LIMIT)
+            chunked_filters = []
+            start = 0
+            while j < filters_cnt:
+                stop = round(j)
+                chunked_filters.append(filters[start:stop])
+                j += i
+                start = stop
+            chunked_filters.append(filters[start:])
 
-            base_qs = base_model.objects.all().filter(filters[0])
+            # формируем запрос
+            for filters_chunk in chunked_filters:
+                base_qs = base_model.objects.all().filter(filters_chunk[0])
+                for x in filters_chunk[1:]:
+                    base_qs = base_qs.filter(x)
 
-            for x in filters[1:]:
-                base_qs = base_qs.filter(x)
+                base_qs = base_qs.distinct().values_list('id', flat=True)
 
-            # # todo: оценитьь "сложность запроса" complexity
-            # print ("++++++++++++++++++++")
-            # print ("+++ JOIN COUNT +++", filters_cnt)
-            # print ("++++++++++++++++++++")
+                try:
+                    base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
+                except EmptyResultSet:
+                    result = []
+                else:
+                    idx = result.query.get_context(self._JOIN_INDEX_KEY, 1)
 
-            base_qs = base_qs.distinct().values_list('id', flat=True)
+                    inner_model = getattr(base_qs.model, field_name).through
+                    outer_table = base_qs.query.get_initial_alias()
+                    inner_table = inner_model.objects.all().query.get_initial_alias()
 
-            try:
-                base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
-            except EmptyResultSet:
-                result = []
-            else:
-                idx = self.query.get_context(self._JOIN_INDEX_KEY, 1)
+                    entity_alias = "{}_id".format(base_model._meta.object_name.lower())
 
-                inner_model = getattr(base_qs.model, field_name).through
-                outer_table = base_qs.query.get_initial_alias()
-                inner_table = inner_model.objects.all().query.get_initial_alias()
+                    # Make safe names
+                    db_ops = connections[self.db].ops
+                    qn = db_ops.quote_name
+                    safe_inner_table, safe_outer_table, safe_entity_alias = [
+                        qn(x) for x in (inner_table, outer_table, entity_alias)
+                    ]
 
-                entity_alias = "{}_id".format(base_model._meta.object_name.lower())
+                    # Aliases for inner subquery and nested first table
+                    sk_alias = qn("sk{}".format(idx))
+                    s = inner_model._meta.object_name.upper()
+                    inner_table_alias = "{}{}".format(s, idx)
+                    join_alias = "{}_IJ{}".format(s, idx)
 
-                # Make safe names
-                db_ops = connections[self.db].ops
-                qn = db_ops.quote_name
-                safe_inner_table, safe_outer_table, safe_entity_alias = [
-                    qn(x) for x in (inner_table, outer_table, entity_alias)
-                ]
+                    # Black magic, transform queryset
+                    regex = re.compile("{}.+?(\s+FROM\s+){}(.+?)INNER\s+JOIN\s+{}\s+ON.+?\)\s*".format(
+                        safe_outer_table, safe_outer_table, safe_inner_table), re.IGNORECASE)
+                    raw_sql = regex.sub(r'{}.{} AS {}\1{} AS {}\2'.format(
+                        inner_table_alias, safe_entity_alias, sk_alias, safe_inner_table, inner_table_alias
+                    ), base_raw_sql, 1).replace(
+                        '{}.{}'.format(safe_outer_table, qn("id")), '{}.{}'.format(inner_table_alias, safe_entity_alias)
+                    ).replace('{}.'.format(safe_inner_table), '{}.'.format(inner_table_alias))
 
-                # Aliases for inner subquery and nested first table
-                sk_alias = qn("sk{}".format(idx))
-                s = inner_model._meta.object_name.upper()
-                inner_table_alias = "{}{}".format(s, idx)
-                join_alias = "{}_IJ{}".format(s, idx)
+                    # Make inner queryset
+                    inner_qs = inner_model.objects.raw(raw_sql, sql_params)
 
-                # Black magic, transform queryset
-                regex = re.compile("{}.+?(\s+FROM\s+){}(.+?)INNER\s+JOIN\s+{}\s+ON.+?\)\s*".format(
-                    safe_outer_table, safe_outer_table, safe_inner_table), re.IGNORECASE)
-                raw_sql = regex.sub(r'{}.{} AS {}\1{} AS {}\2'.format(
-                    inner_table_alias, safe_entity_alias, sk_alias, safe_inner_table, inner_table_alias
-                ), base_raw_sql, 1).replace(
-                    '{}.{}'.format(safe_outer_table, qn("id")), '{}.{}'.format(inner_table_alias, safe_entity_alias)
-                ).replace('{}.'.format(safe_inner_table), '{}.'.format(inner_table_alias))
+                    # TODO: оптимизировать запрос за счёт получения списка id объектов
+                    # cursor = connection.cursor()
+                    # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
+                    #                sql_params)
+                    # ids = [item[0] for item in cursor.fetchall()]
+                    # ids_cnt = len(ids)
+                    # if ids_cnt < self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT:
+                    #     result = result.filter(id__in=ids) if ids_cnt else self.filter(id=None)
+                    # else:
+                    #     result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
 
-                # print ("========= RESULT INNER ==========")
-                # print (raw_sql % sql_params)
+                    # Make queryset
+                    result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
 
-                # Make inner queryset
-                inner_qs = inner_model.objects.raw(raw_sql, sql_params)
+                    result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
 
-                # # TODO: оптимизировать запрос за счёт получения списка id объектов
-                #
-                # # try simplify query
-                # cursor = connection.cursor()
-                # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
-                #                sql_params)
-                #
-                #
-                # ids = [item[0] for item in cursor.fetchall()]
-                #
-                # ids_cnt = len(ids)
-                #
-                # if ids_cnt < self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT:
-                #     result = outer_qs.filter(id__in=ids) if ids_cnt else outer_qs.filter(id=None)
-                #
-                #     print ("---------------------------------")
-                #     print(ids , ids_cnt)
-                # else:
-                #
-                #     # Make queryset
-                #     result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias,
-                #                                  join_alias)
-
-                # Make queryset
-                result = outer_qs.inner_join(inner_qs, outer_qs.model._meta.pk.get_attname_column()[1], sk_alias,
-                                             join_alias)
-
-                # print ("*********** RESULT QS *************")
-                # print (result.query.__str__())
-                # print ("***********************************")
-
-                result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
-        else:
-            result = self
         result.semantic_filter_meta = tree
         return result
 
@@ -268,10 +252,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
 
         result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
-
-        # print ("*__________ get_related_terms_ids __________*")
-        # print (result.query.__str__())
-        # print ("*___________________________________________*")
 
         return result
 

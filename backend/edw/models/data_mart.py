@@ -456,7 +456,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             active_terms_ids = DataMartModel.terms.through.objects.distinct().filter(term__active=True).values_list(
                 'term__id', flat=True)
             result = list(TermModel.decompress(active_terms_ids, fix_it=False).keys())
-            cache.set(key, list(result), BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
+            cache.set(key, result, BaseDataMart.ALL_ACTIVE_TERMS_CACHE_TIMEOUT)
         return result
 
     @staticmethod
