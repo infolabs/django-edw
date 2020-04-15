@@ -31,7 +31,8 @@ class EntityImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_file_size(self, instance):
-        return instance.image._file_size
+        #return instance.image._file_size
+        return instance.image.size
 
     def get_original_filename(self, instance):
         return instance.image.original_filename

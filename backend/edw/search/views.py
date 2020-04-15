@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
+from django.http import HttpResponse
 from rest_framework.mixins import ListModelMixin
 
 from drf_haystack.generics import HaystackGenericAPIView
@@ -9,9 +12,10 @@ from drf_haystack.viewsets import ViewSetMixin
 from edw.models.entity import EntityModel
 from edw.search.serializers import EntitySearchSerializer
 from edw.search.filters import HaystackTermFilter
+from edw.search.classify import get_more_like_this, analyze_suggestions
 
 
-class EntitySearchViewSet(ListModelMixin,ViewSetMixin, HaystackGenericAPIView):
+class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
     """
     A generic view to be used for rendering the result list while searching.
     """
@@ -28,3 +32,34 @@ class EntitySearchViewSet(ListModelMixin,ViewSetMixin, HaystackGenericAPIView):
     #
     # def get_template_names(self):
     #     return [self.request.current_page.get_template()]
+
+
+def more_like_this(request):
+    results = []
+    text = request.GET.get('q')
+    entity_model = request.GET.get('m')
+    if text:
+        import pdb; pdb.set_trace()
+
+        search_result = get_more_like_this(text, entity_model)
+        suggestions = analyze_suggestions(search_result)
+
+        for suggestion in suggestions:
+            entity_id = suggestion['source']['django_id']  # Just for detail URL
+            try:
+                entity = EntityModel.objects.get(id=entity_id)
+            except EntityModel.DoesNotExist:
+                pass
+            else:
+                suggestion_data = {
+                    'id': suggestion['source']['django_id'],
+                    'model': suggestion['source']['django_ct'],
+                    'title': suggestion['category'],
+                    'url': entity.get_detail_url()
+                }
+                results.append(suggestion_data)
+
+    return HttpResponse(
+        json.dumps({'results': results}),
+        content_type='application/json'
+    )

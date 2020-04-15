@@ -1248,6 +1248,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return list(self.terms.active().values_list('id', flat=True))
 
+    @cached_property
+    def category(self):
+        """
+        ENG: Return object which is considered this object’s category. Override in child models.
+        RUS: Вернуть объект, который считается категорией этого объекта. Перекрывайте дочерних моделях.
+        """
+        return NotImplementedError()
+
     def get_data_mart(self):
         """
         ENG: Return entity data mart.

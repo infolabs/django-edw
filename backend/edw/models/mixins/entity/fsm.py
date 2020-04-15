@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import transaction
 from django.utils.encoding import force_text
 
-from edw.models.customer import CustomerModel
 from edw.models.mixins.entity import get_or_create_model_class_wrapper_term, ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN
 from edw.models.term import TermModel
 
@@ -41,23 +40,6 @@ class FSMMixin(object):
         RUS: Возвращает удобочитаемое имя для данного целевого объекта перехода.
         """
         return target
-
-    def get_email_recipients(self, notification_recipient):
-        """
-        RUS: Отправляет уведомление получателям на электронную почту.
-        """
-        if notification_recipient is None or not hasattr(self, 'customer') or getattr(self, 'customer') is None:
-            return []
-        if notification_recipient == 0:
-            customer = getattr(self, 'customer')
-            return [customer.email]
-        return [CustomerModel.objects.get(pk=notification_recipient).email]
-
-    def get_push_recipients(self, notification_recipient):
-        """
-        RUS: Отправляет PUSH уведомление получателям.
-        """
-        return []
 
     def state_name(self):
         """
