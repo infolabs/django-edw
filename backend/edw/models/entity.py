@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from __future__ import division
 
 import re
 from functools import reduce
@@ -54,6 +55,10 @@ from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
 from ..utils.set_helpers import uniq
 
+# округление в стиле python 3
+if six.PY2:
+    _round = round
+    round = lambda x: int(_round(x))
 
 #==============================================================================
 # get_polymorphic_ancestors_models
