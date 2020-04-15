@@ -21,7 +21,7 @@ from django.utils.six.moves.urllib.parse import urlparse
 from django.utils import translation
 
 from edw.models.mixins.notification import NotificationMixin
-from edw.models.fields.notification.fields import MultiSelectField
+from edw.models.fields.notification import MultiSelectField
 from edw.settings import APP_LABEL
 
 if getattr(settings, 'FIREBASE_KEY_PATH', None):
