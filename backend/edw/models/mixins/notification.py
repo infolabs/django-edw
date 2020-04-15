@@ -38,7 +38,7 @@ class NotificationMixin(ModelMixin):
         if not NotificationMixin._notification_classes.get(cls.__name__):
             NotificationMixin._notification_classes[cls.__name__] = cls
 
-        return super(NotificationMixin, cls).__new__(cls, *args, **kwargs)
+        return super(NotificationMixin, cls).__new__(cls)
 
     def send_notification(self, source, target):
         """
