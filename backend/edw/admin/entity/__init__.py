@@ -65,6 +65,10 @@ DISABLED_ACTIONS = [
 ]
 
 
+if six.PY3:
+    unicode = str
+
+
 def filter_actions(request, actions):
     """
      Фильтр разграничения прав доступа к выполнению задач в зависимости от категорий пользователя

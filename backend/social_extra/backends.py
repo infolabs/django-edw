@@ -70,7 +70,7 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         destination_file.close()
 
         # openssl compiled with gost 2012 support
-        cmd = '/usr/local/ssl/bin/openssl smime -sign -md sha256 -signer {cert} -engine gost -in {f_in} -out {f_out} -outform DER'
+        cmd = 'LD_LIBRARY_PATH=/usr/local/ssl/lib/ /usr/local/ssl/bin/openssl smime -sign -md sha256 -signer {cert} -engine gost -in {f_in} -out {f_out} -outform DER'
 
         os.system(cmd.format(
             f_in=source_path,
