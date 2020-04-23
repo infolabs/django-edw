@@ -85,16 +85,16 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
         return super(EntityViewSet, self).initialize_request(*args, **kwargs)
 
     def initial(self, request, data_mart_pk=None, *args, **kwargs):
+        if self.action in ('retrieve', 'list'):
+            request.GET.setdefault('active', True)
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         if hasattr(self.extra_serializer_context, '__call__'):
             self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)
+        #todo: что делать с витриной по умолчанию?
         if self.data_mart_pk is not None:
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
-
-        if self.action in ('retrieve', 'list'):
-            request.GET.setdefault('active', True)
 
     @detail_route(filter_backends=(), url_path='data-mart')
     def data_mart(self, request, format=None, **kwargs):
