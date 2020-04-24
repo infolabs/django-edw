@@ -23,4 +23,5 @@ def make_terms_by_additional_attrs(modeladmin, request, queryset):
         entities_make_terms_by_additional_attrs, title, CHUNK_SIZE
     )
 
+
 make_terms_by_additional_attrs.short_description = _("Make terms by additional attributes for selected %(verbose_name_plural)s")

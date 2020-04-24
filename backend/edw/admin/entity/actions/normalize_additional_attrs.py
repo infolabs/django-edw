@@ -23,4 +23,5 @@ def normalize_additional_attrs(modeladmin, request, queryset):
         normalize_entities_additional_attrs, title, CHUNK_SIZE
     )
 
+
 normalize_additional_attrs.short_description = _("Normalize additional attributes for selected %(verbose_name_plural)s")

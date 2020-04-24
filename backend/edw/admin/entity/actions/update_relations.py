@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.utils import six
 from django.conf import settings
 try:
     from django.utils.encoding import force_unicode as force_text
@@ -52,10 +53,10 @@ def update_relations(modeladmin, request, queryset):
                         modeladmin.log_change(request, obj, obj_display)
 
                     tasks.append(update_entities_relations.si([x.id for x in chunk],
-                                              to_set_term.id if to_set_term else None,
-                                              [x.id for x in to_set_targets],
-                                              to_unset_term.id if to_unset_term else None,
-                                              [x.id for x in to_unset_targets]))
+                                 to_set_term.id if to_set_term else None,
+                                 [x.id for x in to_set_targets],
+                                 to_unset_term.id if to_unset_term else None,
+                                 [x.id for x in to_unset_targets]))
 
                     i += CHUNK_SIZE
 
@@ -88,7 +89,9 @@ def update_relations(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
     return TemplateResponse(request, "edw/admin/entities/actions/update_relations.html",
-                            context, current_app=modeladmin.admin_site.name)
+                            context, **kwargs)
+
 
 update_relations.short_description = _("Modify relation for selected %(verbose_name_plural)s")

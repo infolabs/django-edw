@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.utils import six
 from django.core.cache import cache
 from django.conf import settings
 try:
@@ -66,9 +67,9 @@ def update_images(modeladmin, request, queryset):
                         cache.delete_many(keys)
 
                     tasks.append(update_entities_images.si(entities_ids,
-                                           [j.id for j in to_set] if to_set else None,
-                                           to_set_order if to_set_order else 0,
-                                           [j.id for j in to_unset] if to_unset else None))
+                                 [j.id for j in to_set] if to_set else None,
+                                 to_set_order if to_set_order else 0,
+                                 [j.id for j in to_unset] if to_unset else None))
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()
@@ -100,7 +101,9 @@ def update_images(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
     return TemplateResponse(request, "edw/admin/entities/actions/update_images.html",
-                            context, current_app=modeladmin.admin_site.name)
+                            context, **kwargs)
+
 
 update_images.short_description = _("Modify images for selected %(verbose_name_plural)s")

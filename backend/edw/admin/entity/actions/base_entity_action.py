@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.utils import six
 try:
     from django.utils.encoding import force_unicode as force_text
 except ImportError:
@@ -75,5 +76,6 @@ def base_entity_action(modeladmin, request, queryset, action, action_task, title
         'action': action
     }
     # Display the confirmation page
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
     return TemplateResponse(request, "edw/admin/entities/actions/base_multiply_entities_action.html",
-                            context, current_app=modeladmin.admin_site.name)
+                            context, **kwargs)

@@ -22,4 +22,5 @@ def force_validate(modeladmin, request, queryset):
         modeladmin, request, queryset, 'force_validate', entities_force_validate, title, CHUNK_SIZE
     )
 
+
 force_validate.short_description = _("Save with force validate terms for selected %(verbose_name_plural)s")

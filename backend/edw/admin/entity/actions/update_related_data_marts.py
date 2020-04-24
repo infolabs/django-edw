@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.utils import six
 from django.conf import settings
 try:
     from django.utils.encoding import force_unicode as force_text
@@ -74,8 +75,6 @@ def update_related_data_marts(modeladmin, request, queryset):
     else:
         objects_name = force_text(opts.verbose_name_plural)
 
-
-
     title = _("Update related data marts for multiple entities")
     context = {
         "title": title,
@@ -88,7 +87,9 @@ def update_related_data_marts(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
     return TemplateResponse(request, "edw/admin/entities/actions/update_related_data_marts.html",
-                            context, current_app=modeladmin.admin_site.name)
+                            context, **kwargs)
+
 
 update_related_data_marts.short_description = _("Modify related data marts for selected %(verbose_name_plural)s")

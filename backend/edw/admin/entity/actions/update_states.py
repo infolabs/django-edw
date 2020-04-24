@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
+from django.utils import six
 from django.conf import settings
 try:
     from django.utils.encoding import force_unicode as force_text
@@ -87,7 +88,9 @@ def update_states(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
     return TemplateResponse(request, "edw/admin/entities/actions/update_states.html",
-                            context, current_app=modeladmin.admin_site.name)
+                            context, **kwargs)
+
 
 update_states.short_description = _("Modify state for selected %(verbose_name_plural)s")
