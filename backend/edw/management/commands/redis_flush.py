@@ -5,11 +5,11 @@ from subprocess import check_call
 from celery import current_app
 
 from django.conf import settings
-from django.core.management.base import NoArgsCommand, CommandError
+from django.core.management.base import BaseCommand, CommandError
 
 
-class Command(NoArgsCommand):
-    def handle_noargs(self, **options):
+class Command(BaseCommand):
+    def handle(self, **options):
         possible_executables = [
             'redis-cli',
             '/usr/bin/redis-cli',

@@ -92,7 +92,7 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     @cached_property
     def code_pattern(self):
         raw_patterns = re.split(r'\s+', self.postal_codes.strip())
-        patterns = [re.sub(r'_+', '\s+', re.sub(r'\*', '.*?', re.sub(r'\?', '.', x))) for x in raw_patterns]
+        patterns = [re.sub(r'_+', '\\\s+', re.sub(r'\*', '.*?', re.sub(r'\?', '.', x))) for x in raw_patterns]
         return r'^(?:%s)$' % '|'.join(patterns)
 
     def is_postal_code_match(self, code):
