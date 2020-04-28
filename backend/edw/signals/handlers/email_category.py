@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import itertools
 from operator import __or__ as OR
 
+from django.utils import six
 from django.db.models import Q
 from django.db.models.signals import pre_delete, pre_save
 
@@ -12,6 +13,10 @@ from edw.models.customer import CustomerModel
 from edw.models.mixins.entity.customer_category import CustomerCategoryMixin
 from edw.models.email_category import EmailCategoryModel
 from edw.signals import make_dispatch_uid
+
+
+if six.PY3:
+    from functools import reduce
 
 
 # ==============================================================================
