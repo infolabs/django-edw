@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.utils.translation import ugettext_lazy as _
 
 
 #==============================================================================
@@ -34,8 +35,16 @@ class CustomerChangeForm(UserChangeForm):
         super(CustomerChangeForm, self).__init__(initial=initial, *args, **kwargs)
 
     def clean_email(self):
-        # nullify empty email field in order to prevent unique index collisions
-        return self.cleaned_data.get('email').strip() or None
+        email = self.cleaned_data.get('email').strip()
+        if not email:
+            # nullify empty email field in order to prevent unique index collisions
+            return None
+
+        if get_user_model().objects.filter(email=email).exists():
+            msg = _("A customer with the e-mail address ‘{email}’ already exists.")
+            raise forms.ValidationError(msg.format(email=email))
+
+        return email
 
     def save(self, commit=False):
         self.instance.email = self.cleaned_data['email']

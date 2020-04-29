@@ -308,11 +308,20 @@ class ActivationView(APIView):
             User.USERNAME_FIELD: username,
             'is_active': False
         }
-        try:
-            user = User.objects.get(**lookup_kwargs)
-            return user
-        except User.DoesNotExist:
+
+        # If, due to a browser glitch, there were more than one user created
+        # return the oldest one and delete others
+        users = User.objects.filter(**lookup_kwargs).order_by('-date_joined')
+        print(users)
+        if not len(users):
             return None
+        elif len(users) == 1:
+            return users[0]
+        elif len(users) > 1:
+            ret = users[0]
+            for u in users[1:]:
+                u.delete()
+            return ret
 
     def activate(self, request, *args, **kwargs):
         # This is safe even if, somehow, there's no activation key,
