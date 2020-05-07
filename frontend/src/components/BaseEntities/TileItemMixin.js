@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
 
 
-export default class TileItemMixin extends Component{
+const TileItemMixin = Base => class extends Base {
 
   constructor(){
     super();
@@ -162,7 +162,10 @@ export default class TileItemMixin extends Component{
               {itemContent}
             </div>
           </div>
-        </div> )
+        </div>
+      )
     }
   }
-}
+};
+
+export default TileItemMixin

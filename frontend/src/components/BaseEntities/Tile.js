@@ -24,7 +24,7 @@ export default class Tile extends Component {
 
 // Element
 
-class TileItem extends TileItemMixin {
+class TileItem extends TileItemMixin(Component) {
 
   render() {
     const { data, position, meta, descriptions } = this.props,
