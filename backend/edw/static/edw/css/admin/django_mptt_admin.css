@@ -148,7 +148,7 @@ span.jqtree-dragging {
     #tree.block-style ul.jqtree-tree ul.jqtree_common {
       margin-left: 2em; }
     #tree.block-style ul.jqtree-tree .jqtree-element {
-      margin-bottom: 8px;
+      /*margin-bottom: 8px;*/
       background-color: #eee;
       padding: 8px; }
       #tree.block-style ul.jqtree-tree .jqtree-element .jqtree-title {
