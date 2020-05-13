@@ -806,6 +806,8 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
             validated_data.pop(key, None)
         instance, is_created = self._update_or_create_instance(self.Meta.model, self.get_id_attrs(), validated_data)
         self._update_entity(instance, is_created, origin_validated_data)
+        # Добавляем признак нового объекта в возвращаемую инстанция, для использования в перекрываемом методе create
+        instance._is_created = is_created
         return instance
 
     def update(self, instance, validated_data):
