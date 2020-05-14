@@ -26,7 +26,7 @@ export default class TermsTreeItemInfo extends Component {
     let description = term.short_description;
     if (info_expanded[term.id]) {
       if (details[term.id]) 
-        description = details[term.id].description
+        description = details[term.id].description;
       else
         actions.getTermsItem(term.url)
     }
@@ -35,9 +35,9 @@ export default class TermsTreeItemInfo extends Component {
       <span className="ex-description-wrapper">
         <i className="ex-icon-info"
            title="Info"
-           onClick={e => { ::this.handleIconClick(e)}}></i>
+           onClick={e => { ::this.handleIconClick(e)}}/>
         <div className={info_expanded[term.id] ? "ex-baloon ex-baloon-show" : "ex-baloon ex-baloon-hide"}>
-          <div className="ex-arrow"></div>
+          <div className="ex-arrow"/>
           <button type="button"
                 className="ex-close"
                 onClick={e => { ::this.handleCloseClick(e)}}>×</button>

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Actions from '../../actions/index'
 import Entities from 'components/Entities';
-import TermsTree from 'components/TermsTree';
+import Filters from 'components/Filters';
 import Paginator from 'components/Paginator';
 import ViewComponents from 'components/ViewComponents';
 import Ordering from 'components/Ordering';
@@ -47,9 +47,7 @@ export class DataMart extends Component {
         }
       }
     }
-
   }
-
 
   render() {
 
@@ -60,15 +58,15 @@ export class DataMart extends Component {
         {
           Object.keys(entry_points).length > 1 &&
             <div className="col-sm-12 col-md-12">
-                <DataMartsList
-                  entry_points={entry_points}
-                  entry_point_id={entry_point_id}
-                  actions={actions}
-                />
+              <DataMartsList
+                entry_points={entry_points}
+                entry_point_id={entry_point_id}
+                actions={actions}
+              />
             </div>
         }
-        <div className="col-sm-4 col-md-3 sidebar-filter">
-          <TermsTree entry_points={entry_points} entry_point_id={entry_point_id} />
+        <div className="col-sm-4 col-md-3 sidebar-filter ex-filters d-flex flex-column">
+          <Filters entry_points={entry_points} entry_point_id={entry_point_id}/>
         </div>
         <div className="col-sm-8 col-md-9">
           <div className="row">

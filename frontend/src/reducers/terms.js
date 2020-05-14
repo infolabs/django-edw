@@ -437,6 +437,15 @@ function realPotential(state = new RealPotentialItems({}), action) {
   }
 }
 
+const filters = (state = {active: false}, action) => {
+  switch (action.type) {
+    case consts.TOGGLE_FILTERS:
+      return {...state, active: !state.active};
+    default:
+      return state;
+  }
+};
+
 
 const terms = combineReducers({
     tree: tree,
@@ -445,7 +454,8 @@ const terms = combineReducers({
     tagged: tagged,
     expanded: expanded,
     info_expanded: infoExpanded,
-    real_potential: realPotential
+    real_potential: realPotential,
+    filters
 });
 
 

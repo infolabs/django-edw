@@ -30,15 +30,8 @@ export default class TermsTreeItem extends Component {
   render() {
 
     const props = this.props,
-          term = props.term,
-          details = props.details,
-          actions = props.actions,
-          tagged = props.tagged,
-          expanded = props.expanded,
-          info_expanded = props.info_expanded,
-          real_potential = props.real_potential,
-          children = term.children,
-          parent = term.parent;
+          {term, details, actions, tagged, expanded, info_expanded, real_potential} = props,
+          {children, parent} = term;
 
     let render_item = "",
         reset_icon = "",
@@ -82,7 +75,7 @@ export default class TermsTreeItem extends Component {
 
       render_item = (
         <span className="ex-label" onClick={e => { ::this.handleItemClick(e) } } >
-          <i className="ex-icon-slug"></i>
+          <i className="ex-icon-slug"/>
           {term.name}
         </span>
       );
@@ -95,7 +88,7 @@ export default class TermsTreeItem extends Component {
         reset_item = (
           <li className={reset_class}>
               <span className="ex-label" onClick={e => { ::this.handleResetItemClick(e) } } >
-                <i className="ex-icon-slug"></i>
+                <i className="ex-icon-slug"/>
                 { gettext("All") }
               </span>
           </li>
@@ -106,7 +99,7 @@ export default class TermsTreeItem extends Component {
           tagged.isAnyTagged(children)) {
         reset_icon = (
           <i onClick={e => { ::this.handleResetBranchClick(e) } }
-             className="ex-icon-reset"></i>
+             className="ex-icon-reset"/>
         );
       }
 
@@ -129,14 +122,14 @@ export default class TermsTreeItem extends Component {
                      info_expanded={info_expanded}
                      real_potential={real_potential}
                      actions={actions}/>)
-    )
+    );
 
     let li_clasname = semantic_class + " " + state_class + " ";
     if (real_potential.has_metadata && !real_potential.rils[term.id]) {
       li_clasname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
     }
 
-    let ret = <li className="ex-empty"></li>;
+    let ret = <li className="ex-empty"/>;
     if (render_item == "") {
       ret = <li className="ex-empty"><ul>{render_children}</ul></li>;
     } else {

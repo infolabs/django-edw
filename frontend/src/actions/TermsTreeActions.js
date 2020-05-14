@@ -2,6 +2,7 @@ import {
     LOAD_ITEM,
     LOAD_TREE,
     RELOAD_TREE,
+    TOGGLE_FILTERS,
     TOGGLE_ITEM,
     RESET_ITEM,
     RESET_BRANCH,
@@ -85,6 +86,9 @@ export function readTree(mart_id, selected = []) {
   }
 }
 
+export const toggleFilters = () => dispatch => {
+  dispatch({type: TOGGLE_FILTERS})
+};
 
 export function toggle(term = {}) {
   return dispatch => {
