@@ -88,7 +88,6 @@ def invalidate_term_before_save(sender, instance, **kwargs):
 
                     keys.extend(get_all_active_attributes_descendants_keys(sender))
                     instance._all_active_attributes_descendants_validate = True
-
                     cache.delete_many(keys)
 
                 if original.attributes != instance.attributes or (
@@ -99,11 +98,12 @@ def invalidate_term_before_save(sender, instance, **kwargs):
                     if not getattr(instance, '_all_active_attributes_descendants_validate', False):
                         keys.extend(get_all_active_attributes_descendants_keys(sender))
                         instance._all_active_attributes_descendants_validate = True
-
                     cache.delete_many(keys)
 
         except sender.DoesNotExist:
             pass
+    else:
+        TermModel.clear_children_buffer()  # Clear children buffer
 
 
 def invalidate_term_after_save(sender, instance, **kwargs):
