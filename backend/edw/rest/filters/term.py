@@ -5,7 +5,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 
 import rest_framework_filters as filters
 try:
@@ -15,6 +14,7 @@ except ImportError:
 
 from edw.models.term import BaseTerm, TermModel
 from edw.models.data_mart import DataMartModel
+from edw.views.generics import get_object_or_404
 from edw.rest.filters.decorators import get_from_underscore_or_data
 
 

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.apps import apps
-from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework_filters.backends import DjangoFilterBackend
@@ -26,6 +25,8 @@ from edw.rest.serializers.entity import (
     # EntitySummarySerializer
 )
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.views.generics import get_object_or_404
+
 from rest_framework_bulk.generics import BulkModelViewSet
 
 try:
