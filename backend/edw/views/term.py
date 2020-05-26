@@ -9,7 +9,6 @@ from django.core import urlresolvers
 from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 
@@ -28,6 +27,7 @@ from edw.models.term import TermModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import TermPagination
 from edw.rest.permissions import IsSuperuserOrReadOnly
+from edw.views.generics import get_object_or_404
 
 try:
     # rest_framework 3.3.3

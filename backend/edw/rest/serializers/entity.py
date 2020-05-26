@@ -113,7 +113,7 @@ class EntityDynamicMetaMixin(object):
                                 key = 'slug'
                             try:
                                 data_mart = DataMartModel.objects.active().get(**{key: value})
-                            except DataMartModel.DoesNotExist:
+                            except (DataMartModel.DoesNotExist, MultipleObjectsReturned):
                                 pass
                             else:
                                 cls._update_meta(it, data_mart.entities_model)

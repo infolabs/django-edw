@@ -11,9 +11,9 @@ from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import serializers
 from rest_framework.fields import empty
-from rest_framework.generics import get_object_or_404
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.utils.common import unicode_to_repr
@@ -25,6 +25,8 @@ from edw.models.rest import (
 )
 from edw.models.term import TermModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
+from edw.views.generics import get_object_or_404
+
 from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
 

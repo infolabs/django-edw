@@ -18,7 +18,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
-from rest_framework.generics import get_object_or_404
+
 
 from edw.utils.common import template_render
 from edw.models.data_mart import DataMartModel
@@ -32,6 +32,8 @@ from edw.models.term import TermModel
 from edw.rest.filters.decorators import get_from_underscore_or_data
 from edw.rest.filters.widgets import CSVWidget
 from edw.utils.hash_helpers import get_data_mart_cookie_setting
+from edw.views.generics import get_object_or_404
+
 from .widgets import parse_query
 from .common import NumberInFilter
 
