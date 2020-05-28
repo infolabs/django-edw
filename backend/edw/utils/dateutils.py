@@ -32,6 +32,19 @@ def num_years(begin, end=None):
     return years - 1 if begin > years_ago(years, end) else years
 
 
+def num_days(begin, end=None):
+    """
+    Return how many days it's been since some date
+    :param begin:
+    :param end: default `now`
+    :return:
+    """
+    if end is None:
+        end = datetime.now().date()
+    days = int((end - begin).days)
+    return days
+
+
 # get local timezone
 local_tz = timezone.get_current_timezone()
 
