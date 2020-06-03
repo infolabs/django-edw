@@ -39,8 +39,8 @@ class CustomerChangeForm(UserChangeForm):
         if not email:
             # nullify empty email field in order to prevent unique index collisions
             return None
-
-        if get_user_model().objects.filter(email=email).exists():
+        customers = get_user_model().objects.filter(email=email)
+        if len(customers) and (len(customers) > 1 or self.instance != customers[0]):
             msg = _("A customer with the e-mail address ‘{email}’ already exists.")
             raise forms.ValidationError(msg.format(email=email))
 

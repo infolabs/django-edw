@@ -19,18 +19,13 @@ from .forms import CustomerChangeForm, CustomerCreationForm
 
 class CustomerInlineAdmin(admin.StackedInline):
     model = CustomerModel
-    fields = ('salutation', 'get_number', 'recognized')
-    readonly_fields = ('get_number',)
+    fields = ('salutation', 'recognized')
 
     def get_extra(self, request, obj=None, **kwargs):
         return 0 if obj is None else 1
 
     def has_add_permission(self, request):
         return False
-
-    def get_number(self, customer):
-        return customer.get_number()
-    get_number.short_description = pgettext_lazy('customer', "Number")
 
 
 class CustomerListFilter(admin.SimpleListFilter):
@@ -57,7 +52,7 @@ class CustomerAdmin(UserAdmin):
     add_form = CustomerCreationForm
     inlines = (CustomerInlineAdmin,)
     list_display = ('get_username', 'salutation', 'last_name', 'first_name', 'recognized',
-        'last_access', 'is_unexpired')
+                    'last_access', 'is_unexpired')
     segmentation_list_display = ('get_username',)
     list_filter = UserAdmin.list_filter + (CustomerListFilter,)
     readonly_fields = ('last_login', 'date_joined', 'last_access', 'recognized')
@@ -65,6 +60,12 @@ class CustomerAdmin(UserAdmin):
 
     class Media:
         js = ('edw/js/admin/customer.js',)
+
+    def get_formsets_with_inlines(self, request, obj=None):
+        for inline in self.get_inline_instances(request, obj):
+            if isinstance(inline, CustomerInlineAdmin) and obj is None:
+                continue
+            yield inline.get_formset(request, obj), inline
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(CustomerAdmin, self).get_fieldsets(request, obj=obj)
