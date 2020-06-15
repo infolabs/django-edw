@@ -23,16 +23,17 @@ class SelectMultiple(forms.SelectMultiple):
         self.is_stacked = is_stacked
         super(SelectMultiple, self).__init__(attrs, choices)
 
-    def render(self, name, value, attrs=None, choices=()):
-
+    def render(self, name, value, attrs=None, renderer=None):
+        # render(name, value, attrs=None, renderer=None)
         if attrs is None:
             attrs = {}
         attrs['class'] = 'selectfilter'
         if self.is_stacked:
             attrs['class'] += 'stacked'
-        output = [super(SelectMultiple, self).render(name, value, attrs, choices)]
+        context = self.get_context(name, value, attrs)
+        output = [self._render(self.template_name, context, renderer)]
         output.append('<script type="text/javascript">addEvent(window, "load", function(e) {')
-        output.append('SelectFilter.init("id_%s", "%s", %s); TransitionSelector.init("%s"); });</script>\n'
-            % (name, escapejs(self.verbose_name), int(self.is_stacked), name))
+        output.append('TransitionSelector.init("%s"); });</script>\n'% name)
         return mark_safe(''.join(output))
+
 
