@@ -22,3 +22,4 @@ from .force_validate import entities_force_validate
 from .update_terms_parent import update_terms_parent
 from .make_terms_by_additional_attrs import entities_make_terms_by_additional_attrs
 from .normalize_entities_additional_attrs import normalize_entities_additional_attrs
+from .send_notification import send_notification
