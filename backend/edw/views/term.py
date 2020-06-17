@@ -12,8 +12,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 
-from rest_framework_filters.backends import DjangoFilterBackend
-
 from rest_framework_bulk.generics import BulkModelViewSet
 
 from edw.rest.serializers.term import (
@@ -23,6 +21,7 @@ from edw.rest.serializers.term import (
     TermTreeSerializer,
 )
 from edw.rest.filters.term import TermFilter
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.models.term import TermModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import TermPagination
@@ -62,7 +61,7 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     permission_classes = [IsSuperuserOrReadOnly]
 
     filter_class = TermFilter
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter,)
+    filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter,)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 

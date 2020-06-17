@@ -11,8 +11,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 
-from rest_framework_filters.backends import DjangoFilterBackend
-
 from rest_framework_bulk.generics import BulkModelViewSet
 
 from edw.rest.serializers.data_mart import (
@@ -23,6 +21,7 @@ from edw.rest.serializers.data_mart import (
 )
 
 from edw.rest.filters.data_mart import DataMartFilter
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.models.data_mart import DataMartModel
 from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
 from edw.rest.pagination import DataMartPagination
@@ -62,7 +61,7 @@ class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     permission_classes = [IsSuperuserOrReadOnly]
 
     filter_class = DataMartFilter
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 

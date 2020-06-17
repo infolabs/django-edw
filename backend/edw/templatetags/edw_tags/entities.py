@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from classytags.core import Options
 from classytags.arguments import MultiKeywordArgument, Argument
-from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.models.entity import EntityModel
 from edw.rest.templatetags import BaseRetrieveDataTag
@@ -18,6 +17,7 @@ from edw.rest.filters.entity import (
     EntityGroupByFilter,
     EntityOrderingFilter
 )
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.pagination import EntityPagination
 from edw import settings as edw_settings
 
@@ -53,7 +53,7 @@ class GetEntities(BaseRetrieveDataTag):
     action = 'list'
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
+    filter_backends = (EDWFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
                        EntityOrderingFilter)
     ordering_fields = '__all__'
 

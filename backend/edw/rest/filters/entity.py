@@ -20,7 +20,7 @@ from rest_framework import serializers
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
 
-from edw.utils.common import template_render
+from edw.rest.filters.common import template_render
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import BaseEntity, EntityModel
 from edw.models.rest import (
@@ -148,8 +148,11 @@ class EntityFilter(BaseEntityFilter):
     active = MethodFilter(label=_("Active"))
     subj = MethodFilter(widget=CSVWidget(), label=_("Subjects"))
     rel = MethodFilter(widget=CSVWidget(), label=_("Relations"))
+    # Пример: created_at=2019-10-10T00:00:00Z
     created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
+    # Пример: created_at__date_range=1
+    # 1 - сегодня, 2 - последние 7 дней, 3 - это месяц, 4 - этот год, 5 - вчера
     created_at__date_range = filters.DateRangeFilter(name='created_at', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['date_range']))
     created_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(

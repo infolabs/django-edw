@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.apps import apps
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
-from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
@@ -15,6 +14,7 @@ from edw.rest.filters.entity import (
     EntityGroupByFilter,
     EntityOrderingFilter
 )
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.pagination import EntityPagination
 from edw.rest.permissions import IsReadOnly
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
@@ -73,7 +73,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
+    filter_backends = (EDWFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
                        EntityOrderingFilter)
     ordering_fields = '__all__'
 

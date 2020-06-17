@@ -5,11 +5,10 @@ from __future__ import unicode_literals
 from rest_framework import viewsets
 from rest_framework import permissions
 
-from rest_framework_filters.backends import DjangoFilterBackend
-
 from edw.models.related.entity_file import EntityFileModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.entity_file import EntityFileFilter
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.serializers.related.entity_file import EntityFileSerializer
 from edw.rest.permissions import IsFilerFileOwnerOrReadOnly
 
@@ -21,7 +20,7 @@ class EntityFileViewSet(viewsets.ModelViewSet):
     queryset = EntityFileModel.objects.all()
     serializer_class = EntityFileSerializer
     filter_class = EntityFileFilter
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (EDWFilterBackend,)
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
