@@ -53,7 +53,7 @@ class NotificationMixin(ModelMixin):
 
     def get_email_notification_recipients(self, recipients):
         """
-        RUS: Получение списка пользователей для email уведомления
+        RUS: Получение списка пользователей для email уведомления по полю Copy To
         По умолчанию recipient объект класса Customer
         :param recipients: - список объектов получателей
         :return: Список [(email, recipient_object, serialaizer_cls),...]
@@ -72,7 +72,7 @@ class NotificationMixin(ModelMixin):
 
     def get_push_notification_recipients(self, recipients):
         """
-        RUS: Получение списка пользователей для push уведомления
+        RUS: Получение списка пользователей для push уведомления по полю Copy To
         :param recipients: - список пользователей
         :return: Список [(push_id, recipient_object, serialaizer_cls),...]
         """
