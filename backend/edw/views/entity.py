@@ -87,11 +87,17 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     def initial(self, request, data_mart_pk=None, *args, **kwargs):
         if self.action in ('retrieve', 'list'):
-            request.GET.setdefault('active', True)
+            # Позваляем устанавливать фильтр активности только для персонала и администраторов
+            if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
+                request.GET.setdefault('active', True)
+            else:
+                request.GET['active'] = True
+
         if self.data_mart_pk is not None:
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
+
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         if hasattr(self.extra_serializer_context, '__call__'):
             self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)

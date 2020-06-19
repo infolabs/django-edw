@@ -154,7 +154,11 @@ class BaseRetrieveDataTag(Tag):
             initial_kwargs.pop(key, None)
 
         if self.action in ('retrieve', 'list'):
-            request.GET.setdefault('active', True)
+            # Позваляем устанавливать фильтр активности только для персонала и администраторов
+            if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
+                request.GET.setdefault('active', True)
+            else:
+                request.GET['active'] = True
 
         request.query_params.update(initial_kwargs)
         self.initial_kwargs = initial_kwargs
