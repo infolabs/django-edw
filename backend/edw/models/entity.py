@@ -635,6 +635,15 @@ class EntityCharacteristicOrMarkInfo(object):
         """
         return repr((self.name, self.values))
 
+    def view_class_findall(self, pattern):
+        """
+        RUS: Ищет совпадения в массиве классов представления `view_class` по маске `pattern`
+        """
+        result = []
+        for x in self.view_class:
+            result += re.findall(pattern, x)
+        return result
+
 
 class EntityCharacteristicOrMarkGetter(object):
     """
