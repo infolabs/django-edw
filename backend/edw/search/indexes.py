@@ -14,11 +14,13 @@ class EntityIndex(indexes.SearchIndex):
     """
     Abstract base class used to index all entities for this edw
     """
-    entity_name = indexes.CharField(
+
+    title = indexes.CharField(
         stored=True,
         indexed=True,
-        model_attr='entity_name',
+        model_attr='entity_name'
     )
+
     entity_model = indexes.CharField(
         stored=True,
         indexed=True,
@@ -30,6 +32,7 @@ class EntityIndex(indexes.SearchIndex):
         indexed=True,
         model_attr='active_terms_ids',
     )
+
     characteristics = indexes.MultiValueField(
         stored=True,
         indexed=True,
@@ -41,6 +44,7 @@ class EntityIndex(indexes.SearchIndex):
         document=True,
         use_template=True,
     )
+
     categories = indexes.MultiValueField(
         stored=True,
         indexed=True,
@@ -64,6 +68,20 @@ class EntityIndex(indexes.SearchIndex):
         prepared_data = super(EntityIndex, self).prepare(entity)
         prepared_data.update({DJANGO_CT: get_model_ct(self.get_model()())})
         return prepared_data
+
+    def prepare_categories(self, entity):
+        '''
+        Базовый метод для получения категории объекта, в конкретных индексах его надо перекрыть для получения нужных данных
+        :param entity:
+        :return:
+        Example: [json.dumps({
+            'django_id': obj.id,
+            'django_ct': get_model_ct(obj.__class__()),
+            'name': obj.name
+        }, ensure_ascii=False)] if obj else []
+        '''
+
+        return []
 
     def prepare_characteristics(self, entity):
         return [

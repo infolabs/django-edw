@@ -39,7 +39,7 @@ def more_like_this(request):
     text = request.GET.get('q')
     entity_model = request.GET.get('m')
     if text:
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         search_result = get_more_like_this(text, entity_model)
         suggestions = analyze_suggestions(search_result)

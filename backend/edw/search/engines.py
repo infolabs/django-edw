@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from haystack.backends.elasticsearch_backend import (
-    ElasticsearchSearchBackend,
-    ElasticsearchSearchEngine,
-    DEFAULT_FIELD_MAPPING
+from haystack.backends.elasticsearch5_backend import (
+    Elasticsearch5SearchBackend,
+    Elasticsearch5SearchEngine
 )
 
 
-class RussianElasticsearchBackend(ElasticsearchSearchBackend):
+class RussianElasticsearchBackend(Elasticsearch5SearchBackend):
     # Copy-pasted from https://github.com/django-haystack/django-haystack/blob/193b418f0006df6037a2a4a9029ac3060ccd8d89/haystack/backends/elasticsearch_backend.py
     # and added custom Russian analyzer as default
 
@@ -83,7 +82,7 @@ class RussianElasticsearchBackend(ElasticsearchSearchBackend):
         return content_field_name, mapping
 
 
-class RussianElasticsearchEngine(ElasticsearchSearchEngine):
+class RussianElasticsearchEngine(Elasticsearch5SearchEngine):
     """
     Use in settings: `'ENGINE': 'edw.search.engines.RussianElasticsearchEngine',`
     """
