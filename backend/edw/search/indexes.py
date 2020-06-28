@@ -77,8 +77,7 @@ class EntityIndex(indexes.SearchIndex):
         Example:
         from collections import OrderedDict
         [json.dumps(OrderedDict((
-            ('django_id', obj.id),
-            ('django_ct', get_model_ct(obj.__class__())),
+            ('id', obj.id),
             ('name', obj.name)
         )), ensure_ascii=False)] if obj else []
         '''

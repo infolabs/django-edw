@@ -179,3 +179,16 @@ class PlaceMixin(object):
                                   zone_term_ids_to_add=to_add)
 
         super(PlaceMixin, self).validate_terms(origin, **kwargs)
+
+    @classmethod
+    def get_search_query(cls, request):
+        """
+        Формируем поисковый запрос из объета Request
+        """
+        q = super(PlaceMixin, cls).get_search_query(request)
+
+        geoposition = request.GET.get('g', None)
+
+        print (">>> get_search_query 'geoposition' <<<", geoposition)
+
+        return q

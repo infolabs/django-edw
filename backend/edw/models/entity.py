@@ -1663,6 +1663,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return terms
 
+    @classmethod
+    def get_search_query(cls, request):
+        """
+        Формируем поисковый запрос из объета Request
+        """
+
+        print (">>> get_search_query 'Q' <<<", request.GET.get('q'))
+
+        return request.GET.get('q')
+
 
 EntityModel = deferred.MaterializedModel(BaseEntity)
 

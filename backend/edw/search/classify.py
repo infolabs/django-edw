@@ -63,10 +63,10 @@ def get_more_like_this(text, entity_model=None, stop_words=None):
 def analyze_suggestions(search_result):
     """
     Sort and filter `get_more_like_this` suggestions to classify category.
-
-    This code was written to be easily understood,
-    it can be improved to run faster if needed.
     """
+
+    # print('----- search_result -----', search_result)
+
     # Parse search result to get score and words per suggestion
     suggestions = {}
     for hit in search_result['hits']['hits']:
@@ -79,12 +79,14 @@ def analyze_suggestions(search_result):
         words = set()
         # print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation']['details'])
         # print()
+
+        # формируем список ключевых слов
         for word_details in hit['_explanation']['details']:
             try:
                 words.add(word_details['description'].replace('weight(', '').split(' ')[0].split(':')[1])
             except IndexError:
                 pass
-
+        # накапливаем результат
         for x in raw_categories:
             try:
                 category = json.loads(x)
@@ -101,11 +103,11 @@ def analyze_suggestions(search_result):
                 else:
                     foo['score'] += hit['_score']
                     foo['words'].update(words)
-
+    # переводим множество слов в список
     suggestions = suggestions.values()
     for x in suggestions:
         x['words'] = list(x['words'])
-
+    # сортируем
     suggestions = sorted(
         suggestions,
         key=lambda x: x['score'],
@@ -115,7 +117,7 @@ def analyze_suggestions(search_result):
     print('>>> suggestions >>> ')
     for x in suggestions[:5]:
         print('------------------')
-        print('* id:', x['category']['django_id'])
+        print('* id:', x['category']['id'])
         print('* category:', x['category']['name'])
         print('* score:', x['score'])
         print('* words:', x['words'])

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
 
-from django.http import HttpResponse
+from django.http import JsonResponse
+from django.apps import apps
+
 from rest_framework.mixins import ListModelMixin
 
 from drf_haystack.generics import HaystackGenericAPIView
@@ -35,50 +36,62 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
 
 
 def more_like_this(request):
+    """
+    Классификатор объектов
+    :param request: запрос
+    :return:
+    """
+    # имя модели в которой производится поиск
+    entity_model = request.GET.get('m', None)
+
+    print ("++++++ more_like_this ++++++", entity_model)
+
+    model_class = EntityModel
+    if entity_model is not None:
+        try:
+            model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
+        except LookupError:
+            pass
+
+
+    print (">>> model_class <<<", model_class)
+
+    search_query = model_class.get_search_query(request)
+
+    print (">>> search_query <<<", search_query)
+
     results = []
-    text = request.GET.get('q')
-    # place IN: geo=65.345,33.987897&q=Sadovaya65
-    # OUT: 65.345,33.987897 -geohash-> qwewetwer qwewetwe qwewetw qwewet qwewe
 
-    # entity_model.parce_req(req)
-
-
-
-    entity_model = request.GET.get('model')
-
-    # text = entity_model.parce_req(request)
-
-    if text:
-        # import pdb; pdb.set_trace()
-        print()
-        print('-----------------------------------------------')
-        print(text)
-        print('-----------------------------------------------')
-
-        search_result = get_more_like_this(text, entity_model)
+    if search_query:
+        search_result = get_more_like_this(search_query, entity_model)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:
-            entity_id = suggestion['category']['django_id']  # Just for detail URL
-            # try:
-            #     entity = EntityModel.objects.get(id=entity_id)
-            # except EntityModel.DoesNotExist:
-            #     pass
-            # else:
-            #     pass
+            category = suggestion['category']
+            pk = category.get('id', None)
+            model, url = None, None
+            if pk is not None:
+                try:
+                    obj = EntityModel.objects.get(id=pk)
+                except EntityModel.DoesNotExist:
+                    pass
+                else:
+                    model = obj._meta.object_name.lower()
+                    url = obj.get_absolute_url(request=request)
+
             suggestion_data = {
-                'id': entity_id,
-                'model': suggestion['category']['django_ct'],
-                'title': suggestion['category']['name'],
+                'id': pk,
+                'model': model,
+                'title': category['name'],
                 'score': suggestion['score'],
-                'url': '#'
+                'url': url
             }
+
             results.append(suggestion_data)
-    print()
-    print()
 
+    print ()
+    print ()
 
-    return HttpResponse(
-        json.dumps({'results': results}),
-        content_type='application/json; charset=UTF-8'
-    )
+    return JsonResponse({
+        'results': results
+    })
