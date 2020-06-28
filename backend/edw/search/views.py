@@ -37,29 +37,48 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
 def more_like_this(request):
     results = []
     text = request.GET.get('q')
-    entity_model = request.GET.get('m')
+    # place IN: geo=65.345,33.987897&q=Sadovaya65
+    # OUT: 65.345,33.987897 -geohash-> qwewetwer qwewetwe qwewetw qwewet qwewe
+
+    # entity_model.parce_req(req)
+
+
+
+    entity_model = request.GET.get('model')
+
+    # text = entity_model.parce_req(request)
+
     if text:
         # import pdb; pdb.set_trace()
+        print()
+        print('-----------------------------------------------')
+        print(text)
+        print('-----------------------------------------------')
 
         search_result = get_more_like_this(text, entity_model)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:
-            entity_id = suggestion['source']['django_id']  # Just for detail URL
-            try:
-                entity = EntityModel.objects.get(id=entity_id)
-            except EntityModel.DoesNotExist:
-                pass
-            else:
-                suggestion_data = {
-                    'id': suggestion['source']['django_id'],
-                    'model': suggestion['source']['django_ct'],
-                    'title': suggestion['category'],
-                    'url': entity.get_detail_url()
-                }
-                results.append(suggestion_data)
+            entity_id = suggestion['category']['django_id']  # Just for detail URL
+            # try:
+            #     entity = EntityModel.objects.get(id=entity_id)
+            # except EntityModel.DoesNotExist:
+            #     pass
+            # else:
+            #     pass
+            suggestion_data = {
+                'id': entity_id,
+                'model': suggestion['category']['django_ct'],
+                'title': suggestion['category']['name'],
+                'score': suggestion['score'],
+                'url': '#'
+            }
+            results.append(suggestion_data)
+    print()
+    print()
+
 
     return HttpResponse(
         json.dumps({'results': results}),
-        content_type='application/json'
+        content_type='application/json; charset=UTF-8'
     )

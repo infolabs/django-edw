@@ -74,11 +74,13 @@ class EntityIndex(indexes.SearchIndex):
         Базовый метод для получения категории объекта, в конкретных индексах его надо перекрыть для получения нужных данных
         :param entity:
         :return:
-        Example: [json.dumps({
-            'django_id': obj.id,
-            'django_ct': get_model_ct(obj.__class__()),
-            'name': obj.name
-        }, ensure_ascii=False)] if obj else []
+        Example:
+        from collections import OrderedDict
+        [json.dumps(OrderedDict((
+            ('django_id', obj.id),
+            ('django_ct', get_model_ct(obj.__class__())),
+            ('name', obj.name)
+        )), ensure_ascii=False)] if obj else []
         '''
 
         return []
