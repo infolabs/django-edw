@@ -66,6 +66,9 @@ def analyze_suggestions(search_result):
     """
 
     # print('----- search_result -----', search_result)
+    # print()
+    # print()
+    # print()
 
     # Parse search result to get score and words per suggestion
     suggestions = {}
@@ -77,15 +80,17 @@ def analyze_suggestions(search_result):
         if not raw_categories:
             continue
         words = set()
-        # print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation']['details'])
-        # print()
+        # print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation'])
 
         # формируем список ключевых слов
-        for word_details in hit['_explanation']['details']:
-            try:
-                words.add(word_details['description'].replace('weight(', '').split(' ')[0].split(':')[1])
-            except IndexError:
-                pass
+        for raw_word_details in hit['_explanation']['details']:
+            for word_details in (raw_word_details['details'][0], raw_word_details):
+                try:
+                    words.add(word_details['description'].replace('weight(', '').split(' ')[0].split(':')[1])
+                except IndexError:
+                    pass
+                else:
+                    break
         # накапливаем результат
         for x in raw_categories:
             try:
