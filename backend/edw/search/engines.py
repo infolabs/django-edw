@@ -76,7 +76,7 @@ class RussianElasticsearchBackend(Elasticsearch5SearchBackend):
         content_field_name, mapping = super(RussianElasticsearchBackend, self).build_schema(fields)
 
         for field_name, field_mapping in mapping.items():
-            if field_name in ['text', 'categories', 'characteristics']:
+            if field_name in ['title', 'description', 'characteristics']:
                 field_mapping['analyzer'] = 'default'
 
         return content_field_name, mapping

@@ -7,7 +7,8 @@ from collections import Counter
 from haystack import connections
 
 
-def get_more_like_this(text, entity_model=None, stop_words=None):
+# def get_more_like_this(text, entity_model=None, stop_words=None):
+def get_more_like_this(like, model=None):
     """
     Perform `more_like_this` query to find similar model instances.
 
@@ -20,31 +21,67 @@ def get_more_like_this(text, entity_model=None, stop_words=None):
 
     backend = connections['default'].get_backend()
 
+    unlike = 'городской округ сельское поселение больница школа ижс'
+    ignore = 'ижс'
+
     payload = {
         'query': {
             'bool': {
                 'must': [
                     {
                         'more_like_this': {
-                            'fields': ['title', 'text', 'category', 'characteristics'],
-                            'like': text,
+                            'fields': ['title', 'description', 'characteristics'],
+                            'like': like,
+                            # 'unlike': unlike,
+                            # 'min_word_length': 2,
+
                             'min_term_freq': 1,
                             'min_doc_freq': 1,
-                            'max_query_terms': 200,
+                            'max_query_terms': 25,
                             'minimum_should_match': '0%',
                             'analyzer': 'default',
-                            'stop_words': stop_words or []
+                        }
+                    }
+                ],
+                # 'should': [
+                #     {
+                #         'more_like_this': {
+                #             'fields': ['title', 'text', 'characteristics'],
+                #             'like': 'больница детский сад школа парк',
+                #             # 'unlike': unlike,
+                #             'min_term_freq': 1,
+                #             'min_doc_freq': 1,
+                #             'max_query_terms': 25,
+                #             'minimum_should_match': '0%',
+                #             'analyzer': 'default',
+                #             'stop_words': stop_words or []
+                #         }
+                #     }
+                # ],
+                'must_not': [
+                    {
+                        'more_like_this': {
+                            'fields': ['title', 'description', 'characteristics'],
+                            # 'like': 'тротуар поселение',
+                            # 'like': 'ижс сельский региональный',
+                            'like': unlike,
+                            'unlike': ignore,
+                            'min_term_freq': 1,
+                            'min_doc_freq': 1,
+                            'max_query_terms': 12,
+                            'minimum_should_match': '0%',
+                            'analyzer': 'default',
                         }
                     }
                 ]
             }
         }
     }
-    if entity_model:
+    if model:
         payload['query']['bool']['filter'] = [
             {
                 'term': {
-                    'entity_model': entity_model,
+                    'model': model,
                 }
             }
         ]
@@ -80,17 +117,31 @@ def analyze_suggestions(search_result):
         if not raw_categories:
             continue
         words = set()
-        # print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation'])
+
+        print ()
+        print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation'])
+        print ()
 
         # формируем список ключевых слов
         for raw_word_details in hit['_explanation']['details']:
-            for word_details in (raw_word_details['details'][0], raw_word_details):
+
+            # print ("!!! detail len", len(raw_word_details['details']))
+            details_sources = raw_word_details['details'] + [raw_word_details]
+
+            # for word_details in (raw_word_details['details'][0], raw_word_details):
+            # todo: переписать!!!
+            for word_details in details_sources:
                 try:
                     words.add(word_details['description'].replace('weight(', '').split(' ')[0].split(':')[1])
                 except IndexError:
+                    # print ("@@ IndexError @@")
                     pass
-                else:
-                    break
+                # else:
+                #     print ("@@ Index OK   @@")
+                #     pass
+                #     # break
+
+            # print ("WORDS!", words)
         # накапливаем результат
         for x in raw_categories:
             try:
@@ -98,15 +149,16 @@ def analyze_suggestions(search_result):
             except json.decoder.JSONDecodeError:
                 pass
             else:
+                score = hit['_score'] if category.get('similar', True) else -hit['_score']
                 foo = suggestions.get(x, None)
                 if foo is None:
                     suggestions[x] = {
                         'category': category,
                         'words': words,
-                        'score': hit['_score']
+                        'score': score
                     }
                 else:
-                    foo['score'] += hit['_score']
+                    foo['score'] += score
                     foo['words'].update(words)
     # переводим множество слов в список
     suggestions = suggestions.values()

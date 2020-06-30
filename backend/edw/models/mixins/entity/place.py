@@ -7,6 +7,9 @@ from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from geoposition import str_to_geoposition
+from geoposition.geohash import geo_expand
+
 from edw.models.entity import EntityModel
 from edw.models.postal_zone import get_postal_zone
 from edw.models.term import TermModel
@@ -187,8 +190,24 @@ class PlaceMixin(object):
         """
         q = super(PlaceMixin, cls).get_search_query(request)
 
-        geoposition = request.GET.get('g', None)
+        g = request.GET.get('g', None)
 
-        print (">>> get_search_query 'geoposition' <<<", geoposition)
+        if g is not None:
+            try:
+                geoposition = str_to_geoposition(g)
+            except ValueError:
+                pass
+            else:
+                geohash = geoposition.geohash.strip()
+                text_parts = [q]
+                for i in [6, 7, 8, 9]:
+                    hash_parts = geo_expand(geohash[:i])
+                    text_parts.extend(hash_parts)
+
+                q = ' '.join(text_parts)
+
+                print(">> geoposition <<", q)
+
+        # print (">>> get_search_query 'geoposition' <<<", geoposition)
 
         return q
