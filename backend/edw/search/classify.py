@@ -3,6 +3,7 @@
 import json
 
 from haystack import connections
+from haystack.constants import DOCUMENT_FIELD
 
 
 def get_more_like_this(like, unlike=None, ignore=None, model=None):
@@ -20,7 +21,7 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
     unlike = 'городской округ сельское поселение больница школа ижс'
     ignore = 'ижс'
 
-    fields = ['text']
+    fields = [DOCUMENT_FIELD]
 
     payload = {
         'query': {

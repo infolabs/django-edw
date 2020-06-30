@@ -4,6 +4,7 @@ from haystack.backends.elasticsearch5_backend import (
     Elasticsearch5SearchBackend,
     Elasticsearch5SearchEngine
 )
+from haystack.constants import DOCUMENT_FIELD
 
 
 class RussianElasticsearchBackend(Elasticsearch5SearchBackend):
@@ -76,7 +77,7 @@ class RussianElasticsearchBackend(Elasticsearch5SearchBackend):
         content_field_name, mapping = super(RussianElasticsearchBackend, self).build_schema(fields)
 
         for field_name, field_mapping in mapping.items():
-            if field_name in ['text']:
+            if field_name in [DOCUMENT_FIELD]:
                 field_mapping['analyzer'] = 'default'
 
         return content_field_name, mapping
