@@ -42,14 +42,14 @@ def more_like_this(request):
     :return:
     """
     # имя модели в которой производится поиск
-    entity_model = request.GET.get('m', None)
+    model = request.GET.get('m', None)
 
-    print ("++++++ more_like_this ++++++", entity_model)
+    print ("++++++ more_like_this ++++++", model)
 
     model_class = EntityModel
-    if entity_model is not None:
+    if model is not None:
         try:
-            model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
+            model_class = apps.get_model(EntityModel._meta.app_label, str(model))
         except LookupError:
             pass
 
@@ -63,7 +63,7 @@ def more_like_this(request):
     results = []
 
     if search_query:
-        search_result = get_more_like_this(search_query, entity_model)
+        search_result = get_more_like_this(search_query, model=model)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:

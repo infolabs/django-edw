@@ -20,7 +20,7 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
     unlike = 'городской округ сельское поселение больница школа ижс'
     ignore = 'ижс'
 
-    fields = ['title', 'description', 'characteristics']
+    fields = ['text']
 
     payload = {
         'query': {

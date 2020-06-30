@@ -20,36 +20,30 @@ class EntityIndex(indexes.SearchIndex):
         model_attr='entity_model',
     )
 
-    title = indexes.CharField(
-        stored=True,
-        indexed=True,
-        model_attr='entity_name'
-    )
-
-    description = indexes.CharField(
-        stored=True,
-        indexed=True,
-        document=True,
-        use_template=True,
-    )
-
-    # terms = indexes.MultiValueField(
+    # title = indexes.CharField(
     #     stored=True,
     #     indexed=True,
-    #     model_attr='active_terms_ids',
+    #     model_attr='entity_name'
     # )
 
-    characteristics = indexes.MultiValueField(
-        stored=True,
-        indexed=True,
-    )
-
-    # text = indexes.CharField(
+    # description = indexes.CharField(
     #     stored=True,
     #     indexed=True,
     #     document=True,
     #     use_template=True,
     # )
+
+    # characteristics = indexes.MultiValueField(
+    #     stored=True,
+    #     indexed=True,
+    # )
+
+    text = indexes.CharField(
+        stored=True,
+        indexed=True,
+        document=True,
+        use_template=True,
+    )
 
     categories = indexes.MultiValueField(
         stored=True,
@@ -90,11 +84,11 @@ class EntityIndex(indexes.SearchIndex):
         '''
         return []
 
-    def prepare_characteristics(self, entity):
-        return [
-            '{}: {}'.format(term.name, ', '.join(term.values))
-            for term in entity.characteristics
-        ]
+    # def prepare_characteristics(self, entity):
+    #     return [
+    #         '{}: {}'.format(term.name, ', '.join(term.values))
+    #         for term in entity.characteristics
+    #     ]
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
