@@ -84,11 +84,13 @@ class EntityIndex(indexes.SearchIndex):
         '''
         return []
 
-    # def prepare_characteristics(self, entity):
-    #     return [
-    #         '{}: {}'.format(term.name, ', '.join(term.values))
-    #         for term in entity.characteristics
-    #     ]
+    @staticmethod
+    def get_characteristics(entity):
+        """Util function"""
+        return [
+            '{}: {}'.format(term.name, ', '.join(term.values))
+            for term in entity.characteristics
+        ]
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
