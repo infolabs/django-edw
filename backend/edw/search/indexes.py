@@ -84,7 +84,8 @@ class EntityIndex(indexes.SearchIndex):
         from collections import OrderedDict
         [json.dumps(OrderedDict((
             ('id', obj.id),
-            ('name', obj.name)
+            ('name', obj.name),
+            ('similar', True)
         )), ensure_ascii=False)] if obj else []
         '''
         return []

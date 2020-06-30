@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import json
-from collections import Counter
-# from math import log
 
 from haystack import connections
 
 
-# def get_more_like_this(text, entity_model=None, stop_words=None):
-def get_more_like_this(like, model=None):
+def get_more_like_this(like, unlike=None, ignore=None, model=None):
     """
     Perform `more_like_this` query to find similar model instances.
 
-    `entity_model` is like 'particularproblem', 'typicalestablishment', etc.
+    `model` is like 'particularproblem', 'typicalestablishment', etc.
 
-    `stop_words` is a list of stopwords to make search results better.
     Common Russian stopwords are already filtered in search backend,
     this list must only contain words specific to the entity model.
     """
@@ -24,51 +20,19 @@ def get_more_like_this(like, model=None):
     unlike = 'городской округ сельское поселение больница школа ижс'
     ignore = 'ижс'
 
+    fields = ['title', 'description', 'characteristics']
+
     payload = {
         'query': {
             'bool': {
                 'must': [
                     {
                         'more_like_this': {
-                            'fields': ['title', 'description', 'characteristics'],
+                            'fields': fields,
                             'like': like,
-                            # 'unlike': unlike,
-                            # 'min_word_length': 2,
-
                             'min_term_freq': 1,
                             'min_doc_freq': 1,
                             'max_query_terms': 25,
-                            'minimum_should_match': '0%',
-                            'analyzer': 'default',
-                        }
-                    }
-                ],
-                # 'should': [
-                #     {
-                #         'more_like_this': {
-                #             'fields': ['title', 'text', 'characteristics'],
-                #             'like': 'больница детский сад школа парк',
-                #             # 'unlike': unlike,
-                #             'min_term_freq': 1,
-                #             'min_doc_freq': 1,
-                #             'max_query_terms': 25,
-                #             'minimum_should_match': '0%',
-                #             'analyzer': 'default',
-                #             'stop_words': stop_words or []
-                #         }
-                #     }
-                # ],
-                'must_not': [
-                    {
-                        'more_like_this': {
-                            'fields': ['title', 'description', 'characteristics'],
-                            # 'like': 'тротуар поселение',
-                            # 'like': 'ижс сельский региональный',
-                            'like': unlike,
-                            'unlike': ignore,
-                            'min_term_freq': 1,
-                            'min_doc_freq': 1,
-                            'max_query_terms': 12,
                             'minimum_should_match': '0%',
                             'analyzer': 'default',
                         }
@@ -77,6 +41,25 @@ def get_more_like_this(like, model=None):
             }
         }
     }
+
+    if unlike:
+        foo = {
+                'fields': fields,
+                'like': unlike,
+                'min_term_freq': 1,
+                'min_doc_freq': 1,
+                'max_query_terms': 12,
+                'minimum_should_match': '0%',
+                'analyzer': 'default',
+            }
+        if ignore:
+            foo['unlike'] = ignore
+        payload['query']['bool']['must_not'] = [
+            {
+                'more_like_this': foo
+            }
+        ]
+
     if model:
         payload['query']['bool']['filter'] = [
             {
