@@ -75,6 +75,7 @@ class EntityIndex(indexes.SearchIndex):
         :param entity:
         :return:
         Example:
+        import json
         from collections import OrderedDict
         [json.dumps(OrderedDict((
             ('id', obj.id),

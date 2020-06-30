@@ -1673,9 +1673,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             'unlike': request.GET.get('u', None),
             'ignore': request.GET.get('i', None)
         }
-
-        print (">>> get_search_query 'Q' <<<", result)
-
         return result
 
 

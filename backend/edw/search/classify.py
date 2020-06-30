@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import json
 
 from haystack import connections
@@ -15,11 +16,7 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
     Common Russian stopwords are already filtered in search backend,
     this list must only contain words specific to the entity model.
     """
-
     backend = connections['default'].get_backend()
-
-    # unlike = 'городской округ сельское поселение больница школа ижс'
-    # ignore = 'ижс'
 
     fields = [DOCUMENT_FIELD]
 
@@ -100,32 +97,13 @@ def analyze_suggestions(search_result):
         raw_categories = hit['_source']['categories']
         if not raw_categories:
             continue
+
         words = set()
-
-        print ()
-        print('----- hit[_explanation][details] --------->>>>>>', hit['_explanation'])
-        print ()
-
         # формируем список ключевых слов
-        for raw_word_details in hit['_explanation']['details']:
+        for obj in hit['_explanation']['details']:
+            raw_details = json.dumps(obj, ensure_ascii=False)
+            words.update(set(re.findall(r'"weight\(\w+:(.+?)\s+in', raw_details)))
 
-            # print ("!!! detail len", len(raw_word_details['details']))
-            details_sources = raw_word_details['details'] + [raw_word_details]
-
-            # for word_details in (raw_word_details['details'][0], raw_word_details):
-            # todo: переписать!!!
-            for word_details in details_sources:
-                try:
-                    words.add(word_details['description'].replace('weight(', '').split(' ')[0].split(':')[1])
-                except IndexError:
-                    # print ("@@ IndexError @@")
-                    pass
-                # else:
-                #     print ("@@ Index OK   @@")
-                #     pass
-                #     # break
-
-            # print ("WORDS!", words)
         # накапливаем результат
         for x in raw_categories:
             try:
