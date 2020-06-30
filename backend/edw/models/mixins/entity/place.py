@@ -188,7 +188,7 @@ class PlaceMixin(object):
         """
         Формируем поисковый запрос из объета Request
         """
-        q = super(PlaceMixin, cls).get_search_query(request)
+        query = super(PlaceMixin, cls).get_search_query(request)
 
         g = request.GET.get('g', None)
 
@@ -199,15 +199,15 @@ class PlaceMixin(object):
                 pass
             else:
                 geohash = geoposition.geohash.strip()
-                text_parts = [q]
+                text_parts = [query['like']]
                 for i in [6, 7, 8, 9]:
                     hash_parts = geo_expand(geohash[:i])
                     text_parts.extend(hash_parts)
 
-                q = ' '.join(text_parts)
+                query['like'] = ' '.join(text_parts)
 
-                print(">> geoposition <<", q)
+                print(">> geoposition <<", query)
 
         # print (">>> get_search_query 'geoposition' <<<", geoposition)
 
-        return q
+        return query

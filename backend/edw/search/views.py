@@ -63,7 +63,7 @@ def more_like_this(request):
     results = []
 
     if search_query:
-        search_result = get_more_like_this(search_query, model=model)
+        search_result = get_more_like_this(search_query.pop('like'), model=model, **search_query)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:

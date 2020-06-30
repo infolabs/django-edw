@@ -1668,10 +1668,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         Формируем поисковый запрос из объета Request
         """
+        result = {
+            'like': request.GET.get('q', ''),
+            'unlike': request.GET.get('u', None),
+            'ignore': request.GET.get('i', None)
+        }
 
-        print (">>> get_search_query 'Q' <<<", request.GET.get('q'))
+        print (">>> get_search_query 'Q' <<<", result)
 
-        return request.GET.get('q')
+        return result
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

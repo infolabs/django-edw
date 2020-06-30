@@ -18,8 +18,8 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
 
     backend = connections['default'].get_backend()
 
-    unlike = 'городской округ сельское поселение больница школа ижс'
-    ignore = 'ижс'
+    # unlike = 'городской округ сельское поселение больница школа ижс'
+    # ignore = 'ижс'
 
     fields = [DOCUMENT_FIELD]
 
