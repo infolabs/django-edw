@@ -42,14 +42,15 @@ def more_like_this(request):
     :return:
     """
     # имя модели в которой производится поиск
+    # Пример: m=nash_region.particularproblem
     model = request.GET.get('m', None)
 
     model_class = EntityModel
     if model is not None:
         try:
-            model_class = apps.get_model(EntityModel._meta.app_label, str(model))
+            model_class = apps.get_model(*str(model).rsplit(".", 1))
         except LookupError:
-            pass
+            model = None
 
     search_query = model_class.get_search_query(request)
 

@@ -1671,7 +1671,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         result = {
             'like': request.GET.get('q', ''),
             'unlike': request.GET.get('u', None),
-            'ignore': request.GET.get('i', None)
+            'ignore_like': request.GET.get('iq', None),
+            'ignore_unlike': request.GET.get('iu', None)
         }
         return result
 

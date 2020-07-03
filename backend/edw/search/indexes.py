@@ -14,30 +14,6 @@ class EntityIndex(indexes.SearchIndex):
     """
     Abstract base class used to index all entities for this edw
     """
-    model = indexes.CharField(
-        stored=True,
-        indexed=True,
-        model_attr='entity_model',
-    )
-
-    # title = indexes.CharField(
-    #     stored=True,
-    #     indexed=True,
-    #     model_attr='entity_name'
-    # )
-
-    # description = indexes.CharField(
-    #     stored=True,
-    #     indexed=True,
-    #     document=True,
-    #     use_template=True,
-    # )
-
-    # characteristics = indexes.MultiValueField(
-    #     stored=True,
-    #     indexed=True,
-    # )
-
     text = indexes.CharField(
         stored=True,
         indexed=True,

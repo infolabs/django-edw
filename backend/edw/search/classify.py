@@ -4,10 +4,10 @@ import re
 import json
 
 from haystack import connections
-from haystack.constants import DOCUMENT_FIELD
+from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
 
 
-def get_more_like_this(like, unlike=None, ignore=None, model=None):
+def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, model=None):
     """
     Perform `more_like_this` query to find similar model instances.
 
@@ -17,9 +17,7 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
     this list must only contain words specific to the entity model.
     """
     backend = connections['default'].get_backend()
-
     fields = [DOCUMENT_FIELD]
-
     payload = {
         'query': {
             'bool': {
@@ -39,7 +37,8 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
             }
         }
     }
-
+    if ignore_like:
+        payload['query']['bool']['must'][0]['more_like_this']['unlike'] = ignore_like
     if unlike:
         foo = {
                 'fields': fields,
@@ -50,8 +49,8 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
                 'minimum_should_match': '0%',
                 'analyzer': 'default',
             }
-        if ignore:
-            foo['unlike'] = ignore
+        if ignore_unlike:
+            foo['unlike'] = ignore_unlike
         payload['query']['bool']['must_not'] = [
             {
                 'more_like_this': foo
@@ -62,11 +61,10 @@ def get_more_like_this(like, unlike=None, ignore=None, model=None):
         payload['query']['bool']['filter'] = [
             {
                 'term': {
-                    'model': model,
+                    DJANGO_CT: str(model),
                 }
             }
         ]
-
     search_result = backend.conn.search(
         body=payload,
         index=backend.index_name,
@@ -82,15 +80,13 @@ def analyze_suggestions(search_result):
     """
     Sort and filter `get_more_like_this` suggestions to classify category.
     """
-
-    # print('----- search_result -----', search_result)
-    # print()
-    # print()
-    # print()
-
     # Parse search result to get score and words per suggestion
     suggestions = {}
     for hit in search_result['hits']['hits']:
+
+        print ('hit', hit)
+        print ()
+
         # When querying all models at the same time,
         # some of them may have [None] in category field,
         # so we ignore them
@@ -133,15 +129,13 @@ def analyze_suggestions(search_result):
         reverse=True
     )
 
-    print('>>> suggestions >>> ')
-    for x in suggestions[:5]:
-        print('------------------')
-        print('* id:', x['category']['id'])
-        print('* category:', x['category']['name'])
-        print('* score:', x['score'])
-        print('* words:', x['words'])
-
-    print('>>>>>>>>>>>>>>>>>>>>')
-
+    # print('>>> suggestions >>> ')
+    # for x in suggestions[:5]:
+    #     print('------------------')
+    #     print('* id:', x['category']['id'])
+    #     print('* category:', x['category']['name'])
+    #     print('* score:', x['score'])
+    #     print('* words:', x['words'])
+    # print('>>>>>>>>>>>>>>>>>>>>')
 
     return suggestions
