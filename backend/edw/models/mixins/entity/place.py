@@ -189,9 +189,7 @@ class PlaceMixin(object):
         Формируем поисковый запрос из объета Request
         """
         query = super(PlaceMixin, cls).get_search_query(request)
-
         g = request.GET.get('g', None)
-
         if g is not None:
             try:
                 geoposition = str_to_geoposition(g)
@@ -205,9 +203,4 @@ class PlaceMixin(object):
                     text_parts.extend(hash_parts)
 
                 query['like'] = ' '.join(text_parts)
-
-                print(">> geoposition <<", query)
-
-        # print (">>> get_search_query 'geoposition' <<<", geoposition)
-
         return query

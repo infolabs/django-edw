@@ -44,8 +44,6 @@ def more_like_this(request):
     # имя модели в которой производится поиск
     model = request.GET.get('m', None)
 
-    print ("++++++ more_like_this ++++++", model)
-
     model_class = EntityModel
     if model is not None:
         try:
@@ -53,15 +51,9 @@ def more_like_this(request):
         except LookupError:
             pass
 
-
-    print (">>> model_class <<<", model_class)
-
     search_query = model_class.get_search_query(request)
 
-    print (">>> search_query <<<", search_query)
-
     results = []
-
     if search_query:
         search_result = get_more_like_this(search_query.pop('like'), model=model, **search_query)
         suggestions = analyze_suggestions(search_result)
@@ -87,11 +79,7 @@ def more_like_this(request):
                 'words': suggestion['words'],
                 'url': url
             }
-
             results.append(suggestion_data)
-
-    print ()
-    print ()
 
     return JsonResponse({
         'results': results
