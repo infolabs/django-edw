@@ -102,7 +102,7 @@ const TileItemMixin = Base => class extends Base {
                   <li className="annotation" key={i}
                     data-view-class={key}>
                     <strong>{annotations[key].name}:&nbsp;</strong>
-                    {annotations[key].value}
+                    {annotations[key].value.map(val => <span>{val};&nbsp;</span>)}
                   </li>
               )}
             </ul>
