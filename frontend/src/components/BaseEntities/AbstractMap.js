@@ -58,7 +58,7 @@ export default class AbstractMap extends Component {
   }
 
   getPinColor(item) {
-    let pinColor = "#CECECE";
+    let pinColor = "CECECE";
     const pinColorPattern = item.extra.group_size ? "group-pin-color-" : "pin-color-";
     if (item.short_marks.length) {
       for (const sm of item.short_marks) {
