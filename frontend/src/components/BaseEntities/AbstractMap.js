@@ -141,7 +141,7 @@ export default class AbstractMap extends Component {
             <li className="annotation" key={i}
               data-view-class={key}>
               <strong>{annotations[key].name}:&nbsp;</strong>
-              {annotations[key].value.map(val => <span>{val};&nbsp;</span>)}
+              {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
             </li>
         )}
         {characteristics.map(
