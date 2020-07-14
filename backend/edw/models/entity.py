@@ -635,6 +635,15 @@ class EntityCharacteristicOrMarkInfo(object):
         """
         return repr((self.name, self.values))
 
+    def view_class_findall(self, pattern):
+        """
+        RUS: Ищет совпадения в массиве классов представления `view_class` по маске `pattern`
+        """
+        result = []
+        for x in self.view_class:
+            result += re.findall(pattern, x)
+        return result
+
 
 class EntityCharacteristicOrMarkGetter(object):
     """
@@ -1653,6 +1662,19 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         необходим для обеспечения валидации "не системных" терминов в модуле администрирования
         """
         return terms
+
+    @classmethod
+    def get_search_query(cls, request):
+        """
+        Формируем поисковый запрос из объета Request
+        """
+        result = {
+            'like': request.GET.get('q', ''),
+            'unlike': request.GET.get('u', None),
+            'ignore_like': request.GET.get('iq', None),
+            'ignore_unlike': request.GET.get('iu', None)
+        }
+        return result
 
 
 EntityModel = deferred.MaterializedModel(BaseEntity)

@@ -58,7 +58,7 @@ export default class AbstractMap extends Component {
   }
 
   getPinColor(item) {
-    let pinColor = "#CECECE";
+    let pinColor = "CECECE";
     const pinColorPattern = item.extra.group_size ? "group-pin-color-" : "pin-color-";
     if (item.short_marks.length) {
       for (const sm of item.short_marks) {
@@ -125,9 +125,25 @@ export default class AbstractMap extends Component {
     );
   }
 
-  exAttrs(characteristics){
+  exAttrs(characteristics, extra){
+    let annotations = {};
+    if (extra) {
+      for (const [key, val] of Object.entries(extra)) {
+        if (val instanceof Object && 'name' in val && 'value' in val)
+          annotations[key] = val;
+      }
+    }
+
     return(
       <ul className="ex-attrs">
+        {Object.keys(annotations).map(
+          (key, i) =>
+            <li className="annotation" key={i}
+              data-view-class={key}>
+              <strong>{annotations[key].name}:&nbsp;</strong>
+              {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
+            </li>
+        )}
         {characteristics.map(
           (child, i) =>
             child.values.length < 5 ?
@@ -157,7 +173,7 @@ export default class AbstractMap extends Component {
                 data-name={child.name}
                 data-path={child.path}
                 data-view-class={child.view_class.join(" ")}>
-              <i className="fa fa-tag"></i>&nbsp;
+              <i className="fa fa-tag"/>&nbsp;
               {child.values.join(", ")}
             </li>
         )}
@@ -166,10 +182,11 @@ export default class AbstractMap extends Component {
   }
 
   assembleInfo(item, meta, description) {
-    const { marks, characteristics, media, header } = this.assembleInfoVars(item, meta, description);
-    let exRibbons = this.exRibbons(marks),
-        exAttrs = this.exAttrs(characteristics),
-        exTags = this.exTags(marks);
+    const { marks, characteristics, media, header } = this.assembleInfoVars(item, meta, description),
+          exRibbons = this.exRibbons(marks),
+          exAttrs = this.exAttrs(characteristics, item.extra),
+          exTags = this.exTags(marks);
+
     return (
       <div className={item.extra.group_size ? "ex-map-info ex-catalog-item-variants" :
           "ex-map-info"}

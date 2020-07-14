@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 from rest_framework import filters
 from classytags.core import Options
 from classytags.arguments import MultiKeywordArgument, Argument
-from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.models.data_mart import DataMartModel
 from edw.rest.pagination import DataMartPagination
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.rest.filters.data_mart import DataMartFilter
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.serializers.data_mart import (
     DataMartSummarySerializer,
     DataMartDetailSerializer,
@@ -66,7 +66,7 @@ class GetDataMarts(BaseRetrieveDataTag):
     action = 'list'
 
     filter_class = DataMartFilter
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter)
     ordering_fields = '__all__'
 
     pagination_class = DataMartPagination

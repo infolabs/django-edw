@@ -1,53 +1,70 @@
 # -*- coding: utf-8 -*-
 
-from collections import Counter
-from math import log
+import re
+import json
 
 from haystack import connections
+from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
 
 
-def get_more_like_this(text, entity_model=None, stop_words=None):
+def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, model=None):
     """
     Perform `more_like_this` query to find similar model instances.
 
-    `entity_model` is like 'particularproblem', 'typicalestablishment', etc.
+    `model` is like 'particularproblem', 'typicalestablishment', etc.
 
-    `stop_words` is a list of stopwords to make search results better.
     Common Russian stopwords are already filtered in search backend,
     this list must only contain words specific to the entity model.
     """
-
     backend = connections['default'].get_backend()
-
+    fields = [DOCUMENT_FIELD]
     payload = {
         'query': {
             'bool': {
                 'must': [
                     {
                         'more_like_this': {
-                            'fields': ['text', 'category', 'characteristics'],
-                            'like': text,
+                            'fields': fields,
+                            'like': like,
                             'min_term_freq': 1,
                             'min_doc_freq': 1,
-                            'max_query_terms': 200,
+                            'max_query_terms': 25,
                             'minimum_should_match': '0%',
                             'analyzer': 'default',
-                            'stop_words': stop_words or []
                         }
                     }
                 ]
             }
         }
     }
-    if entity_model:
-        payload['query']['bool']['filter'] = [
+    if ignore_like:
+        payload['query']['bool']['must'][0]['more_like_this']['unlike'] = ignore_like
+    if unlike:
+        foo = {
+                'fields': fields,
+                'like': unlike,
+                'min_term_freq': 1,
+                'min_doc_freq': 1,
+                'max_query_terms': 12,
+                'minimum_should_match': '0%',
+                'analyzer': 'default',
+            }
+        if ignore_unlike:
+            foo['unlike'] = ignore_unlike
+        payload['query']['bool']['must_not'] = [
             {
-                'term': {
-                    'entity_model': entity_model,
-                }
+                'more_like_this': foo
             }
         ]
 
+    if model:
+        payload['query']['bool']['filter'] = [
+            {
+                'term': {
+                    DJANGO_CT: str(model),
+                }
+            }
+        ]
     search_result = backend.conn.search(
         body=payload,
         index=backend.index_name,
@@ -62,83 +79,63 @@ def get_more_like_this(text, entity_model=None, stop_words=None):
 def analyze_suggestions(search_result):
     """
     Sort and filter `get_more_like_this` suggestions to classify category.
-
-    This code was written to be easily understood,
-    it can be improved to run faster if needed.
     """
-
     # Parse search result to get score and words per suggestion
-    suggestions = []
+    suggestions = {}
     for hit in search_result['hits']['hits']:
+
+        print ('hit', hit)
+        print ()
+
         # When querying all models at the same time,
         # some of them may have [None] in category field,
         # so we ignore them
-        categories = hit['_source']['categories']
-        if not categories:
+        raw_categories = hit['_source']['categories']
+        if not raw_categories:
             continue
 
-        suggestion = {
-            'coefficients': {'score': hit['_score']},
-            'category': categories[0],
-            'source': hit['_source'],
-            'words': {},
-        }
+        words = set()
+        # формируем список ключевых слов
+        for obj in hit['_explanation']['details']:
+            raw_details = json.dumps(obj, ensure_ascii=False)
+            words.update(set(re.findall(r'"weight\(\w+:(.+?)\s+in', raw_details)))
 
-        for word_details in hit['_explanation']['details'][0]['details']:
+        # накапливаем результат
+        for x in raw_categories:
             try:
-                field, word = word_details['description'].replace('weight(', '').split(' ')[0].split(':')
-            except ValueError:
-                field = 'error'
-                word = None
-
-            if field not in suggestion['words']:
-                suggestion['words'][field] = []
-
-            suggestion['words'][field].append(word)
-
-        suggestions.append(suggestion)
-
-    # Count suggestions per category
-
-    category_counter = Counter()
-    for suggestion in suggestions:
-        category = suggestion['category']
-        category_counter[category] += 1
-
-    for suggestion in suggestions:
-        category = suggestion['category']
-        suggestion['coefficients']['count'] = category_counter[category]
-
-    # Calculate coefficients
-
-    category_score_sums = {}
-    category_score_mults = {}
-
-    for suggestion in suggestions:
-        category = suggestion['category']
-
-        if suggestion['category'] in category_score_sums:
-            category_score_sums[category] += suggestion['coefficients']['score']
-        else:
-            category_score_sums[category] = suggestion['coefficients']['score']
-
-    for suggestion in suggestions:
-        category = suggestion['category']
-        suggestion['coefficients']['score_sum'] = category_score_sums[category]
-
-    # Sort by coefficient
+                category = json.loads(x)
+            except json.decoder.JSONDecodeError:
+                pass
+            else:
+                score = hit['_score'] if category.get('similar', True) else -hit['_score']
+                foo = suggestions.get(x, None)
+                if foo is None:
+                    suggestions[x] = {
+                        'category': category,
+                        'words': words,
+                        'score': score
+                    }
+                else:
+                    foo['score'] += score
+                    foo['words'].update(words)
+    # переводим множество слов в список
+    suggestions = suggestions.values()
+    for x in suggestions:
+        x['words'] = list(x['words'])
+    # сортируем
     suggestions = sorted(
         suggestions,
-        key=lambda suggestion: suggestion['coefficients']['score_sum'],
+        key=lambda x: x['score'],
         reverse=True
     )
 
-    # Make categories unique
-    unique_category_suggestions = []
-    already_present_suggestions = []
-    for suggestion in suggestions:
-        if suggestion['category'] not in already_present_suggestions:
-            unique_category_suggestions.append(suggestion)
-            already_present_suggestions.append(suggestion['category'])
+    # print('>>> suggestions >>> ')
+    # for x in suggestions[:5]:
+    #     print('------------------')
+    #     print('* id:', x['category']['id'])
+    #     print('* category:', x['category']['name'])
+    #     print('* score:', x['score'])
+    #     print('* words:', x['words'])
+    # print('>>>>>>>>>>>>>>>>>>>>')
 
-    return unique_category_suggestions
+    return suggestions

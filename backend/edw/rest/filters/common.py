@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import warnings
+
+from django.template import Context, RequestContext, Template
 
 from django_filters.filters import (
     BaseInFilter,
@@ -66,3 +67,24 @@ class MethodFilter(Filter):
         """
         self.resolve_action()
         return self.action(self.name, qs, value)
+
+
+def template_render(template, context=None, request=None):
+    """
+    Passing Context or RequestContext to Template.render is deprecated in 1.9+,
+    see https://github.com/django/django/pull/3883 and
+    https://github.com/django/django/blob/1.9/django/template/backends/django.py#L82-L84
+    :param template: Template instance
+    :param context: dict
+    :param request: Request instance
+    :return: rendered template as SafeText instance
+    """
+    if isinstance(template, Template):
+        if request:
+            context = RequestContext(request, context)
+        else:
+            context = Context(context)
+        return template.render(context)
+    # backends template, e.g. django.template.backends.django.Template
+    else:
+        return template.render(context, request=request)

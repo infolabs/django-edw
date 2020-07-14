@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
 
-from django.http import HttpResponse
+from django.http import JsonResponse
+from django.apps import apps
+
 from rest_framework.mixins import ListModelMixin
 
 from drf_haystack.generics import HaystackGenericAPIView
@@ -35,31 +36,52 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
 
 
 def more_like_this(request):
-    results = []
-    text = request.GET.get('q')
-    entity_model = request.GET.get('m')
-    if text:
-        import pdb; pdb.set_trace()
+    """
+    Классификатор объектов
+    :param request: запрос
+    :return:
+    """
+    # имя модели в которой производится поиск
+    # Пример: m=nash_region.particularproblem
+    model = request.GET.get('m', None)
 
-        search_result = get_more_like_this(text, entity_model)
+    model_class = EntityModel
+    if model is not None:
+        try:
+            model_class = apps.get_model(*str(model).rsplit(".", 1))
+        except LookupError:
+            model = None
+
+    search_query = model_class.get_search_query(request)
+
+    results = []
+    if search_query:
+        search_result = get_more_like_this(search_query.pop('like'), model=model, **search_query)
         suggestions = analyze_suggestions(search_result)
 
         for suggestion in suggestions:
-            entity_id = suggestion['source']['django_id']  # Just for detail URL
-            try:
-                entity = EntityModel.objects.get(id=entity_id)
-            except EntityModel.DoesNotExist:
-                pass
-            else:
-                suggestion_data = {
-                    'id': suggestion['source']['django_id'],
-                    'model': suggestion['source']['django_ct'],
-                    'title': suggestion['category'],
-                    'url': entity.get_detail_url()
-                }
-                results.append(suggestion_data)
+            category = suggestion['category']
+            pk = category.get('id', None)
+            model, url = None, None
+            if pk is not None:
+                try:
+                    obj = EntityModel.objects.get(id=pk)
+                except EntityModel.DoesNotExist:
+                    pass
+                else:
+                    model = obj._meta.object_name.lower()
+                    url = obj.get_absolute_url(request=request)
 
-    return HttpResponse(
-        json.dumps({'results': results}),
-        content_type='application/json'
-    )
+            suggestion_data = {
+                'id': pk,
+                'model': model,
+                'title': category['name'],
+                'score': suggestion['score'],
+                'words': suggestion['words'],
+                'url': url
+            }
+            results.append(suggestion_data)
+
+    return JsonResponse({
+        'results': results
+    })

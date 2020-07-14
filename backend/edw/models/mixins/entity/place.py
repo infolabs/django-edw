@@ -7,6 +7,9 @@ from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from geoposition import str_to_geoposition
+from geoposition.geohash import geo_expand
+
 from edw.models.entity import EntityModel
 from edw.models.postal_zone import get_postal_zone
 from edw.models.term import TermModel
@@ -179,3 +182,25 @@ class PlaceMixin(object):
                                   zone_term_ids_to_add=to_add)
 
         super(PlaceMixin, self).validate_terms(origin, **kwargs)
+
+    @classmethod
+    def get_search_query(cls, request):
+        """
+        Формируем поисковый запрос из объета Request
+        """
+        query = super(PlaceMixin, cls).get_search_query(request)
+        g = request.GET.get('g', None)
+        if g is not None:
+            try:
+                geoposition = str_to_geoposition(g)
+            except ValueError:
+                pass
+            else:
+                geohash = geoposition.geohash.strip()
+                text_parts = [query['like']]
+                for i in [6, 7, 8, 9]:
+                    hash_parts = geo_expand(geohash[:i])
+                    text_parts.extend(hash_parts)
+
+                query['like'] = ' '.join(text_parts)
+        return query

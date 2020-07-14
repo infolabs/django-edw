@@ -105,12 +105,14 @@ class Notification(models.Model):
     notify_to = models.IntegerField(verbose_name=_("Notify to"), null=True,
                                     blank=True, default=None)
 
-
     class Meta:
         app_label = APP_LABEL
         verbose_name = _("Notification")
         verbose_name_plural = _("Notifications")
         ordering = ('transition',)
+
+    def __str__(self):
+        return self.name
 
     @staticmethod
     def get_senders_objects():

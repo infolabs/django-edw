@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.apps import apps
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
-from rest_framework_filters.backends import DjangoFilterBackend
 
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
@@ -15,6 +14,7 @@ from edw.rest.filters.entity import (
     EntityGroupByFilter,
     EntityOrderingFilter
 )
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.pagination import EntityPagination
 from edw.rest.permissions import IsReadOnly
 from edw.rest.serializers.data_mart import DataMartDetailSerializer
@@ -73,7 +73,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
     filter_class = EntityFilter
-    filter_backends = (DjangoFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
+    filter_backends = (EDWFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
                        EntityOrderingFilter)
     ordering_fields = '__all__'
 
@@ -87,11 +87,17 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     def initial(self, request, data_mart_pk=None, *args, **kwargs):
         if self.action in ('retrieve', 'list'):
-            request.GET.setdefault('active', True)
+            # Позваляем устанавливать фильтр активности только для персонала и администраторов
+            if request.user.is_active and (request.user.is_staff or request.user.is_superuser):
+                request.GET.setdefault('active', True)
+            else:
+                request.GET['active'] = True
+
         if self.data_mart_pk is not None:
             request.GET['data_mart_pk'] = str(self.data_mart_pk)
         elif data_mart_pk is not None:
             request.GET.setdefault('data_mart_pk', data_mart_pk)
+
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         if hasattr(self.extra_serializer_context, '__call__'):
             self.extra_serializer_context = self.extra_serializer_context(self, request, *args, **kwargs)

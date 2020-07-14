@@ -5,11 +5,10 @@ from __future__ import unicode_literals
 from rest_framework import viewsets
 from rest_framework import permissions
 
-from rest_framework_filters.backends import DjangoFilterBackend
-
 from edw.models.related.entity_image import EntityImageModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.filters.related.entity_image import EntityImageFilter
+from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.serializers.related.entity_image import EntityImageSerializer
 from edw.rest.permissions import IsFilerFileOwnerOrReadOnly
 
@@ -21,7 +20,7 @@ class EntityImageViewSet(viewsets.ModelViewSet):
     queryset = EntityImageModel.objects.all()
     serializer_class = EntityImageSerializer
     filter_class = EntityImageFilter
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (EDWFilterBackend,)
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):

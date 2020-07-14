@@ -7,6 +7,7 @@ from django.db.models.options import Options
 from django.db.models.sql.where import ExtraWhere
 from django.db.models import DO_NOTHING
 from django.db.models.sql.query import RawQuery
+from django.core.exceptions import EmptyResultSet
 
 from edw.models.sql.datastructures import CustomJoin
 
@@ -60,7 +61,9 @@ class CustomCountQuerySetMixin(object):
             values = list(self.query.group_by)
             if 'id' not in set(values):
                 values.insert(0, 'id')
-        return self.values(*values).aggregate(__count=Count('id'))['__count']
+
+        result = self.values(*values).aggregate(__count=Count('id'))['__count']
+        return 0 if result is None else result
 
 
 #==============================================================================
@@ -115,14 +118,20 @@ def inner_join_to(queryset, subquery, table_field, subquery_field, alias):
     """
     Add a INNER JOIN on `subquery` to `queryset` (having table `table`).
     """
-    return join_to(queryset, subquery, table_field, subquery_field, alias, 'INNER JOIN', False)
+    try:
+        return join_to(queryset, subquery, table_field, subquery_field, alias, 'INNER JOIN', False)
+    except EmptyResultSet:
+        return queryset.none()
 
 
 def left_join_to(queryset, subquery, table_field, subquery_field, alias):
     """
     Add a LEFT JOIN on `subquery` to `queryset` (having table `table`).
     """
-    return join_to(queryset, subquery, table_field, subquery_field, alias, 'LEFT JOIN', True)
+    try:
+        return join_to(queryset, subquery, table_field, subquery_field, alias, 'LEFT JOIN', True)
+    except EmptyResultSet:
+        return queryset
 
 
 #==============================================================================

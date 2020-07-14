@@ -136,11 +136,30 @@ class ListItem extends Component {
       // related_data_marts = descriptions[data.id].marks || [];
     }
 
+    let annotations = {};
+    if (data.extra) {
+      for (const [key, val] of Object.entries(data.extra)) {
+        if (val instanceof Object && 'name' in val && 'value' in val)
+          annotations[key] = val;
+      }
+    }
+
     let description_baloon = "";
     if (characteristics.length) {
       description_baloon = (
         <div className="ex-description-wrapper">
           <ul className="ex-attrs">
+            {Object.keys(annotations).length !== 0 &&
+              <li className="annotation">
+                {Object.keys(annotations).map(
+                  (key, i) =>
+                    <>
+                      <strong>{annotations[key].name}:&nbsp;</strong>
+                      {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
+                    </>
+                )}
+              </li>
+            }
             {characteristics.map(
               (child, i) =>
                 <li data-path={child.path} key={i}
