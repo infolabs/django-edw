@@ -215,9 +215,13 @@ class TaggedItems {
   }
 
   tag(item) {
-    this[item.id] = true;
+    // ignore and
+    if (item.parent && item.parent.semantic_rule != consts.SEMANTIC_RULE_AND)
+      this[item.id] = true;
+
     if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_XOR)
       this.untagSiblings(item);
+
     let index = this.items.indexOf(item.id);
     if (index < 0 && item.id != null) {
     // if (index < 0 && item.id > -1) {
@@ -251,7 +255,8 @@ class TaggedItems {
   }
 
   isAncestorTagged(item) {
-    if (item.structure != consts.STRUCTURE_LIMB && item.parent) {
+    if (item.structure != consts.STRUCTURE_LIMB && item.parent &&
+        item.parent.semantic_rule != consts.SEMANTIC_RULE_AND ) {
       if (this[item.parent.id])
         return true;
       else
