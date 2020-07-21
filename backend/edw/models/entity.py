@@ -13,7 +13,7 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned
 )
-from django.db import models, transaction, connections, connection
+from django.db import models, transaction, connections
 from django.db.models import Q, Count
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.utils import six

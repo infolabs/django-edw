@@ -6,7 +6,8 @@ from operator import __or__ as OR
 
 from django.utils import six
 from django.db.models import Q
-from django.db.models.signals import pre_delete, pre_save
+# from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_save
 
 from edw.models.entity import EntityModel
 from edw.models.customer import CustomerModel
@@ -33,11 +34,11 @@ for clazz in itertools.chain([Model], Model.get_all_subclasses()):
 # ==============================================================================
 # Email category model event handlers
 # ==============================================================================
-def on_pre_delete_email_category(sender, instance, **kwargs):
-    customer_category_term_id = instance.term.id
-    entities_ids = EntityModel.objects.instance_of(*_model_with_customer_category_mixin).filter(
-        terms__id=customer_category_term_id).values_list('id', flat=True)
-    EntityModel.terms.through.objects.filter(entity_id__in=entities_ids, term_id=customer_category_term_id).delete()
+# def on_pre_delete_email_category(sender, instance, **kwargs):
+#     customer_category_term_id = instance.term.id
+#     entities_ids = EntityModel.objects.instance_of(*_model_with_customer_category_mixin).filter(
+#         terms__id=customer_category_term_id).values_list('id', flat=True)
+#     EntityModel.terms.through.objects.filter(entity_id__in=entities_ids, term_id=customer_category_term_id).delete()
 
 
 def on_pre_save_email_category(sender, instance, **kwargs):
@@ -87,8 +88,8 @@ def on_pre_save_customer(sender, instance, **kwargs):
 # EmailCategory
 email_category_model = EmailCategoryModel.materialized
 
-pre_delete.connect(on_pre_delete_email_category, email_category_model,
-                   dispatch_uid=make_dispatch_uid(pre_delete, on_pre_delete_email_category, email_category_model))
+# pre_delete.connect(on_pre_delete_email_category, email_category_model,
+#                    dispatch_uid=make_dispatch_uid(pre_delete, on_pre_delete_email_category, email_category_model))
 pre_save.connect(on_pre_save_email_category, email_category_model,
                  dispatch_uid=make_dispatch_uid(pre_save, on_pre_save_email_category, email_category_model))
 

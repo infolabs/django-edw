@@ -321,6 +321,24 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     def __str__(self):
         return self.name
 
+    # def __lt__(self, other):
+    #     """
+    #     RUS: Сравнивает узлы дерева для организации сортировки.
+    #     """
+    #     tree_opts = self._mptt_meta
+    #     self_tree_id, self_tree_left = getattr(self, tree_opts.tree_id_attr), getattr(self, tree_opts.left_attr)
+    #     other_tree_id, other_tree_left = getattr(other, tree_opts.tree_id_attr), getattr(other, tree_opts.left_attr)
+    #     if self_tree_id == other_tree_id:
+    #         return self_tree_left < other_tree_left
+    #     else:
+    #         return self_tree_id < other_tree_id
+    #
+    # def __eq__(self, other):
+    #     if not isinstance(other, type(self)):
+    #         # Delegate comparison to the other instance's __eq__.
+    #         return NotImplemented
+    #     return self.pk == other.pk
+
     def make_filters(self, *args, **kwargs):
         """
         RUS: Если семантическое правило «И», применяется миксин фильтра для семантического правила «И»,

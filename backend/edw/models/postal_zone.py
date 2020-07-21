@@ -102,11 +102,14 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 PostZoneModel = deferred.MaterializedModel(BasePostZone)
 
 
-def get_postal_zone(postcode):
+def get_postal_zone(postcode, term_ids=None):
     tree_opts = TermModel._mptt_meta
-    zones = PostZoneModel.objects.active().order_by(
+    zones = PostZoneModel.objects.active().select_related('term').order_by(
         '-' + 'term__{}'.format(tree_opts.level_attr),
         'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
+    if term_ids is not None:
+        zones = zones.filter(term_id__in=term_ids)
+
     for zone in zones:
         if zone.is_postal_code_match(postcode):
             break

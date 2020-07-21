@@ -11,6 +11,12 @@ try:
         # notification,
     )
 
+    # try import `boundary`
+    try:
+        from . import boundary
+    except ImproperlyConfigured:
+        pass
+
     # try import `postal_zone`
     try:
         from . import postal_zone

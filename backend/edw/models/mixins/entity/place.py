@@ -11,6 +11,7 @@ from geoposition import str_to_geoposition
 from geoposition.geohash import geo_expand
 
 from edw.models.entity import EntityModel
+from edw.models.boundary import get_boundary
 from edw.models.postal_zone import get_postal_zone
 from edw.models.term import TermModel
 from edw.signals.place import zone_changed
@@ -151,32 +152,47 @@ class PlaceMixin(object):
         если местоположение не определяется, то id добавляется в другие регионы.
         """
         context = kwargs["context"]
-        if (context.get("force_validate_terms", False) and not context.get("bulk_force_validate_terms", False)
-        ) or context.get("validate_place", False):
-            # нельзя использовать в массовых операциях из ограничения API геокодера
+        if context.get("force_validate_terms", False) or context.get("validate_place", False):
             if origin is not None:
                 to_remove = EntityModel.terms.through.objects.filter(
                     Q(entity_id=self.id) &
                     Q(term_id__in=self.all_regions_terms_ids_set)
                 ).values_list('term_id', flat=True)
-                self.terms.remove(*to_remove)
             else:
                 to_remove = []
+            # определяем термин зоны по границам
+            zone = get_boundary(self.geoposition.longitude, self.geoposition.latitude)
 
-            try:
-                postcode = get_postcode(self.location)
-            except GeocoderException:
-                zone = None
+            # Уточняем зону если не удалось определить по границам, либо возможно найти более частную зону,
+            # нельзя использовать в массовых операциях из ограничения API геокодера
+            if not context.get("bulk_force_validate_terms", False):
+                if zone is None or not zone.term.is_leaf_node():
+                    try:
+                        # определяем термин зоны по почтовому индексу
+                        postcode = get_postcode(self.location)
+                    except GeocoderException:
+                        pass
+                    else:
+                        post_zone = get_postal_zone(postcode)
+                        level_attr = TermModel._mptt_meta.level_attr
+                        if post_zone is not None and (
+                                zone is None or getattr(zone.term, level_attr) < getattr(post_zone.term, level_attr)):
+                            zone = post_zone
+                if zone is None:
+                    # если зона не найдена ни по почтовому индексу ни по границе - устанавливаем "Terra Incognita"
+                    to_add = [self.get_terra_incognita_term().id]
+                else:
+                    to_add = [zone.term.id]
             else:
-                zone = get_postal_zone(postcode)
-
-            if zone is not None:
-                to_add = [zone.term.id]
-            else:
-                to_add = [self.get_terra_incognita_term().id]
-            self.terms.add(*to_add)
+                # если зона определенная границей не найдена или менее частная - оставляем старые термины
+                if zone is None or zone.term.get_descendants().filter(id__in=to_remove).exists():
+                    to_add = to_remove
+                else:
+                    to_add = [zone.term.id]
 
             if set(to_add) != set(to_remove):
+                self.terms.remove(*to_remove)
+                self.terms.add(*to_add)
                 zone_changed.send(sender=self.__class__, instance=self,
                                   zone_term_ids_to_remove=to_remove,
                                   zone_term_ids_to_add=to_add)
