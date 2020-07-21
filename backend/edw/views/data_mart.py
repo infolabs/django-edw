@@ -138,5 +138,5 @@ class RebuildDataMartTreeView(APIView):
         messages.add_message(request._request, messages.INFO,
                              _("The tree was sucessfully rebuilt"))
         return HttpResponseRedirect(urlresolvers.reverse(
-            "admin:%s_term_changelist" % app_label)
+            "admin:%s_datamart_changelist" % app_label)
         )
