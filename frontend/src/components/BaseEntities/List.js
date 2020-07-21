@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import marked from 'marked';
+import ListItemMixin from "./ListItemMixin";
 
-
-const TOGGLE_DESCRIPTION_DELAY = 100;
 
 // Container
 
@@ -35,92 +32,18 @@ export default class List extends Component {
 
 // Element
 
-class ListItem extends Component {
-
-  state = {
-    minHeight: 0,
-    isHover: false
-  };
-
-  handleMouseOver(e) {
-    this.toggleDescription(e);
-  }
-
-  handleMouseOut(e) {
-    this.toggleDescription(e);
-  }
-
-  handleMouseClick(e) {
-    const { data, actions, meta } = this.props;
-    if (data.extra && data.extra.group_size) {
-      actions.notifyLoadingEntities();
-      actions.expandGroup(data.id, meta);
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.loading !== prevProps.loading) {
-      this.setState({minHeight: 'auto'});
-    }
-  }
-
-  toggleDescription(e) {
-    const { data, meta, actions, descriptions } = this.props,
-          id = data.id,
-          lastIsHover = this.getIsHover(e.clientX, e.clientY);
-
-    this.setState({isHover: lastIsHover});
-
-    let context = this;
-    setTimeout(function() {
-      const { isHover } = context.state;
-
-      if (lastIsHover === isHover) {
-        if (isHover) {
-          try {
-            const area = ReactDOM.findDOMNode(context),
-                  areaRect = area.getBoundingClientRect();
-            context.setState({minHeight: areaRect.height});
-          } catch (err) {
-            // pass
-          }
-
-          actions.showDescription(id);
-
-          if ((data.extra && data.extra.group_size) && !meta.alike && !descriptions.groups[id])
-            actions.getEntityItem(data, meta);
-
-          if ((data.extra && !data.extra.group_size) && !descriptions[id])
-            actions.getEntityItem(data);
-
-        } else {
-          actions.hideDescription(id);
-        }
-      }
-    }, TOGGLE_DESCRIPTION_DELAY);
-  }
-
-  getIsHover(clientX, clientY) {
-    const area = ReactDOM.findDOMNode(this),
-          areaRect = area.getBoundingClientRect(),
-          posX = clientX - areaRect.left,
-          posY = clientY - areaRect.top;
-
-    return posX >= 0 && posY >= 0 && posX <= areaRect.width && posY <= areaRect.height;
-  }
+class ListItem extends ListItemMixin(Component) {
 
   render() {
     const { data, meta, descriptions } = this.props,
           url = data.extra && data.extra.url ? data.extra.url : data.entity_url,
-          group_size = data.extra && data.extra.group_size ? data.extra.group_size : 0;
+          groupSize = data.extra && data.extra.group_size ? data.extra.group_size : 0;
 
-    let group_digit = "";
-    if (group_size) {
-      group_digit = (
+    let groupDigit = "";
+    if (groupSize) {
+      groupDigit = (
         <div className="ex-pack">
-          <span className="ex-digit">{group_size}</span>
+          <span className="ex-digit">{groupSize}</span>
           <div><div><div></div></div></div>
         </div>
       );
@@ -136,96 +59,23 @@ class ListItem extends Component {
       // related_data_marts = descriptions[data.id].marks || [];
     }
 
-    let annotations = {};
-    if (data.extra) {
-      for (const [key, val] of Object.entries(data.extra)) {
-        if (val instanceof Object && 'name' in val && 'value' in val)
-          annotations[key] = val;
-      }
-    }
+    const className = "ex-catalog-item list-item" + (groupSize ? " ex-catalog-item-variants" : "") +
+          (descriptions.opened[data.id] ? " ex-state-description" : "");
 
-    let description_baloon = "";
-    if (characteristics.length) {
-      description_baloon = (
-        <div className="ex-description-wrapper">
-          <ul className="ex-attrs">
-            {Object.keys(annotations).length !== 0 &&
-              <li className="annotation">
-                {Object.keys(annotations).map(
-                  (key, i) =>
-                    <>
-                      <strong>{annotations[key].name}:&nbsp;</strong>
-                      {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
-                    </>
-                )}
-              </li>
-            }
-            {characteristics.map(
-              (child, i) =>
-                <li data-path={child.path} key={i}
-                  data-view-class={child.view_class.join(" ")}>
-                  <strong>{child.name}:&nbsp;</strong>
-                  {child.values.join("; ")}
-                </li>
-            )}
-          </ul>
-          <ul className="ex-tags">
-            {marks.map(
-              (child, i) =>
-                <li className="ex-tag"
-                    key={i}
-                    data-name={child.name}
-                    data-path={child.path}
-                    data-view-class={child.view_class.join(" ")}>
-                  <i className="fa fa-tag"></i>&nbsp;
-                  {child.values.join(", ")}
-                </li>
-            )}
-          </ul>
-        </div>
-      );
-    }
-
-    const className = "ex-catalog-item list-item" + (group_size ? " ex-catalog-item-variants" : "") +
-        (descriptions.opened[data.id] ? " ex-state-description" : "");
-    const title = group_size && !meta.alike ? data.extra.group_name : data.entity_name;
+    const exAttrs = this.getExAttrs(data, characteristics),
+          exTags = this.getExTags(marks),
+          descriptionBaloon = this.getDescriptionBaloon(data, characteristics, marks, descriptions, exAttrs, exTags) || "",
+          title = groupSize && !meta.alike ? data.extra.group_name : data.entity_name,
+          itemBlock = this.getItemBlock(url, data, title, descriptionBaloon),
+          itemContent = this.getItemContent(url, data, itemBlock, marks);
 
     return (
       <div className={className}
          onMouseOver={e => this.handleMouseOver(e)}
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>
-        {group_digit}
-        <div className="wrap-list-item"
-             onClickCapture={e => { ::this.handleMouseClick(e); } }>
-          <div className="row">
-              <div className="col-md-3">
-                <a href={url}>
-                  <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
-                </a>
-              </div>
-
-            <div className="col-md-9">
-              <a href={url}>
-                <h4>{title}</h4>
-              </a>
-              {descriptions.opened[data.id] && description_baloon}
-            </div>
-          </div>
-
-          <ul className="ex-ribbons">
-            {marks.map(
-              (child, i) =>
-                <li className="ex-wrap-ribbon"
-                    key={i}
-                    data-name={child.name}
-                    data-path={child.path}
-                    data-view-class={child.view_class.join(" ")}>
-                  <div className="ex-ribbon">{child.values.join(", ")}</div>
-                </li>
-            )}
-          </ul>
-        </div>
+         {groupDigit}
+         {itemContent}
       </div>
     );
   }
