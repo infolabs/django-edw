@@ -7,12 +7,17 @@ import pytz
 import uuid
 import jwt
 import re
+import hmac
+import time
+import hashlib
 
 from django.conf import settings
 from django.utils import six
 
 from social_core.backends.oauth import BaseOAuth2
 from social_core.backends.vk import VKOAuth2
+from social_core.backends.telegram import TelegramAuth as TelegramAuthBase
+from social_core.exceptions import AuthFailed, AuthMissingParameter
 
 from edw.utils.hash_helpers import create_hash
 
@@ -211,3 +216,31 @@ class EsiaOAuth2(BaseOAuth2):
 
 class VKOAuth2Https(VKOAuth2):
     AUTHORIZATION_URL = 'https://oauth.vk.com/authorize'
+
+
+class TelegramAuth(TelegramAuthBase):
+    def verify_data(self, response):
+        bot_token = self.setting('BOT_TOKEN')
+        if bot_token is None:
+            raise AuthMissingParameter('telegram',
+                                       'SOCIAL_AUTH_TELEGRAM_BOT_TOKEN')
+
+        received_hash_string = response.get('hash')
+        auth_date = response.get('auth_date')
+
+        if received_hash_string is None or auth_date is None:
+            raise AuthMissingParameter('telegram', 'hash or auth_date')
+
+        data_check_string = ['{}={}'.format(k, v)
+                             for k, v in response.items() if k != 'hash' and k != 'next']
+        data_check_string = '\n'.join(sorted(data_check_string))
+        secret_key = hashlib.sha256(str(bot_token).encode('utf-8')).digest()
+        built_hash = hmac.new(secret_key,
+                              msg=str(data_check_string).encode('utf-8'),
+                              digestmod=hashlib.sha256).hexdigest()
+        current_timestamp = int(time.time())
+        auth_timestamp = int(auth_date)
+        if current_timestamp - auth_timestamp > 86400:
+            raise AuthFailed('telegram', 'Auth date is outdated')
+        if built_hash != received_hash_string:
+            raise AuthFailed('telegram', 'Invalid hash supplied')
