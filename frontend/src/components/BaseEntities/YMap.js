@@ -59,8 +59,11 @@ function getRegionsStyle(osm, osmRegion){
       }
       break;
 
-    // Используется, когда не нужна заливка городов, а нужен только контур
-    case 'without-fill':
+    // Когда нужны только границы районов используется дефолтная заливка
+    case 'default-fill':
+      osm.colors = 'rgba(0, 255, 252, 0.05)';
+      break;
+
     default:
       osm.colors = osm.colors[0];
   }
