@@ -33,7 +33,7 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         from M2Crypto import SMIME, BIO
 
         if not isinstance(data, bytes):
-            data = bytes(data)
+            data = bytes(str(data), encoding='utf8')
 
         signer = SMIME.SMIME()
         signer.load_key(private_key_file, certificate_file)
@@ -41,6 +41,7 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         signed_message = BIO.MemoryBuffer()
         p7.write_der(signed_message)
         return signed_message.read()
+
     elif backend == 'openssl':
         source_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
         source_file.write(data)
@@ -75,7 +76,9 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         destination_file.close()
 
         # openssl compiled with gost 2012 support
-        cmd = 'LD_LIBRARY_PATH=/usr/local/ssl/lib/ /usr/local/ssl/bin/openssl smime -sign -md sha256 -signer {cert} -engine gost -in {f_in} -out {f_out} -outform DER'
+        cmd = ('LD_LIBRARY_PATH=/usr/local/ssl/lib/'
+               ' /usr/local/ssl/bin/openssl smime -sign -md sha256 -signer {cert}'
+               ' -engine gost -in {f_in} -out {f_out} -outform DER')
 
         os.system(cmd.format(
             f_in=source_path,
