@@ -232,11 +232,13 @@ class BaseBoundary(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 BoundaryModel = deferred.MaterializedModel(BaseBoundary)
 
 
-def get_boundary(longitude, latitude):
+def get_boundary(longitude, latitude, term_ids=None):
     tree_opts = TermModel._mptt_meta
     boundaries = BoundaryModel.objects.active().select_related('term').order_by(
         '-' + 'term__{}'.format(tree_opts.level_attr),
         'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
+    if term_ids is not None:
+        boundaries = boundaries.filter(term_id__in=term_ids)
     for boundary in boundaries:
         if boundary.in_polygons(longitude, latitude):
             break
