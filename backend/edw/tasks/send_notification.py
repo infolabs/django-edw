@@ -3,17 +3,20 @@ from __future__ import unicode_literals
 
 from celery import shared_task
 
-from edw.models.entity import EntityModel
+from django.apps import apps
+from django.conf import settings
 
 
 @shared_task(name='send_notification')
-def send_notification(entity_id, source, target):
+def send_notification(model_name, instance_id, source, target):
     res = {
-        'entity': entity_id,
+        'model_name': model_name,
+        'instance_id': instance_id,
         'source': source,
         'target': target,
     }
-    instance = EntityModel.objects.filter(id=entity_id).first()
+    model = apps.get_model(settings.EDW_APP_LABEL, model_name)
+    instance = model.objects.filter(id=instance_id).first()
     if instance:
         instance.send_notification(source, target)
         res.update({
