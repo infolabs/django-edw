@@ -28,7 +28,10 @@ class Tree {
     if ( !parent ) {
       parent = new Item();
     }
+    let n = 0;
     for (const child of json) {
+      // increment selected children count
+      (child.structure !== consts.STRUCTURE_NULL && n++);
       let options = {
         'id': child.id,
         'name': child.name,
@@ -46,6 +49,11 @@ class Tree {
       this.hash[item.id] = item;
       item.children = this.json2tree(child.children, item).children;
       parent.children.push(item);
+    }
+    // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
+    // selected children count more than one
+    if ( parent.semantic_rule == consts.SEMANTIC_RULE_XOR && n > 1 ) {
+      parent.semantic_rule = consts.SEMANTIC_RULE_OR;
     }
     return parent;
   }

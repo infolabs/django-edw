@@ -322,9 +322,9 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         decompress = TermModel.cached_decompress if self.cached else TermModel.decompress
 
-        trunk = decompress(trunk, self.fix_it)
+        trunk = decompress(trunk, True if self.fix_it is None else self.fix_it)
         if has_selected:
-            tree = decompress(selected, self.fix_it)
+            tree = decompress(selected, False if self.fix_it is None else self.fix_it)
         else:
             tree = trunk
 
@@ -346,12 +346,15 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         return True
 
     @cached_property
-    @get_from_context_or_request('fix_it', True)
+    @get_from_context_or_request('fix_it', None)
     def fix_it(self, value):
-        '''
-        :return: `fix_it` value in context or request, default: True
-        '''
-        return serializers.BooleanField().to_internal_value(value)
+        """
+        TRUE - 't', 'T', 'true', 'True', 'TRUE', '1', 1, True
+        FALSE - 'f', 'F', 'false', 'False', 'FALSE', '0', 0, 0.0, False
+        NULL - 'n', 'N', 'null', 'Null', 'NULL', '', None
+        :return: `fix_it` value in context or request, default: None
+        """
+        return serializers.NullBooleanField().to_internal_value(value)
 
     @cached_property
     @get_from_context_or_request('selected', [])
