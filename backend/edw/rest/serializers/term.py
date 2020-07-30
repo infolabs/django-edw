@@ -313,8 +313,9 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
     def get_selected_terms(self):
         selected = self.selected[:]
         has_selected = bool(selected)
+        has_data_mart = bool(self.data_mart)
 
-        if self.data_mart:
+        if has_data_mart:
             trunk = list(self.active_only_filter(self.data_mart.terms.values_list('id', flat=True)))
             selected.extend(trunk)
         else:
@@ -322,9 +323,11 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
 
         decompress = TermModel.cached_decompress if self.cached else TermModel.decompress
 
-        trunk = decompress(trunk, True if self.fix_it is None else self.fix_it)
+        trunk = decompress(trunk, has_data_mart if self.fix_it is None else self.fix_it)
         if has_selected:
             tree = decompress(selected, False if self.fix_it is None else self.fix_it)
+            if has_data_mart:
+                tree = tree.soft_trim([x.term.id for x in trunk.values() if x.is_leaf])
         else:
             tree = trunk
 

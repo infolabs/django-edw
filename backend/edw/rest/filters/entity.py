@@ -16,9 +16,9 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import serializers
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
-
 
 from edw.rest.filters.common import template_render
 from edw.models.data_mart import DataMartModel
@@ -50,11 +50,11 @@ class BaseEntityFilter(filters.FilterSet):
             data['_mutable'] = True
         except AttributeError:
             data = data.copy()
+        self._data_mart = data.get('_data_mart', None)
         self.patch_data(data, **kwargs)
         super(BaseEntityFilter, self).__init__(data, **kwargs)
 
     def patch_data(self, data, **kwargs):
-        self._data_mart = data.get('_data_mart', None)
         tree = TermModel.cached_decompress([], fix_it=True)
         data.update({
             '_initial_filter_meta': tree,
@@ -243,11 +243,15 @@ class EntityFilter(BaseEntityFilter):
             queryset = self.filter_rel(name, queryset, None)
 
         self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
-            self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+            self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress, fix_it=True)
+
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
         if 'terms' in self.data:
             return queryset
-        queryset = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress)
+
+        queryset = queryset.semantic_filter(self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress,
+                                            fix_it=True)
+
         self.data['_terms_filter_meta'] = queryset.semantic_filter_meta
         return queryset
 
@@ -258,7 +262,9 @@ class EntityFilter(BaseEntityFilter):
         self.data['_terms_ids'] = self.term_ids
         selected = self.term_ids[:]
         selected.extend(self.data_mart_term_ids)
-        queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress)
+
+        queryset = queryset.semantic_filter(selected, use_cached_decompress=self.use_cached_decompress, fix_it=False,
+                                            trim_ids=self.data_mart_term_ids if self.data_mart_term_ids else None)
         self.data['_terms_filter_meta'] = queryset.semantic_filter_meta
         return queryset
 
@@ -591,6 +597,9 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
 
 class EntityOrderingFilter(OrderingFilter):
 
+    def __init__(self):
+        self._extra_ordering = None
+
     def filter_queryset(self, request, queryset, view):
         if view.action in ("bulk_update", "partial_bulk_update"):
             return queryset
@@ -612,9 +621,9 @@ class EntityOrderingFilter(OrderingFilter):
         request.GET['_ordering'] = result
         return result
 
-    def get_valid_fields(self, queryset, view, context={}):
-        result = super(EntityOrderingFilter, self).get_valid_fields(queryset, view)
-        extra_ordering = getattr(self, '_extra_ordering', None)
+    def get_valid_fields(self, queryset, view, *arg, **kwargs):
+        result = super(EntityOrderingFilter, self).get_valid_fields(queryset, view, *arg, **kwargs)
+        extra_ordering = self._extra_ordering
         if extra_ordering is not None:
             fields = dict(result)
             valid_fields = []

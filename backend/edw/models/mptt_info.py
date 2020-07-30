@@ -12,19 +12,19 @@ from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.set_helpers import uniq
 
 
-#==============================================================================
+# ==============================================================================
 # get_queryset_descendants
-#==============================================================================
+# ==============================================================================
 def get_queryset_descendants(nodes, include_self=False):
     """
     RUS: Запрос к базе данных потомков. Если нет узлов,
     то возвращается пустой запрос.
     """
     if not nodes:
-        #HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
+        # HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
         return EmptyQuerySet(MPTTModel)
     filters = []
-    Model = nodes[0].__class__
+    model_class = nodes[0].__class__
     if include_self:
         for n in nodes:
             lft, rght = n.lft - 1, n.rght + 1
@@ -35,15 +35,15 @@ def get_queryset_descendants(nodes, include_self=False):
                 lft, rght = n.lft, n.rght
                 filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
     if filters:
-        return Model.objects.filter(reduce(operator.or_, filters))
+        return model_class.objects.filter(reduce(operator.or_, filters))
     else:
-        #HACK: Emulate Model.objects.none()
-        return Model.objects.filter(id__isnull=True)
+        # HACK: Emulate model_class.objects.none()
+        return model_class.objects.filter(id__isnull=True)
 
 
-#==============================================================================
+# ==============================================================================
 # TermTreeInfo
-#==============================================================================
+# ==============================================================================
 class TermTreeInfo(dict):
     """
     Helper class TermTreeInfo
@@ -67,7 +67,7 @@ class TermTreeInfo(dict):
         """
         tree = self.deepcopy()
         tree._expand()
-        return tree._trim(ids)
+        return tree.soft_trim(ids)
 
     def expand(self):
         """
@@ -81,7 +81,7 @@ class TermTreeInfo(dict):
         """
         RUS: Приватный метод, добавляет в дерево ребенка к предкам.
         """
-        terms = [x.term for x in self.values() if x.is_leaf]
+        terms = [x.term for x in self.values() if x.is_leaf and not x.term.is_leaf_node()]
         if terms:
             for term in get_queryset_descendants(terms, include_self=False).filter(active=True):
                 ancestor = self.get(term.parent_id)
@@ -89,26 +89,28 @@ class TermTreeInfo(dict):
                 ancestor.is_leaf = False
                 ancestor.append(child)
 
-    def _trim(self, ids=None):
+    def soft_trim(self, ids=None):
         """
         RUS: Создает дерево, у которого удалены id лишних узлов.
         """
         if ids is None:
             ids = []
         # ids = uniq(ids)
-        root_model_class = self.root.term.__class__
-        root = TermInfo(term=root_model_class())
+        origin_root_term = self.root.term
+        root = TermInfo(term=origin_root_term.__class__(semantic_rule=origin_root_term.semantic_rule,
+                                                        active=origin_root_term.active))
         tree = TermTreeInfo(root)
-        for id in ids:
-            src_node = self.get(id)
+        for pk in ids:
+            src_node = self.get(pk)
             if src_node is not None:
-                if not id in tree:
-                    node = tree[id] = TermInfo(term=src_node.term, is_leaf=True)
+                if pk not in tree:
+                    node = tree[pk] = TermInfo(term=src_node.term, is_leaf=True)
                     src_ancestor = self.get(node.term.parent_id)
                     while src_ancestor:
                         ancestor = tree.get(src_ancestor.term.id)
                         if not ancestor:
-                            node = tree[src_ancestor.term.id] = TermInfo(term=src_ancestor.term, is_leaf=False, children=[node])
+                            node = tree[src_ancestor.term.id] = TermInfo(term=src_ancestor.term, is_leaf=False,
+                                                                         children=[node])
                             if node.term.parent_id is None:
                                 root.append(node)
                                 break
@@ -148,9 +150,9 @@ class TermTreeInfo(dict):
         return tree
 
 
-#==============================================================================
+# ==============================================================================
 # TermInfo
-#==============================================================================
+# ==============================================================================
 class TermInfo(list):
     """
     Class TermInfo
@@ -197,8 +199,8 @@ class TermInfo(list):
         model_class = root_term.__class__
 
         tree = TermTreeInfo(root)
-        for term in model_class._default_manager.filter(pk__in=value).select_related('parent'):
-            if not term.id in tree:
+        for term in model_class.objects.filter(pk__in=value).select_related('parent'):
+            if term.id not in tree:
                 node = tree[term.id] = TermInfo(term=term, is_leaf=True)
                 term_parent = term.parent
                 if term_parent:
@@ -210,7 +212,8 @@ class TermInfo(list):
                         node = tree[term_parent.id] = TermInfo(term=term_parent, is_leaf=False, children=[node])
                         if term_parent.parent_id is not None:
                             for term_ancestor in term_parent.get_ancestors(ascending=True).exclude(pk__in=tree.keys()):
-                                node = tree[term_ancestor.id] = TermInfo(term=term_ancestor, is_leaf=False, children=[node])
+                                node = tree[term_ancestor.id] = TermInfo(term=term_ancestor, is_leaf=False,
+                                                                         children=[node])
                             ancestor = tree.get(node.term.parent_id)
                             if ancestor is not None:
                                 ancestor.is_leaf = False
@@ -223,5 +226,3 @@ class TermInfo(list):
                     root.append(node)
 
         return tree
-
-

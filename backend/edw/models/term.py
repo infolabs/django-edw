@@ -31,16 +31,35 @@ from ..utils.hash_helpers import get_unique_slug, hash_unsorted_list
 from ..utils.set_helpers import uniq
 
 
-#==============================================================================
+# ==============================================================================
+# make_path
+# ==============================================================================
+def _join_path(joiner, field, ancestors):
+    return joiner.join([force_text(getattr(i, field)) for i in ancestors])
+
+
+def make_path(obj, items):
+    """
+    RUS: Создает путь.
+    """
+    obj.path = _join_path('/', 'slug', items)
+    path_max_length = obj._meta.get_field('path').max_length
+    if len(obj.path) > path_max_length:
+        slug_max_length = obj._meta.get_field('slug').max_length
+        short_path = obj.path[:path_max_length - slug_max_length - 1]
+        obj.path = '/'.join([short_path.rstrip('/'), get_unique_slug(obj.slug, obj.id)])
+
+
+# ==============================================================================
 # TermUniqueError
-#==============================================================================
+# ==============================================================================
 class TermUniqueError(IntegrityError):
     pass
 
 
-#==============================================================================
+# ==============================================================================
 # BaseTermQuerySet
-#==============================================================================
+# ==============================================================================
 class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
 
     @add_cache_key('actv')
@@ -55,7 +74,7 @@ class BaseTermQuerySet(QuerySetCachedResultMixin, TreeQuerySet):
         """
         RUS: Запрос на принудительное удаление терминов.
         """
-        return (BaseTermQuerySet, self).delete()
+        return super(BaseTermQuerySet, self).delete()
 
     def delete(self):
         """
@@ -173,9 +192,9 @@ class BaseTermManager(RebuildTreeMixin, TreeManager.from_queryset(BaseTermQueryS
     '''
 
 
-#==============================================================================
+# ==============================================================================
 # BaseTermMetaclass
-#==============================================================================
+# ==============================================================================
 class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
     """
     ENG: The BaseTerm class must refer to their materialized model definition, for instance when
@@ -183,20 +202,20 @@ class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
     RUS: Метакласс базовых терминов
     """
     @classmethod
-    def perform_model_checks(cls, Model):
+    def perform_model_checks(mcs, model_class):
         """
         ENG: Perform some safety checks on the TermModel being created.
         RUS: Выполняет некоторые проверки безопасности для создаваемой модели терминов TermModel.
         Создаваемый класс должен являться объектом ModelManager, наследуемой от BaseTermManager.
         """
-        if not isinstance(Model.objects, BaseTermManager):
+        if not isinstance(model_class.objects, BaseTermManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseTermManager"
-            raise NotImplementedError(msg.format(Model.__name__))
+            raise NotImplementedError(msg.format(model_class.__name__))
 
 
-#==============================================================================
+# ==============================================================================
 # BaseTerm
-#==============================================================================
+# ==============================================================================
 @python_2_unicode_compatible
 class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilterMixin,
                               MPTTModelSignalSenderMixin, MPTTModel)):
@@ -277,7 +296,6 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         5: ('external_tagging_restriction', messages['external_tagging_restriction'])
     }
 
-
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
                             verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255, db_index=True)
@@ -291,8 +309,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                                                           choices=SPECIFICATION_MODES, default=STANDARD_SPECIFICATION)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
-    view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
-                                  help_text=_('Space delimited class attribute, specifies one or more classnames for an entity.'))
+    view_class = models.CharField(
+        verbose_name=_('View Class'), max_length=255, null=True, blank=True,
+        help_text=_('Space delimited class attribute, specifies one or more classnames for an entity.'))
     description = models.TextField(verbose_name=_('Description'), null=True, blank=True)
     active = models.BooleanField(default=True, verbose_name=_("Active"), db_index=True,
                                  help_text=_("Is this term active."))
@@ -364,7 +383,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         origin = None
         if bool(self.pk) and not inspect.isclass(self.pk) or self.pk == 0:
             try:
-                origin = model_class._default_manager.get(pk=self.pk)
+                origin = model_class.objects.get(pk=self.pk)
             except model_class.DoesNotExist:
                 pass
         if self.system_flags:
@@ -381,19 +400,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return super(BaseTerm, self).clean(*args, **kwargs)
 
     def _make_path(self, items):
-
-        def join_path(joiner, field, ancestors):
-            """
-            RUS: Создает путь термина.
-            """
-            return joiner.join([force_text(getattr(i, field)) for i in ancestors])
-
-        self.path = join_path('/', 'slug', items)
-        path_max_length = self._meta.get_field('path').max_length
-        if len(self.path) > path_max_length:
-            slug_max_length = self._meta.get_field('slug').max_length
-            short_path = self.path[:path_max_length - slug_max_length - 1]
-            self.path = '/'.join([short_path.rstrip('/'), get_unique_slug(self.slug, self.id)])
+        make_path(self, items)
 
     def save(self, *args, **kwargs):
         # determine whether this instance is already in the db
@@ -520,8 +527,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                     x.is_leaf = True
                     del x[:]
             if invalid_ids:
-                for id in uniq(invalid_ids):
-                    del tree[id]
+                for pk in uniq(invalid_ids):
+                    del tree[pk]
 
         return tree
 
@@ -655,8 +662,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                        request=request, format=format)
 
 
-#==============================================================================
+# ==============================================================================
 # TermModel
-#==============================================================================
+# ==============================================================================
 TermModel = deferred.MaterializedModel(BaseTerm)
 

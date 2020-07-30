@@ -27,7 +27,7 @@ from .fields.tree import TreeForeignKey
 from .mixins.rebuild_tree import RebuildTreeMixin
 from .related import DataMartRelationModel, DataMartPermissionModel
 from .rest import RESTModelBase
-from .term import TermModel
+from .term import TermModel, make_path
 from .. import deferred
 from .. import settings as edw_settings
 from ..signals.mptt import MPTTModelSignalSenderMixin
@@ -320,19 +320,7 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         pass
 
     def _make_path(self, items):
-
-        def join_path(joiner, field, ancestors):
-            """
-            RUS: Формирует путь к объекту (витрине данных).
-            """
-            return joiner.join([force_text(getattr(i, field)) for i in ancestors])
-
-        self.path = join_path('/', 'slug', items)
-        path_max_length = self._meta.get_field('path').max_length
-        if len(self.path) > path_max_length:
-            slug_max_length = self._meta.get_field('slug').max_length
-            short_path = self.path[:path_max_length - slug_max_length - 1]
-            self.path = '/'.join([short_path.rstrip('/'), get_unique_slug(self.slug, self.id)])
+        make_path(self, items)
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)

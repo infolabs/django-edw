@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from __future__ import division
+from __future__ import unicode_literals, division
 
 import re
 from functools import reduce
@@ -55,14 +54,16 @@ from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
 from ..utils.set_helpers import uniq
 
+
 # округление в стиле python 3
 if six.PY2:
     _round = round
     round = lambda x: int(_round(x))
 
-#==============================================================================
+
+# ==============================================================================
 # get_polymorphic_ancestors_models
-#==============================================================================
+# ==============================================================================
 def get_polymorphic_ancestors_models(ChildModel):
     """
     ENG: Inheritance chain that inherited from the PolymorphicModel include self model.
@@ -76,9 +77,9 @@ def get_polymorphic_ancestors_models(ChildModel):
     return reversed(ancestors)
 
 
-#==============================================================================
+# ==============================================================================
 # BaseEntityQuerySet
-#==============================================================================
+# ==============================================================================
 
 def _get_terms_ids(entities_qs, tree):
     """
@@ -134,13 +135,18 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         return self.filter(active=False)
 
     @add_cache_key('sf')  # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
-    def semantic_filter(self, value, use_cached_decompress=False, field_name='terms'):
+    def semantic_filter(self, value, use_cached_decompress=False, field_name='terms', fix_it=False, trim_ids=None):
         """
         RUS: Добавляет фиктивный ключ не для кэширования. Возвращает отфильтрованные по семантическим правилам
         распакованные кэшированные данные тематической модели.
         """
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
-        tree = decompress(value, fix_it=True)
+        tree = decompress(value, fix_it)
+        if trim_ids is not None:
+            # "обрезаем" дерево в случаи необходимости
+            tree = tree.soft_trim(trim_ids)
+
+        # формируем фильтры
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
 
         result = self
@@ -601,9 +607,9 @@ class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTMode
         #    raise NotImplementedError(msg.format(Model.__name__))
 
 
-#==============================================================================
+# ==============================================================================
 # EntityCharacteristicOrMarkInfo & EntityCharacteristicOrMarkGetter cache system
-#==============================================================================
+# ==============================================================================
 class EntityCharacteristicOrMarkInfo(object):
     """
     RUS: Характеристики или метки сущности.
@@ -847,9 +853,9 @@ class EntityCharacteristicOrMarkGetter(object):
         return attrs if limit is None else attrs[:limit]
 
 
-#==============================================================================
+# ==============================================================================
 # BaseEntity terms ManyRelatedManager patched methods
-#==============================================================================
+# ==============================================================================
 def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
     self._origin_add(*objs, **kwargs)
 
@@ -867,9 +873,9 @@ def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
         self.instance._valid_pk_set.update(new_ids) # add ids to _valid_pk_set
 
 
-#==============================================================================
+# ==============================================================================
 # BaseEntity
-#==============================================================================
+# ==============================================================================
 @python_2_unicode_compatible
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
