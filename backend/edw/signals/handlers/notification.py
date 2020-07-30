@@ -10,11 +10,13 @@ def transition_event_notification(sender, instance, name, source, target, **kwar
     if hasattr(instance, 'send_notification'):
         send_notification.apply_async(
             kwargs={
-                "entity_id": instance.id,
-                "source": source,
-                "target": target
+                'model_name': instance.__class__.__name__,
+                'instance_id': instance.id,
+                'source': source,
+                'target': target,
             }
         )
     return
+
 
 post_transition.connect(transition_event_notification)

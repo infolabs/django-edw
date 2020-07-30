@@ -100,11 +100,6 @@ class Notification(models.Model):
     mode = BitField(flags=MODES, verbose_name=_('Mode'), default=Bit(0).mask)
     active = models.BooleanField(verbose_name=_("Active"), default=True)
 
-    #TODO: удалить
-    transition_target = models.CharField(max_length=255, verbose_name=_("Event"))
-    notify_to = models.IntegerField(verbose_name=_("Notify to"), null=True,
-                                    blank=True, default=None)
-
     class Meta:
         app_label = APP_LABEL
         verbose_name = _("Notification")

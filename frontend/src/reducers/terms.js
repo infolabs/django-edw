@@ -85,9 +85,9 @@ class Item {
   }
 
   isLimbDescendant() {
-    let ret = this.structure === consts.STRUCTURE_LIMB
+    let ret = this.structure == consts.STRUCTURE_LIMB;
     if (!ret && this.parent) {
-      ret = this.parent.structure === consts.STRUCTURE_LIMB
+      ret = this.parent.structure == consts.STRUCTURE_LIMB;
       if (!ret)
         ret = this.parent.isLimbDescendant();
     }
@@ -100,18 +100,19 @@ class Item {
 
   isLimbOrAnd(item) {
     return ((this.parent &&
-      this.parent.semantic_rule === consts.SEMANTIC_RULE_AND) ||
-      this.structure === consts.STRUCTURE_LIMB)
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
+      this.structure == consts.STRUCTURE_LIMB);
   }
 
   isLimbOrAndLeaf(item) {
     return ((this.parent &&
-      this.parent.semantic_rule === consts.SEMANTIC_RULE_AND && this.is_leaf) ||
-      this.structure === consts.STRUCTURE_LIMB)
+      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
+      this.structure == consts.STRUCTURE_LIMB);
   }
 
   isVisible() {
-    return this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf();
+    return (this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf()
+            && !(this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf));
   }
 
 }
@@ -159,7 +160,7 @@ class TaggedItems {
     for (const child of json) {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
-          child.specification_mode === consts.EXPANDED_SPECIFICATION) {
+          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
         const pk = parseInt(child.id);
         this.cache[pk] = true;
       }
@@ -227,7 +228,7 @@ class TaggedItems {
     if (item.parent && item.parent.semantic_rule != consts.SEMANTIC_RULE_AND)
       this[item.id] = true;
 
-    if (item.parent && item.parent.semantic_rule === consts.SEMANTIC_RULE_XOR)
+    if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_XOR)
       this.untagSiblings(item);
 
     let index = this.items.indexOf(item.id);
@@ -279,7 +280,7 @@ class TaggedItems {
 class ExpandedItems {
 
   constructor(json) {
-    this.json2items(json)
+    this.json2items(json);
   }
 
   json2items(json) {
@@ -377,9 +378,9 @@ function tree(state = new Tree([]), action) {
 
 
 function details(state = {}, action) {
+  const item = action.json;
   switch (action.type) {
     case consts.LOAD_ITEM:
-      const item = action.json;
       state[item.id] = item;
       return Object.assign({}, state);
     default:

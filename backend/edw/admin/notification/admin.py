@@ -32,11 +32,7 @@ class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'transition', 'notify_to_roles','copy_to', 'template', 'mode', 'active',)
-        }),
-        #TODO: удалить
-        ('temp', {
-            'fields': ('transition_target', 'notify_to',)
+            'fields': ('name', 'transition', 'notify_to_roles', 'copy_to', 'template', 'mode', 'active',)
         }),
         # Скрытие служебного поля доступных ролей
         ('Hidden', {
@@ -79,7 +75,7 @@ class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
             'transition': SelectMultiple(_('Transition'), False, choices=self.model.get_transition_choices()),
             'copy_to': SalmonellaMultiIdWidget(self.model._meta.get_field("copy_to").rel, admin.site)
         },
-        field_classes={'avaliable_roles': 'hidden'} )
+            field_classes={'avaliable_roles': 'hidden'})
 
         return super(NotificationAdmin, self).get_form(request, obj, **kwargs)
 
@@ -91,4 +87,3 @@ class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
         """
         return obj.notificationattachment_set.count()
     num_attachments.short_description = _("Attachments")
-
