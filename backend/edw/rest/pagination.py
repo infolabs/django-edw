@@ -92,4 +92,5 @@ class EntityPagination(EDWLimitOffsetPagination):
         Возвращает максимальное количество элементов запроса
         """
         limit = get_data_mart_cookie_setting(request, "limit")
-        return int(limit) if limit else super(EntityPagination, self).get_limit(request)
+        limit = int(limit) if limit else super(EntityPagination, self).get_limit(request)
+        return min(limit, self.max_limit)
