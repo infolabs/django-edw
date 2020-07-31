@@ -97,14 +97,21 @@ const TileItemMixin = Base => class extends Base {
                     {child.values.join("; ")}
                   </li>
               )}
-              {Object.keys(annotations).map(
-                (key, i) =>
-                  <li className="annotation" key={i}
-                    data-view-class={key}>
-                    <strong>{annotations[key].name}:&nbsp;</strong>
-                    {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
-                  </li>
-              )}
+              {Object.keys(annotations).length !== 0 &&
+                <li className="annotation">
+                  {Object.keys(annotations).map(
+                    (key, i) =>
+                      <div key={i}>
+                        <strong>{annotations[key].name}:&nbsp;</strong>
+                        {annotations[key].value instanceof Array ?
+                          annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)
+                        :
+                          <span key={key}>{annotations[key].value}</span>
+                        }
+                      </div>
+                  )}
+                </li>
+              }
             </ul>
           </div>
         </div>
