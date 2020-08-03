@@ -292,6 +292,7 @@ class DataMartDetailSerializerBase(DataMartDynamicMetaMixin,
     view_components = serializers.SerializerMethodField()
     rel = serializers.SerializerMethodField()
     limit = serializers.SerializerMethodField()
+    max_limit = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label', 'detail')
@@ -334,6 +335,9 @@ class DataMartDetailSerializerBase(DataMartDynamicMetaMixin,
 
     def get_limit(self, instance):
         return instance.limit if instance.limit is not None else edw_settings.REST_PAGINATION['entity_default_limit']
+
+    def get_max_limit(self, instance):
+        return edw_settings.REST_PAGINATION['entity_max_limit']
 
 
 class DataMartDetailSerializer(DataMartDetailSerializerBase):

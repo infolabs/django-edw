@@ -59,18 +59,23 @@ class Dropdowns {
     this['ordering'] = new Dropdown(ordering_options);
 
     // Limits
-    const dl = data_mart.limit || 40; // default limit
-    const lopts = {}; // limit options
-    lopts[dl] = dl;
-    lopts[dl*2] = dl*2;
-    lopts[dl*5] = dl*5;
-    lopts[dl*10] = dl*10;
-    lopts[dl*20] = dl*20;
+    const default_limit = data_mart.limit || 40;
+    const max_limit = data_mart.max_limit || null;
+    const multipliers = [2, 5, 10, 20];
+    const options = {};
+    for (const m of multipliers) {
+        const o = default_limit * m;
+        if (max_limit && o >= max_limit) {
+          options[max_limit] = max_limit;
+          break;
+        }
+        options[o] = o;
+    }
     const limit = json.limit;
     const limit_options = {
       'request_var': 'limit',
       'selected': limit,
-      'options': lopts
+      'options': options
     };
     this['limits'] = new Dropdown(limit_options);
 
