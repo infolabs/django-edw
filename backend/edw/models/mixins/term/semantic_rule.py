@@ -64,7 +64,8 @@ class AndRuleFilterMixin(SemanticRuleFilterMixin):
     def make_filters(self, *args, **kwargs):
         term_info = kwargs.pop('term_info')
         field_name = kwargs.get('field_name')
-        filters = filter(None, (x.term.make_filters(term_info=x, *args, **kwargs) for x in term_info if not x.is_leaf))
+        filters = list(filter(None, (
+            x.term.make_filters(term_info=x, *args, **kwargs) for x in term_info if not x.is_leaf)))
         if term_info.is_leaf or not filters:
             result = self.make_leaf_filters(field_name)
         else:
