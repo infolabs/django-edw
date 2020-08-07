@@ -84,8 +84,8 @@ def analyze_suggestions(search_result):
     suggestions = {}
     for hit in search_result['hits']['hits']:
 
-        print ('hit', hit)
-        print ()
+        # print ('hit', hit)
+        # print ()
 
         # When querying all models at the same time,
         # some of them may have [None] in category field,

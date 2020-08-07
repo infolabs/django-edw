@@ -4,13 +4,13 @@ from __future__ import print_function, unicode_literals
 from collections import Counter
 
 from django.apps import apps
-from django.conf import settings
+# from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 
 from haystack.utils import get_model_ct
 
-from edw.models.entity import EntityModel
+# from edw.models.entity import EntityModel
 from edw.search.classify import get_more_like_this, analyze_suggestions
 
 

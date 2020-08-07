@@ -15,25 +15,40 @@ from ..utils.set_helpers import uniq
 # ==============================================================================
 # get_queryset_descendants
 # ==============================================================================
-def get_queryset_descendants(nodes, include_self=False):
+def get_queryset_descendants(nodes, include_self=False, add_to_result=None):
     """
     RUS: Запрос к базе данных потомков. Если нет узлов,
     то возвращается пустой запрос.
+    :param nodes: список узлов дерева, по которым необходимо отыскать потомков
+    :param include_self: признак включения в результ исходного спичка узлов
+    :param add_to_result: список ключей узлов которые необходимо дополнительно включить в результат
+    :return: список узлов (QuerySet), отсортированный в порядке обхода дерева
     """
     if not nodes:
         # HACK: Emulate MPTTModel.objects.none(), because MPTTModel is abstract
         return EmptyQuerySet(MPTTModel)
     filters = []
     model_class = nodes[0].__class__
+
     if include_self:
         for n in nodes:
-            lft, rght = n.lft - 1, n.rght + 1
-            filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
+            if n.get_descendant_count():
+                lft, rght = n.lft - 1, n.rght + 1
+                filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
+            else:
+                filters.append(Q(pk=n.pk))
     else:
         for n in nodes:
             if n.get_descendant_count():
                 lft, rght = n.lft, n.rght
                 filters.append(Q(tree_id=n.tree_id, lft__gt=lft, rght__lt=rght))
+
+    if add_to_result:
+        if len(add_to_result) > 1:
+            filters.append(Q(id__in=add_to_result))
+        else:
+            filters.append(Q(pk=add_to_result[0]))
+
     if filters:
         return model_class.objects.filter(reduce(operator.or_, filters))
     else:
@@ -131,7 +146,7 @@ class TermTreeInfo(dict):
 
     def _copy_recursively(self, src_node):
         """
-        RUS: Рекурсивно создает копию узла и его элементов.
+        RUS:  Вспомогательная функция, рекурсивно создает копию узла и его элементов.
         """
         node = self[src_node.term.id] = TermInfo(term=src_node.term, is_leaf=src_node.is_leaf)
         for src_child in src_node:
@@ -142,12 +157,64 @@ class TermTreeInfo(dict):
         """
         RUS: Создает копию дерева.
         """
-        root_model_class = self.root.term.__class__
-        root = TermInfo(term=root_model_class())
+        origin_root_term = self.root.term
+        root = TermInfo(term=origin_root_term.__class__(semantic_rule=origin_root_term.semantic_rule,
+                                                        active=origin_root_term.active))
         tree = TermTreeInfo(root)
         for src_node in self.root:
             root.append(tree._copy_recursively(src_node))
         return tree
+
+    def _invert_recursively(self, node):
+        """
+        RUS:  Вспомогательная функция, рекурсивно формирует список (QuerySet) терминов инвенсии
+        """
+        child_ids = []
+        child_not_leafs = []
+        for child in node:
+            child_ids.append(child.term.id)
+            if not child.is_leaf:
+                child_not_leafs.append(child)
+        if node.term.semantic_rule == node.term.XOR_RULE:
+            xor_children = node.term.get_children().order_by()
+            xor_children = xor_children.exclude(id__in=child_ids) if len(child_ids) > 1 else xor_children.exclude(
+                pk=child_ids[0])
+            qss = [xor_children]
+        else:
+            qss = []
+        for child in child_not_leafs:
+            qss.extend(self._invert_recursively(child))
+        return qss
+
+    def invert(self):
+        """
+        RUS: Возвращает полный список (QuerySet) терминов "инверсии" дерева, отсортированный в порядке обхода дерева.
+        Инверисией считаются термины не входящие в исходное дерево, но связанные с ним правилом "XOR"
+        """
+        qss = self._invert_recursively(self.root) if not self.root.is_leaf else []
+        n = len(qss)
+        if n:
+            qs = qss.pop(0)
+            if n > 1:
+                qs = qs.union(*qss)
+            result = get_queryset_descendants(qs, include_self=True)
+        else:
+            # HACK: Emulate TermModel.objects.none()
+            result = self.root.term.__class__.objects.filter(id__isnull=True)
+        return result
+
+    def get_family(self):
+        """
+        RUS: Возвращает полный список (QuerySet) терминов дерева, отсортированный в порядке обхода дерева.
+        """
+        leafs = []
+        not_leafs_ids = []
+        for pk, node in self.items():
+            if node.is_leaf:
+                leafs.append(node.term)
+            else:
+                not_leafs_ids.append(pk)
+        return get_queryset_descendants(leafs, include_self=True, add_to_result=not_leafs_ids)
 
 
 # ==============================================================================
