@@ -214,6 +214,11 @@ class TermTreeInfo(dict):
                 leafs.append(node.term)
             else:
                 not_leafs_ids.append(pk)
+
+        if not leafs:
+            # HACK: Emulate TermModel.objects.none()
+            return self.root.term.__class__.objects.filter(id__isnull=True)
+
         return get_queryset_descendants(leafs, include_self=True, add_to_result=not_leafs_ids)
 
 
