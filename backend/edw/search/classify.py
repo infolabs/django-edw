@@ -130,7 +130,7 @@ def analyze_suggestions(search_result):
     )
 
     # print('>>> suggestions >>> ')
-    # for x in suggestions[:5]:
+    # for x in suggestions[:10]:
     #     print('------------------')
     #     print('* id:', x['category']['id'])
     #     print('* category:', x['category']['name'])

@@ -165,9 +165,10 @@ class TermTreeInfo(dict):
             root.append(tree._copy_recursively(src_node))
         return tree
 
-    def _invert_recursively(self, node):
+    def _invert_recursively(self, node, do_invert_test_fn):
         """
         RUS:  Вспомогательная функция, рекурсивно формирует список (QuerySet) терминов инвенсии
+        :param do_invert_test_fn: функция которая опредиляет необходимость инвенрсии узла дерева
         """
         child_ids = []
         child_not_leafs = []
@@ -175,7 +176,7 @@ class TermTreeInfo(dict):
             child_ids.append(child.term.id)
             if not child.is_leaf:
                 child_not_leafs.append(child)
-        if node.term.semantic_rule == node.term.XOR_RULE:
+        if do_invert_test_fn(node):
             xor_children = node.term.get_children().order_by()
             xor_children = xor_children.exclude(id__in=child_ids) if len(child_ids) > 1 else xor_children.exclude(
                 pk=child_ids[0])
@@ -183,15 +184,24 @@ class TermTreeInfo(dict):
         else:
             qss = []
         for child in child_not_leafs:
-            qss.extend(self._invert_recursively(child))
+            qss.extend(self._invert_recursively(child, do_invert_test_fn))
         return qss
 
-    def invert(self):
+    @staticmethod
+    def _default_do_invert_test_fn(node):
+        return bool(node.term.semantic_rule == node.term.XOR_RULE and (
+                not node.term.view_class or node.term.view_class.find('not-invert') == -1))
+
+    def invert(self, do_invert_test_fn=None):
         """
         RUS: Возвращает полный список (QuerySet) терминов "инверсии" дерева, отсортированный в порядке обхода дерева.
-        Инверисией считаются термины не входящие в исходное дерево, но связанные с ним правилом "XOR"
+        :param do_invert_test_fn: функция которая опредиляет необходимость инвенрсии узла дерева.
+        По умолчанию инверисией считаются термины не входящие в исходное дерево,
+        но связанные с ним правилом "XOR" у которых при этом отсутствует класс представления 'not-invert'
         """
-        qss = self._invert_recursively(self.root) if not self.root.is_leaf else []
+        qss = self._invert_recursively(self.root, (
+                do_invert_test_fn if do_invert_test_fn is not None else self._default_do_invert_test_fn
+            )) if not self.root.is_leaf else []
         n = len(qss)
         if n:
             qs = qss.pop(0)
