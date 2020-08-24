@@ -67,8 +67,7 @@ DISABLED_ACTIONS = [
 ]
 
 
-if six.PY3:
-    unicode = str
+unicode = str
 
 
 def filter_actions(request, actions):
@@ -171,7 +170,7 @@ class TermsTreeFilter(admin.ListFilter):
                 unquote = urllib.unquote
             except AttributeError:
                 unquote = urllib.parse.unquote
-            values = str(unquote(value)) if six.PY3 else unquote(value).decode('utf8')
+            values = str(unquote(value))
             values = values.split(',')
         else:
             values = list()
@@ -343,12 +342,7 @@ class EntityChildActiveOnlyModelAdmin(EntityChildModelAdmin):
                             list_filter_re.append(flt.parameter_name)
                 setattr(self, '_list_filter_re', list_filter_re)
 
-            # Получаем правильный parse в зависимости от версии Python
-            if six.PY3:
-                parse = urllib.parse
-            else:
-                import urlparse
-                parse = urlparse
+            parse = urllib.parse
 
             # Получили параметры фильтров _changelist_filters в виде словаря
             changelist_filters = parse.parse_qs(parse.parse_qs(preserved_filters)['_changelist_filters'][0])
