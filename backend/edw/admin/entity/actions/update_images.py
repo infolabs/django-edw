@@ -101,7 +101,7 @@ def update_images(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
-    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
+    kwargs = {}
     return TemplateResponse(request, "edw/admin/entities/actions/update_images.html",
                             context, **kwargs)
 
