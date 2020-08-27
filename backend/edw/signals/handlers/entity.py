@@ -26,12 +26,13 @@ def get_HTML_snippets_keys(sender):
         for label in ('summary', 'detail') for language in languages]
 
 
-#==============================================================================
+# ==============================================================================
 # Entity model event handlers
-#==============================================================================
+# ==============================================================================
 
 # invalidate after terms set changed
 Model = EntityModel.terms.through
+
 
 @receiver(m2m_changed, sender=Model, dispatch_uid=make_dispatch_uid(
     m2m_changed, 'invalidate_after_terms_set_changed', Model))
@@ -95,40 +96,57 @@ def invalidate_entity_after_save(sender, instance, **kwargs):
 
     cache.delete_many(keys)
 
+
 def invalidate_entity_before_delete(sender, instance, **kwargs):
     invalidate_entity_after_save(sender, instance, **kwargs)
 
 
-# invalidate after images set changed
+# ==============================================================================
+# Connect EntityImageModel, EntityFileModel
+# &
+# invalidate after images and file set changed
+# ==============================================================================
+
+def invalidate_entity_after_file_save(sender, instance, **kwargs):
+    # Clear HTML snippets
+    keys = get_HTML_snippets_keys(instance.entity)
+    cache.delete_many(keys)
+
+
+def invalidate_entity_before_file_delete(sender, instance, **kwargs):
+    invalidate_entity_after_file_save(sender, instance, **kwargs)
+
+
+subclasses = []
+
 try:
     from edw.models.related.entity_image import EntityImageModel
     EntityImageModel()  # Test pass if model materialized
 except (ImproperlyConfigured, ImportError):
     pass
 else:
-    Model = EntityImageModel.materialized
+    subclasses.append(EntityImageModel.materialized)
 
-    def invalidate_entity_after_image_save(sender, instance, **kwargs):
-        # Clear HTML snippets
-        keys = get_HTML_snippets_keys(instance.entity)
-        cache.delete_many(keys)
+try:
+    from edw.models.related.entity_file import EntityFileModel
+    EntityFileModel()  # Test pass if model materialized
+except (ImproperlyConfigured, ImportError):
+    pass
+else:
+    subclasses.append(EntityFileModel.materialized)
 
-    def invalidate_entity_before_image_delete(sender, instance, **kwargs):
-        invalidate_entity_after_image_save(sender, instance, **kwargs)
+for clazz in subclasses:
+    post_save.connect(invalidate_entity_after_file_save, clazz,
+                      dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_file_save, clazz))
+    pre_delete.connect(invalidate_entity_before_file_delete, clazz,
+                       dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_file_delete, clazz))
 
 
-    post_save.connect(invalidate_entity_after_image_save, Model,
-                      dispatch_uid=make_dispatch_uid(post_save, invalidate_entity_after_image_save, Model))
-
-    pre_delete.connect(invalidate_entity_before_image_delete, Model,
-                       dispatch_uid=make_dispatch_uid(pre_delete, invalidate_entity_before_image_delete, Model))
-
-
-#==============================================================================
+# ==============================================================================
 # Connect all subclasses of base content item too
-#   &
+# &
 # Term model validation
-#==============================================================================
+# ==============================================================================
 # init cache for .entity_model
 EntityModel._content_type_cache = {}
 
