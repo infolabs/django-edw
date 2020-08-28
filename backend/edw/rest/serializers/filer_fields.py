@@ -41,14 +41,17 @@ class BaseFilerImageField(BaseFilerFileField):
 
 class FileSorterByDateMixin(object):
 
+    def get_or_create_folder(self, parent, name):
+        folder = Folder.objects.filter(parent=parent, name=name)
+        return folder[0] if folder else Folder.objects.create(parent=parent, name=name)
+
     def get_folder(self, data):
         root_folder = BaseFilerFileField.get_folder(self, data)
         current_time = timezone.now()
 
-        year_folder = Folder.objects.get_or_create(parent=root_folder, name='{}'.format(current_time.year))[0]
-        month_folder = Folder.objects.get_or_create(
-            parent=year_folder, name=_(calendar.month_name[current_time.month]))[0]
-        day_folder = Folder.objects.get_or_create(parent=month_folder, name='{:02d}'.format(current_time.day))[0]
+        year_folder = self.get_or_create_folder(root_folder, '{}'.format(current_time.year))
+        month_folder = self.get_or_create_folder(year_folder, _(calendar.month_name[current_time.month]))
+        day_folder = self.get_or_create_folder(month_folder, '{:02d}'.format(current_time.day))
 
         return day_folder
 
