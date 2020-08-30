@@ -8,10 +8,19 @@ from django_filters.fields import BaseCSVField
 from django_filters.widgets import CSVWidget
 
 
+class ListCSVWidget(CSVWidget):
+
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name)
+        # don't split if value already list
+        return value if isinstance(value, (list, tuple)) else super(ListCSVWidget, self).value_from_datadict(
+            data, files, name)
+
+
 class BaseListField(BaseCSVField):
     # Force use of text input, а Field that aggregates the logic of multiple Fields.
 
-    widget = CSVWidget
+    widget = ListCSVWidget
 
     default_error_messages = {
         'invalid_values': _('List query expects minimum {} and maximum {} values.'),
