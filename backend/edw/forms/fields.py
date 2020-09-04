@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
+
 from django import forms
+
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
@@ -20,6 +23,8 @@ class ListCSVWidget(CSVWidget):
 class BaseListField(BaseCSVField):
     # Force use of text input, а Field that aggregates the logic of multiple Fields.
 
+    DEFAULT_MAX_LEN = 100
+
     widget = ListCSVWidget
 
     default_error_messages = {
@@ -27,25 +32,49 @@ class BaseListField(BaseCSVField):
         'incomplete': _('Enter a complete value.'),
     }
 
-    def __init__(self, fields=(), min_len=0, *args, **kwargs):
-        # fields -- list of Field's
-        # min_len -- minimal length of input
-        self.min_len, self.max_len = min_len, len(fields)
+    def __init__(self, fields=(), min_len=0, max_len=None, *args, **kwargs):
+        """
+        :param fields: list of Field's or one Field for uniform validation
+        :param min_len: minimal length of input
+        :param max_len: maximal length of input
+        """
+        self.min_len = min_len
+        if max_len is None:
+            max_len = self.DEFAULT_MAX_LEN
+
+        if isinstance(fields, (list, tuple)):
+            self.is_uniform_validation = False
+            self.max_len = min(len(fields), max_len)
+        else:
+            self.is_uniform_validation = True
+            self.max_len = max_len
+
         self.require_all_fields = kwargs.pop('require_all_fields', self.min_len == self.max_len)
+
         super(BaseListField, self).__init__(*args, **kwargs)
-        for f in fields:
-            f.error_messages.setdefault('incomplete',
-                                        self.error_messages['incomplete'])
+
+        if self.is_uniform_validation:
+            # uniform validation
+            fields.error_messages.setdefault('incomplete', self.error_messages['incomplete'])
             if self.require_all_fields:
-                # Set 'required' to False on the individual fields, because the
-                # required validation will be handled by BaseListField, not
-                # by those individual fields.
-                f.required = False
+                fields.required = False
+        else:
+            # per field validation
+            for f in fields:
+                f.error_messages.setdefault('incomplete', self.error_messages['incomplete'])
+                if self.require_all_fields:
+                    # Set 'required' to False on the individual fields, because the
+                    # required validation will be handled by BaseListField, not
+                    # by those individual fields.
+                    f.required = False
         self.fields = fields
 
     def __deepcopy__(self, memo):
         result = super(BaseListField, self).__deepcopy__(memo)
-        result.fields = tuple(x.__deepcopy__(memo) for x in self.fields)
+        if self.is_uniform_validation:
+            result.fields = self.fields.__deepcopy__(memo)
+        else:
+            result.fields = tuple(x.__deepcopy__(memo) for x in self.fields)
         return result
 
     def validate(self, value):
@@ -74,7 +103,9 @@ class BaseListField(BaseCSVField):
                 self.error_messages['invalid_values'].format(self.min_len, self.max_len),
                 code='invalid_values')
 
-        for i, field in enumerate(self.fields):
+        fields = [deepcopy(self.fields) for x in value] if self.is_uniform_validation else self.fields
+
+        for i, field in enumerate(fields):
             try:
                 field_value = value[i]
             except IndexError:
@@ -99,6 +130,7 @@ class BaseListField(BaseCSVField):
                 # raise at the end of clean(), rather than raising a single
                 # exception for the first error we encounter. Skip duplicates.
                 errors.extend(m for m in e.error_list if m not in errors)
+
         if errors:
             raise ValidationError(errors)
 
