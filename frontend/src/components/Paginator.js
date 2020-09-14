@@ -3,9 +3,24 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Actions from '../actions/index';
 import { setOffset } from "../utils/locationHash";
+import parseRequestParams from 'utils/parseRequestParams';
 
 
 class Paginator extends Component {
+
+  constructor() {
+    super();
+    this.state = {
+      options_arr: []
+    }
+  }
+
+  requestOptions(){
+    const { entry_points, entry_point_id } = this.props,
+          request_params = entry_points && entry_points[entry_point_id].request_params || [],
+          parms = parseRequestParams(request_params);
+    return parms.options_arr || []
+  }
 
   handleNextClick(e) {
     e.preventDefault();
@@ -15,7 +30,7 @@ class Paginator extends Component {
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
     setOffset(this.props.entry_point_id, options['offset']);
-    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
   }
 
   handlePrevClick(e) {
@@ -26,7 +41,7 @@ class Paginator extends Component {
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
     setOffset(this.props.entry_point_id, options['offset']);
-    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
   }
 
   handlePageClick(e, n) {
@@ -37,7 +52,13 @@ class Paginator extends Component {
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
     setOffset(this.props.entry_point_id, options['offset']);
-    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options);
+    this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
+  }
+
+  componentDidMount() {
+    this.setState({
+      options_arr: this.requestOptions()
+    })
   }
 
   render() {
