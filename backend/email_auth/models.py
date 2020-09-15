@@ -40,13 +40,8 @@ class User(AbstractUser):
         verbose_name = _("Customer")
         verbose_name_plural = _("Customers")
 
-    def get_username(self):
-        if self.is_staff:
-            return self.username
-        return self.email or ugettext('Email is empty')
-
     def __str__(self):
-        return self.get_username()
+        return self.username if self.is_staff else self.email or self.username
 
     def get_full_name(self):
         full_name = super(User, self).get_full_name()

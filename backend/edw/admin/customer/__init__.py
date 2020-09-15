@@ -51,7 +51,7 @@ class CustomerAdmin(UserAdmin):
     form = CustomerChangeForm
     add_form = CustomerCreationForm
     inlines = (CustomerInlineAdmin,)
-    list_display = ('get_username', 'salutation', 'last_name', 'first_name', 'recognized',
+    list_display = ('username', 'email', 'salutation', 'last_name', 'first_name', 'recognized',
                     'last_access', 'is_unexpired')
     segmentation_list_display = ('get_username',)
     list_filter = UserAdmin.list_filter + (CustomerListFilter,)
