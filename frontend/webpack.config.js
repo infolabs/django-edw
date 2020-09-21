@@ -1,60 +1,65 @@
-var path = require('path');
-var webpack = require('webpack');
-var BundleTracker = require('webpack-bundle-tracker');
+const path = require('path');
+const webpack = require('webpack');
+const BundleTracker = require('webpack-bundle-tracker');
 
+const app_name = 'django-edw';
+const node_modules_path = `/app/${app_name}/node_modules/`;
+const local_path = `/app/${app_name}/frontend/src/`;
 
-frontend_src_path = path.join(__dirname, 'src');
 
 module.exports = {
-  context: __dirname,
+  context: '/app',
   devtool: 'eval',
   entry: [
     'whatwg-fetch',
-    'webpack-dev-server/client?http://d.excentrics.ru:3000',
+    'webpack-dev-server/client?http://0.0.0.0:3000',
     'webpack/hot/only-dev-server',
     './src/index'
   ],
   output: {
-    path: path.resolve('../backend/edw/static/js/'),
+    path: `/app/${app_name}/backend/edw/static/js/`,
     filename: "bundle.js",
-    publicPath: 'http://d.excentrics.ru:3000/assets/bundles/'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
     new BundleTracker({filename: './webpack-stats.json'})
   ],
+  optimization: {
+    minimizer: [new TerserPlugin({sourceMap: true})],
+  },
   resolve: {
+    modules: [
+      path.resolve(local_path),
+      path.resolve(node_modules_path)
+    ],
     alias: {
-      'react': path.join(__dirname, 'node_modules', 'react'),
+      'react': path.join(node_modules_path, 'react'),
     },
-    extensions: ['', '.js']
+    extensions: ['.js'],
   },
-  resolveLoader: {
-    'fallback': path.join(__dirname, 'node_modules')
-  },
-  module: {
-    loaders: [{
+    module: {
+    rules: [{
       test: /\.js$/,
-      loaders: ['react-hot', 'babel'],
-      exclude: /node_modules/,
-      include: __dirname
-    }, {
-      test: /\.js$/,
-      loaders: ['react-hot', 'babel'],
-      include: frontend_src_path
+      use: [{
+          loader: 'babel-loader',
+          options: {
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-proposal-function-bind",
+            ],
+            babelrc: false
+          }
+        },
+      ],
+      include: local_path
     }, {
       test: /\.css?$/,
-      loaders: ['style', 'raw'],
-      include: __dirname
+      loaders: ['style-loader', 'raw-loader'],
+      include: local_path
     }, {
       test: /\.less?$/,
-      loaders: ["less", "css"],
+      loaders: ["less-loader", "css-loader"],
       include: path.join(__dirname, 'less')
-    }, {
-      test: /\.less?$/,
-      loaders: ["less", "css"],
-      include: path.join(frontend_src_path, 'less')
     }]
   }
 };
