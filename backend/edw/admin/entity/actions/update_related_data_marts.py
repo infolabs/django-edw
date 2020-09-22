@@ -87,7 +87,7 @@ def update_related_data_marts(modeladmin, request, queryset):
         'media': modeladmin.media,
     }
     # Display the confirmation page
-    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
+    kwargs = {}
     return TemplateResponse(request, "edw/admin/entities/actions/update_related_data_marts.html",
                             context, **kwargs)
 
