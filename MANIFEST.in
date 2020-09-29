@@ -4,3 +4,4 @@ include setup.py
 recursive-include backend/edw/templates *.*
 recursive-include backend/edw/static *.*
 recursive-include backend/edw/locale *.po *.mo
+recursive-include backend/email_auth/locale *.po *.mo
