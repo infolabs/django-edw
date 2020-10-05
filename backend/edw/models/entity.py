@@ -1614,6 +1614,27 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         self.set_reverse_relations(rel_id, to_entities_ids, rewrite=rewrite)
 
     @staticmethod
+    def __make_relations_filter(values):
+        """
+        Split values list to ids & slugs
+        """
+        ids, slugs = [], []
+        for x in values:
+            try:
+                rel_id = int(x)
+            except ValueError:
+                # it was a string, not an int. Add value to slugs
+                slugs.append(x)
+            else:
+                ids.append(rel_id)
+        q_lst = []
+        if ids:
+            q_lst.append(models.Q(term_id__in=ids))
+        if slugs:
+            q_lst.append(models.Q(term__slug__in=slugs))
+        return reduce(OR, q_lst)
+
+    @staticmethod
     def _remove_relations(from_entity_id, rel_f_ids, rel_r_ids):
         """
         ENG: Remove forward and backward(reverse) relations.
@@ -1631,13 +1652,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         else:
             q_f = Q(from_entity_id=from_entity_id)
             if rel_f_ids:
-                q_f &= Q(term_id__in=rel_f_ids)
+                q_f &= BaseEntity.__make_relations_filter(rel_f_ids)
         if rel_r_ids is None:
             q_r = None
         else:
             q_r = Q(to_entity_id=from_entity_id)
             if rel_r_ids:
-                q_r &= Q(term_id__in=rel_r_ids)
+                q_r &= BaseEntity.__make_relations_filter(rel_r_ids)
 
         q = q_f if q_f is not None else None
         if q_r is not None:
@@ -1649,9 +1670,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     def remove_relations(self, rel_f_ids=empty, rel_r_ids=empty):
         """
         Remove forward and backward(reverse) relations
-        :param rel_f_ids: forward relations id's filter. If `None` - relations do not delete,
+        :param rel_f_ids: forward relations id's filter (`id` or `slug` list). If `None` - relations do not delete,
         `[]` - delete all relations, else only contained in the list. Default - delete all forward relations
-        :param rel_r_ids: reverse relations id's filter. If `None` - relations do not delete,
+        :param rel_r_ids: reverse relations id's filter (`id` or `slug` list). If `None` - relations do not delete,
         `[]` - delete all relations, else only contained in the list. Default - delete all reverse relations
         :return:
         RUS: Удаляет прямые и обратные связи, если они являются пустыми.
