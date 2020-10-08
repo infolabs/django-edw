@@ -17,6 +17,7 @@ function zoom(mapPx, worldPx, fraction) {
 
 export default class AbstractMap extends Component {
   _map = null;
+  _DO_CLICK_ON_BALLOON = true;
 
   state = {
     markers: [],
@@ -83,6 +84,10 @@ export default class AbstractMap extends Component {
   }
 
   handleInfoMouseClick(e, data) {
+    if (!this._DO_CLICK_ON_BALLOON) {
+      // console.log('handleInfoMouseClick _DO_CLICK_ON_BALLOON', e, data);
+      return
+    }
     const { actions, meta } = this.props;
     if (data.extra.group_size) {
       actions.notifyLoadingEntities();
@@ -190,7 +195,6 @@ export default class AbstractMap extends Component {
     return (
       <div className={item.extra.group_size ? "ex-map-info ex-catalog-item-variants" :
           "ex-map-info"}
-           onClick={e => {this.handleInfoMouseClick(e, item);}}
            style={item.extra.group_size && {cursor: 'pointer'}}>
         <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}} />
         {exRibbons}
