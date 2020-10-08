@@ -120,10 +120,13 @@ export class YMapInner extends AbstractMap {
     const { actions, meta, descriptions } = this.props,
           data = marker.item,
           id = data.id;
+
     e1.get('target').balloon.events.add('click', e2 => {
-      // console.log('handleBalloonOpen event', e2);
+
+      // todo: https://codesandbox.io/s/hungry-kirch-bl9kb?file=/src/map/styles.css
+      // реализовать несколькот обработчиков клика
+
       this.handleInfoMouseClick(e2, data);
-      return false
     });
 
     if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
