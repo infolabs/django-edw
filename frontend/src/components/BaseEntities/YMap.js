@@ -78,6 +78,8 @@ function getRegionsStyle(osm, osmRegion){
 
 export class YMapInner extends AbstractMap {
 
+  BALLOON_SELECTORS = [];
+
   setMapRef = ref => {
     this._map = ref;
     if (ref && !this.firstMapLoading && this.osmRegion) {
@@ -108,8 +110,13 @@ export class YMapInner extends AbstractMap {
   }
 
   static defaultProps = {
-    getMapConfig: YMapInner.getMapConfig
+    getMapConfig: YMapInner.getMapConfig,
   };
+
+  handleBalloonContentClick(event, selector, entity) {
+    // event - mouse event
+    // selector from BALLOON_SELECTORS
+  }
 
   // Пока не нужен, см todo ниже
   // onGeometryChange(e) {
@@ -125,7 +132,6 @@ export class YMapInner extends AbstractMap {
 
       // todo: https://codesandbox.io/s/hungry-kirch-bl9kb?file=/src/map/styles.css
       // реализовать несколькот обработчиков клика
-
       this.handleInfoMouseClick(e2, data);
     });
 
@@ -172,8 +178,61 @@ export class YMapInner extends AbstractMap {
       </div>
     `;
 
+    const self = this;
+
+    const makeBalloonLayout = (content, entity) => {
+
+      const handleClick = (e) => {
+        const t = e.currentTarget;
+        const selectors = [t.nodeName];
+        t.id && selectors.push('#' + t.id);
+        t.className && selectors.push('.' + t.className);
+
+        let selector = null;
+        for (const s of selectors) {
+          for (const ls of self.BALLOON_SELECTORS) {
+            if (s.toUpperCase() == ls.toUpperCase()) {
+              selector = ls;
+            }
+          }
+        }
+
+        if (selector) {
+          e.stopPropagation();
+          e.preventDefault();
+          self.handleBalloonContentClick(e, selector, entity)
+        }
+        return false;
+      }
+
+      const overrides = {
+        build: function() {
+          this.constructor.superclass.build.call(this);
+          for (const s of self.BALLOON_SELECTORS) {
+            const elements = this.getParentElement().querySelectorAll(s);
+            for (const el of elements) {
+              el.addEventListener('click', handleClick);
+            }
+          }
+        },
+
+        clear: function() {
+          for (const s of self.BALLOON_SELECTORS) {
+            const elements = this.getParentElement().querySelectorAll(s);
+            for (const el of elements) {
+              el.removeEventListener('click', handleClick);
+            }
+          }
+          this.constructor.superclass.clear.call(this);
+        },
+
+      };
+      return self.props.ymaps.templateLayoutFactory.createClass(content, overrides);
+    };
+
     this.setState({
-      circleLayout: this.props.ymaps.templateLayoutFactory.createClass(circle)
+      circleLayout: this.props.ymaps.templateLayoutFactory.createClass(circle),
+      makeBalloonLayout
     });
   }
 
@@ -270,7 +329,7 @@ export class YMapInner extends AbstractMap {
             coordinates: [radius / 2, radius / 2],
             radius: radius
           },
-          hideIconOnBalloonOpen: false
+          hideIconOnBalloonOpen: false,
         };
       } else {
         marker.options = {
@@ -279,6 +338,9 @@ export class YMapInner extends AbstractMap {
           hideIconOnBalloonOpen: false
         };
       }
+
+      if (this.state.makeBalloonLayout)
+        marker.options.balloonContentLayout = this.state.makeBalloonLayout(balloonContent, item);
 
       markers.push(marker);
     }
