@@ -17,7 +17,7 @@ function zoom(mapPx, worldPx, fraction) {
 
 export default class AbstractMap extends Component {
   _map = null;
-  // _DO_CLICK_ON_BALLOON = true;
+  _DO_CLICK_ON_BALLOON = true;
 
   state = {
     markers: [],
@@ -84,11 +84,9 @@ export default class AbstractMap extends Component {
   }
 
   handleInfoMouseClick(e, data) {
-    // todo: remove
-    // if (!this._DO_CLICK_ON_BALLOON) {
-    //   console.log('handleInfoMouseClick _DO_CLICK_ON_BALLOON', e, data);
-    //   return
-    // }
+    if (!this._DO_CLICK_ON_BALLOON) {
+       return;
+    }
     const { actions, meta } = this.props;
     if (data.extra.group_size) {
       actions.notifyLoadingEntities();
