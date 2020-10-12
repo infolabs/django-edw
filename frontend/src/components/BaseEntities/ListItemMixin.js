@@ -166,9 +166,7 @@ const ListItemMixin = Base => class extends Base {
            onClickCapture={e => { ::this.handleMouseClick(e); } }>
         <div className="row">
           <div className="col-md-3">
-            <a href={url}>
-              <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
-            </a>
+            <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
           </div>
           {itemBlock}
         </div>
