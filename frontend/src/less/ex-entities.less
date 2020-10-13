@@ -881,6 +881,37 @@
       transition: all .35s ease 0s;
       transition-property: border-color, background-color;
 
+      .wrap-list-item__content {
+        display: flex;
+      }
+
+      .wrap-list-item__image {
+        width: 25%;
+        max-width: 180px;
+      }
+
+      .wrap-list-item__description {
+        flex: 1;
+      }
+
+      @media (max-width: @ex-screen-md-min) {
+        .wrap-list-item__content {
+          flex-direction: column;
+        }
+
+        .wrap-list-item__image {
+          width: 100%;
+          max-width: 100%;
+        }
+        .ex-wrap-thumbnail {
+          padding: 0!important;
+          margin-bottom: 25px;
+          a {
+            position: static;
+          }
+        }
+      }
+
       h4 {
         margin-top: 0;
         margin-bottom: 10px;

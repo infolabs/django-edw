@@ -54,10 +54,10 @@ export class DataMart extends Component {
     const { entry_point_id, entry_points, actions } = this.props;
 
     return (
-      <div className="row">
+      <div className="row datamart">
         {
-          Object.keys(entry_points).length > 1 &&
-            <div className="col-sm-12 col-md-12">
+          Object.keys(entry_points).length < 1 &&
+            <div className="datamart__col datamart__col--small">
               <DataMartsList
                 entry_points={entry_points}
                 entry_point_id={entry_point_id}
@@ -65,26 +65,26 @@ export class DataMart extends Component {
               />
             </div>
         }
-        <div className="col-sm-4 col-md-3 sidebar-filter ex-filters d-flex flex-column">
+        <div className="datamart__col datamart__col--small sidebar-filter">
           <Filters entry_points={entry_points} entry_point_id={entry_point_id}/>
         </div>
-        <div className="col-sm-8 col-md-9">
-          <div className="row">
-            <div className="col-sm-6 col-md-4 ex-view-as">
+        <div className="datamart__col datamart__col--big main-col">
+          <div className="main-col__top maincol-top">
+            <div className="maincol-top__col ex-view-as">
               <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
-            <div className="col-sm-6 col-md-4 ex-order-by ex-dropdown ex-state-closed">
+            <div className="maincol-top__col ex-order-by ex-dropdown ex-state-closed">
               <Ordering entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
-            <div className="col-sm-6 col-md-2 ex-howmany-items ex-dropdown ex-state-closed">
+            <div className="maincol-top__col ex-howmany-items ex-dropdown ex-state-closed">
               <Limits entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
-            <div className="col-sm-6 col-md-2 ex-statistic float-right">
+            <div className="maincol-top__col ex-statistic">
               <Statistics entry_points={entry_points} entry_point_id={entry_point_id} />
             </div>
           </div>
           <div className="row">
-            <div className="col-md-12 ex-group-title">
+            <div className="datamart__col ex-group-title">
               <GroupTitle/>
             </div>
           </div>

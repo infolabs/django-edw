@@ -10,7 +10,15 @@ Datamart styles
 }
 
 .ex-related-datamart {
+  .row {
+    display: flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
   .ex-title {
+    margin-right: auto;
+    flex-grow: 1;
     h3 {
       &, & a {
         text-transform: @ex-related-datamart-title-text-transform;
@@ -27,8 +35,31 @@ Datamart styles
       }
     }
   }
+
+  .ex-statistic {
+    margin-right: 20px;
+  }
+
   .ex-paginator {
     text-align: right;
+  }
+}
+
+@media (max-width: 767px) {
+  .ex-related-datamart {
+    .row {
+      flex-direction: column;
+      padding: 0 15px;
+      margin: 0;
+      margin-bottom: 25px;
+
+      .ex-statistic {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        position: static;
+      }
+    }
   }
 }
 

@@ -151,7 +151,7 @@ const ListItemMixin = Base => class extends Base {
 
   getItemBlock(url, data, title, descriptionBaloon){
     return (
-      <div className="col-md-9">
+      <div className="wrap-list-item__description">
         <a href={url}>
           <h4>{title}</h4>
         </a>
@@ -164,8 +164,8 @@ const ListItemMixin = Base => class extends Base {
     return(
       <div className={wrapperClassName}
            onClickCapture={e => { ::this.handleMouseClick(e); } }>
-        <div className="row">
-          <div className="col-md-3">
+        <div className="row wrap-list-item__content">
+          <div className="wrap-list-item__image">
             <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
           </div>
           {itemBlock}
