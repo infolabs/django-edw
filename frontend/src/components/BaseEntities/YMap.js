@@ -129,9 +129,6 @@ export class YMapInner extends AbstractMap {
           id = data.id;
 
     e1.get('target').balloon.events.add('click', e2 => {
-
-      // todo: https://codesandbox.io/s/hungry-kirch-bl9kb?file=/src/map/styles.css
-      // реализовать несколькот обработчиков клика
       this.handleInfoMouseClick(e2, data);
     });
 
@@ -373,7 +370,7 @@ export class YMapInner extends AbstractMap {
              modules={mapModules}
              instanceRef={this.setMapRef}>
           {markers.map(
-            (marker, i) => 
+            (marker, i) =>
             <Placemark key={marker.prefix + marker.item.id}
                        modules={markerModules}
                        defaultGeometry={marker.center}
