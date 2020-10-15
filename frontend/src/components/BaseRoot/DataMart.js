@@ -54,10 +54,10 @@ export class DataMart extends Component {
     const { entry_point_id, entry_points, actions } = this.props;
 
     return (
-      <div className="row datamart">
+      <div className="row ex-datamart">
         {
           Object.keys(entry_points).length < 1 &&
-            <div className="datamart__col datamart__col--small">
+            <div className="ex-datamart__col ex-datamart__col--small">
               <DataMartsList
                 entry_points={entry_points}
                 entry_point_id={entry_point_id}
@@ -65,10 +65,10 @@ export class DataMart extends Component {
               />
             </div>
         }
-        <div className="datamart__col datamart__col--small sidebar-filter">
+        <div className="ex-datamart__col ex-datamart__col--small sidebar-filter">
           <Filters entry_points={entry_points} entry_point_id={entry_point_id}/>
         </div>
-        <div className="datamart__col datamart__col--big main-col">
+        <div className="ex-datamart__col ex-datamart__col--big main-col">
           <div className="main-col__top maincol-top">
             <div className="maincol-top__col ex-view-as">
               <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id} />
@@ -84,7 +84,7 @@ export class DataMart extends Component {
             </div>
           </div>
           <div className="row">
-            <div className="datamart__col ex-group-title">
+            <div className="ex-datamart__col ex-group-title">
               <GroupTitle/>
             </div>
           </div>

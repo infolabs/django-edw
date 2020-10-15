@@ -112,3 +112,88 @@ Datamart styles
   -webkit-box-direction:normal;
   -ms-flex-direction:column;
 }
+
+/*----------------------------------------------------------------------------------------
+                                DATAMART
+----------------------------------------------------------------------------------------*/
+
+.ex-datamart {
+  display: flex;
+  justify-content: space-between;
+
+  .ex-datamart__col {
+    flex: 1;
+  }
+
+  .ex-datamart__col--small {
+    max-width: 215px;
+    margin-right: 30px;
+  }
+
+  .ex-datamart__filter {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+
+  .ex-datamart__col--big {
+    display: flex;
+    flex-direction: column;
+
+    .main-col__top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+
+      .maincol-top__col {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: 15px;
+        margin-bottom: 0;
+        min-width: 75px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+  .main-col {
+    @media (max-width: 767px) {
+      .ex-wrap-action {
+        display: flex;
+        flex-direction: column;
+
+        .ex-media {
+          margin-bottom: 15px;
+
+          .ex-wrap-thumbnail {
+            padding: 0 !important;
+
+            a {
+              position: static;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .ex-datamart {
+    flex-direction: column;
+    padding: 0 20px;
+
+    .ex-datamart__col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-col__top {
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+  }
+}
