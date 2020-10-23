@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-01 17:06+0300\n"
+"POT-Creation-Date: 2020-10-17 05:51+0000\n"
 "PO-Revision-Date: 2016-09-01 17:07+0300\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,98 +20,93 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "X-Generator: Poedit 1.5.7\n"
 
-#: admin.py:36 models/todos.py:23
+#: backend/sandbox/todos/admin.py:42 backend/sandbox/todos/models/todos.py:39
 msgid "Description"
 msgstr "Описание"
 
-#: admin.py:66 admin.py:96
+#: backend/sandbox/todos/admin.py:95
 msgid "Text Index"
 msgstr "Индексируемый текст"
 
-#: apps.py:13
+#: backend/sandbox/todos/apps.py:13
 msgid "EDW Todo Sample"
 msgstr "Предметно-ориентированное хранилище данных"
 
-#: models/todos.py:21
-msgid "Todo Name"
-msgstr "Наименование"
-
-#: models/todos.py:22
-msgid "Slug"
-msgstr "Синоним"
-
-#: models/todos.py:24
-msgid "Marked"
-msgstr "Отмечено"
-
-#: models/todos.py:27
-msgid "Sort by"
-msgstr "Сортировать по"
-
-#: models/todos.py:31
-msgid "Todo"
-msgstr "Дело"
-
-#: models/todos.py:32
-msgid "Todos"
-msgstr "Дела"
-
-#: models/todos.py:49
+#: backend/sandbox/todos/models/todos.py:24
 msgid "Low"
 msgstr "Низкий"
 
-#: models/todos.py:50
+#: backend/sandbox/todos/models/todos.py:25
 msgid "Middle"
 msgstr "Средний"
 
-#: models/todos.py:51
+#: backend/sandbox/todos/models/todos.py:26
 msgid "High"
 msgstr "Высокий"
 
-#: models/todos.py:54
-msgid "Priority"
-msgstr "Приоритет"
-
-#: models/todos.py:57
-msgid "Work todo"
-msgstr "Рабочее дело"
-
-#: models/todos.py:58
-msgid "Work Todos"
-msgstr "Рабочие дела"
-
-#: models/todos.py:63
+#: backend/sandbox/todos/models/todos.py:29
 msgid "Health"
 msgstr "Здоровье"
 
-#: models/todos.py:64
+#: backend/sandbox/todos/models/todos.py:30
 msgid "Family"
 msgstr "Семья"
 
-#: models/todos.py:65
+#: backend/sandbox/todos/models/todos.py:31
 msgid "Finance"
 msgstr "Финансы"
 
-#: models/todos.py:66
+#: backend/sandbox/todos/models/todos.py:32
 msgid "Hobby"
 msgstr "Хобби"
 
-#: models/todos.py:69
+#: backend/sandbox/todos/models/todos.py:35
+msgid "Todo Name"
+msgstr "Наименование"
+
+#: backend/sandbox/todos/models/todos.py:36
+msgid "Marked"
+msgstr "Отмечено"
+
+#: backend/sandbox/todos/models/todos.py:37
+msgid "Priority"
+msgstr "Приоритет"
+
+#: backend/sandbox/todos/models/todos.py:38
 msgid "Direction"
 msgstr "Направление"
 
-#: models/todos.py:72
-msgid "Personal todo"
-msgstr "Личное дело"
+#: backend/sandbox/todos/models/todos.py:42
+msgid "Sort by"
+msgstr "Сортировать по"
 
-#: models/todos.py:73
-msgid "Personal todos"
-msgstr "Личные дела"
+#: backend/sandbox/todos/models/todos.py:49
+msgid "Todo"
+msgstr "Дело"
 
-#: settings.py:55
+#: backend/sandbox/todos/models/todos.py:50
+msgid "Todos"
+msgstr "Дела"
+
+#: backend/sandbox/todos/settings.py:63
 msgid "Russian"
 msgstr "Русский"
 
-#: settings.py:56
+#: backend/sandbox/todos/settings.py:64
 msgid "English"
 msgstr "Английский"
+
+#~ msgid "Slug"
+#~ msgstr "Синоним"
+
+#~ msgid "Work todo"
+#~ msgstr "Рабочее дело"
+
+#~ msgid "Work Todos"
+#~ msgstr "Рабочие дела"
+
+#~ msgid "Personal todo"
+#~ msgstr "Личное дело"
+
+#~ msgid "Personal todos"
+#~ msgstr "Личные дела"
