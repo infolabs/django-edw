@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
 import cookieKey from "../utils/hashUtils";
-import parseRequestParams from 'utils/parseRequestParams';
+// import parseRequestParams from 'utils/parseRequestParams';
 
 
 export default class Dropdown extends Component {
@@ -18,17 +18,17 @@ export default class Dropdown extends Component {
   }
 
   selectItem(value) {
-    const { actions, entry_point_id, subj_ids, name, request_var, request_options, entry_points } = this.props,
-          request_params = entry_points[entry_point_id].request_params,
-          parms = parseRequestParams(request_params),
-          options_arr = parms.options_arr;
+    const { actions, entry_point_id, subj_ids, name, request_var, request_options, entry_points } = this.props;
+          // request_params = entry_points[entry_point_id].request_params,
+          // parms = parseRequestParams(request_params),
+          // options_arr = parms.options_arr;
 
     let option = {};
     option[request_var] = value;
     let options = Object.assign(request_options, option);
     actions.selectDropdown(name, value);
     actions.notifyLoadingEntities();
-    actions.getEntities(entry_point_id, subj_ids, this.fixOffset(options), options_arr);
+    actions.getEntities(entry_point_id, subj_ids, this.fixOffset(options));
   }
 
   componentDidMount() {
