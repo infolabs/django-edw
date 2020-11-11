@@ -140,14 +140,6 @@ export default class AbstractMap extends Component {
 
     return(
       <ul className="ex-attrs">
-        {Object.keys(annotations).map(
-          (key, i) =>
-            <li className="annotation" key={i}
-              data-view-class={key}>
-              <strong>{annotations[key].name}:&nbsp;</strong>
-              {annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)}
-            </li>
-        )}
         {characteristics.map(
           (child, i) =>
             child.values.length < 5 ?
@@ -161,6 +153,18 @@ export default class AbstractMap extends Component {
                 data-view-class={child.view_class.join(" ")}>
               <strong>{child.name}:</strong>&nbsp;
               {child.values.join("; ").split('; ',5).join("; ")}...
+            </li>
+        )}
+        {Object.keys(annotations).map(
+          (key, i) =>
+            <li className="annotation" key={i}
+              data-view-class={key}>
+              <strong>{annotations[key].name}:&nbsp;</strong>
+              {annotations[key].value instanceof Array ?
+                annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)
+              :
+                <span key={key}>{annotations[key].value}</span>
+              }
             </li>
         )}
       </ul>
