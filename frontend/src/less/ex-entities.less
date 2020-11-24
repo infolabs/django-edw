@@ -887,11 +887,17 @@
 
       .wrap-list-item__image {
         width: 25%;
-        max-width: 180px;
+        max-width: 205px;
+
+        .ex-media {
+          position: relative;
+          padding: 0 15px;
+        }
       }
 
       .wrap-list-item__description {
         flex: 1;
+        padding: 0 15px;
       }
 
       @media (max-width: @ex-screen-md-min) {
@@ -903,13 +909,13 @@
           width: 100%;
           max-width: 100%;
         }
-        .ex-wrap-thumbnail {
-          padding: 0!important;
-          margin-bottom: 25px;
-          a {
-            position: static;
-          }
-        }
+        //.ex-wrap-thumbnail {
+        //  padding: 0!important;
+        //  margin-bottom: 25px;
+        //  a {
+        //    position: static;
+        //  }
+        //}
       }
 
       h4 {
