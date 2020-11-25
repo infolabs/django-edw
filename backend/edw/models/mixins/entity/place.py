@@ -200,6 +200,26 @@ class PlaceMixin(object):
         super(PlaceMixin, self).validate_terms(origin, **kwargs)
 
     @classmethod
+    def _get_search_query(cls, query, geoposition):
+        """
+        Example:
+        query = {
+            'like': "request.GET.get('q', '')",
+            'unlike': "request.GET.get('u', None)",
+            'ignore_like': "request.GET.get('iq', None)",
+            'ignore_unlike': "request.GET.get('iu', None)"
+        }
+        """
+        geohash = geoposition.geohash.strip()
+        text_parts = [query['like']]
+        for i in [6, 7, 8, 9]:
+            hash_parts = geo_expand(geohash[:i])
+            text_parts.extend(hash_parts)
+
+        query['like'] = ' '.join(text_parts)
+        return query
+
+    @classmethod
     def get_search_query(cls, request):
         """
         Формируем поисковый запрос из объета Request
@@ -212,11 +232,5 @@ class PlaceMixin(object):
             except ValueError:
                 pass
             else:
-                geohash = geoposition.geohash.strip()
-                text_parts = [query['like']]
-                for i in [6, 7, 8, 9]:
-                    hash_parts = geo_expand(geohash[:i])
-                    text_parts.extend(hash_parts)
-
-                query['like'] = ' '.join(text_parts)
+                query = cls._get_search_query(query, geoposition)
         return query
