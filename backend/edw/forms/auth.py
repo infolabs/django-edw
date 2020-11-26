@@ -75,11 +75,12 @@ class RegisterUserForm(ModelForm):
         if len(fio) > 0:
             fio_arr = fio.split(" ")
             if len(fio_arr) == 3:
-                user.first_name = (fio_arr[1] + ' ' + fio_arr[2])[:30]
                 user.last_name = fio_arr[0][:30]
-            elif len(fio_arr) == 2:
                 user.first_name = fio_arr[1][:30]
+                user.patronymic = fio_arr[2][:30]
+            elif len(fio_arr) == 2:
                 user.last_name = fio_arr[0][:30]
+                user.first_name = fio_arr[1][:30]
             else:
                 user.first_name = fio[:30]
 
