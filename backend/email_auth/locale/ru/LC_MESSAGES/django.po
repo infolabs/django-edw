@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django EDW\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-17 05:51+0000\n"
-"PO-Revision-Date: 2018-10-25 15:20+0300\n"
+"POT-Creation-Date: 2020-11-26 13:03+0000\n"
+"PO-Revision-Date: 2020-11-26 16:03+0300\n"
 "Last-Translator: Infolabs <team@infolabs.ru>\n"
 "Language-Team: Infolabs <team@infolabs.ru>\n"
 "Language: ru\n"
@@ -18,30 +18,38 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.4.1\n"
 
-#: backend/email_auth/models.py:40
+#: models.py:32
+msgid "Patronymic"
+msgstr "Отчество"
+
+#: models.py:33
+msgid "Phone"
+msgstr "Телефон"
+
+#: models.py:42
 msgid "Customer"
 msgstr "Пользователь"
 
-#: backend/email_auth/models.py:41
+#: models.py:43
 msgid "Customers"
 msgstr "Пользователи"
 
-#: backend/email_auth/models.py:67
+#: models.py:69
 #, python-brace-format
 msgid "A customer with the e-mail address ‘{email}’ already exists."
 msgstr "Пользователь с адресом ‘{email}’  уже существует."
 
-#: backend/email_auth/models.py:75
+#: models.py:77
 msgid "Domain name"
 msgstr "Доменное имя"
 
-#: backend/email_auth/models.py:83
+#: models.py:85
 msgid "Banned email domain"
 msgstr "Запрещенное доменное имя"
 
-#: backend/email_auth/models.py:84
+#: models.py:86
 msgid "Banned email domains"
 msgstr "Запрещенные доменные имена"
 
