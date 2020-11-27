@@ -44,10 +44,11 @@ class CustomerListFilter(admin.SimpleListFilter):
             return queryset
 
 
+# todo: админка должна быть в email_auth. тут было сделано от безысходности.
 class CustomerAdmin(UserAdmin):
     """
-    This ModelAdmin class must be registered inside the implementation of this edw.
-    """
+        This ModelAdmin class must be registered inside the implementation of this edw.
+        """
     form = CustomerChangeForm
     add_form = CustomerCreationForm
     inlines = (CustomerInlineAdmin,)
