@@ -158,6 +158,9 @@ Datamart styles
           margin-right: 0;
         }
       }
+      .maincol-top__col.ex-view-as {
+        min-width: 250px;
+      }
     }
   }
 
@@ -170,14 +173,18 @@ Datamart styles
         .ex-media {
           width: 250px;
           margin: 0 auto 15px;
-
-          //.ex-wrap-thumbnail {
-          //  padding: 0 !important;
-          //
-          //  //a {
-            //  position: static;
-            //}
-          //}
+        }
+      }
+    }
+    @media (max-width:480px) {
+      .main-col__top {
+        .maincol-top__col.ex-view-as {
+          min-width: auto;
+        }
+      }
+      .ex-wrap-action {
+        .ex-media {
+          width: 150px;
         }
       }
     }
@@ -195,8 +202,8 @@ Datamart styles
     }
 
     .main-col__top {
-      flex-direction: column;
-      margin-bottom: 0;
+      flex-wrap: wrap;
+      margin: 10px 0;
     }
   }
 }
