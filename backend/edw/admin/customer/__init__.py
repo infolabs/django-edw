@@ -44,15 +44,21 @@ class CustomerListFilter(admin.SimpleListFilter):
             return queryset
 
 
+# todo: админка должна быть в email_auth. тут было сделано от безысходности.
 class CustomerAdmin(UserAdmin):
     """
-    This ModelAdmin class must be registered inside the implementation of this edw.
-    """
+        This ModelAdmin class must be registered inside the implementation of this edw.
+        """
     form = CustomerChangeForm
     add_form = CustomerCreationForm
     inlines = (CustomerInlineAdmin,)
-    list_display = ('username', 'email', 'salutation', 'last_name', 'first_name', 'recognized',
+    list_display = ('username', 'email', 'salutation', 'last_name', 'first_name', 'patronymic', 'recognized',
                     'last_access', 'is_unexpired')
+    fieldsets = list()
+    for fieldset in UserAdmin.fieldsets:
+        if fieldset[0] == _('Personal info'):
+            fieldset[1]['fields'] = ('last_name', 'first_name', 'patronymic', 'phone', 'email')
+        fieldsets.append(fieldset)
     segmentation_list_display = ('get_username',)
     list_filter = UserAdmin.list_filter + (CustomerListFilter,)
     readonly_fields = ('last_login', 'date_joined', 'last_access', 'recognized')

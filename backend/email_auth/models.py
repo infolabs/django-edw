@@ -12,7 +12,6 @@ from django.contrib.auth.models import AbstractUser, UserManager as BaseUserMana
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext
 
 
 class UserManager(BaseUserManager):
@@ -30,6 +29,9 @@ class User(AbstractUser):
     field in addition to the username field, which remains the primary unique identifier. The
     email field is only used in addition. It must be unique only for users marked as active.
     """
+    patronymic = models.CharField(_("Patronymic"), max_length=255, blank=True, null=True)
+    phone = models.CharField(_("Phone"), max_length=255, blank=True, null=True)
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'

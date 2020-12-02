@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-17 05:51+0000\n"
-"PO-Revision-Date: 2020-11-06 14:17+0300\n"
+"POT-Creation-Date: 2020-11-26 13:37+0000\n"
+"PO-Revision-Date: 2020-11-26 16:38+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -17,62 +17,63 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: backend/edw/__init__.py:7
+#: __init__.py:7
 msgid "edw"
 msgstr "предметно-ориентированное хранилище данных"
 
-#: backend/edw/admin/customer/__init__.py:32
+#: admin/customer/__init__.py:32
 msgid "Customer State"
 msgstr "Состояние"
 
-#: backend/edw/admin/customer/__init__.py:92
+#: admin/customer/__init__.py:58
+msgid "Personal info"
+msgstr "Личная информация"
+
+#: admin/customer/__init__.py:97
 msgid "Username"
 msgstr "Имя пользователя"
 
-#: backend/edw/admin/customer/__init__.py:99 backend/edw/models/customer.py:209
+#: admin/customer/__init__.py:104 models/customer.py:209
 msgid "Salutation"
 msgstr "Обращение"
 
-#: backend/edw/admin/customer/__init__.py:106
+#: admin/customer/__init__.py:111
 msgid "Staff"
 msgstr "Персонал"
 
-#: backend/edw/admin/customer/__init__.py:108
+#: admin/customer/__init__.py:113
 msgid "User"
 msgstr "Пользователь"
 
-#: backend/edw/admin/customer/__init__.py:109
-#: backend/edw/admin/entity/forms/update_states.py:18
+#: admin/customer/__init__.py:114 admin/entity/forms/update_states.py:18
 msgid "State"
 msgstr "Состояние"
 
-#: backend/edw/admin/customer/__init__.py:114
+#: admin/customer/__init__.py:119
 msgid "No data"
 msgstr "Никогда"
 
-#: backend/edw/admin/customer/__init__.py:115
-#: backend/edw/models/customer.py:210
+#: admin/customer/__init__.py:120 models/customer.py:210
 msgid "Last accessed"
 msgstr "Дата последнего входа"
 
-#: backend/edw/admin/customer/__init__.py:122
+#: admin/customer/__init__.py:127
 msgid "Unexpired"
 msgstr "Неистекающий"
 
-#: backend/edw/admin/customer/__init__.py:144
-#: backend/edw/admin/data_mart/forms.py:78
-#: backend/edw/models/related/__init__.py:180
+#: admin/customer/__init__.py:149 admin/data_mart/forms.py:78
+#: models/related/__init__.py:180
 msgid "Customer"
 msgstr "Пользователь"
 
-#: backend/edw/admin/customer/__init__.py:145
+#: admin/customer/__init__.py:150
 msgid "Customers"
 msgstr "Пользователи"
 
-#: backend/edw/admin/customer/forms.py:10
+#: admin/customer/forms.py:10
 msgid ""
 "Required field. Length must not exceed 30 characters. Only letters, digits "
 "and symbols @/./+/-/_ are accepted."
@@ -80,106 +81,98 @@ msgstr ""
 "Обязательное поле. Не более 30 символов. Только буквы, цифры и символы @/./"
 "+/-/_."
 
-#: backend/edw/admin/customer/forms.py:12
+#: admin/customer/forms.py:12
 msgid "Username length must not exceed 30 characters."
 msgstr "Имя пользователя не должно превышать 30 символов."
 
-#: backend/edw/admin/customer/forms.py:70
+#: admin/customer/forms.py:66
 #, python-brace-format
 msgid "A customer with the e-mail address ‘{email}’ already exists."
 msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: backend/edw/admin/data_mart/forms.py:27
-#: backend/edw/admin/entity/__init__.py:122
-#: backend/edw/admin/entity/forms/__init__.py:40
-#: backend/edw/models/data_mart.py:169 backend/edw/models/entity.py:939
-#: backend/edw/rest/filters/entity.py:45
+#: admin/data_mart/forms.py:27 admin/entity/__init__.py:122
+#: admin/entity/forms/__init__.py:40 models/data_mart.py:169
+#: models/entity.py:939 rest/filters/entity.py:45
 msgid "Terms"
 msgstr "Термины"
 
-#: backend/edw/admin/data_mart/forms.py:28 backend/edw/models/data_mart.py:174
+#: admin/data_mart/forms.py:28 models/data_mart.py:174
 msgid "Ordering"
 msgstr "Порядок сортировки"
 
-#: backend/edw/admin/data_mart/forms.py:29 backend/edw/models/data_mart.py:178
+#: admin/data_mart/forms.py:29 models/data_mart.py:178
 msgid "View component"
 msgstr "Компонент представления"
 
-#: backend/edw/admin/data_mart/forms.py:60
-#: backend/edw/admin/entity/forms/__init__.py:65
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:16
+#: admin/data_mart/forms.py:60 admin/entity/forms/__init__.py:65
+#: templates/edw/admin/mptt/_term_node.html:16
 msgid "Relation"
 msgstr "Отношение"
 
-#: backend/edw/admin/data_mart/forms.py:64
-#: backend/edw/models/related/__init__.py:143
-#: backend/edw/rest/filters/entity.py:149
+#: admin/data_mart/forms.py:64 models/related/__init__.py:143
+#: rest/filters/entity.py:149
 msgid "Subjects"
 msgstr "Субъекты"
 
-#: backend/edw/admin/entity/__init__.py:110
-#: backend/edw/models/related/__init__.py:72
+#: admin/entity/__init__.py:110 models/related/__init__.py:72
 msgid "Entity Relation"
 msgstr "Отношение"
 
-#: backend/edw/admin/entity/__init__.py:248
-#: backend/edw/admin/entity/__init__.py:384
+#: admin/entity/__init__.py:248 admin/entity/__init__.py:384
 msgid "Main params"
 msgstr "Основные"
 
-#: backend/edw/admin/entity/__init__.py:272
-#: backend/edw/admin/entity/__init__.py:410 backend/edw/models/boundary.py:210
-#: backend/edw/models/data_mart.py:165 backend/edw/models/email_category.py:90
-#: backend/edw/models/notification.py:89 backend/edw/models/postal_zone.py:90
-#: backend/edw/models/term.py:301
+#: admin/entity/__init__.py:272 admin/entity/__init__.py:410
+#: models/boundary.py:210 models/data_mart.py:165 models/email_category.py:90
+#: models/notification.py:89 models/postal_zone.py:90 models/term.py:301
 msgid "Name"
 msgstr "Название"
 
-#: backend/edw/admin/entity/__init__.py:279
-#: backend/edw/admin/entity/__init__.py:417 backend/edw/models/entity.py:971
+#: admin/entity/__init__.py:279 admin/entity/__init__.py:417
+#: models/entity.py:971
 msgid "Entity type"
 msgstr "Тип объекта"
 
-#: backend/edw/admin/entity/actions/base_entity_action.py:50
-#: backend/edw/admin/entity/actions/update_active.py:57
-#: backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py:64
-#: backend/edw/admin/entity/actions/update_images.py:77
-#: backend/edw/admin/entity/actions/update_related_data_marts.py:63
-#: backend/edw/admin/entity/actions/update_relations.py:65
-#: backend/edw/admin/entity/actions/update_states.py:65
-#: backend/edw/admin/entity/actions/update_terms.py:56
-#: backend/edw/admin/term/actions/update_terms_parent.py:60
+#: admin/entity/actions/base_entity_action.py:50
+#: admin/entity/actions/update_active.py:57
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:64
+#: admin/entity/actions/update_images.py:77
+#: admin/entity/actions/update_related_data_marts.py:63
+#: admin/entity/actions/update_relations.py:65
+#: admin/entity/actions/update_states.py:65
+#: admin/entity/actions/update_terms.py:56
+#: admin/term/actions/update_terms_parent.py:60
 #, python-format
 msgid "Successfully proceed %(count)d %(items)s."
 msgstr "Успешно обработано %(count)d %(items)s."
 
-#: backend/edw/admin/entity/actions/bulk_delete.py:18
+#: admin/entity/actions/bulk_delete.py:18
 msgid "Delete multiple entities with bulk delete"
 msgstr "Массовое удаление объектов"
 
-#: backend/edw/admin/entity/actions/bulk_delete.py:25
+#: admin/entity/actions/bulk_delete.py:25
 #, python-format
 msgid "Delete with bulk delete for selected %(verbose_name_plural)s"
 msgstr "Массовое удаление объектов для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/force_validate.py:19
+#: admin/entity/actions/force_validate.py:19
 msgid "Save multiple entities with force validate terms"
 msgstr "Массовая запись объектов с быстрой валидацией терминов"
 
-#: backend/edw/admin/entity/actions/force_validate.py:26
+#: admin/entity/actions/force_validate.py:26
 #, python-format
 msgid "Save with force validate terms for selected %(verbose_name_plural)s"
 msgstr ""
 "Массовая запись объектов с быстрой валидацией терминов для выбранных "
 "%(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/make_terms_by_additional_attrs.py:19
+#: admin/entity/actions/make_terms_by_additional_attrs.py:19
 msgid "Make terms by additional attributes"
 msgstr "Создать термины по дополнительным атрибутам"
 
-#: backend/edw/admin/entity/actions/make_terms_by_additional_attrs.py:27
+#: admin/entity/actions/make_terms_by_additional_attrs.py:27
 #, python-format
 msgid ""
 "Make terms by additional attributes for selected %(verbose_name_plural)s"
@@ -187,30 +180,30 @@ msgstr ""
 "Создать термины по дополнительным атрибутам для выбранных "
 "%(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/normalize_additional_attrs.py:19
+#: admin/entity/actions/normalize_additional_attrs.py:19
 msgid "Normalize additional attributes"
 msgstr "Нормализовать дополнительные атрибуты"
 
-#: backend/edw/admin/entity/actions/normalize_additional_attrs.py:27
+#: admin/entity/actions/normalize_additional_attrs.py:27
 #, python-format
 msgid "Normalize additional attributes for selected %(verbose_name_plural)s"
 msgstr ""
 "Нормализовать дополнительные атрибуты выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_active.py:72
+#: admin/entity/actions/update_active.py:72
 msgid "Update active for multiple entities"
 msgstr "Изменить активен для списка объектов"
 
-#: backend/edw/admin/entity/actions/update_active.py:89
+#: admin/entity/actions/update_active.py:89
 #, python-format
 msgid "Modify active for selected %(verbose_name_plural)s"
 msgstr "Изменить активен для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py:77
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:77
 msgid "Update additional characteristics or marks for multiple entities"
 msgstr "Обновление характеристик или меток списка объектов"
 
-#: backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py:95
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:95
 #, python-format
 msgid ""
 "Modify additional characteristics or marks for selected "
@@ -218,120 +211,112 @@ msgid ""
 msgstr ""
 "Изменить характеристики или метки для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_images.py:92
+#: admin/entity/actions/update_images.py:92
 msgid "Update images for multiple entities"
 msgstr "Обновление изображений списка объектов"
 
-#: backend/edw/admin/entity/actions/update_images.py:109
+#: admin/entity/actions/update_images.py:109
 #, python-format
 msgid "Modify images for selected %(verbose_name_plural)s"
 msgstr "Изменить изображения для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_related_data_marts.py:78
+#: admin/entity/actions/update_related_data_marts.py:78
 msgid "Update related data marts for multiple entities"
 msgstr "Обновление связнных витрин данных списка объектов"
 
-#: backend/edw/admin/entity/actions/update_related_data_marts.py:95
+#: admin/entity/actions/update_related_data_marts.py:95
 #, python-format
 msgid "Modify related data marts for selected %(verbose_name_plural)s"
 msgstr ""
 "Изменить связанные витрины данных для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_relations.py:80
+#: admin/entity/actions/update_relations.py:80
 msgid "Update relations for multiple entities"
 msgstr "Обновление отношений списка объектов"
 
-#: backend/edw/admin/entity/actions/update_relations.py:97
+#: admin/entity/actions/update_relations.py:97
 #, python-format
 msgid "Modify relation for selected %(verbose_name_plural)s"
 msgstr "Изменить отношения для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_states.py:79
+#: admin/entity/actions/update_states.py:79
 msgid "Update state for multiple entities"
 msgstr "Обновление состояния списка объектов"
 
-#: backend/edw/admin/entity/actions/update_states.py:96
+#: admin/entity/actions/update_states.py:96
 #, python-format
 msgid "Modify state for selected %(verbose_name_plural)s"
 msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/actions/update_terms.py:70
+#: admin/entity/actions/update_terms.py:70
 msgid "Update terms for multiple entities"
 msgstr "Обновление терминов списка объектов"
 
-#: backend/edw/admin/entity/actions/update_terms.py:87
+#: admin/entity/actions/update_terms.py:87
 #, python-format
 msgid "Modify terms for selected %(verbose_name_plural)s"
 msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/entity/forms/__init__.py:54
+#: admin/entity/forms/__init__.py:54
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
 
-#: backend/edw/admin/entity/forms/__init__.py:67
+#: admin/entity/forms/__init__.py:67
 msgid "Target"
 msgstr "Цель"
 
-#: backend/edw/admin/entity/forms/__init__.py:79
-#: backend/edw/models/data_mart.py:207
-#: backend/edw/models/defaults/data_mart.py:32
-#: backend/edw/models/related/__init__.py:97
-#: backend/edw/models/related/__init__.py:136
-#: backend/edw/models/related/__init__.py:179
-#: backend/edw/rest/filters/entity.py:46
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:9
+#: admin/entity/forms/__init__.py:79 models/data_mart.py:207
+#: models/defaults/data_mart.py:32 models/related/__init__.py:97
+#: models/related/__init__.py:136 models/related/__init__.py:179
+#: rest/filters/entity.py:46 templates/edw/admin/mptt/_datamart_node.html:9
 msgid "Data mart"
 msgstr "Витрина данных"
 
-#: backend/edw/admin/entity/forms/update_active.py:14
-#: backend/edw/admin/entity/forms/update_states.py:18
+#: admin/entity/forms/update_active.py:14
+#: admin/entity/forms/update_states.py:18
 msgid "-"
 msgstr "-"
 
-#: backend/edw/admin/entity/forms/update_active.py:15
+#: admin/entity/forms/update_active.py:15
 msgid "Yes"
 msgstr "Да"
 
-#: backend/edw/admin/entity/forms/update_active.py:16
+#: admin/entity/forms/update_active.py:16
 msgid "No"
 msgstr "Нет"
 
-#: backend/edw/admin/entity/forms/update_active.py:23
-#: backend/edw/models/boundary.py:130 backend/edw/models/data_mart.py:189
-#: backend/edw/models/email_category.py:64 backend/edw/models/entity.py:943
-#: backend/edw/models/notification.py:101 backend/edw/models/postal_zone.py:64
-#: backend/edw/models/term.py:316 backend/edw/rest/filters/entity.py:148
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:7
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:19
+#: admin/entity/forms/update_active.py:23 models/boundary.py:130
+#: models/data_mart.py:189 models/email_category.py:64 models/entity.py:943
+#: models/notification.py:101 models/postal_zone.py:64 models/term.py:316
+#: rest/filters/entity.py:148 templates/edw/admin/mptt/_datamart_node.html:7
+#: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
 msgstr "Активен"
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:22
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:43
-#: backend/edw/models/boundary.py:123 backend/edw/models/defaults/term.py:26
-#: backend/edw/models/email_category.py:57 backend/edw/models/postal_zone.py:57
-#: backend/edw/models/related/__init__.py:21
-#: backend/edw/models/related/__init__.py:65
-#: backend/edw/models/related/__init__.py:137 backend/edw/models/term.py:331
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:25
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:22
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:43
+#: models/boundary.py:123 models/defaults/term.py:26
+#: models/email_category.py:57 models/postal_zone.py:57
+#: models/related/__init__.py:21 models/related/__init__.py:65
+#: models/related/__init__.py:137 models/term.py:331
+#: templates/edw/admin/mptt/_term_node.html:25
 msgid "Term"
 msgstr "Термин"
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:27
-#: backend/edw/models/related/__init__.py:23
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:27
+#: models/related/__init__.py:23
 msgid "Value"
 msgstr "Значение"
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:33
-#: backend/edw/models/data_mart.py:186
-#: backend/edw/models/related/__init__.py:24 backend/edw/models/term.py:313
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:12
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:28
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:33
+#: models/data_mart.py:186 models/related/__init__.py:24 models/term.py:313
+#: templates/edw/admin/mptt/_datamart_node.html:12
+#: templates/edw/admin/mptt/_term_node.html:28
 msgid "View Class"
 msgstr "Класс представления"
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:36
-#: backend/edw/models/related/__init__.py:26 backend/edw/models/term.py:314
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:36
+#: models/related/__init__.py:26 models/term.py:314
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "entity."
@@ -339,108 +324,105 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для классифицируемых объектов."
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:57
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:57
 msgid "Select term to set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py:62
+#: admin/entity/forms/update_additional_characteristics_or_marks.py:62
 msgid "Set term and value"
 msgstr "Установите термин и текущее значение"
 
-#: backend/edw/admin/entity/forms/update_images.py:21
+#: admin/entity/forms/update_images.py:21
 msgid "Images to set"
 msgstr "Изображения для установки"
 
-#: backend/edw/admin/entity/forms/update_images.py:24
+#: admin/entity/forms/update_images.py:24
 msgid "Order"
 msgstr "Порядок сортировки"
 
-#: backend/edw/admin/entity/forms/update_images.py:25
+#: admin/entity/forms/update_images.py:25
 msgid "Images to unset"
 msgstr "Изображения для снятия"
 
-#: backend/edw/admin/entity/forms/update_images.py:39
+#: admin/entity/forms/update_images.py:39
 msgid "Select images to set or unset"
 msgstr "Выберите изображения для установки или снятия"
 
-#: backend/edw/admin/entity/forms/update_related_data_marts.py:23
+#: admin/entity/forms/update_related_data_marts.py:23
 msgid "Data marts to set"
 msgstr "Витрины данных для установки"
 
-#: backend/edw/admin/entity/forms/update_related_data_marts.py:33
+#: admin/entity/forms/update_related_data_marts.py:33
 msgid "Data marts to unset"
 msgstr "Витрины данных для снятия"
 
-#: backend/edw/admin/entity/forms/update_related_data_marts.py:51
+#: admin/entity/forms/update_related_data_marts.py:51
 msgid "Select related datamarts for set or unset"
 msgstr "Выберите витрины данных для установки или снятия"
 
-#: backend/edw/admin/entity/forms/update_relations.py:26
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:25
+#: admin/entity/forms/update_relations.py:26
+#: templates/edw/admin/entities/actions/update_relations.html:25
 msgid "Relation to set"
 msgstr "Отношение для установки"
 
-#: backend/edw/admin/entity/forms/update_relations.py:28
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:42
+#: admin/entity/forms/update_relations.py:28
+#: templates/edw/admin/entities/actions/update_relations.html:42
 msgid "Targets to set"
 msgstr "Цели для установки"
 
-#: backend/edw/admin/entity/forms/update_relations.py:33
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:26
+#: admin/entity/forms/update_relations.py:33
+#: templates/edw/admin/entities/actions/update_relations.html:26
 msgid "Relation to unset"
 msgstr "Отношение для снятия"
 
-#: backend/edw/admin/entity/forms/update_relations.py:35
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:43
+#: admin/entity/forms/update_relations.py:35
+#: templates/edw/admin/entities/actions/update_relations.html:43
 msgid "Targets to unset"
 msgstr "Цели для снятия"
 
-#: backend/edw/admin/entity/forms/update_relations.py:52
+#: admin/entity/forms/update_relations.py:52
 msgid "Select relation for set or unset"
 msgstr "Выберите отношение для установки или снятия"
 
-#: backend/edw/admin/entity/forms/update_relations.py:57
+#: admin/entity/forms/update_relations.py:57
 msgid "Select relation and target for set"
 msgstr "Выберите отношение и цель для установки"
 
-#: backend/edw/admin/entity/forms/update_relations.py:62
+#: admin/entity/forms/update_relations.py:62
 msgid "Select relation and target for unset"
 msgstr "Выберите отношение и цель для снятия"
 
-#: backend/edw/admin/entity/forms/update_states.py:44
+#: admin/entity/forms/update_states.py:44
 msgid "Selected entities is not FSM instances"
 msgstr "Выбранные объекты не являются экземплярами FSM"
 
-#: backend/edw/admin/entity/forms/update_terms.py:18
-#: backend/edw/templates/edw/admin/entities/actions/update_terms.html:20
+#: admin/entity/forms/update_terms.py:18
+#: templates/edw/admin/entities/actions/update_terms.html:20
 msgid "Terms to set"
 msgstr "Термины для установки"
 
-#: backend/edw/admin/entity/forms/update_terms.py:20
-#: backend/edw/templates/edw/admin/entities/actions/update_terms.html:21
+#: admin/entity/forms/update_terms.py:20
+#: templates/edw/admin/entities/actions/update_terms.html:21
 msgid "Terms to unset"
 msgstr "Термины для снятия"
 
-#: backend/edw/admin/entity/forms/update_terms.py:34
+#: admin/entity/forms/update_terms.py:34
 msgid "Select terms for set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: backend/edw/admin/notification/admin.py:75
-#: backend/edw/models/notification.py:90
+#: admin/notification/admin.py:75 models/notification.py:90
 msgid "Transition"
 msgstr "Переход"
 
-#: backend/edw/admin/notification/admin.py:89
-#: backend/edw/models/notification.py:355
+#: admin/notification/admin.py:89 models/notification.py:355
 msgid "Attachments"
 msgstr "Вложения"
 
-#: backend/edw/admin/notification/forms.py:25
-#: backend/edw/models/notification.py:93
+#: admin/notification/forms.py:25 models/notification.py:93
 msgid "Notify to roles"
 msgstr "Роли получателей"
 
-#: backend/edw/admin/notification/forms.py:25
+#: admin/notification/forms.py:25
 msgid ""
 "You can set multiple flags at the same time. The target audience of the "
 "region includes only intersections in the regional terms of persons. Target "
@@ -453,71 +435,71 @@ msgstr ""
 "Целевая аудитория - включает пересечения по любым неслужебным терминам "
 "(Регион, тематика, социальные сети...)"
 
-#: backend/edw/admin/term/actions/update_terms_parent.py:75
-#: backend/edw/templates/edw/admin/terms/actions/update_terms_parent.html:14
+#: admin/term/actions/update_terms_parent.py:75
+#: templates/edw/admin/terms/actions/update_terms_parent.html:14
 msgid "Update parent for multiple terms"
 msgstr "Обновление родителя списка объектов"
 
-#: backend/edw/admin/term/actions/update_terms_parent.py:90
+#: admin/term/actions/update_terms_parent.py:90
 #, python-format
 msgid "Modify parent for selected %(verbose_name_plural)s"
 msgstr "Изменить родителя для выбранных %(verbose_name_plural)s"
 
-#: backend/edw/admin/term/forms/update_terms_parent.py:22
+#: admin/term/forms/update_terms_parent.py:22
 msgid "Term to set"
 msgstr "Родитель"
 
-#: backend/edw/apps.py:11
+#: apps.py:11
 msgid "EDW"
 msgstr "Предметно-ориентированное хранилище данных"
 
-#: backend/edw/forms/auth.py:25
+#: forms/auth.py:25
 msgid "Your fullname"
 msgstr "Ваше имя"
 
-#: backend/edw/forms/auth.py:26
+#: forms/auth.py:26
 msgid "Example: Ivanov Ivan"
 msgstr "Например: Иванов Иван"
 
-#: backend/edw/forms/auth.py:29
+#: forms/auth.py:29
 msgid "Your e-mail address"
 msgstr "Ваш адрес электронной почты"
 
-#: backend/edw/forms/auth.py:30
+#: forms/auth.py:30
 msgid "E-mail address is used as login"
 msgstr "Используется в качестве логина"
 
-#: backend/edw/forms/auth.py:31
+#: forms/auth.py:31
 msgid "Preset password"
 msgstr "Сгенерированный пароль"
 
-#: backend/edw/forms/auth.py:33
+#: forms/auth.py:33
 msgid "Send a randomly generated password to your e-mail address"
 msgstr ""
 "Отправить случайно сгенерированный пароль на ваш адрес электронной почты"
 
-#: backend/edw/forms/auth.py:35
+#: forms/auth.py:35
 msgid "Choose a password"
 msgstr "Введите пароль"
 
-#: backend/edw/forms/auth.py:36
+#: forms/auth.py:36
 msgid "Minimum length is 6 characters."
 msgstr "Минимальная длина 6 символов."
 
-#: backend/edw/forms/auth.py:37
+#: forms/auth.py:37
 msgid "Repeat password"
 msgstr "Повторите пароль"
 
-#: backend/edw/forms/auth.py:38
+#: forms/auth.py:38
 msgid "Confirm password."
 msgstr "Подтверждение пароля."
 
-#: backend/edw/forms/auth.py:55
+#: forms/auth.py:55
 #, python-format
 msgid "Domain name \"%(domain)s\" is not supported"
 msgstr "Почтовый ящик на сайте \"%(domain)s\" не поддерживается"
 
-#: backend/edw/forms/auth.py:59
+#: forms/auth.py:59
 #, python-brace-format
 msgid ""
 "A customer with the e-mail address ‘{email}’ already exists.\n"
@@ -526,11 +508,11 @@ msgstr ""
 "Пользователь с электронной почтой ‘{email}’ уже существует.\n"
 "Если вы использовали этот адрес ранее - попробуйте сбросить пароль."
 
-#: backend/edw/forms/auth.py:69
+#: forms/auth.py:69
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: backend/edw/forms/auth.py:106
+#: forms/auth.py:106
 #, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
@@ -542,23 +524,23 @@ msgstr ""
 "Логин и пароль для доступа к порталу можно посмотреть в этом же письме.\n"
 "Если письмо не пришло в папку «Входящие», проверьте папку «Спам»"
 
-#: backend/edw/forms/fields.py:31
+#: forms/fields.py:31
 msgid "List query expects minimum {} and maximum {} values."
 msgstr ""
 
-#: backend/edw/forms/fields.py:32
+#: forms/fields.py:32
 msgid "Enter a complete value."
 msgstr ""
 
-#: backend/edw/management/commands/edwcustomers.py:8
+#: management/commands/edwcustomers.py:8
 msgid "Collect information about all customers which accessed this EDW."
 msgstr "Сбор статистики по пользователям имеющим доступ к ПХД."
 
-#: backend/edw/management/commands/edwcustomers.py:12
+#: management/commands/edwcustomers.py:12
 msgid "Delete customers with expired sessions."
 msgstr "Удалить пользователей с истекшими сессиями."
 
-#: backend/edw/management/commands/edwcustomers.py:33
+#: management/commands/edwcustomers.py:33
 #, python-brace-format
 msgid ""
 "Customers in this EDW: total={total}, anonymous={anonymous}, "
@@ -569,17 +551,17 @@ msgstr ""
 "истекающие={expired}, активные={active}, гости={guests}, "
 "зарегистрированные={registered}, персонал={staff}."
 
-#: backend/edw/management/commands/test_more_like_this.py:21
+#: management/commands/test_more_like_this.py:21
 msgid ""
 "Run tests against this entity model. Example: nash_region.particularproblem"
 msgstr ""
 "Выполнить тесты с заданной моделью. Пример: nash_region.particularproblem"
 
-#: backend/edw/models/boundary.py:124
+#: models/boundary.py:124
 msgid "Polygons"
 msgstr "Полигоны"
 
-#: backend/edw/models/boundary.py:126
+#: models/boundary.py:126
 msgid ""
 "Example: [[[36.4446651, 50.5952546], [36.4449469, 50.5934115], [36.445167, "
 "50.5929324]], [[37.0134838, 51.2020471], [37.016944, 51.2008424], "
@@ -591,31 +573,31 @@ msgstr ""
 "[37.0186202, 51.2015776]]]. Source: https://nominatim.openstreetmap.org/"
 "search.php?q=moscow&polygon_geojson=1&format=json"
 
-#: backend/edw/models/boundary.py:139
+#: models/boundary.py:139
 msgid "Boundary"
 msgstr "Граница"
 
-#: backend/edw/models/boundary.py:140
+#: models/boundary.py:140
 msgid "Boundaries"
 msgstr "Границы"
 
-#: backend/edw/models/boundary.py:158
+#: models/boundary.py:158
 msgid "Syntax Error: {}"
 msgstr "Синтаксическая ошибка: {}"
 
-#: backend/edw/models/boundary.py:163
+#: models/boundary.py:163
 msgid "Value Error: Polygons must be a 'list'. Supplied value is '{}'"
 msgstr "Value Error: Polygons must be a 'list'. Supplied value is '{}'"
 
-#: backend/edw/models/boundary.py:171
+#: models/boundary.py:171
 msgid "Value Error: Polygon must be a 'list'. Supplied value is '{}'"
 msgstr "Value Error: Polygon must be a 'list'. Supplied value is '{}'"
 
-#: backend/edw/models/boundary.py:179
+#: models/boundary.py:179
 msgid "Value Error: Point must be a 'list'. Supplied value is '{}'"
 msgstr "Value Error: Point must be a 'list'. Supplied value is '{}'"
 
-#: backend/edw/models/boundary.py:187
+#: models/boundary.py:187
 msgid ""
 "Value Error: Point must be a list of two float values. Supplied list length "
 "is {}"
@@ -623,124 +605,123 @@ msgstr ""
 "Value Error: Point must be a list of two float values. Supplied list length "
 "is {}"
 
-#: backend/edw/models/boundary.py:197
+#: models/boundary.py:197
 msgid "Value Error: Point[{}] must be a float. Supplied value is '{}'"
 msgstr "Value Error: Point[{}] must be a float. Supplied value is '{}'"
 
-#: backend/edw/models/customer.py:200
+#: models/customer.py:200
 msgid "Mrs."
 msgstr "Г-жа."
 
-#: backend/edw/models/customer.py:200
+#: models/customer.py:200
 msgid "Mr."
 msgstr "Г-н."
 
-#: backend/edw/models/customer.py:200
+#: models/customer.py:200
 msgid "(n/a)"
 msgstr "(Не задано)"
 
-#: backend/edw/models/customer.py:204
+#: models/customer.py:204
 msgid "Unrecognized"
 msgstr "Не определен"
 
-#: backend/edw/models/customer.py:204
+#: models/customer.py:204
 msgid "Guest"
 msgstr "Гость"
 
-#: backend/edw/models/customer.py:204
+#: models/customer.py:204
 msgid "Registered"
 msgstr "Зарегистрированный"
 
-#: backend/edw/models/customer.py:207
+#: models/customer.py:207
 msgid "Recognized as"
 msgstr "Определен как"
 
-#: backend/edw/models/customer.py:208
+#: models/customer.py:208
 msgid "Designates the state the customer is recognized as."
 msgstr "Обозначает распознанное состояние пользователя."
 
-#: backend/edw/models/customer.py:212
+#: models/customer.py:212
 msgid "Extra information about this customer"
 msgstr "Расширенная информация по пользователю"
 
-#: backend/edw/models/data_mart.py:139 backend/edw/models/term.py:280
+#: models/data_mart.py:139 models/term.py:280
 msgid "Delete restriction"
 msgstr "Ограничение на удаление"
 
-#: backend/edw/models/data_mart.py:140 backend/edw/models/term.py:281
+#: models/data_mart.py:140 models/term.py:281
 msgid "Change parent restriction"
 msgstr "Ограничение на изменение родителя"
 
-#: backend/edw/models/data_mart.py:141 backend/edw/models/term.py:282
+#: models/data_mart.py:141 models/term.py:282
 msgid "Change slug restriction"
 msgstr "Ограничение на изменение синонима"
 
-#: backend/edw/models/data_mart.py:142 backend/edw/models/term.py:284
+#: models/data_mart.py:142 models/term.py:284
 msgid "Has child restriction"
 msgstr "Ограничение на добавление потомков"
 
-#: backend/edw/models/data_mart.py:143
+#: models/data_mart.py:143
 msgid "Change terms restriction"
 msgstr "Ограничение на изменение терминов"
 
-#: backend/edw/models/data_mart.py:145 backend/edw/models/term.py:287
+#: models/data_mart.py:145 models/term.py:287
 msgid "Parent node not active"
 msgstr "Родительский узел неактивен"
 
-#: backend/edw/models/data_mart.py:160
+#: models/data_mart.py:160
 msgid "Data mart term"
 msgstr "Термин витрины данных"
 
-#: backend/edw/models/data_mart.py:161
+#: models/data_mart.py:161
 msgid "Data marts terms"
 msgstr "Термины витрины данных"
 
-#: backend/edw/models/data_mart.py:164 backend/edw/models/term.py:300
+#: models/data_mart.py:164 models/term.py:300
 msgid "Parent"
 msgstr "Родитель"
 
-#: backend/edw/models/data_mart.py:166
+#: models/data_mart.py:166
 msgid "Datamart slug"
 msgstr "Синоним"
 
-#: backend/edw/models/data_mart.py:166 backend/edw/models/term.py:302
+#: models/data_mart.py:166 models/term.py:302
 msgid "Used for URLs, auto-generated from name if blank."
 msgstr "Используется авто-генерация URL, если это поле пустое."
 
-#: backend/edw/models/data_mart.py:167 backend/edw/models/term.py:303
-#: backend/edw/rest/filters/data_mart.py:31
+#: models/data_mart.py:167 models/term.py:303 rest/filters/data_mart.py:31
 msgid "Path"
 msgstr "Путь"
 
-#: backend/edw/models/data_mart.py:171 backend/edw/models/entity.py:941
-#: backend/edw/models/term.py:310 backend/edw/rest/filters/entity.py:134
+#: models/data_mart.py:171 models/entity.py:941 models/term.py:310
+#: rest/filters/entity.py:134
 msgid "Created at"
 msgstr "Дата создания"
 
-#: backend/edw/models/data_mart.py:172 backend/edw/models/entity.py:942
-#: backend/edw/models/term.py:311 backend/edw/rest/filters/entity.py:135
+#: models/data_mart.py:172 models/entity.py:942 models/term.py:311
+#: rest/filters/entity.py:135
 msgid "Updated at"
 msgstr "Дата обновления"
 
-#: backend/edw/models/data_mart.py:176
+#: models/data_mart.py:176
 msgid "Default data mart entities ordering mode."
 msgstr "Порядок сортировки объектов витрины данных по-умолчанию."
 
-#: backend/edw/models/data_mart.py:180
+#: models/data_mart.py:180
 msgid "Default data mart entities view component."
 msgstr "Компонент представления объектов витрины данных по-умолчанию."
 
-#: backend/edw/models/data_mart.py:182
+#: models/data_mart.py:182
 msgid "Limit"
 msgstr "Предел"
 
-#: backend/edw/models/data_mart.py:183
+#: models/data_mart.py:183
 msgid "Entities per page. Leave empty for default (by default: {})."
 msgstr ""
 "Объектов на странице. Оставьте пустым для установки значения по-умолчанию "
 "(по-умолчанию: {})."
 
-#: backend/edw/models/data_mart.py:187
+#: models/data_mart.py:187
 msgid ""
 "Space delimited class attribute, specifies one or more classnames for an "
 "data mart."
@@ -748,44 +729,43 @@ msgstr ""
 "Список классов разделенных пробелами, задающий один или несколько классов "
 "для витрины данных."
 
-#: backend/edw/models/data_mart.py:188 backend/edw/models/term.py:315
+#: models/data_mart.py:188 models/term.py:315
 msgid "Description"
 msgstr "Описание"
 
-#: backend/edw/models/data_mart.py:190
+#: models/data_mart.py:190
 msgid "Is this data mart active."
 msgstr "Определяет включена ли данная витрина данных."
 
-#: backend/edw/models/data_mart.py:192 backend/edw/models/term.py:319
+#: models/data_mart.py:192 models/term.py:319
 msgid "system flags"
 msgstr "системные флаги"
 
-#: backend/edw/models/data_mart.py:208
-#: backend/edw/models/defaults/data_mart.py:33
+#: models/data_mart.py:208 models/defaults/data_mart.py:33
 msgid "Data marts"
 msgstr "Витрины данных"
 
-#: backend/edw/models/data_mart.py:250
+#: models/data_mart.py:250
 msgid "Data mart type"
 msgstr "Тип витрины данных"
 
-#: backend/edw/models/defaults/customer.py:14
+#: models/defaults/customer.py:14
 msgid "Customer Number"
 msgstr "Код пользователя"
 
-#: backend/edw/models/defaults/data_mart.py:22
+#: models/defaults/data_mart.py:22
 msgid "Tile view"
 msgstr "Плитка"
 
-#: backend/edw/models/defaults/term.py:27 backend/edw/models/term.py:332
+#: models/defaults/term.py:27 models/term.py:332
 msgid "Topic model"
 msgstr "Тематическая модель"
 
-#: backend/edw/models/email_category.py:58
+#: models/email_category.py:58
 msgid "Email Address Masks"
 msgstr "Маска адреса электронной почты"
 
-#: backend/edw/models/email_category.py:59
+#: models/email_category.py:59
 msgid ""
 "You enter on one mask in line. Use '?' and '*' as universal substitutes. '?' "
 "replaces any symbol, '*' replaces any sequence of symbols (including I am "
@@ -798,148 +778,146 @@ msgstr ""
 "любое количество пробелов (больше одного). Например: *@mail.ru, admin@*.??, "
 "*.edu.ru, smith????@yahoo.com."
 
-#: backend/edw/models/email_category.py:73
+#: models/email_category.py:73
 msgid "Email category"
 msgstr "Категория электронной почты"
 
-#: backend/edw/models/email_category.py:74
+#: models/email_category.py:74
 msgid "Email categories"
 msgstr "Категории адресов электронной почты"
 
-#: backend/edw/models/entity.py:921
+#: models/entity.py:921
 msgid "Created at: new first"
 msgstr "По дате ↑"
 
-#: backend/edw/models/entity.py:929
+#: models/entity.py:929
 msgid "List view"
 msgstr "Список"
 
-#: backend/edw/models/entity.py:936
+#: models/entity.py:936
 msgid "Entity term"
 msgstr "Термин объекта"
 
-#: backend/edw/models/entity.py:937
+#: models/entity.py:937
 msgid "Entities terms"
 msgstr "Термины объекта"
 
-#: backend/edw/models/entity.py:944
+#: models/entity.py:944
 msgid "Is this object publicly visible."
 msgstr "Является ли этот объект общедоступным."
 
-#: backend/edw/models/entity.py:955
+#: models/entity.py:955
 msgid "Related data marts"
 msgstr "Связанные витрины данных"
 
-#: backend/edw/models/entity.py:959 backend/edw/models/related/__init__.py:22
-#: backend/edw/models/related/__init__.py:96
-#: backend/edw/models/related/entity_file.py:26
-#: backend/edw/models/related/entity_image.py:26
+#: models/entity.py:959 models/related/__init__.py:22
+#: models/related/__init__.py:96 models/related/entity_file.py:26
+#: models/related/entity_image.py:26
 msgid "Entity"
 msgstr "Объект"
 
-#: backend/edw/models/entity.py:960
-#: backend/edw/templates/edw/admin/entities/actions/_updated_entities.html:9
+#: models/entity.py:960
+#: templates/edw/admin/entities/actions/_updated_entities.html:9
 msgid "Entities"
 msgstr "Объекты"
 
-#: backend/edw/models/fields/morton/__init__.py:132
+#: models/fields/morton/__init__.py:132
 msgid "BaseMortonOrder field"
 msgstr ""
 
-#: backend/edw/models/fields/morton/order2D.py:69
+#: models/fields/morton/order2D.py:69
 msgid "MortonOrder2D field"
 msgstr ""
 
-#: backend/edw/models/fields/tree.py:23
+#: models/fields/tree.py:23
 msgid "The selected node cannot have child nodes."
 msgstr "Выбраный узел не может иметь дочерних узлов."
 
-#: backend/edw/models/fields/tree.py:24
+#: models/fields/tree.py:24
 msgid "A node may not be made a child of itself."
 msgstr "Узел не может быть дочерним сам себе."
 
-#: backend/edw/models/fields/tree.py:25
+#: models/fields/tree.py:25
 msgid "Unknown parent value."
 msgstr "Неизвестное значение родителя."
 
-#: backend/edw/models/mixins/entity/__init__.py:50
+#: models/mixins/entity/__init__.py:50
 msgid "Type"
 msgstr "Тип"
 
-#: backend/edw/models/mixins/entity/add_date_terms_validation.py:69
+#: models/mixins/entity/add_date_terms_validation.py:69
 msgid "Added day"
 msgstr "День"
 
-#: backend/edw/models/mixins/entity/add_date_terms_validation.py:166
+#: models/mixins/entity/add_date_terms_validation.py:166
 msgid "Added month"
 msgstr "Месяц"
 
-#: backend/edw/models/mixins/entity/add_date_terms_validation.py:245
+#: models/mixins/entity/add_date_terms_validation.py:245
 msgid "Added year"
 msgstr "Год"
 
-#: backend/edw/models/mixins/entity/customer_category.py:45
+#: models/mixins/entity/customer_category.py:45
 msgid "Customer category"
 msgstr "Категория пользователя"
 
-#: backend/edw/models/mixins/entity/customer_category.py:58
+#: models/mixins/entity/customer_category.py:58
 msgid "Unknown customer"
 msgstr "Неизвестный пользователь"
 
-#: backend/edw/models/mixins/entity/place.py:49
+#: models/mixins/entity/place.py:49
 msgid "Region"
 msgstr "Регион"
 
-#: backend/edw/models/mixins/entity/place.py:62
+#: models/mixins/entity/place.py:62
 msgid "Terra Incognita"
 msgstr "Неопределенное место"
 
-#: backend/edw/models/mixins/notification.py:30
+#: models/mixins/notification.py:30
 msgid "stored_request"
 msgstr "данные http запроса"
 
-#: backend/edw/models/mixins/notification.py:31
+#: models/mixins/notification.py:31
 msgid "Parts of the Request objects on the moment of submit."
 msgstr "Request-объект на момент отправки."
 
-#: backend/edw/models/notification.py:67
+#: models/notification.py:67
 msgid "By Email"
 msgstr "По электронной почте"
 
-#: backend/edw/models/notification.py:68
+#: models/notification.py:68
 msgid "By Push Notification"
 msgstr "Через push-уведомление"
 
-#: backend/edw/models/notification.py:71
+#: models/notification.py:71
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: backend/edw/models/notification.py:97
+#: models/notification.py:97
 msgid "Template"
 msgstr "Шаблон"
 
-#: backend/edw/models/notification.py:100
+#: models/notification.py:100
 msgid "Mode"
 msgstr "Способ"
 
-#: backend/edw/models/notification.py:105
+#: models/notification.py:105
 msgid "Notification"
 msgstr "Уведомление"
 
-#: backend/edw/models/notification.py:106
+#: models/notification.py:106
 msgid "Notifications"
 msgstr "Уведомления"
 
-#: backend/edw/models/notification.py:350
-#: backend/edw/models/notification.py:354
+#: models/notification.py:350 models/notification.py:354
 msgid "Attachment"
 msgstr "Вложение"
 
-#: backend/edw/models/postal_zone.py:58
+#: models/postal_zone.py:58
 msgid "Postal codes"
 msgstr "Почтовые индексы"
 
-#: backend/edw/models/postal_zone.py:59
+#: models/postal_zone.py:59
 msgid ""
 "You enter on one index in line. Use '?' and '*' as universal substitutes. "
 "'?' replaces any symbol, '*' replaces any sequence of symbols (including I "
@@ -951,427 +929,419 @@ msgstr ""
 "количество символов (включая пустые). Пробелы игнорируются. '_' заменяет "
 "любое количество пробелов (больше одного). Например: 2204* 38?45 23* 123_4??."
 
-#: backend/edw/models/postal_zone.py:73
+#: models/postal_zone.py:73
 msgid "Postal zone"
 msgstr "Почтовая зона"
 
-#: backend/edw/models/postal_zone.py:74
+#: models/postal_zone.py:74
 msgid "Postal zones"
 msgstr "Почтовые зоны"
 
-#: backend/edw/models/related/__init__.py:33
+#: models/related/__init__.py:33
 msgid "Additional Entity Characteristic or Mark"
 msgstr "Дополнительная характеристика или метка"
 
-#: backend/edw/models/related/__init__.py:34
+#: models/related/__init__.py:34
 msgid "Additional Entity Characteristics or Marks"
 msgstr "Дополнительные характеристики или метки"
 
-#: backend/edw/models/related/__init__.py:63
+#: models/related/__init__.py:63
 msgid "From Entity"
 msgstr "Субъект"
 
-#: backend/edw/models/related/__init__.py:64
+#: models/related/__init__.py:64
 msgid "To Entity"
 msgstr "Объект"
 
-#: backend/edw/models/related/__init__.py:73
+#: models/related/__init__.py:73
 msgid "Entity Relations"
 msgstr "Отношения"
 
-#: backend/edw/models/related/__init__.py:104
+#: models/related/__init__.py:104
 msgid "Related data mart"
 msgstr "Связанная витрина данных"
 
-#: backend/edw/models/related/__init__.py:105
+#: models/related/__init__.py:105
 msgid "Entity related data marts"
 msgstr "Связанные витрины данных"
 
-#: backend/edw/models/related/__init__.py:131
+#: models/related/__init__.py:131
 msgid "Bidirectional"
 msgstr "Двунаправленная"
 
-#: backend/edw/models/related/__init__.py:132
+#: models/related/__init__.py:132
 msgid "Forward"
 msgstr "Прямая"
 
-#: backend/edw/models/related/__init__.py:133
+#: models/related/__init__.py:133
 msgid "Reverse"
 msgstr "Обратная"
 
-#: backend/edw/models/related/__init__.py:138
+#: models/related/__init__.py:138
 msgid "Relation direction"
 msgstr "Тип направления связи"
 
-#: backend/edw/models/related/__init__.py:142
+#: models/related/__init__.py:142
 msgid "Defines the direction of relation on which selection is carried out"
 msgstr "Определяет направление связи по которому осуществляется отбор"
 
-#: backend/edw/models/related/__init__.py:150
+#: models/related/__init__.py:150
 msgid "Data mart relation"
 msgstr "Отношение"
 
-#: backend/edw/models/related/__init__.py:151
+#: models/related/__init__.py:151
 msgid "Data mart relations"
 msgstr "Отношения"
 
-#: backend/edw/models/related/__init__.py:181
+#: models/related/__init__.py:181
 msgid "Can add"
 msgstr "Может добавлять"
 
-#: backend/edw/models/related/__init__.py:182
+#: models/related/__init__.py:182
 msgid "Has this customer add entity to data mart permission."
 msgstr ""
 "Имеет ли право этот пользователь добавлять объекты этой витрины данных."
 
-#: backend/edw/models/related/__init__.py:183
+#: models/related/__init__.py:183
 msgid "Can change"
 msgstr "Может изменять"
 
-#: backend/edw/models/related/__init__.py:184
+#: models/related/__init__.py:184
 msgid "Has this customer change entity from data mart permission."
 msgstr "Имеет ли право этот пользователь менять объекты этой витрины данных."
 
-#: backend/edw/models/related/__init__.py:185
+#: models/related/__init__.py:185
 msgid "Can delete"
 msgstr "Может удалять"
 
-#: backend/edw/models/related/__init__.py:186
+#: models/related/__init__.py:186
 msgid "Has this customer delete entity from data mart permission."
 msgstr "Имеет ли право этот пользователь удалять объекты этой витрины данных."
 
-#: backend/edw/models/related/__init__.py:190
+#: models/related/__init__.py:190
 msgid "Data mart permission"
 msgstr "Разрешения витрины данных"
 
-#: backend/edw/models/related/__init__.py:191
+#: models/related/__init__.py:191
 msgid "Data mart permissions"
 msgstr "Разрешения витрин данных"
 
-#: backend/edw/models/related/data_mart_image.py:25
-#: backend/edw/models/related/entity_image.py:25
+#: models/related/data_mart_image.py:25 models/related/entity_image.py:25
 msgid "Image"
 msgstr "Изображение"
 
-#: backend/edw/models/related/data_mart_image.py:26
+#: models/related/data_mart_image.py:26
 msgid "DataMart"
 msgstr "Витрина данных"
 
-#: backend/edw/models/related/data_mart_image.py:34
+#: models/related/data_mart_image.py:34
 msgid "DataMart Image"
 msgstr "Изображение"
 
-#: backend/edw/models/related/data_mart_image.py:35
+#: models/related/data_mart_image.py:35
 msgid "DataMart Images"
 msgstr "Изображения"
 
-#: backend/edw/models/related/entity_file.py:25
+#: models/related/entity_file.py:25
 msgid "File"
 msgstr "Файл"
 
-#: backend/edw/models/related/entity_file.py:34
+#: models/related/entity_file.py:34
 msgid "Entity File"
 msgstr "Файл"
 
-#: backend/edw/models/related/entity_file.py:35
+#: models/related/entity_file.py:35
 msgid "Entity Files"
 msgstr "Файлы"
 
-#: backend/edw/models/related/entity_image.py:34
+#: models/related/entity_image.py:34
 msgid "Entity Image"
 msgstr "Изображение"
 
-#: backend/edw/models/related/entity_image.py:35
+#: models/related/entity_image.py:35
 msgid "Entity Images"
 msgstr "Изображения"
 
-#: backend/edw/models/term.py:258
+#: models/term.py:258
 msgid "OR"
 msgstr "«ИЛИ»"
 
-#: backend/edw/models/term.py:259
+#: models/term.py:259
 msgid "XOR"
 msgstr "«Исключающее ИЛИ»"
 
-#: backend/edw/models/term.py:260
+#: models/term.py:260
 msgid "AND"
 msgstr "«И»"
 
-#: backend/edw/models/term.py:265
+#: models/term.py:265
 msgid "Is characteristic"
 msgstr "Характеристика"
 
-#: backend/edw/models/term.py:266
+#: models/term.py:266
 msgid "Is mark"
 msgstr "Метка"
 
-#: backend/edw/models/term.py:267
+#: models/term.py:267
 msgid "Is relation"
 msgstr "Отношение"
 
-#: backend/edw/models/term.py:274
+#: models/term.py:274
 msgid "Standard"
 msgstr "Стандартный"
 
-#: backend/edw/models/term.py:275
+#: models/term.py:275
 msgid "Expanded"
 msgstr "Расширенный"
 
-#: backend/edw/models/term.py:276
+#: models/term.py:276
 msgid "Reduced"
 msgstr "Сокращенный"
 
-#: backend/edw/models/term.py:283
+#: models/term.py:283
 msgid "Change semantic rule restriction"
 msgstr "Ограничение на изменение семантического правила"
 
-#: backend/edw/models/term.py:285
+#: models/term.py:285
 msgid "External tagging restriction"
 msgstr "Ограничение на ручную установку в объектах"
 
-#: backend/edw/models/term.py:302
+#: models/term.py:302
 msgid "Term slug"
 msgstr "Синоним"
 
-#: backend/edw/models/term.py:304
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:3
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:4
+#: models/term.py:304 templates/edw/admin/mptt/_term_node.html:3
+#: templates/edw/admin/mptt/_term_node.html:4
 msgid "Semantic Rule"
 msgstr "Семантическое правило"
 
-#: backend/edw/models/term.py:306
+#: models/term.py:306
 msgid "attributes"
 msgstr "атрибуты"
 
-#: backend/edw/models/term.py:307
+#: models/term.py:307
 msgid "Specifying attributes of term."
 msgstr "Позволяет устанавливать атрибуты термина."
 
-#: backend/edw/models/term.py:308
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:4
+#: models/term.py:308 templates/edw/admin/mptt/_term_node.html:4
 msgid "Specification Mode"
 msgstr "Режим конкретизации"
 
-#: backend/edw/models/term.py:317
+#: models/term.py:317
 msgid "Is this term active."
 msgstr ""
 "Определяет активен ли этот термин, участвует ли он в отборе и можно ли его "
 "использовать в классификации объектов."
 
-#: backend/edw/rest/filters/data_mart.py:27 backend/edw/rest/filters/term.py:26
+#: rest/filters/data_mart.py:27 rest/filters/term.py:26
 msgid "Parent Id"
 msgstr "ID родителя"
 
-#: backend/edw/rest/filters/data_mart.py:28
-#: backend/edw/rest/filters/entity.py:147
+#: rest/filters/data_mart.py:28 rest/filters/entity.py:147
 msgid "IDs"
 msgstr "ID`ы"
 
-#: backend/edw/rest/filters/data_mart.py:29
+#: rest/filters/data_mart.py:29
 msgid "Slug"
 msgstr "Синоним"
 
-#: backend/edw/rest/filters/data_mart.py:30
+#: rest/filters/data_mart.py:30
 msgid "Slug (icontains)"
 msgstr "Синоним (icontains)"
 
-#: backend/edw/rest/filters/data_mart.py:32
+#: rest/filters/data_mart.py:32
 msgid "Path (icontains)"
 msgstr "Путь (icontains)"
 
-#: backend/edw/rest/filters/entity.py:125
+#: rest/filters/entity.py:125
 msgid "equal"
 msgstr "равно"
 
-#: backend/edw/rest/filters/entity.py:126
+#: rest/filters/entity.py:126
 msgid "less than"
 msgstr "меньше чем"
 
-#: backend/edw/rest/filters/entity.py:127
+#: rest/filters/entity.py:127
 msgid "less than or equal"
 msgstr "меньше или равно"
 
-#: backend/edw/rest/filters/entity.py:128
+#: rest/filters/entity.py:128
 msgid "greater than"
 msgstr "больше чем"
 
-#: backend/edw/rest/filters/entity.py:129
+#: rest/filters/entity.py:129
 msgid "greater than or equal"
 msgstr "больше или равно"
 
-#: backend/edw/rest/filters/entity.py:130
+#: rest/filters/entity.py:130
 msgid "date range"
 msgstr "диапазон дат"
 
-#: backend/edw/rest/filters/entity.py:150
+#: rest/filters/entity.py:150
 msgid "Relations"
 msgstr "Отношение"
 
-#: backend/edw/rest/filters/term.py:27 backend/edw/rest/filters/term.py:29
+#: rest/filters/term.py:27 rest/filters/term.py:29
 msgid "Any"
 msgstr "Все"
 
-#: backend/edw/rest/serializers/data_mart.py:124
-#: backend/edw/rest/serializers/entity.py:191
-#: backend/edw/rest/serializers/entity.py:220
-#: backend/edw/rest/serializers/entity.py:242
-#: backend/edw/rest/serializers/term.py:74
+#: rest/serializers/data_mart.py:124 rest/serializers/entity.py:191
+#: rest/serializers/entity.py:220 rest/serializers/entity.py:242
+#: rest/serializers/term.py:74
 msgid "{} `{}`='{}'"
 msgstr "{} `{}`='{}'"
 
-#: backend/edw/rest/serializers/entity.py:161
-#: backend/edw/rest/serializers/entity.py:300
+#: rest/serializers/entity.py:161 rest/serializers/entity.py:300
 msgid "This field is required."
 msgstr "Это поле обязательно."
 
-#: backend/edw/rest/serializers/entity.py:251
-#: backend/edw/rest/serializers/entity.py:266
+#: rest/serializers/entity.py:251 rest/serializers/entity.py:266
 msgid "Terms with id`s [{}] not found."
 msgstr "Термины с иденификаторами [{}] не найдены."
 
-#: backend/edw/rest/serializers/entity.py:275
+#: rest/serializers/entity.py:275
 msgid "Entities with id`s [{}] not found."
 msgstr "Объекты с идентификаторами [{}] не найдены."
 
-#: backend/edw/rest/serializers/entity.py:283
+#: rest/serializers/entity.py:283
 msgid "The relations [{}] are forbidden."
 msgstr "Использование отношений с идентификаторами [{}] запрещено."
 
-#: backend/edw/rest/serializers/entity.py:291
+#: rest/serializers/entity.py:291
 msgid "The subjects with id`s [{}] are forbidden."
 msgstr "Использование субъектов с идентификаторами [{}] запрещено."
 
-#: backend/edw/rest/serializers/entity.py:294
+#: rest/serializers/entity.py:294
 msgid "The subjects cannot be the empty."
 msgstr "Субъекты не могут быть пусты."
 
-#: backend/edw/rest/serializers/related/data_mart_image.py:18
+#: rest/serializers/related/data_mart_image.py:18
 msgid "Data marts images"
 msgstr "Изображения витрин данных"
 
-#: backend/edw/rest/serializers/related/entity_file.py:17
+#: rest/serializers/related/entity_file.py:17
 msgid "Entities files"
 msgstr "Файлы объектов"
 
-#: backend/edw/rest/serializers/related/entity_image.py:17
+#: rest/serializers/related/entity_image.py:17
 msgid "Entities images"
 msgstr "Изображения объектов"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:9
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:36
+#: templates/admin/filer/widgets/admin_file.html:9
+#: templates/admin/filer/widgets/admin_file.html:36
 msgid "Clear"
 msgstr "Очистить"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:18
+#: templates/admin/filer/widgets/admin_file.html:18
 msgid "or drop your file here"
 msgstr "или \"скиньте\" ваш файл сюда"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:27
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:28
+#: templates/admin/filer/widgets/admin_file.html:27
+#: templates/admin/filer/widgets/admin_file.html:28
 msgid "file missing"
 msgstr "файл не найден"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:31
+#: templates/admin/filer/widgets/admin_file.html:31
 msgid "no file selected"
 msgstr "файл не выбран"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:40
+#: templates/admin/filer/widgets/admin_file.html:40
 msgid "Lookup"
 msgstr "Выбрать"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:41
+#: templates/admin/filer/widgets/admin_file.html:41
 msgid "Choose File"
 msgstr "Выбрать файл"
 
-#: backend/edw/templates/admin/filer/widgets/admin_file.html:47
+#: templates/admin/filer/widgets/admin_file.html:47
 msgid "Properties"
 msgstr "Свойства"
 
-#: backend/edw/templates/edw/admin/_submit_row.html:3
+#: templates/edw/admin/_submit_row.html:3
 msgid "Save"
 msgstr "Записать"
 
-#: backend/edw/templates/edw/admin/data_mart/change_list.html:7
-#: backend/edw/templates/edw/admin/term/change_list.html:7
+#: templates/edw/admin/data_mart/change_list.html:7
+#: templates/edw/admin/term/change_list.html:7
 msgid "Rebuild the tree"
 msgstr "Перестроить дерево"
 
-#: backend/edw/templates/edw/admin/entities/actions/_base_change_form.html:6
-#: backend/edw/templates/edw/admin/terms/actions/update_terms_parent.html:11
+#: templates/edw/admin/entities/actions/_base_change_form.html:6
+#: templates/edw/admin/terms/actions/update_terms_parent.html:11
 msgid "Home"
 msgstr "Начало"
 
-#: backend/edw/templates/edw/admin/entities/actions/_updated_entities.html:5
+#: templates/edw/admin/entities/actions/_updated_entities.html:5
 msgid "Updated entities"
 msgstr "Выбранные объекты"
 
-#: backend/edw/templates/edw/admin/entities/actions/_updated_entities.html:5
+#: templates/edw/admin/entities/actions/_updated_entities.html:5
 msgid "Count:"
 msgstr "Количество:"
 
-#: backend/edw/templates/edw/admin/entities/actions/base_multiply_entities_action.html:9
-#: backend/edw/templates/edw/admin/entities/actions/update_active.html:9
-#: backend/edw/templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:14
-#: backend/edw/templates/edw/admin/entities/actions/update_images.html:14
-#: backend/edw/templates/edw/admin/entities/actions/update_related_data_marts.html:14
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:14
-#: backend/edw/templates/edw/admin/entities/actions/update_states.html:9
-#: backend/edw/templates/edw/admin/entities/actions/update_terms.html:9
-#: backend/edw/templates/edw/admin/terms/actions/update_terms_parent.html:23
+#: templates/edw/admin/entities/actions/base_multiply_entities_action.html:9
+#: templates/edw/admin/entities/actions/update_active.html:9
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:14
+#: templates/edw/admin/entities/actions/update_images.html:14
+#: templates/edw/admin/entities/actions/update_related_data_marts.html:14
+#: templates/edw/admin/entities/actions/update_relations.html:14
+#: templates/edw/admin/entities/actions/update_states.html:9
+#: templates/edw/admin/entities/actions/update_terms.html:9
+#: templates/edw/admin/terms/actions/update_terms_parent.html:23
 msgid "Please correct the errors below."
 msgstr "Пожалуйста, исправьте ошибки ниже."
 
-#: backend/edw/templates/edw/admin/entities/actions/update_active.html:16
-#: backend/edw/templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:21
-#: backend/edw/templates/edw/admin/entities/actions/update_images.html:21
-#: backend/edw/templates/edw/admin/entities/actions/update_related_data_marts.html:21
-#: backend/edw/templates/edw/admin/entities/actions/update_relations.html:21
-#: backend/edw/templates/edw/admin/entities/actions/update_states.html:16
-#: backend/edw/templates/edw/admin/entities/actions/update_terms.html:16
-#: backend/edw/templates/edw/admin/terms/actions/update_terms_parent.html:30
+#: templates/edw/admin/entities/actions/update_active.html:16
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:21
+#: templates/edw/admin/entities/actions/update_images.html:21
+#: templates/edw/admin/entities/actions/update_related_data_marts.html:21
+#: templates/edw/admin/entities/actions/update_relations.html:21
+#: templates/edw/admin/entities/actions/update_states.html:16
+#: templates/edw/admin/entities/actions/update_terms.html:16
+#: templates/edw/admin/terms/actions/update_terms_parent.html:30
 msgid "Make youre choice"
 msgstr "Выберите"
 
-#: backend/edw/templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:25
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:25
 msgid "Additional marks to set"
 msgstr "Характеристики или метки для установки"
 
-#: backend/edw/templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:26
+#: templates/edw/admin/entities/actions/update_additional_characteristics_or_marks.html:26
 msgid "Additional marks to unset"
 msgstr "Характеристики или метки для снятия"
 
-#: backend/edw/templates/edw/admin/entities/actions/update_states.html:20
+#: templates/edw/admin/entities/actions/update_states.html:20
 msgid "State to set"
 msgstr "Состояние для установки"
 
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:6
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:15
+#: templates/edw/admin/mptt/_datamart_node.html:6
+#: templates/edw/admin/mptt/_term_node.html:15
 msgid "System flags"
 msgstr "Системные флаги"
 
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:17
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:21
+#: templates/edw/admin/mptt/_datamart_node.html:17
+#: templates/edw/admin/mptt/_term_node.html:21
 msgid "Change"
 msgstr "Изменить"
 
-#: backend/edw/templates/edw/admin/mptt/_datamart_node.html:18
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:22
+#: templates/edw/admin/mptt/_datamart_node.html:18
+#: templates/edw/admin/mptt/_term_node.html:22
 msgid "Add"
 msgstr "Добавить"
 
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:17
+#: templates/edw/admin/mptt/_term_node.html:17
 msgid "Mark"
 msgstr "Метка"
 
-#: backend/edw/templates/edw/admin/mptt/_term_node.html:18
+#: templates/edw/admin/mptt/_term_node.html:18
 msgid "Characteristic"
 msgstr "Характеристика"
 
-#: backend/edw/templates/edw/admin/term/filters/tree/filter.html:4
+#: templates/edw/admin/term/filters/tree/filter.html:4
 msgid "Clear filter"
 msgstr "Сбросить всё"
 
-#: backend/edw/templates/edw/email/activate-account-body.html:3
+#: templates/edw/email/activate-account-body.html:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for registration for your\n"
@@ -1380,11 +1350,11 @@ msgstr ""
 "Вы получили это письмо потому что этот адрес был указан при регистрации\n"
 "пользовательского аккаунта на портале «%(site_name)s»."
 
-#: backend/edw/templates/edw/email/activate-account-body.html:6
+#: templates/edw/email/activate-account-body.html:6
 msgid "Activate"
 msgstr "Активировать"
 
-#: backend/edw/templates/edw/email/activate-account-body.html:8
+#: templates/edw/email/activate-account-body.html:8
 #, python-format
 msgid ""
 "To activate your account сlick a button above or this link: "
@@ -1393,13 +1363,13 @@ msgstr ""
 "Чтобы активировать аккаунт, нажмите кнопку выше или перейдите по ссылке "
 "%(activation_link)s."
 
-#: backend/edw/templates/edw/email/activate-account-body.html:10
-#: backend/edw/templates/edw/email/activate-account-body.txt:8
+#: templates/edw/email/activate-account-body.html:10
+#: templates/edw/email/activate-account-body.txt:8
 #, python-format
 msgid "Link is valid for %(expiration_days)s days."
 msgstr "Ссылка будет активна в течение %(expiration_days)s дней."
 
-#: backend/edw/templates/edw/email/activate-account-body.html:10
+#: templates/edw/email/activate-account-body.html:10
 msgid ""
 "If links are disallowed in your post-manager just copy this link and paste "
 "it into url field of your browser."
@@ -1407,30 +1377,30 @@ msgstr ""
 "Если ссылки запрещены в вашем почтовом сервисе, просто скопируйте ссылку и "
 "вставьте ее в адресную строку браузера."
 
-#: backend/edw/templates/edw/email/activate-account-body.html:13
+#: templates/edw/email/activate-account-body.html:13
 msgid "Your username:"
 msgstr "Ваш логин:"
 
-#: backend/edw/templates/edw/email/activate-account-body.html:14
+#: templates/edw/email/activate-account-body.html:14
 msgid "Password:"
 msgstr "Пароль:"
 
-#: backend/edw/templates/edw/email/activate-account-body.html:17
-#: backend/edw/templates/edw/email/activate-account-body.txt:13
-#: backend/edw/templates/edw/email/register-user-body.txt:9
-#: backend/edw/templates/edw/email/reset-password-body.txt:8
+#: templates/edw/email/activate-account-body.html:17
+#: templates/edw/email/activate-account-body.txt:13
+#: templates/edw/email/register-user-body.txt:9
+#: templates/edw/email/reset-password-body.txt:8
 msgid "Thanks for using our site!"
 msgstr "Спасибо, что используете наш сайт!"
 
-#: backend/edw/templates/edw/email/activate-account-body.html:19
-#: backend/edw/templates/edw/email/activate-account-body.txt:15
-#: backend/edw/templates/edw/email/register-user-body.txt:11
-#: backend/edw/templates/edw/email/reset-password-body.txt:10
+#: templates/edw/email/activate-account-body.html:19
+#: templates/edw/email/activate-account-body.txt:15
+#: templates/edw/email/register-user-body.txt:11
+#: templates/edw/email/reset-password-body.txt:10
 #, python-format
 msgid "The «%(site_name)s» team"
 msgstr "Команда сайта «%(site_name)s»"
 
-#: backend/edw/templates/edw/email/activate-account-body.txt:3
+#: templates/edw/email/activate-account-body.txt:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for registration for your\n"
@@ -1439,13 +1409,13 @@ msgstr ""
 "Вы получили это письмо потому что этот адрес был указан при регистрации\n"
 "пользовательского аккаунта на «%(site_name)s»."
 
-#: backend/edw/templates/edw/email/activate-account-body.txt:6
+#: templates/edw/email/activate-account-body.txt:6
 #, python-format
 msgid "Click on link %(activation_link)s for activate your account %(user)s."
 msgstr ""
 "Перейдите по ссылке %(activation_link)s для активации аккаунта %(user)s."
 
-#: backend/edw/templates/edw/email/activate-account-body.txt:10
+#: templates/edw/email/activate-account-body.txt:10
 #, python-format
 msgid ""
 "In the future, please use username %(user)s with password %(password)s to "
@@ -1456,12 +1426,12 @@ msgstr ""
 "для входа\n"
 "на сайт %(absolute_base_uri)s."
 
-#: backend/edw/templates/edw/email/activate-account-subject.txt:2
+#: templates/edw/email/activate-account-subject.txt:2
 #, python-format
 msgid ", you have registered account on website «%(site_name)s»"
 msgstr ", вы зарегистрировали аккаунт на сайте «%(site_name)s»"
 
-#: backend/edw/templates/edw/email/register-user-body.txt:3
+#: templates/edw/email/register-user-body.txt:3
 #, python-format
 msgid ""
 "You are receiving this email because you asked for a auto-generated password "
@@ -1472,7 +1442,7 @@ msgstr ""
 "пароль для вашего\n"
 "пользовательского аккаунта на «%(site_name)s»."
 
-#: backend/edw/templates/edw/email/register-user-body.txt:6
+#: templates/edw/email/register-user-body.txt:6
 #, python-format
 msgid ""
 "In the future, please use username %(user.email)s with password %(password)s "
@@ -1483,13 +1453,13 @@ msgstr ""
 "%(password)s для входа\n"
 "на сайт %(absolute_base_uri)s."
 
-#: backend/edw/templates/edw/email/register-user-subject.txt:2
+#: templates/edw/email/register-user-subject.txt:2
 #, python-format
 msgid ", you have requested auto-generated password on website «%(site_name)s»"
 msgstr ""
 ", вы запросили автоматически сгенерированный пароль на сайте «%(site_name)s»"
 
-#: backend/edw/templates/edw/email/reset-password-body.txt:2
+#: templates/edw/email/reset-password-body.txt:2
 #, python-format
 msgid ""
 "You're receiving this email because you requested a password reset for your "
@@ -1499,53 +1469,53 @@ msgstr ""
 "Вы получили это письмо, потому что запросили сброс пароля на свой аккаунт "
 "'%(user)s' на «%(site_name)s»."
 
-#: backend/edw/templates/edw/email/reset-password-body.txt:5
+#: templates/edw/email/reset-password-body.txt:5
 msgid "Please go to the following page and choose a new password:"
 msgstr "Пожалуйста, проследуйте на эту страницу и введите новый пароль:"
 
-#: backend/edw/templates/edw/email/reset-password-subject.txt:2
+#: templates/edw/email/reset-password-subject.txt:2
 #, python-format
 msgid ", you have requested password reset on website «%(site_name)s»"
 msgstr ", вы запросили сброс пароля на сайте «%(site_name)s»"
 
-#: backend/edw/templates/edw/entities/filters/dynamic.html:3
+#: templates/edw/entities/filters/dynamic.html:3
 msgid "Dynamic Filters"
 msgstr "Динамические фильтры"
 
-#: backend/edw/templates/edw/entities/filters/dynamic.html:6
-#: backend/edw/templates/edw/entities/filters/group_by.html:8
+#: templates/edw/entities/filters/dynamic.html:6
+#: templates/edw/entities/filters/group_by.html:8
 msgid "Send"
 msgstr "Отправить"
 
-#: backend/edw/templates/edw/entities/filters/group_by.html:3
+#: templates/edw/entities/filters/group_by.html:3
 msgid "Group by"
 msgstr "Группа"
 
-#: backend/edw/templates/edw/entities/filters/group_by.html:7
+#: templates/edw/entities/filters/group_by.html:7
 msgid "Alike"
 msgstr "Похожий на"
 
-#: backend/edw/templates/edw/entities/filters/group_by.html:7
+#: templates/edw/entities/filters/group_by.html:7
 msgid "Filter"
 msgstr "Фильтр"
 
-#: backend/edw/templates/edw/entities/filters/meta.html:4
+#: templates/edw/entities/filters/meta.html:4
 msgid "Annotation"
 msgstr "Аннотация"
 
-#: backend/edw/templates/edw/entities/filters/meta.html:11
+#: templates/edw/entities/filters/meta.html:11
 msgid "Aggregation"
 msgstr "Агрегат"
 
-#: backend/edw/utils/geo.py:53
+#: utils/geo.py:53
 msgid "Daily requests limit has been reached"
 msgstr "Достигнут предел дневных запросов"
 
-#: backend/edw/utils/geo.py:120
+#: utils/geo.py:120
 msgid "Both of geoposition and query can`t be None"
 msgstr "Геопозиция и строка адреса не могут быть пусты одновременно"
 
-#: backend/edw/utils/geo.py:122
+#: utils/geo.py:122
 msgid ""
 "Geocoder not configured yet. Confirm your GEOPY_GEOCODER_CONFIG settings is "
 "valid"
@@ -1553,33 +1523,33 @@ msgstr ""
 "Geocoder not configured yet. Confirm your GEOPY_GEOCODER_CONFIG settings is "
 "valid"
 
-#: backend/edw/utils/geo.py:138 backend/edw/utils/geo.py:164
+#: utils/geo.py:138 utils/geo.py:164
 msgid "Expect location"
 msgstr "Ожидается место"
 
-#: backend/edw/utils/geo.py:142 backend/edw/utils/geo.py:148
+#: utils/geo.py:142 utils/geo.py:148
 msgid "Postcode not found in raw data"
 msgstr "Почтовый индекс не найден в данных ответа"
 
-#: backend/edw/views/auth.py:66
+#: views/auth.py:66
 msgid "User is not recognized as \"registered\""
 msgstr "Пользователь не определен как \"Зарегистрированный\""
 
-#: backend/edw/views/auth.py:76
+#: views/auth.py:76
 msgid "Logged out"
 msgstr "Вы вышли из системы"
 
-#: backend/edw/views/auth.py:110
+#: views/auth.py:110
 msgid "Successfully logged out."
 msgstr "Вы вышли из системы."
 
-#: backend/edw/views/auth.py:133 backend/edw/views/auth.py:139
+#: views/auth.py:133 views/auth.py:139
 msgid "Account does not exists. You must register first"
 msgstr ""
 "Аккаунт с данным адресом электронной почты не существует. Сначала вы должны "
 "зарегистрироваться"
 
-#: backend/edw/views/auth.py:146
+#: views/auth.py:146
 msgid ""
 "Your account is inactive. To reset password you should activate it first or "
 "contact us via a callback form"
@@ -1592,22 +1562,22 @@ msgstr ""
 "проверьте папку «Спам». \n"
 "В случае затруднения свяжитесь с нами через форму обратной связи на портале"
 
-#: backend/edw/views/auth.py:159
+#: views/auth.py:159
 #, python-brace-format
 msgid "Instructions on how to reset the password have been sent to '{email}'."
 msgstr ""
 "Инструкция по сбросу пароля выслана Вам на адрес '{email}'. Если письмо не "
 "пришло в течение 5 минут, проверьте папку 'Спам'."
 
-#: backend/edw/views/auth.py:218
+#: views/auth.py:218
 msgid "Password has been reset with the new password."
 msgstr "Пароль был сброшен."
 
-#: backend/edw/views/auth.py:231
+#: views/auth.py:231
 msgid "New password has been saved."
 msgstr "Новый пароль установлен."
 
-#: backend/edw/views/auth.py:251
+#: views/auth.py:251
 msgid ""
 "Error validate account. Validate link wrong or expired validate code. You "
 "can try register again."
@@ -1615,11 +1585,11 @@ msgstr ""
 "Ошибка активации аккаунта. Либо код активации неверно указан, либо он был "
 "просрочен. Вы можете попробовать зарегистрироваться снова."
 
-#: backend/edw/views/auth.py:259
+#: views/auth.py:259
 msgid "Account success validate."
 msgstr "Аккаунт успешно активирован."
 
-#: backend/edw/views/data_mart.py:139 backend/edw/views/term.py:162
+#: views/data_mart.py:139 views/term.py:162
 msgid "The tree was sucessfully rebuilt"
 msgstr "Дерево успешно перестроено"
 
