@@ -900,6 +900,13 @@
         padding: 0 15px;
       }
 
+      @media (max-width: @ex-screen-xs-max) {
+        .list-items .list-item .wrap-list-item .ex-media {
+          max-width: 220px;
+          margin: 0 auto 15px;
+        }
+      }
+
       @media (max-width: @ex-screen-md-min) {
         .wrap-list-item__content {
           flex-direction: column;
@@ -909,13 +916,6 @@
           width: 100%;
           max-width: 100%;
         }
-        //.ex-wrap-thumbnail {
-        //  padding: 0!important;
-        //  margin-bottom: 25px;
-        //  a {
-        //    position: static;
-        //  }
-        //}
       }
 
       h4 {
