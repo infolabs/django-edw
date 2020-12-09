@@ -795,7 +795,7 @@
     .ex-wrap-ribbon[data-view-class~="only-group"] {
       display: none;
     }
-    .ex-wrap-ribbon[data-view-class~="not-group"] {
+    .ex-wrap-ribbon[data-view-class~="not-group"]:not([data-view-class~="hide-in-ribbon"]):not([data-view-class~="hide-in-tags"]) {
       display: inherit;
     }
   }
