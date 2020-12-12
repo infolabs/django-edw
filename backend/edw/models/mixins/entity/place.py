@@ -17,6 +17,8 @@ from edw.models.term import TermModel
 from edw.signals.place import zone_changed
 from edw.utils.geo import get_location_from_geocoder, get_postcode, GeocoderException
 
+from geopy.exc import GeopyError
+
 
 class PlaceMixin(object):
     """
@@ -170,7 +172,7 @@ class PlaceMixin(object):
                     try:
                         # определяем термин зоны по почтовому индексу
                         postcode = get_postcode(self.location)
-                    except GeocoderException:
+                    except (GeocoderException, GeopyError):
                         pass
                     else:
                         post_zone = get_postal_zone(postcode)
