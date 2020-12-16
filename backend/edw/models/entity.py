@@ -893,8 +893,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     Она предназначен для переопределения одной или более полиморфной модели, добавляет все поля
     и отношения, необходимые для описания этого типа объекта.
     """
-    SHORT_CHARACTERISTICS_MAX_COUNT = 3
-    SHORT_MARKS_MAX_COUNT = 5
+    SHORT_CHARACTERISTICS_MAX_COUNT = edw_settings.ENTITY_ATTRIBUTES['short_characteristics_max_count']
+    SHORT_MARKS_MAX_COUNT = edw_settings.ENTITY_ATTRIBUTES['short_marks_max_count']
 
     SUBJECT_CACHE_KEY_PATTERN = 'sub:{subj_hash}'
     RELATION_CACHE_KEY_PATTERN = 'rel:{rel_hash}'

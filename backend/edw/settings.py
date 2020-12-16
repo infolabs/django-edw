@@ -13,6 +13,12 @@ If ``EDW_GUEST_IS_ACTIVE_USER`` is True, Customers which declared themselves as 
 a password reset, so that they can log into their account at a later time. The default is False.
 """
 
+ENTITY_ATTRIBUTES = {
+    'short_characteristics_max_count': 3,
+    'short_marks_max_count': 5
+}
+ENTITY_ATTRIBUTES.update(getattr(settings, 'EDW_ENTITY_ATTRIBUTES', {}))
+
 
 CACHE_DURATIONS = {
     'data_mart_children': 3600,
