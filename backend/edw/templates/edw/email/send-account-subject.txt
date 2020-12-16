@@ -1,0 +1,3 @@
+{% load i18n %}{% autoescape off %}
+{{ user.get_full_name }}{% blocktrans %}, you have registered account on website «{{ site_name }}»{% endblocktrans %}
+{% endautoescape %}
