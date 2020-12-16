@@ -1,0 +1,12 @@
+{% load i18n %}{% autoescape off %}
+
+{% blocktrans %}You received this letter because you were authorized through Yandex «{{ site_name }}».{% endblocktrans %}
+
+{% if password %}{% blocktrans %}To sign in to your account, please use username {{ user }} with password {{ password }} to sign
+into {{ absolute_base_uri }}.{% endblocktrans %}{% endif %}
+
+{% trans "Thanks for using our site!" %}
+
+{% blocktrans %}The «{{ site_name }}» team{% endblocktrans %}
+
+{% endautoescape %}

@@ -1,0 +1,14 @@
+{% load i18n %}{% autoescape off %}
+    <div style="max-width: 650px; padding: 20px; margin: 0px auto; border: 2px solid #e5f9f6; border-radius: 5px;">
+        {% blocktrans %}You received this letter because you were authorized through Yandex «{{ site_name }}».{% endblocktrans %}
+
+        {% if password %}
+            <p><strong>{% blocktrans %}Your username:{% endblocktrans %}</strong> {{ user }} </p>
+            <p><strong>{% blocktrans %}Password:{% endblocktrans %}</strong> {{ password }}</p>
+        {% endif %}
+
+        {% trans "Thanks for using our site!" %}
+
+        {% blocktrans %}The «{{ site_name }}» team{% endblocktrans %}
+    </div>
+    {% endautoescape %}

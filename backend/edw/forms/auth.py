@@ -129,50 +129,58 @@ class RegisterUserForm(ModelForm):
         ]).render(context)
         user.email_user(subject, body)
 
-    def _send_activation_email(self, request, user, password=None):
+    def _send_activation_email(self, request, user, password=None, is_activation=True):
         """
         Send the activation email. The activation key is simply the
         username, signed using TimestampSigner.
         """
         current_site = get_current_site(request)
-        activation_key = signing.dumps(
-            obj=getattr(user, user.USERNAME_FIELD),
-            salt=edw_settings.REGISTRATION_PROCESS['registration_salt']
-        )
-        activation_link = request.build_absolute_uri(reverse('registration_activate', kwargs={'activation_key': activation_key}))
         context = {
             'site_name': current_site.name,
             'absolute_base_uri': request.build_absolute_uri('/'),
-            'activation_link': activation_link,
-            'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
             'user': user
         }
+        if is_activation:
+            activation_key = signing.dumps(
+                obj=getattr(user, user.USERNAME_FIELD),
+                salt=edw_settings.REGISTRATION_PROCESS['registration_salt']
+            )
+            activation_link = request.build_absolute_uri(reverse('registration_activate', kwargs={'activation_key': activation_key}))
+            context.update({
+                'activation_link': activation_link,
+                'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
+            })
+
         if password:
             context.update({
                 'password': password
             })
-
         if six.PY2:
             context = Context(context)
+
+        tmp_is_activation = 'send' if not is_activation else 'activate'
         subject = select_template([
-            '{}/email/activate-account-subject.txt'.format(edw_settings.APP_LABEL),
-            'edw/email/activate-account-subject.txt',
+            f'{edw_settings.APP_LABEL}/email/{tmp_is_activation}-account-subject.txt',
+            f'edw/email/{tmp_is_activation}-account-subject.txt',
+
         ]).render(context)
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         text_message = select_template([
-            '{}/email/activate-account-body.txt'.format(edw_settings.APP_LABEL),
-            'edw/email/activate-account-body.txt',
+            f'{edw_settings.APP_LABEL}/email/{tmp_is_activation}-account-body.txt',
+            f'edw/email/{tmp_is_activation}-account-body.txt',
+
         ]).render(context)
         html_message = select_template([
-            '{}/email/activate-account-body.html'.format(edw_settings.APP_LABEL),
-            'edw/email/activate-account-body.html',
+            f'{edw_settings.APP_LABEL}/email/{tmp_is_activation}-account-body.html',
+            f'edw/email/{tmp_is_activation}-account-body.html',
+
         ]).render(context)
 
         user.email_user(subject, text_message, html_message=html_message)
 
 
-#class ContinueAsGuestForm(ModelForm):
+# class ContinueAsGuestForm(ModelForm):
 #    """
 #    Handles Customer's decision to order as guest.
 #    """
