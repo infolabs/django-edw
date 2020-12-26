@@ -14,8 +14,8 @@ a password reset, so that they can log into their account at a later time. The d
 """
 
 ENTITY_ATTRIBUTES = {
-    'short_characteristics_max_count': 4,
-    'short_marks_max_count': 6
+    'short_characteristics_max_count': 3,
+    'short_marks_max_count': 5
 }
 ENTITY_ATTRIBUTES.update(getattr(settings, 'EDW_ENTITY_ATTRIBUTES', {}))
 
