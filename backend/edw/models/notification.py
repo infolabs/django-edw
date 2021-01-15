@@ -317,7 +317,7 @@ class Notification(models.Model):
         }
 
         # отправка уведомления пользователям
-        if mode=='email':
+        if mode == 'email':
             for recipient in recipients:
                 try:
                     email_validator(recipient[0])
@@ -331,7 +331,7 @@ class Notification(models.Model):
                     mail.send(recipient[0], template=template, context=context,
                               attachments=attachments, render_on_delivery=True)
 
-        elif mode=='push' and push is not None:
+        elif mode == 'push' and push is not None:
 
             for recipient in recipients:
                 # подготовка контекста получателя
