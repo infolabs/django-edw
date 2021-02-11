@@ -20,13 +20,10 @@ class Aggregation extends Component {
         ret = (
           <ul className="ex-aggregation-attrs">
             {Object.keys(aggr).map(
-              (k, i) => {
-                return (k.startsWith('num_private_person_assessment') || k.startsWith('num_moderator_assessment') ?
-                    null : <li key={i} data-slug={k}>
-                      <strong>{aggregation[k].name}:</strong>&nbsp;
-                      {aggregation[k].value}
-                    </li>)
-              }
+                (k, i) => <li key={i} data-slug={k}>
+                  <strong>{aggregation[k].name}:</strong>&nbsp;
+                  {aggregation[k].value}
+                </li>
             )}
           </ul>
         )

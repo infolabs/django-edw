@@ -68,7 +68,7 @@ class Related extends Component {
       <div className="ex-related-datamart">
         <div className="row">
           {
-            multi ? <div className=""> <DataMartsList
+            multi ? <div className="ex-title"> <DataMartsList
               entry_points={entry_points}
               entry_point_id={entry_point_id}
               actions={actions}
