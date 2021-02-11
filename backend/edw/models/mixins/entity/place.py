@@ -162,8 +162,9 @@ class PlaceMixin(object):
                 ).values_list('term_id', flat=True)
             else:
                 to_remove = []
+
             # определяем термин зоны по границам
-            zone = get_boundary(self.geoposition.longitude, self.geoposition.latitude)
+            zone = get_boundary(self.geoposition.longitude, self.geoposition.latitude) if self.geoposition else None
 
             # Уточняем зону если не удалось определить по границам, либо возможно найти более частную зону,
             # нельзя использовать в массовых операциях из ограничения API геокодера
