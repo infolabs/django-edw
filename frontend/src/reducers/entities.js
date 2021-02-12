@@ -62,7 +62,9 @@ class Dropdowns {
     const default_limit = data_mart.limit || 40;
     const max_limit = data_mart.max_limit || null;
     const multipliers = [2, 5, 10, 20];
-    const options = {};
+    const options = {
+      [data_mart.limit]: data_mart.limit
+    };
     for (const m of multipliers) {
         const o = default_limit * m;
         if (max_limit && o >= max_limit) {
