@@ -8,6 +8,7 @@ import parseRequestParams from '../utils/parseRequestParams';
 import { getDatamartsData } from "../utils/locationHash";
 import ActionCreators from "../actions";
 import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
+import ParticularProblemTile from "./Entities/ParticularProblemTile";
 
 
 class BaseEntities extends Component {
@@ -19,7 +20,8 @@ class BaseEntities extends Component {
   static getTemplates() {
     return {
       "tile": Tile,
-      "particular_initiative_tile": ParticularInitiativeTile
+      "particular_initiative_tile": ParticularInitiativeTile,
+      "particular_problem_tile": ParticularProblemTile
     };
   }
 
