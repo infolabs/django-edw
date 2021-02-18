@@ -2,7 +2,7 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 import React from 'react';
-import { render } from 'react-dom';
+import {render} from 'react-dom';
 import configureStore from 'store/configureStore';
 import Root from 'components/Root';
 
