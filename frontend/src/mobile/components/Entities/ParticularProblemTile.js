@@ -3,6 +3,7 @@ import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native'
 import {Text, Card, Layout} from '@ui-kitten/components'
 import platformSettings from "../../constants/Platform"
 import {Badge} from 'native-base'
+import Singleton from '../../utils/singleton'
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -49,12 +50,13 @@ const styles = StyleSheet.create({
 export default class ParticularProblemTile extends Component {
   render() {
     const {items} = this.props;
+    const instance = Singleton.getInstance();
 
     return (
       <ScrollView>
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <ParticularProblemTileItem key={i} data={child}/>
+            (child, i) => <ParticularProblemTileItem key={i} data={child} domain={instance.Domain}/>
           )}
         </Layout>
       </ScrollView>
@@ -64,12 +66,11 @@ export default class ParticularProblemTile extends Component {
 
 class ParticularProblemTileItem extends Component {
   render(){
-    const {data} = this.props,
+    const {data, domain} = this.props,
           {short_marks} = data;
 
-    // ПОПРАВИТЬ УРЛ!!!
     if(data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
-      data.media = `https://narod-expert.ru/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
+      data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
 
     let textState = null,
         backgroundColorState = 'gray';

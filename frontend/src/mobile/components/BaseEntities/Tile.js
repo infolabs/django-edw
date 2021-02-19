@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native'
 import {Text, Card, Layout} from '@ui-kitten/components'
 import platformSettings from "../../constants/Platform";
+import Singleton from '../../utils/singleton'
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -42,12 +43,13 @@ const styles = StyleSheet.create({
 export default class Tile extends Component {
   render() {
     const {items} = this.props;
+    const instance = Singleton.getInstance();
 
     return (
       <ScrollView>
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <TileItem key={i} data={child}/>
+            (child, i) => <TileItem key={i} data={child} domain={instance.Domain}/>
           )}
         </Layout>
       </ScrollView>
@@ -57,11 +59,10 @@ export default class Tile extends Component {
 
 class TileItem extends Component {
   render(){
-    const {data} = this.props;
+    const {data, domain} = this.props;
 
-    // ПОПРАВИТЬ УРЛ!!!
     if(data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
-      data.media = `https://narod-expert.ru/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
+      data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
 
     return(
       <Card style={styles.cardContainer}>

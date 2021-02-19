@@ -1,9 +1,9 @@
-import {
-    RECACHE_RATE
-} from '../constants/TermsTree'
+const reCache = url => {
+  const tmp = Math.round(new Date().getTime());
+  if (url.includes("?"))
+    return `${url}&_=${tmp}`;
+  else
+    return `${url}?_=${tmp}`;
+};
 
-
-export default function reCache(url) {
-    const recache = Math.round(new Date().getTime() / RECACHE_RATE);
-    return url+'?_='+recache
-}
+export default reCache

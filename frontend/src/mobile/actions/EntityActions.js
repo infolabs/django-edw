@@ -12,8 +12,8 @@ import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 import compareArrays from '../utils/compareArrays';
 
-const instance = Singleton.getInstance();
 
+const instance = Singleton.getInstance();
 
 const opts2gets = (options = {}) => {
   let gets = '';
@@ -94,16 +94,15 @@ export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr 
   //   options_obj.terms = tagged;
 
   // eslint-disable-next-line no-undef
-  // ПЕРЕДЕЛАТЬ DOMEN URL!!!
   let url = '';
 
   if (subj_ids.length) {
       subj_ids.join();
       // eslint-disable-next-line no-undef
-      url = reCache(`https://narod-expert.ru/edw/api/data-marts/${mart_id}/entities/${subj_ids}/subj.json`);
-  } else {
-    url = reCache(`https://narod-expert.ru/edw/api/data-marts/${mart_id}/entities/`);
-  }
+      url = reCache(`${instance.Domain}${Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json')}`);
+  } else
+    url = reCache(`${instance.Domain}${Urls['edw:data-mart-entity-list'](mart_id, 'json')}`);
+
   url += opts2gets(options_obj);
 
   if (options_arr.length)
