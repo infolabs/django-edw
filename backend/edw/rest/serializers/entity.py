@@ -354,12 +354,12 @@ class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
 
-    def __init__(self, *args, **kwargs):
-        fields = getattr(self.Meta, 'fields', None)
-        exclude = getattr(self.Meta, 'exclude', None)
-        if fields is None and exclude is None:
-            self.Meta.fields = '__all__'
-        super(EntityCommonSerializer, self).__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     fields = getattr(self.Meta, 'fields', None)
+    #     exclude = getattr(self.Meta, 'exclude', None)
+    #     if fields is None and exclude is None:
+    #         self.Meta.fields = '__all__'
+    #     super(EntityCommonSerializer, self).__init__(*args, **kwargs)
 
     def render_html(self, entity, postfix):
         """
