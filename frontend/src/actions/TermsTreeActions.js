@@ -16,62 +16,61 @@ import Singleton from '../utils/singleton';
 
 const globalStore = new Singleton();
 
+/*
+Функция для получения дерева терминов
+:param type: Тип вызванного действия
+:param mart_id: Id витрины данных
+:param selected: Массив выбранных терминов
+*/
+const getTermsTree = (type, mart_id, selected = []) => dispatch => {
+  let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
+  url = reCache(url);
 
-function getTermsTree(type, mart_id, selected = []) {
-  return dispatch => {
-    let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
-    url = reCache(url);
+  if (selected && selected.length > 0)
+    url += '&selected=' + selected.join();
 
-    if (selected && selected.length > 0)
-      url += '&selected=' + selected.join();
-
-    return fetch(url, {
-      method: 'get',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-    }).then(response => response.json()).then(json => dispatch({
-      type: type,
-      json: json,
-    }));
-  };
-}
-
-
-export function getTermsItem(url) {
-  return dispatch => {
-    fetch(reCache(url), {
+  return fetch(url, {
     method: 'get',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    }).then(response => response.json()).then(json => dispatch({
-      type: LOAD_ITEM,
-      json: json,
-    }));
-  };
-}
-
-
-export function notifyLoading() {
-  return dispatch => {
+  }).then(response => response.json()).then(json => {
     dispatch({
-      type: NOTIFY_LOADING
-    });
-  };
-}
+      type: type,
+      json: json,
+    })
+  });
+};
 
 
-export function loadTree(mart_id, selected = []) {
+export const getTermsItem = url => dispatch => {
+  fetch(reCache(url), {
+    method: 'get',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+  }).then(response => response.json()).then(json => dispatch({
+    type: LOAD_ITEM,
+    json: json,
+  }));
+};
+
+
+export const notifyLoading = () => dispatch => {
+  dispatch({type: NOTIFY_LOADING});
+};
+
+
+export const loadTree = (mart_id, selected = [])  => {
   return getTermsTree(LOAD_TREE, mart_id, selected);
-}
+};
 
 
-export function reloadTree(mart_id, selected = []) {
+export const reloadTree = (mart_id, selected = []) => {
   return getTermsTree(RELOAD_TREE, mart_id, selected);
-}
+};
 
 
 export function readTree(mart_id, selected = []) {

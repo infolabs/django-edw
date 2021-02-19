@@ -1,19 +1,18 @@
 import { createStore, applyMiddleware } from 'redux';
-import rootReducer from 'reducers';
+import rootReducer from '../reducers';
 import logger from 'redux-logger';
-import ReduxThunk from 'redux-thunk';
+import ReactThunk from 'redux-thunk';
 
 
-let createStoreWithMiddleware = applyMiddleware(ReduxThunk)(
+let createStoreWithMiddleware = applyMiddleware(ReactThunk)(
     applyMiddleware(logger)(createStore),
     createStore
 );
 
-export default function configureStore(initialState) {
+const configureStore = () => {
 
   const store = createStoreWithMiddleware(
-      rootReducer,
-      initialState
+      rootReducer
   );
 
   if (module.hot) {
@@ -23,4 +22,6 @@ export default function configureStore(initialState) {
   }
 
   return store;
-}
+};
+
+export default configureStore

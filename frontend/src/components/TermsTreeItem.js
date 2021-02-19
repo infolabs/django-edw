@@ -45,7 +45,6 @@ export default class TermsTreeItem extends Component {
           show_children = (!is_limb_or_and && is_tagged || is_expanded) && !term.is_leaf;
 
     if (term.isVisible()) {
-
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
             siblings = term.siblings;
 
@@ -62,12 +61,12 @@ export default class TermsTreeItem extends Component {
         }
       }
 
-      if (!is_limb_or_and && is_tagged || is_limb_or_and && is_expanded) {
+      if (!is_limb_or_and && is_tagged || is_limb_or_and && is_expanded)
         state_class = 'ex-on';
-      } else {
+      else
         state_class = 'ex-off';
-      }
 
+      // Если из потомков можно выбрать лишь один элемент (radioButton), то остальные термины в этом дереве делаем неактивными
       if (rule != consts.SEMANTIC_RULE_AND
           && tagged[term.id] != true
           && (tagged.isAnyTagged(siblings)))
@@ -124,9 +123,9 @@ export default class TermsTreeItem extends Component {
                      actions={actions}/>)
     );
 
-    let li_clasname = semantic_class + " " + state_class + " ";
+    let li_classname = semantic_class + " " + state_class + " ";
     if (real_potential.has_metadata && !real_potential.rils[term.id]) {
-      li_clasname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
+      li_classname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
     }
 
     let ret = <li className="ex-empty"/>;
@@ -139,7 +138,7 @@ export default class TermsTreeItem extends Component {
         render_children = "";
       }
       ret = (
-        <li className={li_clasname}
+        <li className={li_classname}
             data-structure={term.structure}
             data-view-class={term.view_class}
             data-slug={term.slug}>
@@ -154,4 +153,3 @@ export default class TermsTreeItem extends Component {
     return ret;
   }
 }
-
