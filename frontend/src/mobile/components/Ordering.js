@@ -1,66 +1,41 @@
-import React, {useState} from 'react'
-import {View, StyleSheet} from 'react-native'
-import {Button, Text, OverflowMenu, MenuItem} from "@ui-kitten/components"
-import {Icon} from "native-base"
+import React from 'react'
+import {View} from 'react-native'
 import ActionCreators from "../actions";
 import {connect} from 'react-redux'
 import {bindActionCreators} from "redux"
-import Singleton from "../utils/singleton";
+import Dropdown from "./Dropdown";
 
 
-const Ordering = () => {
-  const [visible, setVisible] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+const Ordering = props => {
+  const {entry_points, entry_point_id} = props,
+        {dropdowns} = props.entities,
+        {meta} = props.entities.items,
+        {ordering} = dropdowns;
 
-  const renderToggleButton = () => (
-    <Button onPress={() => setVisible(true)} size='large' appearance='ghost' status='basic'>
-      <View style={styles.sortView}>
-        <Text style={styles.sortText}>test</Text>
-        <Icon name='chevron-down-outline' style={styles.sortIcon}/>
+  let request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении сортировки
+
+  if (ordering && Object.keys(ordering.options).length > 1) {
+    return (
+      <View style={{width: '50%'}}>
+        <Dropdown name='ordering'
+                  entry_points={entry_points}
+                  entry_point_id={entry_point_id}
+                  request_var={ordering.request_var}
+                  request_options={request_options}
+                  subj_ids={meta.subj_ids}
+                  open={ordering.open}
+                  selected={ordering.selected}
+                  options={ordering.options}/>
       </View>
-    </Button>
-  );
-
-  const onItemSelect = (index) => {
-    const instance = Singleton.getInstance();
-    if (instance && instance['private-person-initiatives']) {
-      console.log(instance)
-    }
-    setSelectedIndex(index);
-    setVisible(false);
-  };
-
-  return (
-    <View>
-      <OverflowMenu
-        anchor={renderToggleButton}
-        visible={visible}
-        selectedIndex={selectedIndex}
-        onSelect={onItemSelect}
-        onBackdropPress={() => setVisible(false)}>
-        <MenuItem title='Users'/>
-        <MenuItem title='Orders'/>
-        <MenuItem title='Transactions'/>
-      </OverflowMenu>
-    </View>
-  )
+    )
+  } else
+    return null
 };
 
-const styles = StyleSheet.create({
-  sortView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sortText: {
-    fontSize: 16,
-    marginRight: 5
-  },
-  sortIcon: {
-    fontSize: 18,
-  }
-});
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  entities: state.entities
+});
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Ordering);
