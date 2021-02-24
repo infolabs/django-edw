@@ -4,11 +4,18 @@ import {Text, Card, Layout} from '@ui-kitten/components'
 import platformSettings from "../../constants/Platform"
 import {Badge} from 'native-base'
 import Singleton from '../../utils/singleton'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
 
 const styles = StyleSheet.create({
+  spinnerContainer: {
+    height: deviceHeight,
+    width: deviceWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   layout: {
     flex: 1,
     alignItems: 'center',
@@ -49,18 +56,26 @@ const styles = StyleSheet.create({
 
 export default class ParticularInitiativeTile extends Component {
   render() {
-    const {items} = this.props;
+    const {items, loading} = this.props;
     const instance = Singleton.getInstance();
 
-    return (
-      <ScrollView>
-        <Layout style={styles.layout}>
-          {items.map(
-            (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain}/>
-          )}
-        </Layout>
-      </ScrollView>
-    );
+    if (loading) {
+      return (
+        <View style={styles.spinnerContainer}>
+          <Spinner visible={true}/>
+        </View>
+      )
+    } else {
+      return (
+        <ScrollView>
+          <Layout style={styles.layout}>
+            {items.map(
+              (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain}/>
+            )}
+          </Layout>
+        </ScrollView>
+      );
+    }
   }
 }
 

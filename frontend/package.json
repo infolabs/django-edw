@@ -50,7 +50,10 @@
     "color-string": "^1.5.2",
     "@ckeditor/ckeditor5-react": "^2.1.0",
     "@ckeditor/ckeditor5-build-classic": "^19.0.0",
-    "@ckeditor/ckeditor5-build-decoupled-document": "^24.0.0"
+    "@ckeditor/ckeditor5-build-decoupled-document": "^24.0.0",
+    "react-native": "0.64.0-rc.2",
+    "@ui-kitten/components": "^5.0.0",
+    "react-native-loading-spinner-overlay": "^2.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

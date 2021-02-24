@@ -38,7 +38,7 @@ const Dropdown = props => {
     setVisible(false);
   };
 
-  const handleSelectedClick = index => {
+  const handleSelectedClick = () => {
     setVisible(false);
     const {name} = props;
     props.toggleDropdown(name);
