@@ -4,6 +4,16 @@ Datamart styles
 
 .ex-data-mart,
 .ex-data-mart-container {
+  &.terms-tree-disabled {
+    .terms-tree {
+      pointer-events: none;
+      opacity: 0.5;
+      .ex-icon-info,
+      .ex-icon-reset {
+        display: none;
+      }
+    }
+  }
   &[data-initial-data-count~="0"] {
     display: none;
   }

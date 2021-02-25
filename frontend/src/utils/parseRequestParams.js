@@ -24,7 +24,10 @@ export default function parseRequestParams(request_params) {
         } else if (param.startsWith("limit=")) {
           limit = parseIntList(param, "limit");
         } else {
-          options_arr.push(param);
+          if (param.includes('['))
+            options_arr.push(param.replace('[','').replace(']',''));
+          else
+            options_arr.push(param);
         }
     }
     return { term_ids, subj_ids, limit, options_arr };
