@@ -53,6 +53,7 @@
     "@ckeditor/ckeditor5-build-decoupled-document": "^24.0.0",
     "react-native": "0.64.0-rc.2",
     "@ui-kitten/components": "^5.0.0",
+    "native-base": "^2.13.14",
     "react-native-loading-spinner-overlay": "^2.0.0"
   },
   "devDependencies": {

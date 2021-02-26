@@ -26,7 +26,7 @@ class BaseRoot extends Component {
 
   render() {
     const instance = Singleton.getInstance();
-    console.log(instance)
+
     const {attrs} = this.props,
           store = configureStore(),
           {entry_points, entry_point_id} = attrs;

@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
+import {View, StyleSheet} from 'react-native'
 // import cookie from 'react-cookies';
 import Tile from './BaseEntities/Tile';
 import parseRequestParams from '../utils/parseRequestParams';
@@ -9,6 +10,8 @@ import { getDatamartsData } from "../utils/locationHash";
 import ActionCreators from "../actions";
 import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
 import ParticularProblemTile from "./Entities/ParticularProblemTile";
+import Spinner from 'react-native-loading-spinner-overlay';
+import platformSettings from "../constants/Platform";
 
 
 class BaseEntities extends Component {
@@ -91,6 +94,16 @@ class BaseEntities extends Component {
   render() {
     const {entities, entry_points, entry_point_id} = this.props;
 
+    const {deviceHeight, deviceWidth} = platformSettings;
+    const styles = StyleSheet.create({
+      spinnerContainer: {
+        height: deviceHeight,
+        width: deviceWidth,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }
+    });
+
     const items = entities.items.objects || [],
           loading = entities.items.loading,
           descriptions = entities.descriptions,
@@ -116,7 +129,11 @@ class BaseEntities extends Component {
         }
       ));
     } else
-      return null
+      return(
+        <View style={styles.spinnerContainer}>
+          <Spinner visible={true}/>
+        </View>
+      )
   }
 }
 

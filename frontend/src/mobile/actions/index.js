@@ -10,6 +10,20 @@ import {
   selectDropdown
 } from './EntityActions';
 
+import {
+    getTermsItem,
+    loadTree,
+    reloadTree,
+    readTree,
+    notifyLoading,
+    toggle,
+    toggleFilters,
+    resetItem,
+    resetBranch,
+    showInfo,
+    hideInfo
+} from './TermsTreeActions';
+
 export default {
   getEntityItem,
   getEntities,
@@ -19,5 +33,16 @@ export default {
   showDescription,
   hideDescription,
   toggleDropdown,
-  selectDropdown
+  selectDropdown,
+  getTermsItem,
+  loadTree,
+  reloadTree,
+  readTree,
+  notifyLoading,
+  toggle,
+  toggleFilters,
+  resetItem,
+  resetBranch,
+  showInfo,
+  hideInfo
 }
