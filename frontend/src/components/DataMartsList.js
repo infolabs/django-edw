@@ -1,6 +1,6 @@
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import parseRequestParams from 'utils/parseRequestParams';
 
 export default class DataMartsList extends Component {
@@ -41,37 +41,49 @@ export default class DataMartsList extends Component {
   }
 
   render() {
-
     const { entry_points, entry_point_id } = this.props;
 
     let is_active = (pk) => pk == entry_point_id;
+    const keys = Object.keys(entry_points);
+    let dataMarts = [];
+
+    // Используем 2 цикла для сортировки витрин данных, если был передан параметр order.
+    // Если не был передан параметр, то одной итерацией добавляем витрины в массив dataMarts и выводим его в том порядке,
+    // в котором получили.
+    for (let i = 1; i <= keys.length; i++) {
+      for (let j = 0; j < keys.length; j++) {
+        if (entry_points[keys[j]].order && entry_points[keys[j]].order !== i)
+          continue;
+
+        const item = entry_points[keys[j]];
+
+        let item_vis;
+        if (is_active(keys[j]) && item.url)
+          item_vis = <a href={item.url}>{item.name}</a>;
+        else
+          item_vis = item.name;
+
+        dataMarts.push(
+          <li key={`datamart-list_${j}`}
+              className={is_active(keys[j]) ? 'active' : ''}
+              onClick={() => is_active(keys[j]) ? null : this.changeDataMart(keys[j])}>
+            <span>{item_vis}</span>
+          </li>
+        );
+
+        if (entry_points[keys[0]].order)
+          break;
+      }
+
+      if (!entry_points[keys[0]].order)
+        break;
+    }
 
     return entry_points && Object.keys(entry_points).length > 1 ? <div>
       <ul className="datamart-list">
-        {Object.keys(entry_points).map((key, i) => {
-
-          const item = entry_points[key];
-
-          let item_vis;
-          if (is_active(key) && item.url) {
-            item_vis = <a href={item.url}>{item.name}</a>
-          } else {
-            item_vis = item.name
-          }
-
-          return <li
-            key={`datamart-list_${i}`}
-            className={is_active(key) ? 'active' : ''}
-            onClick={() => is_active(key) ? null : this.changeDataMart(key)}
-          >
-            <span>{item_vis}</span>
-          </li>
-
-        })}
+        {dataMarts}
       </ul>
     </div> : null
 
   }
-
 }
-
