@@ -34,6 +34,7 @@ class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         verbose_name = _("Entity Image")
         verbose_name_plural = _("Entity Images")
         ordering = ('order',)
+        unique_together = (('image', 'entity'),)
 
     def __str__(self):
         """

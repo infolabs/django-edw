@@ -34,6 +34,7 @@ class BaseEntityFile(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         verbose_name = _("Entity File")
         verbose_name_plural = _("Entity Files")
         ordering = ('order',)
+        unique_together = (('file', 'entity'),)
 
     def __str__(self):
         """
