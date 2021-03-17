@@ -6,7 +6,6 @@ import DataMart from 'components/BaseRoot/DataMart';
 import Related from 'components/BaseRoot/Related';
 
 
-
 class BaseRoot extends Component {
 
   static getTemplates() {
