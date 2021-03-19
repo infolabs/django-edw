@@ -139,6 +139,9 @@ class BaseEntities extends Component {
 
     let ret = <div></div>;
     if (component_name) {
+      if (!this.templates)
+        this.templates = this.props.getTemplates();
+
       const component = this.templates[component_name];
       ret = React.createElement(
         component, {

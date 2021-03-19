@@ -67,8 +67,10 @@ const ListItemMixin = Base => class extends Base {
           if ((data.extra && !data.extra.group_size) && !descriptions[id])
             actions.getEntityItem(data);
 
-        } else
+        } else {
+          context.setState({minHeight: 'auto'});
           actions.hideDescription(id);
+        }
       }
     }, TOGGLE_DESCRIPTION_DELAY);
   }
