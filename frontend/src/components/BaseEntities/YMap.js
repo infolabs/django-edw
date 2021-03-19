@@ -23,6 +23,9 @@ export function addRegions(map, osmArray, osmRegion) {
   for (const osm of osmArray) {
     osmeRegions.geoJSON(osm.osmId, {
       quality: 3,
+      postFilter: function(region){
+        return region.osmId == osm.osmId;
+      }
     }, (data) => {
       let collection = osmeRegions.toYandex(data, ymaps);
       if (map != null)
