@@ -23,6 +23,7 @@ from django.utils import translation
 from edw.models.mixins.notification import NotificationMixin
 from edw.models.fields.notification import MultiSelectField
 from edw.settings import APP_LABEL
+from edw.utils.common import get_from_address
 
 import logging
 
@@ -326,6 +327,7 @@ class Notification(models.Model):
 
         # отправка уведомления пользователям
         if mode == 'email':
+            sender = get_from_address()
             for recipient in recipients:
                 try:
                     email_validator(recipient[0])
@@ -336,7 +338,7 @@ class Notification(models.Model):
                     recipient_serialaizer_cls = recipient[2]
                     context['recipient'] = recipient_serialaizer_cls(recipient[1]).data
 
-                    mail.send(recipient[0], template=template, context=context,
+                    mail.send(recipient[0], sender=sender, template=template, context=context,
                               attachments=attachments, render_on_delivery=True)
 
         elif mode == 'push' and push is not None:
