@@ -134,6 +134,7 @@ Datamart styles
 .ex-datamart {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 
   .ex-datamart__col {
     flex: 1;
@@ -142,6 +143,10 @@ Datamart styles
   .ex-datamart__col--small {
     max-width: 290px;
     padding: 0 15px;
+  }
+
+  .ex-datamart__datamarts {
+    min-width: 100%;
   }
 
   .ex-datamart__filter {
@@ -170,9 +175,6 @@ Datamart styles
         &:last-child {
           margin-right: 0;
         }
-      }
-      .maincol-top__col.ex-view-as {
-        min-width: 250px;
       }
     }
   }
