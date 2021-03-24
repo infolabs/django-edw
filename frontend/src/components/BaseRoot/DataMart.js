@@ -79,7 +79,7 @@ export class DataMart extends Component {
       <div className="row ex-datamart">
         {
           Object.keys(entry_points).length > 1 &&
-            <div className="ex-datamart__col ex-datamart__col--small">
+            <div className="ex-datamart__col ex-datamart__datamarts">
               <DataMartsList
                 entry_points={entry_points}
                 entry_point_id={entry_point_id}
