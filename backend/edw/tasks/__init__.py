@@ -24,3 +24,5 @@ from .make_terms_by_additional_attrs import entities_make_terms_by_additional_at
 from .normalize_entities_additional_attrs import normalize_entities_additional_attrs
 from .send_notification import send_notification
 from .bulk_delete import entities_bulk_delete
+from .delete_post_office_email import delete_post_office_email
+from .clear_django_sessions import clear_django_sessions

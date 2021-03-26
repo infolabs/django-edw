@@ -23,11 +23,21 @@ from django.utils import translation
 from edw.models.mixins.notification import NotificationMixin
 from edw.models.fields.notification import MultiSelectField
 from edw.settings import APP_LABEL
+from edw.utils.common import get_from_address
+
+import logging
+
+logger = logging.getLogger('logfile_error')
 
 if getattr(settings, 'FIREBASE_KEY_PATH', None):
     from fcm_async import push
 else:
     push = None
+
+try:
+    from telegram import notify as tg
+except ModuleNotFoundError:
+    tg = None
 
 email_validator = EmailValidator()
 
@@ -66,6 +76,7 @@ class Notification(models.Model):
     MODES = {
         0: ('email', _('By Email')),
         1: ('push', _('By Push Notification')),
+        2: ('telegram', _('By Telegram'))
     }
 
     RECIPIENTS_EMPTY_CHOICES_VALUE = ('0', _("Nobody"))
@@ -206,8 +217,8 @@ class Notification(models.Model):
                 n.notify_by_email(object, source, target)
             if n.mode.push:
                 n.notify_by_push(object, source, target)
-
-
+            if n.mode.telegram:
+                n.notify_by_telegram(object, source, target)
 
     def get_notify_recipients_roles(self):
         """
@@ -231,7 +242,6 @@ class Notification(models.Model):
         recipients = [] #  - list of tuples (recipient_email, recipient_object, recipient_serialaizer_cls)
         if self.copy_to:
             recipients.extend(object.get_email_notification_recipients(self.copy_to.all()))
-
 
         recipients_roles = self.get_notify_recipients_roles()
         if recipients_roles:
@@ -263,7 +273,7 @@ class Notification(models.Model):
             if recipients:
                 self.notify(recipients, object, source, target, 'push')
 
-    def notify(self, recipients, object, source, target, mode='email',**kwargs):
+    def notify(self, recipients, object, source, target, mode='email', **kwargs):
         """
         RUS: Подготовка и отправка сообщений по списку получателей
 
@@ -299,7 +309,6 @@ class Notification(models.Model):
         for notiatt in self.notificationattachment_set.all():
             attachments[notiatt.attachment.original_filename] = notiatt.attachment.file.file
 
-
         context = {
             'data': entity_serializer.data,
             'ABSOLUTE_BASE_URI': emulated_request.build_absolute_uri().rstrip('/'),
@@ -317,7 +326,8 @@ class Notification(models.Model):
         }
 
         # отправка уведомления пользователям
-        if mode=='email':
+        if mode == 'email':
+            sender = get_from_address()
             for recipient in recipients:
                 try:
                     email_validator(recipient[0])
@@ -328,10 +338,10 @@ class Notification(models.Model):
                     recipient_serialaizer_cls = recipient[2]
                     context['recipient'] = recipient_serialaizer_cls(recipient[1]).data
 
-                    mail.send(recipient[0], template=template, context=context,
+                    mail.send(recipient[0], sender=sender, template=template, context=context,
                               attachments=attachments, render_on_delivery=True)
 
-        elif mode=='push' and push is not None:
+        elif mode == 'push' and push is not None:
 
             for recipient in recipients:
                 # подготовка контекста получателя
@@ -339,6 +349,19 @@ class Notification(models.Model):
                 context['recipient'] = recipient_serialaizer_cls(recipient[1]).data
 
                 push.send(recipient[0], template=template, context=context, render_on_delivery=True)
+
+        elif mode == 'telegram' and tg is not None:
+            for recipient in recipients:
+                tg.send(recipient[0], template=template, context=context, render_on_delivery=True)
+
+    def notify_by_telegram(self, object, source, target):
+        if tg is not None:
+            recipients = []
+            recipients_roles = self.get_notify_recipients_roles()
+            if recipients_roles:
+                recipients.extend(object.get_telegram_notification_recipients_by_roles(recipients_roles))
+
+            self.notify(recipients, object, source, target, 'telegram')
 
 
 class NotificationAttachment(models.Model):

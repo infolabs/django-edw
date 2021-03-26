@@ -13,9 +13,9 @@ class Related extends Component {
 
   componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
-    const prevCount = prevProps.entities && prevProps.entities.meta.count,
+    const prevCount = prevProps.entities.items && prevProps.entities.items.meta.count,
         { entities, entry_point_id } = this.props,
-        count = entities.meta && entities.meta.count;
+        count = entities.items.meta && entities.items.meta.count;
     if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
@@ -46,7 +46,7 @@ class Related extends Component {
 
   render() {
 
-    const { entry_points, entry_point_id, actions } = this.props;
+    const { entry_points, entry_point_id, actions, entities, terms } = this.props;
 
     let entry_point = entry_points[entry_point_id],
         mart_url = entry_point.url || "",
@@ -68,7 +68,7 @@ class Related extends Component {
       <div className="ex-related-datamart">
         <div className="row">
           {
-            multi ? <div className=""> <DataMartsList
+            multi ? <div className="ex-title"> <DataMartsList
               entry_points={entry_points}
               entry_point_id={entry_point_id}
               actions={actions}
@@ -94,7 +94,8 @@ class Related extends Component {
 
 function mapState(state) {
   return {
-    entities: state.entities.items,
+    entities: state.entities,
+    terms: state.terms
   };
 }
 

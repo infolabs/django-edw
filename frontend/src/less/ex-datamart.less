@@ -4,8 +4,21 @@ Datamart styles
 
 .ex-data-mart,
 .ex-data-mart-container {
-  &[data-initial-data-count~="0"] {
-    display: none;
+  span.ex-empty {
+    font-size: 22px;
+    font-weight: bold;
+    color: #7e8893;
+    padding: 0 15px;
+  }
+  &.terms-tree-disabled {
+    .terms-tree {
+      pointer-events: none;
+      opacity: 0.5;
+      .ex-icon-info,
+      .ex-icon-reset {
+        display: none;
+      }
+    }
   }
 }
 
@@ -38,7 +51,7 @@ Datamart styles
   }
 
   .ex-statistic {
-    margin-right: 20px;
+    padding: 0 15px;
   }
 
   .ex-paginator {
@@ -121,6 +134,7 @@ Datamart styles
 .ex-datamart {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 
   .ex-datamart__col {
     flex: 1;
@@ -129,6 +143,10 @@ Datamart styles
   .ex-datamart__col--small {
     max-width: 290px;
     padding: 0 15px;
+  }
+
+  .ex-datamart__datamarts {
+    min-width: 100%;
   }
 
   .ex-datamart__filter {
@@ -157,9 +175,6 @@ Datamart styles
         &:last-child {
           margin-right: 0;
         }
-      }
-      .maincol-top__col.ex-view-as {
-        min-width: 250px;
       }
     }
   }

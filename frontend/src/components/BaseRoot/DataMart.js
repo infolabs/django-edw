@@ -19,9 +19,9 @@ export class DataMart extends Component {
 
   componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
-    const prevCount = prevProps.entities && prevProps.entities.meta.count,
+    const prevCount = prevProps.entities.items && prevProps.entities.items.meta.count,
         { entities, entry_point_id } = this.props,
-        count = entities.meta && entities.meta.count;
+        count = entities.items.meta && entities.items.meta.count;
     if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
@@ -51,13 +51,35 @@ export class DataMart extends Component {
 
   render() {
 
-    const { entry_point_id, entry_points, actions } = this.props;
+    const { entry_point_id, entry_points, actions, entities, terms } = this.props;
+
+    if (!entities.loading && !entities.items.loading && !entities.items.objects.length && terms.tree &&
+      terms.tree.json && terms.tree.json.length) {
+      if (Object.keys(entry_points).length > 1 ) {
+        return (
+          <div className="row ex-datamart paddingtop20 paddingbottom20 d-flex flex-column">
+            <DataMartsList
+              entry_points={entry_points}
+              entry_point_id={entry_point_id}
+              actions={actions}
+            />
+            <span className="ex-empty">НET ОБЪЕКТОВ</span>
+          </div>
+        )
+      } else {
+        return (
+          <div className="row ex-datamart paddingtop20 paddingbottom20">
+            <span className="ex-empty">НET ОБЪЕКТОВ</span>
+          </div>
+        )
+      }
+    }
 
     return (
       <div className="row ex-datamart">
         {
-          Object.keys(entry_points).length < 1 &&
-            <div className="ex-datamart__col ex-datamart__col--small">
+          Object.keys(entry_points).length > 1 &&
+            <div className="ex-datamart__col ex-datamart__datamarts">
               <DataMartsList
                 entry_points={entry_points}
                 entry_point_id={entry_point_id}
@@ -100,7 +122,8 @@ export class DataMart extends Component {
 
 function mapState(state) {
   return {
-    entities: state.entities.items,
+    entities: state.entities,
+    terms: state.terms
   };
 }
 

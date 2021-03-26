@@ -110,9 +110,14 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
     }
     url += opts2gets(options_obj);
 
-    if (options_arr.length) {
+    if (options_arr.length)
       url += "&" + options_arr.join("&");
-    }
+
+    options_arr.map(item => {
+      const itemMatch = item.match(/(.*?)=(\d{1,})/);
+      if(itemMatch)
+        options_obj[itemMatch[1]] = itemMatch[2]
+    });
 
     inFetch++;
 
@@ -130,9 +135,12 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
             stateRootLength = state.terms.tree.root.children.length,
             stateMeta = state.entities.items.meta,
             stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
-            responseDataMartId = json.results.meta.data_mart.id;
+            responseDataMartId = json.results.meta.data_mart.id,
+            stateMetaOrdering = stateMeta.ordering,
+            responseMetaOrdering = json.results.meta.ordering;
 
-      if (inFetch == 0 && stateDataMartId == responseDataMartId && stateRootLength) {
+      // Если изменилась сортировка, то перезапрос не делаем
+      if (inFetch == 0 && stateMetaOrdering === responseMetaOrdering && stateDataMartId == responseDataMartId && stateRootLength) {
         const stateTerms = state.terms.tagged.items,
               responseTerms = json.results.meta.terms_ids;
 
@@ -142,7 +150,7 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
           options_obj = stateMeta.request_options;
           options_obj.terms = stateTerms;
           dispatch(
-            getEntities(mart_id, subj_ids, options_obj)
+            getEntities(mart_id, subj_ids, options_obj, options_arr)
           );
           return;
         }

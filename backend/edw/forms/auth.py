@@ -88,6 +88,7 @@ class RegisterUserForm(ModelForm):
         do_activation = edw_settings.REGISTRATION_PROCESS['do_activation']
         self.instance.recognize_as_registered()
         self.instance.user.is_active = do_activation
+        self.instance.user.username = self.cleaned_data['email']
         self.instance.user.email = self.cleaned_data['email']
         self.instance.user.set_password(self.cleaned_data['password1'])
         self._parce_fio_to_fullname(self.instance.user, self.cleaned_data['fio'])

@@ -24,8 +24,9 @@ class Tree {
     return Object.assign(new Tree([]), this);
   }
 
+  // Строим тематическое дерево
   json2tree(json, parent) {
-    if ( !parent ) {
+    if (!parent) {
       parent = new Item();
     }
     let n = 0;
@@ -33,17 +34,17 @@ class Tree {
       // increment selected children count
       (child.structure !== consts.STRUCTURE_NULL && n++);
       let options = {
-        'id': child.id,
-        'name': child.name,
-        'slug': child.slug,
-        'url': child.url,
-        'short_description': child.short_description,
-        'view_class': child.view_class,
-        'semantic_rule': child.semantic_rule,
-        'specification_mode': child.specification_mode,
-        'structure': child.structure,
-        'is_leaf': child.is_leaf,
-        'parent': parent
+        'id': child.id, // Идентификатор
+        'name': child.name, // Наименование
+        'slug': child.slug, // Слаг
+        'url': child.url, // Адрес в API
+        'short_description': child.short_description, // Краткое описание
+        'view_class': child.view_class, // Класс представления
+        'semantic_rule': child.semantic_rule, // Семантическое правило (OR, XOR, AND)
+        'specification_mode': child.specification_mode, // Режим конкретизации (стандартный, расширенный, сокращенный)
+        'structure': child.structure, // Точка входа: trunk - корневой термин в тематической модели(не выводим в интерфейсе), limb - корневой термин в фильтре интерфейса, brunch - структура термина при наличии потомка, null - потомков нет(При выборе термина перезапрос не делаем)
+        'is_leaf': child.is_leaf, // Термин в структуре относительно потомков (true - есть потомки, false - нет потомков)
+        'parent': parent // Родитель
       };
       let item = new Item(options);
       this.hash[item.id] = item;
@@ -114,7 +115,6 @@ class Item {
     return (this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf()
             && !(this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf));
   }
-
 }
 
 /* Tagged Data Structures */
@@ -137,7 +137,7 @@ class TaggedItems {
   }
 
   copy() {
-    let ret = Object.assign(new TaggedItems(), this); 
+    let ret = Object.assign(new TaggedItems(), this);
     ret.items = this.items.slice();
     return ret;
   }
@@ -301,7 +301,7 @@ class ExpandedItems {
     if (!item.isLimbOrAnd())
       return this;
     this[item.id] = !this[item.id];
-    return Object.assign(new ExpandedItems([]), this); 
+    return Object.assign(new ExpandedItems([]), this);
   }
 
   reload(json) {
