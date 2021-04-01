@@ -227,21 +227,25 @@ def get_closest(model_or_queryset, geo_field, latitude, longitude):
     return places
 
 
+#==================================================================================================
+#
+#==================================================================================================
+SEARCH_URL = "https://fias.nalog.ru/Search/Searching?text={0}"
+DETAIL_URL = "https://fias.nalog.ru/AddressObjectDetailPage/ObjHierarchyInfoGrid?objId={0}&objLvl={1}&tabStripLvl={2}"
+
+OBJ_LEVEL = 10
+# 1 - регион
+# 5 - город
+# 6 - населенный пункт
+LOCALITY_LEVELS = (6, 5)
+REGION_LEVEL = 1
+
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7'
+}
+
 def get_fias_data_by_address(address):
-    SEARCH_URL = "https://fias.nalog.ru/Search/Searching?text={0}"
-    DETAIL_URL = "https://fias.nalog.ru/AddressObjectDetailPage/ObjHierarchyInfoGrid?objId={0}&objLvl={1}&tabStripLvl={2}"
-
-    OBJ_LEVEL = 10
-    # 1 - регион
-    # 5 - город
-    # 6 - населенный пункт
-    LOCALITY_LEVELS = (6, 5)
-    REGION_LEVEL = 1
-
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
-        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7'
-    }
     result = {}
     url = SEARCH_URL.format(address)
     resp = requests.get(url, headers=HEADERS)
