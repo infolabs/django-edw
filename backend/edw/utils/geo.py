@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from functools import wraps
 import time
-import requests
 
 from django.conf import settings
 from django.db import models
@@ -225,64 +224,3 @@ def get_closest(model_or_queryset, geo_field, latitude, longitude):
         distance=expression).order_by('distance')
 
     return places
-
-
-#==================================================================================================
-#
-#==================================================================================================
-SEARCH_URL = "https://fias.nalog.ru/Search/Searching?text={0}"
-DETAIL_URL = "https://fias.nalog.ru/AddressObjectDetailPage/ObjHierarchyInfoGrid?objId={0}&objLvl={1}&tabStripLvl={2}"
-
-OBJ_LEVEL = 10
-# 1 - регион
-# 5 - город
-# 6 - населенный пункт
-LOCALITY_LEVELS = (6, 5)
-REGION_LEVEL = 1
-
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
-    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7'
-}
-
-def get_fias_data_by_address(address):
-    result = {}
-    url = SEARCH_URL.format(address)
-    resp = requests.get(url, headers=HEADERS)
-    if resp.status_code == 200 or resp.status_code == 201:
-        json_data = resp.json()
-        try:
-            # берем первый попавшшийся адрес и из него получаем ID адресного объекта
-            address_code = json_data[0]['ObjectId']
-        except (KeyError, IndexError):
-            # Вернулось не пойми что
-            pass
-        else:
-            for lvl in LOCALITY_LEVELS:
-                # циклом перебираем потенциальные уровни начиная с Населенный пункт
-                url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
-                resp = requests.get(url, headers=HEADERS)
-                if resp.status_code == 200 or resp.status_code == 201:
-                    json_data = resp.json()
-                    try:
-                        data = json_data["Data"]
-                        if len(data) > 0:
-                            result['locality'] = data[0]
-                            break
-                    except (KeyError, IndexError):
-                        # Вернулось не пойми что
-                        pass
-            # получаем регион
-            url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
-            resp = requests.get(url, headers=HEADERS)
-            if resp.status_code == 200 or resp.status_code == 201:
-                json_data = resp.json()
-                try:
-                    data = json_data["Data"]
-                    if len(data) > 0:
-                        result['region'] = data[0]
-                except (KeyError, IndexError):
-                    # Вернулось не пойми что
-                    pass
-    return result
-
