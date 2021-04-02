@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from edw.models.related import (
     BaseAdditionalEntityCharacteristicOrMark,
     BaseEntityRelation,
-    BaseEntityRelatedDataMart,
     BaseDataMartRelation,
     BaseDataMartPermission
 )
@@ -28,18 +26,6 @@ class EntityRelation(BaseEntityRelation):
     RUS: Материализованная связь многие-ко многим с сущностями.
     """
     class Meta(BaseEntityRelation.Meta):
-        """
-        RUS: Метаданные класса EntityRelation.
-        """
-        abstract = False
-
-
-class EntityRelatedDataMart(BaseEntityRelatedDataMart):
-    """
-    ENG: Materialize many-to-many relation with data marts.
-    RUS: Материализованная связь многие-ко многим с витринами данных.
-    """
-    class Meta(BaseEntityRelatedDataMart.Meta):
         """
         RUS: Метаданные класса EntityRelation.
         """
