@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-16 12:08+0000\n"
-"PO-Revision-Date: 2020-12-16 15:09+0300\n"
+"POT-Creation-Date: 2021-04-02 14:17+0000\n"
+"PO-Revision-Date: 2021-04-02 18:31+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -17,36 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: __init__.py:7
 msgid "edw"
 msgstr "предметно-ориентированное хранилище данных"
-
-#: admin/actions/base_update_terms.py:53
-#: admin/entity/actions/base_entity_action.py:50
-#: admin/entity/actions/update_active.py:57
-#: admin/entity/actions/update_additional_characteristics_or_marks.py:64
-#: admin/entity/actions/update_images.py:77
-#: admin/entity/actions/update_related_data_marts.py:63
-#: admin/entity/actions/update_relations.py:65
-#: admin/entity/actions/update_states.py:65
-#: admin/term/actions/update_terms_parent.py:60
-#, python-format
-msgid "Successfully proceed %(count)d %(items)s."
-msgstr "Успешно обработано %(count)d %(items)s."
-
-#: admin/actions/base_update_terms.py:67
-msgid "Update terms for multiple entities"
-msgstr "Обновление терминов списка объектов"
-
-#: admin/actions/base_update_terms.py:85
-#: admin/data_mart/actions/update_terms.py:15
-#: admin/entity/actions/update_terms.py:16
-#, python-format
-msgid "Modify terms for selected %(verbose_name_plural)s"
-msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
 
 #: admin/customer/__init__.py:32
 msgid "Customer State"
@@ -150,7 +126,7 @@ msgstr "Основные"
 
 #: admin/entity/__init__.py:272 admin/entity/__init__.py:410
 #: models/boundary.py:210 models/data_mart.py:165 models/email_category.py:90
-#: models/notification.py:89 models/postal_zone.py:90 models/term.py:301
+#: models/notification.py:100 models/postal_zone.py:90 models/term.py:301
 msgid "Name"
 msgstr "Название"
 
@@ -158,6 +134,19 @@ msgstr "Название"
 #: models/entity.py:971
 msgid "Entity type"
 msgstr "Тип объекта"
+
+#: admin/entity/actions/base_entity_action.py:50
+#: admin/entity/actions/update_active.py:57
+#: admin/entity/actions/update_additional_characteristics_or_marks.py:64
+#: admin/entity/actions/update_images.py:77
+#: admin/entity/actions/update_related_data_marts.py:63
+#: admin/entity/actions/update_relations.py:65
+#: admin/entity/actions/update_states.py:65
+#: admin/entity/actions/update_terms.py:56
+#: admin/term/actions/update_terms_parent.py:60
+#, python-format
+msgid "Successfully proceed %(count)d %(items)s."
+msgstr "Успешно обработано %(count)d %(items)s."
 
 #: admin/entity/actions/bulk_delete.py:18
 msgid "Delete multiple entities with bulk delete"
@@ -259,6 +248,15 @@ msgstr "Обновление состояния списка объектов"
 msgid "Modify state for selected %(verbose_name_plural)s"
 msgstr "Изменить состояние для выбранных %(verbose_name_plural)s"
 
+#: admin/entity/actions/update_terms.py:70
+msgid "Update terms for multiple entities"
+msgstr "Обновление терминов списка объектов"
+
+#: admin/entity/actions/update_terms.py:87
+#, python-format
+msgid "Modify terms for selected %(verbose_name_plural)s"
+msgstr "Изменить термины для выбранных %(verbose_name_plural)s"
+
 #: admin/entity/forms/__init__.py:54
 msgid "Characteristic or mark"
 msgstr "Характеристика или метка"
@@ -289,7 +287,7 @@ msgstr "Нет"
 
 #: admin/entity/forms/update_active.py:23 models/boundary.py:130
 #: models/data_mart.py:189 models/email_category.py:64 models/entity.py:943
-#: models/notification.py:101 models/postal_zone.py:64 models/term.py:316
+#: models/notification.py:112 models/postal_zone.py:64 models/term.py:316
 #: rest/filters/entity.py:148 templates/edw/admin/mptt/_datamart_node.html:7
 #: templates/edw/admin/mptt/_term_node.html:19
 msgid "Active"
@@ -412,15 +410,15 @@ msgstr "Термины для снятия"
 msgid "Select terms for set or unset"
 msgstr "Выберите термины для установки или снятия"
 
-#: admin/notification/admin.py:75 models/notification.py:90
+#: admin/notification/admin.py:75 models/notification.py:101
 msgid "Transition"
 msgstr "Переход"
 
-#: admin/notification/admin.py:89 models/notification.py:355
+#: admin/notification/admin.py:89 models/notification.py:378
 msgid "Attachments"
 msgstr "Вложения"
 
-#: admin/notification/forms.py:25 models/notification.py:93
+#: admin/notification/forms.py:25 models/notification.py:104
 msgid "Notify to roles"
 msgstr "Роли получателей"
 
@@ -514,7 +512,7 @@ msgstr ""
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: forms/auth.py:107
+#: forms/auth.py:108
 #, python-brace-format
 msgid ""
 "A customer ‘{email}’ success registered.\n"
@@ -532,7 +530,19 @@ msgstr ""
 
 #: forms/fields.py:32
 msgid "Enter a complete value."
+msgstr "Введите полное значение."
+
+#: management/commands/delete_post_office_email.py:12
+msgid "Delete history to emails"
 msgstr ""
+
+#: management/commands/delete_post_office_email.py:20
+msgid "Count days to save emails"
+msgstr ""
+
+#: management/commands/delete_post_office_email.py:27
+msgid "`days_to_save` must be positive"
+msgstr "`days_to_save` должен быть положительным"
 
 #: management/commands/edwcustomers.py:8
 msgid "Collect information about all customers which accessed this EDW."
@@ -867,13 +877,21 @@ msgstr "Категория пользователя"
 msgid "Unknown customer"
 msgstr "Неизвестный пользователь"
 
-#: models/mixins/entity/place.py:51
+#: models/mixins/entity/place/__init__.py:51
 msgid "Region"
 msgstr "Регион"
 
-#: models/mixins/entity/place.py:64
+#: models/mixins/entity/place/__init__.py:64
 msgid "Terra Incognita"
 msgstr "Неопределенное место"
+
+#: models/mixins/entity/place/fias.py:32
+msgid "FIAS data"
+msgstr "Данные ФИАС"
+
+#: models/mixins/entity/place/fias.py:33
+msgid "Data returned from FIAS for defined address"
+msgstr "Данные по данному месту полученые из ФИАС"
 
 #: models/mixins/notification.py:30
 msgid "stored_request"
@@ -883,35 +901,39 @@ msgstr "данные http запроса"
 msgid "Parts of the Request objects on the moment of submit."
 msgstr "Request-объект на момент отправки."
 
-#: models/notification.py:67
+#: models/notification.py:77
 msgid "By Email"
 msgstr "По электронной почте"
 
-#: models/notification.py:68
+#: models/notification.py:78
 msgid "By Push Notification"
 msgstr "Через push-уведомление"
 
-#: models/notification.py:71
+#: models/notification.py:79
+msgid "By Telegram"
+msgstr "Через Телеграм"
+
+#: models/notification.py:82
 msgid "Nobody"
 msgstr "Отсутствует"
 
-#: models/notification.py:97
+#: models/notification.py:108
 msgid "Template"
 msgstr "Шаблон"
 
-#: models/notification.py:100
+#: models/notification.py:111
 msgid "Mode"
 msgstr "Способ"
 
-#: models/notification.py:105
+#: models/notification.py:116
 msgid "Notification"
 msgstr "Уведомление"
 
-#: models/notification.py:106
+#: models/notification.py:117
 msgid "Notifications"
 msgstr "Уведомления"
 
-#: models/notification.py:350 models/notification.py:354
+#: models/notification.py:373 models/notification.py:377
 msgid "Attachment"
 msgstr "Вложение"
 

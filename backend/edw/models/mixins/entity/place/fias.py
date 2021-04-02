@@ -142,6 +142,7 @@ class FIASMixin(ModelMixin):
                 # Вернулось не пойми что
                 pass
             else:
+                result['Place'] = json_data[0]
                 for lvl in LOCALITY_LEVELS:
                     # циклом перебираем потенциальные уровни начиная с Населенный пункт
                     url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
