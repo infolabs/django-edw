@@ -53,11 +53,11 @@ class FIASMixin(ModelMixin):
         return result
 
     @cached_property
-    def fias_locality_guid(self):
+    def fias_locality_id(self):
         result = None
         if self.fias_data != {}:
             try:
-                result = self.fias_data['Locality']['GUID']
+                result = self.fias_data['Locality']['objId']
             except (KeyError, IndexError):
                 pass
         return result
@@ -73,11 +73,11 @@ class FIASMixin(ModelMixin):
         return result
 
     @cached_property
-    def fias_region_guid(self):
+    def fias_region_id(self):
         result = None
         if self.fias_data != {}:
             try:
-                result = self.fias_data['Region']['GUID']
+                result = self.fias_data['Region']['objId']
             except (KeyError, IndexError):
                 pass
         return result
