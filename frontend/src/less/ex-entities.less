@@ -929,7 +929,9 @@
           li {
             padding-right: 10px;
             display: inline-block;
-            &[data-view-class~="hide-in-ribbon"], &[data-view-class~="hide-in-attrs"]{
+            &[data-view-class~="hide-in-ribbon"],
+            &[data-view-class~="hide-in-attrs"],
+            &[data-view-class~="hidden"] {
               display: none!important;
             }
           }
