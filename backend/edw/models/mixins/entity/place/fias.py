@@ -2,6 +2,7 @@
 
 import requests
 from jsonfield.fields import JSONField
+from simplejson import JSONDecodeError
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
@@ -134,40 +135,50 @@ class FIASMixin(ModelMixin):
         url = SEARCH_URL.format(address)
         resp = requests.get(url, headers=HEADERS)
         if resp.status_code == 200 or resp.status_code == 201:
-            json_data = resp.json()
             try:
-                # берем первый адрес и из него получаем ID адресного объекта
-                address_code = json_data[0]['ObjectId']
-            except (KeyError, IndexError):
+                json_data = resp.json()
+            except JSONDecodeError:
                 # Вернулось не пойми что
                 pass
             else:
-                result['Place'] = json_data[0]
-                for lvl in LOCALITY_LEVELS:
-                    # циклом перебираем потенциальные уровни начиная с Населенный пункт
-                    url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
+                try:
+                    # берем первый адрес и из него получаем ID адресного объекта
+                    address_code = json_data[0]['ObjectId']
+                except (KeyError, IndexError):
+                    # Вернулось не пойми что
+                    pass
+                else:
+                    result['Place'] = json_data[0]
+                    for lvl in LOCALITY_LEVELS:
+                        # циклом перебираем потенциальные уровни начиная с Населенный пункт
+                        url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
+                        resp = requests.get(url, headers=HEADERS)
+                        if resp.status_code == 200 or resp.status_code == 201:
+                            json_data = resp.json()
+                            try:
+                                data = json_data["Data"]
+                                if len(data) > 0:
+                                    result['Locality'] = data[0]
+                                    break
+                            except (KeyError, IndexError):
+                                # Вернулось не пойми что
+                                pass
+                    # получаем регион
+                    url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
                     resp = requests.get(url, headers=HEADERS)
                     if resp.status_code == 200 or resp.status_code == 201:
-                        json_data = resp.json()
                         try:
-                            data = json_data["Data"]
-                            if len(data) > 0:
-                                result['Locality'] = data[0]
-                                break
-                        except (KeyError, IndexError):
+                            json_data = resp.json()
+                        except JSONDecodeError:
                             # Вернулось не пойми что
                             pass
-                # получаем регион
-                url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
-                resp = requests.get(url, headers=HEADERS)
-                if resp.status_code == 200 or resp.status_code == 201:
-                    json_data = resp.json()
-                    try:
-                        data = json_data["Data"]
-                        if len(data) > 0:
-                            result['Region'] = data[0]
-                    except (KeyError, IndexError):
-                        # Вернулось не пойми что
-                        pass
+                        else:
+                            try:
+                                data = json_data["Data"]
+                                if len(data) > 0:
+                                    result['Region'] = data[0]
+                            except (KeyError, IndexError):
+                                # Вернулось не пойми что
+                                pass
         return result
 
