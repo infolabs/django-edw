@@ -121,7 +121,7 @@ class BaseEntities extends Component {
   }
 
   render() {
-    const { entities, actions, entry_points, entry_point_id } = this.props;
+    const { entities, actions, entry_points, entry_point_id, component_attrs } = this.props;
 
     const items = entities.items.objects || [],
         loading = entities.items.loading,
@@ -150,7 +150,8 @@ class BaseEntities extends Component {
           meta: meta,
           loading: loading,
           descriptions: descriptions,
-          data_mart: entry_points[entry_point_id]
+          data_mart: entry_points[entry_point_id],
+          component_attrs: component_attrs
         }
       );
     }

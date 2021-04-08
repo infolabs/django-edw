@@ -51,7 +51,7 @@ export class DataMart extends Component {
 
   render() {
 
-    const { entry_point_id, entry_points, actions, entities, terms } = this.props;
+    const { entry_point_id, entry_points, actions, entities, terms, component_attrs } = this.props;
 
     return (
       <div className="row ex-datamart">
@@ -88,7 +88,7 @@ export class DataMart extends Component {
               <GroupTitle/>
             </div>
           </div>
-          <Entities entry_points={entry_points} entry_point_id={entry_point_id} />
+          <Entities entry_points={entry_points} entry_point_id={entry_point_id}  component_attrs={component_attrs} />
           <Paginator entry_points={entry_points} entry_point_id={entry_point_id} />
           <Aggregation entry_points={entry_points} entry_point_id={entry_point_id} />
         </div>
