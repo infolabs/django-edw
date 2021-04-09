@@ -46,7 +46,7 @@ class Related extends Component {
 
   render() {
 
-    const { entry_points, entry_point_id, actions, entities, terms } = this.props;
+    const { entry_points, entry_point_id, actions, entities, terms, component_attrs } = this.props;
 
     let entry_point = entry_points[entry_point_id],
         mart_url = entry_point.url || "",
@@ -85,7 +85,9 @@ class Related extends Component {
         </div>
         <div className="ex-entities">
           <Entities entry_points={entry_points}
-                    entry_point_id={entry_point_id} />
+                    entry_point_id={entry_point_id}
+                    component_attrs={component_attrs}
+          />
         </div>
       </div>
     );

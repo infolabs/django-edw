@@ -351,15 +351,17 @@ class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
         list_serializer_class = EntityBulkListSerializer
         validators = [EntityValidator()]
         need_add_lookup_fields_request_methods = True
+        exclude = []
+
+        """
+        Empty exclude array should help to prevent the below error:
+        
+        AssertionError ("Creating a ModelSerializer without either the 'fields' attribute or the 'exclude' attribute has
+        been deprecated since 3.3.0, and is now disallowed. Add an explicit fields = 'all' to the EntityCommonSerializer
+        serializer.",)
+        """
 
     HTML_SNIPPET_CACHE_KEY_PATTERN = 'entity:{0}|{1}-{2}-{3}-{4}-{5}'
-
-    # def __init__(self, *args, **kwargs):
-    #     fields = getattr(self.Meta, 'fields', None)
-    #     exclude = getattr(self.Meta, 'exclude', None)
-    #     if fields is None and exclude is None:
-    #         self.Meta.fields = '__all__'
-    #     super(EntityCommonSerializer, self).__init__(*args, **kwargs)
 
     def render_html(self, entity, postfix):
         """
