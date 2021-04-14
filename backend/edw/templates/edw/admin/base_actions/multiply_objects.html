@@ -1,6 +1,5 @@
-{% extends "edw/admin/entities/actions/_base_change_form.html" %}
+{% extends "edw/admin/base_actions/_change_form.html" %}
 {% load i18n l10n %}
-
 {% block content %}
     <div class="container-fluid">
         <form action="" method="post">{% csrf_token %}
@@ -11,8 +10,9 @@
                 {{ form.non_field_errors }}
             {% endif %}
 
+            {% block fieldsets %}{% endblock %}
 
-            {% include 'edw/admin/entities/actions/_updated_entities.html' %}
+            {% include 'edw/admin/base_actions/_updated_objects.html' %}
 
             {% for obj in queryset %}
                 <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />

@@ -3,22 +3,30 @@ from __future__ import unicode_literals
 
 from operator import __or__ as OR
 from functools import reduce
+from celery import chain
 
+from django import forms
+from django.template.response import TemplateResponse
+from django.contrib.admin import helpers
+from django.contrib.admin.utils import model_ngettext
 try:
     from django.utils.encoding import force_unicode as force_text
 except ImportError:
     from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
-from django.template.response import TemplateResponse
-from django.contrib.admin import helpers
-from django.contrib.admin.utils import model_ngettext
-
-from celery import chain
-
-from edw.admin.entity.forms import BaseEntityActionAdminForm
 
 
-def base_entity_action(modeladmin, request, queryset, action, action_task, title, chunk_size):
+#==============================================================================
+# BaseActionAdminForm
+#==============================================================================
+class BaseActionAdminForm(forms.Form):
+    """
+     Базовая форма администратора объекта
+    """
+    pass
+
+
+def objects_action(modeladmin, request, queryset, action, action_task, title, chunk_size):
     """
     Создает цепочку Celery в случае отправки запроса методом POST и валидности формы.
     Возвращает шаблон подтверждения
@@ -27,7 +35,7 @@ def base_entity_action(modeladmin, request, queryset, action, action_task, title
     app_label = opts.app_label
 
     if request.POST.get('post'):
-        form = BaseEntityActionAdminForm(request.POST)
+        form = BaseActionAdminForm(request.POST)
 
         if form.is_valid():
 
@@ -55,7 +63,7 @@ def base_entity_action(modeladmin, request, queryset, action, action_task, title
             return None
 
     else:
-        form = BaseEntityActionAdminForm()
+        form = BaseActionAdminForm()
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
@@ -75,5 +83,5 @@ def base_entity_action(modeladmin, request, queryset, action, action_task, title
     }
     # Display the confirmation page
     kwargs = {}
-    return TemplateResponse(request, "edw/admin/entities/actions/base_multiply_entities_action.html",
+    return TemplateResponse(request, "edw/admin/base_actions/multiply_objects.html",
                             context, **kwargs)

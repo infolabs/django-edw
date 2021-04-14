@@ -10,6 +10,7 @@ from edw.admin.data_mart.forms import (
 )
 from edw.models.related import DataMartRelationModel, DataMartPermissionModel
 from edw.admin.mptt.tree import EdwMpttAdmin
+from edw.admin.data_mart.actions.update_terms import update_terms
 
 
 class DataMartAdmin(EdwMpttAdmin):
@@ -17,6 +18,8 @@ class DataMartAdmin(EdwMpttAdmin):
     Определяет данные панели администратора витрины данных
     """
     form = DataMartAdminForm
+
+    actions = [update_terms, ]
 
     # todo: Add ', ('system_flags', BitFieldListFilter)',
     # Django 1.7 support, fixes
@@ -42,10 +45,19 @@ class DataMartAdmin(EdwMpttAdmin):
         """
         css = {
             'all': [
-                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
                 '/static/edw/css/admin/datamart.min.css',
-            ]
+                '/static/edw/css/admin/jqtree.css',
+                '/static/edw/css/admin/salmonella.css',
+                '/static/edw/lib/font-awesome/css/font-awesome.min.css',
+                '/static/edw/css/admin/term.min.css'
+            ],
+
         }
+        js = (
+            '/static/edw/lib/spin/spin.min.js',
+            '/static/edw/js/admin/jquery.compat.js',
+            '/static/edw/js/admin/tree.jquery.js'
+        )
 
 
 #===========================================================================================
