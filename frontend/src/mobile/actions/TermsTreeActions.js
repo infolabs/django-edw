@@ -21,10 +21,9 @@ import Singleton from '../utils/singleton'
 */
 const getTermsTree = (type, mart_id, selected = []) => dispatch => {
   const instance = Singleton.getInstance(),
-        {Urls} = instance;
+        {Urls, Domain} = instance;
 
-  let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
-  url = reCache(url);
+  let url = reCache(`${Domain}${Urls['edw:data-mart-term-tree'](mart_id, 'json')}`);
 
   if (selected && selected.length > 0)
     url += '&selected=' + selected.join();

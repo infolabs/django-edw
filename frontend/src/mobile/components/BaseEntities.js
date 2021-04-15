@@ -75,16 +75,16 @@ class BaseEntities extends Component {
     this.props.notifyLoadingEntities();
 
     // if there's no tree and there's an offset in the location hash, make a request
-    // if (this.props.terms.tree.root.children.length <= 0) {
-    //   const datamartData = getDatamartsData()[entry_point_id];
-    //   if (datamartData && datamartData.offset && datamartData.offset !== request_options.offset) {
-    //       request_options.offset = datamartData.offset;
-    //       this.props.getEntities(
-    //         entry_point_id, subj_ids, request_options, options_arr
-    //       );
-    //       return;
-    //   }
-    // }
+    if (this.props.terms.tree.root.children.length <= 0) {
+      const dataMartData = getDatamartsData()[entry_point_id];
+      if (dataMartData && dataMartData.offset && dataMartData.offset !== request_options.offset) {
+          request_options.offset = dataMartData.offset;
+          this.props.getEntities(
+            entry_point_id, subj_ids, request_options, options_arr
+          );
+          return;
+      }
+    }
 
     this.props.readEntities(
       entry_point_id, subj_ids, request_options, options_arr
@@ -118,6 +118,9 @@ class BaseEntities extends Component {
     }
 
     if (component_name) {
+      if (!this.templates)
+        this.templates = this.props.getTemplates();
+
       const component = this.templates[component_name] || this.templates['tile'];
       return(React.createElement(
         component, {
@@ -128,12 +131,13 @@ class BaseEntities extends Component {
           data_mart: entry_points[entry_point_id]
         }
       ));
-    } else
-      return(
+    } else {
+      return (
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
       )
+    }
   }
 }
 
