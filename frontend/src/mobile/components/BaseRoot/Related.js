@@ -15,6 +15,7 @@ class Related extends Component {
       <View><Text>Related</Text></View>
     )
 
+    // TODO: Не работает, починить
     // return (
     //   <Entities entry_points={entry_points} entry_point_id={entry_point_id} />
     // );

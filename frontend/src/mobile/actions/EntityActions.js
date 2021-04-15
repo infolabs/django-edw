@@ -85,13 +85,12 @@ export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr 
   if (treeRootLength && currentDataMartId == mart_id && inFetch > 3)
     return;
 
-  // РАССКОММЕНТИРОВАТЬ!!!
   // set computed initial terms if not set
-  // const terms = getState().terms,
-  //       tagged = terms.tagged.items,
-  //       options_obj2 = optArrToObj(options_arr);
-  // if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
-  //   options_obj.terms = tagged;
+  const terms = getState().terms,
+        tagged = terms.tagged.items,
+        options_obj2 = optArrToObj(options_arr);
+  if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
+    options_obj.terms = tagged;
 
   // eslint-disable-next-line no-undef
   let url = '';

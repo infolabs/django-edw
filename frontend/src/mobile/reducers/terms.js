@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 import * as consts from '../constants/TermsTree';
 
 /* Tree Data Structures */
@@ -14,8 +14,8 @@ class Tree {
   merge(json) {
     for (const child of json) {
       const hashed = this.hash[child.id];
-      if(child.children.length &&
-         hashed && !hashed.children.length) {
+      if (child.children.length &&
+        hashed && !hashed.children.length) {
         this.hash[child.id].children = this.json2tree(child.children, this.hash[child.id]).children;
       }
       this.merge(child.children);
@@ -53,7 +53,7 @@ class Tree {
     }
     // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
     // selected children count more than one
-    if ( parent.semantic_rule == consts.SEMANTIC_RULE_XOR && n > 1 )
+    if (parent.semantic_rule == consts.SEMANTIC_RULE_XOR && n > 1)
       parent.semantic_rule = consts.SEMANTIC_RULE_OR;
     return parent;
   }
@@ -82,7 +82,7 @@ class Item {
 
   get siblings() {
     return this.parent && this.parent.children ?
-           this.parent.children.filter(item => item.id != this.id) : [];
+      this.parent.children.filter(item => item.id != this.id) : [];
   }
 
   isLimbDescendant() {
@@ -116,7 +116,7 @@ class Item {
   // false - Скрываем термин
   isVisible() {
     return (this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf()
-            && !(this.parent.semantic_rule === consts.SEMANTIC_RULE_AND && this.is_leaf));
+      && !(this.parent.semantic_rule === consts.SEMANTIC_RULE_AND && this.is_leaf));
   }
 }
 
@@ -162,7 +162,7 @@ class TaggedItems {
     for (const child of json) {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
-          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
+        child.specification_mode == consts.EXPANDED_SPECIFICATION) {
         const pk = parseInt(child.id);
         this.cache[pk] = true;
       }
@@ -193,7 +193,7 @@ class TaggedItems {
 
   toggle(item) {
     if (item.isLimbOrAndLeaf() ||
-        item.isLimbOrAnd() && item.children.length)
+      item.isLimbOrAnd() && item.children.length)
       return this;
 
     let ret = this.copy();
@@ -235,7 +235,7 @@ class TaggedItems {
 
     let index = this.items.indexOf(item.id);
     if (index < 0 && item.id != null) {
-    // if (index < 0 && item.id > -1) {
+      // if (index < 0 && item.id > -1) {
       this.items.push(item.id);
     }
     item.parent && this.tag(item.parent);
@@ -267,7 +267,7 @@ class TaggedItems {
 
   isAncestorTagged(item) {
     if (item.structure != consts.STRUCTURE_LIMB && item.parent &&
-        item.parent.semantic_rule != consts.SEMANTIC_RULE_AND ) {
+      item.parent.semantic_rule != consts.SEMANTIC_RULE_AND) {
       if (this[item.parent.id])
         return true;
       else
@@ -288,10 +288,10 @@ class ExpandedItems {
   json2items(json) {
     for (const child of json) {
       let mode = child.specification_mode,
-          is_standard = mode == consts.STANDARD_SPECIFICATION,
-          is_expanded = mode == consts.EXPANDED_SPECIFICATION,
-          is_leaf = child.is_leaf,
-          is_limb = child.structure == consts.STRUCTURE_LIMB;
+        is_standard = mode == consts.STANDARD_SPECIFICATION,
+        is_expanded = mode == consts.EXPANDED_SPECIFICATION,
+        is_leaf = child.is_leaf,
+        is_limb = child.structure == consts.STRUCTURE_LIMB;
 
       this[child.id] = ((is_standard && is_limb && !is_leaf) || is_expanded);
 
@@ -321,7 +321,7 @@ class Requested {
 
   toggle(item) {
     if (!this[item.id] &&
-        !item.children.length) {
+      !item.children.length) {
       this[item.id] = true;
       this.array.push(item.id);
       return Object.assign(new Requested(), this);
@@ -350,8 +350,8 @@ class ExpandedInfoItems {
 class RealPotentialItems {
   constructor(json) {
     const meta = json && json.results && json.results.meta,
-          pots = meta && meta.potential_terms_ids || [],
-          rils = meta && meta.real_terms_ids || [];
+      pots = meta && meta.potential_terms_ids || [],
+      rils = meta && meta.real_terms_ids || [];
     this.has_metadata = !!meta;
     this.pots = {};
     this.rils = {};
@@ -366,7 +366,7 @@ class RealPotentialItems {
 
 const tree = (state = new Tree([]), action) => {
   switch (action.type) {
-    case consts.LOAD_TERMS_TREE:
+    case consts.LOAD_TREE:
       return new Tree(action.json);
     case consts.RELOAD_TREE:
       return state.merge(action.json);
@@ -386,7 +386,7 @@ const details = (state = {}, action) => {
   }
 };
 
-const requested =(state = new Requested(), action) => {
+const requested = (state = new Requested(), action) => {
   switch (action.type) {
     case consts.TOGGLE_ITEM:
       return state.toggle(action.term);
@@ -412,7 +412,7 @@ const tagged = (state = new TaggedItems(), action) => {
   }
 };
 
-const expanded =(state = new ExpandedItems([]), action) => {
+const expanded = (state = new ExpandedItems([]), action) => {
   switch (action.type) {
     case consts.LOAD_TERMS_TREE:
       return new ExpandedItems(action.json);
@@ -435,12 +435,12 @@ const realPotential = (state = new RealPotentialItems({}), action) => {
 };
 
 const terms = combineReducers({
-    tree: tree,
-    details: details,
-    requested: requested,
-    tagged: tagged,
-    expanded: expanded,
-    real_potential: realPotential
+  tree: tree,
+  details: details,
+  requested: requested,
+  tagged: tagged,
+  expanded: expanded,
+  real_potential: realPotential
 });
 
 export default terms;

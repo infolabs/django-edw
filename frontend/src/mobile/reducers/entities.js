@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 import * as consts from '../constants/TermsTree';
 
 /* Entities */
@@ -24,7 +24,7 @@ class EntitiesManager {
     meta.next = json.next;
     meta.previous = json.previous;
     meta.request_options = request_options;
-      return meta;
+    return meta;
   }
 }
 
@@ -51,11 +51,11 @@ class Dropdowns {
 
     // Ordering
     const modes = data_mart.ordering_modes,
-          ordering_options = {
-            'request_var': 'ordering',
-            'selected': modes[json.results.meta.ordering],
-            'options': modes
-          };
+      ordering_options = {
+        'request_var': 'ordering',
+        'selected': modes[json.results.meta.ordering],
+        'options': modes
+      };
     this['ordering'] = new Dropdown(ordering_options);
 
     // Limits
@@ -66,12 +66,12 @@ class Dropdowns {
       [data_mart.limit]: data_mart.limit
     };
     for (const m of multipliers) {
-        const o = default_limit * m;
-        if (max_limit && o >= max_limit) {
-          options[max_limit] = max_limit;
-          break;
-        }
-        options[o] = o;
+      const o = default_limit * m;
+      if (max_limit && o >= max_limit) {
+        options[max_limit] = max_limit;
+        break;
+      }
+      options[o] = o;
     }
     const limit = json.limit;
     const limit_options = {
@@ -83,11 +83,11 @@ class Dropdowns {
 
     // ViewComponents
     const components = data_mart.view_components,
-          component_options = {
-            'request_var': 'view_component',
-            'selected': components[json.results.meta.view_component],
-            'options': components
-          };
+      component_options = {
+        'request_var': 'view_component',
+        'selected': components[json.results.meta.view_component],
+        'options': components
+      };
     this['view_components'] = new Dropdown(component_options);
   }
 
@@ -198,12 +198,12 @@ function loading(state = false, action) {
 
 
 function loadingItems(state = {}, action) {
-    switch (action.type) {
-        case consts.NOTIFY_LOADING_ENTITIE_ITEM:
-            return Object.assign({}, state, {[action.id]: true});
-        default:
-          return state;
-    }
+  switch (action.type) {
+    case consts.NOTIFY_LOADING_ENTITIE_ITEM:
+      return Object.assign({}, state, {[action.id]: true});
+    default:
+      return state;
+  }
 }
 
 
@@ -222,11 +222,11 @@ function descriptions(state = new Descriptions(), action) {
 
 
 const entities = combineReducers({
-    items,
-    dropdowns,
-    descriptions,
-    loading,
-    loadingItems
+  items,
+  dropdowns,
+  descriptions,
+  loading,
+  loadingItems
 });
 
 
