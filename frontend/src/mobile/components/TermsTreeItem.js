@@ -31,7 +31,7 @@ export default class TermsTreeItem extends Component {
 
     let render_item = "",
       reset_icon = "",
-      reset_item = "",
+      reset_item = () => <></>,
       info = "",
       semantic_class = "",
       state_class = "";
@@ -40,6 +40,10 @@ export default class TermsTreeItem extends Component {
       is_tagged = tagged[term.id],
       is_expanded = expanded[term.id],
       show_children = (!is_limb_or_and && is_tagged || is_expanded) && !term.is_leaf;
+
+    let ex_no_term = '';
+    if (real_potential.has_metadata && !real_potential.rils[term.id])
+      ex_no_term = !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real ";
 
     if (term.isVisible()) {
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
@@ -71,9 +75,11 @@ export default class TermsTreeItem extends Component {
 
       render_item = (
         <TouchableWithoutFeedback onPress={() => this.handleItemPress()}>
-          <Text className="ex-label" style={{fontSize: 14}}>
-            {term.name}
-          </Text>
+          <View>
+            <Text style={{fontSize: 16, marginTop: 5}}>
+              {term.name}
+            </Text>
+          </View>
         </TouchableWithoutFeedback>
       );
 
@@ -81,14 +87,14 @@ export default class TermsTreeItem extends Component {
         let any_tagged = tagged.isAnyTagged(children),
           reset_class = any_tagged ? "ex-xor ex-off" : "ex-xor ex-on";
 
-        reset_item = (
+        reset_item = () => (
           <TouchableWithoutFeedback onPress={() => this.handleResetItemPress()}>
-            <Text className={reset_class} style={{marginLeft: 15, marginTop: 10}}>
-              <Radio className="ex-label" checked={state_class === 'ex-on' && ex_no_term !== ''}
-                     onChecked={() => this.handleResetItemPress()}>
-                <Text style={{fontSize: 14}}>Всё</Text>
-              </Radio>
-            </Text>
+            <View className={reset_class} style={{marginLeft: 15, marginTop: 5}}>
+                <Radio checked={state_class === 'ex-on' && ex_no_term === ''}
+                       onChecked={() => this.handleResetItemPress()}>
+                  <Text style={{fontSize: 16}}>Всё</Text>
+                </Radio>
+            </View>
           </TouchableWithoutFeedback>
         );
       }
@@ -112,31 +118,33 @@ export default class TermsTreeItem extends Component {
                        actions={actions}/>)
     );
 
-    let ex_no_term = '';
-    if (real_potential.has_metadata && !real_potential.rils[term.id])
-      ex_no_term = !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real ";
+    let liClassName = semantic_class + " " + state_class + " ";
+    liClassName += ex_no_term;
 
-    let li_classname = semantic_class + " " + state_class + " ";
-    li_classname += ex_no_term;
+    let ret = <></>;
 
-    let ret = <View/>;
     if (render_item === "") {
       ret = <View className="ex-empty">{render_children}</View>;
     } else {
       let iconName = '';
       if (show_children) {
-        iconName = 'ios-chevron-down-outline';
-        render_children = <View style={{width: deviceWidth}}>{reset_item}{render_children}</View>;
+        iconName = 'ios-chevron-down';
+        render_children = (
+          <View style={{width: deviceWidth}}>
+            {reset_item()}
+            {render_children}
+          </View>
+        );
       } else {
-        iconName = 'ios-chevron-forward-outline';
-        render_children = "";
+        iconName = 'ios-chevron-forward';
+        render_children = <></>;
       }
 
       if (term.structure === 'limb') {
         ret = (
-          <View style={{flexDirection: 'column', marginTop: 15, marginLeft: 5}}>
+          <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 5}}>
             <Text>
-              <Icon style={{fontSize: 16}} name={iconName}/>
+              <Icon style={{fontSize: 20}} name={iconName}/>
               {render_item}
               {info}
               {reset_icon}
@@ -145,15 +153,27 @@ export default class TermsTreeItem extends Component {
           </View>
         );
       } else {
+        const regexVisibleTerm = /(ex-no-potential)/;
+        const isMatchVisibleTerm = liClassName.match(regexVisibleTerm);
         ret = (
-          <View style={{width: deviceWidth, marginLeft: 15, marginTop: 3}}>
-            <Radio checked={state_class === 'ex-on' && ex_no_term !== ''}
-                   onChecked={() => () => this.handleItemPress()}>
-              {render_item}
-              {info}
-              {reset_icon}
-              {render_children}
-            </Radio>
+          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {width: deviceWidth, marginLeft: 15, marginTop: 3}}>
+            {semantic_class === 'ex-xor' ?
+              <Radio checked={state_class === 'ex-on' && ex_no_term !== ''}
+                     onChecked={() => () => this.handleItemPress()}>
+                {render_item}
+                {info}
+                {reset_icon}
+                {render_children}
+              </Radio>
+              :
+              <CheckBox checked={state_class === 'ex-on' && ex_no_term !== ''} style={{marginTop: 2}}
+                     onChecked={() => () => this.handleItemPress()}>
+                {render_item}
+                {info}
+                {reset_icon}
+                {render_children}
+              </CheckBox>
+            }
           </View>
         );
       }

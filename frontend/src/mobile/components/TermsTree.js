@@ -48,11 +48,9 @@ const mapStateToProps = state => ({
   terms: state.terms
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(ActionCreators, dispatch),
-    dispatch: dispatch
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(ActionCreators, dispatch),
+  dispatch: dispatch
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(TermsTree);
