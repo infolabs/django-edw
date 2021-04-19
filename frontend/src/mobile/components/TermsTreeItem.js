@@ -74,26 +74,23 @@ export default class TermsTreeItem extends Component {
         state_class = 'ex-other';
 
       render_item = (
-        <TouchableWithoutFeedback onPress={() => this.handleItemPress()}>
-          <View>
-            <Text style={{fontSize: 16, marginTop: 5}}>
-              {term.name}
-            </Text>
-          </View>
+        <TouchableWithoutFeedback  onPress={() => this.handleItemPress()}>
+          <Text style={{fontSize: 16, marginTop: 3, display: 'flex', flexWrap: 'wrap'}}>
+            {term.name}
+          </Text>
         </TouchableWithoutFeedback>
       );
 
       if (term.semantic_rule === consts.SEMANTIC_RULE_XOR && show_children) {
-        let any_tagged = tagged.isAnyTagged(children),
-          reset_class = any_tagged ? "ex-xor ex-off" : "ex-xor ex-on";
+        let any_tagged = tagged.isAnyTagged(children);
 
         reset_item = () => (
           <TouchableWithoutFeedback onPress={() => this.handleResetItemPress()}>
-            <View className={reset_class} style={{marginLeft: 15, marginTop: 5}}>
-                <Radio checked={state_class === 'ex-on' && ex_no_term === ''}
-                       onChecked={() => this.handleResetItemPress()}>
-                  <Text style={{fontSize: 16}}>Всё</Text>
-                </Radio>
+            <View style={{marginLeft: 10, marginTop: 15, marginBottom: 5}}>
+              <Radio checked={!any_tagged}
+                     onChange={() => this.handleResetItemPress()}>
+                <Text style={{fontSize: 16}}>Всё</Text>
+              </Radio>
             </View>
           </TouchableWithoutFeedback>
         );
@@ -121,10 +118,10 @@ export default class TermsTreeItem extends Component {
     let liClassName = semantic_class + " " + state_class + " ";
     liClassName += ex_no_term;
 
-    let ret = <></>;
+    let ret = null;
 
     if (render_item === "") {
-      ret = <View className="ex-empty">{render_children}</View>;
+      ret = <View>{render_children}</View>;
     } else {
       let iconName = '';
       if (show_children) {
@@ -137,12 +134,12 @@ export default class TermsTreeItem extends Component {
         );
       } else {
         iconName = 'ios-chevron-forward';
-        render_children = <></>;
+        render_children = null;
       }
 
       if (term.structure === 'limb') {
         ret = (
-          <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 5}}>
+          <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 5, paddingRight: 15, width: 250}}>
             <Text>
               <Icon style={{fontSize: 20}} name={iconName}/>
               {render_item}
@@ -156,18 +153,18 @@ export default class TermsTreeItem extends Component {
         const regexVisibleTerm = /(ex-no-potential)/;
         const isMatchVisibleTerm = liClassName.match(regexVisibleTerm);
         ret = (
-          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {width: deviceWidth, marginLeft: 15, marginTop: 3}}>
+          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {marginLeft: 10, marginTop: 2, width: 250}}>
             {semantic_class === 'ex-xor' ?
-              <Radio checked={state_class === 'ex-on' && ex_no_term !== ''}
-                     onChecked={() => () => this.handleItemPress()}>
+              <Radio checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 2}}
+                     onChange={() => this.handleItemPress()}>
                 {render_item}
                 {info}
                 {reset_icon}
                 {render_children}
               </Radio>
               :
-              <CheckBox checked={state_class === 'ex-on' && ex_no_term !== ''} style={{marginTop: 2}}
-                     onChecked={() => () => this.handleItemPress()}>
+              <CheckBox checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 5}}
+                        onChange={() => this.handleItemPress()}>
                 {render_item}
                 {info}
                 {reset_icon}
