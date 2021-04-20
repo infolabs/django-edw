@@ -11,16 +11,32 @@ export default class TermsTreeItem extends Component {
   handleItemPress() {
     const {term, actions} = this.props;
     actions.toggle(term);
+    this.resizeTermsContainer();
   }
 
   handleResetItemPress() {
     const {term, actions} = this.props;
     actions.resetItem(term);
+    this.resizeTermsContainer();
   }
 
   handleResetBranchPress() {
     const {term, actions} = this.props;
     actions.resetBranch(term);
+  }
+
+  // HACK: Для правильного определения высоты нужно переоткрыть ветку термина
+  resizeTermsContainer () {
+    const {actions, term} = this.props;
+    console.log(term);
+    let termParent = term;
+    while (termParent.parent && termParent.parent.id !== null && termParent.parent.structure === 'limb'){
+      termParent = term.parent
+    }
+    actions.toggle(termParent);
+    setTimeout(() => {
+      actions.toggle(termParent);
+    },10);
   }
 
   render() {
@@ -73,23 +89,33 @@ export default class TermsTreeItem extends Component {
         && (tagged.isAnyTagged(siblings)))
         state_class = 'ex-other';
 
+      let fontWeight = state_class === 'ex-on' ? 'bold' : 'normal';
+      const regexVisibleTerm = /(ex-no-real)/;
+      const any_tagged = tagged.isAnyTagged(children);
+      const color = ex_no_term.match(regexVisibleTerm) && !any_tagged ? "#b3b3b3" : "#000";
       render_item = (
         <TouchableWithoutFeedback  onPress={() => this.handleItemPress()}>
-          <Text style={{fontSize: 16, marginTop: 3, display: 'flex', flexWrap: 'wrap'}}>
-            {term.name}
-          </Text>
+          {term.structure === 'limb' ?
+            <Text style={{fontSize: 16, marginTop: 3, display: 'flex', flexWrap: 'wrap', paddingLeft: 5, fontWeight: 'bold'}}>
+              {term.name}
+            </Text>
+            :
+            <Text style={{fontSize: 16, marginTop: 3, display: 'flex', flexWrap: 'wrap', fontWeight, color}}>
+              {term.name}
+            </Text>
+          }
         </TouchableWithoutFeedback>
       );
 
       if (term.semantic_rule === consts.SEMANTIC_RULE_XOR && show_children) {
-        let any_tagged = tagged.isAnyTagged(children);
-
+        const marginLeft = term.structure === 'limb' ? 25 : 0;
+        fontWeight = any_tagged ? 'normal' : 'bold';
         reset_item = () => (
           <TouchableWithoutFeedback onPress={() => this.handleResetItemPress()}>
-            <View style={{marginLeft: 10, marginTop: 15, marginBottom: 5}}>
+            <View style={{marginTop: 10, marginBottom: 5, marginLeft}}>
               <Radio checked={!any_tagged}
                      onChange={() => this.handleResetItemPress()}>
-                <Text style={{fontSize: 16}}>Всё</Text>
+                <Text style={{fontSize: 16, fontWeight}}>Всё</Text>
               </Radio>
             </View>
           </TouchableWithoutFeedback>
@@ -125,7 +151,7 @@ export default class TermsTreeItem extends Component {
     } else {
       let iconName = '';
       if (show_children) {
-        iconName = 'ios-chevron-down';
+        iconName = 'caret-down';
         render_children = (
           <View style={{width: deviceWidth}}>
             {reset_item()}
@@ -133,13 +159,13 @@ export default class TermsTreeItem extends Component {
           </View>
         );
       } else {
-        iconName = 'ios-chevron-forward';
+        iconName = 'caret-forward';
         render_children = null;
       }
 
       if (term.structure === 'limb') {
         ret = (
-          <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 5, paddingRight: 15, width: 250}}>
+          <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 20, width: 250}}>
             <Text>
               <Icon style={{fontSize: 20}} name={iconName}/>
               {render_item}
@@ -152,8 +178,9 @@ export default class TermsTreeItem extends Component {
       } else {
         const regexVisibleTerm = /(ex-no-potential)/;
         const isMatchVisibleTerm = liClassName.match(regexVisibleTerm);
+        const marginLeft = term.parent.structure === 'limb' ? 25 : 0;
         ret = (
-          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {marginLeft: 10, marginTop: 2, width: 250}}>
+          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {marginTop: 2, width: 250, marginLeft}}>
             {semantic_class === 'ex-xor' ?
               <Radio checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 2}}
                      onChange={() => this.handleItemPress()}>
@@ -163,7 +190,7 @@ export default class TermsTreeItem extends Component {
                 {render_children}
               </Radio>
               :
-              <CheckBox checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 5}}
+              <CheckBox checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 7}}
                         onChange={() => this.handleItemPress()}>
                 {render_item}
                 {info}
@@ -175,7 +202,6 @@ export default class TermsTreeItem extends Component {
         );
       }
     }
-
     return ret;
   }
 }

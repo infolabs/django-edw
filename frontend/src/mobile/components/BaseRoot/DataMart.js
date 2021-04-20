@@ -42,6 +42,15 @@ const DataMart = props => {
       fontWeight: 'bold',
       paddingHorizontal: 40,
       textAlign: 'center'
+    },
+    emptyContainerEntities: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 10
+    },
+    emptyContainerEntitiesText: {
+      fontSize: 18
     }
   });
 
@@ -64,6 +73,14 @@ const DataMart = props => {
   const renderBackAction = () => (
     <Icon onPress={() => showFilters(false)} name='close'/>
   );
+
+  if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
+    return (
+      <View style={styles.emptyContainerEntities}>
+        <Text style={styles.emptyContainerEntitiesText}>Нет объектов</Text>
+      </View>
+    );
+  }
 
   return (
     <>
