@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="inline-group" id="entities-group">
+    <div class="inline-related tabular">
+        <fieldset class="module">
+            <h2>{% trans 'Selected' %} {{ opts.verbose_name_plural }} <sup>{% trans 'Count:' %} {{ queryset|length }}</sup></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{{ opts.verbose_name_plural }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {% for obj in queryset|slice:":20" %}
+                                {% if forloop.last %}{% if forloop.counter == 20 %} ... {% endif %}&lt;{% if opts.model_name == 'datamart' %}{{ opts.verbose_name }}{% else %}{{ obj.entity_type }}{% endif %}: {{ obj }}&gt;
+                                {% else %}&lt;{% if opts.model_name == 'datamart' %}{{ opts.verbose_name }}{% else %}{{ obj.entity_type }}{% endif %}: {{ obj }}&gt;, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+            </table>
+        </fieldset>
+    </div>
+</div>

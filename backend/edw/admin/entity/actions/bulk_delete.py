@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from edw.admin.entity.actions.base_entity_action import base_entity_action
+from edw.admin.base_actions import objects_action
 from edw.tasks import entities_bulk_delete
 
 
@@ -17,7 +17,7 @@ def bulk_delete(modeladmin, request, queryset):
 
     title = _("Delete multiple entities with bulk delete")
 
-    return base_entity_action(
+    return objects_action(
         modeladmin, request, queryset, 'bulk_delete', entities_bulk_delete, title, CHUNK_SIZE
     )
 

@@ -44,7 +44,7 @@
                     </fieldset>
                 </div>
             </div>
-            {% include 'edw/admin/entities/actions/_updated_entities.html' %}
+            {% include 'edw/admin/base_actions/_updated_objects.html' %}
 
             {% for obj in queryset %}
                 <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />

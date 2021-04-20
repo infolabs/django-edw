@@ -24,6 +24,8 @@ def normalize_entities_additional_attrs(entities_ids):
         if additional_attrs:
             add_terms_ids = []
             delete_attr_ids = []
+            # todo: требует исправления. Сейчас удалило доп. х-ку, но термин не установило,
+            #  возможно из-за no_external_tagging_restriction. Удалять доп. х-ку можно только если термин установлен.
             for attr in additional_attrs:
                 values_terms_map = {x['name']: x['id'] for x in reversed(
                     attr.term.get_descendants(include_self=False).no_external_tagging_restriction().values('id', 'name'))}

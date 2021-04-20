@@ -1,4 +1,4 @@
-{% extends "edw/admin/entities/actions/_base_change_form.html" %}
+{% extends "edw/admin/base_actions/multiply_objects.html" %}
 {% load i18n l10n static %}
 
 {% block extrahead %}
@@ -6,50 +6,29 @@
     <script src="{% static 'salmonella/js/salmonella.js' %}"></script>
 {% endblock %}
 
-{% block content %}
-    <div class="container-fluid">
-        <form action="" method="post">{% csrf_token %}
-            {% if form.errors %}
-                <p class="errornote">
-                    {% trans "Please correct the errors below." %}
-                </p>
-                {{ form.non_field_errors }}
-            {% endif %}
-            <div class="inline-group" id="relations-group">
-                <div class="inline-related tabular">
-                    <fieldset class="module">
-                        <h2>{% trans 'Make youre choice' %}</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 50%">{{ form.to_set_datamarts.label }}</th>
-                                    <th style="width: 50%">{{ form.to_unset_datamarts.label }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        {{ form.to_set_datamarts }}
-                                    </td>
-                                    <td>
-                                        {{ form.to_unset_datamarts }}
-                                    </td>
-                                </tr>
-                        </table>
-                    </fieldset>
-                </div>
-            </div>
-            {% include 'edw/admin/entities/actions/_updated_entities.html' %}
-
-            {% for obj in queryset %}
-                <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
-            {% endfor %}
-
-            <input type="hidden" name="action" value="update_related_data_marts" />
-            <input type="hidden" name="post" value="yes" />
-
-            {% block submit_buttons_bottom %}{% include 'edw/admin/_submit_row.html' %}{% endblock %}
-
-        </form>
+{% block fieldsets %}
+    <div class="inline-group" id="relations-group">
+        <div class="inline-related tabular">
+            <fieldset class="module">
+                <h2>{% trans 'Make youre choice' %}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50%">{{ form.to_set_datamarts.label }}</th>
+                            <th style="width: 50%">{{ form.to_unset_datamarts.label }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {{ form.to_set_datamarts }}
+                            </td>
+                            <td>
+                                {{ form.to_unset_datamarts }}
+                            </td>
+                        </tr>
+                </table>
+            </fieldset>
+        </div>
     </div>
 {% endblock %}

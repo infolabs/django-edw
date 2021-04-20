@@ -6,7 +6,6 @@ import {bindActionCreators} from "redux"
 import {Text, Button, useTheme} from "@ui-kitten/components"
 import {Icon} from "native-base";
 import platformSettings from "../constants/Platform";
-import Singleton from '../utils/singleton';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -38,25 +37,18 @@ const styles = StyleSheet.create({
   filteredBadgeText: {
     fontSize: 12,
     color: '#fff'
-  }
+  },
 });
 
 const FilterBtn = props => {
-  const {entities, terms, entry_points, entry_point_id} = props;
+  const {entities, entry_points, entry_point_id, showFilters} = props;
   const theme = useTheme();
-
-  const filtered = () => {
-    const instance = Singleton.getInstance(),
-          {navigation} = instance;
-
-    navigation.navigate('Filters', {entry_points, entry_point_id, terms});
-  };
 
   if (!entities.items.meta.count)
     return <></>;
 
   return (
-    <Button onPress={() => filtered()} size='tiny' appearance='ghost' status='basic'>
+    <Button onPress={() => showFilters()} size='tiny' appearance='ghost' status='basic'>
       <View style={styles.filteredView}>
         <Text style={{...styles.filteredText, color: theme['color-default']}}>Фильтры</Text>
         <View>
@@ -71,8 +63,7 @@ const FilterBtn = props => {
 };
 
 const mapStateToProps = state => ({
-  entities: state.entities,
-  terms: state.terms
+  entities: state.entities
 });
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
 

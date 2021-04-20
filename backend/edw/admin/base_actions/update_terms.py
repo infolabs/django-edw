@@ -4,48 +4,40 @@ from __future__ import unicode_literals
 
 from operator import __or__ as OR
 from functools import reduce
-from celery import chain
 
+from django.utils import six
 from django.conf import settings
-from django.template.response import TemplateResponse
-from django.contrib.admin import helpers
-from django.contrib.admin.utils import model_ngettext
-from django.utils.translation import ugettext_lazy as _
 try:
     from django.utils.encoding import force_unicode as force_text
 except ImportError:
     from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
+from django.template.response import TemplateResponse
+from django.contrib.admin import helpers
+from django.contrib.admin.utils import model_ngettext
 
-from edw.models.data_mart import DataMartModel
-from edw.tasks import update_entities_states
-from edw.admin.entity.forms import EntitiesUpdateStateAdminForm
+from celery import chain
+
+from edw.admin.entity.forms import EntitiesUpdateTermsAdminForm
 
 
-def update_states(modeladmin, request, queryset):
+def update_terms(modeladmin, request, queryset, task, template=None):
     """
-    ENG: Update states for multiple entities
-    RUS: Обновляет состояния для нескольких объектов
+    ENG: Update terms for multiple entities
+    RUS: Обновляет термины для нескольких объектов
     """
-    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_STATES_ACTION_CHUNK_SIZE', 100)
-
+    CHUNK_SIZE = getattr(settings, 'EDW_UPDATE_TERMS_ACTION_CHUNK_SIZE', 100)
     opts = modeladmin.model._meta
     app_label = opts.app_label
 
-    try:
-        terms_ids = queryset[0].terms.values_list('id', flat=True)
-    except IndexError:
-        entities_model = DataMartModel.get_base_entity_model()
-    else:
-        entities_model = DataMartModel.get_entities_model(terms_ids)
-
     if request.POST.get('post'):
-        form = EntitiesUpdateStateAdminForm(request.POST, entities_model=entities_model)
+        form = EntitiesUpdateTermsAdminForm(request.POST)
 
         if form.is_valid():
-            state = form.cleaned_data['state']
-
+            to_set = [x.id for x in form.cleaned_data['to_set']]
+            to_unset = [x.id for x in form.cleaned_data['to_unset']]
             n = queryset.count()
-            if n and state:
+            if n and (to_set or to_unset):
                 i = 0
                 tasks = []
                 while i < n:
@@ -53,9 +45,7 @@ def update_states(modeladmin, request, queryset):
                     for obj in chunk:
                         obj_display = force_text(obj)
                         modeladmin.log_change(request, obj, obj_display)
-
-                    tasks.append(update_entities_states.si([x.id for x in chunk], state))
-
+                    tasks.append(task.si([x.id for x in chunk], to_set, to_unset))
                     i += CHUNK_SIZE
 
                 chain(reduce(OR, tasks)).apply_async()
@@ -63,18 +53,18 @@ def update_states(modeladmin, request, queryset):
                 modeladmin.message_user(request, _("Successfully proceed %(count)d %(items)s.") % {
                     "count": n, "items": model_ngettext(modeladmin.opts, n)
                 })
-
             # Return None to display the change list page again.
             return None
+
     else:
-        form = EntitiesUpdateStateAdminForm(entities_model=entities_model)
+        form = EntitiesUpdateTermsAdminForm()
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
     else:
         objects_name = force_text(opts.verbose_name_plural)
 
-    title = _("Update state for multiple entities")
+    title = _("Update terms for multiple entities")
     context = {
         "title": title,
         'form': form,
@@ -84,12 +74,12 @@ def update_states(modeladmin, request, queryset):
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         'media': modeladmin.media,
-        'action': 'update_states',
+        'action': 'update_terms',
     }
     # Display the confirmation page
-    kwargs = {}
-    return TemplateResponse(request, "edw/admin/entities/actions/update_states.html",
+    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
+    return TemplateResponse(request, template if template is not None else "edw/admin/base_actions/update_terms.html",
                             context, **kwargs)
 
 
-update_states.short_description = _("Modify state for selected %(verbose_name_plural)s")
+update_terms.short_description = _("Modify terms for selected %(verbose_name_plural)s")

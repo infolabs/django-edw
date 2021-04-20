@@ -4,19 +4,17 @@ from __future__ import unicode_literals
 
 from operator import __or__ as OR
 from functools import reduce
+from celery import chain
 
-from django.utils import six
 from django.conf import settings
+from django.template.response import TemplateResponse
+from django.contrib.admin import helpers
+from django.contrib.admin.utils import model_ngettext
+from django.utils.translation import ugettext_lazy as _
 try:
     from django.utils.encoding import force_unicode as force_text
 except ImportError:
     from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
-from django.template.response import TemplateResponse
-from django.contrib.admin import helpers
-from django.contrib.admin.utils import model_ngettext
-
-from celery import chain
 
 from edw.admin.entity.forms import EntitiesUpdateActiveAdminForm
 from edw.tasks import update_entities_active
@@ -79,9 +77,10 @@ def update_active(modeladmin, request, queryset):
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         'media': modeladmin.media,
+        'action': 'update_active',
     }
     # Display the confirmation page
-    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
+    kwargs = {}
     return TemplateResponse(request, "edw/admin/entities/actions/update_active.html",
                             context, **kwargs)
 

@@ -11,17 +11,17 @@ import {
 } from './EntityActions';
 
 import {
-    getTermsItem,
-    loadTree,
-    reloadTree,
-    readTree,
-    notifyLoading,
-    toggle,
-    toggleFilters,
-    resetItem,
-    resetBranch,
-    showInfo,
-    hideInfo
+  getTermsItem,
+  loadTree,
+  reloadTree,
+  readTree,
+  notifyLoading,
+  toggle,
+  toggleFilters,
+  resetItem,
+  resetBranch,
+  showInfo,
+  hideInfo
 } from './TermsTreeActions';
 
 export default {
