@@ -6,7 +6,7 @@ from edw.templatetags.edw_tags.common import (
     time, date, split, trim, multiply, divide, minimal, maximal,
     bitwise_and, to_list, zip_lists, append_value, empty_str,
     select_attr, set_attr, select_value, set_value, flatten, union, uniq,
-    intersection
+    intersection, replace_pattern,
 )
 from edw.templatetags.edw_tags.entities import GetEntity, GetEntities
 from edw.templatetags.edw_tags.data_marts import GetDataMart, GetDataMarts
@@ -36,6 +36,7 @@ register.filter(flatten)
 register.filter(union)
 register.filter(uniq)
 register.filter(intersection)
+register.filter(replace_pattern)
 
 register.tag(GetEntity)
 register.tag(GetEntities)
