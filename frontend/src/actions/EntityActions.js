@@ -137,10 +137,13 @@ export function getEntities(mart_id, subj_ids=[], options_obj = {}, options_arr 
             stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
             responseDataMartId = json.results.meta.data_mart.id,
             stateMetaOrdering = stateMeta.ordering,
-            responseMetaOrdering = json.results.meta.ordering;
+            responseMetaOrdering = json.results.meta.ordering,
+            stateMetaViewComponent = stateMeta.view_component,
+            responseMetaViewComponent = json.results.meta.view_component;
 
-      // Если изменилась сортировка, то перезапрос не делаем
-      if (inFetch == 0 && stateMetaOrdering === responseMetaOrdering && stateDataMartId == responseDataMartId && stateRootLength) {
+      // Если изменилась сортировка или вид представления, то перезапрос не делаем
+      if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
+        stateDataMartId === responseDataMartId && stateRootLength) {
         const stateTerms = state.terms.tagged.items,
               responseTerms = json.results.meta.terms_ids;
 
