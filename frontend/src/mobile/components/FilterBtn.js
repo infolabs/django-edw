@@ -44,9 +44,6 @@ const FilterBtn = props => {
   const {entities, entry_points, entry_point_id, showFilters} = props;
   const theme = useTheme();
 
-  if (!entities.items.meta.count)
-    return <></>;
-
   return (
     <Button onPress={() => showFilters()} size='tiny' appearance='ghost' status='basic'>
       <View style={styles.filteredView}>

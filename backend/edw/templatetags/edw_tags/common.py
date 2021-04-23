@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 from datetime import datetime, date as datetime_date
 
 from dateutil.parser import parse as parse_datetime
@@ -176,3 +177,14 @@ def set_value(data, value):
     """{{ request|select_value:'foobar'|set_value:42 }} """
     data['object'][data['key']] = value
     return data['object']
+
+
+def replace_pattern(string, args):
+    '''
+        Use-case: {{ string|replace_pattern:'*Regex*to_replace_with' }}
+        Instead of * - choose separator of choice that does not occur in regex or
+        to_replace_string string
+    '''
+    patt = args.split(args[0])[1]
+    repl = args.split(args[0])[2]
+    return re.sub(patt, repl, string)
