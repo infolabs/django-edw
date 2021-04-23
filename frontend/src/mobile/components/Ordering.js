@@ -7,14 +7,14 @@ import Dropdown from "./Dropdown";
 
 
 const Ordering = props => {
-  const {entry_points, entry_point_id} = props,
-        {dropdowns} = props.entities,
-        {meta} = props.entities.items,
+  const {entry_points, entry_point_id, entities} = props,
+        {dropdowns} = entities,
+        {meta} = entities.items,
         {ordering} = dropdowns;
 
   let request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении сортировки
 
-  if (ordering && Object.keys(ordering.options).length > 1) {
+  if (ordering && Object.keys(ordering.options).length > 1 && meta.count > 1) {
     return (
       <View style={{width: '50%'}}>
         <Dropdown name='ordering'
@@ -28,8 +28,11 @@ const Ordering = props => {
                   options={ordering.options}/>
       </View>
     )
-  } else
-    return null
+  } else {
+    return (
+      <View style={{width: '50%'}}/>
+    )
+  }
 };
 
 
