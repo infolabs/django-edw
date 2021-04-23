@@ -142,10 +142,12 @@ class NERMixin(ModelMixin):
     @property
     def highlighter_context(self):
         result = []
+        _already_append = []
         for span_type in self.ner_data.keys():
             for ner_data_by_type in self.ner_data[span_type]:
                 text = ner_data_by_type['text']
-                if not text in result:
+                if not text in _already_append:
+                    _already_append.append(text)
                     result.append({
                         'text': text,
                         'type': span_type.lower(),
