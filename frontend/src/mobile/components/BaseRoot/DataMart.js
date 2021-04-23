@@ -1,6 +1,6 @@
 import React, {useState, useMemo} from 'react'
 import {View, StyleSheet, Animated, ScrollView} from 'react-native'
-import {Text, TopNavigation, useTheme} from "@ui-kitten/components";
+import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
 import {connect} from 'react-redux'
 import Ordering from "../Ordering"
 import FilterBtn from "../FilterBtn"
@@ -10,6 +10,7 @@ import {bindActionCreators} from "redux"
 import platformSettings from "../../constants/Platform";
 import {Icon} from "native-base";
 import TermsTree from "../TermsTree";
+import getDeclinedName from "../../utils/getDeclinedName";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -98,7 +99,27 @@ const DataMart = props => {
           </Text>}
           accessoryRight={renderBackAction}
         />
-        <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
+        <View style={{height: '75%'}}>
+          <ScrollView>
+            <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
+          </ScrollView>
+        </View>
+        <View style={{
+          position: 'absolute', bottom: 0, height: 150, width: deviceWidth, shadowOffset: {
+            width: 0,
+            height: 2
+          },
+          shadowOpacity: 0.4,
+          shadowRadius: 10, borderTopWidth: 1,
+          borderRadius: 15,
+          borderColor: '#d5d5d5', backgroundColor: "#fff"}}>
+          <Button
+            style={{borderWidth: 0, marginHorizontal: 25, marginTop: 10, borderRadius: 10, backgroundColor: theme['color-primary-400']}}
+            size="giant"
+            onPress={() => showFilters(!visibleFilters)}>
+            {`Показать ${getDeclinedName(entities.items.meta.count)}`}
+          </Button>
+        </View>
       </Animated.View>
     </>
   )
