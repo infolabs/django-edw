@@ -2,8 +2,6 @@
 
 from jsonfield.fields import JSONField
 
-from django.utils.translation import ugettext_lazy as _
-
 from natasha import (
     Segmenter,
     MorphVocab,
@@ -22,6 +20,8 @@ from natasha import (
     ORG
 )
 
+from django.utils.translation import ugettext_lazy as _
+
 from edw.models.mixins import ModelMixin
 from edw.models.mixins.entity.nlp import Doc
 
@@ -33,6 +33,15 @@ class NERMixin(ModelMixin):
     """
 
     EXTRACTED_TYPES = [PER, LOC, ORG, 'DATE', 'MONEY']
+
+    REPLACERS = [
+        ('&nbsp;|&ensp;|&emsp;', ' '),
+        ('«|&laquo;', '\"'),
+        ('»|&raquo;', '\"'),
+        ('&ndash;|&mdash;', '-'),
+        ('&gt;', '>'),
+        ('&lt;', '<'),
+    ]
 
     ner_data = JSONField(verbose_name=_("NER data"), default={},
         help_text=_("Data obtained after recognition of named entities for the given text"))
@@ -75,56 +84,63 @@ class NERMixin(ModelMixin):
         return extractors
 
     @classmethod
-    def init_pipeline_methods(cls):
-        embedding = NewsEmbedding()
-        cls.morph_tagger = NewsMorphTagger(embedding)
-        cls.syntax_parser = NewsSyntaxParser(embedding)
-        cls.ner_tagger = NewsNERTagger(embedding)
+    def get_embedding(cls):
+        embedding = getattr(cls, "_embedding", None)
+        if not embedding:
+            embedding = NewsEmbedding()
+            cls._embedding = embedding
+        return embedding
 
-    @property
-    def doc(self):
-        _doc = Doc(self.get_ner_source())
-        _doc.segment(self.get_segmenter())
-        return _doc
+    @classmethod
+    def get_morph_tagger(cls):
+        morph_tagger = getattr(cls, "_morph_tagger", None)
+        if not morph_tagger:
+            embedding = cls.get_embedding()
+            morph_tagger = NewsMorphTagger(embedding)
+            cls._morph_tagger = morph_tagger
+        return morph_tagger
 
-    def _extract_ner(self):
-        # Init doc object
-        doc = self.doc
+    @classmethod
+    def get_syntax_parser(cls):
+        syntax_parser = getattr(cls, "_syntax_parser", None)
+        if not syntax_parser:
+            embedding = cls.get_embedding()
+            syntax_parser = NewsSyntaxParser(embedding)
+            cls._syntax_parser = syntax_parser
+        return syntax_parser
 
-        # Get morph vocabulary
-        morph_vocab = self.get_morph_vocab()
+    @classmethod
+    def get_ner_tagger(cls):
+        ner_tagger = getattr(cls, "_ner_tagger", None)
+        if not ner_tagger:
+            embedding = cls.get_embedding()
+            ner_tagger = NewsNERTagger(embedding)
+            cls._ner_tagger = ner_tagger
+        return ner_tagger
 
-        # Init taggers and syntax parsers
-        self.init_pipeline_methods()
-
+    @classmethod
+    def _extract_ner(cls, doc, morph_tagger, morph_vocab, syntax_parser, ner_tagger, extractors, extracted_types):
         # Apply morph
-        doc.tag_morph(self.morph_tagger)
-
+        doc.tag_morph(morph_tagger)
         # Lemmatize
         for token in doc.tokens:
             token.lemmatize(morph_vocab)
-
         # Parse syntax
-        doc.parse_syntax(self.syntax_parser)
-
+        doc.parse_syntax(syntax_parser)
         # NER extract
-        doc.tag_ner(self.ner_tagger, extractors=self.get_extractors())
-
+        doc.tag_ner(ner_tagger, extractors=extractors)
         # Normalize data
         if doc.spans:
             for span in doc.spans:
                 span.normalize(morph_vocab)
-
         # Extend person data
         if doc.spans:
             names_extractor = NamesExtractor(morph_vocab)
             for span in doc.spans:
                 if span.type == PER:
                     span.extract_fact(names_extractor)
-
         # Get result
         result = {}
-        extracted_types = self.get_extracted_types()
         for _ in doc.spans:
             span_type = _.type
             if span_type in extracted_types:
@@ -136,8 +152,18 @@ class NERMixin(ModelMixin):
         return result
 
     def extract_ner(self):
-        self.ner_data = self._extract_ner()
-        self.save()
+        doc = Doc(self.get_ner_source())
+        doc.segment(self.get_segmenter())
+
+        morph_tagger = self.get_morph_tagger()
+        morph_vocab = self.get_morph_vocab()
+        syntax_parser = self.get_syntax_parser()
+        ner_tagger = self.get_ner_tagger()
+        extractors = self.get_extractors()
+        extracted_types = self.get_extracted_types()
+
+        self.ner_data = self._extract_ner(doc, morph_tagger, morph_vocab, syntax_parser,
+                                          ner_tagger, extractors, extracted_types)
 
     @property
     def highlighter_context(self):
