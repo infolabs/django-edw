@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
 from jsonfield.fields import JSONField
-
 from natasha import (
     Segmenter,
     MorphVocab,
@@ -34,10 +34,11 @@ class NERMixin(ModelMixin):
 
     EXTRACTED_TYPES = [PER, LOC, ORG, 'DATE', 'MONEY']
 
+    NO_INDEX_TYPES = [PER, 'DATE', 'MONEY']
+
     REPLACERS = [
         ('&nbsp;|&ensp;|&emsp;', ' '),
-        ('«|&laquo;', '\"'),
-        ('»|&raquo;', '\"'),
+        ('&quot;|«|&laquo;|»|&raquo;', '\"'),
         ('&ndash;|&mdash;', '-'),
         ('&gt;', '>'),
         ('&lt;', '<'),
@@ -57,6 +58,10 @@ class NERMixin(ModelMixin):
     @classmethod
     def get_extracted_types(cls):
         return cls.EXTRACTED_TYPES
+
+    @classmethod
+    def get_no_index_types(cls):
+        return cls.NO_INDEX_TYPES
 
     @classmethod
     def get_segmenter(cls):
@@ -179,3 +184,13 @@ class NERMixin(ModelMixin):
                         'type': span_type.lower(),
                     })
         return result
+
+    def cleaned_text_for_index(self):
+        text = self.get_ner_source()
+        for replacer in self.REPLACERS:
+            text = re.sub(replacer[0], replacer[1], text)
+        for span_type in self.ner_data.keys():
+            for ner_data_by_type in self.ner_data[span_type]:
+                if ner_data_by_type['type'] in self.NO_INDEX_TYPES:
+                    text = text.replace(ner_data_by_type['text'], '')
+        return text
