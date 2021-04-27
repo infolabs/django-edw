@@ -94,8 +94,8 @@ export default class TermsTreeItem extends Component {
         );
       }
 
-      if (children.length && !tagged.isAncestorTagged(term) &&
-          tagged.isAnyTagged(children)) {
+      if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children)
+        && term.structure === consts.STRUCTURE_LIMB) {
         reset_icon = (
           <i onClick={e => { ::this.handleResetBranchClick(e) } }
              className="ex-icon-reset"/>
