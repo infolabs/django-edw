@@ -8,8 +8,6 @@ class EntitiesManager {
     this.objects = this.json2objects(json);
     this.meta = this.json2meta(json, request_options);
     this.loading = false;
-    if (json && json.results && json.results.meta)
-      this.component = json.results.meta.view_component;
   }
 
   json2objects(json) {
@@ -139,7 +137,7 @@ class Descriptions {
   }
 
   hide(id) {
-    var ret = this;
+    let ret = this;
     if (this.opened[id]) {
       this.opened = {};
       ret = Object.assign(new Descriptions(), this);
@@ -220,13 +218,29 @@ function descriptions(state = new Descriptions(), action) {
   }
 }
 
+const initialViewComponentState = {
+  data: {},
+  currentView: null
+};
+
+const viewComponents = (state = initialViewComponentState, action) => {
+  switch (action.type) {
+    case consts.SET_DATA_VIEW_COMPONENTS:
+      return {...state, data: action.data};
+    case consts.SET_CURRENT_VIEW:
+      return {...state, currentView: action.currentView};
+    default:
+      return state;
+  }
+};
 
 const entities = combineReducers({
   items,
   dropdowns,
   descriptions,
   loading,
-  loadingItems
+  loadingItems,
+  viewComponents
 });
 
 

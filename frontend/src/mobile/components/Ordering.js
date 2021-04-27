@@ -16,7 +16,6 @@ const Ordering = props => {
 
   if (ordering && Object.keys(ordering.options).length > 1 && meta.count > 1) {
     return (
-      <View style={{width: '50%'}}>
         <Dropdown name='ordering'
                   entry_points={entry_points}
                   entry_point_id={entry_point_id}
@@ -26,13 +25,9 @@ const Ordering = props => {
                   open={ordering.open}
                   selected={ordering.selected}
                   options={ordering.options}/>
-      </View>
-    )
-  } else {
-    return (
-      <View style={{width: '50%'}}/>
     )
   }
+  return <></>
 };
 
 

@@ -435,12 +435,12 @@ const realPotential = (state = new RealPotentialItems({}), action) => {
 };
 
 const terms = combineReducers({
-  tree: tree,
-  details: details,
-  requested: requested,
-  tagged: tagged,
-  expanded: expanded,
-  real_potential: realPotential
+  tree,
+  details,
+  requested,
+  tagged,
+  expanded,
+  realPotential
 });
 
 export default terms;

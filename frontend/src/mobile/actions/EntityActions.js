@@ -1,12 +1,14 @@
 import {
-    LOAD_ENTITY_ITEM,
-    LOAD_ENTITIES,
-    NOTIFY_LOADING_ENTITIES,
-    HIDE_ENTITY_DESC,
-    SHOW_ENTITY_DESC,
-    NOTIFY_LOADING_ENTITIE_ITEM,
-    TOGGLE_DROPDOWN,
-    SELECT_DROPDOWN,
+  LOAD_ENTITY_ITEM,
+  LOAD_ENTITIES,
+  NOTIFY_LOADING_ENTITIES,
+  HIDE_ENTITY_DESC,
+  SHOW_ENTITY_DESC,
+  NOTIFY_LOADING_ENTITIE_ITEM,
+  TOGGLE_DROPDOWN,
+  SELECT_DROPDOWN,
+  SET_DATA_VIEW_COMPONENTS,
+  SET_CURRENT_VIEW
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
@@ -192,4 +194,12 @@ export const selectDropdown = (dropdown_name = "", selected = "") => dispatch =>
 
 export const notifyLoadingEntities = () => dispatch => {
   dispatch({type: NOTIFY_LOADING_ENTITIES});
+};
+
+export const setDataViewComponents = data => dispatch => {
+  dispatch({type: SET_DATA_VIEW_COMPONENTS, data});
+};
+
+export const setCurrentView = currentView => dispatch => {
+  dispatch({type: SET_CURRENT_VIEW, currentView});
 };

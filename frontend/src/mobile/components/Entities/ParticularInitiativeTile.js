@@ -17,16 +17,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   layout: {
-    flex: 1,
-    alignItems: 'center',
     width: deviceWidth,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap'
   },
   cardContainer: {
-    width: '100%',
+    width: deviceWidth/2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
     minHeight: 200,
-    marginHorizontal: 5,
-    marginVertical: 5,
+    marginVertical: 8,
+    marginHorizontal: 8,
     borderRadius: 15,
   },
   cardImageContainer: {
@@ -116,7 +116,12 @@ class ParticularInitiativeTileItem extends Component {
       <Card style={styles.cardContainer} onPress={() => console.log(data.id)}>
         <View style={styles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
-            <Text style={styles.entityNameText}>{data.entity_name}</Text>
+            <Text style={styles.entityNameText}>
+              {data.entity_name.length > 50 ?
+                `${data.entity_name.slice(0, 50)}...`
+                : data.entity_name
+              }
+            </Text>
             {textState ?
               <Badge style={{...styles.badge, backgroundColor: backgroundColorState}}>
                 <Text style={{color: '#fff'}}>{textState}</Text>

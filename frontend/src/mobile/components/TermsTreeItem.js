@@ -31,7 +31,7 @@ export default class TermsTreeItem extends Component {
   resizeTermsContainer () {
     const {actions, term} = this.props;
     let termParent = term;
-    while (termParent.parent && termParent.parent.id !== null && termParent.structure !== 'limb'){
+    while (termParent.parent && termParent.parent.id !== null && termParent.structure !== consts.STRUCTURE_LIMB){
       termParent = termParent.parent
     }
     actions.toggle(termParent);
@@ -43,7 +43,7 @@ export default class TermsTreeItem extends Component {
   render() {
     const {deviceHeight, deviceWidth} = platformSettings;
 
-    const {term, details, actions, tagged, expanded, info_expanded, real_potential} = this.props,
+    const {term, details, actions, tagged, expanded, info_expanded, realPotential} = this.props,
       {children, parent} = term;
 
     let render_item = "",
@@ -59,8 +59,8 @@ export default class TermsTreeItem extends Component {
       show_children = (!is_limb_or_and && is_tagged || is_expanded) && !term.is_leaf;
 
     let ex_no_term = '';
-    if (real_potential.has_metadata && !real_potential.rils[term.id])
-      ex_no_term = !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real ";
+    if (realPotential.has_metadata && !realPotential.rils[term.id])
+      ex_no_term = !realPotential.pots[term.id] ? "ex-no-potential " : "ex-no-real ";
 
     if (term.isVisible()) {
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
@@ -88,7 +88,7 @@ export default class TermsTreeItem extends Component {
         state_class = 'ex-off';
 
       // Если из потомков можно выбрать лишь один элемент (radioButton), то остальные термины в этом дереве делаем неактивными
-      if (rule !== consts.SEMANTIC_RULE_AND && tagged[term.id] !== true && (tagged.isAnyTagged(siblings))) {
+      if (rule !== consts.SEMANTIC_RULE_AND && tagged[term.id] !== true && tagged.isAnyTagged(siblings)) {
         color = "#a9a9a9";
         state_class = 'ex-other';
       }
@@ -96,7 +96,7 @@ export default class TermsTreeItem extends Component {
       let marginLeft = semantic_class === 'ex-and' ? 5 : 0;
       render_item = (
         <TouchableWithoutFeedback  onPress={() => this.handleItemPress()}>
-          {term.structure === 'limb' ?
+          {term.structure === consts.STRUCTURE_LIMB ?
             <Text style={{fontSize: 16, marginTop: 3, display: 'flex', flexWrap: 'wrap', paddingLeft: 5, fontWeight: 'bold'}}>
               {term.name}
             </Text>
@@ -122,7 +122,7 @@ export default class TermsTreeItem extends Component {
         );
       }
 
-      if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children) && semantic_class === 'ex-and') {
+      if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children) && term.structure === consts.STRUCTURE_LIMB) {
         reset_icon = (
           <TouchableWithoutFeedback onPress={() => this.handleResetBranchPress()}>
             <Icon style={{fontSize: 18, fontWeight: 'bold', marginLeft: 5, color: '#2980b9'}} name='md-close-circle'/>
@@ -138,7 +138,7 @@ export default class TermsTreeItem extends Component {
                        tagged={tagged}
                        expanded={expanded}
                        info_expanded={info_expanded}
-                       real_potential={real_potential}
+                       realPotential={realPotential}
                        actions={actions}/>)
     );
 
@@ -165,12 +165,12 @@ export default class TermsTreeItem extends Component {
       }
 
       let marginLeft = 0;
-      if (term.structure === 'limb')
+      if (term.structure === consts.STRUCTURE_LIMB)
         marginLeft = 20;
 
       if (is_limb_or_and) {
         ret = (
-          <TouchableWithoutFeedback onPress={() => this.resizeTermsContainer()}
+          <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
                                     style={{flexDirection: 'column', marginTop: 10, marginLeft, width: 250}}>
             <Text>
               <Icon style={{fontSize: 20, marginRight: 20}} name={iconName}/>
@@ -192,7 +192,6 @@ export default class TermsTreeItem extends Component {
                      onChange={() => this.handleItemPress()}>
                 {render_item}
                 {info}
-                {reset_icon}
                 {render_children}
               </Radio>
               :

@@ -11,13 +11,11 @@ import platformSettings from "../constants/Platform";
 const {deviceHeight, deviceWidth} = platformSettings;
 
 const styles = StyleSheet.create({
-  btnFiltered: {
-    padding: 0
-  },
   filteredView: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
+    justifyContent: 'center'
   },
   filteredText: {
     fontSize: 16,
@@ -37,7 +35,7 @@ const styles = StyleSheet.create({
   filteredBadgeText: {
     fontSize: 12,
     color: '#fff'
-  },
+  }
 });
 
 const FilterBtn = props => {

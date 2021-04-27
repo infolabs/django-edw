@@ -11,6 +11,7 @@ import platformSettings from "../../constants/Platform";
 import {Icon} from "native-base";
 import TermsTree from "../TermsTree";
 import getDeclinedName from "../../utils/getDeclinedName";
+import ViewComponentsBtn from "../ViewComponentsBtn";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -18,18 +19,23 @@ let translateY = deviceHeight;
 
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
+  const {data} = entities.viewComponents;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
 
   const styles = StyleSheet.create({
-    sortAndFilteredView: {
+    headerBtnView: {
       width: deviceWidth,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: 15,
     },
-    termTreeView: {
+    headerBtn: {
+      justifyContent: 'center',
+      height: 50
+    },
+    termTreeAnimatedView: {
       height: deviceHeight,
       width: deviceWidth,
       position: 'absolute',
@@ -37,6 +43,9 @@ const DataMart = props => {
       transform: [{translateY: animateTranslateY}],
       bottom: 0,
       zIndex: 4,
+    },
+    termsTreeView: {
+      height: '75%'
     },
     termTreeViewTitle: {
       fontSize: 18,
@@ -52,6 +61,28 @@ const DataMart = props => {
     },
     emptyContainerEntitiesText: {
       fontSize: 18
+    },
+    showObjectsBtnView: {
+      position: 'absolute',
+      bottom: 0,
+      height: 150,
+      width: deviceWidth,
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      shadowOpacity: 0.4,
+      shadowRadius: 10,
+      borderTopWidth: 1,
+      borderRadius: 15,
+      borderColor: '#d5d5d5',
+      backgroundColor: "#fff"
+    },
+    showObjectsBtn: {
+      borderWidth: 0,
+      marginHorizontal: 25,
+      marginTop: 10,
+      borderRadius: 10
     }
   });
 
@@ -83,15 +114,27 @@ const DataMart = props => {
     );
   }
 
+  const widthHeaderBtn = Object.keys(data).length > 1 ? '33%' : '50%';
+
   return (
     <>
-      <View style={styles.sortAndFilteredView}>
-        <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
-        <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
-                   showFilters={() => showFilters(!visibleFilters)}/>
+      <View style={styles.headerBtnView}>
+        <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
+          <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
+        </View>
+        <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
+          <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
+                     showFilters={() => showFilters(!visibleFilters)}/>
+        </View>
+        {Object.keys(data).length > 1 ?
+          <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
+            <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
+          </View>
+          : null
+        }
       </View>
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
-      <Animated.View style={styles.termTreeView}>
+      <Animated.View style={styles.termTreeAnimatedView}>
         <TopNavigation
           alignment='center'
           title={() => <Text style={{...styles.termTreeViewTitle, backgroundColor: theme['background-color-default']}}>
@@ -99,22 +142,14 @@ const DataMart = props => {
           </Text>}
           accessoryRight={renderBackAction}
         />
-        <View style={{height: '75%'}}>
+        <View style={styles.termsTreeView}>
           <ScrollView>
             <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
           </ScrollView>
         </View>
-        <View style={{
-          position: 'absolute', bottom: 0, height: 150, width: deviceWidth, shadowOffset: {
-            width: 0,
-            height: 2
-          },
-          shadowOpacity: 0.4,
-          shadowRadius: 10, borderTopWidth: 1,
-          borderRadius: 15,
-          borderColor: '#d5d5d5', backgroundColor: "#fff"}}>
+        <View style={styles.showObjectsBtnView}>
           <Button
-            style={{borderWidth: 0, marginHorizontal: 25, marginTop: 10, borderRadius: 10, backgroundColor: theme['color-primary-400']}}
+            style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
             size="giant"
             onPress={() => showFilters(!visibleFilters)}>
             {`Показать ${getDeclinedName(entities.items.meta.count)}`}

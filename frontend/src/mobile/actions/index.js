@@ -7,7 +7,9 @@ import {
   showDescription,
   hideDescription,
   toggleDropdown,
-  selectDropdown
+  selectDropdown,
+  setDataViewComponents,
+  setCurrentView
 } from './EntityActions';
 
 import {
@@ -44,5 +46,7 @@ export default {
   resetItem,
   resetBranch,
   showInfo,
-  hideInfo
+  hideInfo,
+  setDataViewComponents,
+  setCurrentView
 }

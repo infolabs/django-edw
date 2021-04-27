@@ -74,7 +74,7 @@ class TermsTree extends Component {
       expanded = terms.expanded,
       info_expanded = terms.info_expanded,
       loading = terms.tree.loading,
-      real_potential = terms.real_potential;
+      realPotential = terms.realPotential;
 
     return term ? (
         <TermsTreeItem key={term.id}
@@ -83,7 +83,7 @@ class TermsTree extends Component {
                        tagged={tagged}
                        expanded={expanded}
                        info_expanded={info_expanded}
-                       real_potential={real_potential}
+                       realPotential={realPotential}
                        actions={actions}/>
       )
       : null

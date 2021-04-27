@@ -4,26 +4,36 @@ import React, { Component } from 'react';
 import {View, StyleSheet} from 'react-native'
 // import cookie from 'react-cookies';
 import Tile from './BaseEntities/Tile';
+import List from './BaseEntities/List';
 import parseRequestParams from '../utils/parseRequestParams';
 // import cookieKey from "../utils/hashUtils";
 import ActionCreators from "../actions";
 import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
+import ParticularInitiativeList from "./Entities/ParticularInitiativeList";
 import ParticularProblemTile from "./Entities/ParticularProblemTile";
+import ParticularProblemList from "./Entities/ParticularProblemList";
 import Spinner from 'react-native-loading-spinner-overlay';
 import platformSettings from "../constants/Platform";
 
 
 class BaseEntities extends Component {
 
-  state = {
-    initialized: false
-  };
+  constructor() {
+    super();
+    this.state = {
+      initialized: false,
+      componentName: null
+    };
+  }
 
   static getTemplates() {
     return {
       "tile": Tile,
+      "list": List,
       "particular_initiative_tile": ParticularInitiativeTile,
-      "particular_problem_tile": ParticularProblemTile
+      "particular_initiative_list": ParticularInitiativeList,
+      "particular_problem_tile": ParticularProblemTile,
+      "particular_problem_list": ParticularProblemList
     };
   }
 
@@ -54,11 +64,11 @@ class BaseEntities extends Component {
     const { entry_points, entry_point_id } = this.props,
           request_params = entry_points[entry_point_id].request_params || [];
 
-    const parms = parseRequestParams(request_params),
-          term_ids = parms.term_ids,
-          subj_ids = parms.subj_ids,
-          limit = parms.limit,
-          options_arr = parms.options_arr;
+    const params = parseRequestParams(request_params),
+          term_ids = params.term_ids,
+          subj_ids = params.subj_ids,
+          limit = params.limit,
+          options_arr = params.options_arr;
 
     let request_options = this.props.entities.items.meta.request_options;
 
@@ -76,10 +86,59 @@ class BaseEntities extends Component {
     this.props.readEntities(
       entry_point_id, subj_ids, request_options, options_arr
     );
+
+    this.setComponentName();
+  }
+
+  componentDidUpdate() {
+    this.setComponentName();
+    const currentView = this.props.entities.viewComponents.currentView;
+    if (this.state.componentName !== currentView) {
+      this.setState({
+        componentName: currentView
+      })
+    }
+  }
+
+  setComponentName(){
+    const {entities} = this.props,
+          meta = entities.items.meta;
+
+    if (!this.state.componentName && meta.data_mart && meta.data_mart.view_components) {
+      // Получаем все компоненты витрины данных
+      let viewComponents = Object.keys(meta.data_mart.view_components);
+
+      // Вычисляем список ключей компонентов, которые пересекаются c API и getTemplates
+      let viewComponentsMobile = [];
+      viewComponents.map(item => {
+        if (this.props.getTemplates().hasOwnProperty(item))
+          viewComponentsMobile.push(item)
+      });
+
+      const dataViewComponent = {};
+      viewComponentsMobile.map(component => {
+        dataViewComponent[component] = meta.data_mart.view_components[component]
+      });
+
+      this.props.setDataViewComponents(dataViewComponent);
+
+      if (viewComponentsMobile.length) {
+        const componentName = viewComponentsMobile[0];
+        this.setState({
+          componentName
+        });
+        this.props.setCurrentView(componentName)
+      }
+    }
   }
 
   render() {
     const {entities, entry_points, entry_point_id} = this.props;
+
+    const items = entities.items.objects || [],
+          loading = entities.items.loading,
+          descriptions = entities.descriptions,
+          meta = entities.items.meta;
 
     const {deviceHeight, deviceWidth} = platformSettings;
     const styles = StyleSheet.create({
@@ -91,24 +150,11 @@ class BaseEntities extends Component {
       }
     });
 
-    const items = entities.items.objects || [],
-          loading = entities.items.loading,
-          descriptions = entities.descriptions,
-          meta = entities.items.meta;
-
-    // set the first available component if the requested one isn't in the list
-    let component_name = entities.items.component;
-    if (meta.data_mart && meta.data_mart.view_components) {
-      let view_components = Object.keys(meta.data_mart.view_components);
-      if (view_components.length && view_components.indexOf(component_name) < 0)
-        component_name = view_components[0];
-    }
-
-    if (component_name) {
+    if (this.state.componentName) {
       if (!this.templates)
         this.templates = this.props.getTemplates();
 
-      const component = this.templates[component_name] || this.templates['tile'];
+      const component = this.templates[this.state.componentName] || this.templates['list'];
       return(React.createElement(
         component, {
           items: items,

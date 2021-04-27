@@ -60,17 +60,15 @@ const Dropdown = props => {
   );
 
   return (
-    <View style={{height:50}}>
-      <OverflowMenu
-        anchor={renderToggleButton}
-        visible={visible}
-        onSelect={handleSelectedClick}
-        onBackdropPress={() => setVisible(false)}>
-        {Object.keys(opts).map((item, key) =>
-          <MenuItem key={key} title={opts[item]} onPress={() => handleOptionClick(item)}/>
-        )}
-      </OverflowMenu>
-    </View>
+    <OverflowMenu
+      anchor={renderToggleButton}
+      visible={visible}
+      onSelect={handleSelectedClick}
+      onBackdropPress={() => setVisible(false)}>
+      {Object.keys(opts).map((item, key) =>
+        <MenuItem key={key} title={opts[item]} onPress={() => handleOptionClick(item)}/>
+      )}
+    </OverflowMenu>
   )
 };
 

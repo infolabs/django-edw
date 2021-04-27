@@ -16,16 +16,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   layout: {
+    flex: 1,
+    alignItems: 'center',
     width: deviceWidth,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    flexWrap: 'wrap'
+    paddingHorizontal: 16,
   },
   cardContainer: {
-    width: deviceWidth/2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
+    width: '100%',
     minHeight: 200,
-    marginVertical: 8,
-    marginHorizontal: 8,
+    marginHorizontal: 5,
+    marginVertical: 5,
     borderRadius: 15,
   },
   cardImageContainer: {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Tile extends Component {
+export default class List extends Component {
   render() {
     const {items, loading} = this.props;
     const instance = Singleton.getInstance();
@@ -63,7 +63,7 @@ export default class Tile extends Component {
         <ScrollView>
           <Layout style={styles.layout}>
             {items.map(
-              (child, i) => <TileItem key={i} data={child} domain={instance.Domain}/>
+              (child, i) => <ListItem key={i} data={child} domain={instance.Domain}/>
             )}
           </Layout>
         </ScrollView>
@@ -72,7 +72,7 @@ export default class Tile extends Component {
   }
 }
 
-class TileItem extends Component {
+class ListItem extends Component {
   render(){
     const {data, domain} = this.props;
 
@@ -83,12 +83,7 @@ class TileItem extends Component {
       <Card style={styles.cardContainer}>
         <View style={styles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
-            <Text style={styles.entityNameText}>
-              {data.entity_name.length > 50 ?
-                `${data.entity_name.slice(0, 50)}...`
-                : data.entity_name
-              }
-            </Text>
+            <Text style={styles.entityNameText}>{data.entity_name}</Text>
           </ImageBackground>
         </View>
       </Card>
