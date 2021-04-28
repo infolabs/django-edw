@@ -173,7 +173,7 @@ export default class TermsTreeItem extends Component {
           <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
                                     style={{flexDirection: 'column', marginTop: 10, marginLeft, width: 250}}>
             <Text>
-              <Icon style={{fontSize: 20, marginRight: 20}} name={iconName}/>
+              <Icon style={{fontSize: 22, marginRight: 20}} name={iconName}/>
               {render_item}
               {info}
               {reset_icon}

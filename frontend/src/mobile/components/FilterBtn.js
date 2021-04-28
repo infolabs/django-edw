@@ -12,28 +12,21 @@ const {deviceHeight, deviceWidth} = platformSettings;
 
 const styles = StyleSheet.create({
   filteredView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-    justifyContent: 'center'
-  },
-  filteredText: {
-    fontSize: 16,
-    marginRight: 10
+    paddingTop: 3
   },
   filteredBadge: {
-    width: 15,
-    height: 15,
+    width: 12,
+    height: 12,
     backgroundColor: 'blue',
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    top: -2,
-    right: -5
+    top: 0,
+    right: -3
   },
   filteredBadgeText: {
-    fontSize: 12,
+    fontSize: 9,
     color: '#fff'
   }
 });
@@ -45,12 +38,9 @@ const FilterBtn = props => {
   return (
     <Button onPress={() => showFilters()} size='tiny' appearance='ghost' status='basic'>
       <View style={styles.filteredView}>
-        <Text style={{...styles.filteredText, color: theme['color-default']}}>Фильтры</Text>
-        <View>
-          <Icon name='filter-outline'/>
-          <View style={{...styles.filteredBadge, backgroundColor: theme['color-primary-500']}}>
-            <Text style={styles.filteredBadgeText}>1</Text>
-          </View>
+        <Icon name='funnel-outline' style={{fontSize: theme['icon-size']}}/>
+        <View style={{...styles.filteredBadge, backgroundColor: theme['color-primary-500']}}>
+          <Text style={styles.filteredBadgeText}>1</Text>
         </View>
       </View>
     </Button>

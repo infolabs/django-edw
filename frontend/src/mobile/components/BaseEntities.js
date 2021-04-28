@@ -21,8 +21,7 @@ class BaseEntities extends Component {
   constructor() {
     super();
     this.state = {
-      initialized: false,
-      componentName: null
+      initialized: false
     };
   }
 
@@ -92,19 +91,13 @@ class BaseEntities extends Component {
 
   componentDidUpdate() {
     this.setComponentName();
-    const currentView = this.props.entities.viewComponents.currentView;
-    if (this.state.componentName !== currentView) {
-      this.setState({
-        componentName: currentView
-      })
-    }
   }
 
   setComponentName(){
     const {entities} = this.props,
           meta = entities.items.meta;
 
-    if (!this.state.componentName && meta.data_mart && meta.data_mart.view_components) {
+    if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
       // Получаем все компоненты витрины данных
       let viewComponents = Object.keys(meta.data_mart.view_components);
 
@@ -124,9 +117,6 @@ class BaseEntities extends Component {
 
       if (viewComponentsMobile.length) {
         const componentName = viewComponentsMobile[0];
-        this.setState({
-          componentName
-        });
         this.props.setCurrentView(componentName)
       }
     }
@@ -140,6 +130,8 @@ class BaseEntities extends Component {
           descriptions = entities.descriptions,
           meta = entities.items.meta;
 
+    const componentName = entities.viewComponents.currentView || null;
+
     const {deviceHeight, deviceWidth} = platformSettings;
     const styles = StyleSheet.create({
       spinnerContainer: {
@@ -150,11 +142,11 @@ class BaseEntities extends Component {
       }
     });
 
-    if (this.state.componentName) {
+    if (componentName) {
       if (!this.templates)
         this.templates = this.props.getTemplates();
 
-      const component = this.templates[this.state.componentName] || this.templates['list'];
+      const component = this.templates[componentName] || this.templates['list'];
       return(React.createElement(
         component, {
           items: items,

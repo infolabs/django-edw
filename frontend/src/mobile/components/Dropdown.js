@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View} from 'react-native';
-import {OverflowMenu, MenuItem, Text, Button} from '@ui-kitten/components'
+import {OverflowMenu, MenuItem, Text, Button, useTheme} from '@ui-kitten/components'
 import {Icon} from "native-base"
 import {StyleSheet} from 'react-native'
 import ActionCreators from "../actions";
@@ -8,9 +8,22 @@ import {connect} from 'react-redux'
 import {bindActionCreators} from "redux"
 
 
+const styles = StyleSheet.create({
+  button: {
+    justifyContent: 'flex-start'
+  },
+  sortView: {
+    flexDirection: 'row'
+  },
+  sortText: {
+    fontSize: 16
+  }
+});
+
 const Dropdown = props => {
   const {selected, options, open} = props;
   const [visible, setVisible] = useState(false);
+  const theme = useTheme();
 
   const fixOffset = (options = {}) => {
     const total = props.count,
@@ -51,10 +64,10 @@ const Dropdown = props => {
   }
 
   const renderToggleButton = () => (
-    <Button onPress={() => setVisible(true)} size='large' appearance='ghost' status='basic'>
+    <Button onPress={() => setVisible(true)} style={styles.button} size='large' appearance='ghost' status='basic'>
       <View style={styles.sortView}>
         <Text style={styles.sortText}>{selected}</Text>
-        <Icon name='chevron-down-outline' style={styles.sortIcon}/>
+        <Icon name='chevron-down-outline' style={{fontSize: theme['icon-size']}}/>
       </View>
     </Button>
   );
@@ -71,20 +84,6 @@ const Dropdown = props => {
     </OverflowMenu>
   )
 };
-
-const styles = StyleSheet.create({
-  sortView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sortText: {
-    fontSize: 16,
-    marginRight: 5
-  },
-  sortIcon: {
-    fontSize: 18,
-  }
-});
 
 const mapStateToProps = state => ({
   entities: state.entities

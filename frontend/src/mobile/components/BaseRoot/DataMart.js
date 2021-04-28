@@ -32,8 +32,22 @@ const DataMart = props => {
       paddingHorizontal: 15,
     },
     headerBtn: {
-      justifyContent: 'center',
       height: 50
+    },
+    orderingView: {
+      width: '40%',
+      marginRight: '30%',
+    },
+    textDelimiter: {
+      width: 1,
+      height: 18,
+      backgroundColor: '#b4b4b4'
+    },
+    viewAndFilteredIcon: {
+      width: 100,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center'
     },
     termTreeAnimatedView: {
       height: deviceHeight,
@@ -42,10 +56,10 @@ const DataMart = props => {
       backgroundColor: '#fff',
       transform: [{translateY: animateTranslateY}],
       bottom: 0,
-      zIndex: 4,
+      zIndex: 4
     },
     termsTreeView: {
-      height: '75%'
+      height: '100%',
     },
     termTreeViewTitle: {
       fontSize: 18,
@@ -65,7 +79,7 @@ const DataMart = props => {
     showObjectsBtnView: {
       position: 'absolute',
       bottom: 0,
-      height: 150,
+      height: 120,
       width: deviceWidth,
       shadowOffset: {
         width: 0,
@@ -83,6 +97,9 @@ const DataMart = props => {
       marginHorizontal: 25,
       marginTop: 10,
       borderRadius: 10
+    },
+    emptyView: {
+      height: 200
     }
   });
 
@@ -96,7 +113,7 @@ const DataMart = props => {
 
   const showFilters = visible => {
     setVisibleFilters(visible);
-    translateY = visible ? 50 : deviceHeight;
+    translateY = visible ? 30 : deviceHeight;
   };
 
   const theme = useTheme();
@@ -114,24 +131,29 @@ const DataMart = props => {
     );
   }
 
-  const widthHeaderBtn = Object.keys(data).length > 1 ? '33%' : '50%';
-
   return (
     <>
       <View style={styles.headerBtnView}>
-        <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
+        <View style={{...styles.headerBtn, ...styles.orderingView}}>
           <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
         </View>
-        <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
-          <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
-                     showFilters={() => showFilters(!visibleFilters)}/>
-        </View>
-        {Object.keys(data).length > 1 ?
-          <View style={{...styles.headerBtn, width: widthHeaderBtn}}>
-            <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
+        <View style={{...styles.headerBtn, ...styles.viewAndFilteredIcon}}>
+          {Object.keys(data).length > 1 ?
+            <>
+              <View style={{}}>
+                <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
+              </View>
+              <View>
+                <Text style={styles.textDelimiter}/>
+              </View>
+            </>
+            : null
+          }
+          <View style={{}}>
+            <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
+              showFilters={() => showFilters(!visibleFilters)}/>
           </View>
-          : null
-        }
+        </View>
       </View>
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
       <Animated.View style={styles.termTreeAnimatedView}>
@@ -145,6 +167,8 @@ const DataMart = props => {
         <View style={styles.termsTreeView}>
           <ScrollView>
             <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
+            {/*HACK: Чтобы добавить место в конце ScrollView нужно добавить пустой View*/}
+            <View style={styles.emptyView}/>
           </ScrollView>
         </View>
         <View style={styles.showObjectsBtnView}>

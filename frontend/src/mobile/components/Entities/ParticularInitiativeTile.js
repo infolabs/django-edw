@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: deviceWidth/2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
-    minHeight: 200,
+    minHeight: 260,
     marginVertical: 8,
     marginHorizontal: 8,
     borderRadius: 15,
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,
-    height: 200,
+    height: 260,
   },
   entityNameText: {
     color: '#fff',
@@ -44,7 +44,9 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    fontSize: 20
+    fontSize: 18,
+    textShadowColor: '#333',
+    textShadowRadius: 5
   },
   badge: {
     position: 'absolute',
@@ -92,7 +94,7 @@ class ParticularInitiativeTileItem extends Component {
 
     short_marks.map(mark => {
       if (mark.name === "Состояние"){
-        textState = mark.values;
+        textState = mark.values[0];
         mark.view_class.map(item => {
           if(item.startsWith('pin-color-'))
             backgroundColorState = `#${item.replace('pin-color-','')}`;
@@ -103,7 +105,7 @@ class ParticularInitiativeTileItem extends Component {
     if (!textState){
       short_marks.map(mark => {
         if (mark.name === "Системное состояние") {
-          textState = mark.values;
+          textState = mark.values[0];
           mark.view_class.map(item => {
             if (item.startsWith('pin-color-'))
               backgroundColorState = `#${item.replace('pin-color-', '')}`;
@@ -117,14 +119,19 @@ class ParticularInitiativeTileItem extends Component {
         <View style={styles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
             <Text style={styles.entityNameText}>
-              {data.entity_name.length > 50 ?
-                `${data.entity_name.slice(0, 50)}...`
+              {data.entity_name.length > 90 ?
+                `${data.entity_name.slice(0, 90)}...`
                 : data.entity_name
               }
             </Text>
             {textState ?
               <Badge style={{...styles.badge, backgroundColor: backgroundColorState}}>
-                <Text style={{color: '#fff'}}>{textState}</Text>
+                <Text style={{color: '#fff'}}>
+                  {textState.length > 12 ?
+                    `${textState.slice(0, 12)}...`
+                    : textState
+                  }
+                </Text>
               </Badge>
               : null
             }
