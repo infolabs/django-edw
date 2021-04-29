@@ -1,5 +1,5 @@
 import React, {useState, useMemo} from 'react'
-import {View, StyleSheet, Animated, ScrollView} from 'react-native'
+import {View, Animated, ScrollView} from 'react-native'
 import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
 import {connect} from 'react-redux'
 import Ordering from "../Ordering"
@@ -12,6 +12,7 @@ import {Icon} from "native-base";
 import TermsTree from "../TermsTree";
 import getDeclinedName from "../../utils/getDeclinedName";
 import ViewComponentsBtn from "../ViewComponentsBtn";
+import {dataMartStyles as styles} from "../../styles/dataMarts";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -19,89 +20,9 @@ let translateY = deviceHeight;
 
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
-  const {data} = entities.viewComponents;
+  const {viewComponents} = entities;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
-
-  const styles = StyleSheet.create({
-    headerBtnView: {
-      width: deviceWidth,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 15,
-    },
-    headerBtn: {
-      height: 50
-    },
-    orderingView: {
-      width: '40%',
-      marginRight: '30%',
-    },
-    textDelimiter: {
-      width: 1,
-      height: 18,
-      backgroundColor: '#b4b4b4'
-    },
-    viewAndFilteredIcon: {
-      width: 100,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    termTreeAnimatedView: {
-      height: deviceHeight,
-      width: deviceWidth,
-      position: 'absolute',
-      backgroundColor: '#fff',
-      transform: [{translateY: animateTranslateY}],
-      bottom: 0,
-      zIndex: 4
-    },
-    termsTreeView: {
-      height: '100%',
-    },
-    termTreeViewTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      paddingHorizontal: 40,
-      textAlign: 'center'
-    },
-    emptyContainerEntities: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 10
-    },
-    emptyContainerEntitiesText: {
-      fontSize: 18
-    },
-    showObjectsBtnView: {
-      position: 'absolute',
-      bottom: 0,
-      height: 120,
-      width: deviceWidth,
-      shadowOffset: {
-        width: 0,
-        height: 2
-      },
-      shadowOpacity: 0.4,
-      shadowRadius: 10,
-      borderTopWidth: 1,
-      borderRadius: 15,
-      borderColor: '#d5d5d5',
-      backgroundColor: "#fff"
-    },
-    showObjectsBtn: {
-      borderWidth: 0,
-      marginHorizontal: 25,
-      marginTop: 10,
-      borderRadius: 10
-    },
-    emptyView: {
-      height: 200
-    }
-  });
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
@@ -131,6 +52,9 @@ const DataMart = props => {
     );
   }
 
+  const visibleFiltersBtn = terms.tree.json.length && (entities.items.objects.length || (terms.tagged.items
+    && terms.tagged.items.length));
+
   return (
     <>
       <View style={styles.headerBtnView}>
@@ -138,25 +62,24 @@ const DataMart = props => {
           <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
         </View>
         <View style={{...styles.headerBtn, ...styles.viewAndFilteredIcon}}>
-          {Object.keys(data).length > 1 ?
+          {Object.keys(viewComponents.data).length > 1 ?
             <>
-              <View style={{}}>
-                <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
-              </View>
+              <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
               <View>
                 <Text style={styles.textDelimiter}/>
               </View>
             </>
             : null
           }
-          <View style={{}}>
+          {visibleFiltersBtn  ?
             <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
-              showFilters={() => showFilters(!visibleFilters)}/>
-          </View>
+                       showFilters={() => showFilters(!visibleFilters)}/>
+            : null
+          }
         </View>
       </View>
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
-      <Animated.View style={styles.termTreeAnimatedView}>
+      <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY}]}}>
         <TopNavigation
           alignment='center'
           title={() => <Text style={{...styles.termTreeViewTitle, backgroundColor: theme['background-color-default']}}>

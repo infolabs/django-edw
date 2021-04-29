@@ -29,6 +29,18 @@ class TermsTree extends Component {
 
     this.props.actions.notifyLoading();
     this.props.actions.readTree(entry_point_id, term_ids);
+
+    const tagged = this.props.terms.tagged,
+      termsIdsStructureIsLimb = this.props.terms.tree.termsIdsStructureIsLimb;
+
+    let countTaggedBranch = 0;
+
+    tagged.items.map(item => {
+      if (termsIdsStructureIsLimb.includes(item))
+        countTaggedBranch++;
+    });
+
+    this.props.actions.setCountTaggedBranch(countTaggedBranch);
   }
 
   componentDidUpdate(prevProps) {
@@ -37,6 +49,7 @@ class TermsTree extends Component {
       request_params = entry_points[entry_point_id.toString()].request_params || [],
       tagged_current = prevProps.terms.tagged,
       tagged_next = this.props.terms.tagged,
+      termsIdsStructureIsLimb = this.props.terms.tree.termsIdsStructureIsLimb,
       meta = prevProps.entities.items.meta;
 
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
@@ -64,6 +77,15 @@ class TermsTree extends Component {
         );
       }
     }
+
+    let countTaggedBranch = 0;
+
+    tagged_next.items.map(item => {
+      if (termsIdsStructureIsLimb.includes(item))
+        countTaggedBranch++;
+    });
+
+    this.props.actions.setCountTaggedBranch(countTaggedBranch);
   }
 
   render() {

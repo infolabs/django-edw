@@ -7,6 +7,7 @@ class Tree {
   constructor(json) {
     this.json = json;
     this.hash = {};
+    this.termsIdsStructureIsLimb = [];
     this.root = this.json2tree(json);
     this.loading = false;
   }
@@ -26,9 +27,10 @@ class Tree {
 
   // Строим тематическое дерево
   json2tree(json, parent) {
-    if (!parent) {
+    if (!this.termsIdsStructureIsLimb)
+      this.termsIdsStructureIsLimb = [];
+    if (!parent)
       parent = new Item();
-    }
     let n = 0;
     for (const child of json) {
       // increment selected children count
@@ -49,6 +51,8 @@ class Tree {
       let item = new Item(options);
       this.hash[item.id] = item;
       item.children = this.json2tree(child.children, item).children;
+      if (item.structure === consts.STRUCTURE_LIMB)
+        this.termsIdsStructureIsLimb.push(item.id);
       parent.children.push(item);
     }
     // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
@@ -434,13 +438,23 @@ const realPotential = (state = new RealPotentialItems({}), action) => {
   }
 };
 
+const countTaggedBranch = (state = 0, action) => {
+  switch (action.type) {
+    case consts.SET_COUNT_TAGGED_BRANCH:
+      return action.count;
+    default:
+      return state;
+  }
+};
+
 const terms = combineReducers({
   tree,
   details,
   requested,
   tagged,
   expanded,
-  realPotential
+  realPotential,
+  countTaggedBranch
 });
 
 export default terms;

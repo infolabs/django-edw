@@ -1,19 +1,17 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import {View, StyleSheet} from 'react-native'
-// import cookie from 'react-cookies';
+import {View} from 'react-native'
 import Tile from './BaseEntities/Tile';
 import List from './BaseEntities/List';
 import parseRequestParams from '../utils/parseRequestParams';
-// import cookieKey from "../utils/hashUtils";
 import ActionCreators from "../actions";
 import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
 import ParticularInitiativeList from "./Entities/ParticularInitiativeList";
 import ParticularProblemTile from "./Entities/ParticularProblemTile";
 import ParticularProblemList from "./Entities/ParticularProblemList";
 import Spinner from 'react-native-loading-spinner-overlay';
-import platformSettings from "../constants/Platform";
+import {baseEntitiesStyles as styles} from "../styles/baseEntities";
 
 
 class BaseEntities extends Component {
@@ -40,23 +38,6 @@ class BaseEntities extends Component {
     getTemplates: BaseEntities.getTemplates
   };
 
-  // getCookiePreferences() {
-  //   const entry_point_id = this.props.entry_point_id,
-  //         cookie_data = cookie.loadAll(),
-  //         prefix = cookieKey(entry_point_id, document.location.pathname, '');
-  //
-  //   let preferences = {};
-  //
-  //   for (const k of Object.keys(cookie_data)) {
-  //     if (k.startsWith(prefix)) {
-  //       const meta_key = k.slice(prefix.length);
-  //       preferences[meta_key] = decodeURI(cookie_data[k]);
-  //     }
-  //   }
-  //
-  //   return preferences;
-  // }
-
   componentDidMount() {
     this.templates = this.props.getTemplates();
 
@@ -76,9 +57,6 @@ class BaseEntities extends Component {
 
     if (term_ids.length)
       request_options['terms'] = term_ids;
-
-    // let preferences = this.getCookiePreferences();
-    // request_options = Object.assign(request_options, preferences);
 
     this.props.notifyLoadingEntities();
 
@@ -126,21 +104,9 @@ class BaseEntities extends Component {
     const {entities, entry_points, entry_point_id} = this.props;
 
     const items = entities.items.objects || [],
-          loading = entities.items.loading,
-          descriptions = entities.descriptions,
-          meta = entities.items.meta;
+      {loading, meta} = entities.items;
 
     const componentName = entities.viewComponents.currentView || null;
-
-    const {deviceHeight, deviceWidth} = platformSettings;
-    const styles = StyleSheet.create({
-      spinnerContainer: {
-        height: deviceHeight,
-        width: deviceWidth,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }
-    });
 
     if (componentName) {
       if (!this.templates)
@@ -149,11 +115,12 @@ class BaseEntities extends Component {
       const component = this.templates[componentName] || this.templates['list'];
       return(React.createElement(
         component, {
-          items: items,
-          meta: meta,
-          loading: loading,
-          descriptions: descriptions,
-          data_mart: entry_points[entry_point_id]
+          items,
+          meta,
+          loading,
+          entry_point_id,
+          notifyLoadingEntities: this.props.notifyLoadingEntities,
+          getEntities: this.props.getEntities
         }
       ));
     } else {

@@ -9,6 +9,7 @@ export const RESET_ITEM = 'TERM_RESET';
 export const SHOW_INFO = 'SHOW_TERM_INFO';
 export const HIDE_INFO = 'HIDE_TERM_INFO';
 export const NOTIFY_LOADING = 'NOTIFY_LOADING';
+export const SET_COUNT_TAGGED_BRANCH = 'SET_COUNT_TAGGED_BRANCH';
 // Entities Actions
 export const NOTIFY_LOADING_ENTITIES = 'NOTIFY_LOADING_ENTITIES';
 export const LOAD_ENTITIES = 'LOAD_ENTITIES';

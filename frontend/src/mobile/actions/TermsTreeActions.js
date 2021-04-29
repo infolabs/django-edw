@@ -1,14 +1,15 @@
 import {
-    LOAD_ITEM,
-    LOAD_TREE,
-    RELOAD_TREE,
-    TOGGLE_FILTERS,
-    TOGGLE_ITEM,
-    RESET_ITEM,
-    RESET_BRANCH,
-    SHOW_INFO,
-    HIDE_INFO,
-    NOTIFY_LOADING,
+  LOAD_ITEM,
+  LOAD_TREE,
+  RELOAD_TREE,
+  TOGGLE_FILTERS,
+  TOGGLE_ITEM,
+  RESET_ITEM,
+  RESET_BRANCH,
+  SHOW_INFO,
+  HIDE_INFO,
+  NOTIFY_LOADING,
+  SET_COUNT_TAGGED_BRANCH,
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton'
@@ -102,4 +103,8 @@ export const showInfo = (term = {}) =>  dispatch => {
 
 export const hideInfo = (term = {}) => dispatch => {
   dispatch({type: HIDE_INFO, term: term});
+};
+
+export const setCountTaggedBranch = count => dispatch => {
+  dispatch({type: SET_COUNT_TAGGED_BRANCH, count})
 };
