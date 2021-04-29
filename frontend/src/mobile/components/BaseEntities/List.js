@@ -1,51 +1,10 @@
 import React, {Component} from 'react'
-import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native'
+import {ScrollView, View, ImageBackground} from 'react-native'
 import {Text, Card, Layout} from '@ui-kitten/components'
-import platformSettings from "../../constants/Platform";
 import Singleton from '../../utils/singleton'
 import Spinner from 'react-native-loading-spinner-overlay';
+import {listStyles} from "../../styles/entities";
 
-
-const {deviceHeight, deviceWidth} = platformSettings;
-
-const styles = StyleSheet.create({
-  spinnerContainer: {
-    height: deviceHeight,
-    width: deviceWidth,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  layout: {
-    flex: 1,
-    alignItems: 'center',
-    width: deviceWidth,
-    paddingHorizontal: 16,
-  },
-  cardContainer: {
-    width: '100%',
-    minHeight: 200,
-    marginHorizontal: 5,
-    marginVertical: 5,
-    borderRadius: 15,
-  },
-  cardImageContainer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  imageBackground:{
-    ...StyleSheet.absoluteFillObject,
-    height: 200,
-  },
-  entityNameText: {
-    color: '#fff',
-    fontWeight: '500',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    height: '100%',
-    width: '100%',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 20
-  }
-});
 
 export default class List extends Component {
   render() {
@@ -54,14 +13,14 @@ export default class List extends Component {
 
     if (loading) {
       return (
-        <View style={styles.spinnerContainer}>
+        <View style={listStyles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
       )
     } else {
       return (
         <ScrollView>
-          <Layout style={styles.layout}>
+          <Layout style={listStyles.layout}>
             {items.map(
               (child, i) => <ListItem key={i} data={child} domain={instance.Domain}/>
             )}
@@ -73,17 +32,17 @@ export default class List extends Component {
 }
 
 class ListItem extends Component {
-  render(){
+  render() {
     const {data, domain} = this.props;
 
-    if(data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
+    if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
       data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
 
-    return(
-      <Card style={styles.cardContainer}>
-        <View style={styles.cardImageContainer}>
-          <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
-            <Text style={styles.entityNameText}>{data.entity_name}</Text>
+    return (
+      <Card style={listStyles.cardContainer}>
+        <View style={listStyles.cardImageContainer}>
+          <ImageBackground source={{uri: data.media}} style={listStyles.imageBackground}>
+            <Text style={listStyles.entityNameText}>{data.entity_name}</Text>
           </ImageBackground>
         </View>
       </Card>
