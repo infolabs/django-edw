@@ -2,23 +2,11 @@ import React, {useState} from 'react';
 import {View} from 'react-native';
 import {OverflowMenu, MenuItem, Text, Button, useTheme} from '@ui-kitten/components'
 import {Icon} from "native-base"
-import {StyleSheet} from 'react-native'
 import ActionCreators from "../actions";
 import {connect} from 'react-redux'
 import {bindActionCreators} from "redux"
+import {dropDownsStyles as styles} from "../styles/dropdowns";
 
-
-const styles = StyleSheet.create({
-  button: {
-    justifyContent: 'flex-start'
-  },
-  sortView: {
-    flexDirection: 'row'
-  },
-  sortText: {
-    fontSize: 16
-  }
-});
 
 const Dropdown = props => {
   const {selected, options, open} = props;

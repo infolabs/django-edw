@@ -5,6 +5,7 @@ import {Badge} from 'native-base'
 import Singleton from '../../utils/singleton'
 import Spinner from 'react-native-loading-spinner-overlay';
 import {tileStyles} from "../../styles/entities";
+import EntityMixin from "../BaseEntities/EntityMixin";
 
 
 const stylesComponent = StyleSheet.create({
@@ -21,28 +22,27 @@ const stylesComponent = StyleSheet.create({
 
 const styles = Object.assign(tileStyles, stylesComponent);
 
-export default class ParticularProblemTile extends Component {
+export default class ParticularProblemTile extends EntityMixin(Component) {
   render() {
     const {items, loading} = this.props;
     const instance = Singleton.getInstance();
 
-    if (loading) {
-      return (
-        <View style={styles.spinnerContainer}>
-          <Spinner visible={true}/>
-        </View>
-      )
-    } else {
-      return (
-        <ScrollView>
-          <Layout style={styles.layout}>
-            {items.map(
-              (child, i) => <ParticularProblemTileItem key={i} data={child} domain={instance.Domain}/>
-            )}
-          </Layout>
-        </ScrollView>
-      );
-    }
+    return (
+      <ScrollView scrollEventThrottle={2000}
+                  onScroll={e => this.handleScroll(e)}>
+        {loading ?
+          <View style={styles.spinnerContainer}>
+            <Spinner visible={true}/>
+          </View>
+          : null
+        }
+        <Layout style={styles.layout}>
+          {items.map(
+            (child, i) => <ParticularProblemTileItem key={i} data={child} domain={instance.Domain}/>
+          )}
+        </Layout>
+      </ScrollView>
+    );
   }
 }
 

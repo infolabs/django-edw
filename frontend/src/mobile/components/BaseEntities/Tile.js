@@ -4,30 +4,30 @@ import {Text, Card, Layout} from '@ui-kitten/components'
 import Singleton from '../../utils/singleton'
 import Spinner from 'react-native-loading-spinner-overlay';
 import {tileStyles} from "../../styles/entities";
+import EntityMixin from "./EntityMixin";
 
 
-export default class Tile extends Component {
+export default class Tile extends EntityMixin(Component) {
   render() {
     const {items, loading} = this.props;
     const instance = Singleton.getInstance();
 
-    if (loading) {
-      return (
-        <View style={tileStyles.spinnerContainer}>
-          <Spinner visible={true}/>
-        </View>
-      )
-    } else {
-      return (
-        <ScrollView>
-          <Layout style={tileStyles.layout}>
-            {items.map(
-              (child, i) => <TileItem key={i} data={child} domain={instance.Domain}/>
-            )}
-          </Layout>
-        </ScrollView>
-      );
-    }
+    return (
+      <ScrollView scrollEventThrottle={2000}
+                  onScroll={e => this.handleScroll(e)}>
+        {loading ?
+          <View style={tileStyles.spinnerContainer}>
+            <Spinner visible={true}/>
+          </View>
+          : null
+        }
+        <Layout style={tileStyles.layout}>
+          {items.map(
+            (child, i) => <TileItem key={i} data={child} domain={instance.Domain}/>
+          )}
+        </Layout>
+      </ScrollView>
+    );
   }
 }
 

@@ -79,12 +79,13 @@ let inFetch = 0;
 
 export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr = []) => (dispatch, getState) => {
   // ignore more than 3 simultaneous requests from tree
-  const currentMeta = getState().entities.items.meta,
-        // treeRootLength = getState().terms.tree.root.children.length,
-        treeRootLength = {},
+  const currentItems = getState().entities.items,
+        currentMeta = currentItems.meta,
+        currentOffset = currentMeta.offset,
+        treeRootLength = getState().terms.tree.root.children.length,
         currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
 
-  if (treeRootLength && currentDataMartId == mart_id && inFetch > 3)
+  if (treeRootLength && currentDataMartId === mart_id && inFetch > 3)
     return;
 
   // set computed initial terms if not set
@@ -109,7 +110,6 @@ export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr 
   if (options_arr.length)
     url += "&" + options_arr.join("&");
 
-
   inFetch++;
 
   fetch(url, {
@@ -122,15 +122,19 @@ export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr 
   }).then(response => response.json()).then(json => {
     inFetch--;
     const state = getState(),
-          stateRootLength = null,
-          // stateRootLength = state.terms.tree.root.children.length,
+          stateRootLength = state.terms.tree.root.children.length,
           stateMeta = state.entities.items.meta,
           stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
-          responseDataMartId = json.results.meta.data_mart.id;
+          responseDataMartId = json.results.meta.data_mart.id,
+          stateMetaOrdering = stateMeta.ordering,
+          responseMetaOrdering = json.results.meta.ordering,
+          stateMetaViewComponent = stateMeta.view_component,
+          responseMetaViewComponent = json.results.meta.view_component,
+          responseOffset = json.offset;
 
-    instance[json.results.meta.data_mart.slug] = json;
-
-    if (inFetch === 0 && stateDataMartId === responseDataMartId && stateRootLength) {
+    // Если изменилась сортировка или вид представления, то перезапрос не делаем
+    if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
+      stateDataMartId === responseDataMartId && stateRootLength) {
       const stateTerms = state.terms.tagged.items,
             responseTerms = json.results.meta.terms_ids;
 
@@ -140,13 +144,16 @@ export const getEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr 
         options_obj = stateMeta.request_options;
         options_obj.terms = stateTerms;
         dispatch(
-          getEntities(mart_id, subj_ids, options_obj)
+          getEntities(mart_id, subj_ids, options_obj, options_arr)
         );
         return;
       }
     }
 
-    dispatch({type: LOAD_ENTITIES, json: json, request_options: options_obj});
+    if (currentOffset !== responseOffset)
+      json.results.objects = [...currentItems.objects, ...json.results.objects];
+
+    dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
   });
 };
 
@@ -160,7 +167,7 @@ export const readEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr
     json.results.meta = Object.assign(json.results.meta, options_obj2);
 
     return (dispatch) => {
-      dispatch({type: LOAD_ENTITIES, json: json, request_options: options_obj});
+      dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
     };
   } else
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
