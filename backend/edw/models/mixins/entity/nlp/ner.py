@@ -185,8 +185,7 @@ class NERMixin(ModelMixin):
                     })
         return result
 
-    def cleaned_text_for_index(self):
-        text = self.get_ner_source()
+    def cleaned_text_for_index(self, text):
         for replacer in self.REPLACERS:
             text = re.sub(replacer[0], replacer[1], text)
         for span_type in self.ner_data.keys():
