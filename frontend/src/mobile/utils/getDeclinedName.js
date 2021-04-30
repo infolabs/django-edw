@@ -1,5 +1,6 @@
-export default (num) => {
-    const baseName = ' объект';
-    const declArr = ['ов', '', 'а', 'а', 'а', 'ов', 'ов', 'ов', 'ов', 'ов'];
-    return num + baseName + declArr[`${num}`.slice(-1)];
-}
+export default (num = 0) => {
+    const baseName = ' объект',
+      declArr = ['ов', '', 'а', 'а', 'а', 'ов', 'ов', 'ов', 'ов', 'ов', 'ов', 'ов', 'ов', 'ов', 'ов'],
+      twoLastNumSymbols = `${num}`.slice(-2);
+    return num + baseName + declArr[twoLastNumSymbols in declArr ? twoLastNumSymbols: twoLastNumSymbols.slice(-1)];
+};
