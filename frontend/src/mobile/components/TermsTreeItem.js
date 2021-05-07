@@ -12,28 +12,27 @@ export default class TermsTreeItem extends Component {
   handleItemPress() {
     const {term, actions} = this.props;
     actions.toggle(term);
-    this.resizeTermsContainer ();
+    // this.resizeTermsContainer ();
   }
 
   handleResetItemPress() {
     const {term, actions} = this.props;
     actions.resetItem(term);
-    this.resizeTermsContainer ();
+    // this.resizeTermsContainer ();
   }
 
   handleResetBranchPress() {
     const {term, actions} = this.props;
     actions.resetBranch(term);
-    this.resizeTermsContainer ();
+    // this.resizeTermsContainer ();
   }
 
   // HACK: Для правильного определения высоты нужно переоткрыть ветку термина
   resizeTermsContainer () {
     const {actions, term} = this.props;
     let termParent = term;
-    while (termParent.parent && termParent.parent.id !== null && termParent.structure !== consts.STRUCTURE_LIMB){
-      termParent = termParent.parent
-    }
+    while (termParent.parent && termParent.parent.id !== null && termParent.structure !== consts.STRUCTURE_LIMB)
+      termParent = termParent.parent;
     actions.toggle(termParent);
     setTimeout(() => {
       actions.toggle(termParent);
@@ -49,7 +48,6 @@ export default class TermsTreeItem extends Component {
     let render_item = "",
       reset_icon = "",
       reset_item = () => <></>,
-      info = "",
       semantic_class = "",
       state_class = "";
 
@@ -62,13 +60,16 @@ export default class TermsTreeItem extends Component {
     if (realPotential.has_metadata && !realPotential.rils[term.id])
       ex_no_term = !realPotential.pots[term.id] ? "ex-no-potential " : "ex-no-real ";
 
+    if (ex_no_term === "ex-no-potential " && term.name.length)
+      return ret = null;
+
     if (term.isVisible()) {
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
         siblings = term.siblings;
 
-      if (is_limb_or_and) {
+      if (is_limb_or_and)
         semantic_class = "ex-and";
-      } else {
+      else {
         switch (rule) {
           case consts.SEMANTIC_RULE_OR:
             semantic_class = "ex-or";
@@ -88,7 +89,8 @@ export default class TermsTreeItem extends Component {
         state_class = 'ex-off';
 
       // Если из потомков можно выбрать лишь один элемент (radioButton), то остальные термины в этом дереве делаем неактивными
-      if (rule !== consts.SEMANTIC_RULE_AND && tagged[term.id] !== true && tagged.isAnyTagged(siblings)) {
+      if (rule !== consts.SEMANTIC_RULE_AND && tagged[term.id] !== true && tagged.isAnyTagged(siblings) ||
+        ex_no_term === "ex-no-real ") {
         color = "#a9a9a9";
         state_class = 'ex-other';
       }
@@ -114,10 +116,10 @@ export default class TermsTreeItem extends Component {
         fontWeight = any_tagged ? 'normal' : 'bold';
         reset_item = () => (
           <TouchableWithoutFeedback onPress={() => this.handleResetItemPress()}>
-              <Radio checked={!any_tagged}
-                     onChange={() => this.handleResetItemPress()} style={{marginTop: 10, marginBottom: 5, marginLeft}}>
-                <Text style={{fontSize: 16, fontWeight}}>Всё</Text>
-              </Radio>
+            <Radio checked={!any_tagged}
+                   onChange={() => this.handleResetItemPress()} style={{marginTop: 10, marginBottom: 5, marginLeft}}>
+              <Text style={{fontSize: 16, fontWeight}}>Всё</Text>
+            </Radio>
           </TouchableWithoutFeedback>
         );
       }
@@ -147,9 +149,9 @@ export default class TermsTreeItem extends Component {
 
     let ret = null;
 
-    if (render_item === "") {
+    if (render_item === "")
       ret = <View>{render_children}</View>;
-    } else {
+    else {
       let iconName = '';
       if (show_children) {
         iconName = 'caret-down';
@@ -170,35 +172,36 @@ export default class TermsTreeItem extends Component {
 
       if (is_limb_or_and) {
         ret = (
-          <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
-                                    style={{flexDirection: 'column', marginTop: 10, marginLeft, width: 250}}>
+          <View style={{marginLeft, marginTop: 10}}>
+            <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
+                                      style={{flexDirection: 'column', width: 250}}>
+              <Text>
+                <Icon style={{fontSize: 22, marginRight: 20}} name={iconName}/>
+                {render_item}
+                {reset_icon}
+              </Text>
+            </TouchableWithoutFeedback>
             <Text>
-              <Icon style={{fontSize: 22, marginRight: 20}} name={iconName}/>
-              {render_item}
-              {info}
-              {reset_icon}
               {render_children}
             </Text>
-          </TouchableWithoutFeedback>
+          </View>
         );
       } else {
-        const regexVisibleTerm = /(ex-no-potential)/;
-        const isMatchVisibleTerm = liClassName.match(regexVisibleTerm);
         marginLeft = term.parent.isLimbOrAnd() ? 25 : 0;
         ret = (
-          <View style={isMatchVisibleTerm !== null ? {display: 'none'} : {marginTop: 2, width: 250, marginLeft}}>
+          <View style={{marginTop: 2, width: 250, marginLeft}}>
             {semantic_class === 'ex-xor' ?
-              <Radio checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 2}}
+              <Radio checked={state_class === 'ex-on'}
+                     style={{display: 'flex', alignItems: 'flex-start', marginTop: 2}}
                      onChange={() => this.handleItemPress()}>
                 {render_item}
-                {info}
                 {render_children}
               </Radio>
               :
-              <CheckBox checked={state_class === 'ex-on'} style={{display: 'flex', alignItems: 'flex-start', marginTop: 7}}
+              <CheckBox checked={state_class === 'ex-on'}
+                        style={{display: 'flex', alignItems: 'flex-start', marginTop: 7}}
                         onChange={() => this.handleItemPress()}>
                 {render_item}
-                {info}
                 {reset_icon}
                 {render_children}
               </CheckBox>

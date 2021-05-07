@@ -9,12 +9,12 @@ import {filtersStyles as styles} from "../styles/filters";
 
 
 const FilterBtn = props => {
-  const {entities, entry_points, entry_point_id, showFilters, terms} = props;
+  const {entities, entry_points, entry_point_id, visibilityFilters, terms} = props;
   const {countTaggedBranch} = terms;
   const theme = useTheme();
 
   return (
-    <Button onPress={() => showFilters()} size='tiny' appearance='ghost' status='basic'>
+    <Button onPress={() => visibilityFilters()} size='tiny' appearance='ghost' status='basic'>
       <View style={styles.filteredView}>
         <Icon name='funnel-outline' style={{fontSize: theme['icon-size']}}/>
         {countTaggedBranch ?

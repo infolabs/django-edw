@@ -10,6 +10,7 @@ import {
   HIDE_INFO,
   NOTIFY_LOADING,
   SET_COUNT_TAGGED_BRANCH,
+  SET_PREV_TAGGED_ITEMS
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton'
@@ -107,4 +108,8 @@ export const hideInfo = (term = {}) => dispatch => {
 
 export const setCountTaggedBranch = count => dispatch => {
   dispatch({type: SET_COUNT_TAGGED_BRANCH, count})
+};
+
+export const setPrevTaggedItems = () => dispatch => {
+  dispatch({type: SET_PREV_TAGGED_ITEMS})
 };

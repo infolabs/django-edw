@@ -4,18 +4,8 @@ import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
 import ActionCreators from "../actions";
 import parseRequestParams from "../utils/parseRequestParams"
+import {isArraysEqual} from "../utils/isArrayEqual";
 
-
-function isArraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length != b.length) return false;
-
-  for (let i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
 
 class TermsTree extends Component {
 
@@ -31,15 +21,13 @@ class TermsTree extends Component {
     this.props.actions.readTree(entry_point_id, term_ids);
 
     const tagged = this.props.terms.tagged,
-      termsIdsStructureIsLimb = this.props.terms.tree.termsIdsStructureIsLimb;
+      {termsIdsStructureIsLimb} = this.props.terms.tree;
 
     let countTaggedBranch = 0;
-
     tagged.items.map(item => {
       if (termsIdsStructureIsLimb.includes(item))
         countTaggedBranch++;
     });
-
     this.props.actions.setCountTaggedBranch(countTaggedBranch);
   }
 
@@ -49,7 +37,7 @@ class TermsTree extends Component {
       request_params = entry_points[entry_point_id.toString()].request_params || [],
       tagged_current = prevProps.terms.tagged,
       tagged_next = this.props.terms.tagged,
-      termsIdsStructureIsLimb = this.props.terms.tree.termsIdsStructureIsLimb,
+      {termsIdsStructureIsLimb} = this.props.terms.tree,
       meta = prevProps.entities.items.meta;
 
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
@@ -78,14 +66,14 @@ class TermsTree extends Component {
       }
     }
 
-    let countTaggedBranch = 0;
-
-    tagged_next.items.map(item => {
-      if (termsIdsStructureIsLimb.includes(item))
-        countTaggedBranch++;
-    });
-
-    this.props.actions.setCountTaggedBranch(countTaggedBranch);
+    if (tagged_current.items.length !== tagged_next.items.length) {
+      let countTaggedBranch = 0;
+      tagged_next.items.map(item => {
+        if (termsIdsStructureIsLimb.includes(item))
+          countTaggedBranch++;
+      });
+      this.props.actions.setCountTaggedBranch(countTaggedBranch);
+    }
   }
 
   render() {

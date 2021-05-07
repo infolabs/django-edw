@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react'
+import React, {useState, useEffect, useMemo} from 'react'
 import {View, Animated, ScrollView} from 'react-native'
 import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
 import {connect} from 'react-redux'
@@ -13,16 +13,28 @@ import TermsTree from "../TermsTree";
 import getDeclinedName from "../../utils/getDeclinedName";
 import ViewComponentsBtn from "../ViewComponentsBtn";
 import {dataMartStyles as styles} from "../../styles/dataMarts";
+import {isArraysEqual} from "../../utils/isArrayEqual";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
 let translateY = deviceHeight;
+let usePrevTerms = false;
 
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
   const {viewComponents} = entities;
+  const {termsIdsStructureIsLimb} = terms.tree;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
+
+  useEffect(() => {
+    let countTaggedBranch = 0;
+    terms.tagged.items.map(item => {
+      if (termsIdsStructureIsLimb.includes(item))
+        countTaggedBranch++;
+    });
+    props.setCountTaggedBranch(countTaggedBranch);
+  },[terms.tagged.items]);
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
@@ -32,16 +44,34 @@ const DataMart = props => {
     }).start();
   }, [translateY]);
 
-  const showFilters = visible => {
+  const visibilityFilters = visible => {
+    if (usePrevTerms) {
+      const termsItems = terms.tagged.prevItems;
+      props.notifyLoading();
+      props.loadTree(entry_point_id, termsItems);
+    }
     setVisibleFilters(visible);
     translateY = visible ? 30 : deviceHeight;
+    usePrevTerms = false;
   };
 
   const theme = useTheme();
 
+  const closeFilters = () => {
+    visibilityFilters(false);
+    const {items, prevItems} = terms.tagged;
+    if (!isArraysEqual(items, prevItems)) {
+      const meta = entities.items.meta;
+      const {subj_ids} = meta;
+      props.notifyLoadingEntities();
+      props.getEntities(entry_point_id, subj_ids, {}, [], true);
+      usePrevTerms = true;
+    }
+  };
+
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
-  const renderBackAction = () => (
-    <Icon onPress={() => showFilters(false)} name='close'/>
+  const closeFiltersView = () => (
+    <Icon onPress={() => closeFilters()} name='close'/>
   );
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
@@ -52,8 +82,8 @@ const DataMart = props => {
     );
   }
 
-  const visibleFiltersBtn = terms.tree.json.length && (entities.items.objects.length || (terms.tagged.items
-    && terms.tagged.items.length));
+  const visibleFiltersBtn = entities.items.objects.length || (terms.tagged.items
+    && terms.tagged.items.length && !entities.loading);
 
   return (
     <>
@@ -71,9 +101,9 @@ const DataMart = props => {
             </>
             : null
           }
-          {visibleFiltersBtn  ?
+          {visibleFiltersBtn ?
             <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
-                       showFilters={() => showFilters(!visibleFilters)}/>
+                       visibilityFilters={() => visibilityFilters(!visibleFilters)}/>
             : null
           }
         </View>
@@ -85,7 +115,7 @@ const DataMart = props => {
           title={() => <Text style={{...styles.termTreeViewTitle, backgroundColor: theme['background-color-default']}}>
             Фильтры
           </Text>}
-          accessoryRight={renderBackAction}
+          accessoryRight={closeFiltersView}
         />
         <View style={styles.termsTreeView}>
           <ScrollView>
@@ -94,14 +124,17 @@ const DataMart = props => {
             <View style={styles.emptyView}/>
           </ScrollView>
         </View>
-        <View style={styles.showObjectsBtnView}>
-          <Button
-            style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
-            size="giant"
-            onPress={() => showFilters(!visibleFilters)}>
-            {`Показать ${getDeclinedName(entities.items.meta.count)}`}
-          </Button>
-        </View>
+        {entities.items.meta.count !== undefined ?
+          <View style={styles.showObjectsBtnView}>
+            <Button
+              style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
+              size="giant"
+              onPress={() => visibilityFilters(!visibleFilters)}>
+              {`Показать ${getDeclinedName(entities.items.meta.count)}`}
+            </Button>
+          </View>
+          : null
+        }
       </Animated.View>
     </>
   )

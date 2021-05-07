@@ -27,8 +27,6 @@ class Tree {
 
   // Строим тематическое дерево
   json2tree(json, parent) {
-    if (!this.termsIdsStructureIsLimb)
-      this.termsIdsStructureIsLimb = [];
     if (!parent)
       parent = new Item();
     let n = 0;
@@ -131,6 +129,7 @@ class TaggedItems {
     this.items = [];
     this.cache = {};
     this.entities_ignore = true;
+    this.prevItems = [];
 
     this.json2tagged(json);
     this.json2cache(json);
@@ -139,6 +138,7 @@ class TaggedItems {
   createFromJson(json = []) {
     this.json2tagged(json);
     this.json2cache(json);
+    this.setPrevTagged();
     return Object.assign(new TaggedItems(), this);
   }
 
@@ -279,6 +279,11 @@ class TaggedItems {
     }
     return false;
   }
+
+  setPrevTagged() {
+    this.prevItems = this.items;
+    return this;
+  }
 }
 
 /* Expanded Data Structures */
@@ -401,7 +406,7 @@ const requested = (state = new Requested(), action) => {
 
 const tagged = (state = new TaggedItems(), action) => {
   switch (action.type) {
-    case consts.LOAD_TERMS_TREE:
+    case consts.LOAD_TREE:
       return new TaggedItems().createFromJson(action.json);
     case consts.RELOAD_TREE:
       return state.setCache(action.json);
@@ -411,6 +416,8 @@ const tagged = (state = new TaggedItems(), action) => {
       return state.resetItem(action.term);
     case consts.RESET_BRANCH:
       return state.resetBranch(action.term);
+    case consts.SET_PREV_TAGGED_ITEMS:
+      return state.setPrevTagged();
     default:
       return state;
   }
@@ -418,7 +425,7 @@ const tagged = (state = new TaggedItems(), action) => {
 
 const expanded = (state = new ExpandedItems([]), action) => {
   switch (action.type) {
-    case consts.LOAD_TERMS_TREE:
+    case consts.LOAD_TREE:
       return new ExpandedItems(action.json);
     case consts.RELOAD_TREE:
       return state.reload(action.json);
