@@ -112,6 +112,7 @@ export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_ar
     if (currentOffset !== json.offset)
       json.results.objects = [...currentItems.objects, ...json.results.objects];
 
+    instance[mart_id] = json;
     dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
   });
 };

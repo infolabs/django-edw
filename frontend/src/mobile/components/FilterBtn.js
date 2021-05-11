@@ -9,17 +9,16 @@ import {filtersStyles as styles} from "../styles/filters";
 
 
 const FilterBtn = props => {
-  const {entities, entry_points, entry_point_id, visibilityFilters, terms} = props;
-  const {countTaggedBranch} = terms;
+  const {entities, visibilityFilters, termsIdsTaggedBranch} = props;
   const theme = useTheme();
 
   return (
     <Button onPress={() => visibilityFilters()} size='tiny' appearance='ghost' status='basic'>
       <View style={styles.filteredView}>
         <Icon name='funnel-outline' style={{fontSize: theme['icon-size']}}/>
-        {countTaggedBranch ?
+        {termsIdsTaggedBranch.size ?
           <View style={{...styles.filteredBadge, backgroundColor: theme['color-primary-500']}}>
-            <Text style={styles.filteredBadgeText}>{countTaggedBranch}</Text>
+            <Text style={styles.filteredBadgeText}>{termsIdsTaggedBranch.size}</Text>
           </View>
           : null
         }
@@ -29,8 +28,7 @@ const FilterBtn = props => {
 };
 
 const mapStateToProps = state => ({
-  entities: state.entities,
-  terms: state.terms
+  entities: state.entities
 });
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
 

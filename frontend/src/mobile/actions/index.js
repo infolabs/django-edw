@@ -24,7 +24,6 @@ import {
   resetBranch,
   showInfo,
   hideInfo,
-  setCountTaggedBranch,
   setPrevTaggedItems
 } from './TermsTreeActions';
 
@@ -51,6 +50,5 @@ export default {
   hideInfo,
   setDataViewComponents,
   setCurrentView,
-  setCountTaggedBranch,
   setPrevTaggedItems
 }

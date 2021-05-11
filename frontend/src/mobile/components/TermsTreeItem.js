@@ -42,7 +42,8 @@ export default class TermsTreeItem extends Component {
   render() {
     const {deviceHeight, deviceWidth} = platformSettings;
 
-    const {term, details, actions, tagged, expanded, info_expanded, realPotential} = this.props,
+    const {term, details, actions, tagged, expanded, info_expanded, realPotential, terms,
+        termsIdsTaggedBranch} = this.props,
       {children, parent} = term;
 
     let render_item = "",
@@ -62,6 +63,14 @@ export default class TermsTreeItem extends Component {
 
     if (ex_no_term === "ex-no-potential " && term.name.length)
       return ret = null;
+
+    if (terms.tagged.items.includes(term.id) && term.structure !== consts.STRUCTURE_LIMB &&
+      term.structure !== consts.STRUCTURE_TRUNK) {
+      let termParent = term;
+      while (termParent.parent && termParent.parent.id !== null && termParent.structure !== consts.STRUCTURE_LIMB)
+        termParent = termParent.parent;
+      termsIdsTaggedBranch.add(termParent);
+    }
 
     if (term.isVisible()) {
       const rule = parent.semantic_rule || consts.SEMANTIC_RULE_AND,
@@ -95,7 +104,7 @@ export default class TermsTreeItem extends Component {
         state_class = 'ex-other';
       }
 
-      let marginLeft = semantic_class === 'ex-and' ? 5 : 0;
+      let marginLeft = semantic_class === 'ex-and' ? 5 : -5;
       render_item = (
         <TouchableWithoutFeedback  onPress={() => this.handleItemPress()}>
           {term.structure === consts.STRUCTURE_LIMB ?
@@ -115,12 +124,15 @@ export default class TermsTreeItem extends Component {
         const any_tagged = tagged.isAnyTagged(children);
         fontWeight = any_tagged ? 'normal' : 'bold';
         reset_item = () => (
-          <TouchableWithoutFeedback onPress={() => this.handleResetItemPress()}>
-            <Radio checked={!any_tagged}
-                   onChange={() => this.handleResetItemPress()} style={{marginTop: 10, marginBottom: 5, marginLeft}}>
-              <Text style={{fontSize: 16, fontWeight}}>Всё</Text>
-            </Radio>
-          </TouchableWithoutFeedback>
+          <Radio checked={!any_tagged}
+                 onChange={() => this.handleResetItemPress()} style={{marginTop: 10, marginBottom: 5, marginLeft}}>
+            <TouchableWithoutFeedback onPress={() => this.handleItemPress()}>
+              <Text
+                style={{fontSize: 16, marginTop: 5, display: 'flex', flexWrap: 'wrap', fontWeight, color, marginLeft: -5}}>
+                Всё
+              </Text>
+            </TouchableWithoutFeedback>
+          </Radio>
         );
       }
 
@@ -141,7 +153,10 @@ export default class TermsTreeItem extends Component {
                        expanded={expanded}
                        info_expanded={info_expanded}
                        realPotential={realPotential}
-                       actions={actions}/>)
+                       actions={actions}
+                       terms={terms}
+                       termsIdsTaggedBranch={termsIdsTaggedBranch}
+        />)
     );
 
     let liClassName = semantic_class + " " + state_class + " ";
@@ -172,19 +187,15 @@ export default class TermsTreeItem extends Component {
 
       if (is_limb_or_and) {
         ret = (
-          <View style={{marginLeft, marginTop: 10}}>
-            <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
-                                      style={{flexDirection: 'column', width: 250}}>
-              <Text>
-                <Icon style={{fontSize: 22, marginRight: 20}} name={iconName}/>
-                {render_item}
-                {reset_icon}
-              </Text>
-            </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.handleItemPress()}
+                                    style={{flexDirection: 'column', marginTop: 10, marginLeft, width: 250}}>
             <Text>
+              <Icon style={{fontSize: 22, marginRight: 20}} name={iconName}/>
+              {render_item}
+              {reset_icon}
               {render_children}
             </Text>
-          </View>
+          </TouchableWithoutFeedback>
         );
       } else {
         marginLeft = term.parent.isLimbOrAnd() ? 25 : 0;

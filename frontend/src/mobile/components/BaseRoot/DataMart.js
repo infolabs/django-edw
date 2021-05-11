@@ -17,13 +17,14 @@ import {isArraysEqual} from "../../utils/isArrayEqual";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
+const termsIdsTaggedBranch = new Set();
 let translateY = deviceHeight;
 let usePrevTerms = false;
 
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
   const {viewComponents} = entities;
-  const {termsIdsStructureIsLimb, loading, json} = terms.tree;
+  const {loading, json} = terms.tree;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
   // Флаг нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
@@ -31,13 +32,12 @@ const DataMart = props => {
   const [showTermsTree, setShowTermsTree] = useState(false);
 
   useEffect(() => {
-    let countTaggedBranch = 0;
-    terms.tagged.items.map(item => {
-      if (termsIdsStructureIsLimb.includes(item))
-        countTaggedBranch++;
-    });
-    props.setCountTaggedBranch(countTaggedBranch);
-    if(json.length)
+    if (!json.length)
+      termsIdsTaggedBranch.clear();
+  }, []);
+
+  useEffect(() => {
+    if (json.length)
       setShowTermsTree(true);
   },[terms.tagged.items]);
 
@@ -110,6 +110,7 @@ const DataMart = props => {
           }
           {visibleFiltersBtn ?
             <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
+                       termsIdsTaggedBranch={termsIdsTaggedBranch}
                        visibilityFilters={() => visibilityFilters(!visibleFilters)}/>
             : null
           }
@@ -127,7 +128,8 @@ const DataMart = props => {
         <View style={styles.termsTreeView}>
           {showTermsTree ?
             <ScrollView>
-              <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
+              <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
+                         termsIdsTaggedBranch={termsIdsTaggedBranch}/>
               {/*HACK: Чтобы добавить место в конце ScrollView нужно добавить пустой View*/}
               <View style={styles.emptyView}/>
             </ScrollView>
@@ -139,7 +141,10 @@ const DataMart = props => {
             <Button
               style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
               size="giant"
-              onPress={() => visibilityFilters(!visibleFilters)}>
+              onPress={() => {
+                visibilityFilters(!visibleFilters);
+                props.setPrevTaggedItems();
+              }}>
               {`Показать ${getDeclinedName(entities.items.meta.count)}`}
             </Button>
           </View>

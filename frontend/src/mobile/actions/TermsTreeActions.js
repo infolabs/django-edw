@@ -9,7 +9,6 @@ import {
   SHOW_INFO,
   HIDE_INFO,
   NOTIFY_LOADING,
-  SET_COUNT_TAGGED_BRANCH,
   SET_PREV_TAGGED_ITEMS
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
@@ -37,6 +36,9 @@ const getTermsTree = (type, mart_id, selected = []) => dispatch => {
       'Content-Type': 'application/json'
     },
   }).then(response => response.json()).then(json => {
+    instance['initial_trees'] = {
+      [mart_id]: json
+    };
     dispatch({
       type: type,
       json: json,
@@ -75,7 +77,7 @@ export const readTree = (mart_id, selected = []) => {
   if (instance.initial_trees && instance.initial_trees[mart_id]) {
     const json = instance.initial_trees[mart_id];
     return dispatch => {
-      dispatch({ type, json });
+      dispatch({type, json});
     };
   } else {
     return getTermsTree(type, mart_id, selected);
@@ -104,10 +106,6 @@ export const showInfo = (term = {}) =>  dispatch => {
 
 export const hideInfo = (term = {}) => dispatch => {
   dispatch({type: HIDE_INFO, term: term});
-};
-
-export const setCountTaggedBranch = count => dispatch => {
-  dispatch({type: SET_COUNT_TAGGED_BRANCH, count})
 };
 
 export const setPrevTaggedItems = () => dispatch => {

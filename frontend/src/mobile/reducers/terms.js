@@ -7,7 +7,6 @@ class Tree {
   constructor(json) {
     this.json = json;
     this.hash = {};
-    this.termsIdsStructureIsLimb = [];
     this.root = this.json2tree(json);
     this.loading = false;
   }
@@ -49,8 +48,6 @@ class Tree {
       let item = new Item(options);
       this.hash[item.id] = item;
       item.children = this.json2tree(child.children, item).children;
-      if (item.structure === consts.STRUCTURE_LIMB)
-        this.termsIdsStructureIsLimb.push(item.id);
       parent.children.push(item);
     }
     // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
@@ -445,23 +442,13 @@ const realPotential = (state = new RealPotentialItems({}), action) => {
   }
 };
 
-const countTaggedBranch = (state = 0, action) => {
-  switch (action.type) {
-    case consts.SET_COUNT_TAGGED_BRANCH:
-      return action.count;
-    default:
-      return state;
-  }
-};
-
 const terms = combineReducers({
   tree,
   details,
   requested,
   tagged,
   expanded,
-  realPotential,
-  countTaggedBranch
+  realPotential
 });
 
 export default terms;
