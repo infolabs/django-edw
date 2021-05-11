@@ -23,9 +23,12 @@ let usePrevTerms = false;
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
   const {viewComponents} = entities;
-  const {termsIdsStructureIsLimb} = terms.tree;
+  const {termsIdsStructureIsLimb, loading, json} = terms.tree;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
+  // Флаг нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
+  // Т.к. при первоначальной загрузке мы получаем абсолютно все термины
+  const [showTermsTree, setShowTermsTree] = useState(false);
 
   useEffect(() => {
     let countTaggedBranch = 0;
@@ -34,6 +37,8 @@ const DataMart = props => {
         countTaggedBranch++;
     });
     props.setCountTaggedBranch(countTaggedBranch);
+    if(json.length)
+      setShowTermsTree(true);
   },[terms.tagged.items]);
 
   useMemo(() => {
@@ -49,7 +54,8 @@ const DataMart = props => {
       const termsItems = terms.tagged.prevItems;
       props.notifyLoading();
       props.loadTree(entry_point_id, termsItems);
-    }
+    } else
+      setShowTermsTree(true);
     setVisibleFilters(visible);
     translateY = visible ? 30 : deviceHeight;
     usePrevTerms = false;
@@ -67,6 +73,7 @@ const DataMart = props => {
       props.getEntities(entry_point_id, subj_ids, {}, [], true);
       usePrevTerms = true;
     }
+    setShowTermsTree(false)
   };
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
@@ -118,11 +125,14 @@ const DataMart = props => {
           accessoryRight={closeFiltersView}
         />
         <View style={styles.termsTreeView}>
-          <ScrollView>
-            <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
-            {/*HACK: Чтобы добавить место в конце ScrollView нужно добавить пустой View*/}
-            <View style={styles.emptyView}/>
-          </ScrollView>
+          {showTermsTree ?
+            <ScrollView>
+              <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}/>
+              {/*HACK: Чтобы добавить место в конце ScrollView нужно добавить пустой View*/}
+              <View style={styles.emptyView}/>
+            </ScrollView>
+            : null
+          }
         </View>
         {entities.items.meta.count !== undefined ?
           <View style={styles.showObjectsBtnView}>

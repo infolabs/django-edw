@@ -12,19 +12,19 @@ export default class TermsTreeItem extends Component {
   handleItemPress() {
     const {term, actions} = this.props;
     actions.toggle(term);
-    // this.resizeTermsContainer ();
+    this.resizeTermsContainer();
   }
 
   handleResetItemPress() {
     const {term, actions} = this.props;
     actions.resetItem(term);
-    // this.resizeTermsContainer ();
+    this.resizeTermsContainer();
   }
 
   handleResetBranchPress() {
     const {term, actions} = this.props;
     actions.resetBranch(term);
-    // this.resizeTermsContainer ();
+    this.resizeTermsContainer();
   }
 
   // HACK: Для правильного определения высоты нужно переоткрыть ветку термина
