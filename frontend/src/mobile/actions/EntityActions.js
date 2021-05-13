@@ -1,15 +1,5 @@
-import {
-  LOAD_ENTITY_ITEM,
-  LOAD_ENTITIES,
-  NOTIFY_LOADING_ENTITIES,
-  HIDE_ENTITY_DESC,
-  SHOW_ENTITY_DESC,
-  NOTIFY_LOADING_ENTITIE_ITEM,
-  TOGGLE_DROPDOWN,
-  SELECT_DROPDOWN,
-  SET_DATA_VIEW_COMPONENTS,
-  SET_CURRENT_VIEW
-} from '../constants/TermsTree';
+import {actionTypes as actionTypesEntities} from "../constants/Entities";
+import {actionTypes as actionTypesDropdown} from "../constants/Dropdown";
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 
@@ -38,39 +28,6 @@ const optArrToObj = arr => {
     }
   }
   return ret;
-};
-
-export const getEntityItem = (data, meta = false) => {
-  data.entity_url = data.entity_url.replace(/\.html$/,'.json');
-  let url = reCache(data.entity_url);
-  if (meta) {
-    const opts = {
-      "alike": true,
-      "data_mart_pk": meta.data_mart.id,
-      "terms": meta.terms_ids,
-      "subj": meta.subj_ids
-    };
-    url += opts2gets(opts);
-  }
-  return (dispatch, getState) => {
-    if ( !getState().entities.loadingItems[data.id] ) {
-      dispatch(loadingEntityItem(data.id));
-      fetch(url, {
-        method: 'get',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-      }).then(response => response.json()).then(json => dispatch({
-        type: LOAD_ENTITY_ITEM,
-        json: json,
-      }));
-    }
-  };
-};
-
-const loadingEntityItem = id => dispatch => {
-  dispatch({type: NOTIFY_LOADING_ENTITIE_ITEM, id});
 };
 
 export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_arr = [], usePrevTerms = false) => (dispatch, getState) => {
@@ -113,7 +70,7 @@ export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_ar
       json.results.objects = [...currentItems.objects, ...json.results.objects];
 
     instance[mart_id] = json;
-    dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
+    dispatch({type: actionTypesEntities.LOAD_ENTITIES, json, request_options: options_obj});
   });
 };
 
@@ -126,47 +83,29 @@ export const readEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr
     json.results.meta = Object.assign(json.results.meta, options_obj);
     json.results.meta = Object.assign(json.results.meta, options_obj2);
 
-    return (dispatch) => {
-      dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
-    };
+    return dispatch => (
+      dispatch({type: actionTypesEntities.LOAD_ENTITIES, json, request_options: options_obj})
+    )
   } else
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
 };
 
-export const expandGroup = (item_id, meta) => {
-  const mart_id = meta.data_mart.id,
-        subj_ids = meta.subj_ids;
-  let request_options = meta.request_options;
-  delete request_options["offset"];
-  delete request_options["limit"];
-  request_options["alike"] = item_id;
-  return getEntities(mart_id, subj_ids, request_options);
-};
-
-export const showDescription = (entity_id = null) => dispatch => {
-  dispatch({type: SHOW_ENTITY_DESC, entity_id: entity_id });
-};
-
-export const hideDescription = (entity_id = null) => dispatch => {
-  dispatch({type: HIDE_ENTITY_DESC, entity_id: entity_id});
-};
-
 export const toggleDropdown = (dropdown_name = "") => dispatch => {
-  dispatch({type: TOGGLE_DROPDOWN, dropdown_name: dropdown_name});
+  dispatch({type: actionTypesDropdown.TOGGLE_DROPDOWN, dropdown_name});
 };
 
 export const selectDropdown = (dropdown_name = "", selected = "") => dispatch => {
-  dispatch({type: SELECT_DROPDOWN, dropdown_name: dropdown_name, selected: selected});
+  dispatch({type: actionTypesDropdown.SELECT_DROPDOWN, dropdown_name, selected});
 };
 
 export const notifyLoadingEntities = () => dispatch => {
-  dispatch({type: NOTIFY_LOADING_ENTITIES});
+  dispatch({type: actionTypesEntities.NOTIFY_LOADING_ENTITIES});
 };
 
 export const setDataViewComponents = data => dispatch => {
-  dispatch({type: SET_DATA_VIEW_COMPONENTS, data});
+  dispatch({type: actionTypesEntities.SET_DATA_VIEW_COMPONENTS, data});
 };
 
 export const setCurrentView = currentView => dispatch => {
-  dispatch({type: SET_CURRENT_VIEW, currentView});
+  dispatch({type: actionTypesEntities.SET_CURRENT_VIEW, currentView});
 };

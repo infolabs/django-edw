@@ -1,6 +1,6 @@
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import React, { Component } from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import React, {Component} from 'react';
 import {View} from 'react-native'
 import Tile from './BaseEntities/Tile';
 import List from './BaseEntities/List';
@@ -41,14 +41,14 @@ class BaseEntities extends Component {
   componentDidMount() {
     this.templates = this.props.getTemplates();
 
-    const { entry_points, entry_point_id } = this.props,
-          request_params = entry_points[entry_point_id].request_params || [];
+    const {entry_points, entry_point_id} = this.props,
+      request_params = entry_points[entry_point_id].request_params || [];
 
     const params = parseRequestParams(request_params),
-          term_ids = params.term_ids,
-          subj_ids = params.subj_ids,
-          limit = params.limit,
-          options_arr = params.options_arr;
+      term_ids = params.term_ids,
+      subj_ids = params.subj_ids,
+      limit = params.limit,
+      options_arr = params.options_arr;
 
     let request_options = this.props.entities.items.meta.request_options;
 
@@ -71,9 +71,9 @@ class BaseEntities extends Component {
     this.setComponentName();
   }
 
-  setComponentName(){
+  setComponentName() {
     const {entities} = this.props,
-          meta = entities.items.meta;
+      meta = entities.items.meta;
 
     if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
       // Получаем все компоненты витрины данных
@@ -113,7 +113,7 @@ class BaseEntities extends Component {
         this.templates = this.props.getTemplates();
 
       const component = this.templates[componentName] || this.templates['list'];
-      return(React.createElement(
+      return (React.createElement(
         component, {
           items,
           meta,

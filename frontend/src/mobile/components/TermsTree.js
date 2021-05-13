@@ -17,7 +17,7 @@ class TermsTree extends Component {
       term_ids = params.term_ids;
 
     if (!terms.tree.json.length) {
-      this.props.actions.notifyLoading();
+      this.props.actions.notifyLoadingTerms();
       this.props.actions.readTree(entry_point_id, term_ids);
     }
   }
@@ -33,7 +33,7 @@ class TermsTree extends Component {
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
       // reload tree
       if (!tagged_next.isInCache()) {
-        this.props.actions.notifyLoading();
+        this.props.actions.notifyLoadingTerms();
         this.props.actions.reloadTree(entry_point_id, tagged_next.items);
       }
       // reload entities
@@ -63,15 +63,13 @@ class TermsTree extends Component {
   render() {
     const {terms, actions, termsIdsTaggedBranch} = this.props,
       term = terms.tree.root,
-      {details, tagged, expanded, info_expanded, loading, realPotential} = terms;
+      {tagged, expanded, loading, realPotential} = terms;
 
     return term ? (
         <TermsTreeItem key={term.id}
                        term={term}
-                       details={details}
                        tagged={tagged}
                        expanded={expanded}
-                       info_expanded={info_expanded}
                        realPotential={realPotential}
                        actions={actions}
                        terms={terms}

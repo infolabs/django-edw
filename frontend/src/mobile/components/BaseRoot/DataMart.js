@@ -52,7 +52,7 @@ const DataMart = props => {
   const visibilityFilters = visible => {
     if (usePrevTerms) {
       const termsItems = terms.tagged.prevItems;
-      props.notifyLoading();
+      props.notifyLoadingTerms();
       props.loadTree(entry_point_id, termsItems);
     } else
       setShowTermsTree(true);
@@ -130,7 +130,7 @@ const DataMart = props => {
             <ScrollView>
               <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
                          termsIdsTaggedBranch={termsIdsTaggedBranch}/>
-              {/*HACK: Чтобы добавить место в конце ScrollView нужно добавить пустой View*/}
+              {/*HACK: Чтобы добавить место в конце ScrollView добавляем пустой View*/}
               <View style={styles.emptyView}/>
             </ScrollView>
             : null

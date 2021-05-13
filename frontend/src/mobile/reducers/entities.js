@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux';
-import * as consts from '../constants/TermsTree';
+import {actionTypes as actionTypesEntities} from "../constants/Entities";
+import {actionTypes as actionTypesDropdown} from "../constants/Dropdown";
 
 /* Entities */
 
@@ -108,7 +109,7 @@ class Dropdowns {
   select(name, selected) {
     let ret = this;
     let item = this[name];
-    if (item && item.selected != item.options[selected]) {
+    if (item && item.selected !== item.options[selected]) {
       item.open = false;
       item.selected = item.options[selected];
       ret = Object.assign(new Dropdowns(), this);
@@ -123,100 +124,41 @@ class Dropdowns {
   }
 }
 
-
-class Descriptions {
-  constructor() {
-    this.opened = {};
-    this.groups = {};
-  }
-
-  show(id) {
-    this.opened = {};
-    this.opened[id] = true;
-    return Object.assign(new Descriptions(), this);
-  }
-
-  hide(id) {
-    let ret = this;
-    if (this.opened[id]) {
-      this.opened = {};
-      ret = Object.assign(new Descriptions(), this);
-    }
-    return ret;
-  }
-
-  load(json) {
-    if (json.extra && json.extra.group_size) {
-      this.groups[json.id] = json;
-    } else {
-      this[json.id] = json;
-    }
-    return Object.assign(new Descriptions(), this);
-  }
-}
-
-
-function items(state = new EntitiesManager(), action) {
+const items = (state = new EntitiesManager(), action) => {
   switch (action.type) {
-    case consts.NOTIFY_LOADING_ENTITIES:
+    case actionTypesEntities.NOTIFY_LOADING_ENTITIES:
       state.loading = true;
       return Object.assign(new EntitiesManager(), state);
-    case consts.LOAD_ENTITIES:
+    case actionTypesEntities.LOAD_ENTITIES:
       return new EntitiesManager(action.json, action.request_options);
     default:
       return state;
   }
-}
+};
 
-
-function dropdowns(state = new Dropdowns({}), action) {
+const dropdowns = (state = new Dropdowns({}), action) => {
   switch (action.type) {
-    case consts.LOAD_ENTITIES:
+    case actionTypesEntities.LOAD_ENTITIES:
       return new Dropdowns(action.json);
-    case consts.TOGGLE_DROPDOWN:
+    case actionTypesDropdown.TOGGLE_DROPDOWN:
       return state.toggle(action.dropdown_name);
-    case consts.SELECT_DROPDOWN:
+    case actionTypesDropdown.SELECT_DROPDOWN:
       return state.select(action.dropdown_name, action.selected);
     default:
       return state;
   }
-}
+};
 
-
-function loading(state = false, action) {
+const loading = (state = false, action) => {
   switch (action.type) {
-    case consts.NOTIFY_LOADING_ENTITIES:
+    case actionTypesEntities.NOTIFY_LOADING_ENTITIES:
       return true;
-    case consts.LOAD_ENTITIES:
+    case actionTypesEntities.LOAD_ENTITIES:
       return false;
     default:
       return state;
   }
-}
-
-
-function loadingItems(state = {}, action) {
-  switch (action.type) {
-    case consts.NOTIFY_LOADING_ENTITIE_ITEM:
-      return Object.assign({}, state, {[action.id]: true});
-    default:
-      return state;
-  }
-}
-
-
-function descriptions(state = new Descriptions(), action) {
-  switch (action.type) {
-    case consts.SHOW_ENTITY_DESC:
-      return state.show(action.entity_id);
-    case consts.HIDE_ENTITY_DESC:
-      return state.hide(action.entity_id);
-    case consts.LOAD_ENTITY_ITEM:
-      return state.load(action.json);
-    default:
-      return state;
-  }
-}
+};
 
 const initialViewComponentState = {
   data: {},
@@ -225,9 +167,9 @@ const initialViewComponentState = {
 
 const viewComponents = (state = initialViewComponentState, action) => {
   switch (action.type) {
-    case consts.SET_DATA_VIEW_COMPONENTS:
+    case actionTypesEntities.SET_DATA_VIEW_COMPONENTS:
       return {...state, data: action.data};
-    case consts.SET_CURRENT_VIEW:
+    case actionTypesEntities.SET_CURRENT_VIEW:
       return {...state, currentView: action.currentView};
     default:
       return state;
@@ -237,11 +179,8 @@ const viewComponents = (state = initialViewComponentState, action) => {
 const entities = combineReducers({
   items,
   dropdowns,
-  descriptions,
   loading,
-  loadingItems,
   viewComponents
 });
-
 
 export default entities;

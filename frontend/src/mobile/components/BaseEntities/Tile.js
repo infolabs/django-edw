@@ -23,7 +23,8 @@ export default class Tile extends EntityMixin(Component) {
         }
         <Layout style={tileStyles.layout}>
           {items.map(
-            (child, i) => <TileItem key={i} data={child} domain={instance.Domain}/>
+            (child, i) => <TileItem key={i} data={child} domain={instance.Domain}
+                                    maxLengthDescriptionTile={this.maxLengthDescriptionTile}/>
           )}
         </Layout>
       </ScrollView>
@@ -33,7 +34,7 @@ export default class Tile extends EntityMixin(Component) {
 
 class TileItem extends Component {
   render() {
-    const {data, domain} = this.props;
+    const {data, domain, maxLengthDescriptionTile} = this.props;
 
     if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
       data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
@@ -43,8 +44,8 @@ class TileItem extends Component {
         <View style={tileStyles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={tileStyles.imageBackground}>
             <Text style={tileStyles.entityNameText}>
-              {data.entity_name.length > 90 ?
-                `${data.entity_name.slice(0, 90)}...`
+              {data.entity_name.length > maxLengthDescriptionTile ?
+                `${data.entity_name.slice(0, maxLengthDescriptionTile)}...`
                 : data.entity_name
               }
             </Text>
