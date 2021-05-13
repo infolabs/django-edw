@@ -38,7 +38,8 @@ export default class ParticularInitiativeTile extends EntityMixin(Component) {
         }
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain}/>
+            (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain}
+                                                        maxLengthDescriptionTile={this.maxLengthDescriptionTile}/>
           )}
         </Layout>
       </ScrollView>
@@ -48,7 +49,7 @@ export default class ParticularInitiativeTile extends EntityMixin(Component) {
 
 class ParticularInitiativeTileItem extends Component {
   render() {
-    const {data, domain} = this.props,
+    const {data, domain, maxLengthDescriptionTile} = this.props,
       {short_marks} = data;
 
     if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
@@ -72,8 +73,8 @@ class ParticularInitiativeTileItem extends Component {
         <View style={styles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
             <Text style={styles.entityNameText}>
-              {data.entity_name.length > 90 ?
-                `${data.entity_name.slice(0, 90)}...`
+              {data.entity_name.length > maxLengthDescriptionTile ?
+                `${data.entity_name.slice(0, maxLengthDescriptionTile)}...`
                 : data.entity_name
               }
             </Text>

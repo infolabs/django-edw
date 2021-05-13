@@ -7,7 +7,7 @@ import {Icon} from "native-base";
 
 
 const ViewComponentsBtn = props => {
-  const {entities, entry_points, entry_point_id, showFilters} = props;
+  const {entities, entry_points, entry_point_id} = props;
   const {viewComponents} = entities;
   const {data, currentView} = viewComponents;
   const dataKeys = Object.keys(data);

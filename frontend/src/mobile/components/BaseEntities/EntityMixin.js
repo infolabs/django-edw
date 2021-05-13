@@ -2,6 +2,11 @@ import React from 'react';
 
 const EntityMixin = Base => class extends Base {
 
+  constructor() {
+    super();
+    this.maxLengthDescriptionTile = 70
+  }
+
   handleScroll(e) {
     const {items, loading, meta} = this.props;
     if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height * 2 > e.nativeEvent.contentSize.height

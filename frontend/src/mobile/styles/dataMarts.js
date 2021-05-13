@@ -16,8 +16,8 @@ export const dataMartStyles = StyleSheet.create({
     height: 50
   },
   orderingView: {
-    width: '40%',
-    marginRight: '30%',
+    width: '50%',
+    marginRight: '20%',
   },
   textDelimiter: {
     width: 1,

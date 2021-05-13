@@ -1,11 +1,7 @@
 import {
-  getEntityItem,
   getEntities,
   readEntities,
   notifyLoadingEntities,
-  expandGroup,
-  showDescription,
-  hideDescription,
   toggleDropdown,
   selectDropdown,
   setDataViewComponents,
@@ -13,42 +9,30 @@ import {
 } from './EntityActions';
 
 import {
-  getTermsItem,
   loadTree,
   reloadTree,
   readTree,
-  notifyLoading,
-  toggle,
-  toggleFilters,
-  resetItem,
+  notifyLoadingTerms,
+  toggleTerm,
+  resetTerm,
   resetBranch,
-  showInfo,
-  hideInfo,
-  setCountTaggedBranch
+  setPrevTaggedItems
 } from './TermsTreeActions';
 
 export default {
-  getEntityItem,
   getEntities,
   readEntities,
   notifyLoadingEntities,
-  expandGroup,
-  showDescription,
-  hideDescription,
   toggleDropdown,
   selectDropdown,
-  getTermsItem,
   loadTree,
   reloadTree,
   readTree,
-  notifyLoading,
-  toggle,
-  toggleFilters,
-  resetItem,
+  notifyLoadingTerms,
+  toggleTerm,
+  resetTerm,
   resetBranch,
-  showInfo,
-  hideInfo,
   setDataViewComponents,
   setCurrentView,
-  setCountTaggedBranch
+  setPrevTaggedItems
 }

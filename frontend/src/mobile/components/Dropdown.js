@@ -15,8 +15,8 @@ const Dropdown = props => {
 
   const fixOffset = (options = {}) => {
     const total = props.count,
-          offset = options.offset,
-          limit = options.limit;
+      offset = options.offset,
+      limit = options.limit;
     if (total && offset && limit && total < offset + limit)
       options.offset = total - limit - total % limit;
     return options;

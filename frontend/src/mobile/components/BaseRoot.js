@@ -28,11 +28,11 @@ class BaseRoot extends Component {
     const instance = Singleton.getInstance();
 
     const {attrs} = this.props,
-          store = configureStore(),
-          {entry_points, entry_point_id} = attrs;
+      store = configureStore(),
+      {entry_points, entry_point_id} = attrs;
 
     const template_name = entry_points[entry_point_id].template_name,
-          component = this.templates[template_name] || this.templates['data_mart'];
+      component = this.templates[template_name] || this.templates['data_mart'];
 
     const container_render = React.createElement(
       component, {
@@ -41,7 +41,7 @@ class BaseRoot extends Component {
       }
     );
 
-    return(
+    return (
       <Provider store={store}>
         {container_render}
       </Provider>
