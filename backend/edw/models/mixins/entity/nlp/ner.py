@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
 from jsonfield.fields import JSONField
 from natasha import (
     Segmenter,
