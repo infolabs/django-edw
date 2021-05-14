@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native'
-import {Text, Card, Layout} from '@ui-kitten/components'
+import {Text, Card, Layout, List} from '@ui-kitten/components'
 import {Badge} from 'native-base'
 import Singleton from '../../utils/singleton'
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -23,32 +23,54 @@ const stylesComponent = StyleSheet.create({
 const styles = Object.assign(listStyles, stylesComponent);
 
 export default class ParticularInitiativeList extends EntityMixin(Component) {
+
   render() {
-    const {items, loading} = this.props;
+    const {items, loading, templateIsDataMart} = this.props;
     const instance = Singleton.getInstance();
 
+    if (templateIsDataMart) {
+      return (
+        <ScrollView scrollEventThrottle={2000}
+                    onScroll={e => this.handleScroll(e)}>
+          {loading ?
+            <View style={styles.spinnerContainer}>
+              <Spinner visible={true}/>
+            </View>
+            : null
+          }
+          <Layout style={styles.layout}>
+            {items.map(
+              (child, i) => <ParticularInitiativeListItem key={i} data={child} domain={instance.Domain}
+                                                          templateIsDataMart={templateIsDataMart}/>
+            )}
+          </Layout>
+        </ScrollView>
+      );
+    }
+
+    // Related
     return (
-      <ScrollView scrollEventThrottle={2000}
-                  onScroll={e => this.handleScroll(e)}>
-        {loading ?
-          <View style={styles.spinnerContainer}>
-            <Spinner visible={true}/>
-          </View>
-          : null
-        }
-        <Layout style={styles.layout}>
-          {items.map(
-            (child, i) => <ParticularInitiativeListItem key={i} data={child} domain={instance.Domain}/>
+      <>
+        <List
+          style={styles.containerRelated}
+          contentContainerStyle={styles.containerContentRelated}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={items}
+          renderItem={(child, i) => (
+            <ParticularInitiativeListItem key={i} data={child.item} domain={instance.Domain}
+                                          templateIsDataMart={templateIsDataMart}/>
           )}
-        </Layout>
-      </ScrollView>
+        />
+      </>
     );
   }
 }
 
 class ParticularInitiativeListItem extends Component {
+
   render() {
-    const {data, domain} = this.props,
+    const {data, domain, templateIsDataMart} = this.props,
       {short_marks} = data;
 
     if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
@@ -68,10 +90,14 @@ class ParticularInitiativeListItem extends Component {
     });
 
     return (
-      <Card style={styles.cardContainer} onPress={() => console.log(data.id)}>
-        <View style={styles.cardImageContainer}>
-          <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
-            <Text style={styles.entityNameText}>{data.entity_name}</Text>
+      <Card style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
+            onPress={() => console.log(data.id)}>
+        <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
+          <ImageBackground source={{uri: data.media}} style={templateIsDataMart ? styles.imageBackground :
+            styles.imageBackgroundRelated}>
+            <Text style={templateIsDataMart ? {...styles.entityNameText} : {...styles.entityNameText, fontSize: 16}}>
+              {data.entity_name}
+            </Text>
             {textState ?
               <Badge style={{...styles.badge, backgroundColor: backgroundColorState}}>
                 <Text style={styles.badgeText}>{textState}</Text>
