@@ -59,11 +59,7 @@ class BaseEntities extends Component {
       request_options['terms'] = term_ids;
 
     this.props.notifyLoadingEntities();
-
-    this.props.readEntities(
-      entry_point_id, subj_ids, request_options, options_arr
-    );
-
+    this.props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
     this.setComponentName();
   }
 
@@ -72,7 +68,7 @@ class BaseEntities extends Component {
   }
 
   setComponentName() {
-    const {entities} = this.props,
+    const {entities, entry_points, entry_point_id} = this.props,
       meta = entities.items.meta;
 
     if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
@@ -81,10 +77,21 @@ class BaseEntities extends Component {
 
       // Вычисляем список ключей компонентов, которые пересекаются c API и getTemplates
       let viewComponentsMobile = [];
-      viewComponents.map(item => {
+      let templateIsRelated = entry_points[entry_point_id].template_name &&
+        entry_points[entry_point_id].template_name === 'related';
+      for (let item of viewComponents) {
+        if (templateIsRelated) {
+          if (item.match(/(_list$)/))
+            if (this.props.getTemplates().hasOwnProperty(item))
+              viewComponentsMobile.push(item);
+          continue;
+        }
         if (this.props.getTemplates().hasOwnProperty(item))
           viewComponentsMobile.push(item)
-      });
+      }
+
+      if (templateIsRelated && !viewComponentsMobile.length)
+        viewComponentsMobile.push('list');
 
       const dataViewComponent = {};
       viewComponentsMobile.map(component => {
@@ -101,7 +108,7 @@ class BaseEntities extends Component {
   }
 
   render() {
-    const {entities, entry_points, entry_point_id} = this.props;
+    const {entities, entry_points, entry_point_id, notifyLoadingEntities, getEntities} = this.props;
 
     const items = entities.items.objects || [],
       {loading, meta} = entities.items;
@@ -112,6 +119,9 @@ class BaseEntities extends Component {
       if (!this.templates)
         this.templates = this.props.getTemplates();
 
+      const templateIsDataMart = !entry_points[entry_point_id].template_name ||
+        (entry_points[entry_point_id].template_name === 'data-mart');
+
       const component = this.templates[componentName] || this.templates['list'];
       return (React.createElement(
         component, {
@@ -119,8 +129,9 @@ class BaseEntities extends Component {
           meta,
           loading,
           entry_point_id,
-          notifyLoadingEntities: this.props.notifyLoadingEntities,
-          getEntities: this.props.getEntities
+          notifyLoadingEntities,
+          getEntities,
+          templateIsDataMart
         }
       ));
     } else {

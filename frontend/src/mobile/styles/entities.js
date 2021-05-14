@@ -84,5 +84,26 @@ export const listStyles = StyleSheet.create({
     fontSize: 18,
     textShadowColor: '#333',
     textShadowRadius: 5
+  },
+  containerRelated: {
+    backgroundColor: 'transparent',
+    height: 160,
+  },
+  containerContentRelated: {
+    marginVertical: 25,
+    marginHorizontal: 8,
+  },
+  cardContainerRelated: {
+    width: 256,
+    height: 150,
+    marginHorizontal: 5,
+    borderRadius: 15,
+  },
+  cardImageRelated: {
+    ...StyleSheet.absoluteFillObject
+  },
+  imageBackgroundRelated: {
+    ...StyleSheet.absoluteFillObject,
+    height: 150,
   }
 });
