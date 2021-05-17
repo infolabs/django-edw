@@ -114,13 +114,12 @@ class BaseEntities extends Component {
       {loading, meta} = entities.items;
 
     const componentName = entities.viewComponents.currentView || null;
+    const templateIsDataMart = !entry_points[entry_point_id].template_name ||
+        (entry_points[entry_point_id].template_name === 'data-mart');
 
     if (componentName) {
       if (!this.templates)
         this.templates = this.props.getTemplates();
-
-      const templateIsDataMart = !entry_points[entry_point_id].template_name ||
-        (entry_points[entry_point_id].template_name === 'data-mart');
 
       const component = this.templates[componentName] || this.templates['list'];
       return (React.createElement(
@@ -134,12 +133,14 @@ class BaseEntities extends Component {
           templateIsDataMart
         }
       ));
-    } else {
+    } else if (templateIsDataMart) {
       return (
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
       )
+    } else {
+      return null
     }
   }
 }
