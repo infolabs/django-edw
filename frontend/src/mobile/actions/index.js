@@ -5,7 +5,9 @@ import {
   toggleDropdown,
   selectDropdown,
   setDataViewComponents,
-  setCurrentView
+  setCurrentView,
+  getEntity,
+  hideVisibleDetail
 } from './EntityActions';
 
 import {
@@ -34,5 +36,7 @@ export default {
   resetBranch,
   setDataViewComponents,
   setCurrentView,
+  getEntity,
+  hideVisibleDetail,
   setPrevTaggedItems
 }

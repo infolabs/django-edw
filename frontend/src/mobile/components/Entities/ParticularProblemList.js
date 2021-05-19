@@ -25,14 +25,14 @@ const styles = Object.assign(listStyles, stylesComponent);
 export default class ParticularProblemList extends EntityMixin(Component) {
 
   render() {
-    const {items, loading, templateIsDataMart} = this.props;
+    const {items, loading, loadingEntity, templateIsDataMart, getEntity} = this.props;
     const instance = Singleton.getInstance();
 
     if (templateIsDataMart) {
       return (
         <ScrollView scrollEventThrottle={2000}
                     onScroll={e => this.handleScroll(e)}>
-          {loading ?
+          {loading || loadingEntity ?
             <View style={styles.spinnerContainer}>
               <Spinner visible={true}/>
             </View>
@@ -40,7 +40,7 @@ export default class ParticularProblemList extends EntityMixin(Component) {
           }
           <Layout style={styles.layout}>
             {items.map(
-              (child, i) => <ParticularProblemListItem key={i} data={child} domain={instance.Domain}
+              (child, i) => <ParticularProblemListItem key={i} data={child} domain={instance.Domain} getEntity={getEntity}
                                                        templateIsDataMart={templateIsDataMart}/>
             )}
           </Layout>
@@ -58,7 +58,7 @@ export default class ParticularProblemList extends EntityMixin(Component) {
           showsHorizontalScrollIndicator={false}
           data={items}
           renderItem={(child, i) => (
-            <ParticularProblemListItem key={i} data={child.item} domain={instance.Domain}
+            <ParticularProblemListItem key={i} data={child.item} domain={instance.Domain} getEntity={getEntity}
                                        templateIsDataMart={templateIsDataMart}/>
           )}
         />
@@ -73,8 +73,8 @@ class ParticularProblemListItem extends Component {
     const {data, domain, templateIsDataMart} = this.props,
       {short_marks} = data;
 
-    if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
-      data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
+    if (data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/))
+      data.media = `${domain}/${data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
 
     let textState = null,
       backgroundColorState = 'gray';
@@ -91,7 +91,7 @@ class ParticularProblemListItem extends Component {
 
     return (
       <Card style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
-            onPress={() => console.log(data.id)}>
+            onPress={() => templateIsDataMart ? this.props.getEntity(data) : {}}>
         <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
           <ImageBackground source={{uri: data.media}} style={templateIsDataMart ? styles.imageBackground :
             styles.imageBackgroundRelated}>

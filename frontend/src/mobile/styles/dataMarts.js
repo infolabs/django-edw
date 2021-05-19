@@ -41,7 +41,7 @@ export const dataMartStyles = StyleSheet.create({
   termsTreeView: {
     height: '100%',
   },
-  termTreeViewTitle: {
+  navigationTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     paddingHorizontal: 40,
@@ -80,5 +80,20 @@ export const dataMartStyles = StyleSheet.create({
   },
   emptyView: {
     height: 200
-  }
+  },
+  swipeWrapper: {
+    height: 300,
+  },
+  slide: {
+    height: 300,
+  },
+  imageSlide: {
+    height: 300,
+    resizeMode: 'cover',
+  },
+  infoEntity: {
+    paddingHorizontal: 24,
+    marginTop: 8,
+    marginVertical: 16,
+  },
 });

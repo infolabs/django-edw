@@ -14,6 +14,7 @@ import getDeclinedName from "../../utils/getDeclinedName";
 import ViewComponentsBtn from "../ViewComponentsBtn";
 import {dataMartStyles as styles} from "../../styles/dataMarts";
 import {isArraysEqual} from "../../utils/isArrayEqual";
+import BaseEntities from "../BaseEntities";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -23,13 +24,17 @@ let usePrevTerms = false;
 
 const DataMart = props => {
   const {entry_point_id, entry_points, entities, terms} = props;
-  const {viewComponents} = entities;
+  const {viewComponents, detail} = entities;
   const {loading, json} = terms.tree;
+  const {data} = detail;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
-  // Флаг нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
+  const [visibleDetail, setVisibleDetail] = useState(false);
+  // Флаг showTermsTree нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
   // Т.к. при первоначальной загрузке мы получаем абсолютно все термины
   const [showTermsTree, setShowTermsTree] = useState(false);
+  const [templateDetailName, setTemplateDetailName] = useState(null);
+  const [templatesDetail, setTemplatesDetail] = useState(null);
 
   useEffect(() => {
     if (!json.length)
@@ -39,7 +44,25 @@ const DataMart = props => {
   useEffect(() => {
     if (json.length)
       setShowTermsTree(true);
-  },[terms.tagged.items]);
+  }, [terms.tagged.items]);
+
+  useEffect(() => {
+    const templates = BaseEntities.getTemplatesDetail();
+    const model = data.entity_model in templates ? data.entity_model : "default";
+    setTemplatesDetail(templates);
+    setTemplateDetailName(model);
+  }, [detail.data]);
+
+  useEffect(() => {
+    if (detail.visible) {
+      translateY = 30;
+      setShowTermsTree(false);
+      setVisibleDetail(true);
+    } else {
+      translateY = deviceHeight;
+      setVisibleDetail(false);
+    }
+  }, [detail.visible]);
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
@@ -118,36 +141,46 @@ const DataMart = props => {
       </View>
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
       <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY}]}}>
-        <TopNavigation
-          alignment='center'
-          title={() => <Text style={{...styles.termTreeViewTitle, backgroundColor: theme['background-color-default']}}>
-            Фильтры
-          </Text>}
-          accessoryRight={closeFiltersView}
-        />
-        <View style={styles.termsTreeView}>
-          {showTermsTree ?
-            <ScrollView>
-              <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
-                         termsIdsTaggedBranch={termsIdsTaggedBranch}/>
-              {/*HACK: Чтобы добавить место в конце ScrollView добавляем пустой View*/}
-              <View style={styles.emptyView}/>
-            </ScrollView>
-            : null
-          }
-        </View>
-        {entities.items.meta.count !== undefined ?
-          <View style={styles.showObjectsBtnView}>
-            <Button
-              style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
-              size="giant"
-              onPress={() => {
-                visibilityFilters(!visibleFilters);
-                props.setPrevTaggedItems();
-              }}>
-              {`Показать ${getDeclinedName(entities.items.meta.count)}`}
-            </Button>
-          </View>
+        {showTermsTree ?
+          <>
+            <TopNavigation
+              alignment='center'
+              title={() => <Text
+                style={{...styles.navigationTitle, backgroundColor: theme['background-color-default']}}>
+                Фильтры
+              </Text>}
+              accessoryRight={closeFiltersView}
+            />
+            <View style={styles.termsTreeView}>
+              <ScrollView>
+                <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
+                           termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+                {/*HACK: Чтобы добавить место в конце ScrollView добавляем пустой View*/}
+                <View style={styles.emptyView}/>
+              </ScrollView>
+            </View>
+            {entities.items.meta.count !== undefined ?
+              <View style={styles.showObjectsBtnView}>
+                <Button
+                  style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
+                  size="giant"
+                  onPress={() => {
+                    visibilityFilters(!visibleFilters);
+                    props.setPrevTaggedItems();
+                  }}>
+                  {`Показать ${getDeclinedName(entities.items.meta.count)}`}
+                </Button>
+              </View>
+              : null
+            }
+          </>
+          : null
+        }
+        {detail.visible ?
+          React.createElement(templatesDetail[templateDetailName],{
+            data,
+            hideVisibleDetail: props.hideVisibleDetail
+          })
           : null
         }
       </Animated.View>

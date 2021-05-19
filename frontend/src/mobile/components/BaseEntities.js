@@ -11,17 +11,13 @@ import ParticularInitiativeList from "./Entities/ParticularInitiativeList";
 import ParticularProblemTile from "./Entities/ParticularProblemTile";
 import ParticularProblemList from "./Entities/ParticularProblemList";
 import Spinner from 'react-native-loading-spinner-overlay';
+import Default from './Detail/Default';
+import Problem from './Detail/Problem';
+import Idea from './Detail/Idea';
 import {baseEntitiesStyles as styles} from "../styles/baseEntities";
 
 
 class BaseEntities extends Component {
-
-  constructor() {
-    super();
-    this.state = {
-      initialized: false
-    };
-  }
 
   static getTemplates() {
     return {
@@ -32,6 +28,14 @@ class BaseEntities extends Component {
       "particular_problem_tile": ParticularProblemTile,
       "particular_problem_list": ParticularProblemList
     };
+  }
+
+  static getTemplatesDetail() {
+    return {
+      "default": Default,
+      "particularproblem": Problem,
+      "particularinitiative": Idea,
+    }
   }
 
   static defaultProps = {
@@ -108,10 +112,11 @@ class BaseEntities extends Component {
   }
 
   render() {
-    const {entities, entry_points, entry_point_id, notifyLoadingEntities, getEntities} = this.props;
+    const {entities, entry_points, entry_point_id, notifyLoadingEntities, getEntities, getEntity} = this.props;
 
     const items = entities.items.objects || [],
-      {loading, meta} = entities.items;
+      {loading, meta} = entities.items,
+      loadingEntity = entities.detail.loading;
 
     const componentName = entities.viewComponents.currentView || null;
     const templateIsDataMart = !entry_points[entry_point_id].template_name ||
@@ -127,10 +132,12 @@ class BaseEntities extends Component {
           items,
           meta,
           loading,
+          loadingEntity,
           entry_point_id,
           notifyLoadingEntities,
           getEntities,
-          templateIsDataMart
+          templateIsDataMart,
+          getEntity
         }
       ));
     } else if (templateIsDataMart) {
