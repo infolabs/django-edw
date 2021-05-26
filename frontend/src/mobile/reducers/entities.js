@@ -176,11 +176,33 @@ const viewComponents = (state = initialViewComponentState, action) => {
   }
 };
 
+const initialDetailState = {
+  data: {},
+  loading: false,
+  visible: false
+};
+
+const detail = (state = initialDetailState, action) => {
+  switch (action.type) {
+    case actionTypesEntities.LOAD_ENTITY:
+      return {...state, data: action.json, loading: false, visible: true};
+    case actionTypesEntities.NOTIFY_LOADING_ENTITY:
+      return {...state, loading: true};
+    case actionTypesEntities.HIDE_VISIBLE_DETAIL:
+      return {...state, visible: false};
+    case actionTypesEntities.DO_NOTHING:
+      return {...state, loading: false, visible: true};
+    default:
+      return state;
+  }
+};
+
 const entities = combineReducers({
   items,
   dropdowns,
   loading,
-  viewComponents
+  viewComponents,
+  detail
 });
 
 export default entities;

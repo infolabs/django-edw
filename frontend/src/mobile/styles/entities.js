@@ -10,6 +10,7 @@ export const tileStyles = StyleSheet.create({
     width: deviceWidth,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
   },
   layout: {
     width: deviceWidth,
@@ -52,6 +53,7 @@ export const listStyles = StyleSheet.create({
     width: deviceWidth,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
   },
   layout: {
     flex: 1,

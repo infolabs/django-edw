@@ -90,6 +90,47 @@ export const readEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
 };
 
+export const getEntity = (data, meta= false) => {
+  data.entity_url = data.entity_url.replace(/\.html$/,'.json');
+  let url = reCache(data.entity_url);
+  if (meta) {
+    const opts = {
+      "alike": true,
+      "data_mart_pk": meta.data_mart.id,
+      "terms": meta.terms_ids,
+      "subj": meta.subj_ids
+    };
+    url += opts2gets(opts);
+  }
+  return (dispatch, getState) => {
+    dispatch({type: actionTypesEntities.NOTIFY_LOADING_ENTITY});
+    const {detail} = getState().entities;
+    if (detail.data.id !== data.id) {
+      fetch(url, {
+        method: 'get',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      })
+        .then(response => response.json())
+        .then(json => {
+          const arrayMediaEntity = Array.from(json.media.matchAll(/(?:src=['\"])(\/media\S+.[jpg|jpeg|png])/gm));
+          json.media = arrayMediaEntity.map(item => `${instance.Domain}${item[1]}`);
+
+          if (json.private_person)
+            json.private_person.media = `${instance.Domain}${json.private_person.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
+          return dispatch({type: actionTypesEntities.LOAD_ENTITY, json});
+        });
+    } else
+      dispatch({type: actionTypesEntities.DO_NOTHING})
+  };
+};
+
+export const hideVisibleDetail = () => dispatch => {
+  dispatch({type: actionTypesEntities.HIDE_VISIBLE_DETAIL})
+};
+
 export const toggleDropdown = (dropdown_name = "") => dispatch => {
   dispatch({type: actionTypesDropdown.TOGGLE_DROPDOWN, dropdown_name});
 };

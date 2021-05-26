@@ -23,14 +23,15 @@ const stylesComponent = StyleSheet.create({
 const styles = Object.assign(tileStyles, stylesComponent);
 
 export default class ParticularInitiativeTile extends EntityMixin(Component) {
+
   render() {
-    const {items, loading} = this.props;
+    const {items, loading, loadingEntity, getEntity} = this.props;
     const instance = Singleton.getInstance();
 
     return (
       <ScrollView scrollEventThrottle={2000}
                   onScroll={e => this.handleScroll(e)}>
-        {loading ?
+        {loading || loadingEntity ?
           <View style={styles.spinnerContainer}>
             <Spinner visible={true}/>
           </View>
@@ -38,7 +39,7 @@ export default class ParticularInitiativeTile extends EntityMixin(Component) {
         }
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain}
+            (child, i) => <ParticularInitiativeTileItem key={i} data={child} domain={instance.Domain} getEntity={getEntity}
                                                         maxLengthDescriptionTile={this.maxLengthDescriptionTile}/>
           )}
         </Layout>
@@ -48,12 +49,13 @@ export default class ParticularInitiativeTile extends EntityMixin(Component) {
 }
 
 class ParticularInitiativeTileItem extends Component {
+
   render() {
     const {data, domain, maxLengthDescriptionTile} = this.props,
       {short_marks} = data;
 
-    if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
-      data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
+    if (data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/))
+      data.media = `${domain}/${data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
 
     let textState = null,
       backgroundColorState = 'gray';
@@ -69,7 +71,7 @@ class ParticularInitiativeTileItem extends Component {
     });
 
     return (
-      <Card style={styles.cardContainer} onPress={() => console.log(data.id)}>
+      <Card style={styles.cardContainer} onPress={() => this.props.getEntity(data)}>
         <View style={styles.cardImageContainer}>
           <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
             <Text style={styles.entityNameText}>

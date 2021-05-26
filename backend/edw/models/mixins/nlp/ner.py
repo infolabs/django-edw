@@ -22,7 +22,7 @@ from natasha import (
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.mixins import ModelMixin
-from edw.models.mixins.entity.nlp import Doc
+from edw.models.mixins.nlp import Doc
 
 
 class NERMixin(ModelMixin):
