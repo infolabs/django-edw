@@ -33,7 +33,7 @@ class NERMixin(ModelMixin):
 
     EXTRACTED_TYPES = [PER, LOC, ORG, 'DATE', 'MONEY']
 
-    NO_INDEX_TYPES = [PER, 'DATE', 'MONEY']
+    NO_INDEX_TYPES = [PER, LOC, 'DATE', 'MONEY']
 
     REPLACERS = [
         ('&nbsp;|&ensp;|&emsp;', ' '),
