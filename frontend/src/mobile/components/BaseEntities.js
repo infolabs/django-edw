@@ -1,97 +1,91 @@
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import React, {Component} from 'react';
-import {View} from 'react-native'
+import React, {useEffect, useMemo} from 'react';
+import {useSelector, useDispatch, useStore} from 'react-redux';
+import {View} from 'react-native';
 import Tile from './BaseEntities/Tile';
 import List from './BaseEntities/List';
 import parseRequestParams from '../utils/parseRequestParams';
-import ActionCreators from "../actions";
-import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
-import ParticularInitiativeList from "./Entities/ParticularInitiativeList";
-import ParticularProblemTile from "./Entities/ParticularProblemTile";
-import ParticularProblemList from "./Entities/ParticularProblemList";
+import {
+  notifyLoadingEntities,
+  readEntities,
+  setCurrentView,
+  getEntities,
+  getEntity,
+  setDataViewComponents,
+} from '../actions/EntityActions';
+import ParticularInitiativeTile from './Entities/ParticularInitiativeTile';
+import ParticularInitiativeList from './Entities/ParticularInitiativeList';
+import ParticularProblemTile from './Entities/ParticularProblemTile';
+import ParticularProblemList from './Entities/ParticularProblemList';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Default from './Detail/Default';
 import Problem from './Detail/Problem';
 import Idea from './Detail/Idea';
-import {baseEntitiesStyles as styles} from "../styles/baseEntities";
+import {baseEntitiesStyles as styles} from '../styles/baseEntities';
 
 
-class BaseEntities extends Component {
-
-  static getTemplates() {
-    return {
-      "tile": Tile,
-      "list": List,
-      "particular_initiative_tile": ParticularInitiativeTile,
-      "particular_initiative_list": ParticularInitiativeList,
-      "particular_problem_tile": ParticularProblemTile,
-      "particular_problem_list": ParticularProblemList
-    };
-  }
-
-  static getTemplatesDetail() {
-    return {
-      "default": Default,
-      "particularproblem": Problem,
-      "particularinitiative": Idea,
-    }
-  }
-
-  static defaultProps = {
-    getTemplates: BaseEntities.getTemplates
+function getTemplates() {
+  return {
+    'tile': Tile,
+    'list': List,
+    'particular_initiative_tile': ParticularInitiativeTile,
+    'particular_initiative_list': ParticularInitiativeList,
+    'particular_problem_tile': ParticularProblemTile,
+    'particular_problem_list': ParticularProblemList,
   };
+}
 
-  componentDidMount() {
-    this.templates = this.props.getTemplates();
 
-    const {entry_points, entry_point_id} = this.props,
-      request_params = entry_points[entry_point_id].request_params || [];
+export function getTemplatesDetail() {
+  return {
+    'default': Default,
+    'particularproblem': Problem,
+    'particularinitiative': Idea,
+  };
+}
 
-    const params = parseRequestParams(request_params),
-      term_ids = params.term_ids,
-      subj_ids = params.subj_ids,
-      limit = params.limit,
-      options_arr = params.options_arr;
 
-    let request_options = this.props.entities.items.meta.request_options;
+function BaseEntities(props) {
 
-    if (limit > -1)
-      request_options['limit'] = limit;
+  const {entry_points, entry_point_id} = props;
 
-    if (term_ids.length)
-      request_options['terms'] = term_ids;
+  const entities = useSelector(state => state.entities);
+  const dispatch = useDispatch();
+  const store = useStore();
 
-    this.props.notifyLoadingEntities();
-    this.props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
-    this.setComponentName();
-  }
+  const templates = useMemo(() => getTemplates(), []);
 
-  componentDidUpdate() {
-    this.setComponentName();
-  }
+  const params = useMemo(
+    () => {
+      const request_params = entry_points[entry_point_id].request_params || [];
+      return parseRequestParams(request_params);
+    },
+    [entry_points, entry_point_id],
+  );
 
-  setComponentName() {
-    const {entities, entry_points, entry_point_id} = this.props,
-      meta = entities.items.meta;
 
-    if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
-      // Получаем все компоненты витрины данных
+  useMemo(
+    () => {
+      const meta = entities.items.meta;
+
+      if (entities.viewComponents.currentView
+          || !meta.data_mart
+          || !meta.data_mart.view_components)
+        return;
+
       let viewComponents = Object.keys(meta.data_mart.view_components);
 
       // Вычисляем список ключей компонентов, которые пересекаются c API и getTemplates
       let viewComponentsMobile = [];
       let templateIsRelated = entry_points[entry_point_id].template_name &&
         entry_points[entry_point_id].template_name === 'related';
+
       for (let item of viewComponents) {
-        if (templateIsRelated) {
-          if (item.match(/(_list$)/))
-            if (this.props.getTemplates().hasOwnProperty(item))
+        if (templateIsRelated && item.match(/(_list$)/) && templates.hasOwnProperty(item)) {
               viewComponentsMobile.push(item);
           continue;
         }
-        if (this.props.getTemplates().hasOwnProperty(item))
-          viewComponentsMobile.push(item)
+        if (templates.hasOwnProperty(item))
+          viewComponentsMobile.push(item);
       }
 
       if (templateIsRelated && !viewComponentsMobile.length)
@@ -99,65 +93,73 @@ class BaseEntities extends Component {
 
       const dataViewComponent = {};
       viewComponentsMobile.map(component => {
-        dataViewComponent[component] = meta.data_mart.view_components[component]
+        dataViewComponent[component] = meta.data_mart.view_components[component];
       });
 
-      this.props.setDataViewComponents(dataViewComponent);
+      setDataViewComponents(dataViewComponent);
 
       if (viewComponentsMobile.length) {
         const componentName = viewComponentsMobile[0];
-        this.props.setCurrentView(componentName)
+        setCurrentView(componentName)(dispatch);
       }
-    }
-  }
+    },
+    [entities, templates, entry_points, entry_point_id, dispatch]
+  );
 
-  render() {
-    const {entities, entry_points, entry_point_id, notifyLoadingEntities, getEntities, getEntity} = this.props;
+  useEffect(() => {
+    const term_ids = params.term_ids,
+      subj_ids = params.subj_ids,
+      limit = params.limit,
+      options_arr = params.options_arr;
 
-    const items = entities.items.objects || [],
-      {loading, meta} = entities.items,
-      loadingEntity = entities.detail.loading;
+    let request_options = {};
 
-    const componentName = entities.viewComponents.currentView || null;
-    const templateIsDataMart = !entry_points[entry_point_id].template_name ||
-        (entry_points[entry_point_id].template_name === 'data-mart');
+    if (limit > -1)
+      request_options.limit = limit;
 
-    if (componentName) {
-      if (!this.templates)
-        this.templates = this.props.getTemplates();
+    if (term_ids.length)
+      request_options.terms = term_ids;
 
-      const component = this.templates[componentName] || this.templates['list'];
-      return (React.createElement(
-        component, {
-          items,
-          meta,
-          loading,
-          loadingEntity,
-          entry_point_id,
-          notifyLoadingEntities,
-          getEntities,
-          templateIsDataMart,
-          getEntity
-        }
-      ));
-    } else if (templateIsDataMart) {
-      return (
-        <View style={styles.spinnerContainer}>
-          <Spinner visible={true}/>
-        </View>
-      )
-    } else {
-      return null
-    }
+    notifyLoadingEntities()(dispatch);
+    readEntities(entry_point_id,
+      subj_ids, request_options, options_arr)(dispatch, store.getState);
+
+  }, [params, entry_point_id, dispatch, store]);
+
+
+  const items = entities.items.objects || [],
+    {loading, meta} = entities.items,
+    loadingEntity = entities.detail.loading;
+
+  const templateIsDataMart = !entry_points[entry_point_id].template_name ||
+      (entry_points[entry_point_id].template_name === 'data-mart');
+
+  const componentName = entities.viewComponents.currentView || null;
+  if (componentName) {
+    const component = templates[componentName] || templates.list;
+    return (React.createElement(
+      component, {
+        items,
+        meta,
+        loading,
+        loadingEntity,
+        entry_point_id,
+        notifyLoadingEntities,
+        getEntities,
+        templateIsDataMart,
+        getEntity,
+      }
+    ));
+  } else if (templateIsDataMart) {
+    return (
+      <View style={styles.spinnerContainer}>
+        <Spinner visible={true}/>
+      </View>
+    );
+  } else {
+    return null;
   }
 }
 
 
-const mapStateToProps = state => ({
-  terms: state.terms,
-  entities: state.entities,
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(BaseEntities);
+export default BaseEntities;

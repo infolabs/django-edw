@@ -29,8 +29,8 @@ const Dropdown = props => {
     option[request_var] = value;
     let options = Object.assign(request_options, option);
     props.selectDropdown(name, value);
-    props.notifyLoadingEntities();
-    props.getEntities(entry_point_id, subj_ids, fixOffset(options));
+    //props.notifyLoadingEntities();
+    //props.getEntities(entry_point_id, subj_ids, fixOffset(options));
   };
 
   const handleOptionClick = value => {
