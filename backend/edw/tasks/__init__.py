@@ -27,3 +27,4 @@ from .bulk_delete import entities_bulk_delete
 from .delete_post_office_email import delete_post_office_email
 from .clear_django_sessions import clear_django_sessions
 from .update_datamart_terms import update_data_mart_terms
+from .ner import extract_ner_data

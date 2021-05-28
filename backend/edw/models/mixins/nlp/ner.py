@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 from jsonfield.fields import JSONField
 from natasha import (
     Segmenter,
@@ -18,11 +19,13 @@ from natasha import (
     LOC,
     ORG
 )
+from celery.utils.log import get_logger
 
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.mixins import ModelMixin
 from edw.models.mixins.nlp import Doc
+from edw.tasks import extract_ner_data
 
 
 class NERMixin(ModelMixin):
@@ -42,6 +45,8 @@ class NERMixin(ModelMixin):
         ('&gt;', '>'),
         ('&lt;', '<'),
     ]
+
+    TASK_WAIT_EXECUTION_INTERVAL = 3
 
     ner_data = JSONField(verbose_name=_("NER data"), default={},
         help_text=_("Data obtained after recognition of named entities for the given text"))
@@ -156,6 +161,13 @@ class NERMixin(ModelMixin):
         return result
 
     def extract_ner(self):
+        '''
+        Данный метод вызывать только через task`и! Если его вызывать из инстанции объекта то это приведет к перерасходу
+        памяти из-за того, что для каждого запущеного потока сервера будет создана копия данных нужных для извлечения
+        именованных сущностей. Каждая копия использует 250-350 мегабайт оперативной памяти, на боевом сервере создается
+        практически столько потоков сколько есть процессорных ядер, у сервером с большим количеством ядер это приведет
+        к тому что память будет использоваться крайне неэффективно.
+        '''
         doc = Doc(self.get_ner_source())
         doc.segment(self.get_segmenter())
 
@@ -166,8 +178,32 @@ class NERMixin(ModelMixin):
         extractors = self.get_extractors()
         extracted_types = self.get_extracted_types()
 
-        self.ner_data = self._extract_ner(doc, morph_tagger, morph_vocab, syntax_parser,
+        return self._extract_ner(doc, morph_tagger, morph_vocab, syntax_parser,
                                           ner_tagger, extractors, extracted_types)
+
+    def extract_ner_by_task(self):
+        ner_data = {}
+        try:
+            result = extract_ner_data.apply_async(
+                kwargs={
+                    "obj_id": self.id,
+                    "obj_model": self.__class__.__name__.lower()
+                },
+                expires=self.TASK_WAIT_EXECUTION_INTERVAL,
+                retry=False,
+            )
+        except extract_ner_data.OperationalError as exc:
+            logger = get_logger('logfile_error')
+            logger.exception('Sending task raised: %r', exc)
+        else:
+            try:
+                ner_data = result.get(
+                    interval=self.TASK_WAIT_EXECUTION_INTERVAL,
+                    propagate=False,
+                )
+            except Exception:
+                pass
+        self.ner_data = ner_data
 
     @property
     def highlighter_context(self):
