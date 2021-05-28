@@ -20,7 +20,9 @@ const stylesComponent = StyleSheet.create({
   },
 });
 
+
 const styles = Object.assign(tileStyles, stylesComponent);
+
 
 function ParticularProblemTile(props) {
 
@@ -47,6 +49,7 @@ function ParticularProblemTile(props) {
     </ScrollView>
   );
 }
+
 
 function ParticularProblemTileItem(props) {
   const {data, domain, maxLengthDescriptionTile} = props,
