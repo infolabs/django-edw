@@ -20,18 +20,20 @@ const stylesComponent = StyleSheet.create({
   },
 });
 
+
 const styles = Object.assign(tileStyles, stylesComponent);
+
 
 function ParticularProblemTile(props) {
 
   const [maxLengthDescriptionTile, handleScroll] = useEntities(props);
-  const {items, loading, loadingEntity, getEntity} = props;
+
+  const {items, loading} = props;
   const instance = Singleton.getInstance();
 
   return (
-    <ScrollView scrollEventThrottle={2000}
-                onScroll={handleScroll}>
-      {loading || loadingEntity ?
+    <ScrollView scrollEventThrottle={2000} onScroll={handleScroll}>
+      {loading ?
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
@@ -39,8 +41,7 @@ function ParticularProblemTile(props) {
       }
       <Layout style={styles.layout}>
         {items.map(
-          (child, i) => <ParticularProblemTileItem key={i}
-                          data={child} domain={instance.Domain} getEntity={getEntity}
+          (child, i) => <ParticularProblemTileItem key={i} data={child} domain={instance.Domain}
                           maxLengthDescriptionTile={maxLengthDescriptionTile}/>
         )}
       </Layout>
@@ -48,12 +49,13 @@ function ParticularProblemTile(props) {
   );
 }
 
+
 function ParticularProblemTileItem(props) {
   const {data, domain, maxLengthDescriptionTile} = props,
     {short_marks} = data;
 
-  if (data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/))
-    data.media = `${domain}/${data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
+  if (data.media.match(/.*<img.*?src=('|")(.*?)('|")/))
+    data.media = `${domain}/${data.media.match(/.*<img.*?src=('|")(.*?)('|")/)[2]}`;
 
   let textState = null,
     backgroundColorState = 'gray';
@@ -69,7 +71,7 @@ function ParticularProblemTileItem(props) {
   });
 
   return (
-    <Card style={styles.cardContainer} onPress={() => props.getEntity(data)}>
+    <Card style={styles.cardContainer} onPress={() => console.log(data.id)}>
       <View style={styles.cardImageContainer}>
         <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
           <Text style={styles.entityNameText}>
