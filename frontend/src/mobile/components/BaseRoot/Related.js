@@ -1,13 +1,25 @@
-import React from 'react';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import Entities from '../Entities';
+import ActionCreators from "../../actions";
 
 
-function Related(props) {
-  const {entry_points, entry_point_id} = props;
+class Related extends Component {
 
-  return (
-    <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
-  );
+  render() {
+    const {entry_points, entry_point_id,} = this.props;
+    let entry_point = entry_points[entry_point_id];
+
+    return (
+      <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
+    );
+  }
 }
 
-export default Related;
+const mapStateToProps = state => ({
+  entities: state.entities.items
+});
+const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Related);

@@ -1,42 +1,31 @@
-import React, {useState, useEffect, useMemo} from 'react';
-import {View, Animated, ScrollView} from 'react-native';
-import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
-import Ordering from '../Ordering';
-import FilterBtn from '../FilterBtn';
-import Entities from '../Entities';
-import {useSelector, useDispatch, useStore} from 'react-redux';
-import platformSettings from '../../constants/Platform';
-import {Icon} from 'native-base';
-import TermsTree from '../TermsTree';
-import getDeclinedName from '../../utils/getDeclinedName';
-import ViewComponentsBtn from '../ViewComponentsBtn';
-import {dataMartStyles as styles} from '../../styles/dataMarts';
-import {isArraysEqual} from '../../utils/isArrayEqual';
-import {getTemplatesDetail} from '../BaseEntities';
-import {
-  notifyLoadingTerms, loadTree,
-} from '../../actions/TermsTreeActions';
+import React, {useState, useEffect, useMemo} from 'react'
+import {View, Animated, ScrollView} from 'react-native'
+import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
+import {connect} from 'react-redux'
+import Ordering from "../Ordering"
+import FilterBtn from "../FilterBtn"
+import Entities from "../Entities"
+import ActionCreators from "../../actions"
+import {bindActionCreators} from "redux"
+import platformSettings from "../../constants/Platform";
+import {Icon} from "native-base";
+import TermsTree from "../TermsTree";
+import getDeclinedName from "../../utils/getDeclinedName";
+import ViewComponentsBtn from "../ViewComponentsBtn";
+import {dataMartStyles as styles} from "../../styles/dataMarts";
+import {isArraysEqual} from "../../utils/isArrayEqual";
+import BaseEntities from "../BaseEntities";
 
 
-const {deviceHeight} = platformSettings;
+const {deviceHeight, deviceWidth} = platformSettings;
 const termsIdsTaggedBranch = new Set();
 let translateY = deviceHeight;
 let usePrevTerms = false;
 
-
-function DataMart(props) {
-  const dispatch = useDispatch();
-  const store = useStore();
-
-  const entities = useSelector(state => state.entities);
-  const terms = useSelector(state => state.terms);
-
-  const templates = useMemo(() => getTemplatesDetail(), []);
-
-
-  const {entry_point_id, entry_points} = props;
+const DataMart = props => {
+  const {entry_point_id, entry_points, entities, terms} = props;
   const {viewComponents, detail} = entities;
-  const {json} = terms.tree;
+  const {loading, json} = terms.tree;
   const {data} = detail;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
@@ -47,22 +36,22 @@ function DataMart(props) {
   const [templateDetailName, setTemplateDetailName] = useState(null);
   const [templatesDetail, setTemplatesDetail] = useState(null);
 
-
   useEffect(() => {
     if (!json.length)
       termsIdsTaggedBranch.clear();
-  }, [json.length]);
+  }, []);
 
   useEffect(() => {
-    if (json.length && terms.tagged.items.length)
+    if (json.length)
       setShowTermsTree(true);
-  }, [terms.tagged.items.length, json.length]);
+  }, [terms.tagged.items]);
 
   useEffect(() => {
-    const model = data.entity_model in templates ? data.entity_model : 'default';
+    const templates = BaseEntities.getTemplatesDetail();
+    const model = data.entity_model in templates ? data.entity_model : "default";
     setTemplatesDetail(templates);
     setTemplateDetailName(model);
-  }, [data.entity_model, templates]);
+  }, [detail.data]);
 
   useEffect(() => {
     if (detail.visible) {
@@ -73,24 +62,23 @@ function DataMart(props) {
       translateY = deviceHeight;
       setVisibleDetail(false);
     }
-  }, [detail.visible, setVisibleDetail]);
+  }, [detail.visible]);
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
       toValue: translateY,
       duration: 300,
-      useNativeDriver: true,
+      useNativeDriver: true
     }).start();
-  }, [animateTranslateY]);
+  }, [translateY]);
 
   const visibilityFilters = visible => {
     if (usePrevTerms) {
       const termsItems = terms.tagged.prevItems;
-      notifyLoadingTerms()(dispatch);
-      loadTree(entry_point_id, termsItems)(dispatch);
-    } else {
+      props.notifyLoadingTerms();
+      props.loadTree(entry_point_id, termsItems);
+    } else
       setShowTermsTree(true);
-    }
     setVisibleFilters(visible);
     translateY = visible ? 30 : deviceHeight;
     usePrevTerms = false;
@@ -104,16 +92,16 @@ function DataMart(props) {
     if (!isArraysEqual(items, prevItems)) {
       const meta = entities.items.meta;
       const {subj_ids} = meta;
-      props.notifyLoadingEntities()(dispatch);
-      props.getEntities(entry_point_id, subj_ids, {}, [], true)(dispatch, store.getState);
+      props.notifyLoadingEntities();
+      props.getEntities(entry_point_id, subj_ids, {}, [], true);
       usePrevTerms = true;
     }
-    setShowTermsTree(false);
+    setShowTermsTree(false)
   };
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
   const closeFiltersView = () => (
-    <Icon onPress={() => closeFilters()} name={'close'}/>
+    <Icon onPress={() => closeFilters()} name='close'/>
   );
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
@@ -156,7 +144,7 @@ function DataMart(props) {
         {showTermsTree ?
           <>
             <TopNavigation
-              alignment={'center'}
+              alignment='center'
               title={() => <Text
                 style={{...styles.navigationTitle, backgroundColor: theme['background-color-default']}}>
                 Фильтры
@@ -188,17 +176,22 @@ function DataMart(props) {
           </>
           : null
         }
-        {visibleDetail ?
+        {detail.visible ?
           React.createElement(templatesDetail[templateDetailName],{
             data,
-            hideVisibleDetail: props.hideVisibleDetail,
+            hideVisibleDetail: props.hideVisibleDetail
           })
           : null
         }
       </Animated.View>
     </>
-  );
-}
+  )
+};
 
+const mapStateToProps = state => ({
+  entities: state.entities,
+  terms: state.terms
+});
+const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
 
-export default DataMart;
+export default connect(mapStateToProps, mapDispatchToProps)(DataMart);
