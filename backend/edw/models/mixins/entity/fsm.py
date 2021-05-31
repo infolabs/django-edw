@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import transaction
 from django.utils.encoding import force_text
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from edw.models.mixins.entity import get_or_create_model_class_wrapper_term, ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN
 from edw.models.term import TermModel
@@ -73,6 +76,23 @@ class FSMMixin(object):
                 pass
             setattr(fsm_model, cache_key, states)
         return states
+
+    @classmethod
+    def log_entity_transition(cls, obj, transition_name, request):
+        old_state, new_state = transition_name.split('_to_')
+
+        LogEntry.objects.log_action(
+            user_id=request.user.pk,
+            content_type_id=ContentType.objects.get_for_model(obj).pk,
+            object_id=obj.pk,
+            object_repr=force_text(obj),
+            change_message=_('Change status from "%(old_status)s" to "%(new_status)s"') %
+                           {
+                               'old_status': obj.TRANSITION_TARGETS[old_state],
+                               'new_status': obj.TRANSITION_TARGETS[new_state],
+                           },
+            action_flag=CHANGE,
+        )
 
     @classmethod
     def validate_term_model(cls):
