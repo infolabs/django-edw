@@ -7,14 +7,13 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import getDeclinedName from '../../utils/getDeclinedName';
 import ActionCreators from '../../actions';
-import platformSettings from '../../constants/Platform';
-import {isArraysEqual} from '../../utils/isArrayEqual';
+import platformSettings from 'constants/Platform';
+import {isArraysEqual} from 'utils/isArrayEqual';
 import TermsTree from '../TermsTree';
 import Ordering from '../Ordering';
 import FilterBtn from '../FilterBtn';
 import ViewComponentsBtn from '../ViewComponentsBtn';
-import Entities from '../Entities';
-import {getTemplatesDetail} from '../BaseEntities';
+import Entities, {getTemplatesDetail} from 'components_native/Entities';
 
 
 const { deviceHeight } = platformSettings;
@@ -46,7 +45,7 @@ function DataMart(props) {
 
   useEffect(() => {
     Animated.timing(animateTranslateY.current, {
-      toValue: refs.translateY,
+      toValue: refs.current.translateY,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -91,7 +90,7 @@ function DataMart(props) {
     <>
       <View style={styles.headerBtnView}>
         <View style={{...styles.headerBtn, ...styles.orderingView}}>
-          <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
+          <Ordering entities={entities} entry_points={entry_points} entry_point_id={entry_point_id}/>
         </View>
         <View style={{...styles.headerBtn, ...styles.viewAndFilteredIcon}}>
           {Object.keys(viewComponents.data).length > 1 ?
@@ -112,7 +111,7 @@ function DataMart(props) {
         </View>
       </View>
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
-      <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY}]}}>
+      <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY.current}]}}>
         {showTermsTree ?
           <>
             <TopNavigation

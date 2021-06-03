@@ -36,13 +36,13 @@ class Dropdown {
       'open': false,
       'request_var': '',
       'selected': '',
-      'options': {}
+      'options': {},
     };
     Object.assign(this, defaults, options);
   }
 }
 
-class Dropdowns {
+export class Dropdowns {
   constructor(json) {
     if (!(json && json.results))
       return;
@@ -54,7 +54,7 @@ class Dropdowns {
           ordering_options = {
             'request_var': 'ordering',
             'selected': modes[json.results.meta.ordering],
-            'options': modes
+            'options': modes,
           };
     this['ordering'] = new Dropdown(ordering_options);
 
@@ -77,7 +77,7 @@ class Dropdowns {
     const limit_options = {
       'request_var': 'limit',
       'selected': limit,
-      'options': options
+      'options': options,
     };
     this['limits'] = new Dropdown(limit_options);
 
@@ -158,7 +158,7 @@ class Descriptions {
 }
 
 
-function items(state = new EntitiesManager(), action) {
+export function items(state = new EntitiesManager(), action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
       state.loading = true;
@@ -185,7 +185,7 @@ function dropdowns(state = new Dropdowns({}), action) {
 }
 
 
-function loading(state = false, action) {
+export function loading(state = false, action) {
   switch (action.type) {
     case consts.NOTIFY_LOADING_ENTITIES:
       return true;

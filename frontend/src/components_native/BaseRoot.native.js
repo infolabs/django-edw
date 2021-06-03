@@ -1,12 +1,14 @@
 import React from 'react';
 import {Provider} from 'react-redux';
 import configureStore from '../../store/configureStore';
+import DataMart from './BaseRoot/DataMart';
+import Related from './BaseRoot/Related';
 
 
 export function getTemplates() {
   return {
-    'data_mart': props => null,
-    'related': props => null,
+    'data_mart': DataMart,
+    'related': Related,
   };
 }
 
