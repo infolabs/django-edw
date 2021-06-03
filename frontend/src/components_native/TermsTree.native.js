@@ -6,7 +6,7 @@ import ActionCreators from '../actions';
 
 
 function TermsTree(props) {
-  const {terms, actions, termsIdsTaggedBranch} = this.props,
+  const {terms, actions, termsIdsTaggedBranch} = props,
     term = terms.tree.root,
     {tagged, expanded, realPotential} = terms;
 

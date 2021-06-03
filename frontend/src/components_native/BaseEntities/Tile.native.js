@@ -39,7 +39,7 @@ function TileItem(props) {
     data.media = `${domain}/${data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
 
   return (
-    <Card style={styles.cardContainer} onPress={() => this.props.getEntity(data)}>
+    <Card style={styles.cardContainer} onPress={() => props.getEntity(data)}>
       <View style={styles.cardImageContainer}>
         <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
           <Text style={styles.entityNameText}>

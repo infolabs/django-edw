@@ -61,7 +61,7 @@ function ListItem(props) {
 
   return (
     <Card style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
-          onPress={() => templateIsDataMart ? this.props.getEntity(data) : {}}>
+          onPress={() => templateIsDataMart ? props.getEntity(data) : {}}>
       <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
         <ImageBackground source={{uri: data.media}} style={templateIsDataMart ? styles.imageBackground :
           styles.imageBackgroundRelated}>

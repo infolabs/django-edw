@@ -58,7 +58,7 @@ function useDetail(props) {
   }
 
   function getContent() {
-    const {data} = this.props;
+    const {data} = props;
 
     const viewStyles = {
       name: {fontWeight: 'normal'},

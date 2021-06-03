@@ -28,7 +28,6 @@ export function getTemplatesDetail() {
 
 const defaultProps = {
   getTemplates,
-  getTemplatesDetail,
 };
 
 
@@ -58,8 +57,11 @@ function BaseEntities(props) {
 
     props.notifyLoadingEntities();
     props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
-    setComponentName();
   }, []);
+
+  useEffect(() => {
+    setComponentName();
+  }, [entities]);
 
   function setComponentName() {
     if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
