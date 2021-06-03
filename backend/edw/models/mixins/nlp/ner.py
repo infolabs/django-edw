@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from jsonfield.fields import JSONField
 from natasha import (
     Segmenter,
@@ -46,7 +45,7 @@ class NERMixin(ModelMixin):
         ('&lt;', '<'),
     ]
 
-    TASK_WAIT_EXECUTION_INTERVAL = 3
+    TASK_WAIT_EXECUTION_INTERVAL = 5
 
     ner_data = JSONField(verbose_name=_("NER data"), default={},
         help_text=_("Data obtained after recognition of named entities for the given text"))
@@ -127,8 +126,8 @@ class NERMixin(ModelMixin):
             cls._ner_tagger = ner_tagger
         return ner_tagger
 
-    @classmethod
-    def _extract_ner(cls, doc, morph_tagger, morph_vocab, syntax_parser, ner_tagger, extractors, extracted_types):
+    @staticmethod
+    def _extract_ner(doc, morph_tagger, morph_vocab, syntax_parser, ner_tagger, extractors, extracted_types):
         # Apply morph
         doc.tag_morph(morph_tagger)
         # Lemmatize
@@ -203,7 +202,7 @@ class NERMixin(ModelMixin):
                 )
             except Exception:
                 pass
-        self.ner_data = ner_data
+        return ner_data
 
     @property
     def highlighter_context(self):
