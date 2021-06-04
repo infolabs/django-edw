@@ -78,23 +78,6 @@ class FSMMixin(object):
         return states
 
     @classmethod
-    def log_entity_transition(cls, obj, transition_name, request):
-        old_state, new_state = transition_name.split('_to_')
-
-        LogEntry.objects.log_action(
-            user_id=request.user.pk,
-            content_type_id=ContentType.objects.get_for_model(obj).pk,
-            object_id=obj.pk,
-            object_repr=force_text(obj),
-            change_message=_('Change status from "%(old_status)s" to "%(new_status)s"') %
-                           {
-                               'old_status': obj.TRANSITION_TARGETS[old_state],
-                               'new_status': obj.TRANSITION_TARGETS[new_state],
-                           },
-            action_flag=CHANGE,
-        )
-
-    @classmethod
     def validate_term_model(cls):
         """
         RUS: Добавляет Состояние родителя и объекта в модель TermModel при их отсутствии и сохраняет их.
@@ -156,3 +139,45 @@ class FSMMixin(object):
             new_state = states[self.status]
             self.terms.add(new_state)
         super(FSMMixin, self).validate_terms(origin, **kwargs)
+
+    def do_transition(self, transition_name, request=None):
+        raise NotImplementedError(
+            '{cls}.do_transition must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+
+class FSMTransitionAndLoggingMixin(FSMMixin):
+    def state_name(self):
+        """
+        RUS: Возбуждает исключение, когда абстрактные методы класса требуют переопределения в дочерних классах.
+        """
+        raise NotImplementedError(
+            '{cls}.state_name must be implemented.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+    def log_entity_transition(self, transition_name, user_id):
+        old_state, new_state = transition_name.split('_to_')
+
+        LogEntry.objects.log_action(
+            user_id=user_id,
+            content_type_id=ContentType.objects.get_for_model(self).pk,
+            object_id=self.pk,
+            object_repr=force_text(self),
+            change_message=_('Change status from "%(old_status)s" to "%(new_status)s"') %
+                           {
+                               'old_status': self.TRANSITION_TARGETS[old_state],
+                               'new_status': self.TRANSITION_TARGETS[new_state],
+                           },
+            action_flag=CHANGE,
+        )
+
+    def do_transition(self, transition_name, request=None):
+        trans_func = getattr(self, transition_name)
+        if request:
+            user_id = request.user.pk
+            self.log_entity_transition(transition_name, user_id)
+        return trans_func()
