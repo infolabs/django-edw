@@ -140,7 +140,7 @@ class FSMMixin(object):
             self.terms.add(new_state)
         super(FSMMixin, self).validate_terms(origin, **kwargs)
 
-    def do_transition(self, transition_name, request=None):
+    def do_transition(self, transition_name):
         raise NotImplementedError(
             '{cls}.do_transition must be implemented.'.format(
                 cls=self.__class__.__name__
@@ -163,6 +163,13 @@ class FSMTransitionAndLoggingMixin(FSMMixin):
         )
 
     def log_entity_transition(self, transition_name, user_id):
+        """
+        Логирует изменения в адинке, используя встроенный механизм логирования Джанго
+
+        :param transition_name: название смены состояния
+        :param user_id: id пользователя, который совершил смену состояния
+        :return: None
+        """
         old_state, new_state = transition_name.split('_to_')
 
         LogEntry.objects.log_action(
@@ -179,6 +186,14 @@ class FSMTransitionAndLoggingMixin(FSMMixin):
         )
 
     def do_transition(self, transition_name, request=None):
+        """
+        Вызывает метод для смены состояния.
+        self ссылается на подкласс, в котором он вызывается
+
+        :param transition_name: название смены состояния
+        :param request: необязательный параметр запроса
+        :return: функция для смены состояния
+        """
         trans_func = getattr(self, transition_name)
         if request:
             user_id = request.user.pk
