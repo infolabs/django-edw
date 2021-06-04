@@ -149,6 +149,9 @@ class FSMMixin(object):
 
 
 class FSMTransitionAndLoggingMixin(FSMMixin):
+    """
+    RUS: Добавляет функционал логирования и смену перехода в подклассы
+    """
     def state_name(self):
         """
         RUS: Возбуждает исключение, когда абстрактные методы класса требуют переопределения в дочерних классах.
