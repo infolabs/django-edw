@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useMemo} from 'react'
-import {View, Animated, ScrollView} from 'react-native'
+import {View, Animated, ScrollView, Platform} from 'react-native'
 import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
 import {connect} from 'react-redux'
 import Ordering from "../Ordering"
@@ -55,7 +55,15 @@ const DataMart = props => {
 
   useEffect(() => {
     if (detail.visible) {
-      translateY = 30;
+      if (Platform.OS === 'android'){
+        translateY = 0
+      } else {
+        if (deviceHeight < 700) {
+          translateY = 0;
+        } else {
+          translateY = 35;
+        }
+      }
       setShowTermsTree(false);
       setVisibleDetail(true);
     } else {
@@ -80,7 +88,19 @@ const DataMart = props => {
     } else
       setShowTermsTree(true);
     setVisibleFilters(visible);
-    translateY = visible ? 30 : deviceHeight;
+    if (visible) {
+      if (Platform.OS === 'android'){
+        translateY = 0;
+      } else {
+        if (deviceHeight < 700) {
+          translateY = 0;
+        } else {
+          translateY = 35;
+        }
+      }
+    } else {
+      translateY = deviceHeight;
+    }
     usePrevTerms = false;
   };
 
@@ -145,6 +165,7 @@ const DataMart = props => {
           <>
             <TopNavigation
               alignment='center'
+              style={{marginTop: 20}}
               title={() => <Text
                 style={{...styles.navigationTitle, backgroundColor: theme['background-color-default']}}>
                 Фильтры

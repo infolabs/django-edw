@@ -1,8 +1,23 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import platformSettings from "../constants/Platform";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
+let showObjectsBtnViewHeight,
+    emptyViewHeight;
+
+if (Platform.OS === 'android'){
+  showObjectsBtnViewHeight = 90;
+  emptyViewHeight = 200;
+} else {
+  if (deviceHeight < 700) {
+    showObjectsBtnViewHeight = 85;
+    emptyViewHeight = 200;
+  } else {
+    showObjectsBtnViewHeight = 140;
+    emptyViewHeight = 250;
+  }
+}
 
 export const dataMartStyles = StyleSheet.create({
   headerBtnView: {
@@ -59,7 +74,6 @@ export const dataMartStyles = StyleSheet.create({
   showObjectsBtnView: {
     position: 'absolute',
     bottom: 0,
-    height: 120,
     width: deviceWidth,
     shadowOffset: {
       width: 0,
@@ -68,18 +82,20 @@ export const dataMartStyles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 10,
     borderTopWidth: 1,
-    borderRadius: 15,
+    borderTopLeftRadius: 15,
+    borderTopEndRadius: 15,
     borderColor: '#d5d5d5',
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    height: showObjectsBtnViewHeight
   },
   showObjectsBtn: {
     borderWidth: 0,
     marginHorizontal: 25,
-    marginTop: 10,
+    marginTop: 15,
     borderRadius: 10
   },
   emptyView: {
-    height: 200
+    height: emptyViewHeight,
   },
   swipeWrapper: {
     height: 300,

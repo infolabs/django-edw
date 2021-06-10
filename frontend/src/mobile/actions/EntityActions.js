@@ -1,3 +1,5 @@
+import {Platform} from 'react-native';
+import matchAll from 'string.prototype.matchall';
 import {actionTypes as actionTypesEntities} from "../constants/Entities";
 import {actionTypes as actionTypesDropdown} from "../constants/Dropdown";
 import reCache from '../utils/reCache';
@@ -115,7 +117,13 @@ export const getEntity = (data, meta= false) => {
       })
         .then(response => response.json())
         .then(json => {
-          const arrayMediaEntity = Array.from(json.media.matchAll(/(?:src=['\"])(\/media\S+.[jpg|jpeg|png])/gm));
+          // TODO: MatchAll в react-native v0.64.2 для андроида не поддерживается. Возможно, пофиксят в будущем, и тогда
+          // нужно будет убрать проверку и удалить пакет string.prototype.matchall.
+          const arrayMediaEntity = Platform.OS === 'ios' ?
+            Array.from(json.media.matchAll(/(?:src=['\"])(\/media\S+.[jpg|jpeg|png])/gm))
+            :
+            [...matchAll(json.media, /(?:src=['\"])(\/media\S+.[jpg|jpeg|png])/gm)];
+
           json.media = arrayMediaEntity.map(item => `${instance.Domain}${item[1]}`);
 
           if (json.private_person)

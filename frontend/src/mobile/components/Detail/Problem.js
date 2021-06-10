@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, View, SafeAreaView, StyleSheet} from 'react-native';
+import {ScrollView, View, SafeAreaView, StyleSheet, Platform} from 'react-native';
 import {Layout, Avatar, Text} from "@ui-kitten/components";
 import BaseDetail from "./BaseDetail";
 import {dateFormat} from '../../utils/dateformat';
@@ -7,12 +7,32 @@ import platformSettings from '../../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
+let personContainerHeight,
+    personContainerPaddingBottom;
+
+if (Platform.OS === 'android'){
+  personContainerHeight = 90;
+  personContainerPaddingBottom = 20;
+} else {
+  if (deviceHeight < 700) {
+    personContainerHeight = 90;
+    personContainerPaddingBottom = 20;
+  } else {
+    personContainerHeight = 140;
+    personContainerPaddingBottom = 70;
+  }
+}
+
 const styles = StyleSheet.create({
   safeAreaView: {
-    height: deviceHeight
+    height: deviceHeight,
+    marginTop: 20,
+  },
+  scrollView: {
+    marginBottom: 50
   },
   layout: {
-    marginBottom: 50
+    marginBottom: 40
   },
   personContainer: {
     width: deviceWidth,
@@ -20,12 +40,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     borderTopWidth: 1,
     borderColor: '#e3e3e3',
-    paddingVertical: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     backgroundColor: '#fff',
-    height: 120,
-    paddingBottom: 70,
+    height: personContainerHeight,
+    paddingBottom: personContainerPaddingBottom,
     position: 'absolute',
     bottom: 0,
     shadowColor: '#636363',
@@ -57,7 +76,7 @@ export default class Problem extends BaseDetail(Component) {
     return (
       <SafeAreaView style={styles.safeAreaView}>
         {this.getNavigation('Сообщение')}
-        <ScrollView>
+        <ScrollView style={styles.scrollView}>
           <Layout level='1' style={styles.layout}>
             {this.getMedia()}
             {this.getContent()}
