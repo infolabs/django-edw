@@ -20,6 +20,7 @@ from django.template.loader import select_template
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.html import strip_spaces_between_tags
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _
@@ -134,6 +135,12 @@ class EntityDynamicMetaMixin(object):
                                 pass
                             else:
                                 cls._update_meta(it, model_class)
+            else:
+                model_class = kwargs.get('model', None)
+                if model_class is not None:
+                    if isinstance(model_class, str):
+                        model_class = import_string(model_class)
+                    cls._update_meta(it, model_class)
         return it
 
 

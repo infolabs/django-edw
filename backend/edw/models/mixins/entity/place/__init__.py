@@ -105,8 +105,8 @@ class PlaceMixin(object):
                     EntityModel._terra_incognita_cache = terra_incognita
         return terra_incognita
 
-    @classmethod
-    def get_all_regions_terms_ids_set(cls):
+    @staticmethod
+    def get_all_regions_terms_ids_set():
         """
         RUS: Добавляет список ids регионов, если есть термин Регион в модели.
         """

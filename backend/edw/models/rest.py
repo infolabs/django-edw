@@ -32,6 +32,8 @@ class RESTOptions(object):
                 include = {
                     'test_id': ('rest_framework.serializers.IntegerField', {
                         'write_only': True
+                        'model': 'Full model name' | Class  # optional parameter for EntityDetailSerializer class,
+                                can be Class or full import class string (nash_region.models.person.private_person.ResponsiblePerson)
                     }),
                 }
 
@@ -194,6 +196,12 @@ class RESTMetaSerializerMixin(object):
         RUS: Конструктор объектов класса.
         Переопределяет значение rest_meta.
         """
+        # Это нужно для того, чтобы при наличии в сериалайзере параметра model не вызывалась
+        # ошибка ключа, это самый быстрый способ извлечь эти данные из kwargs. Параметр model
+        # нужен для того, чтобы можно было при конструировании метаданных сериалайзера указать
+        # конкретную модель для Detail сериалайзера.
+        kwargs.pop('model', None)
+
         instance = args[0] if args else None
         if instance is not None and hasattr(instance, '_rest_meta'):
             self.rest_meta = instance._rest_meta
@@ -235,6 +243,7 @@ class DynamicFieldsSerializerMixin(RESTMetaSerializerMixin):
 
     def __init__(self, *args, **kwargs):
         super(DynamicFieldsSerializerMixin, self).__init__(*args, **kwargs)
+
         if self.rest_meta:
             remove_fields, include_fields = self.rest_meta.exclude, self.rest_meta.include
 
