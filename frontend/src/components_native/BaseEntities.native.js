@@ -102,7 +102,6 @@ function BaseEntities(props) {
   const componentName = entities.viewComponents.currentView || null;
   const templateIsDataMart = !entry_points[entry_point_id].template_name ||
       (entry_points[entry_point_id].template_name === 'data-mart');
-
   if (componentName) {
     const templates = props.getTemplates();
     const component = templates[componentName] || templates.list;

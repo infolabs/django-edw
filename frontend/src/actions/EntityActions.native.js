@@ -1,34 +1,12 @@
-import {actionTypes as actionTypesEntities} from "../constants/Entities";
-import {actionTypes as actionTypesDropdown} from "../constants/Dropdown";
+import {actionTypes as actionTypesEntities} from '../constants/Entities';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
+
+import {opts2gets, optArrToObj} from './EntityActions.js';
 
 
 const instance = Singleton.getInstance();
 
-const opts2gets = (options = {}) => {
-  let gets = '';
-  for (let key in options) {
-    let value = options[key];
-    if (Array.isArray(value))
-      value = value.join();
-    gets += '&' + key + '=' + value;
-  }
-  return gets;
-};
-
-const optArrToObj = arr => {
-  let ret = {};
-  if (!arr.length)
-    return ret;
-  for (const arg of arr) {
-    if (arg.includes("=")) {
-      const query = arg.split("=");
-      ret[query[0]] = query[1];
-    }
-  }
-  return ret;
-};
 
 export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_arr = [], usePrevTerms = false) => (dispatch, getState) => {
   const currentItems = getState().entities.items,
@@ -43,27 +21,26 @@ export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_ar
   if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
     options_obj.terms = tagged;
 
-  // eslint-disable-next-line no-undef
   let url = '';
 
   if (subj_ids.length) {
       subj_ids.join();
       // eslint-disable-next-line no-undef
       url = reCache(`${instance.Domain}${Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json')}`);
-  } else
+  } else // eslint-disable-next-line no-undef
     url = reCache(`${instance.Domain}${Urls['edw:data-mart-entity-list'](mart_id, 'json')}`);
 
   url += opts2gets(options_obj);
 
   if (options_arr.length)
-    url += "&" + options_arr.join("&");
+    url += '&' + options_arr.join('&');
 
   fetch(url, {
     credentials: 'include',
     method: 'get',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
   }).then(response => response.json()).then(json => {
     if (currentOffset !== json.offset)
@@ -75,7 +52,7 @@ export const getEntities = (mart_id, subj_ids = [], options_obj = {}, options_ar
 };
 
 
-export const readEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr = []) => {
+export const readEntities = (mart_id, subj_ids = [], options_obj = {}, options_arr = []) => {
   if (instance && instance[mart_id]) {
     const options_obj2 = optArrToObj(options_arr);
     let json = instance[mart_id];
@@ -85,20 +62,20 @@ export const readEntities = (mart_id, subj_ids=[], options_obj = {}, options_arr
 
     return dispatch => (
       dispatch({type: actionTypesEntities.LOAD_ENTITIES, json, request_options: options_obj})
-    )
+    );
   } else
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
 };
 
-export const getEntity = (data, meta= false) => {
+export const getEntity = (data, meta = false) => {
   data.entity_url = data.entity_url.replace(/\.html$/,'.json');
   let url = reCache(data.entity_url);
   if (meta) {
     const opts = {
-      "alike": true,
-      "data_mart_pk": meta.data_mart.id,
-      "terms": meta.terms_ids,
-      "subj": meta.subj_ids
+      'alike': true,
+      'data_mart_pk': meta.data_mart.id,
+      'terms': meta.terms_ids,
+      'subj': meta.subj_ids,
     };
     url += opts2gets(opts);
   }
@@ -110,7 +87,7 @@ export const getEntity = (data, meta= false) => {
         method: 'get',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
       })
         .then(response => response.json())
@@ -123,24 +100,12 @@ export const getEntity = (data, meta= false) => {
           return dispatch({type: actionTypesEntities.LOAD_ENTITY, json});
         });
     } else
-      dispatch({type: actionTypesEntities.DO_NOTHING})
+      dispatch({type: actionTypesEntities.DO_NOTHING});
   };
 };
 
 export const hideVisibleDetail = () => dispatch => {
-  dispatch({type: actionTypesEntities.HIDE_VISIBLE_DETAIL})
-};
-
-export const toggleDropdown = (dropdown_name = "") => dispatch => {
-  dispatch({type: actionTypesDropdown.TOGGLE_DROPDOWN, dropdown_name});
-};
-
-export const selectDropdown = (dropdown_name = "", selected = "") => dispatch => {
-  dispatch({type: actionTypesDropdown.SELECT_DROPDOWN, dropdown_name, selected});
-};
-
-export const notifyLoadingEntities = () => dispatch => {
-  dispatch({type: actionTypesEntities.NOTIFY_LOADING_ENTITIES});
+  dispatch({type: actionTypesEntities.HIDE_VISIBLE_DETAIL});
 };
 
 export const setDataViewComponents = data => dispatch => {

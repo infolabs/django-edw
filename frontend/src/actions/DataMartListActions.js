@@ -1,6 +1,6 @@
 import {
   CHANGE_ACTIVE_DATA_MART
-} from '../constants/TermsTree'
+} from '../constants/TermsTree.js'
 
 
 export function changeActiveDataMart(active_mart_id) {

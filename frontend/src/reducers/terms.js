@@ -145,7 +145,7 @@ class TaggedItems {
   json2tagged(json = []) {
     for (const child of json) {
       if (child.structure != null) {
-        const pk = parseInt(child.id);
+        const pk = parseInt(child.id, 10);
         this[pk] = true;
         let index = this.items.indexOf(pk);
         if (index < 0) {
@@ -161,7 +161,7 @@ class TaggedItems {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
           child.specification_mode == consts.EXPANDED_SPECIFICATION) {
-        const pk = parseInt(child.id);
+        const pk = parseInt(child.id, 10);
         this.cache[pk] = true;
       }
       this.json2cache(child.children);
@@ -171,7 +171,7 @@ class TaggedItems {
   isInCache() {
     let ret = true;
     for (const pk of this.items) {
-      if (!this.cache[parseInt(pk)]) {
+      if (!this.cache[parseInt(pk, 10)]) {
         ret = false;
         break;
       }

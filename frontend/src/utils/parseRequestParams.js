@@ -3,7 +3,7 @@ function parseIntList(param, name) {
     let ret = [],
         arr = param.replace(`${name}=`, '').split(',');
     for (const value of arr) {
-        const num = parseInt(value);
+        const num = parseInt(value, 10);
         if (!isNaN(num))
             ret.push(num);
     }

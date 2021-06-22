@@ -33,17 +33,6 @@ const getTermsTree = (type, mart_id, selected = []) => dispatch => {
   });
 };
 
-export const notifyLoadingTerms = () => dispatch => {
-  dispatch({type: actionTypesTerms.NOTIFY_LOADING_TERMS});
-};
-
-export const loadTree = (mart_id, selected = [])  => {
-  return getTermsTree(actionTypesTerms.LOAD_TERMS_TREE, mart_id, selected);
-};
-
-export const reloadTree = (mart_id, selected = []) => {
-  return getTermsTree(actionTypesTerms.RELOAD_TERMS_TREE, mart_id, selected);
-};
 
 export const readTree = (mart_id, selected = []) => {
   const type = actionTypesTerms.LOAD_TERMS_TREE;
@@ -57,16 +46,17 @@ export const readTree = (mart_id, selected = []) => {
     return getTermsTree(type, mart_id, selected);
 };
 
+
+export const notifyLoadingTerms = () => dispatch => {
+  dispatch({type: actionTypesTerms.NOTIFY_LOADING_TERMS});
+};
+
 export const toggleTerm = (term = {}) => dispatch => {
   dispatch({type: actionTypesTerms.TOGGLE_TERM, term});
 };
 
 export const resetTerm = (term = {}) => dispatch => {
   dispatch({type: actionTypesTerms.RESET_TERM, term});
-};
-
-export const resetBranch = (term = {}) => dispatch => {
-  dispatch({type: actionTypesTerms.RESET_BRANCH, term});
 };
 
 export const setPrevTaggedItems = () => dispatch => {

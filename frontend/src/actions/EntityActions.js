@@ -7,7 +7,7 @@ import {
     NOTIFY_LOADING_ENTITIE_ITEM,
     TOGGLE_DROPDOWN,
     SELECT_DROPDOWN,
-} from '../constants/TermsTree';
+} from '../constants/TermsTree.js';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 import compareArrays from '../utils/compareArrays';
@@ -15,7 +15,7 @@ import compareArrays from '../utils/compareArrays';
 const globalStore = new Singleton();
 
 
-function opts2gets(options = {}) {
+export function opts2gets(options = {}) {
   let gets = '';
   for (let key in options) {
     let value = options[key];
@@ -27,7 +27,7 @@ function opts2gets(options = {}) {
 }
 
 
-function optArrToObj(arr) {
+export function optArrToObj(arr) {
   let ret = {};
   if (!arr.length)
     return ret;

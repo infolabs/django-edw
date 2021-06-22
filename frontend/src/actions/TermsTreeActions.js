@@ -9,7 +9,7 @@ import {
     SHOW_INFO,
     HIDE_INFO,
     NOTIFY_LOADING,
-} from '../constants/TermsTree';
+} from '../constants/TermsTree.js';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 

@@ -1,6 +1,6 @@
 import {
     RECACHE_RATE
-} from '../constants/TermsTree'
+} from '../constants/TermsTree.js'
 
 
 export default function reCache(url) {

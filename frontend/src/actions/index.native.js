@@ -1,25 +1,31 @@
 import {
   getEntities,
   readEntities,
-  notifyLoadingEntities,
-  toggleDropdown,
-  selectDropdown,
   setDataViewComponents,
   setCurrentView,
   getEntity,
-  hideVisibleDetail
+  hideVisibleDetail,
 } from './EntityActions';
+
+import {
+  notifyLoadingEntities,
+  toggleDropdown,
+  selectDropdown,
+} from './EntityActions.js';
+
+import {
+  notifyLoadingTerms,
+  readTree,
+  toggleTerm,
+  resetTerm,
+  setPrevTaggedItems,
+} from './TermsTreeActions';
 
 import {
   loadTree,
   reloadTree,
-  readTree,
-  notifyLoadingTerms,
-  toggleTerm,
-  resetTerm,
   resetBranch,
-  setPrevTaggedItems
-} from './TermsTreeActions';
+} from './TermsTreeActions.js';
 
 export default {
   getEntities,
@@ -38,5 +44,5 @@ export default {
   setCurrentView,
   getEntity,
   hideVisibleDetail,
-  setPrevTaggedItems
-}
+  setPrevTaggedItems,
+};
