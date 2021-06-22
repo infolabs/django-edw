@@ -2,18 +2,12 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import React, {Component} from 'react';
 import {View} from 'react-native'
-import Tile from './BaseEntities/Tile';
-import List from './BaseEntities/List';
 import parseRequestParams from '../utils/parseRequestParams';
 import ActionCreators from "../actions";
-import ParticularInitiativeTile from "./Entities/ParticularInitiativeTile";
-import ParticularInitiativeList from "./Entities/ParticularInitiativeList";
-import ParticularProblemTile from "./Entities/ParticularProblemTile";
-import ParticularProblemList from "./Entities/ParticularProblemList";
 import Spinner from 'react-native-loading-spinner-overlay';
+import Tile from './BaseEntities/Tile';
+import List from './BaseEntities/List';
 import Default from './Detail/Default';
-import Problem from './Detail/Problem';
-import Idea from './Detail/Idea';
 import {baseEntitiesStyles as styles} from "../styles/baseEntities";
 
 
@@ -23,18 +17,12 @@ class BaseEntities extends Component {
     return {
       "tile": Tile,
       "list": List,
-      "particular_initiative_tile": ParticularInitiativeTile,
-      "particular_initiative_list": ParticularInitiativeList,
-      "particular_problem_tile": ParticularProblemTile,
-      "particular_problem_list": ParticularProblemList
     };
   }
 
   static getTemplatesDetail() {
     return {
       "default": Default,
-      "particularproblem": Problem,
-      "particularinitiative": Idea,
     }
   }
 
