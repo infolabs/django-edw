@@ -9,14 +9,14 @@ export default class TermsTreeItem extends Component {
     const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
-    actions.toggle(term);
+    actions.toggleTerm(term);
   }
 
   handleResetItemClick(e) {
     const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
-    actions.resetItem(term);
+    actions.resetTerm(term);
   }
 
   handleResetBranchClick(e) {
@@ -30,7 +30,7 @@ export default class TermsTreeItem extends Component {
   render() {
 
     const props = this.props,
-          {term, details, actions, tagged, expanded, info_expanded, real_potential} = props,
+          {term, details, actions, tagged, expanded, infoExpanded, realPotential} = props,
           {children, parent} = term;
 
     let render_item = "",
@@ -105,7 +105,7 @@ export default class TermsTreeItem extends Component {
       if (term.short_description) {
         info = (
           <TermsTreeItemInfo term={term}
-                             info_expanded={info_expanded}
+                             infoExpanded={infoExpanded}
                              details={details}
                              actions={actions}/>
         );
@@ -118,14 +118,14 @@ export default class TermsTreeItem extends Component {
                      details={details}
                      tagged={tagged}
                      expanded={expanded}
-                     info_expanded={info_expanded}
-                     real_potential={real_potential}
+                     infoExpanded={infoExpanded}
+                     realPotential={realPotential}
                      actions={actions}/>)
     );
 
     let li_classname = semantic_class + " " + state_class + " ";
-    if (real_potential.has_metadata && !real_potential.rils[term.id]) {
-      li_classname += !real_potential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
+    if (realPotential.has_metadata && !realPotential.rils[term.id]) {
+      li_classname += !realPotential.pots[term.id] ? "ex-no-potential " : "ex-no-real "
     }
 
     let ret = <li className="ex-empty"/>;

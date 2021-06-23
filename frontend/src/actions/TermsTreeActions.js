@@ -1,14 +1,14 @@
 import {
-    LOAD_ITEM,
-    LOAD_TREE,
-    RELOAD_TREE,
+    LOAD_TERM,
+    LOAD_TERMS_TREE,
+    RELOAD_TERMS_TREE,
     TOGGLE_FILTERS,
-    TOGGLE_ITEM,
-    RESET_ITEM,
+    TOGGLE_TERM,
+    RESET_TERM,
     RESET_BRANCH,
     SHOW_INFO,
     HIDE_INFO,
-    NOTIFY_LOADING,
+    NOTIFY_LOADING_TERMS,
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
@@ -52,29 +52,29 @@ export const getTermsItem = url => dispatch => {
       'Content-Type': 'application/json'
     },
   }).then(response => response.json()).then(json => dispatch({
-    type: LOAD_ITEM,
+    type: LOAD_TERM,
     json: json,
   }));
 };
 
 
-export const notifyLoading = () => dispatch => {
-  dispatch({type: NOTIFY_LOADING});
+export const notifyLoadingTerms = () => dispatch => {
+  dispatch({type: NOTIFY_LOADING_TERMS});
 };
 
 
 export const loadTree = (mart_id, selected = [])  => {
-  return getTermsTree(LOAD_TREE, mart_id, selected);
+  return getTermsTree(LOAD_TERMS_TREE, mart_id, selected);
 };
 
 
 export const reloadTree = (mart_id, selected = []) => {
-  return getTermsTree(RELOAD_TREE, mart_id, selected);
+  return getTermsTree(RELOAD_TERMS_TREE, mart_id, selected);
 };
 
 
 export function readTree(mart_id, selected = []) {
-  const type = LOAD_TREE;
+  const type = LOAD_TERMS_TREE;
   if (globalStore.initial_trees && globalStore.initial_trees[mart_id]) {
     const json = globalStore.initial_trees[mart_id];
     return dispatch => {
@@ -89,20 +89,20 @@ export const toggleFilters = () => dispatch => {
   dispatch({type: TOGGLE_FILTERS})
 };
 
-export function toggle(term = {}) {
+export function toggleTerm(term = {}) {
   return dispatch => {
     dispatch({
-      type: TOGGLE_ITEM,
+      type: TOGGLE_TERM,
       term: term
     });
   };
 }
 
 
-export function resetItem(term = {}) {
+export function resetTerm(term = {}) {
   return dispatch => {
     dispatch({
-      type: RESET_ITEM,
+      type: RESET_TERM,
       term: term
     });
   };

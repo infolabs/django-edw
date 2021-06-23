@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 export default class TermsTreeItemInfo extends Component {
 
   handleIconClick(e) {
-    const { term, info_expanded, actions } = this.props;
+    const { term, infoExpanded, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
-    if (!info_expanded[term.id])
+    if (!infoExpanded[term.id])
       actions.showInfo(term);
     else
       actions.hideInfo(term);
@@ -21,10 +21,10 @@ export default class TermsTreeItemInfo extends Component {
 
   render() {
 
-    const { term, info_expanded, actions, details } = this.props;
+    const { term, infoExpanded, actions, details } = this.props;
 
     let description = term.short_description;
-    if (info_expanded[term.id]) {
+    if (infoExpanded[term.id]) {
       if (details[term.id]) 
         description = details[term.id].description;
       else
@@ -36,7 +36,7 @@ export default class TermsTreeItemInfo extends Component {
         <i className="ex-icon-info"
            title="Info"
            onClick={e => { ::this.handleIconClick(e)}}/>
-        <div className={info_expanded[term.id] ? "ex-baloon ex-baloon-show" : "ex-baloon ex-baloon-hide"}>
+        <div className={infoExpanded[term.id] ? "ex-baloon ex-baloon-show" : "ex-baloon ex-baloon-hide"}>
           <div className="ex-arrow"/>
           <button type="button"
                 className="ex-close"

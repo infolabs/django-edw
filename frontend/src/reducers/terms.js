@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import * as consts from 'constants/TermsTree';
+import * as termConsts from 'constants/TermsTree';
+import * as entityConsts from 'constants/Entities';
 
 /* Tree Data Structures */
 
@@ -32,7 +33,7 @@ class Tree {
     let n = 0;
     for (const child of json) {
       // increment selected children count
-      (child.structure !== consts.STRUCTURE_NULL && n++);
+      (child.structure !== termConsts.STRUCTURE_NULL && n++);
       let options = {
         'id': child.id, // Идентификатор
         'name': child.name, // Наименование
@@ -53,8 +54,8 @@ class Tree {
     }
     // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
     // selected children count more than one
-    if ( parent.semantic_rule == consts.SEMANTIC_RULE_XOR && n > 1 ) {
-      parent.semantic_rule = consts.SEMANTIC_RULE_OR;
+    if ( parent.semantic_rule == termConsts.SEMANTIC_RULE_XOR && n > 1 ) {
+      parent.semantic_rule = termConsts.SEMANTIC_RULE_OR;
     }
     return parent;
   }
@@ -70,9 +71,9 @@ class Item {
       'short_description': '',
       'description': '',
       'view_class': '',
-      'semantic_rule': consts.SEMANTIC_RULE_AND,
-      'specification_mode': consts.STANDARD_SPECIFICATION,
-      'structure': consts.STRUCTURE_NULL,
+      'semantic_rule': termConsts.SEMANTIC_RULE_AND,
+      'specification_mode': termConsts.STANDARD_SPECIFICATION,
+      'structure': termConsts.STRUCTURE_NULL,
       'is_leaf': true,
       'parent': null,
       'children': []
@@ -86,9 +87,9 @@ class Item {
   }
 
   isLimbDescendant() {
-    let ret = this.structure == consts.STRUCTURE_LIMB;
+    let ret = this.structure == termConsts.STRUCTURE_LIMB;
     if (!ret && this.parent) {
-      ret = this.parent.structure == consts.STRUCTURE_LIMB;
+      ret = this.parent.structure == termConsts.STRUCTURE_LIMB;
       if (!ret)
         ret = this.parent.isLimbDescendant();
     }
@@ -96,24 +97,24 @@ class Item {
   }
 
   isLimbAndLeaf() {
-    return this.structure == consts.STRUCTURE_LIMB && this.is_leaf;
+    return this.structure == termConsts.STRUCTURE_LIMB && this.is_leaf;
   }
 
   isLimbOrAnd(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND) ||
-      this.structure == consts.STRUCTURE_LIMB);
+      this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND) ||
+      this.structure == termConsts.STRUCTURE_LIMB);
   }
 
   isLimbOrAndLeaf(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf) ||
-      this.structure == consts.STRUCTURE_LIMB);
+      this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND && this.is_leaf) ||
+      this.structure == termConsts.STRUCTURE_LIMB);
   }
 
   isVisible() {
     return (this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf()
-            && !(this.parent.semantic_rule == consts.SEMANTIC_RULE_AND && this.is_leaf));
+            && !(this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND && this.is_leaf));
   }
 }
 
@@ -123,6 +124,7 @@ class TaggedItems {
 
   constructor(json = []) {
     this.items = [];
+    this.prevItems = [];
     this.cache = {};
     this.entities_ignore = true;
 
@@ -160,7 +162,7 @@ class TaggedItems {
     for (const child of json) {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
-          child.specification_mode == consts.EXPANDED_SPECIFICATION) {
+          child.specification_mode == termConsts.EXPANDED_SPECIFICATION) {
         const pk = parseInt(child.id);
         this.cache[pk] = true;
       }
@@ -225,10 +227,10 @@ class TaggedItems {
 
   tag(item) {
     // ignore and
-    if (item.parent && item.parent.semantic_rule != consts.SEMANTIC_RULE_AND)
+    if (item.parent && item.parent.semantic_rule != termConsts.SEMANTIC_RULE_AND)
       this[item.id] = true;
 
-    if (item.parent && item.parent.semantic_rule == consts.SEMANTIC_RULE_XOR)
+    if (item.parent && item.parent.semantic_rule == termConsts.SEMANTIC_RULE_XOR)
       this.untagSiblings(item);
 
     let index = this.items.indexOf(item.id);
@@ -264,14 +266,19 @@ class TaggedItems {
   }
 
   isAncestorTagged(item) {
-    if (item.structure != consts.STRUCTURE_LIMB && item.parent &&
-        item.parent.semantic_rule != consts.SEMANTIC_RULE_AND ) {
+    if (item.structure != termConsts.STRUCTURE_LIMB && item.parent &&
+        item.parent.semantic_rule != termConsts.SEMANTIC_RULE_AND ) {
       if (this[item.parent.id])
         return true;
       else
         return this.isAncestorTagged(item.parent);
     }
     return false;
+  }
+
+  setPrevTagged() {
+    this.prevItems = this.items;
+    return this;
   }
 }
 
@@ -286,10 +293,10 @@ class ExpandedItems {
   json2items(json) {
     for (const child of json) {
       let mode = child.specification_mode,
-          is_standard = mode == consts.STANDARD_SPECIFICATION,
-          is_expanded = mode == consts.EXPANDED_SPECIFICATION,
+          is_standard = mode == termConsts.STANDARD_SPECIFICATION,
+          is_expanded = mode == termConsts.EXPANDED_SPECIFICATION,
           is_leaf = child.is_leaf,
-          is_limb = child.structure == consts.STRUCTURE_LIMB;
+          is_limb = child.structure == termConsts.STRUCTURE_LIMB;
 
       this[child.id] = ((is_standard && is_limb && !is_leaf) || is_expanded);
 
@@ -363,13 +370,13 @@ class RealPotentialItems {
 }
 
 
-function tree(state = new Tree([]), action) {
+export function tree(state = new Tree([]), action) {
   switch (action.type) {
-    case consts.LOAD_TREE:
+    case termConsts.LOAD_TERMS_TREE:
       return new Tree(action.json);
-    case consts.RELOAD_TREE:
+    case termConsts.RELOAD_TERMS_TREE:
       return state.merge(action.json);
-    case consts.NOTIFY_LOADING:
+    case termConsts.NOTIFY_LOADING_TERMS:
       return Object.assign(state, {'loading': true});
     default:
       return state;
@@ -380,7 +387,7 @@ function tree(state = new Tree([]), action) {
 function details(state = {}, action) {
   const item = action.json;
   switch (action.type) {
-    case consts.LOAD_ITEM:
+    case termConsts.LOAD_TERM:
       state[item.id] = item;
       return Object.assign({}, state);
     default:
@@ -390,7 +397,7 @@ function details(state = {}, action) {
 
 function requested(state = new Requested(), action) {
   switch (action.type) {
-    case consts.TOGGLE_ITEM:
+    case termConsts.TOGGLE_TERM:
       return state.toggle(action.term);
     default:
       return state;
@@ -400,16 +407,18 @@ function requested(state = new Requested(), action) {
 
 function tagged(state = new TaggedItems(), action) {
   switch (action.type) {
-    case consts.LOAD_TREE:
+    case termConsts.LOAD_TERMS_TREE:
       return new TaggedItems().createFromJson(action.json);
-    case consts.RELOAD_TREE:
+    case termConsts.RELOAD_TERMS_TREE:
       return state.setCache(action.json);
-    case consts.TOGGLE_ITEM:
+    case termConsts.TOGGLE_TERM:
       return state.toggle(action.term);
-    case consts.RESET_ITEM:
+    case termConsts.RESET_TERM:
       return state.resetItem(action.term);
-    case consts.RESET_BRANCH:
+    case termConsts.RESET_BRANCH:
       return state.resetBranch(action.term);
+    case termConsts.SET_PREV_TAGGED_ITEMS:
+      return state.setPrevTagged();
     default:
       return state;
   }
@@ -418,11 +427,11 @@ function tagged(state = new TaggedItems(), action) {
 
 function expanded(state = new ExpandedItems([]), action) {
   switch (action.type) {
-    case consts.LOAD_TREE:
+    case termConsts.LOAD_TERMS_TREE:
       return new ExpandedItems(action.json);
-    case consts.RELOAD_TREE:
+    case termConsts.RELOAD_TERMS_TREE:
       return state.reload(action.json);
-    case consts.TOGGLE_ITEM:
+    case termConsts.TOGGLE_TERM:
       return state.toggle(action.term);
     default:
       return state;
@@ -432,9 +441,9 @@ function expanded(state = new ExpandedItems([]), action) {
 
 function infoExpanded(state = new ExpandedInfoItems(), action) {
   switch (action.type) {
-    case consts.SHOW_INFO:
+    case termConsts.SHOW_INFO:
       return state.show(action.term);
-    case consts.HIDE_INFO:
+    case termConsts.HIDE_INFO:
       return state.hide(action.term);
     default:
       return state;
@@ -444,7 +453,7 @@ function infoExpanded(state = new ExpandedInfoItems(), action) {
 
 function realPotential(state = new RealPotentialItems({}), action) {
   switch (action.type) {
-    case consts.LOAD_ENTITIES:
+    case entityConsts.LOAD_ENTITIES:
       return new RealPotentialItems(action.json);
     default:
       return state;
@@ -453,7 +462,7 @@ function realPotential(state = new RealPotentialItems({}), action) {
 
 const filters = (state = {active: false}, action) => {
   switch (action.type) {
-    case consts.TOGGLE_FILTERS:
+    case termConsts.TOGGLE_FILTERS:
       return {...state, active: !state.active};
     default:
       return state;
@@ -467,8 +476,8 @@ const terms = combineReducers({
     requested: requested,
     tagged: tagged,
     expanded: expanded,
-    info_expanded: infoExpanded,
-    real_potential: realPotential,
+    infoExpanded: infoExpanded,
+    realPotential: realPotential,
     filters
 });
 

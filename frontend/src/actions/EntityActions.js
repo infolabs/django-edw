@@ -1,13 +1,15 @@
 import {
-    LOAD_ENTITY_ITEM,
-    LOAD_ENTITIES,
+    LOAD_ENTITY,
     NOTIFY_LOADING_ENTITIES,
-    HIDE_ENTITY_DESC,
+    NOTIFY_LOADING_ENTITY_ITEM,
+    LOAD_ENTITIES,
     SHOW_ENTITY_DESC,
-    NOTIFY_LOADING_ENTITIE_ITEM,
+    HIDE_ENTITY_DESC,
+} from '../constants/Entities';
+import {
     TOGGLE_DROPDOWN,
     SELECT_DROPDOWN,
-} from '../constants/TermsTree';
+} from '../constants/Dropdown';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 import compareArrays from '../utils/compareArrays';
@@ -15,7 +17,7 @@ import compareArrays from '../utils/compareArrays';
 const globalStore = new Singleton();
 
 
-function opts2gets(options = {}) {
+export function opts2gets(options = {}) {
   let gets = '';
   for (let key in options) {
     let value = options[key];
@@ -27,7 +29,7 @@ function opts2gets(options = {}) {
 }
 
 
-function optArrToObj(arr) {
+export function optArrToObj(arr) {
   let ret = {};
   if (!arr.length)
     return ret;
@@ -63,7 +65,7 @@ export function getEntityItem(data, meta=false) {
           'Content-Type': 'application/json'
         },
       }).then(response => response.json()).then(json => dispatch({
-        type: LOAD_ENTITY_ITEM,
+        type: LOAD_ENTITY,
         json: json,
       }));
     }
@@ -74,7 +76,7 @@ export function getEntityItem(data, meta=false) {
 function loadingEntityItem(id) {
     return dispatch => {
       dispatch({
-        type: NOTIFY_LOADING_ENTITIE_ITEM,
+        type: NOTIFY_LOADING_ENTITY,
         id
       });
     };

@@ -25,7 +25,7 @@ export default class DataMartsList extends Component {
           limit = parms.limit,
           options_arr = parms.options_arr;
 
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingTerms();
     this.props.actions.loadTree(pk, term_ids);
 
     let request_options = {};

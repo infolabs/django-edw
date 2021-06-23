@@ -29,7 +29,7 @@ class TermsTree extends Component {
     const parms = parseRequestParams(request_params),
           term_ids = parms.term_ids;
 
-    this.props.actions.notifyLoading();
+    this.props.actions.notifyLoadingTerms();
     this.props.actions.readTree(entry_point_id, term_ids);
   }
 
@@ -61,7 +61,7 @@ class TermsTree extends Component {
 
       // reload tree
       if (!tagged_next.isInCache() || fromHash) {
-        this.props.actions.notifyLoading();
+        this.props.actions.notifyLoadingTerms();
         const func = fromHash ? this.props.actions.loadTree : this.props.actions.reloadTree;
         func(entry_point_id, tagged_next.items);
       }
@@ -86,9 +86,9 @@ class TermsTree extends Component {
           details = terms.details,
           tagged = terms.tagged,
           expanded = terms.expanded,
-          info_expanded = terms.info_expanded,
+          infoExpanded = terms.infoExpanded,
           loading = terms.tree.loading,
-          real_potential = terms.real_potential;
+          realPotential = terms.realPotential;
 
     let tree = "";
     if (term) {
@@ -98,8 +98,8 @@ class TermsTree extends Component {
                        details={details}
                        tagged={tagged}
                        expanded={expanded}
-                       info_expanded={info_expanded}
-                       real_potential={real_potential}
+                       infoExpanded={infoExpanded}
+                       realPotential={realPotential}
                        actions={actions}/>
       );
     }

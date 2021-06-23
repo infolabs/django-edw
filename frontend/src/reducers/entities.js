@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import * as consts from 'constants/TermsTree';
+import * as dropdownConsts from 'constants/Dropdown';
+import * as entityConsts from 'constants/Entities';
 
 /* Entities */
 
@@ -158,12 +159,12 @@ class Descriptions {
 }
 
 
-function items(state = new EntitiesManager(), action) {
+export function items(state = new EntitiesManager(), action) {
   switch (action.type) {
-    case consts.NOTIFY_LOADING_ENTITIES:
+    case entityConsts.NOTIFY_LOADING_ENTITIES:
       state.loading = true;
       return Object.assign(new EntitiesManager(), state);
-    case consts.LOAD_ENTITIES:
+    case entityConsts.LOAD_ENTITIES:
       return new EntitiesManager(action.json, action.request_options);
     default:
       return state;
@@ -171,13 +172,13 @@ function items(state = new EntitiesManager(), action) {
 }
 
 
-function dropdowns(state = new Dropdowns({}), action) {
+export function dropdowns(state = new Dropdowns({}), action) {
   switch (action.type) {
-    case consts.LOAD_ENTITIES:
+    case entityConsts.LOAD_ENTITIES:
       return new Dropdowns(action.json);
-    case consts.TOGGLE_DROPDOWN:
+    case dropdownConsts.TOGGLE_DROPDOWN:
       return state.toggle(action.dropdown_name);
-    case consts.SELECT_DROPDOWN:
+    case dropdownConsts.SELECT_DROPDOWN:
       return state.select(action.dropdown_name, action.selected);
     default:
       return state;
@@ -185,11 +186,11 @@ function dropdowns(state = new Dropdowns({}), action) {
 }
 
 
-function loading(state = false, action) {
+export function loading(state = false, action) {
   switch (action.type) {
-    case consts.NOTIFY_LOADING_ENTITIES:
+    case entityConsts.NOTIFY_LOADING_ENTITIES:
       return true;
-    case consts.LOAD_ENTITIES:
+    case entityConsts.LOAD_ENTITIES:
       return false;
     default:
       return state;
@@ -199,7 +200,7 @@ function loading(state = false, action) {
 
 function loadingItems(state = {}, action) {
     switch (action.type) {
-        case consts.NOTIFY_LOADING_ENTITIE_ITEM:
+        case entityConsts.NOTIFY_LOADING_ENTITY:
             return Object.assign({}, state, {[action.id]: true});
         default:
           return state;
@@ -209,11 +210,11 @@ function loadingItems(state = {}, action) {
 
 function descriptions(state = new Descriptions(), action) {
   switch (action.type) {
-    case consts.SHOW_ENTITY_DESC:
+    case entityConsts.SHOW_ENTITY_DESC:
       return state.show(action.entity_id);
-    case consts.HIDE_ENTITY_DESC:
+    case entityConsts.HIDE_ENTITY_DESC:
       return state.hide(action.entity_id);
-    case consts.LOAD_ENTITY_ITEM:
+    case entityConsts.LOAD_ENTITY:
       return state.load(action.json);
     default:
       return state;
@@ -221,12 +222,52 @@ function descriptions(state = new Descriptions(), action) {
 }
 
 
+// Native
+const initialViewComponentState = {
+  data: {},
+  currentView: null
+};
+
+const viewComponents = (state = initialViewComponentState, action) => {
+  switch (action.type) {
+    case entityConsts.SET_DATA_VIEW_COMPONENTS:
+      return {...state, data: action.data};
+    case entityConsts.SET_CURRENT_VIEW:
+      return {...state, currentView: action.currentView};
+    default:
+      return state;
+  }
+};
+
+const initialDetailState = {
+  data: {},
+  loading: false,
+  visible: false
+};
+
+const detail = (state = initialDetailState, action) => {
+  switch (action.type) {
+    case entityConsts.LOAD_ENTITY:
+      return {...state, data: action.json, loading: false, visible: true};
+    case entityConsts.NOTIFY_LOADING_ENTITY:
+      return {...state, loading: true};
+    case entityConsts.HIDE_VISIBLE_DETAIL:
+      return {...state, visible: false};
+    case entityConsts.DO_NOTHING:
+      return {...state, loading: false, visible: true};
+    default:
+      return state;
+  }
+};
+
 const entities = combineReducers({
     items,
     dropdowns,
     descriptions,
     loading,
-    loadingItems
+    loadingItems,
+    viewComponents, // native
+    detail, // native
 });
 
 
