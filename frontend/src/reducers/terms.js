@@ -216,7 +216,7 @@ class TaggedItems {
     return ret;
   }
 
-  resetItem(item) {
+  resetTerm(item) {
     let ret = this.copy();
     ret.entities_ignore = false;
     for (const child of item.children) {
@@ -414,7 +414,7 @@ function tagged(state = new TaggedItems(), action) {
     case termConsts.TOGGLE_TERM:
       return state.toggle(action.term);
     case termConsts.RESET_TERM:
-      return state.resetItem(action.term);
+      return state.resetTerm(action.term);
     case termConsts.RESET_BRANCH:
       return state.resetBranch(action.term);
     case termConsts.SET_PREV_TAGGED_ITEMS:

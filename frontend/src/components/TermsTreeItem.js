@@ -12,7 +12,7 @@ export default class TermsTreeItem extends Component {
     actions.toggleTerm(term);
   }
 
-  handleResetItemClick(e) {
+  handleResetTermClick(e) {
     const { term, actions } = this.props;
     e.preventDefault();
     e.stopPropagation();
@@ -86,7 +86,7 @@ export default class TermsTreeItem extends Component {
 
         reset_item = (
           <li className={reset_class}>
-              <span className="ex-label" onClick={e => { ::this.handleResetItemClick(e) } } >
+              <span className="ex-label" onClick={e => { ::this.handleResetTermClick(e) } } >
                 <i className="ex-icon-slug"/>
                 { gettext("All") }
               </span>
