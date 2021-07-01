@@ -39,8 +39,9 @@ class NERMixin(ModelMixin):
 
     REPLACERS = [
         ('&nbsp;|&ensp;|&emsp;', ' '),
-        ('&quot;|«|&laquo;|»|&raquo;', '\"'),
+        ('&quot;|«|&laquo;|»|&raquo;|&ldquo;|&rdquo;|&lsquo;|&rsquo;|&sbquo;|&bdquo;', '\"'),
         ('&ndash;|&mdash;', '-'),
+        ('&hellip;', '...'),
         ('&gt;', '>'),
         ('&lt;', '<'),
     ]
