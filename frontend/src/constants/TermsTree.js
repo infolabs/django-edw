@@ -53,8 +53,5 @@ export const specifications = {
   REDUCED_SPECIFICATION
 };
 
-// TODO: move to a separate file
-// RECACHE_RATE
-export const RECACHE_RATE = 60000;
 // Multiple datamarts
 export const CHANGE_ACTIVE_DATA_MART = 'CHANGE_ACTIVE_DATA_MART';

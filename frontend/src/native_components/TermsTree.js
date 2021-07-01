@@ -4,7 +4,7 @@ import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
 import ActionCreators from "../actions";
 import parseRequestParams from "../utils/parseRequestParams"
-import {isArraysEqual} from "../utils/isArrayEqual";
+import compareArrays from "../../utils/compareArrays";
 
 
 class TermsTree extends Component {
@@ -30,7 +30,7 @@ class TermsTree extends Component {
       tagged_next = this.props.terms.tagged,
       meta = prevProps.entities.items.meta;
 
-    if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
+    if (!compareArrays(tagged_current.items, tagged_next.items)) {
       // reload tree
       if (!tagged_next.isInCache()) {
         this.props.actions.notifyLoadingTerms();

@@ -34,11 +34,11 @@ const getTermsTree = (type, mart_id, selected = []) => dispatch => {
 };
 
 export const loadTree = (mart_id, selected = [])  => {
-  return getTermsTree(LOAD_TERMS_TREE, mart_id, selected);
+  return getTermsTree(actionTypesTerms.LOAD_TERMS_TREE, mart_id, selected);
 };
 
 export const reloadTree = (mart_id, selected = []) => {
-  return getTermsTree(RELOAD_TERMS_TREE, mart_id, selected);
+  return getTermsTree(actionTypesTerms.RELOAD_TERMS_TREE, mart_id, selected);
 };
 
 export const readTree = (mart_id, selected = []) => {

@@ -13,7 +13,7 @@ import TermsTree from "../TermsTree";
 import getDeclinedName from "../../utils/getDeclinedName";
 import ViewComponentsBtn from "../ViewComponentsBtn";
 import {dataMartStyles as styles} from "../../native_styles/dataMarts";
-import {isArraysEqual} from "../../utils/isArrayEqual";
+import compareArrays from "../../utils/compareArrays";
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -108,7 +108,7 @@ const DataMart = props => {
   const closeFilters = () => {
     visibilityFilters(false);
     const {items, prevItems} = terms.tagged;
-    if (!isArraysEqual(items, prevItems)) {
+    if (!compareArrays(items, prevItems)) {
       const meta = entities.items.meta;
       const {subj_ids} = meta;
       props.notifyLoadingEntities();
