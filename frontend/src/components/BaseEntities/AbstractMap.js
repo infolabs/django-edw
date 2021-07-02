@@ -21,12 +21,12 @@ export default class AbstractMap extends Component {
 
   state = {
     markers: [],
-    itemsChanged: false
+    itemsChanged: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const itemsChanged = this.props.items != prevProps.items;
-    if (prevState.itemsChanged != itemsChanged)
+    const itemsChanged = this.props.items !== prevProps.items;
+    if (prevState.itemsChanged !== itemsChanged)
       this.setState({itemsChanged});
   }
 

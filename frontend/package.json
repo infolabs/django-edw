@@ -54,7 +54,8 @@
     "react-native": "0.64.0-rc.2",
     "@ui-kitten/components": "^5.0.0",
     "native-base": "^2.13.14",
-    "react-native-loading-spinner-overlay": "^2.0.0"
+    "react-native-loading-spinner-overlay": "^2.0.0",
+    "string.prototype.matchall": "^4.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

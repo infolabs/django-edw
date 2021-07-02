@@ -12,7 +12,7 @@ class ViewComponents extends Component {
           { meta } = this.props.entities.items,
           { view_components } = dropdowns;
 
-    let ret = <div></div>,
+    let ret = <div/>,
         request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении view components
 
     if (view_components && Object.keys(view_components.options).length > 1) {
@@ -24,18 +24,17 @@ class ViewComponents extends Component {
       // IE 11 hack
       const values = Object.keys(view_components.options).map(idx => view_components.options[idx]);
 
-      if (values.length && values.indexOf(selected) < 0) {
+      if (values.length && values.indexOf(selected) < 0)
         selected = values[0];
-      }
 
       ret = (
         <ul className="ex-inline">
           <li>
-            <span>{gettext("View as")} &nbsp; </span>
+            <span>{gettext('View as')} &nbsp; </span>
           </li>
           <li>
             <BtnGroup
-                name='view_components'
+                name="view_components"
                 request_var={view_components.request_var}
                 entry_point_id={entry_point_id}
                 subj_ids={meta.subj_ids}
@@ -63,7 +62,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

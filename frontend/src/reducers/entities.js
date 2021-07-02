@@ -37,7 +37,7 @@ class Dropdown {
       'open': false,
       'request_var': '',
       'selected': '',
-      'options': {}
+      'options': {},
     };
     Object.assign(this, defaults, options);
   }
@@ -55,16 +55,16 @@ class Dropdowns {
           ordering_options = {
             'request_var': 'ordering',
             'selected': modes[json.results.meta.ordering],
-            'options': modes
+            'options': modes,
           };
-    this['ordering'] = new Dropdown(ordering_options);
+    this.ordering = new Dropdown(ordering_options);
 
     // Limits
     const default_limit = data_mart.limit || 40;
     const max_limit = data_mart.max_limit || null;
     const multipliers = [2, 5, 10, 20];
     const options = {
-      [data_mart.limit]: data_mart.limit
+      [data_mart.limit]: data_mart.limit,
     };
     for (const m of multipliers) {
         const o = default_limit * m;
@@ -78,21 +78,22 @@ class Dropdowns {
     const limit_options = {
       'request_var': 'limit',
       'selected': limit,
-      'options': options
+      'options': options,
     };
-    this['limits'] = new Dropdown(limit_options);
+    this.limits = new Dropdown(limit_options);
 
     // ViewComponents
     const components = data_mart.view_components,
           component_options = {
             'request_var': 'view_component',
             'selected': components[json.results.meta.view_component],
-            'options': components
+            'options': components,
           };
-    this['view_components'] = new Dropdown(component_options);
+    this.view_components = new Dropdown(component_options);
   }
 
   toggle(name) {
+    // eslint-disable-next-line consistent-this
     let ret = this;
     let item = this[name];
     if (item) {
@@ -109,9 +110,10 @@ class Dropdowns {
   }
 
   select(name, selected) {
+    // eslint-disable-next-line consistent-this
     let ret = this;
     let item = this[name];
-    if (item && item.selected != item.options[selected]) {
+    if (item && item.selected !== item.options[selected]) {
       item.open = false;
       item.selected = item.options[selected];
       ret = Object.assign(new Dropdowns(), this);
@@ -140,7 +142,8 @@ class Descriptions {
   }
 
   hide(id) {
-    var ret = this;
+    // eslint-disable-next-line consistent-this
+    let ret = this;
     if (this.opened[id]) {
       this.opened = {};
       ret = Object.assign(new Descriptions(), this);
@@ -149,11 +152,10 @@ class Descriptions {
   }
 
   load(json) {
-    if (json.extra && json.extra.group_size) {
+    if (json.extra && json.extra.group_size)
       this.groups[json.id] = json;
-    } else {
+    else
       this[json.id] = json;
-    }
     return Object.assign(new Descriptions(), this);
   }
 }
@@ -225,7 +227,7 @@ function descriptions(state = new Descriptions(), action) {
 // Native
 const initialViewComponentState = {
   data: {},
-  currentView: null
+  currentView: null,
 };
 
 const viewComponents = (state = initialViewComponentState, action) => {
@@ -242,7 +244,7 @@ const viewComponents = (state = initialViewComponentState, action) => {
 const initialDetailState = {
   data: {},
   loading: false,
-  visible: false
+  visible: false,
 };
 
 const detail = (state = initialDetailState, action) => {

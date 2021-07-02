@@ -38,10 +38,10 @@ const TileItemMixin = Base => class extends Base {
       actions.showDescription(id);
 
       if (data.extra && data.extra.group_size && !meta.alike && !descriptions.groups[id])
-        actions.getEntityItem(data, meta);
+        actions.getEntity(data, meta);
 
       if ((data.extra && !data.extra.group_size) && !descriptions[id])
-        actions.getEntityItem(data);
+        actions.getEntity(data);
 
     } else
       actions.hideDescription(id);

@@ -4,16 +4,17 @@ import React, { Component } from 'react';
 import Actions from '../actions/index';
 import TermsTreeItem from './TermsTreeItem';
 import parseRequestParams from 'utils/parseRequestParams';
-import { setDatamartHash, getDatamartsData } from "../utils/locationHash";
+import { setDatamartHash, getDatamartsData } from '../utils/locationHash';
 
 
 function isArraysEqual(a, b) {
   if (a === b) return true;
   if (a == null || b == null) return false;
-  if (a.length != b.length) return false;
+  if (a.length !== b.length) return false;
 
   for (let i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
+    if (a[i] !== b[i])
+      return false;
   }
   return true;
 }
@@ -67,9 +68,9 @@ class TermsTree extends Component {
       }
       // reload entities
       if (!tagged_next.entities_ignore || fromHash) {
-        delete request_options["alike"];
-        request_options['terms'] = tagged_next.items;
-        request_options['offset'] = fromHash ? datamartData.offset : 0;
+        delete request_options.alike;
+        request_options.terms = tagged_next.items;
+        request_options.offset = fromHash ? datamartData.offset : 0;
         this.props.actions.notifyLoadingEntities();
 
         this.props.actions.getEntities(
@@ -90,7 +91,7 @@ class TermsTree extends Component {
           loading = terms.tree.loading,
           realPotential = terms.realPotential;
 
-    let tree = "";
+    let tree = '';
     if (term) {
       tree = (
         <TermsTreeItem key={term.id}
@@ -104,7 +105,7 @@ class TermsTree extends Component {
       );
     }
 
-    let ul_class = loading ? "terms-tree ex-state-loading" : "terms-tree";
+    let ul_class = loading ? 'terms-tree ex-state-loading' : 'terms-tree';
 
     return (
         <ul className={ul_class}>
@@ -126,10 +127,9 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 
 
 export default connect(mapState, mapDispatch)(TermsTree);
-
