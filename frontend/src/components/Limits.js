@@ -12,7 +12,7 @@ class Limits extends Component {
           { meta } = this.props.entities.items,
           { limits } = dropdowns;
 
-    let ret = <div></div>,
+    let ret = <div/>,
         limit_options = {};
 
     if (meta.count <= 1)
@@ -26,27 +26,27 @@ class Limits extends Component {
       for (const key of Object.keys(limits.options)) {
         const value = limits.options[key];
         max_opt_value = value > max_opt_value ? value : max_opt_value;
-        if (meta.count < max_opt_value) {
+        if (meta.count < max_opt_value)
           break;
-        }
-        if (key == meta.selected || value <= meta.count) {
+
+        if (key === meta.selected || value <= meta.count) {
           max_value = value > max_value ? value : max_value;
           limit_options[key] = value;
         }
       }
       if (max_value < meta.count && meta.count < max_opt_value)
-        limit_options[max_opt_value] = gettext("All");
+        limit_options[max_opt_value] = gettext('All');
     }
 
     if (limits && Object.keys(limit_options).length > 1) {
-      let selectedLabel = limits.selected >= max_opt_value ? gettext("All") : limits.selected;
+      let selectedLabel = limits.selected >= max_opt_value ? gettext('All') : limits.selected;
       ret = (
         <ul className="ex-inline">
           <li>
-            <span>{gettext("Quantity")} &nbsp; </span>
+            <span>{gettext('Quantity')} &nbsp; </span>
           </li>
           <li>
-            <Dropdown name='limits'
+            <Dropdown name="limits"
                       entry_point_id={entry_point_id}
                       request_var={limits.request_var}
                       request_options={meta.request_options}
@@ -75,7 +75,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

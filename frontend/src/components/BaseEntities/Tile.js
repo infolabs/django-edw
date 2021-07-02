@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TileItemMixin from "./TileItemMixin";
+import TileItemMixin from './TileItemMixin';
 
 
 // Container
@@ -8,8 +8,8 @@ export default class Tile extends Component {
 
   render() {
     const { items, actions, loading, descriptions, meta } = this.props;
-    let entities_class = "entities ex-tiles";
-    entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
+    let entities_class = 'entities ex-tiles';
+    entities_class = loading ? entities_class + ' ex-state-loading' : entities_class;
 
     return (
       <ul className={entities_class}>
@@ -38,9 +38,9 @@ class TileItem extends TileItemMixin(Component) {
       );
     }
 
-    let liClass = "ex-catalog-item";
+    let liClass = 'ex-catalog-item';
     if (descriptions.opened[data.id])
-      liClass += " ex-state-description";
+      liClass += ' ex-state-description';
 
     let characteristics = data.short_characteristics || [],
         marks = data.short_marks || [];
@@ -58,7 +58,7 @@ class TileItem extends TileItemMixin(Component) {
           itemContent = this.getItemContent(data, title, marks),
           itemBlock = this.getItemBlock(descriptionBaloon, itemContent, groupDigit, groupSize);
 
-    return(
+    return (
       <li className={liClass}
           data-horizontal-position={this.state.h_pos}
           data-vertical-position="center"

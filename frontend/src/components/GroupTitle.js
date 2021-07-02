@@ -11,8 +11,8 @@ class GroupTitle extends Component {
           mart_id = meta.data_mart.id,
           subj_ids = meta.subj_ids;
     let request_options = meta.request_options;
-    delete request_options["alike"];
-    delete request_options["offset"];
+    delete request_options.alike;
+    delete request_options.offset;
     actions.notifyLoadingEntities();
     actions.getEntities(mart_id, subj_ids, request_options);
   }
@@ -20,14 +20,14 @@ class GroupTitle extends Component {
   render() {
     const alike = this.props.entities.items.meta.alike,
           loading = this.props.entities.items.loading,
-          className = (loading ? " ex-state-loading" : "");
+          className = (loading ? ' ex-state-loading' : '');
     let ret = null;
     if (alike) {
       ret = (
         <span className={className}>
           {alike.group_name}
           <i onClick={e => { ::this.handleMouseClick(); } }
-             className="ex-icon-reset"></i>
+             className="ex-icon-reset"/>
         </span>
       );
     }
@@ -45,7 +45,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

@@ -8,7 +8,7 @@ class Statistics extends Component {
   render() {
     const meta = this.props.entities.items.meta;
 
-    let ret = <span></span>;
+    let ret = <span/>;
     if (meta.count) {
       const total = meta.count,
             offset = meta.offset,
@@ -18,7 +18,7 @@ class Statistics extends Component {
       to = total < to ? total : to;
 
       ret = (
-        <span>{offset + 1} - {to} {gettext("from")} {total}</span>
+        <span>{offset + 1} - {to} {gettext('from')} {total}</span>
       );
     }
     return ret;
@@ -34,7 +34,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

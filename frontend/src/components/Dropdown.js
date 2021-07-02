@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
-import cookieKey from "../utils/hashUtils";
+import cookieKey from '../utils/hashUtils';
 import parseRequestParams from 'utils/parseRequestParams';
 
 
@@ -11,9 +11,9 @@ export default class Dropdown extends Component {
     const total = this.props.count,
           offset = options.offset,
           limit = options.limit;
-    if (total && offset && limit && total < offset + limit) {
-        options.offset = total - limit - total % limit;
-    }
+    if (total && offset && limit && total < offset + limit)
+      options.offset = total - limit - total % limit;
+
     return options;
   }
 
@@ -76,7 +76,7 @@ export default class Dropdown extends Component {
 
     let opts = {};
     for (const opt of Object.keys(options)) {
-      if (options[opt] != selected)
+      if (options[opt] !== selected)
         opts[opt] = options[opt];
     }
 
@@ -85,9 +85,9 @@ export default class Dropdown extends Component {
           <a href="#"
              className="ex-btn ex-btn-default"
              onClick={(e) => { ::this.handleSelectedClick(e); } }>
-            {selected}<span className="ex-icon-caret-down"></span>
+            {selected}<span className="ex-icon-caret-down"/>
           </a>
-          <ul className={open ? "ex-dropdown-menu2": "ex-dropdown-menu2 ex-dropdown-hide"}>
+          <ul className={open ? 'ex-dropdown-menu2' : 'ex-dropdown-menu2 ex-dropdown-hide'}>
             {Object.keys(opts).map(
               (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k); } }>
                 <a href="#" key={i}>{options[k]}</a>

@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import parseRequestParams from 'utils/parseRequestParams';
+
 
 export default class DataMartsList extends Component {
 
@@ -9,13 +8,13 @@ export default class DataMartsList extends Component {
       super(props);
       this.state = {
         entry_points: props.entry_points,
-        entry_point_id: props.entry_point_id
-      }
+        entry_point_id: props.entry_point_id,
+      };
   }
 
   changeDataMart(pk) {
 
-    const { entry_points, change_active_data_mart } = this.props,
+    const { entry_points } = this.props,
             request_params = entry_points[pk].request_params || [];
     this.props.actions.changeActiveDataMart(pk);
 
@@ -30,11 +29,11 @@ export default class DataMartsList extends Component {
 
     let request_options = {};
 
-    request_options['terms'] = term_ids;
-    request_options['offset'] = 0;
-    if (limit > -1) {
-      request_options['limit'] = limit;
-    }
+    request_options.terms = term_ids;
+    request_options.offset = 0;
+    if (limit > -1)
+      request_options.limit = limit;
+
     this.props.actions.notifyLoadingEntities();
     this.props.actions.getEntities(pk, subj_ids, request_options, options_arr);
 
@@ -43,7 +42,7 @@ export default class DataMartsList extends Component {
   render() {
     const { entry_points, entry_point_id } = this.props;
 
-    let is_active = (pk) => pk == entry_point_id;
+    let is_active = (pk) => pk === entry_point_id;
     const keys = Object.keys(entry_points);
     let dataMarts = [];
 
@@ -83,7 +82,6 @@ export default class DataMartsList extends Component {
       <ul className="datamart-list">
         {dataMarts}
       </ul>
-    </div> : null
-
+    </div> : null;
   }
 }
