@@ -1,13 +1,13 @@
-import React from 'react'
-import ActionCreators from "../actions"
-import {connect} from 'react-redux'
-import {bindActionCreators} from "redux"
-import {useTheme, Button} from "@ui-kitten/components"
-import {Icon} from "native-base";
+import React from 'react';
+import ActionCreators from '../actions';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {useTheme, Button} from '@ui-kitten/components';
+import {Icon} from 'native-base';
 
 
-const ViewComponentsBtn = props => {
-  const {entities, entry_points, entry_point_id} = props;
+function ViewComponentsBtn(props) {
+  const {entities} = props;
   const {viewComponents} = entities;
   const {data, currentView} = viewComponents;
   const dataKeys = Object.keys(data);
@@ -15,9 +15,9 @@ const ViewComponentsBtn = props => {
   const nextKey = dataKeys[index + 1] || dataKeys[0];
   const theme = useTheme();
 
-  const changeViewComponent = () => {
-    props.setCurrentView(nextKey)
-  };
+  function changeViewComponent() {
+    props.setCurrentView(nextKey);
+  }
 
   let iconName = null;
 
@@ -29,15 +29,18 @@ const ViewComponentsBtn = props => {
     iconName = 'map-outline';
 
   return (
-    <Button onPress={() => changeViewComponent()} size='tiny' appearance='ghost' status='basic'>
+    <Button onPress={() => changeViewComponent()} size="tiny" appearance="ghost" status="basic">
       <Icon name={iconName} style={{fontSize: theme['icon-size']}}/>
     </Button>
-  )
-};
+  );
+}
+
 
 const mapStateToProps = state => ({
-  entities: state.entities
+  entities: state.entities,
 });
+
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewComponentsBtn);

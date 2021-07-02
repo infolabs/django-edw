@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import platformSettings from "../constants/Platform";
+import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -11,5 +11,5 @@ export const baseEntitiesStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-  }
+  },
 });

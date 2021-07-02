@@ -1,5 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
-import platformSettings from "../constants/Platform";
+import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -28,7 +28,7 @@ export const dataMartStyles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   headerBtn: {
-    height: 50
+    height: 50,
   },
   orderingView: {
     width: '50%',
@@ -37,13 +37,13 @@ export const dataMartStyles = StyleSheet.create({
   textDelimiter: {
     width: 1,
     height: 18,
-    backgroundColor: '#b4b4b4'
+    backgroundColor: '#b4b4b4',
   },
   viewAndFilteredIcon: {
     width: 100,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   termTreeAnimatedView: {
     height: deviceHeight,
@@ -51,7 +51,7 @@ export const dataMartStyles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#fff',
     bottom: 0,
-    zIndex: 4
+    zIndex: 4,
   },
   termsTreeView: {
     height: '100%',
@@ -60,16 +60,16 @@ export const dataMartStyles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     paddingHorizontal: 40,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   emptyContainerEntities: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10
+    marginTop: 10,
   },
   emptyContainerEntitiesText: {
-    fontSize: 18
+    fontSize: 18,
   },
   showObjectsBtnView: {
     position: 'absolute',
@@ -77,7 +77,7 @@ export const dataMartStyles = StyleSheet.create({
     width: deviceWidth,
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.4,
     shadowRadius: 10,
@@ -85,14 +85,14 @@ export const dataMartStyles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopEndRadius: 15,
     borderColor: '#d5d5d5',
-    backgroundColor: "#fff",
-    height: showObjectsBtnViewHeight
+    backgroundColor: '#fff',
+    height: showObjectsBtnViewHeight,
   },
   showObjectsBtn: {
     borderWidth: 0,
     marginHorizontal: 25,
     marginTop: 15,
-    borderRadius: 10
+    borderRadius: 10,
   },
   emptyView: {
     height: emptyViewHeight,

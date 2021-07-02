@@ -1,10 +1,10 @@
-import React, {Component} from 'react'
-import {ScrollView, View, ImageBackground} from 'react-native'
-import {Text, Card, Layout} from '@ui-kitten/components'
-import Singleton from '../../utils/singleton'
+import React, {Component} from 'react';
+import {ScrollView, View, ImageBackground} from 'react-native';
+import {Text, Card, Layout} from '@ui-kitten/components';
+import Singleton from '../../utils/singleton';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {listStyles as styles} from "../../native_styles/entities";
-import EntityMixin from "./EntityMixin";
+import {listStyles as styles} from '../../native_styles/entities';
+import EntityMixin from './EntityMixin';
 
 
 export default class List extends EntityMixin(Component) {
@@ -57,6 +57,8 @@ class ListItem extends Component {
   render() {
     const {data, domain, templateIsDataMart} = this.props;
 
+    const style = templateIsDataMart ? {...styles.entityNameText} : {...styles.entityNameText, fontSize: 16};
+
     if (data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/))
       data.media = `${domain}/${data.media.match(/.*<img.*?src=(['"])(.*?)(['"])/)[2]}`;
 
@@ -66,12 +68,12 @@ class ListItem extends Component {
         <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
           <ImageBackground source={{uri: data.media}} style={templateIsDataMart ? styles.imageBackground :
             styles.imageBackgroundRelated}>
-            <Text style={templateIsDataMart ? {...styles.entityNameText} : {...styles.entityNameText, fontSize: 16}}>
+            <Text style={style}>
               {data.entity_name}
             </Text>
           </ImageBackground>
         </View>
       </Card>
-    )
+    );
   }
 }

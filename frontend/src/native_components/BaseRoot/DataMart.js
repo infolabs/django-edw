@@ -1,34 +1,35 @@
-import React, {useState, useEffect, useMemo} from 'react'
-import {View, Animated, ScrollView, Platform} from 'react-native'
-import {Text, TopNavigation, Button, useTheme} from "@ui-kitten/components";
-import {connect} from 'react-redux'
-import Ordering from "../Ordering"
-import FilterBtn from "../FilterBtn"
-import Entities from "native_components/Entities";
-import ActionCreators from "../../actions"
-import {bindActionCreators} from "redux"
-import platformSettings from "../../constants/Platform";
-import {Icon} from "native-base";
-import TermsTree from "../TermsTree";
-import getDeclinedName from "../../utils/getDeclinedName";
-import ViewComponentsBtn from "../ViewComponentsBtn";
-import {dataMartStyles as styles} from "../../native_styles/dataMarts";
-import compareArrays from "../../utils/compareArrays";
+import React, {useState, useEffect, useMemo} from 'react';
+import {View, Animated, ScrollView, Platform} from 'react-native';
+import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
+import {connect} from 'react-redux';
+import Ordering from '../Ordering';
+import FilterBtn from '../FilterBtn';
+import Entities from 'native_components/Entities';
+import ActionCreators from '../../actions';
+import {bindActionCreators} from 'redux';
+import platformSettings from '../../constants/Platform';
+import {Icon} from 'native-base';
+import TermsTree from '../TermsTree';
+import getDeclinedName from '../../utils/getDeclinedName';
+import ViewComponentsBtn from '../ViewComponentsBtn';
+import {dataMartStyles as styles} from '../../native_styles/dataMarts';
+import compareArrays from '../../utils/compareArrays';
 
 
-const {deviceHeight, deviceWidth} = platformSettings;
+const {deviceHeight} = platformSettings;
 const termsIdsTaggedBranch = new Set();
 let translateY = deviceHeight;
 let usePrevTerms = false;
 
-const DataMart = props => {
+
+function DataMart(props) {
   const {entry_point_id, entry_points, entities, terms} = props;
   const {viewComponents, detail} = entities;
-  const {loading, json} = terms.tree;
+  const {json} = terms.tree;
   const {data} = detail;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
-  const [visibleDetail, setVisibleDetail] = useState(false);
+  const [, setVisibleDetail] = useState(false);
   // Флаг showTermsTree нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
   // Т.к. при первоначальной загрузке мы получаем абсолютно все термины
   const [showTermsTree, setShowTermsTree] = useState(false);
@@ -47,21 +48,20 @@ const DataMart = props => {
 
   useEffect(() => {
     const templates = Entities.getTemplatesDetail();
-    const model = data.entity_model in templates ? data.entity_model : "default";
+    const model = data.entity_model in templates ? data.entity_model : 'default';
     setTemplatesDetail(templates);
     setTemplateDetailName(model);
   }, [detail.data]);
 
   useEffect(() => {
     if (detail.visible) {
-      if (Platform.OS === 'android'){
-        translateY = 0
+      if (Platform.OS === 'android') {
+        translateY = 0;
       } else {
-        if (deviceHeight < 700) {
+        if (deviceHeight < 700)
           translateY = 0;
-        } else {
+        else
           translateY = 35;
-        }
       }
       setShowTermsTree(false);
       setVisibleDetail(true);
@@ -75,7 +75,7 @@ const DataMart = props => {
     Animated.timing(animateTranslateY, {
       toValue: translateY,
       duration: 300,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start();
   }, [translateY]);
 
@@ -84,18 +84,18 @@ const DataMart = props => {
       const termsItems = terms.tagged.prevItems;
       props.notifyLoadingTerms();
       props.loadTree(entry_point_id, termsItems);
-    } else
+    } else {
       setShowTermsTree(true);
+    }
     setVisibleFilters(visible);
     if (visible) {
       if (Platform.OS === 'android'){
         translateY = 0;
       } else {
-        if (deviceHeight < 700) {
+        if (deviceHeight < 700)
           translateY = 0;
-        } else {
+        else
           translateY = 35;
-        }
       }
     } else {
       translateY = deviceHeight;
@@ -115,12 +115,12 @@ const DataMart = props => {
       props.getEntities(entry_point_id, subj_ids, {}, [], true);
       usePrevTerms = true;
     }
-    setShowTermsTree(false)
+    setShowTermsTree(false);
   };
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
   const closeFiltersView = () => (
-    <Icon onPress={() => closeFilters()} name='close'/>
+    <Icon onPress={() => closeFilters()} name="close"/>
   );
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
@@ -133,6 +133,8 @@ const DataMart = props => {
 
   const visibleFiltersBtn = entities.items.objects.length || (terms.tagged.items
     && terms.tagged.items.length && !entities.loading);
+
+  const topNavStyle = {marginTop: 20};
 
   return (
     <>
@@ -163,8 +165,8 @@ const DataMart = props => {
         {showTermsTree ?
           <>
             <TopNavigation
-              alignment='center'
-              style={{marginTop: 20}}
+              alignment="center"
+              style={topNavStyle}
               title={() => <Text
                 style={{...styles.navigationTitle, backgroundColor: theme['background-color-default']}}>
                 Фильтры
@@ -199,19 +201,22 @@ const DataMart = props => {
         {detail.visible ?
           React.createElement(templatesDetail[templateDetailName],{
             data,
-            hideVisibleDetail: props.hideVisibleDetail
+            hideVisibleDetail: props.hideVisibleDetail,
           })
           : null
         }
       </Animated.View>
     </>
-  )
-};
+  );
+}
+
 
 const mapStateToProps = state => ({
   entities: state.entities,
-  terms: state.terms
+  terms: state.terms,
 });
+
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataMart);

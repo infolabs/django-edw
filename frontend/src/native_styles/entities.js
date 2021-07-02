@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import platformSettings from "../constants/Platform";
+import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -16,10 +16,10 @@ export const tileStyles = StyleSheet.create({
     width: deviceWidth,
     paddingHorizontal: 10,
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
   cardContainer: {
-    width: deviceWidth/2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
+    width: deviceWidth / 2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
     minHeight: 260,
     marginVertical: 8,
     marginHorizontal: 8,
@@ -43,8 +43,8 @@ export const tileStyles = StyleSheet.create({
     fontSize: 18,
     textShadowColor: '#333',
     textShadowRadius: 5,
-    flexWrap: 'wrap'
-  }
+    flexWrap: 'wrap',
+  },
 });
 
 export const listStyles = StyleSheet.create({
@@ -85,7 +85,7 @@ export const listStyles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 18,
     textShadowColor: '#333',
-    textShadowRadius: 5
+    textShadowRadius: 5,
   },
   containerRelated: {
     backgroundColor: 'transparent',
@@ -102,10 +102,10 @@ export const listStyles = StyleSheet.create({
     borderRadius: 15,
   },
   cardImageRelated: {
-    ...StyleSheet.absoluteFillObject
+    ...StyleSheet.absoluteFillObject,
   },
   imageBackgroundRelated: {
     ...StyleSheet.absoluteFillObject,
     height: 150,
-  }
+  },
 });

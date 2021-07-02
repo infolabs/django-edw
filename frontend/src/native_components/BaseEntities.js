@@ -1,33 +1,33 @@
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import React, {Component} from 'react';
-import {View} from 'react-native'
+import {View} from 'react-native';
 import parseRequestParams from '../utils/parseRequestParams';
-import ActionCreators from "../actions";
+import ActionCreators from '../actions';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Tile from './BaseEntities/Tile';
 import List from './BaseEntities/List';
 import Default from './Detail/Default';
-import {baseEntitiesStyles as styles} from "../native_styles/baseEntities";
+import {baseEntitiesStyles as styles} from '../native_styles/baseEntities';
 
 
 class BaseEntities extends Component {
 
   static getTemplates() {
     return {
-      "tile": Tile,
-      "list": List,
+      'tile': Tile,
+      'list': List,
     };
   }
 
   static getTemplatesDetail() {
     return {
-      "default": Default,
-    }
+      'default': Default,
+    };
   }
 
   static defaultProps = {
-    getTemplates: BaseEntities.getTemplates
+    getTemplates: BaseEntities.getTemplates,
   };
 
   componentDidMount() {
@@ -45,10 +45,10 @@ class BaseEntities extends Component {
     let request_options = this.props.entities.items.meta.request_options;
 
     if (limit > -1)
-      request_options['limit'] = limit;
+      request_options.limit = limit;
 
     if (term_ids.length)
-      request_options['terms'] = term_ids;
+      request_options.terms = term_ids;
 
     this.props.notifyLoadingEntities();
     this.props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
@@ -73,13 +73,12 @@ class BaseEntities extends Component {
         entry_points[entry_point_id].template_name === 'related';
       for (let item of viewComponents) {
         if (templateIsRelated) {
-          if (item.match(/(_list$)/))
-            if (this.props.getTemplates().hasOwnProperty(item))
+          if (item.match(/(_list$)/) && this.props.getTemplates().hasOwnProperty(item))
               viewComponentsMobile.push(item);
           continue;
         }
         if (this.props.getTemplates().hasOwnProperty(item))
-          viewComponentsMobile.push(item)
+          viewComponentsMobile.push(item);
       }
 
       if (templateIsRelated && !viewComponentsMobile.length)
@@ -87,14 +86,14 @@ class BaseEntities extends Component {
 
       const dataViewComponent = {};
       viewComponentsMobile.map(component => {
-        dataViewComponent[component] = meta.data_mart.view_components[component]
+        dataViewComponent[component] = meta.data_mart.view_components[component];
       });
 
       this.props.setDataViewComponents(dataViewComponent);
 
       if (viewComponentsMobile.length) {
         const componentName = viewComponentsMobile[0];
-        this.props.setCurrentView(componentName)
+        this.props.setCurrentView(componentName);
       }
     }
   }
@@ -114,7 +113,7 @@ class BaseEntities extends Component {
       if (!this.templates)
         this.templates = this.props.getTemplates();
 
-      const component = this.templates[componentName] || this.templates['list'];
+      const component = this.templates[componentName] || this.templates.list;
       return (React.createElement(
         component, {
           items,
@@ -125,7 +124,7 @@ class BaseEntities extends Component {
           notifyLoadingEntities,
           getEntities,
           templateIsDataMart,
-          getEntity
+          getEntity,
         }
       ));
     } else if (templateIsDataMart) {
@@ -133,9 +132,9 @@ class BaseEntities extends Component {
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
-      )
+      );
     } else {
-      return null
+      return null;
     }
   }
 }

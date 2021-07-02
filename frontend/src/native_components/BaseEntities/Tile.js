@@ -1,10 +1,10 @@
-import React, {Component} from 'react'
-import {ScrollView, View, ImageBackground} from 'react-native'
-import {Text, Card, Layout} from '@ui-kitten/components'
-import Singleton from '../../utils/singleton'
+import React, {Component} from 'react';
+import {ScrollView, View, ImageBackground} from 'react-native';
+import {Text, Card, Layout} from '@ui-kitten/components';
+import Singleton from '../../utils/singleton';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {tileStyles as styles} from "../../native_styles/entities";
-import EntityMixin from "./EntityMixin";
+import {tileStyles as styles} from '../../native_styles/entities';
+import EntityMixin from './EntityMixin';
 
 
 export default class Tile extends EntityMixin(Component) {
@@ -54,6 +54,6 @@ class TileItem extends Component {
           </ImageBackground>
         </View>
       </Card>
-    )
+    );
   }
 }

@@ -3,12 +3,12 @@ import {StyleSheet} from 'react-native';
 
 export const dropDownsStyles = StyleSheet.create({
   button: {
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
   sortView: {
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   sortText: {
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 });

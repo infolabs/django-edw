@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
-import ActionCreators from "../actions";
-import parseRequestParams from "../utils/parseRequestParams"
-import compareArrays from "../../utils/compareArrays";
+import ActionCreators from '../actions';
+import parseRequestParams from '../utils/parseRequestParams';
+import compareArrays from '../../utils/compareArrays';
 
 
 class TermsTree extends Component {
@@ -45,9 +45,9 @@ class TermsTree extends Component {
         let request_options = meta.request_options,
           subj_ids = meta.subj_ids || subj_req_ids;
 
-        delete request_options["alike"];
-        request_options['terms'] = tagged_next.items;
-        request_options['offset'] = 0;
+        delete request_options.alike;
+        request_options.terms = tagged_next.items;
+        request_options.offset = 0;
         this.props.actions.notifyLoadingEntities();
 
         this.props.actions.getEntities(
@@ -63,7 +63,7 @@ class TermsTree extends Component {
   render() {
     const {terms, actions, termsIdsTaggedBranch} = this.props,
       term = terms.tree.root,
-      {tagged, expanded, loading, realPotential} = terms;
+      {tagged, expanded, realPotential} = terms;
 
     return term ? (
         <TermsTreeItem key={term.id}
@@ -75,18 +75,20 @@ class TermsTree extends Component {
                        terms={terms}
                        termsIdsTaggedBranch={termsIdsTaggedBranch}/>
       )
-      : null
+      : null;
   }
 }
 
+
 const mapStateToProps = state => ({
   terms: state.terms,
-  entities: state.entities
+  entities: state.entities,
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(ActionCreators, dispatch),
-  dispatch: dispatch
+  dispatch: dispatch,
 });
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(TermsTree);
