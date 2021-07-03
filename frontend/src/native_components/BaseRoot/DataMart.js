@@ -4,7 +4,6 @@ import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
 import {connect} from 'react-redux';
 import Ordering from '../Ordering';
 import FilterBtn from '../FilterBtn';
-import Entities from 'native_components/Entities';
 import ActionCreators from '../../actions';
 import {bindActionCreators} from 'redux';
 import platformSettings from '../../constants/Platform';
@@ -14,6 +13,7 @@ import getDeclinedName from '../../utils/getDeclinedName';
 import ViewComponentsBtn from '../ViewComponentsBtn';
 import {dataMartStyles as styles} from '../../native_styles/dataMarts';
 import compareArrays from '../../utils/compareArrays';
+import Entities, {getTemplatesDetail} from 'native_components/Entities';
 
 
 const {deviceHeight} = platformSettings;
@@ -47,7 +47,7 @@ function DataMart(props) {
   }, [terms.tagged.items]);
 
   useEffect(() => {
-    const templates = Entities.getTemplatesDetail();
+    const templates = getTemplatesDetail();
     const model = data.entity_model in templates ? data.entity_model : 'default';
     setTemplatesDetail(templates);
     setTemplateDetailName(model);
