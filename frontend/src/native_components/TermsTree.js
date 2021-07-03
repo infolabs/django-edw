@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
@@ -7,34 +7,37 @@ import parseRequestParams from '../utils/parseRequestParams';
 import compareArrays from '../../utils/compareArrays';
 
 
-class TermsTree extends Component {
+function TermsTree(props) {
 
-  componentDidMount() {
-    const {entry_points, entry_point_id, terms} = this.props,
+  const prevPropsRef = useRef(props);
+
+  useEffect(() => {
+    const {entry_points, entry_point_id, terms} = props,
       request_params = entry_points[entry_point_id.toString()].request_params || [];
 
     const params = parseRequestParams(request_params),
       term_ids = params.term_ids;
 
     if (!terms.tree.json.length) {
-      this.props.actions.notifyLoadingTerms();
-      this.props.actions.readTree(entry_point_id, term_ids);
+      props.actions.notifyLoadingTerms();
+      props.actions.readTree(entry_point_id, term_ids);
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps) {
+  useEffect(() => {
+    const prevProps = prevPropsRef.current;
     const entry_points = prevProps.entry_points,
       entry_point_id = prevProps.entry_point_id,
       request_params = entry_points[entry_point_id.toString()].request_params || [],
       tagged_current = prevProps.terms.tagged,
-      tagged_next = this.props.terms.tagged,
+      tagged_next = props.terms.tagged,
       meta = prevProps.entities.items.meta;
 
     if (!compareArrays(tagged_current.items, tagged_next.items)) {
       // reload tree
       if (!tagged_next.isInCache()) {
-        this.props.actions.notifyLoadingTerms();
-        this.props.actions.reloadTree(entry_point_id, tagged_next.items);
+        props.actions.notifyLoadingTerms();
+        props.actions.reloadTree(entry_point_id, tagged_next.items);
       }
       // reload entities
       if (!tagged_next.entities_ignore) {
@@ -48,35 +51,35 @@ class TermsTree extends Component {
         delete request_options.alike;
         request_options.terms = tagged_next.items;
         request_options.offset = 0;
-        this.props.actions.notifyLoadingEntities();
+        props.actions.notifyLoadingEntities();
 
-        this.props.actions.getEntities(
+        props.actions.getEntities(
           entry_point_id, subj_ids, request_options, options_arr
         );
       }
+
+      prevPropsRef.current = props;
     }
 
     if (tagged_current.items.length !== tagged_next.items.length)
-      this.props.termsIdsTaggedBranch.clear();
-  }
+      props.termsIdsTaggedBranch.clear();
+  });
 
-  render() {
-    const {terms, actions, termsIdsTaggedBranch} = this.props,
-      term = terms.tree.root,
-      {tagged, expanded, realPotential} = terms;
+  const {terms, actions, termsIdsTaggedBranch} = props,
+    term = terms.tree.root,
+    {tagged, expanded, realPotential} = terms;
 
-    return term ? (
-        <TermsTreeItem key={term.id}
-                       term={term}
-                       tagged={tagged}
-                       expanded={expanded}
-                       realPotential={realPotential}
-                       actions={actions}
-                       terms={terms}
-                       termsIdsTaggedBranch={termsIdsTaggedBranch}/>
-      )
-      : null;
-  }
+  return term ? (
+      <TermsTreeItem key={term.id}
+                     term={term}
+                     tagged={tagged}
+                     expanded={expanded}
+                     realPotential={realPotential}
+                     actions={actions}
+                     terms={terms}
+                     termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+    )
+    : null;
 }
 
 

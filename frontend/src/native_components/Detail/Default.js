@@ -1,24 +1,26 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {ScrollView} from 'react-native';
 import {Layout} from '@ui-kitten/components';
-import BaseDetail from './BaseDetail';
+import useDetail from './useDetail';
 
 
-export default class Default extends BaseDetail(Component) {
+function Default(props) {
+  const { getNavigation, getMedia, getContent } = useDetail(props);
 
-  render() {
-    const style = {marginBottom: 50};
+  const style = {marginBottom: 50};
 
-    return (
-      <>
-        {this.getNavigation()}
-        <ScrollView>
-          <Layout level="1" style={style}>
-            {this.getMedia()}
-            {this.getContent()}
-          </Layout>
-        </ScrollView>
-      </>
-    );
-  }
+  return (
+    <>
+      {getNavigation()}
+      <ScrollView>
+        <Layout level="1" style={style}>
+          {getMedia()}
+          {getContent()}
+        </Layout>
+      </ScrollView>
+    </>
+  );
 }
+
+
+export default Default;

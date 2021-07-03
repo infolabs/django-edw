@@ -7,15 +7,14 @@ import HTML from 'react-native-render-html';
 import {dataMartStyles as styles} from '../../native_styles/dataMarts';
 
 
-const BaseDetail = Base => class extends Base {
+function useDetail(props) {
 
-  // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
-  closeDetailView() {
-    return <Icon onPress={() => this.props.hideVisibleDetail()} name="close"/>;
+  function closeDetailView() {
+    return <Icon onPress={() => props.hideVisibleDetail()} name="close"/>;
   }
 
-  getNavigation(title = 'Объект') {
-    const {data} = this.props;
+  function getNavigation(title = 'Объект') {
+    const {data} = props;
     const style = {...styles.navigationTitle, backgroundColor: '#fff'};
     return (
       <TopNavigation
@@ -24,13 +23,13 @@ const BaseDetail = Base => class extends Base {
           style={style}>
           {`${title} № ${data.id}`}
         </Text>}
-        accessoryRight={this.closeDetailView}
+        accessoryRight={closeDetailView}
       />
     );
   }
 
-  getMedia() {
-    const {data} = this.props;
+  function getMedia() {
+    const {data} = props;
     if (data.media.length === 1){
       return (
         <View style={styles.slide}>
@@ -57,8 +56,8 @@ const BaseDetail = Base => class extends Base {
     }
   }
 
-  getContent() {
-    const {data} = this.props;
+  function getContent() {
+    const {data} = props;
 
     const txtStyle = {fontWeight: 'normal'},
           viewStyle = {marginVertical: 12},
@@ -80,7 +79,13 @@ const BaseDetail = Base => class extends Base {
       </View>
     );
   }
-};
+
+  return {
+    getNavigation,
+    getMedia,
+    getContent,
+  };
+}
 
 
-export default BaseDetail;
+export default useDetail;
