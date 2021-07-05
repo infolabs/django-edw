@@ -42,7 +42,7 @@ function TileItem(props) {
   return (
     <Card style={styles.cardContainer} onPress={() => props.getEntity(data)}>
       <View style={styles.cardImageContainer}>
-        <ImageBackground source={{uri: data.media}} style={styles.imageBackground}>
+        <ImageBackground source={data.media ? {uri: data.media } : null} style={styles.imageBackground}>
           <Text style={styles.entityNameText}>
             {data.entity_name.length > maxLengthDescriptionTile ?
               `${data.entity_name.slice(0, maxLengthDescriptionTile)}...`

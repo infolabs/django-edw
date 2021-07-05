@@ -55,14 +55,7 @@ function DataMart(props) {
 
   useEffect(() => {
     if (detail.visible) {
-      if (Platform.OS === 'android') {
-        translateY = 0;
-      } else {
-        if (deviceHeight < 700)
-          translateY = 0;
-        else
-          translateY = 35;
-      }
+      translateY = 0;
       setShowTermsTree(false);
       setVisibleDetail(true);
     } else {
@@ -89,14 +82,7 @@ function DataMart(props) {
     }
     setVisibleFilters(visible);
     if (visible) {
-      if (Platform.OS === 'android'){
-        translateY = 0;
-      } else {
-        if (deviceHeight < 700)
-          translateY = 0;
-        else
-          translateY = 35;
-      }
+      translateY = 0;
     } else {
       translateY = deviceHeight;
     }
