@@ -56,9 +56,11 @@ function BaseEntities(props) {
     props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
   }, []);
 
+
   useEffect(() => {
     setComponentName();
-  });
+  }, [entities.items.meta]);
+
 
   function setComponentName() {
     const meta = entities.items.meta;
