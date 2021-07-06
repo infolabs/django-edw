@@ -83,7 +83,7 @@ function BaseEntities(props) {
           viewComponentsMobile.push(item);
       }
 
-      if (templateIsRelated && !viewComponentsMobile.length)
+      if (!viewComponentsMobile.length)
         viewComponentsMobile.push('list');
 
       const dataViewComponent = {};
@@ -110,7 +110,7 @@ function BaseEntities(props) {
 
   if (componentName) {
     const templates = props.getTemplates();
-    const component = templates[componentName] || templates.list;
+    const component = templates[componentName];
     const {notifyLoadingEntities, getEntities, getEntity} = props;
 
     return (React.createElement(

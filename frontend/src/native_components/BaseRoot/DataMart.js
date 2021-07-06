@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useMemo} from 'react';
-import {View, Animated, ScrollView, Platform} from 'react-native';
+import {View, Animated, ScrollView} from 'react-native';
 import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import Ordering from '../Ordering';
 import FilterBtn from '../FilterBtn';
@@ -120,8 +121,6 @@ function DataMart(props) {
   const visibleFiltersBtn = entities.items.objects.length || (terms.tagged.items
     && terms.tagged.items.length && !entities.loading);
 
-  const topNavStyle = {marginTop: 20};
-
   return (
     <>
       <View style={styles.headerBtnView}>
@@ -149,10 +148,9 @@ function DataMart(props) {
       <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
       <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY}]}}>
         {showTermsTree ?
-          <>
+          <SafeAreaView>
             <TopNavigation
               alignment="center"
-              style={topNavStyle}
               title={() => <Text
                 style={{...styles.navigationTitle, backgroundColor: theme['background-color-default']}}>
                 Фильтры
@@ -161,10 +159,10 @@ function DataMart(props) {
             />
             <View style={styles.termsTreeView}>
               <ScrollView>
-                <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
-                           termsIdsTaggedBranch={termsIdsTaggedBranch}/>
-                {/*HACK: Чтобы добавить место в конце ScrollView добавляем пустой View*/}
-                <View style={styles.emptyView}/>
+                <View style={styles.termsScrollViewContainer}>
+                  <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
+                             termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+                </View>
               </ScrollView>
             </View>
             {entities.items.meta.count !== undefined ?
@@ -181,7 +179,7 @@ function DataMart(props) {
               </View>
               : null
             }
-          </>
+          </SafeAreaView>
           : null
         }
         {detail.visible ?
