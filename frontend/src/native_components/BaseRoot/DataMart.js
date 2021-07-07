@@ -12,6 +12,7 @@ import {Icon} from 'native-base';
 import TermsTree from '../TermsTree';
 import getDeclinedName from '../../utils/getDeclinedName';
 import ViewComponentsBtn from '../ViewComponentsBtn';
+import {filterUnsupported} from '../BaseEntities';
 import {dataMartStyles as styles} from '../../native_styles/dataMarts';
 import compareArrays from '../../utils/compareArrays';
 import Entities, {getTemplatesDetail} from 'native_components/Entities';
@@ -25,7 +26,7 @@ let usePrevTerms = false;
 
 function DataMart(props) {
   const {entry_point_id, entry_points, entities, terms} = props;
-  const {viewComponents, detail} = entities;
+  const {detail} = entities;
   const {json} = terms.tree;
   const {data} = detail;
   const [animateTranslateY] = useState(new Animated.Value(translateY));
@@ -121,6 +122,9 @@ function DataMart(props) {
   const visibleFiltersBtn = entities.items.objects.length || (terms.tagged.items
     && terms.tagged.items.length && !entities.loading);
 
+  const dataMart = entities.items.meta.data_mart;
+  const viewComponents = dataMart ? filterUnsupported(Object.keys(dataMart.view_components)) : [];
+
   return (
     <>
       <View style={styles.headerBtnView}>
@@ -128,7 +132,7 @@ function DataMart(props) {
           <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
         </View>
         <View style={{...styles.headerBtn, ...styles.viewAndFilteredIcon}}>
-          {Object.keys(viewComponents.data).length > 1 ?
+          {viewComponents.length > 1 ?
             <>
               <ViewComponentsBtn entry_points={entry_points} entry_point_id={entry_point_id}/>
               <View>

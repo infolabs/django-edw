@@ -351,11 +351,3 @@ export function notifyLoadingEntities() {
 export const hideVisibleDetail = () => dispatch => {
   dispatch({type: HIDE_VISIBLE_DETAIL});
 };
-
-export const setDataViewComponents = data => dispatch => {
-  dispatch({type: SET_DATA_VIEW_COMPONENTS, data});
-};
-
-export const setCurrentView = currentView => dispatch => {
-  dispatch({type: SET_CURRENT_VIEW, currentView});
-};

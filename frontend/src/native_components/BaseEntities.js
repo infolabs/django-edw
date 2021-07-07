@@ -11,6 +11,13 @@ import Default from './Detail/Default';
 import {baseEntitiesStyles as styles} from '../native_styles/baseEntities';
 
 
+const UNSUPPORTED_RES = [/.*ymap/];
+
+export function filterUnsupported(components) {
+  return components.filter(c => !UNSUPPORTED_RES.some(r => r.test(c)));
+}
+
+
 export function getTemplates() {
   return {
     tile: Tile,
@@ -57,58 +64,18 @@ function BaseEntities(props) {
   }, []);
 
 
-  useEffect(() => {
-    setComponentName();
-  }, [entities.items.meta]);
-
-
-  function setComponentName() {
-    const meta = entities.items.meta;
-
-    if (!entities.viewComponents.currentView && meta.data_mart && meta.data_mart.view_components) {
-      // Получаем все компоненты витрины данных
-      let viewComponents = Object.keys(meta.data_mart.view_components);
-
-      // Вычисляем список ключей компонентов, которые пересекаются c API и getTemplates
-      let viewComponentsMobile = [];
-      let templateIsRelated = entry_points[entry_point_id].template_name &&
-        entry_points[entry_point_id].template_name === 'related';
-      for (let item of viewComponents) {
-        if (templateIsRelated) {
-          if (item.match(/(_list$)/) && props.getTemplates().hasOwnProperty(item))
-              viewComponentsMobile.push(item);
-          continue;
-        }
-        if (props.getTemplates().hasOwnProperty(item))
-          viewComponentsMobile.push(item);
-      }
-
-      if (!viewComponentsMobile.length)
-        viewComponentsMobile.push('list');
-
-      const dataViewComponent = {};
-      viewComponentsMobile.map(component => {
-        dataViewComponent[component] = meta.data_mart.view_components[component];
-      });
-
-      props.setDataViewComponents(dataViewComponent);
-
-      if (viewComponentsMobile.length) {
-        const componentName = viewComponentsMobile[0];
-        props.setCurrentView(componentName);
-      }
-    }
-  }
-
   const items = entities.items.objects || [],
     {loading, meta} = entities.items,
-    loadingEntity = entities.detail.loading;
+    loadingEntity = entities.detail.loading,
+    dataMart = meta.data_mart;
 
-  const componentName = entities.viewComponents.currentView || null;
   const templateIsDataMart = !entry_points[entry_point_id].template_name ||
       (entry_points[entry_point_id].template_name === 'data-mart');
 
-  if (componentName) {
+  if (dataMart) {
+    const dmComponents = filterUnsupported(Object.keys(dataMart.view_components));
+    const componentName = dmComponents.indexOf(meta.view_component) > -1 ? meta.view_component : dmComponents[0];
+
     const templates = props.getTemplates();
     const component = templates[componentName];
     const {notifyLoadingEntities, getEntities, getEntity} = props;

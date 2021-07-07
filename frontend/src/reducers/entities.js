@@ -224,28 +224,12 @@ function descriptions(state = new Descriptions(), action) {
 }
 
 
-// Native
-const initialViewComponentState = {
-  data: {},
-  currentView: null,
-};
-
-const viewComponents = (state = initialViewComponentState, action) => {
-  switch (action.type) {
-    case entityConsts.SET_DATA_VIEW_COMPONENTS:
-      return {...state, data: action.data};
-    case entityConsts.SET_CURRENT_VIEW:
-      return {...state, currentView: action.currentView};
-    default:
-      return state;
-  }
-};
-
 const initialDetailState = {
   data: {},
   loading: false,
   visible: false,
 };
+
 
 const detail = (state = initialDetailState, action) => {
   switch (action.type) {
@@ -268,7 +252,6 @@ const entities = combineReducers({
     descriptions,
     loading,
     loadingItems,
-    viewComponents, // native
     detail, // native
 });
 

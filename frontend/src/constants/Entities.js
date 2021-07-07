@@ -8,7 +8,5 @@ export const HIDE_ENTITY_DESC = 'HIDE_ENTITY_DESC';
 
 
 // Native actions
-export const SET_DATA_VIEW_COMPONENTS = 'SET_DATA_VIEW_COMPONENTS';
-export const SET_CURRENT_VIEW = 'SET_CURRENT_VIEW';
 export const DO_NOTHING = 'DO_NOTHING';
 export const HIDE_VISIBLE_DETAIL = 'HIDE_VISIBLE_DETAIL';
