@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import Entities from '../Entities';
+import Entities from 'native_components/Entities';
 import ActionCreators from '../../actions';
 
 
