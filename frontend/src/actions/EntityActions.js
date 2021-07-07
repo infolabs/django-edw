@@ -21,6 +21,7 @@ import {
 } from '../constants/Dropdown';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
+import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
 import matchAll from 'string.prototype.matchall';
 
@@ -95,7 +96,7 @@ export function getEntity(data, meta = false) {
     // web and native
     if ( !getState().entities.loadingItems[data.id] ) {
       dispatch(loadingEntity(data.id));
-      fetch(url, {
+      uniFetch(url, {
         method: 'get',
         headers: {
           'Accept': 'application/json',
@@ -160,7 +161,7 @@ function getEntitiesWeb(mart_id, subj_ids = [], options_obj = {}, options_arr = 
 
     inFetch++;
 
-    fetch(url, {
+    uniFetch(url, {
       credentials: 'include',
       method: 'get',
       headers: {
@@ -238,7 +239,7 @@ const getEntitiesNative = (mart_id, subj_ids = [], options_obj = {}, options_arr
   if (options_arr.length)
     url += '&' + options_arr.join('&');
 
-  fetch(url, {
+  uniFetch(url, {
     credentials: 'include',
     method: 'get',
     headers: {

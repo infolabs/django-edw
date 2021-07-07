@@ -14,6 +14,7 @@ import {
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
 import getUrl from '../utils/getUrl';
+import uniFetch from '../utils/uniFetch';
 
 
 const getTermsTree = (type, mart_id, selected = []) => dispatch => {
@@ -23,7 +24,7 @@ const getTermsTree = (type, mart_id, selected = []) => dispatch => {
   if (selected && selected.length > 0)
     url += '&selected=' + selected.join();
 
-  return fetch(url, {
+  return uniFetch(url, {
     method: 'get',
     headers: {
       'Accept': 'application/json',
@@ -39,7 +40,7 @@ const getTermsTree = (type, mart_id, selected = []) => dispatch => {
 
 
 export const getTerm = url => dispatch => {
-  fetch(reCache(url), {
+  uniFetch(reCache(url), {
     method: 'get',
     headers: {
       'Accept': 'application/json',
