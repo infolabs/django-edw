@@ -65,9 +65,9 @@ async function resolveJson(response) {
     json = await response.json();
   } catch (error) {
     Alert.alert(title.ERROR, errors.UNKNOWN);
-    Sentry.captureMessage(
-      `Response without json. Status: ${response.status}. Error: ${error}. Url: ${response.url}`, response);
-    throw error;
+    const msg = `Response without json. Status: ${response.status}. Error: ${error}. Url: ${response.url}.`;
+    Sentry.captureMessage(msg, response);
+    throw new Error(msg);
   }
   return json;
 }
