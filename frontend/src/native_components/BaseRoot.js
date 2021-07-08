@@ -19,7 +19,7 @@ function BaseRoot(props) {
   const templates = getTemplates();
 
   const template_name = entry_points[entry_point_id].template_name,
-      component = templates[template_name] || templates.data_mart;
+      component = templates[template_name] || templates.related;
 
   const container_render = React.createElement(
     component, {
