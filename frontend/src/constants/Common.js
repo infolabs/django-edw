@@ -15,3 +15,5 @@ export const PLATFORM = platform();
 
 
 export const RECACHE_RATE = 60000;
+
+export const TOKEN = 'TOKEN';

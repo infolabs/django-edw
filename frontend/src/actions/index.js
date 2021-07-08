@@ -24,7 +24,7 @@ import {
   toggleDropdown,
   selectDropdown,
   hideVisibleDetail,
-} from './DataMartActions';
+} from './EntitiesActions';
 
 import {
   changeActiveDataMart,
