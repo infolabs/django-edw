@@ -9,13 +9,14 @@ import useEntities from './useEntities';
 
 function Tile(props) {
   const [maxLengthDescriptionTile, handleScroll] = useEntities(props);
-  const {items, loading, loadingEntity, getEntityInfo} = props;
+  const {items, loading} = props;
   const instance = Singleton.getInstance();
+  const {Domain} = instance;
 
   return (
     <ScrollView scrollEventThrottle={2000}
                 onScroll={e => handleScroll(e)}>
-      {loading || loadingEntity ?
+      {loading ?
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
         </View>
@@ -23,7 +24,7 @@ function Tile(props) {
       }
       <Layout style={styles.layout}>
         {items.map(
-          (child, i) => <TileItem key={i} data={child} domain={instance.Domain} getEntityInfo={getEntityInfo}
+          (child, i) => <TileItem key={i} data={child} domain={Domain}
                                   maxLengthDescriptionTile={maxLengthDescriptionTile}/>
         )}
       </Layout>
@@ -40,7 +41,7 @@ function TileItem(props) {
     data.media = `${domain}/${data.media.match(mediaRe)[2]}`;
 
   return (
-    <Card style={styles.cardContainer} onPress={() => props.getEntityInfo(data)}>
+    <Card style={styles.cardContainer} onPress={() => {}}>
       <View style={styles.cardImageContainer}>
         <ImageBackground source={data.media ? {uri: data.media } : null} style={styles.imageBackground}>
           <Text style={styles.entityNameText}>

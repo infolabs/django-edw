@@ -15,7 +15,7 @@ import ViewComponentsBtn from '../ViewComponentsBtn';
 import {filterUnsupported} from '../BaseEntities';
 import {dataMartStyles as styles} from '../../native_styles/dataMarts';
 import compareArrays from '../../utils/compareArrays';
-import Entities, {getTemplatesDetail} from 'native_components/Entities';
+import Entities from 'native_components/Entities';
 
 
 const {deviceHeight} = platformSettings;
@@ -23,9 +23,7 @@ const {deviceHeight} = platformSettings;
 
 function DataMart(props) {
   const {entry_point_id, entry_points, entities, terms} = props;
-  const {detail} = entities;
   const {json} = terms.tree;
-  const {data} = detail;
 
   const refs = useRef({
     termsIdsTaggedBranch: new Set(),
@@ -35,12 +33,9 @@ function DataMart(props) {
 
   const [animateTranslateY] = useState(new Animated.Value(refs.translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
-  const [, setVisibleDetail] = useState(false);
   // Флаг showTermsTree нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
   // Т.к. при первоначальной загрузке мы получаем абсолютно все термины
   const [showTermsTree, setShowTermsTree] = useState(false);
-  const [templateDetailName, setTemplateDetailName] = useState(null);
-  const [templatesDetail, setTemplatesDetail] = useState(null);
 
   const theme = useTheme();
 
@@ -53,24 +48,6 @@ function DataMart(props) {
     if (json.length)
       setShowTermsTree(true);
   }, [terms.tagged.items]);
-
-  useEffect(() => {
-    const templates = getTemplatesDetail();
-    const model = data.entity_model in templates ? data.entity_model : 'default';
-    setTemplatesDetail(templates);
-    setTemplateDetailName(model);
-  }, [detail.data]);
-
-  useEffect(() => {
-    if (detail.visible) {
-      refs.translateY = 0;
-      setShowTermsTree(false);
-      setVisibleDetail(true);
-    } else {
-      refs.translateY = deviceHeight;
-      setVisibleDetail(false);
-    }
-  }, [detail.visible]);
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
@@ -190,13 +167,6 @@ function DataMart(props) {
               : null
             }
           </SafeAreaView>
-          : null
-        }
-        {detail.visible ?
-          React.createElement(templatesDetail[templateDetailName],{
-            data,
-            hideVisibleDetail: props.hideVisibleDetail,
-          })
           : null
         }
       </Animated.View>

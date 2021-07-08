@@ -23,7 +23,6 @@ import {
   hideDescription,
   toggleDropdown,
   selectDropdown,
-  hideVisibleDetail,
 } from './EntitiesActions';
 
 import {
@@ -52,6 +51,5 @@ export default {
   toggleDropdown,
   selectDropdown,
   changeActiveDataMart,
-  hideVisibleDetail,
   setPrevTaggedItems,
 };

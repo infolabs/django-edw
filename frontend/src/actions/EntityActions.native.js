@@ -85,12 +85,15 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
       .then(response => response.json()).then(json => {
         // TODO: MatchAll в react-native v0.64.2 для андроида не поддерживается. Возможно, пофиксят в будущем, и тогда
         // нужно будет убрать проверку и удалить пакет string.prototype.matchall.
-        const arrayMediaEntity = Platform.OS === 'ios' ?
-            Array.from(json.media.matchAll(/(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm))
+        const arrayMediaEntity = media => Platform.OS === 'ios' ?
+            Array.from(media.matchAll(/(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm))
             :
-            [...matchAll(json.media, /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
+            [...matchAll(media, /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
 
-        json.media = arrayMediaEntity.map(item => `${Domain}${item[1]}`);
+        json.media = arrayMediaEntity(json.media).map(item => `${Domain}${item[1]}`);
+
+        if (json.private_person)
+          json.private_person.media = arrayMediaEntity(json.private_person.media).map(item => `${Domain}${item[1]}`);
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
         dispatch({type: dispatchType, data: json});
       })

@@ -7,7 +7,6 @@ import ActionCreators from '../actions';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Tile from './BaseEntities/Tile';
 import List from './BaseEntities/List';
-import Default from './Detail/Default';
 import {baseEntitiesStyles as styles} from '../native_styles/baseEntities';
 
 
@@ -22,13 +21,6 @@ export function getTemplates() {
   return {
     tile: Tile,
     list: List,
-  };
-}
-
-
-export function getTemplatesDetail() {
-  return {
-    default: Default,
   };
 }
 
@@ -66,7 +58,6 @@ function BaseEntities(props) {
 
   const items = entities.items.objects || [],
     {loading, meta} = entities.items,
-    loadingEntity = entities.detail.loading,
     dataMart = meta.data_mart;
 
   const templateIsDataMart = !entry_points[entry_point_id].template_name ||
@@ -78,19 +69,17 @@ function BaseEntities(props) {
 
     const templates = props.getTemplates();
     const component = templates[componentName];
-    const {notifyLoadingEntities, getEntities, getEntityInfo} = props;
+    const {notifyLoadingEntities, getEntities} = props;
 
     return (React.createElement(
       component, {
         items,
         meta,
         loading,
-        loadingEntity,
         entry_point_id,
         notifyLoadingEntities,
         getEntities,
         templateIsDataMart,
-        getEntityInfo,
       }
     ));
   } else if (templateIsDataMart) {

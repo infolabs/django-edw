@@ -93,19 +93,4 @@ export const dataMartStyles = StyleSheet.create({
   termsScrollViewContainer: {
     marginBottom: termsScrollViewContainerHeight,
   },
-  swipeWrapper: {
-    height: 300,
-  },
-  slide: {
-    height: 300,
-  },
-  imageSlide: {
-    height: 300,
-    resizeMode: 'cover',
-  },
-  infoEntity: {
-    paddingHorizontal: 24,
-    marginTop: 8,
-    marginVertical: 16,
-  },
 });

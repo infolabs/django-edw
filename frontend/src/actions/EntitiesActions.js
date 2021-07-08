@@ -10,12 +10,10 @@ import {
   LOAD_ENTITIES,
   SHOW_ENTITY_DESC,
   HIDE_ENTITY_DESC,
-  DO_NOTHING,
-  HIDE_VISIBLE_DETAIL,
 } from '../constants/Entities';
 import {
-    TOGGLE_DROPDOWN,
-    SELECT_DROPDOWN,
+  TOGGLE_DROPDOWN,
+  SELECT_DROPDOWN,
 } from '../constants/Dropdown';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
@@ -54,25 +52,25 @@ export function optArrToObj(arr) {
 
 
 function nativeMedia(json) {
-    if (PLATFORM !== NATIVE)
-      return json;
-
-    const arrayMediaEntity = [...matchAll(json.media,
-      /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
-
-    json.media = arrayMediaEntity.map(item => `${globalStore.Domain}${item[1]}`);
-
-    if (json.private_person) {
-      const matchRe = /.*<img.*?src=(['"])(.*?)(['"])/;
-      json.private_person.media = `${globalStore.Domain}${json.private_person.media.match(matchRe)[2]}`;
-    }
-
+  if (PLATFORM !== NATIVE)
     return json;
+
+  const arrayMediaEntity = [...matchAll(json.media,
+    /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
+
+  json.media = arrayMediaEntity.map(item => `${globalStore.Domain}${item[1]}`);
+
+  if (json.private_person) {
+    const matchRe = /.*<img.*?src=(['"])(.*?)(['"])/;
+    json.private_person.media = `${globalStore.Domain}${json.private_person.media.match(matchRe)[2]}`;
+  }
+
+  return json;
 }
 
 
 export function getEntityInfo(data, meta = false) {
-  data.entity_url = data.entity_url.replace(/\.html$/,'.json');
+  data.entity_url = data.entity_url.replace(/\.html$/, '.json');
   let url = reCache(data.entity_url);
 
   if (meta) {
@@ -86,15 +84,9 @@ export function getEntityInfo(data, meta = false) {
   }
 
   return (dispatch, getState) => {
-    // native specific
-    const {detail} = getState().entities;
-    if (detail.data.id === data.id) {
-      dispatch({type: DO_NOTHING});
-      return;
-    }
 
     // web and native
-    if ( !getState().entities.loadingItems[data.id] ) {
+    if (!getState().entities.loadingItems[data.id]) {
       dispatch(loadingEntity(data.id));
       uniFetch(url, {
         method: 'get',
@@ -112,12 +104,12 @@ export function getEntityInfo(data, meta = false) {
 
 
 function loadingEntity(id) {
-    return dispatch => {
-      dispatch({
-        type: NOTIFY_LOADING_ENTITY,
-        id,
-      });
-    };
+  return dispatch => {
+    dispatch({
+      type: NOTIFY_LOADING_ENTITY,
+      id,
+    });
+  };
 }
 
 // count sent requests so as to match last response with selected terms
@@ -127,24 +119,24 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
   return (dispatch, getState) => {
     // ignore more than 3 simultaneous requests from tree
     const currentMeta = getState().entities.items.meta,
-          treeRootLength = getState().terms.tree.root.children.length,
-          currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
+      treeRootLength = getState().terms.tree.root.children.length,
+      currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
 
     if (treeRootLength && currentDataMartId === mart_id && inFetch > 3)
       return;
 
     // set computed initial terms if not set
     const terms = getState().terms,
-          tagged = terms.tagged.items,
-          options_obj2 = optArrToObj(options_arr);
+      tagged = terms.tagged.items,
+      options_obj2 = optArrToObj(options_arr);
     if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
       options_obj.terms = tagged;
 
     let url = getUrl('edw:data-mart-entity-list', [mart_id, 'json']);
     url = reCache(url);
     if (subj_ids.length) {
-        subj_ids.join();
-        url = reCache(getUrl('edw:data-mart-entity-by-subject-list', [mart_id, subj_ids, 'json']));
+      subj_ids.join();
+      url = reCache(getUrl('edw:data-mart-entity-by-subject-list', [mart_id, subj_ids, 'json']));
     }
     url += opts2gets(options_obj);
 
@@ -170,20 +162,20 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
 
       inFetch--;
       const state = getState(),
-            stateRootLength = state.terms.tree.root.children.length,
-            stateMeta = state.entities.items.meta,
-            stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
-            responseDataMartId = json.results.meta.data_mart.id,
-            stateMetaOrdering = stateMeta.ordering,
-            responseMetaOrdering = json.results.meta.ordering,
-            stateMetaViewComponent = stateMeta.view_component,
-            responseMetaViewComponent = json.results.meta.view_component;
+        stateRootLength = state.terms.tree.root.children.length,
+        stateMeta = state.entities.items.meta,
+        stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
+        responseDataMartId = json.results.meta.data_mart.id,
+        stateMetaOrdering = stateMeta.ordering,
+        responseMetaOrdering = json.results.meta.ordering,
+        stateMetaViewComponent = stateMeta.view_component,
+        responseMetaViewComponent = json.results.meta.view_component;
 
       // Если изменилась сортировка или вид представления, то перезапрос не делаем
       if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
         stateDataMartId === responseDataMartId && stateRootLength) {
         const stateTerms = state.terms.tagged.items,
-              responseTerms = json.results.meta.terms_ids;
+          responseTerms = json.results.meta.terms_ids;
 
         // if datamarts match, tree exists and it is the last response in the queue
         // and it mismatches with the selected terms, call the function again
@@ -218,11 +210,11 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
     json.results.meta = Object.assign(json.results.meta, options_obj2);
 
     return (dispatch, getState) => {
-        dispatch({
-            type: LOAD_ENTITIES,
-            json: json,
-            request_options: options_obj,
-        });
+      dispatch({
+        type: LOAD_ENTITIES,
+        json: json,
+        request_options: options_obj,
+      });
     };
   } else {
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
@@ -233,7 +225,7 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
 
 export function expandGroup(item_id, meta) {
   const mart_id = meta.data_mart.id,
-        subj_ids = meta.subj_ids;
+    subj_ids = meta.subj_ids;
   let request_options = meta.request_options;
   delete request_options.offset;
   delete request_options.limit;
@@ -243,12 +235,12 @@ export function expandGroup(item_id, meta) {
 
 
 export function showDescription(entity_id = null) {
-    return dispatch => {
-        dispatch({
-            type: SHOW_ENTITY_DESC,
-            entity_id: entity_id,
-        });
-    };
+  return dispatch => {
+    dispatch({
+      type: SHOW_ENTITY_DESC,
+      entity_id: entity_id,
+    });
+  };
 }
 
 
@@ -290,9 +282,3 @@ export function notifyLoadingEntities() {
     });
   };
 }
-
-
-// native
-export const hideVisibleDetail = () => dispatch => {
-  dispatch({type: HIDE_VISIBLE_DETAIL});
-};

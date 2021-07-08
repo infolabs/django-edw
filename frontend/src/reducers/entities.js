@@ -226,36 +226,12 @@ function descriptions(state = new Descriptions(), action) {
   }
 }
 
-
-const initialDetailState = {
-  data: {},
-  loading: false,
-  visible: false,
-};
-
-
-const detail = (state = initialDetailState, action) => {
-  switch (action.type) {
-    case entityConsts.LOAD_ENTITY_INFO:
-      return {...state, data: action.json, loading: false, visible: true};
-    case entityConsts.NOTIFY_LOADING_ENTITY:
-      return {...state, loading: true};
-    case entityConsts.HIDE_VISIBLE_DETAIL:
-      return {...state, visible: false};
-    case entityConsts.DO_NOTHING:
-      return {...state, loading: false, visible: true};
-    default:
-      return state;
-  }
-};
-
 const entities = combineReducers({
     items,
     dropdowns,
     descriptions,
     loading,
     loadingItems,
-    detail, // native
 });
 
 

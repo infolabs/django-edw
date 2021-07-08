@@ -9,14 +9,15 @@ import useEntities from './useEntities';
 
 function List(props) {
   const [, handleScroll] = useEntities(props);
-  const {items, loading, loadingEntity, templateIsDataMart, getEntityInfo} = props;
+  const {items, loading, templateIsDataMart} = props;
   const instance = Singleton.getInstance();
+  const {Domain} = instance;
 
   if (templateIsDataMart) {
     return (
       <ScrollView scrollEventThrottle={2000}
                   onScroll={e => handleScroll(e)}>
-        {loading || loadingEntity ?
+        {loading ?
           <View style={styles.spinnerContainer}>
             <Spinner visible={true}/>
           </View>
@@ -24,8 +25,7 @@ function List(props) {
         }
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <ListItem key={i} data={child} domain={instance.Domain} getEntityInfo={getEntityInfo}
-                                    templateIsDataMart={templateIsDataMart}/>
+            (child, i) => <ListItem key={i} data={child} domain={Domain} templateIsDataMart={templateIsDataMart}/>
           )}
         </Layout>
       </ScrollView>
@@ -42,8 +42,7 @@ function List(props) {
         showsHorizontalScrollIndicator={false}
         data={items}
         renderItem={(child, i) => (
-          <ListItem key={i} data={child.item} domain={instance.Domain} getEntityInfo={getEntityInfo}
-                    templateIsDataMart={templateIsDataMart}/>
+          <ListItem key={i} data={child.item} domain={Domain} templateIsDataMart={templateIsDataMart}/>
         )}
       />
     </>
@@ -62,7 +61,7 @@ function ListItem(props) {
 
   return (
     <Card style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
-          onPress={() => templateIsDataMart ? props.getEntityInfo(data) : {}}>
+          onPress={() => {}}>
       <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
         <ImageBackground source={data.media ? {uri: data.media } : null} style={templateIsDataMart ? styles.imageBackground :
           styles.imageBackgroundRelated}>
