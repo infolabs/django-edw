@@ -3,21 +3,17 @@ import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
-let showObjectsBtnViewHeight,
-    emptyViewHeight;
+let showObjectsBtnViewHeight;
 
-if (Platform.OS === 'android'){
-  showObjectsBtnViewHeight = 90;
-  emptyViewHeight = 200;
+if (Platform.OS === 'android') {
+  showObjectsBtnViewHeight = 110;
 } else {
-  if (deviceHeight < 700) {
-    showObjectsBtnViewHeight = 85;
-    emptyViewHeight = 200;
-  } else {
-    showObjectsBtnViewHeight = 140;
-    emptyViewHeight = 250;
-  }
+  if (deviceHeight < 700)
+    showObjectsBtnViewHeight = 105;
+  else
+    showObjectsBtnViewHeight = 160;
 }
+let termsScrollViewContainerHeight = showObjectsBtnViewHeight + 70;
 
 export const dataMartStyles = StyleSheet.create({
   headerBtnView: {
@@ -94,8 +90,8 @@ export const dataMartStyles = StyleSheet.create({
     marginTop: 15,
     borderRadius: 10,
   },
-  emptyView: {
-    height: emptyViewHeight,
+  termsScrollViewContainer: {
+    marginBottom: termsScrollViewContainerHeight,
   },
   swipeWrapper: {
     height: 300,
