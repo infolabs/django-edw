@@ -14,7 +14,7 @@ import {
 } from './TermsTreeActions';
 
 import {
-  getEntity,
+  getEntityInfo,
   getEntities,
   readEntities,
   notifyLoadingEntities,
@@ -24,7 +24,7 @@ import {
   toggleDropdown,
   selectDropdown,
   hideVisibleDetail,
-} from './EntityActions';
+} from './DataMartActions';
 
 import {
   changeActiveDataMart,
@@ -42,7 +42,7 @@ export default {
   resetBranch,
   showInfo,
   hideInfo,
-  getEntity,
+  getEntityInfo,
   getEntities,
   readEntities,
   notifyLoadingEntities,

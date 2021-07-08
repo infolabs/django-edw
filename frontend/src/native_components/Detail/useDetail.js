@@ -30,6 +30,7 @@ function useDetail(props) {
 
   function getMedia() {
     const {data} = props;
+    console.log(data)
     if (data.media.length === 1){
       return (
         <View style={styles.slide}>

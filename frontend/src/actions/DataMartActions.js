@@ -57,7 +57,8 @@ function nativeMedia(json) {
     if (PLATFORM !== NATIVE)
       return json;
 
-    const arrayMediaEntity = [...matchAll(json.media, /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
+    const arrayMediaEntity = [...matchAll(json.media,
+      /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
 
     json.media = arrayMediaEntity.map(item => `${globalStore.Domain}${item[1]}`);
 
@@ -70,7 +71,7 @@ function nativeMedia(json) {
 }
 
 
-export function getEntity(data, meta = false) {
+export function getEntityInfo(data, meta = false) {
   data.entity_url = data.entity_url.replace(/\.html$/,'.json');
   let url = reCache(data.entity_url);
 

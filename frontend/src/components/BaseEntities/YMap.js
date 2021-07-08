@@ -131,10 +131,10 @@ export class YMapInner extends AbstractMap {
     });
 
     if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
-      actions.getEntity(data, meta);
+      actions.getEntityInfo(data, meta);
 
     if (!data.extra.group_size && !descriptions[id])
-      actions.getEntity(data);
+      actions.getEntityInfo(data);
 
     actions.showDescription(id);
   }

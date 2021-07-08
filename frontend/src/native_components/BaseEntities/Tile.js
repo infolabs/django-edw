@@ -9,7 +9,7 @@ import useEntities from './useEntities';
 
 function Tile(props) {
   const [maxLengthDescriptionTile, handleScroll] = useEntities(props);
-  const {items, loading, loadingEntity, getEntity} = props;
+  const {items, loading, loadingEntity, getEntityInfo} = props;
   const instance = Singleton.getInstance();
 
   return (
@@ -23,7 +23,7 @@ function Tile(props) {
       }
       <Layout style={styles.layout}>
         {items.map(
-          (child, i) => <TileItem key={i} data={child} domain={instance.Domain} getEntity={getEntity}
+          (child, i) => <TileItem key={i} data={child} domain={instance.Domain} getEntityInfo={getEntityInfo}
                                   maxLengthDescriptionTile={maxLengthDescriptionTile}/>
         )}
       </Layout>
@@ -40,7 +40,7 @@ function TileItem(props) {
     data.media = `${domain}/${data.media.match(mediaRe)[2]}`;
 
   return (
-    <Card style={styles.cardContainer} onPress={() => props.getEntity(data)}>
+    <Card style={styles.cardContainer} onPress={() => props.getEntityInfo(data)}>
       <View style={styles.cardImageContainer}>
         <ImageBackground source={data.media ? {uri: data.media } : null} style={styles.imageBackground}>
           <Text style={styles.entityNameText}>

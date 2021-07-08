@@ -9,7 +9,7 @@ import useEntities from './useEntities';
 
 function List(props) {
   const [, handleScroll] = useEntities(props);
-  const {items, loading, loadingEntity, templateIsDataMart, getEntity} = props;
+  const {items, loading, loadingEntity, templateIsDataMart, getEntityInfo} = props;
   const instance = Singleton.getInstance();
 
   if (templateIsDataMart) {
@@ -24,7 +24,7 @@ function List(props) {
         }
         <Layout style={styles.layout}>
           {items.map(
-            (child, i) => <ListItem key={i} data={child} domain={instance.Domain} getEntity={getEntity}
+            (child, i) => <ListItem key={i} data={child} domain={instance.Domain} getEntityInfo={getEntityInfo}
                                     templateIsDataMart={templateIsDataMart}/>
           )}
         </Layout>
@@ -42,7 +42,7 @@ function List(props) {
         showsHorizontalScrollIndicator={false}
         data={items}
         renderItem={(child, i) => (
-          <ListItem key={i} data={child.item} domain={instance.Domain} getEntity={getEntity}
+          <ListItem key={i} data={child.item} domain={instance.Domain} getEntityInfo={getEntityInfo}
                     templateIsDataMart={templateIsDataMart}/>
         )}
       />
@@ -62,7 +62,7 @@ function ListItem(props) {
 
   return (
     <Card style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
-          onPress={() => templateIsDataMart ? props.getEntity(data) : {}}>
+          onPress={() => templateIsDataMart ? props.getEntityInfo(data) : {}}>
       <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
         <ImageBackground source={data.media ? {uri: data.media } : null} style={templateIsDataMart ? styles.imageBackground :
           styles.imageBackgroundRelated}>

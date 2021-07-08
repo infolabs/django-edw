@@ -62,10 +62,10 @@ const ListItemMixin = Base => class extends Base {
           actions.showDescription(id);
 
           if ((data.extra && data.extra.group_size) && !meta.alike && !descriptions.groups[id])
-            actions.getEntity(data, meta);
+            actions.getEntityInfo(data, meta);
 
           if ((data.extra && !data.extra.group_size) && !descriptions[id])
-            actions.getEntity(data);
+            actions.getEntityInfo(data);
 
         } else {
           context.setState({minHeight: 'auto'});
