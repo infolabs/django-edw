@@ -262,6 +262,7 @@ export class YMapInner extends AbstractMap {
             groupColor = colorItems.backgroundColorContent,
             borderGroupColor = colorItems.borderColor,
             pinColor = this.getPinColor(item),
+            pinPreset = this.getPinPreset(item),
             regionColor = colorItems.regionColor,
             descriptions_data = isGroup ? descriptions.groups : descriptions,
             description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
@@ -321,6 +322,11 @@ export class YMapInner extends AbstractMap {
             coordinates: [radius / 2, radius / 2],
             radius: radius,
           },
+          hideIconOnBalloonOpen: false,
+        };
+      } else if (pinPreset) {
+        marker.options = {
+          preset: pinPreset,
           hideIconOnBalloonOpen: false,
         };
       } else {

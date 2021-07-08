@@ -83,6 +83,31 @@ export default class AbstractMap extends Component {
     return {backgroundColorContent, borderColor, regionColor};
   }
 
+  convertSnakeToCamelCase(str) {
+    const words = str.split('_');
+    for (let i = 1; i < words.length; i++) {
+      words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+    }
+    return words.join('');
+  }
+
+  _getPinPreset(item) {
+    let pinPreset;
+    const presetPattern = 'yandex-preset-';
+    for (const sm of item.short_marks) {
+      for (const cl of sm.view_class) {
+        if (cl.startsWith(presetPattern)) {
+          pinPreset = cl.replace(presetPattern, '');
+          return this.convertSnakeToCamelCase(pinPreset);
+        }
+      }
+    }
+  }
+
+  getPinPreset(item){
+    return this._getPinPreset(item);
+  }
+
   handleInfoMouseClick(e, data) {
     if (!this._DO_CLICK_ON_BALLOON)
       return;
