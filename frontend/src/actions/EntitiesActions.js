@@ -4,7 +4,7 @@ import {
 } from '../constants/Common';
 
 import {
-  LOAD_ENTITY,
+  LOAD_ENTITY_INFO,
   NOTIFY_LOADING_ENTITIES,
   NOTIFY_LOADING_ENTITY,
   LOAD_ENTITIES,
@@ -103,7 +103,7 @@ export function getEntityInfo(data, meta = false) {
           'Content-Type': 'application/json',
         },
       }).then(response => response.json()).then(json => dispatch({
-        type: LOAD_ENTITY,
+        type: LOAD_ENTITY_INFO,
         json: nativeMedia(json),
       }));
     }

@@ -219,7 +219,7 @@ function descriptions(state = new Descriptions(), action) {
       return state.show(action.entity_id);
     case entityConsts.HIDE_ENTITY_DESC:
       return state.hide(action.entity_id);
-    case entityConsts.LOAD_ENTITY:
+    case entityConsts.LOAD_ENTITY_INFO:
       return state.load(action.json);
     default:
       return state;
@@ -236,7 +236,7 @@ const initialDetailState = {
 
 const detail = (state = initialDetailState, action) => {
   switch (action.type) {
-    case entityConsts.LOAD_ENTITY:
+    case entityConsts.LOAD_ENTITY_INFO:
       return {...state, data: action.json, loading: false, visible: true};
     case entityConsts.NOTIFY_LOADING_ENTITY:
       return {...state, loading: true};
