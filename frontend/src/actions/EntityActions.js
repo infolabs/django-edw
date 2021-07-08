@@ -12,8 +12,6 @@ import {
   HIDE_ENTITY_DESC,
   DO_NOTHING,
   HIDE_VISIBLE_DETAIL,
-  SET_DATA_VIEW_COMPONENTS,
-  SET_CURRENT_VIEW,
 } from '../constants/Entities';
 import {
     TOGGLE_DROPDOWN,
@@ -21,6 +19,7 @@ import {
 } from '../constants/Dropdown';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
+import getUrl from '../utils/getUrl';
 import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
 import matchAll from 'string.prototype.matchall';
@@ -123,7 +122,7 @@ function loadingEntity(id) {
 // count sent requests so as to match last response with selected terms
 let inFetch = 0;
 
-function getEntitiesWeb(mart_id, subj_ids = [], options_obj = {}, options_arr = []) {
+export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = [], append = false) {
   return (dispatch, getState) => {
     // ignore more than 3 simultaneous requests from tree
     const currentMeta = getState().entities.items.meta,
@@ -140,13 +139,11 @@ function getEntitiesWeb(mart_id, subj_ids = [], options_obj = {}, options_arr = 
     if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
       options_obj.terms = tagged;
 
-    // eslint-disable-next-line no-undef
-    let url = Urls['edw:data-mart-entity-list'](mart_id, 'json');
+    let url = getUrl('edw:data-mart-entity-list', [mart_id, 'json']);
     url = reCache(url);
     if (subj_ids.length) {
         subj_ids.join();
-        // eslint-disable-next-line no-undef
-        url = reCache(Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json'));
+        url = reCache(getUrl('edw:data-mart-entity-by-subject-list', [mart_id, subj_ids, 'json']));
     }
     url += opts2gets(options_obj);
 
@@ -203,64 +200,11 @@ function getEntitiesWeb(mart_id, subj_ids = [], options_obj = {}, options_arr = 
         type: LOAD_ENTITIES,
         json: json,
         request_options: options_obj,
+        append,
       });
 
     });
   };
-}
-
-
-const getEntitiesNative = (mart_id, subj_ids = [], options_obj = {}, options_arr = [], usePrevTerms = false) => (dispatch, getState) => {
-  const currentItems = getState().entities.items,
-        currentMeta = currentItems.meta,
-        currentOffset = currentMeta.offset,
-        treeRootLength = getState().terms.tree.root.children.length;
-
-  // set computed initial terms if not set
-  const terms = getState().terms,
-        tagged = usePrevTerms ? terms.tagged.prevItems : terms.tagged.items,
-        options_obj2 = optArrToObj(options_arr);
-  if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
-    options_obj.terms = tagged;
-
-  let url = '';
-
-  if (subj_ids.length) {
-      subj_ids.join();
-      // eslint-disable-next-line no-undef
-      url = reCache(`${globalStore.Domain}${Urls['edw:data-mart-entity-by-subject-list'](mart_id, subj_ids, 'json')}`);
-  } else {
-    // eslint-disable-next-line no-undef
-    url = reCache(`${globalStore.Domain}${Urls['edw:data-mart-entity-list'](mart_id, 'json')}`);
-  }
-
-  url += opts2gets(options_obj);
-
-  if (options_arr.length)
-    url += '&' + options_arr.join('&');
-
-  uniFetch(url, {
-    credentials: 'include',
-    method: 'get',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-  }).then(response => response.json()).then(json => {
-    if (currentOffset !== json.offset)
-      json.results.objects = [...currentItems.objects, ...json.results.objects];
-
-    globalStore[mart_id] = json;
-    dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
-  });
-};
-
-
-export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = [], usePrevTerms = false) {
-  if (PLATFORM === NATIVE)
-    return getEntitiesNative(mart_id, subj_ids, options_obj, options_arr, usePrevTerms);
-  else
-    return getEntitiesWeb(mart_id, subj_ids, options_obj, options_arr);
 }
 
 

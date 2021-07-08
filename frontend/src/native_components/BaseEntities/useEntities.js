@@ -10,7 +10,7 @@ function useEntities(props) {
       const {subj_ids, limit, offset, request_options} = meta;
       let options = Object.assign(request_options, {'offset': offset + limit});
       props.notifyLoadingEntities();
-      props.getEntities(props.entry_point_id, subj_ids, options);
+      props.getEntities(props.entry_point_id, subj_ids, options, [], true);
     }
   }
 

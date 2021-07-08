@@ -167,7 +167,10 @@ export function items(state = new EntitiesManager(), action) {
       state.loading = true;
       return Object.assign(new EntitiesManager(), state);
     case entityConsts.LOAD_ENTITIES:
-      return new EntitiesManager(action.json, action.request_options);
+      const newState = new EntitiesManager(action.json, action.request_options);
+      if (action.append && newState.meta.offset !== state.meta.offset)
+        newState.objects = [...state.objects, ...newState.objects];
+      return newState;
     default:
       return state;
   }

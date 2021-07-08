@@ -106,7 +106,7 @@ function DataMart(props) {
       const meta = entities.items.meta;
       const {subj_ids} = meta;
       props.notifyLoadingEntities();
-      props.getEntities(entry_point_id, subj_ids, {}, [], true);
+      props.getEntities(entry_point_id, subj_ids, {terms: prevItems}, []);
       refs.usePrevTerms = true;
     }
     setShowTermsTree(false);
