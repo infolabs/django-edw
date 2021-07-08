@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useRef} from 'react';
 import {View, Animated, ScrollView} from 'react-native';
 import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -19,9 +19,6 @@ import Entities, {getTemplatesDetail} from 'native_components/Entities';
 
 
 const {deviceHeight} = platformSettings;
-const termsIdsTaggedBranch = new Set();
-let translateY = deviceHeight;
-let usePrevTerms = false;
 
 
 function DataMart(props) {
@@ -29,7 +26,14 @@ function DataMart(props) {
   const {detail} = entities;
   const {json} = terms.tree;
   const {data} = detail;
-  const [animateTranslateY] = useState(new Animated.Value(translateY));
+
+  const refs = useRef({
+    termsIdsTaggedBranch: new Set(),
+    translateY: deviceHeight,
+    usePrevTerms: false,
+  }).current;
+
+  const [animateTranslateY] = useState(new Animated.Value(refs.translateY));
   const [visibleFilters, setVisibleFilters] = useState(false);
   const [, setVisibleDetail] = useState(false);
   // Флаг showTermsTree нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
@@ -38,9 +42,11 @@ function DataMart(props) {
   const [templateDetailName, setTemplateDetailName] = useState(null);
   const [templatesDetail, setTemplatesDetail] = useState(null);
 
+  const theme = useTheme();
+
   useEffect(() => {
     if (!json.length)
-      termsIdsTaggedBranch.clear();
+      refs.termsIdsTaggedBranch.clear();
   }, []);
 
   useEffect(() => {
@@ -57,25 +63,26 @@ function DataMart(props) {
 
   useEffect(() => {
     if (detail.visible) {
-      translateY = 0;
+      refs.translateY = 0;
       setShowTermsTree(false);
       setVisibleDetail(true);
     } else {
-      translateY = deviceHeight;
+      refs.translateY = deviceHeight;
       setVisibleDetail(false);
     }
   }, [detail.visible]);
 
   useMemo(() => {
     Animated.timing(animateTranslateY, {
-      toValue: translateY,
+      toValue: refs.translateY,
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, [translateY]);
+  }, [refs.translateY]);
 
-  const visibilityFilters = visible => {
-    if (usePrevTerms) {
+
+  function visibilityFilters(visible) {
+    if (refs.usePrevTerms) {
       const termsItems = terms.tagged.prevItems;
       props.notifyLoadingTerms();
       props.loadTree(entry_point_id, termsItems);
@@ -84,16 +91,15 @@ function DataMart(props) {
     }
     setVisibleFilters(visible);
     if (visible) {
-      translateY = 0;
+      refs.translateY = 0;
     } else {
-      translateY = deviceHeight;
+      refs.translateY = deviceHeight;
     }
-    usePrevTerms = false;
-  };
+    refs.usePrevTerms = false;
+  }
 
-  const theme = useTheme();
 
-  const closeFilters = () => {
+  function closeFilters() {
     visibilityFilters(false);
     const {items, prevItems} = terms.tagged;
     if (!compareArrays(items, prevItems)) {
@@ -101,15 +107,15 @@ function DataMart(props) {
       const {subj_ids} = meta;
       props.notifyLoadingEntities();
       props.getEntities(entry_point_id, subj_ids, {}, [], true);
-      usePrevTerms = true;
+      refs.usePrevTerms = true;
     }
     setShowTermsTree(false);
-  };
+  }
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
-  const closeFiltersView = () => (
-    <Icon onPress={() => closeFilters()} name="close"/>
-  );
+  function closeFiltersView() {
+    return <Icon onPress={() => closeFilters()} name="close"/>;
+  }
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
     return (
@@ -143,7 +149,7 @@ function DataMart(props) {
           }
           {visibleFiltersBtn ?
             <FilterBtn entry_points={entry_points} entry_point_id={entry_point_id}
-                       termsIdsTaggedBranch={termsIdsTaggedBranch}
+                       termsIdsTaggedBranch={refs.termsIdsTaggedBranch}
                        visibilityFilters={() => visibilityFilters(!visibleFilters)}/>
             : null
           }
@@ -165,7 +171,7 @@ function DataMart(props) {
               <ScrollView>
                 <View style={styles.termsScrollViewContainer}>
                   <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
-                             termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+                             termsIdsTaggedBranch={refs.termsIdsTaggedBranch}/>
                 </View>
               </ScrollView>
             </View>
