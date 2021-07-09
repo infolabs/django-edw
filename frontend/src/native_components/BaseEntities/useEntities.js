@@ -1,4 +1,5 @@
 const maxLengthDescriptionTile = 70;
+const maxLengthDescriptionListRelated = 90;
 
 
 function useEntities(props) {
@@ -14,7 +15,7 @@ function useEntities(props) {
     }
   }
 
-  return [maxLengthDescriptionTile, handleScroll];
+  return {maxLengthDescriptionTile, maxLengthDescriptionListRelated, handleScroll};
 }
 
 
