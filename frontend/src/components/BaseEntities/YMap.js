@@ -146,6 +146,7 @@ export class YMapInner extends AbstractMap {
 
   componentDidMount() {
     this.osmRegion = this.props.data_mart.osm_region || null;
+    this.yandexMapPreset = this.props.data_mart.yandex_map_preset || null;
     this.mapConfig = this.props.getMapConfig();
 
     const style = `width: {{ options.diameter }}px;
@@ -244,7 +245,6 @@ export class YMapInner extends AbstractMap {
     entitiesClass = loading ? entitiesClass + ' ex-state-loading' : entitiesClass;
 
     let lngMin = null, latMin = null, lngMax = null, latMax = null, markers = [];
-
     this.osmArray = [];
     const osmAddrPattern = 'osm-id-';
     let osmId;
@@ -324,7 +324,7 @@ export class YMapInner extends AbstractMap {
           },
           hideIconOnBalloonOpen: false,
         };
-      } else if (pinPreset) {
+      } else if (pinPreset && this.yandexMapPreset === 'true') {
         marker.options = {
           preset: pinPreset,
           hideIconOnBalloonOpen: false,
