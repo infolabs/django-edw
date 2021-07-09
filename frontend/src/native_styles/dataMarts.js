@@ -6,7 +6,7 @@ const {deviceHeight, deviceWidth} = platformSettings;
 let showObjectsBtnViewHeight;
 
 if (Platform.OS === 'android') {
-  showObjectsBtnViewHeight = 110;
+  showObjectsBtnViewHeight = 145;
 } else {
   if (deviceHeight < 700)
     showObjectsBtnViewHeight = 105;
