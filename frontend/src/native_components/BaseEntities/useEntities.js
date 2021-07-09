@@ -1,8 +1,9 @@
 const maxLengthDescriptionTile = 70;
 const maxLengthDescriptionListRelated = 90;
+const mediaRegExp = /.*<img.*?src=(['"])(.*?)(['"])/;
 
 
-function useEntities(props) {
+export default function useEntities(props) {
 
   function handleScroll(e) {
     const {items, loading, meta} = props;
@@ -15,8 +16,5 @@ function useEntities(props) {
     }
   }
 
-  return {maxLengthDescriptionTile, maxLengthDescriptionListRelated, handleScroll};
+  return {maxLengthDescriptionTile, maxLengthDescriptionListRelated, mediaRegExp, handleScroll};
 }
-
-
-export default useEntities;
