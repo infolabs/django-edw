@@ -18,3 +18,15 @@ export default function useEntities(props) {
 
   return {maxLengthDescriptionTile, maxLengthDescriptionListRelated, mediaRegExp, handleScroll};
 }
+
+
+export function useEntityItem(props) {
+  const {navigation} = props,
+    {id, entity_model} = props.data;
+
+  function onPress(event) {
+    navigation.navigate(entity_model, {id});
+  }
+
+  return {onPress};
+}
