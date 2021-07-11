@@ -25,7 +25,7 @@ export function useEntityItem(props) {
     {id, entity_model} = props.data;
 
   function onPress(event) {
-    navigation.navigate(entity_model, {id});
+    navigation.navigate('Detail-' + entity_model, {id});
   }
 
   return {onPress};
