@@ -50,6 +50,8 @@ function getColor(item, backgroundColorState) {
 export function useTextState(short_marks) {
   let textState = null, backgroundColorState = 'gray';
 
+  short_marks = short_marks === undefined ? [] : short_marks;
+
   short_marks.map(mark => {
     if (mark.name === 'Состояние' || mark.name === 'Системное состояние') {
       textState = mark.values[0];

@@ -20,7 +20,6 @@ import Singleton from '../utils/singleton';
 import getUrl from '../utils/getUrl';
 import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
-import matchAll from 'string.prototype.matchall';
 
 const globalStore = Singleton.getInstance();
 
@@ -51,24 +50,6 @@ export function optArrToObj(arr) {
 }
 
 
-function nativeMedia(json) {
-  if (PLATFORM !== NATIVE)
-    return json;
-
-  const arrayMediaEntity = [...matchAll(json.media,
-    /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
-
-  json.media = arrayMediaEntity.map(item => `${globalStore.Domain}${item[1]}`);
-
-  if (json.private_person) {
-    const matchRe = /.*<img.*?src=(['"])(.*?)(['"])/;
-    json.private_person.media = `${globalStore.Domain}${json.private_person.media.match(matchRe)[2]}`;
-  }
-
-  return json;
-}
-
-
 export function getEntityInfo(data, meta = false) {
   data.entity_url = data.entity_url.replace(/\.html$/, '.json');
   let url = reCache(data.entity_url);
@@ -84,8 +65,6 @@ export function getEntityInfo(data, meta = false) {
   }
 
   return (dispatch, getState) => {
-
-    // web and native
     if (!getState().entities.loadingItems[data.id]) {
       dispatch(loadingEntity(data.id));
       uniFetch(url, {
@@ -96,7 +75,7 @@ export function getEntityInfo(data, meta = false) {
         },
       }).then(response => response.json()).then(json => dispatch({
         type: LOAD_ENTITY_INFO,
-        json: nativeMedia(json),
+        json: json,
       }));
     }
   };
