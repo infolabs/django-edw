@@ -257,7 +257,6 @@ export class YMapInner extends AbstractMap {
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
 
       const isGroup = item.extra && item.extra.group_size;
-
       const colorItems = this.getColor(item),
             groupColor = colorItems.backgroundColorContent,
             borderGroupColor = colorItems.borderColor,
@@ -327,6 +326,7 @@ export class YMapInner extends AbstractMap {
       } else if (pinPreset && this.yandexMapPreset === 'true') {
         marker.options = {
           preset: pinPreset,
+          iconColor: pinColor,
           hideIconOnBalloonOpen: false,
         };
       } else {
