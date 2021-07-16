@@ -1,10 +1,10 @@
 import React from 'react';
-import { useDispatch, useStore } from 'react-redux';
-import { expandGroup, notifyLoadingEntities } from '../../actions/EntitiesActions';
+import {useDispatch, useStore} from 'react-redux';
+import {expandGroup, notifyLoadingEntities} from '../../actions/EntitiesActions';
 
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {Badge} from 'native-base';
+import {Badge, Icon} from 'native-base';
 import {Text, Card, Layout, List} from '@ui-kitten/components';
 import Singleton from '../../utils/singleton';
 
@@ -28,6 +28,23 @@ export const stylesComponent = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
+  },
+  groupNav: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: 100,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    zIndex: 4,
+    backgroundColor: '#222a',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  groupNavText: {
+    color: 'white',
   },
 });
 
@@ -150,21 +167,49 @@ export function renderEntityItem(props, text, badge, styles) {
 }
 
 
+function renderGroupNav(props, styles) {
+  const meta = props.meta;
+  const groupName = meta.alike && meta.alike.group_name || null;
+
+  if (!groupName)
+    return null;
+
+  function closeGroup(e) {
+    const request_options = meta.request_options;
+    delete request_options.alike;
+    delete request_options.offset;
+
+    props.notifyLoadingEntities();
+    props.getEntities(meta.data_mart.id, meta.subj_ids, request_options);
+  }
+
+  return <View style={styles.groupNav}>
+    <Text style={styles.groupNavText}>
+      {groupName}
+    </Text>
+    <Icon name="close" onPress={closeGroup} style={styles.groupNavText}/>
+  </View>;
+}
+
+
 export function renderEntityTile(props, styles, createItem) {
   const handleScroll = getScrollHandler(props);
   const {items, loading} = props;
 
-  return <ScrollView
-           scrollEventThrottle={2000}
-           onScroll={e => handleScroll(e)}>
-    {loading ?
-      <View style={styles.spinnerContainer}>
-        <Spinner visible={true}/>
-      </View>
-      : null
-    }
-    <Layout style={styles.layout}>{items.map(createItem)}</Layout>
-  </ScrollView>;
+  return <>
+    <ScrollView
+      scrollEventThrottle={2000}
+      onScroll={e => handleScroll(e)}>
+      {loading ?
+        <View style={styles.spinnerContainer}>
+          <Spinner visible={true}/>
+        </View>
+        : null
+      }
+      <Layout style={styles.layout}>{items.map(createItem)}</Layout>
+    </ScrollView>
+    {renderGroupNav(props, styles)}
+  </>;
 }
 
 
@@ -173,12 +218,15 @@ export function renderEntityList(props, styles, createItem) {
 
   return templateIsDataMart
     ? renderEntityTile(props, styles, createItem)
-    : <List
-      style={styles.containerRelated}
-      contentContainerStyle={styles.containerContentRelated}
-      horizontal={true}
-      showsHorizontalScrollIndicator={false}
-      data={items}
-      renderItem={(child, i) => createItem(child, i)}
-    />;
+    : <>
+      <List
+        style={styles.containerRelated}
+        contentContainerStyle={styles.containerContentRelated}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        data={items}
+        renderItem={(child, i) => createItem(child, i)}
+      />
+      {renderGroupNav(props, styles)}
+    </>;
 }
