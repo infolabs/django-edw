@@ -8,6 +8,7 @@ function List(props) {
     return <ListItem
             key={i}
             data={child}
+            meta={props.meta}
             templateIsDataMart={props.templateIsDataMart}/>;
   }
   return renderEntityList(props, styles, createItem);

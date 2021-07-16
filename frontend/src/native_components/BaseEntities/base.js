@@ -1,6 +1,10 @@
 import React from 'react';
+import { useDispatch, useStore } from 'react-redux';
+import { expandGroup, notifyLoadingEntities } from '../../actions/EntitiesActions';
+
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {Badge} from 'native-base';
 import {Text, Card, Layout, List} from '@ui-kitten/components';
 import Singleton from '../../utils/singleton';
 
@@ -14,6 +18,13 @@ export const stylesComponent = StyleSheet.create({
     bottom: 15,
     left: 15,
     zIndex: 4,
+  },
+  badgeGroup: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    minWidth: 28,
+    alignItems: 'center',
   },
   badgeText: {
     color: '#fff',
@@ -64,11 +75,52 @@ export function useTextState(short_marks) {
   return {textState, backgroundColorState};
 }
 
+function getGroupState(data, meta) {
+  const alike = meta.alike || null,
+    groupSize = data.extra && data.extra.group_size ? data.extra.group_size : 0;
+
+  return {
+    size: groupSize,
+    name: groupSize || alike ? data.extra.group_name : null,
+  };
+}
+
+function useOnEntityPress(data, meta) {
+  const getState = useStore().getState,
+    dispatch = useDispatch(),
+    {id, entity_model} = data,
+    {navigation} = Singleton.getInstance();
+
+  const groupState = getGroupState(data, meta);
+
+  function onPress(event) {
+    if (groupState.size) {
+      notifyLoadingEntities()(dispatch);
+      expandGroup(id, meta)(dispatch, getState);
+    } else {
+      navigation.navigate('Detail-' + entity_model, {id});
+    }
+  }
+
+  return {onPress, groupState};
+}
+
+
+function renderGroupBadge(groupSize, styles) {
+  return groupSize
+  ? <Badge style={styles.badgeGroup}>
+      <Text style={styles.badgeText}>{groupSize}</Text>
+    </Badge>
+  : null;
+}
+
 
 export function renderEntityItem(props, text, badge, styles) {
-  const {data} = props,
-    {id, entity_model} = data,
-    {Domain, navigation} = Singleton.getInstance();
+  const {meta, data} = props,
+    {Domain} = Singleton.getInstance();
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const {onPress, groupState} = useOnEntityPress(data, meta);
 
   const templateIsDataMart = props.templateIsDataMart === undefined
     ? true : props.templateIsDataMart;
@@ -76,25 +128,24 @@ export function renderEntityItem(props, text, badge, styles) {
   if (data.media.match(mediaRegExp))
     data.media = `${Domain}/${data.media.match(mediaRegExp)[2]}`;
 
-  function onPress(event) {
-    navigation.navigate('Detail-' + entity_model, {id});
-  }
-
   const textStyle = templateIsDataMart
     ? {...styles.entityNameText}
     : {...styles.entityNameText, fontSize: 16};
 
   return <Card
-           style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}
-           onPress={onPress}>
-      <View style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
-        <ImageBackground
-          source={data.media ? {uri: data.media } : null}
-          style={templateIsDataMart ? styles.imageBackground : styles.imageBackgroundRelated}>
-          <Text style={textStyle}>{text}</Text>
-          {badge}
-        </ImageBackground>
-      </View>
+    appearance="filled"
+    onPress={onPress}
+    style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}>
+    <View
+      style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
+          <ImageBackground
+            source={data.media ? {uri: data.media } : null}
+            style={templateIsDataMart ? styles.imageBackground : styles.imageBackgroundRelated}>
+            <Text style={textStyle}>{text}</Text>
+            {badge}
+          </ImageBackground>
+    </View>
+    {renderGroupBadge(groupState.size, styles)}
   </Card>;
 }
 

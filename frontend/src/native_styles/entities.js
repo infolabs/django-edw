@@ -23,10 +23,13 @@ export const tileStyles = StyleSheet.create({
     minHeight: 260,
     marginVertical: 8,
     marginHorizontal: 8,
-    borderRadius: 15,
+    overflow: 'visible',
   },
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
+    minHeight: 260,
+    borderRadius: 15,
+    overflow: 'hidden',
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,
@@ -66,10 +69,13 @@ export const listStyles = StyleSheet.create({
     minHeight: 200,
     marginHorizontal: 5,
     marginVertical: 5,
-    borderRadius: 15,
+    overflow: 'visible',
   },
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
+    borderRadius: 15,
+    minHeight: 200,
+    overflow: 'hidden',
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,

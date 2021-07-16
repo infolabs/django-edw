@@ -8,6 +8,7 @@ function Tile(props) {
     return <TileItem
             key={i}
             data={child}
+            meta={props.meta}
             templateIsDataMart={props.templateIsDataMart}/>;
   }
 
