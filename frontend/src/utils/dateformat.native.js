@@ -1,7 +1,9 @@
 export const dateFormat = (dateFormatted) => {
-  return new Date(dateFormatted).toLocaleString('ru', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const d = new Date(dateFormatted);
+  const day = d.getDate();
+  const monthIndex = d.getMonth();
+  const year = d.getFullYear();
+  return `${day} ${MONTHS[monthIndex]} ${year} г.`
 };
+
+const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
