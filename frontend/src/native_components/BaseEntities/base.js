@@ -1,6 +1,10 @@
 import React from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {expandGroup, notifyLoadingEntities} from '../../actions/EntitiesActions';
+import {
+  expandGroup,
+  notifyLoadingEntities,
+  getEntities,
+} from '../../actions/EntitiesActions';
 
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -92,34 +96,63 @@ export function useTextState(short_marks) {
   return {textState, backgroundColorState};
 }
 
-function getGroupState(data, meta) {
-  const alike = meta.alike || null,
-    groupSize = data.extra && data.extra.group_size ? data.extra.group_size : 0;
-
-  return {
-    size: groupSize,
-    name: groupSize || alike ? data.extra.group_name : null,
-  };
+function getGroupName(meta) {
+  return (meta && meta.alike && meta.alike.group_name) || null;
 }
 
-function useOnEntityPress(data, meta) {
+function getGroupSize(data) {
+  return (data.extra && data.extra.group_size) || 0;
+}
+
+
+function useGroupOpen(data, meta) {
   const getState = useStore().getState,
-    dispatch = useDispatch(),
-    {id, entity_model} = data,
-    {navigation} = Singleton.getInstance();
+    dispatch = useDispatch();
 
-  const groupState = getGroupState(data, meta);
+  const groupSize = getGroupSize(data);
 
-  function onPress(event) {
-    if (groupState.size) {
-      notifyLoadingEntities()(dispatch);
-      expandGroup(id, meta)(dispatch, getState);
-    } else {
-      navigation.navigate('Detail-' + entity_model, {id});
-    }
+  function groupOpen() {
+    notifyLoadingEntities()(dispatch);
+    expandGroup(data.id, meta)(dispatch, getState);
   }
 
-  return {onPress, groupState};
+  return {groupOpen, groupSize};
+}
+
+
+function useGroupClose(meta) {
+  const getState = useStore().getState,
+    dispatch = useDispatch();
+
+  const groupName = getGroupName(meta);
+
+  function groupClose(e) {
+    const request_options = meta.request_options;
+    delete request_options.alike;
+    delete request_options.offset;
+
+    notifyLoadingEntities()(dispatch);
+    getEntities(meta.data_mart.id, meta.subj_ids, request_options)(dispatch, getState);
+  }
+
+  return {groupClose, groupName};
+}
+
+
+function useOnEntityPress(data, meta) {
+  const {id, entity_model} = data,
+        {navigation} = Singleton.getInstance();
+
+  const {groupOpen, groupSize} = useGroupOpen(data, meta);
+
+  function onPress(event) {
+    if (groupSize)
+      groupOpen();
+    else
+      navigation.navigate('Detail-' + entity_model, {id});
+  }
+
+  return {onPress, groupSize};
 }
 
 
@@ -137,7 +170,7 @@ export function renderEntityItem(props, text, badge, styles) {
     {Domain} = Singleton.getInstance();
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const {onPress, groupState} = useOnEntityPress(data, meta);
+  const {onPress, groupSize} = useOnEntityPress(data, meta);
 
   const templateIsDataMart = props.templateIsDataMart === undefined
     ? true : props.templateIsDataMart;
@@ -162,32 +195,23 @@ export function renderEntityItem(props, text, badge, styles) {
             {badge}
           </ImageBackground>
     </View>
-    {renderGroupBadge(groupState.size, styles)}
+    {renderGroupBadge(groupSize, styles)}
   </Card>;
 }
 
 
 function renderGroupNav(props, styles) {
-  const meta = props.meta;
-  const groupName = meta.alike && meta.alike.group_name || null;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const {groupClose, groupName} = useGroupClose(props.meta);
 
   if (!groupName)
     return null;
-
-  function closeGroup(e) {
-    const request_options = meta.request_options;
-    delete request_options.alike;
-    delete request_options.offset;
-
-    props.notifyLoadingEntities();
-    props.getEntities(meta.data_mart.id, meta.subj_ids, request_options);
-  }
 
   return <View style={styles.groupNav}>
     <Text style={styles.groupNavText}>
       {groupName}
     </Text>
-    <Icon name="close" onPress={closeGroup} style={styles.groupNavText}/>
+    <Icon name="close" onPress={groupClose} style={styles.groupNavText}/>
   </View>;
 }
 
