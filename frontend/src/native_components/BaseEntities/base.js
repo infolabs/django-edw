@@ -8,7 +8,7 @@ import {
 
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {Badge, Icon} from 'native-base';
+import {Badge} from 'native-base';
 import {Text, Card, Layout, List} from '@ui-kitten/components';
 import Singleton from '../../utils/singleton';
 
@@ -32,23 +32,6 @@ export const stylesComponent = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-  },
-  groupNav: {
-    position: 'absolute',
-    alignSelf: 'center',
-    top: 100,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-    zIndex: 4,
-    backgroundColor: '#222a',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  groupNavText: {
-    color: 'white',
   },
 });
 
@@ -120,9 +103,15 @@ function useGroupOpen(data, meta) {
 }
 
 
-function useGroupClose(meta) {
-  const getState = useStore().getState,
-    dispatch = useDispatch();
+export function useGroupClose(store = null) {
+  // useStore won't return the edw store if
+  // the hook is used ouside a edw component
+  // one can optionally pass the correct store
+  const defaultStore = useStore();
+  store = store ? store : defaultStore;
+  const {dispatch, getState} = store;
+
+  const meta = getState().entities && getState().entities.items.meta;
 
   const groupName = getGroupName(meta);
 
@@ -166,7 +155,7 @@ function renderGroupBadge(groupSize, styles) {
 
 
 export function renderEntityItem(props, text, badge, styles) {
-  const {meta, data} = props,
+  const {data, meta} = props,
     {Domain} = Singleton.getInstance();
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -200,28 +189,11 @@ export function renderEntityItem(props, text, badge, styles) {
 }
 
 
-function renderGroupNav(props, styles) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const {groupClose, groupName} = useGroupClose(props.meta);
-
-  if (!groupName)
-    return null;
-
-  return <View style={styles.groupNav}>
-    <Text style={styles.groupNavText}>
-      {groupName}
-    </Text>
-    <Icon name="close" onPress={groupClose} style={styles.groupNavText}/>
-  </View>;
-}
-
-
 export function renderEntityTile(props, styles, createItem) {
   const handleScroll = getScrollHandler(props);
   const {items, loading} = props;
 
-  return <>
-    <ScrollView
+  return <ScrollView
       scrollEventThrottle={2000}
       onScroll={e => handleScroll(e)}>
       {loading ?
@@ -231,9 +203,7 @@ export function renderEntityTile(props, styles, createItem) {
         : null
       }
       <Layout style={styles.layout}>{items.map(createItem)}</Layout>
-    </ScrollView>
-    {renderGroupNav(props, styles)}
-  </>;
+  </ScrollView>;
 }
 
 
@@ -242,15 +212,12 @@ export function renderEntityList(props, styles, createItem) {
 
   return templateIsDataMart
     ? renderEntityTile(props, styles, createItem)
-    : <>
-      <List
+    : <List
         style={styles.containerRelated}
         contentContainerStyle={styles.containerContentRelated}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={items}
         renderItem={(child, i) => createItem(child, i)}
-      />
-      {renderGroupNav(props, styles)}
-    </>;
+      />;
 }
