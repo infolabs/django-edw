@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {
   expandGroup,
@@ -29,9 +29,18 @@ export const stylesComponent = StyleSheet.create({
     right: -5,
     minWidth: 28,
     alignItems: 'center',
+    backgroundColor: 'green',
   },
   badgeText: {
     color: '#fff',
+  },
+
+  cardShadow: {
+    position: 'absolute',
+    borderColor: '#888',
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: '#aaa',
   },
 });
 
@@ -85,6 +94,11 @@ function getGroupName(meta) {
 
 function getGroupSize(data) {
   return (data.extra && data.extra.group_size) || 0;
+}
+
+
+function getItemGroupName(data) {
+  return (getGroupSize(data) && data.extra.group_name) || null;
 }
 
 
@@ -154,12 +168,62 @@ function renderGroupBadge(groupSize, styles) {
 }
 
 
+function useCardShadow(groupSize, numLayers, styles) {
+  const topIncrement = 2,
+        leftIncrement = 2.5,
+        rotateZIncrement = 1.25,
+        opacityDecrement = 0.25;
+
+  const size = useRef({width: 0, height: 0}).current;
+  const [shadows, setShadows] = useState([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(updateShadows, [groupSize]);
+
+  function setCardSize(layout) {
+    const {width, height} = layout;
+    if (size.width !== width || size.height !== height) {
+      size.width = width;
+      size.height = height;
+      updateShadows();
+    }
+  }
+
+  function updateShadows() {
+    if (!groupSize) {
+      setShadows([]);
+      return;
+    }
+    const newShadows = [];
+    for (let i = 0; i <= numLayers; i++) {
+      const style = {
+        ...styles.cardShadow,
+        ...size,
+        top: topIncrement * i,
+        left: leftIncrement * i,
+        transform: [{ rotateZ: `${rotateZIncrement * i}deg` }],
+      };
+      newShadows.push(<View key={i} style={style} opacity={1 - i * opacityDecrement}/>);
+    }
+    newShadows.reverse();
+    setShadows(newShadows);
+  }
+
+  return {shadows, setCardSize};
+}
+
+
 export function renderEntityItem(props, text, badge, styles) {
   const {data, meta} = props,
     {Domain} = Singleton.getInstance();
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const {onPress, groupSize} = useOnEntityPress(data, meta);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const {shadows, setCardSize} = useCardShadow(groupSize, 2, styles);
+
+  const groupName = getItemGroupName(data);
+  if (groupName)
+    text = groupName;
 
   const templateIsDataMart = props.templateIsDataMart === undefined
     ? true : props.templateIsDataMart;
@@ -171,11 +235,14 @@ export function renderEntityItem(props, text, badge, styles) {
     ? {...styles.entityNameText}
     : {...styles.entityNameText, fontSize: 16};
 
+
   return <Card
     appearance="filled"
     onPress={onPress}
     style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}>
+    {shadows}
     <View
+      onLayout={e => {setCardSize(e.nativeEvent.layout);}}
       style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
           <ImageBackground
             source={data.media ? {uri: data.media } : null}
