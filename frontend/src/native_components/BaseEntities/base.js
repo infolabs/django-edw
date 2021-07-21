@@ -34,14 +34,6 @@ export const stylesComponent = StyleSheet.create({
   badgeText: {
     color: '#fff',
   },
-
-  cardShadow: {
-    position: 'absolute',
-    borderColor: '#888',
-    borderWidth: 1,
-    borderRadius: 15,
-    backgroundColor: '#aaa',
-  },
 });
 
 
@@ -171,7 +163,7 @@ function renderGroupBadge(groupSize, styles) {
 function useCardShadow(groupSize, numLayers, styles) {
   const topIncrement = 2,
         leftIncrement = 2.5,
-        rotateZIncrement = 1.25,
+        rotateZIncrement = 0.25,
         opacityDecrement = 0.25;
 
   const size = useRef({width: 0, height: 0}).current;
@@ -228,8 +220,9 @@ export function renderEntityItem(props, text, badge, styles) {
   const templateIsDataMart = props.templateIsDataMart === undefined
     ? true : props.templateIsDataMart;
 
-  if (data.media.match(mediaRegExp))
-    data.media = `${Domain}/${data.media.match(mediaRegExp)[2]}`;
+  let match;
+  if ((match = data.media.match(mediaRegExp)))
+    data.media = `${Domain}/${match[2].replace(/^\//, '')}`;
 
   const textStyle = templateIsDataMart
     ? {...styles.entityNameText}

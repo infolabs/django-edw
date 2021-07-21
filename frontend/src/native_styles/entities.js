@@ -28,8 +28,17 @@ export const tileStyles = StyleSheet.create({
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
     minHeight: 260,
+    borderWidth: 1,
+    borderColor: '#959595',
     borderRadius: 15,
     overflow: 'hidden',
+  },
+  cardShadow: {
+    position: 'absolute',
+    borderColor: '#888',
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: '#aaa',
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,
@@ -71,8 +80,17 @@ export const listStyles = StyleSheet.create({
     marginVertical: 5,
     overflow: 'visible',
   },
+  cardShadow: {
+    position: 'absolute',
+    borderColor: '#888',
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: '#aaa',
+  },
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
+    borderColor: '#959595',
+    borderWidth: 1,
     borderRadius: 15,
     minHeight: 200,
     overflow: 'hidden',
