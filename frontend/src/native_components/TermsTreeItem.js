@@ -3,7 +3,6 @@ import {View} from 'react-native';
 import {Text, CheckBox, Radio} from '@ui-kitten/components';
 import {Icon} from 'native-base';
 import platformSettings from '../constants/Platform';
-import {TouchableWithoutFeedback} from '@ui-kitten/components/devsupport';
 import {structures, semanticRules} from '../constants/TermsTree';
 import {termsTreeItemStyles as styles} from '../native_styles/terms';
 
@@ -13,31 +12,16 @@ function TermsTreeItem(props) {
   function handleItemPress() {
     const {term, actions} = props;
     actions.toggleTerm(term);
-    resizeTermsContainer();
   }
 
   function handleResetTermPress() {
     const {term, actions} = props;
     actions.resetTerm(term);
-    resizeTermsContainer();
   }
 
   function handleResetBranchPress() {
     const {term, actions} = props;
     actions.resetBranch(term);
-    resizeTermsContainer();
-  }
-
-  // HACK: Для правильного определения высоты нужно переоткрыть ветку термина
-  function resizeTermsContainer() {
-    const {actions, term} = props;
-    let termParent = term;
-    while (termParent.parent && termParent.parent.id !== null && termParent.structure !== structures.STRUCTURE_LIMB)
-      termParent = termParent.parent;
-    actions.toggleTerm(termParent);
-    setTimeout(() => {
-      actions.toggleTerm(termParent);
-    }, 10);
   }
 
   const {deviceWidth} = platformSettings;
@@ -52,9 +36,9 @@ function TermsTreeItem(props) {
   if (ex_no_term === 'ex-no-potential ' && term.name.length)
     return null;
 
-  let render_item = '',
-    reset_icon = '',
-    reset_item = () => <></>,
+  let reset_item = null,
+    render_item = '',
+    reset_icon = null,
     semantic_class = '',
     state_class = '';
 
@@ -106,43 +90,38 @@ function TermsTreeItem(props) {
       state_class = 'ex-other';
     }
 
-    let marginLeft = semantic_class === 'ex-and' ? 5 : -5;
-    render_item = (
-      <TouchableWithoutFeedback onPress={() => handleItemPress()}>
-        {term.structure === structures.STRUCTURE_LIMB ?
-          <Text style={styles.termIsLimb}>
-            {term.name}
-          </Text>
-          :
-          <Text style={{...styles.term, fontWeight, color, marginLeft}}>
-            {term.name}
-          </Text>
-        }
-      </TouchableWithoutFeedback>
-    );
+    render_item = term.structure === structures.STRUCTURE_LIMB ?
+      <Text style={styles.termIsLimb}
+            onPress={() => handleItemPress()}>
+        {term.name}
+      </Text>
+      :
+      <Text style={{...styles.term, fontWeight, color}}
+            onPress={() => handleItemPress()}>
+        {term.name}
+      </Text>;
 
     if (term.semantic_rule === semanticRules.SEMANTIC_RULE_XOR && show_children) {
-      const mrgnLeft = is_limb_or_and ? 25 : 0;
       const any_tagged = tagged.isAnyTagged(children);
       fontWeight = any_tagged ? 'normal' : 'bold';
-      reset_item = () => (
-        <Radio checked={!any_tagged}
-               onChange={() => handleResetTermPress()} style={{...styles.termIsAllRadio, mrgnLeft}}>
-          <TouchableWithoutFeedback onPress={() => handleItemPress()}>
-            <Text style={{...styles.termIsAllText, fontWeight, color}}>
+      const key = `reset_item_${term.id}`;
+      reset_item = <View style={styles.termView} key={key}>
+          <Radio checked={!any_tagged}
+                 onChange={() => handleResetTermPress()}
+                 style={{...styles.radio}}>
+            <Text style={{...styles.term, fontWeight, color}}
+                  onPress={() => handleItemPress()}>
               Всё
             </Text>
-          </TouchableWithoutFeedback>
-        </Radio>
-      );
+          </Radio>
+        </View>;
     }
 
     if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children) &&
       term.structure === structures.STRUCTURE_LIMB) {
       reset_icon = (
-        <TouchableWithoutFeedback onPress={() => handleResetBranchPress()}>
-          <Icon style={styles.iconReset} name="md-close-circle"/>
-        </TouchableWithoutFeedback>
+          <Icon style={styles.iconReset} name="md-close-circle"
+                onPress={() => handleResetBranchPress()} />
       );
     }
   }
@@ -159,6 +138,9 @@ function TermsTreeItem(props) {
       />)
   );
 
+  if (reset_item)
+    render_children.unshift(reset_item);
+
   let ret = null;
 
   if (render_item === '') {
@@ -168,8 +150,7 @@ function TermsTreeItem(props) {
     if (show_children) {
       iconName = 'caret-down';
       render_children = (
-        <View style={{width: deviceWidth}}>
-          {reset_item()}
+        <View style={{...styles.termChildren, width: deviceWidth}}>
           {render_children}
         </View>
       );
@@ -178,36 +159,26 @@ function TermsTreeItem(props) {
       render_children = null;
     }
 
-    let marginLeft = 0;
-    if (term.structure === structures.STRUCTURE_LIMB)
-      marginLeft = 20;
-
     if (is_limb_or_and) {
       ret = (
-        <>
-          <TouchableWithoutFeedback onPress={() => handleItemPress()}
-                                    style={{...styles.termIsLimbOrAndView, marginLeft}}>
-            <Text>
-              <Icon style={styles.termIsLimbOrAndIcon} name={iconName}/>
-              {render_item}
-              {reset_icon}
-            </Text>
-          </TouchableWithoutFeedback>
-          <View style={{marginLeft}}>
-            {render_children}
+        <View style={styles.termView}>
+          <View style={{...styles.termIsLimbOrAndView}}>
+            <Icon style={styles.termIsLimbOrAndIcon} name={iconName}
+                  onPress={() => handleItemPress()}/>
+            <Text onPress={() => handleItemPress()}>{render_item}</Text>
+            {reset_icon}
           </View>
-        </>
+          {render_children}
+        </View>
       );
     } else {
-      marginLeft = term.parent.isLimbOrAnd() ? 25 : 0;
       ret = (
-        <View style={{...styles.termView, marginLeft}}>
+        <View style={styles.termView}>
           {semantic_class === 'ex-xor' ?
             <Radio checked={state_class === 'ex-on'}
                    style={styles.radio}
                    onChange={() => handleItemPress()}>
               {render_item}
-              {render_children}
             </Radio>
             :
             <CheckBox checked={state_class === 'ex-on'}
@@ -215,9 +186,9 @@ function TermsTreeItem(props) {
                       onChange={() => handleItemPress()}>
               {render_item}
               {reset_icon}
-              {render_children}
             </CheckBox>
           }
+          {render_children}
         </View>
       );
     }

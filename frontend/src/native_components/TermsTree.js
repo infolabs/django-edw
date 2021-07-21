@@ -1,10 +1,12 @@
 import React, {useEffect, useRef} from 'react';
 import {connect} from 'react-redux';
+import {View} from 'react-native';
 import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
 import ActionCreators from '../actions';
 import parseRequestParams from '../utils/parseRequestParams';
 import compareArrays from '../../utils/compareArrays';
+import {termsTreeItemStyles as styles} from '../native_styles/terms';
 
 
 function TermsTree(props) {
@@ -70,14 +72,16 @@ function TermsTree(props) {
     {tagged, expanded, realPotential} = terms;
 
   return term ? (
-      <TermsTreeItem key={term.id}
-                     term={term}
-                     tagged={tagged}
-                     expanded={expanded}
-                     realPotential={realPotential}
-                     actions={actions}
-                     terms={terms}
-                     termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+      <View style={styles.treeContainer}>
+        <TermsTreeItem key={term.id}
+                       term={term}
+                       tagged={tagged}
+                       expanded={expanded}
+                       realPotential={realPotential}
+                       actions={actions}
+                       terms={terms}
+                       termsIdsTaggedBranch={termsIdsTaggedBranch}/>
+      </View>
     )
     : null;
 }
