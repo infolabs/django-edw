@@ -146,9 +146,10 @@ export class YMapInner extends AbstractMap {
 
   componentDidMount() {
     this.osmRegion = this.props.data_mart.osm_region || null;
+    this.notGroup = this.props.data_mart.not_group || null;
     this.yandexMapPreset = this.props.data_mart.yandex_map_preset || null;
     this.mapConfig = this.props.getMapConfig();
-
+    if (this.notGroup === "true") this.props.actions.setEntitiesNotGroup(this.notGroup);
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
@@ -255,7 +256,6 @@ export class YMapInner extends AbstractMap {
             lat = parseFloat(coords[0]);
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
-
       const isGroup = item.extra && item.extra.group_size;
       const colorItems = this.getColor(item),
             groupColor = colorItems.backgroundColorContent,
