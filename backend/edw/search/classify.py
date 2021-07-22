@@ -117,7 +117,7 @@ def analyze_suggestions(search_result):
                         'count': 1,
                         'score': score,
                         'rate': 0,
-                        'similar': category.get('similar', True)
+                        'similar': category.get('similar', True),
                         'confidence': 0
                     }
                 else:
