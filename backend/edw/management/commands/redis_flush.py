@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 
 from os.path import isfile
 from subprocess import check_call
@@ -9,6 +10,14 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
+
+    parameters_list = []
+
+    def get_parameters(self, url):
+        db = url.split('/')[-1]
+        host = re.search(r'//(.+?):', url).group(1)
+        self.parameters_list.append([db, host])
+
     def handle(self, **options):
         possible_executables = [
             'redis-cli',
@@ -20,23 +29,24 @@ class Command(BaseCommand):
         else:
             raise CommandError('Couldn\'t find redis-cli executable')
 
-        dbs = []
         # Redis DB number of Django cache
         default = settings.CACHES.get('default', {})
         backend = default.get('BACKEND', None)
         location = default.get('LOCATION', None)
         if backend == 'django_redis.cache.RedisCache':
-            dbs.append(location.split('/')[-1])
+            self.get_parameters(location)
         # Redis DB number of Celery broker
         broker_url = current_app.conf.broker_url
         if broker_url.startswith('redis'):
-            dbs.append(broker_url.split('/')[-1])
+            self.get_parameters(broker_url)
 
         command = [
             executable_path,
-            '-h', 'redis',
+            '-h'
         ]
-        for db in dbs:
+
+        for params in self.parameters_list:
+            db, host = params
             print('FLushing DB %s ...' % db)
-            check_call(command + ['-n', db, 'FLUSHDB'])
+            check_call(command + [host, '-n', db, 'FLUSHDB'])
         return 'Done'

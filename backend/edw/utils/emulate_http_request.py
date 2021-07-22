@@ -26,7 +26,6 @@ class EmulateHttpRequest(HttpRequest):
     """
     def __init__(self, customer, stored_request, is_secure=True):
         super(EmulateHttpRequest, self).__init__()
-        print("self.current_site(is_secure)", self.current_site(is_secure))
         parsedurl = urlparse(stored_request.get('absolute_base_uri', self.current_site(is_secure)))
         self.path = self.path_info = parsedurl.path
         self.environ = {}

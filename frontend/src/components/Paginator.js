@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Actions from '../actions/index';
-import { setOffset } from "../utils/locationHash";
+import { setOffset } from '../utils/locationHash';
 import parseRequestParams from 'utils/parseRequestParams';
 
 
@@ -11,15 +11,15 @@ class Paginator extends Component {
   constructor() {
     super();
     this.state = {
-      options_arr: []
-    }
+      options_arr: [],
+    };
   }
 
   requestOptions(){
     const { entry_points, entry_point_id } = this.props,
           request_params = entry_points && entry_points[entry_point_id].request_params || [],
           parms = parseRequestParams(request_params);
-    return parms.options_arr || []
+    return parms.options_arr || [];
   }
 
   handleNextClick(e) {
@@ -29,7 +29,7 @@ class Paginator extends Component {
     const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset + limit});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, options['offset']);
+    setOffset(this.props.entry_point_id, options.offset);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
   }
 
@@ -40,7 +40,7 @@ class Paginator extends Component {
     const { subj_ids, limit, offset, request_options } = meta;
     let options = Object.assign(request_options, {'offset': offset - limit});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, options['offset']);
+    setOffset(this.props.entry_point_id, options.offset);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
   }
 
@@ -51,14 +51,14 @@ class Paginator extends Component {
     const { subj_ids, limit, request_options } = meta;
     let options = Object.assign(request_options, {'offset': limit * (n - 1)});
     this.props.actions.notifyLoadingEntities();
-    setOffset(this.props.entry_point_id, options['offset']);
+    setOffset(this.props.entry_point_id, options.offset);
     this.props.actions.getEntities(this.props.entry_point_id, subj_ids, options, this.state.options_arr);
   }
 
   componentDidMount() {
     this.setState({
-      options_arr: this.requestOptions()
-    })
+      options_arr: this.requestOptions(),
+    });
   }
 
   render() {
@@ -94,7 +94,7 @@ class Paginator extends Component {
         pageNumbers;
 
     if (!(limit && count) || numPages < 2)
-      return <div></div>;
+      return <div/>;
 
     if ( numPages <= leadingPageRangeDisplayed + numPagesOutsideRange + 1 ) {
       inLeadingRange = inTrailingRange = true;
@@ -132,17 +132,17 @@ class Paginator extends Component {
     let hasNext = currentPage < numPages,
         hasPrevious = currentPage > 1;
 
-    let previous = "";
+    let previous = '';
     if (hasPrevious) {
       previous = (
-        <li key='prev' onClick={e => { ::this.handlePrevClick(e);}}>
-          <a href="#"><i className="ex-icon-chevron-left"></i></a>
+        <li key="prev" onClick={e => { ::this.handlePrevClick(e);}}>
+          <a href="#"><i className="ex-icon-chevron-left"/></a>
         </li>
       );
     } else {
       previous = (
-        <li key='prev' className="ex-disabled">
-          <span><i className="ex-icon-chevron-left"></i></span>
+        <li key="prev" className="ex-disabled">
+          <span><i className="ex-icon-chevron-left"/></span>
         </li>
       );
     }
@@ -159,12 +159,12 @@ class Paginator extends Component {
         );
       });
       pages.push(
-        <li key='lead-sep'><span className="ex-separator">…</span></li>
+        <li key="lead-sep"><span className="ex-separator">…</span></li>
       );
     }
 
     pageNumbers.forEach(function(n) {
-      if (currentPage == n) {
+      if (currentPage === n) {
         pages.push(
           <li key={n} className="ex-active"><span>{n}</span></li>
         );
@@ -179,7 +179,7 @@ class Paginator extends Component {
 
     if ( !inTrailingRange ) {
       pages.push(
-        <li key='trail-sep'><span className="ex-separator">…</span></li>
+        <li key="trail-sep"><span className="ex-separator">…</span></li>
       );
       pagesOutsideLeadingRange.reverse().forEach(function(n) {
         pages.push(
@@ -190,23 +190,23 @@ class Paginator extends Component {
       });
     }
 
-    let next = "";
+    let next = '';
     if (hasNext) {
       next = (
-        <li key='next' onClick={e => { ::this.handleNextClick(e);}}>
-          <a href="#"><i className="ex-icon-chevron-right"></i></a>
+        <li key="next" onClick={e => { ::this.handleNextClick(e);}}>
+          <a href="#"><i className="ex-icon-chevron-right"/></a>
         </li>
       );
     } else {
       next = (
-        <li key='next' className="ex-disabled">
-          <span><i className="ex-icon-chevron-right"></i></span>
+        <li key="next" className="ex-disabled">
+          <span><i className="ex-icon-chevron-right"/></span>
         </li>
       );
     }
 
     if (this.props.hide_page_numbers)
-      pages = "";
+      pages = '';
 
     let ret = (
       <div className="ex-catalog-pagination">
@@ -231,7 +231,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

@@ -3,8 +3,8 @@ import {
   withGoogleMap,
   GoogleMap,
   Marker,
-  InfoWindow
-} from "react-google-maps";
+  InfoWindow,
+} from 'react-google-maps';
 import AbstractMap from 'components/BaseEntities/AbstractMap';
 import { MAP_HEIGHT } from 'constants/Components';
 
@@ -45,9 +45,9 @@ export default class Map extends AbstractMap {
     this.setState({
       markers: this.state.markers.map(marker => {
         let showInfo = false;
-        if (marker === targetMarker) {
+        if (marker === targetMarker)
           showInfo = true;
-        }
+
         return {
           ...marker,
           showInfo: showInfo,
@@ -70,8 +70,8 @@ export default class Map extends AbstractMap {
     });
   }
 
-  getMarkerIcon(pinColor = "FE7569") {
-    let pinImage = new google.maps.MarkerImage("https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+  getMarkerIcon(pinColor = 'FE7569') {
+    let pinImage = new google.maps.MarkerImage('https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + pinColor,
       new google.maps.Size(21, 34),
       new google.maps.Point(0,0),
       new google.maps.Point(10, 34)
@@ -79,11 +79,11 @@ export default class Map extends AbstractMap {
     return pinImage;
   }
 
-  getGroupMarkerIcon(label, pinColor = "FE7569") {
+  getGroupMarkerIcon(label, pinColor = 'FE7569') {
     let pinImage = {
       path: google.maps.SymbolPath.CIRCLE,
       scale: 9 + label.length * 4,
-      fillColor: "#" + pinColor,
+      fillColor: '#' + pinColor,
       fillOpacity: 1.0,
       strokeWeight: 1.5,
     };
@@ -91,7 +91,7 @@ export default class Map extends AbstractMap {
   }
 
   getMarkerShadow() {
-    let pinShadow = new google.maps.MarkerImage("https://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+    let pinShadow = new google.maps.MarkerImage('https://chart.apis.google.com/chart?chst=d_map_pin_shadow',
       new google.maps.Size(40, 37),
       new google.maps.Point(0, 0),
       new google.maps.Point(12, 35)
@@ -112,8 +112,8 @@ export default class Map extends AbstractMap {
   render() {
     const { items, loading, meta } = this.props;
 
-    let entities_class = "entities";
-    entities_class = loading ? entities_class + " ex-state-loading" : entities_class;
+    let entities_class = 'entities';
+    entities_class = loading ? entities_class + ' ex-state-loading' : entities_class;
 
     const geo_items = items.filter(item => !!(item.extra && item.extra.geoposition));
 
@@ -136,16 +136,16 @@ export default class Map extends AbstractMap {
 
       let marker = {
           position: {lat: lat, lng: lng},
-          info: this.assembleInfo(item, meta)
+          info: this.assembleInfo(item, meta),
       };
 
       if (item.extra && item.extra.group_size) {
         const label = item.extra.group_size.toString();
-        marker["icon"] = this.getGroupMarkerIcon(label, pinColor);
-        marker["label"] = label;
+        marker.icon = this.getGroupMarkerIcon(label, pinColor);
+        marker.label = label;
       } else {
-        marker["icon"] = this.getMarkerIcon(pinColor);
-        marker["shadow"] = this.getMarkerShadow();
+        marker.icon = this.getMarkerIcon(pinColor);
+        marker.shadow = this.getMarkerShadow();
       }
 
       markers.push(marker);

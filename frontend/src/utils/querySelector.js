@@ -3,11 +3,10 @@
 export function closest(el, selector) {
   const matchesSelector = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
   while (el) {
-    if (matchesSelector.call(el, selector)) {
+    if (matchesSelector.call(el, selector))
       return el;
-    } else {
+    else
       el = el.parentElement;
-    }
   }
   return null;
 }
@@ -24,9 +23,8 @@ export function parentsUntil(el, selector, filter) {
     if (!filter) {
       result.push(el);
     } else {
-      if (matchesSelector.call(el, filter)) {
+      if (matchesSelector.call(el, filter))
         result.push(el);
-      }
     }
     el = el.parentElement;
   }

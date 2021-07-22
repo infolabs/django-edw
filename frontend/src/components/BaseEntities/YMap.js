@@ -11,7 +11,7 @@ import { MAP_HEIGHT } from 'constants/Components';
 export const mapModules = [
   'control.FullscreenControl',
   'control.GeolocationControl',
-  'control.ZoomControl'
+  'control.ZoomControl',
 ];
 
 
@@ -23,9 +23,9 @@ export function addRegions(map, osmArray, osmRegion) {
   for (const osm of osmArray) {
     osmeRegions.geoJSON(osm.osmId, {
       quality: 3,
-      postFilter: function(region){
-        return region.osmId == osm.osmId;
-      }
+      postFilter: function(region) {
+        return region.osmId === osm.osmId;
+      },
     }, (data) => {
       let collection = osmeRegions.toYandex(data, ymaps);
       if (map != null)
@@ -51,7 +51,7 @@ function getRegionsStyle(osm, osmRegion){
           g += color[1];
           b += color[2];
         });
-        osm.colors = `rgba(${Math.round(r/nm)}, ${Math.round(g/nm)}, ${Math.round(b/nm)}, 0.3)`;
+        osm.colors = `rgba(${Math.round(r / nm)}, ${Math.round(g / nm)}, ${Math.round(b / nm)}, 0.3)`;
       } else {
         osm.colors = osm.colors[0];
       }
@@ -67,9 +67,9 @@ function getRegionsStyle(osm, osmRegion){
   }
   return ({
     strokeWidth: 1,
-    strokeStyle: "longdashdotdot",
-    strokeColor: "#5CA5C1",
-    fillColor: osm.colors
+    strokeStyle: 'longdashdotdot',
+    strokeColor: '#5CA5C1',
+    fillColor: osm.colors,
   });
 }
 
@@ -102,8 +102,8 @@ export class YMapInner extends AbstractMap {
         'dblClickZoom',
         'rightMouseButtonMagnifier',
         'multiTouch',
-        'scrollZoom'
-      ]
+        'scrollZoom',
+      ],
     };
   }
 
@@ -131,10 +131,10 @@ export class YMapInner extends AbstractMap {
     });
 
     if (data.extra.group_size && !meta.alike && !descriptions.groups[id])
-      actions.getEntityItem(data, meta);
+      actions.getEntityInfo(data, meta);
 
     if (!data.extra.group_size && !descriptions[id])
-      actions.getEntityItem(data);
+      actions.getEntityInfo(data);
 
     actions.showDescription(id);
   }
@@ -146,8 +146,10 @@ export class YMapInner extends AbstractMap {
 
   componentDidMount() {
     this.osmRegion = this.props.data_mart.osm_region || null;
+    this.notGroup = this.props.data_mart.not_group || null;
+    this.yandexMapPreset = this.props.data_mart.yandex_map_preset || null;
     this.mapConfig = this.props.getMapConfig();
-
+    if (this.notGroup === "true") this.props.actions.setEntitiesNotGroup(this.notGroup);
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
@@ -186,37 +188,34 @@ export class YMapInner extends AbstractMap {
         let selector = null;
         for (const s of selectors) {
           for (const ls of self.BALLOON_SELECTORS) {
-            if (s.toUpperCase() == ls.toUpperCase()) {
+            if (s.toUpperCase() === ls.toUpperCase())
               selector = ls;
-            }
           }
         }
 
         if (selector) {
           e.stopPropagation();
           e.preventDefault();
-          self.handleBalloonContentClick(e, selector, entity)
+          self.handleBalloonContentClick(e, selector, entity);
         }
         return false;
-      }
+      };
 
       const overrides = {
         build: function() {
           this.constructor.superclass.build.call(this);
           for (const s of self.BALLOON_SELECTORS) {
             const elements = this.getParentElement().querySelectorAll(s);
-            for (const el of elements) {
+            for (const el of elements)
               el.addEventListener('click', handleClick);
-            }
           }
         },
 
         clear: function() {
           for (const s of self.BALLOON_SELECTORS) {
             const elements = this.getParentElement().querySelectorAll(s);
-            for (const el of elements) {
+            for (const el of elements)
               el.removeEventListener('click', handleClick);
-            }
           }
           this.constructor.superclass.clear.call(this);
         },
@@ -227,7 +226,7 @@ export class YMapInner extends AbstractMap {
 
     this.setState({
       circleLayout: this.props.ymaps.templateLayoutFactory.createClass(circle),
-      makeBalloonLayout
+      makeBalloonLayout,
     });
   }
 
@@ -243,13 +242,12 @@ export class YMapInner extends AbstractMap {
     const { items, meta, loading, descriptions } = this.props,
           geoItems = items.filter(item => !!(item.extra && item.extra.geoposition));
 
-    let entitiesClass = "entities ex-ymap";
-    entitiesClass = loading ? entitiesClass + " ex-state-loading" : entitiesClass;
+    let entitiesClass = 'entities ex-ymap';
+    entitiesClass = loading ? entitiesClass + ' ex-state-loading' : entitiesClass;
 
     let lngMin = null, latMin = null, lngMax = null, latMax = null, markers = [];
-
     this.osmArray = [];
-    const osmAddrPattern = "osm-id-";
+    const osmAddrPattern = 'osm-id-';
     let osmId;
 
     for (const item of geoItems) {
@@ -258,13 +256,12 @@ export class YMapInner extends AbstractMap {
             lat = parseFloat(coords[0]);
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
-
       const isGroup = item.extra && item.extra.group_size;
-
       const colorItems = this.getColor(item),
             groupColor = colorItems.backgroundColorContent,
             borderGroupColor = colorItems.borderColor,
             pinColor = this.getPinColor(item),
+            pinPreset = this.getPinPreset(item),
             regionColor = colorItems.regionColor,
             descriptions_data = isGroup ? descriptions.groups : descriptions,
             description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
@@ -273,22 +270,22 @@ export class YMapInner extends AbstractMap {
             balloonContent = ReactDOMServer.renderToString(info);
 
       const osmObj = {
-        osmId : "",
-        colors : []
+        osmId : '',
+        colors : [],
       };
 
       //todo: add short_marks
       for (const sm of item.short_characteristics) {
         for (const cl of sm.view_class) {
           if (cl.startsWith(osmAddrPattern)) {
-            osmId = parseInt(cl.replace(osmAddrPattern, ""));
+            osmId = parseInt(cl.replace(osmAddrPattern, ''), 10);
             break;
           }
         }
       }
 
       if (osmId){
-        if (!this.osmArray.some(osm => osm.osmId == osmId)) {
+        if (!this.osmArray.some(osm => osm.osmId === osmId)) {
           osmObj.osmId = osmId;
           osmObj.colors.push(regionColor);
           this.osmArray.push(osmObj);
@@ -300,9 +297,9 @@ export class YMapInner extends AbstractMap {
       let marker = {
         center: [lat, lng],
         properties: {
-          balloonContent: balloonContent
+          balloonContent: balloonContent,
         },
-        item: item
+        item: item,
       };
 
       marker.prefix = '';
@@ -322,15 +319,21 @@ export class YMapInner extends AbstractMap {
           iconShape: {
             type: 'Circle',
             coordinates: [radius / 2, radius / 2],
-            radius: radius
+            radius: radius,
           },
+          hideIconOnBalloonOpen: false,
+        };
+      } else if (pinPreset && this.yandexMapPreset === 'true') {
+        marker.options = {
+          preset: pinPreset,
+          iconColor: pinColor,
           hideIconOnBalloonOpen: false,
         };
       } else {
         marker.options = {
           preset: 'islands#dotIcon',
           iconColor: pinColor,
-          hideIconOnBalloonOpen: false
+          hideIconOnBalloonOpen: false,
         };
       }
 
@@ -344,7 +347,7 @@ export class YMapInner extends AbstractMap {
 
     if ((!geoItems.length || !this.state.itemsChanged) && this._map) {
       mapState.bounds = this._map.getBounds();
-    } else if (geoItems.length == 1) {
+    } else if (geoItems.length === 1) {
       // expand collapsed bounds to a square
       const dl = 0.0005;
       mapState.bounds = [[latMin - dl, lngMin - dl], [latMax + dl, lngMax + dl]];
@@ -356,9 +359,8 @@ export class YMapInner extends AbstractMap {
     }
 
     // explicitly update map
-    if (this.state.itemsChanged && this._map) {
+    if (this.state.itemsChanged && this._map)
       this._map.setBounds(mapState.bounds, {checkZoomRange: true});
-    }
 
     return (
       <div className={entitiesClass}>

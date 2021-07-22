@@ -1,11 +1,17 @@
-export default function compareArrays(arrayOne = [], arrayTwo = []) {
-    if (arrayOne.length !== arrayTwo.length){
-        return false
-    }
-    arrayOne.sort();
-    arrayTwo.sort();
+export default function compareArrays(a = [], b = []) {
+  if (a === b)
+    return true;
 
-    return arrayOne
-        .map((val, i) => arrayTwo[i] === val)
-        .every(isSame => isSame)
+  if (a === null || b === null)
+    return false;
+
+  if (a.length !== b.length)
+    return false;
+
+  a.sort();
+  b.sort();
+
+  return a
+    .map((val, i) => b[i] === val)
+    .every(isSame => isSame);
 }

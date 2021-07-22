@@ -9,47 +9,42 @@ import {
     SHOW_INFO,
     HIDE_INFO,
     NOTIFY_LOADING_TERMS,
+    SET_PREV_TAGGED_ITEMS,
 } from '../constants/TermsTree';
 import reCache from '../utils/reCache';
 import Singleton from '../utils/singleton';
+import getUrl from '../utils/getUrl';
+import uniFetch from '../utils/uniFetch';
 
 
-const globalStore = new Singleton();
-
-/*
-Функция для получения дерева терминов
-:param type: Тип вызванного действия
-:param mart_id: Id витрины данных
-:param selected: Массив выбранных терминов
-*/
 const getTermsTree = (type, mart_id, selected = []) => dispatch => {
-  let url = Urls['edw:data-mart-term-tree'](mart_id, 'json');
+  let url = getUrl('edw:data-mart-term-tree', [mart_id, 'json']);
   url = reCache(url);
 
   if (selected && selected.length > 0)
     url += '&selected=' + selected.join();
 
-  return fetch(url, {
+  return uniFetch(url, {
     method: 'get',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
   }).then(response => response.json()).then(json => {
     dispatch({
       type: type,
       json: json,
-    })
+    });
   });
 };
 
 
-export const getTermsItem = url => dispatch => {
-  fetch(reCache(url), {
+export const getTerm = url => dispatch => {
+  uniFetch(reCache(url), {
     method: 'get',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
   }).then(response => response.json()).then(json => dispatch({
     type: LOAD_TERM,
@@ -75,6 +70,8 @@ export const reloadTree = (mart_id, selected = []) => {
 
 export function readTree(mart_id, selected = []) {
   const type = LOAD_TERMS_TREE;
+
+  const globalStore = Singleton.getInstance();
   if (globalStore.initial_trees && globalStore.initial_trees[mart_id]) {
     const json = globalStore.initial_trees[mart_id];
     return dispatch => {
@@ -85,15 +82,17 @@ export function readTree(mart_id, selected = []) {
   }
 }
 
+
 export const toggleFilters = () => dispatch => {
-  dispatch({type: TOGGLE_FILTERS})
+  dispatch({type: TOGGLE_FILTERS});
 };
+
 
 export function toggleTerm(term = {}) {
   return dispatch => {
     dispatch({
       type: TOGGLE_TERM,
-      term: term
+      term: term,
     });
   };
 }
@@ -103,7 +102,7 @@ export function resetTerm(term = {}) {
   return dispatch => {
     dispatch({
       type: RESET_TERM,
-      term: term
+      term: term,
     });
   };
 }
@@ -113,7 +112,7 @@ export function resetBranch(term = {}) {
   return dispatch => {
     dispatch({
       type: RESET_BRANCH,
-      term: term
+      term: term,
     });
   };
 }
@@ -123,7 +122,7 @@ export function showInfo(term = {}) {
   return dispatch => {
     dispatch({
       type: SHOW_INFO,
-      term: term
+      term: term,
     });
   };
 }
@@ -133,7 +132,12 @@ export function hideInfo(term = {}) {
    return dispatch => {
     dispatch({
       type: HIDE_INFO,
-      term: term
+      term: term,
     });
   };
 }
+
+
+export const setPrevTaggedItems = () => dispatch => {
+  dispatch({type: SET_PREV_TAGGED_ITEMS});
+};

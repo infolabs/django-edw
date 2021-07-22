@@ -2,7 +2,7 @@ import BaseEntities from 'components/BaseEntities';
 
 
 const Entities = BaseEntities;
-export default Entities
+export default Entities;
 
 
 // import React, { Component } from 'react';

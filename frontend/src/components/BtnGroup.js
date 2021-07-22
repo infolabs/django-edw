@@ -9,9 +9,9 @@ export default class BtnGroup extends Component {
     const total = this.props.count,
           offset = options.offset,
           limit = options.limit;
-    if (total && offset && limit && total < offset + limit) {
+    if (total && offset && limit && total < offset + limit)
         options.offset = total - limit - total % limit;
-    }
+
     return options;
   }
 
@@ -43,13 +43,13 @@ export default class BtnGroup extends Component {
       <div className="ex-btn-group" role="group">
         {Object.keys(options).map(
           (k, i) => {
-            const is_selected = options[k] == selected;
+            const is_selected = options[k] === selected;
             return <a
                      key={i}
                      onClick={(e) => { is_selected ? null : ::this.handleOptionClick(e, k); } }
-                     className={"ex-btn ex-btn-default " + k + (is_selected ? ' active' : '')}
+                     className={'ex-btn ex-btn-default ' + k + (is_selected ? ' active' : '')}
                    >
-                     <i className="ex-icon-slug"></i><span>{options[k]}</span>
+                     <i className="ex-icon-slug"/><span>{options[k]}</span>
                    </a>;
           }
         )}

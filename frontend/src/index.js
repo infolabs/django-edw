@@ -11,7 +11,7 @@ import Singleton from 'utils/singleton';
 // => returns compiled css code from style.less, resolves imports and url(...)s
 var css = require("!style!raw!less!./less/styles.less");
 
-const globalStore = new Singleton();
+const globalStore = Singleton.getInstance();
 
 const data_marts = document.getElementsByClassName('ex-data-mart');
 
@@ -25,8 +25,9 @@ for (let i = data_marts.length - 1; i >= 0; i--) {
     const mart_id = dom_attrs.getNamedItem('data-selected-entry-point-id');
     if (mart_id)
       alias = `data_mart_${mart_id.value}`;
-  } else
+  } else {
     alias = alias.value;
+  }
   globalStore[alias] = store;
 
   render(

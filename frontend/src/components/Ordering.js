@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Dropdown from './Dropdown';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../actions/index'
+import Actions from '../actions/index';
 
 
 class Ordering extends Component {
@@ -12,17 +12,17 @@ class Ordering extends Component {
           { meta } = this.props.entities.items,
           { ordering } = dropdowns;
 
-    let ret = <div></div>,
+    let ret = <div/>,
         request_options = {...meta.request_options, offset: 0}; //сбрасываем offset при переключении сортировки
 
     if (ordering && Object.keys(ordering.options).length > 1) {
       ret = (
         <ul className="ex-inline">
           <li>
-            <span>{gettext("Sort by")} &nbsp; </span>
+            <span>{gettext('Sort by')} &nbsp; </span>
           </li>
           <li>
-            <Dropdown name='ordering'
+            <Dropdown name="ordering"
                       entry_points={entry_points}
                       entry_point_id={entry_point_id}
                       request_var={ordering.request_var}
@@ -34,7 +34,7 @@ class Ordering extends Component {
                       options={ordering.options}/>
           </li>
         </ul>
-      )
+      );
     }
 
     return ret;
@@ -50,7 +50,7 @@ function mapState(state) {
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

@@ -1,11 +1,11 @@
-import React from 'react'
-import ActionCreators from "../actions";
-import {connect} from 'react-redux'
-import {bindActionCreators} from "redux"
-import Dropdown from "./Dropdown";
+import React from 'react';
+import ActionCreators from '../actions';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import Dropdown from './Dropdown';
 
 
-const Ordering = props => {
+function Ordering(props) {
   const {entry_points, entry_point_id, entities} = props,
     {dropdowns} = entities,
     {meta} = entities.items,
@@ -15,7 +15,7 @@ const Ordering = props => {
 
   if (ordering && Object.keys(ordering.options).length > 1 && meta.count > 1) {
     return (
-      <Dropdown name='ordering'
+      <Dropdown name="ordering"
                 entry_points={entry_points}
                 entry_point_id={entry_point_id}
                 request_var={ordering.request_var}
@@ -24,15 +24,17 @@ const Ordering = props => {
                 open={ordering.open}
                 selected={ordering.selected}
                 options={ordering.options}/>
-    )
+    );
   }
-  return <></>
-};
+  return <></>;
+}
 
 
 const mapStateToProps = state => ({
-  entities: state.entities
+  entities: state.entities,
 });
+
 const mapDispatchToProps = dispatch => bindActionCreators(ActionCreators, dispatch);
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Ordering);

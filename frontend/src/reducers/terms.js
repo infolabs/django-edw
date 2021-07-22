@@ -15,9 +15,9 @@ class Tree {
   merge(json) {
     for (const child of json) {
       const hashed = this.hash[child.id];
-      if(child.children.length &&
-         hashed && !hashed.children.length) {
-        this.hash[child.id].children = this.json2tree(child.children, this.hash[child.id]).children;
+      if (child.children.length && hashed && !hashed.children.length) {
+        this.hash[child.id].children = this.json2tree(
+          child.children, this.hash[child.id]).children;
       }
       this.merge(child.children);
     }
@@ -27,9 +27,9 @@ class Tree {
 
   // Строим тематическое дерево
   json2tree(json, parent) {
-    if (!parent) {
+    if (!parent)
       parent = new Item();
-    }
+
     let n = 0;
     for (const child of json) {
       // increment selected children count
@@ -45,7 +45,7 @@ class Tree {
         'specification_mode': child.specification_mode, // Режим конкретизации (стандартный, расширенный, сокращенный)
         'structure': child.structure, // Точка входа: trunk - корневой термин в тематической модели(не выводим в интерфейсе), limb - корневой термин в фильтре интерфейса, brunch - структура термина при наличии потомка, null - потомков нет(При выборе термина перезапрос не делаем)
         'is_leaf': child.is_leaf, // Термин в структуре относительно потомков (true - есть потомки, false - нет потомков)
-        'parent': parent // Родитель
+        'parent': parent, // Родитель
       };
       let item = new Item(options);
       this.hash[item.id] = item;
@@ -54,9 +54,9 @@ class Tree {
     }
     // fix tree node semantic rule to 'OR', in case when semantic rule is 'XOR', but
     // selected children count more than one
-    if ( parent.semantic_rule == termConsts.SEMANTIC_RULE_XOR && n > 1 ) {
+    if (parent.semantic_rule === termConsts.SEMANTIC_RULE_XOR && n > 1)
       parent.semantic_rule = termConsts.SEMANTIC_RULE_OR;
-    }
+
     return parent;
   }
 }
@@ -76,20 +76,20 @@ class Item {
       'structure': termConsts.STRUCTURE_NULL,
       'is_leaf': true,
       'parent': null,
-      'children': []
+      'children': [],
     };
     Object.assign(this, defaults, options);
   }
 
   get siblings() {
     return this.parent && this.parent.children ?
-           this.parent.children.filter(item => item.id != this.id) : [];
+           this.parent.children.filter(item => item.id !== this.id) : [];
   }
 
   isLimbDescendant() {
-    let ret = this.structure == termConsts.STRUCTURE_LIMB;
+    let ret = this.structure === termConsts.STRUCTURE_LIMB;
     if (!ret && this.parent) {
-      ret = this.parent.structure == termConsts.STRUCTURE_LIMB;
+      ret = this.parent.structure === termConsts.STRUCTURE_LIMB;
       if (!ret)
         ret = this.parent.isLimbDescendant();
     }
@@ -97,24 +97,24 @@ class Item {
   }
 
   isLimbAndLeaf() {
-    return this.structure == termConsts.STRUCTURE_LIMB && this.is_leaf;
+    return this.structure === termConsts.STRUCTURE_LIMB && this.is_leaf;
   }
 
   isLimbOrAnd(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND) ||
-      this.structure == termConsts.STRUCTURE_LIMB);
+      this.parent.semantic_rule === termConsts.SEMANTIC_RULE_AND) ||
+      this.structure === termConsts.STRUCTURE_LIMB);
   }
 
   isLimbOrAndLeaf(item) {
     return ((this.parent &&
-      this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND && this.is_leaf) ||
-      this.structure == termConsts.STRUCTURE_LIMB);
+      this.parent.semantic_rule === termConsts.SEMANTIC_RULE_AND && this.is_leaf) ||
+      this.structure === termConsts.STRUCTURE_LIMB);
   }
 
   isVisible() {
     return (this.parent && this.isLimbDescendant() && !this.isLimbAndLeaf()
-            && !(this.parent.semantic_rule == termConsts.SEMANTIC_RULE_AND && this.is_leaf));
+            && !(this.parent.semantic_rule === termConsts.SEMANTIC_RULE_AND && this.is_leaf));
   }
 }
 
@@ -147,12 +147,12 @@ class TaggedItems {
   json2tagged(json = []) {
     for (const child of json) {
       if (child.structure != null) {
-        const pk = parseInt(child.id);
+        const pk = parseInt(child.id, 10);
         this[pk] = true;
         let index = this.items.indexOf(pk);
-        if (index < 0) {
+        if (index < 0)
           this.items.push(pk);
-        }
+
       }
       this.json2tagged(child.children);
     }
@@ -162,8 +162,8 @@ class TaggedItems {
     for (const child of json) {
       // expanded specifications are always cached because they're always loaded
       if (child.structure != null ||
-          child.specification_mode == termConsts.EXPANDED_SPECIFICATION) {
-        const pk = parseInt(child.id);
+          child.specification_mode === termConsts.EXPANDED_SPECIFICATION) {
+        const pk = parseInt(child.id, 10);
         this.cache[pk] = true;
       }
       this.json2cache(child.children);
@@ -173,7 +173,7 @@ class TaggedItems {
   isInCache() {
     let ret = true;
     for (const pk of this.items) {
-      if (!this.cache[parseInt(pk)]) {
+      if (!this.cache[parseInt(pk, 10)]) {
         ret = false;
         break;
       }
@@ -201,11 +201,11 @@ class TaggedItems {
     // no need to reload entities
     ret.entities_ignore = item.isLimbOrAnd() && !item.is_leaf;
 
-    if (ret[item.id]) {
+    if (ret[item.id])
       ret.untag(item);
-    } else {
+    else
       ret.tag(item);
-    }
+
     return ret;
   }
 
@@ -219,18 +219,18 @@ class TaggedItems {
   resetTerm(item) {
     let ret = this.copy();
     ret.entities_ignore = false;
-    for (const child of item.children) {
+    for (const child of item.children)
       ret.untag(child);
-    }
+
     return ret;
   }
 
   tag(item) {
     // ignore and
-    if (item.parent && item.parent.semantic_rule != termConsts.SEMANTIC_RULE_AND)
+    if (item.parent && item.parent.semantic_rule !== termConsts.SEMANTIC_RULE_AND)
       this[item.id] = true;
 
-    if (item.parent && item.parent.semantic_rule == termConsts.SEMANTIC_RULE_XOR)
+    if (item.parent && item.parent.semantic_rule === termConsts.SEMANTIC_RULE_XOR)
       this.untagSiblings(item);
 
     let index = this.items.indexOf(item.id);
@@ -246,28 +246,28 @@ class TaggedItems {
     if (!item.isLimbOrAnd())
       this[item.id] = false;
     let index = this.items.indexOf(item.id);
-    if (index > -1) {
+    if (index > -1)
       this.items.splice(index, 1);
-    }
-    for (const child of item.children) {
+
+    for (const child of item.children)
       this.untag(child);
-    }
+
   }
 
   untagSiblings(item) {
-    for (const sib of item.siblings) {
+    for (const sib of item.siblings)
       this.untag(sib);
-    }
   }
 
   isAnyTagged(arr) {
+    // eslint-disable-next-line consistent-this
     let self = this;
     return arr.some(el => !!self[el.id]);
   }
 
   isAncestorTagged(item) {
-    if (item.structure != termConsts.STRUCTURE_LIMB && item.parent &&
-        item.parent.semantic_rule != termConsts.SEMANTIC_RULE_AND ) {
+    if (item.structure !== termConsts.STRUCTURE_LIMB && item.parent &&
+        item.parent.semantic_rule !== termConsts.SEMANTIC_RULE_AND ) {
       if (this[item.parent.id])
         return true;
       else
@@ -293,10 +293,10 @@ class ExpandedItems {
   json2items(json) {
     for (const child of json) {
       let mode = child.specification_mode,
-          is_standard = mode == termConsts.STANDARD_SPECIFICATION,
-          is_expanded = mode == termConsts.EXPANDED_SPECIFICATION,
+          is_standard = mode === termConsts.STANDARD_SPECIFICATION,
+          is_expanded = mode === termConsts.EXPANDED_SPECIFICATION,
           is_leaf = child.is_leaf,
-          is_limb = child.structure == termConsts.STRUCTURE_LIMB;
+          is_limb = child.structure === termConsts.STRUCTURE_LIMB;
 
       this[child.id] = ((is_standard && is_limb && !is_leaf) || is_expanded);
 
@@ -478,7 +478,7 @@ const terms = combineReducers({
     expanded: expanded,
     infoExpanded: infoExpanded,
     realPotential: realPotential,
-    filters
+    filters,
 });
 
 

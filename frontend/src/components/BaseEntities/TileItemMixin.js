@@ -38,13 +38,14 @@ const TileItemMixin = Base => class extends Base {
       actions.showDescription(id);
 
       if (data.extra && data.extra.group_size && !meta.alike && !descriptions.groups[id])
-        actions.getEntityItem(data, meta);
+        actions.getEntityInfo(data, meta);
 
       if ((data.extra && !data.extra.group_size) && !descriptions[id])
-        actions.getEntityItem(data);
+        actions.getEntityInfo(data);
 
-    } else
+    } else {
       actions.hideDescription(id);
+    }
   }
 
   getIsHover(clientX, clientY){
@@ -58,7 +59,7 @@ const TileItemMixin = Base => class extends Base {
 
   componentDidMount(x, y, z){
     const area = ReactDOM.findDOMNode(this),
-          info = area.getElementsByClassName("ex-description-wrapper")[0];
+          info = area.getElementsByClassName('ex-description-wrapper')[0];
     // areaRect = area.getBoundingClientRect(),
     if (info) {
       // HACK: для правильного определения размера в хроме функция вызывается с таймаутом
@@ -67,9 +68,9 @@ const TileItemMixin = Base => class extends Base {
               window_width = window.innerWidth,
               width = 250, // todo: calculate width
               left = infoRect.right,
-              h_pos = window_width < left + width ? "right" : "left";
+              h_pos = window_width < left + width ? 'right' : 'left';
           this.setState({h_pos});
-      }, 10)
+      }, 10);
     }
   }
 
@@ -83,18 +84,18 @@ const TileItemMixin = Base => class extends Base {
     }
 
     if (characteristics.length) {
-      return(
+      return (
         <div className="ex-description-wrapper">
           <div className="ex-baloon">
-            <div className="ex-arrow"></div>
+            <div className="ex-arrow"/>
             <ul className="ex-attrs">
               {characteristics.map(
                 (child, i) =>
                   <li  className="characteristic"
                     data-path={child.path} key={i}
-                    data-view-class={child.view_class.join(" ")}>
+                    data-view-class={child.view_class.join(' ')}>
                     <strong>{child.name}:&nbsp;</strong>
-                    {child.values.join("; ")}
+                    {child.values.join('; ')}
                   </li>
               )}
               {Object.keys(annotations).length !== 0 &&
@@ -104,7 +105,7 @@ const TileItemMixin = Base => class extends Base {
                       <div key={i}>
                         <strong>{annotations[key].name}:&nbsp;</strong>
                         {annotations[key].value instanceof Array ?
-                          annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)
+                          annotations[key].value.map((val, k) => <span key={k}>{val};&nbsp;</span>)
                         :
                           <span key={key}>{annotations[key].value}</span>
                         }
@@ -121,11 +122,10 @@ const TileItemMixin = Base => class extends Base {
 
   getItemContent(data, title, marks){
     const url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
-    return(
+    return (
       <div className="ex-wrap-action">
         <div className="ex-media"
-             dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}>
-        </div>
+             dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
 
         <ul className="ex-ribbons">
           {marks.map(
@@ -134,8 +134,8 @@ const TileItemMixin = Base => class extends Base {
                   key={i}
                   data-name={child.name}
                   data-path={child.path}
-                  data-view-class={child.view_class.join(" ")}>
-                <div className="ex-ribbon">{child.values.join(", ")}</div>
+                  data-view-class={child.view_class.join(' ')}>
+                <div className="ex-ribbon">{child.values.join(', ')}</div>
               </li>
           )}
         </ul>
@@ -157,7 +157,7 @@ const TileItemMixin = Base => class extends Base {
           {descriptionBaloon}
           {itemContent}
         </div>
-      )
+      );
     } else {
       return (
         <div className="ex-catalog-item-block ex-catalog-item-variants"
@@ -170,9 +170,10 @@ const TileItemMixin = Base => class extends Base {
             </div>
           </div>
         </div>
-      )
+      );
     }
   }
 };
 
-export default TileItemMixin
+
+export default TileItemMixin;

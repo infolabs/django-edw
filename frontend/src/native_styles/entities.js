@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import platformSettings from "../constants/Platform";
+import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
@@ -16,17 +16,29 @@ export const tileStyles = StyleSheet.create({
     width: deviceWidth,
     paddingHorizontal: 10,
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
   cardContainer: {
-    width: deviceWidth/2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
+    width: deviceWidth / 2 - 26, // marginHorizontal * 2 + layout.paddingHorizontal = 26
     minHeight: 260,
     marginVertical: 8,
     marginHorizontal: 8,
-    borderRadius: 15,
+    overflow: 'visible',
   },
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
+    minHeight: 260,
+    borderWidth: 1,
+    borderColor: '#959595',
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  cardShadow: {
+    position: 'absolute',
+    borderColor: '#888',
+    borderWidth: 1,
+    borderRadius: 15,
+    backgroundColor: '#aaa',
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,
@@ -43,8 +55,8 @@ export const tileStyles = StyleSheet.create({
     fontSize: 18,
     textShadowColor: '#333',
     textShadowRadius: 5,
-    flexWrap: 'wrap'
-  }
+    flexWrap: 'wrap',
+  },
 });
 
 export const listStyles = StyleSheet.create({
@@ -66,10 +78,22 @@ export const listStyles = StyleSheet.create({
     minHeight: 200,
     marginHorizontal: 5,
     marginVertical: 5,
+    overflow: 'visible',
+  },
+  cardShadow: {
+    position: 'absolute',
+    borderColor: '#888',
+    borderWidth: 1,
     borderRadius: 15,
+    backgroundColor: '#aaa',
   },
   cardImageContainer: {
     ...StyleSheet.absoluteFillObject,
+    borderColor: '#959595',
+    borderWidth: 1,
+    borderRadius: 15,
+    minHeight: 200,
+    overflow: 'hidden',
   },
   imageBackground:{
     ...StyleSheet.absoluteFillObject,
@@ -85,7 +109,7 @@ export const listStyles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 18,
     textShadowColor: '#333',
-    textShadowRadius: 5
+    textShadowRadius: 5,
   },
   containerRelated: {
     backgroundColor: 'transparent',
@@ -102,10 +126,10 @@ export const listStyles = StyleSheet.create({
     borderRadius: 15,
   },
   cardImageRelated: {
-    ...StyleSheet.absoluteFillObject
+    ...StyleSheet.absoluteFillObject,
   },
   imageBackgroundRelated: {
     ...StyleSheet.absoluteFillObject,
     height: 150,
-  }
+  },
 });

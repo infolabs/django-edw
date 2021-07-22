@@ -21,18 +21,18 @@ export default class AbstractMap extends Component {
 
   state = {
     markers: [],
-    itemsChanged: false
+    itemsChanged: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const itemsChanged = this.props.items != prevProps.items;
-    if (prevState.itemsChanged != itemsChanged)
+    const itemsChanged = this.props.items !== prevProps.items;
+    if (prevState.itemsChanged !== itemsChanged)
       this.setState({itemsChanged});
   }
 
   componentDidMount(x, y, z) {
     this.setState({
-      div: ReactDOM.findDOMNode(this)
+      div: ReactDOM.findDOMNode(this),
     });
   }
 
@@ -59,12 +59,12 @@ export default class AbstractMap extends Component {
   }
 
   _getPinColor(item) {
-    let pinColor = "CECECE";
-    const pinColorPattern = item.extra.group_size ? "group-pin-color-" : "pin-color-";
+    let pinColor = 'CECECE';
+    const pinColorPattern = item.extra.group_size ? 'group-pin-color-' : 'pin-color-';
     for (const sm of item.short_marks) {
       for (const cl of sm.view_class) {
-        if(cl.startsWith(pinColorPattern)) {
-          pinColor = cl.replace(pinColorPattern, "").toUpperCase();
+        if (cl.startsWith(pinColorPattern)) {
+          pinColor = cl.replace(pinColorPattern, '').toUpperCase();
           return `#${pinColor}`;
         }
       }
@@ -77,16 +77,41 @@ export default class AbstractMap extends Component {
   }
 
   getColor() {
-    const backgroundColorContent = "white",
-          borderColor = "black",
-          regionColor = "rgba(0,0,0,0)";
+    const backgroundColorContent = 'white',
+          borderColor = 'black',
+          regionColor = 'rgba(0,0,0,0)';
     return {backgroundColorContent, borderColor, regionColor};
   }
 
-  handleInfoMouseClick(e, data) {
-    if (!this._DO_CLICK_ON_BALLOON) {
-       return;
+  convertSnakeToCamelCase(str) {
+    const words = str.split('_');
+    for (let i = 1; i < words.length; i++) {
+      words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
     }
+    return words.join('');
+  }
+
+  _getPinPreset(item) {
+    let pinPreset;
+    const presetPattern = 'yandex-preset-';
+    for (const sm of item.short_marks) {
+      for (const cl of sm.view_class) {
+        if (cl.startsWith(presetPattern)) {
+          pinPreset = cl.replace(presetPattern, '');
+          return this.convertSnakeToCamelCase(pinPreset);
+        }
+      }
+    }
+  }
+
+  getPinPreset(item){
+    return this._getPinPreset(item);
+  }
+
+  handleInfoMouseClick(e, data) {
+    if (!this._DO_CLICK_ON_BALLOON)
+      return;
+
     const { actions, meta } = this.props;
     if (data.extra.group_size) {
       actions.notifyLoadingEntities();
@@ -106,14 +131,14 @@ export default class AbstractMap extends Component {
     let header = <a href={url}>{title}</a>;
     if (item.extra.group_size) {
         // strip links
-        media = media.replace(/<a\b[^>]*>/i,"").replace(/<\/a>/i, "");
+        media = media.replace(/<a\b[^>]*>/i, '').replace(/<\/a>/i, '');
         header = title;
     }
     return { marks, characteristics, media, header };
   }
 
   exRibbons(marks){
-    return(
+    return (
       <ul className="ex-ribbons">
         {marks.map(
           (child, i) =>
@@ -121,8 +146,8 @@ export default class AbstractMap extends Component {
                 key={i}
                 data-name={child.name}
                 data-path={child.path}
-                data-view-class={child.view_class.join(" ")}>
-              <div className="ex-ribbon">{child.values.join(", ")}</div>
+                data-view-class={child.view_class.join(' ')}>
+              <div className="ex-ribbon">{child.values.join(', ')}</div>
             </li>
         )}
       </ul>
@@ -138,21 +163,21 @@ export default class AbstractMap extends Component {
       }
     }
 
-    return(
+    return (
       <ul className="ex-attrs">
         {characteristics.map(
           (child, i) =>
             child.values.length < 5 ?
             <li data-path={child.path} key={i}
-                data-view-class={child.view_class.join(" ")}>
+                data-view-class={child.view_class.join(' ')}>
               <strong>{child.name}:</strong>&nbsp;
-              {child.values.join("; ")}
+              {child.values.join('; ')}
             </li>
                 :
             <li data-path={child.path} key={i}
-                data-view-class={child.view_class.join(" ")}>
+                data-view-class={child.view_class.join(' ')}>
               <strong>{child.name}:</strong>&nbsp;
-              {child.values.join("; ").split('; ',5).join("; ")}...
+              {child.values.join('; ').split('; ',5).join('; ')}...
             </li>
         )}
         {Object.keys(annotations).map(
@@ -161,7 +186,7 @@ export default class AbstractMap extends Component {
               data-view-class={key}>
               <strong>{annotations[key].name}:&nbsp;</strong>
               {annotations[key].value instanceof Array ?
-                annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)
+                annotations[key].value.map((val, k) => <span key={k}>{val};&nbsp;</span>)
               :
                 <span key={key}>{annotations[key].value}</span>
               }
@@ -172,7 +197,7 @@ export default class AbstractMap extends Component {
   }
 
   exTags(marks){
-    return(
+    return (
       <ul className="ex-tags">
         {marks.map(
           (child, i) =>
@@ -180,9 +205,9 @@ export default class AbstractMap extends Component {
                 key={i}
                 data-name={child.name}
                 data-path={child.path}
-                data-view-class={child.view_class.join(" ")}>
+                data-view-class={child.view_class.join(' ')}>
               <i className="fa fa-tag"/>&nbsp;
-              {child.values.join(", ")}
+              {child.values.join(', ')}
             </li>
         )}
       </ul>
@@ -196,8 +221,8 @@ export default class AbstractMap extends Component {
           exTags = this.exTags(marks);
 
     return (
-      <div className={item.extra.group_size ? "ex-map-info ex-catalog-item-variants" :
-          "ex-map-info"}
+      <div className={item.extra.group_size ? 'ex-map-info ex-catalog-item-variants' :
+          'ex-map-info'}
            style={item.extra.group_size && {cursor: 'pointer'}}>
         <div className="ex-map-img" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}} />
         {exRibbons}
@@ -209,5 +234,4 @@ export default class AbstractMap extends Component {
       </div>
     );
   }
-
 }

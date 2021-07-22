@@ -11,7 +11,7 @@ const ListItemMixin = Base => class extends Base {
     super();
     this.state = {
       minHeight: 0,
-      isHover: false
+      isHover: false,
     };
   }
 
@@ -62,10 +62,10 @@ const ListItemMixin = Base => class extends Base {
           actions.showDescription(id);
 
           if ((data.extra && data.extra.group_size) && !meta.alike && !descriptions.groups[id])
-            actions.getEntityItem(data, meta);
+            actions.getEntityInfo(data, meta);
 
           if ((data.extra && !data.extra.group_size) && !descriptions[id])
-            actions.getEntityItem(data);
+            actions.getEntityInfo(data);
 
         } else {
           context.setState({minHeight: 'auto'});
@@ -93,7 +93,7 @@ const ListItemMixin = Base => class extends Base {
       }
     }
 
-    return(
+    return (
       <ul className="ex-attrs">
         {Object.keys(annotations).length !== 0 &&
           <li className="annotation">
@@ -102,7 +102,7 @@ const ListItemMixin = Base => class extends Base {
                 <div key={i}>
                   <strong>{annotations[key].name}:&nbsp;</strong>
                   {annotations[key].value instanceof Array ?
-                    annotations[key].value.map((val, key) => <span key={key}>{val};&nbsp;</span>)
+                    annotations[key].value.map((val, k) => <span key={k}>{val};&nbsp;</span>)
                   :
                     <span key={key}>{annotations[key].value}</span>
                   }
@@ -113,17 +113,17 @@ const ListItemMixin = Base => class extends Base {
         {characteristics.map(
           (child, i) =>
             <li data-path={child.path} key={i}
-              data-view-class={child.view_class.join(" ")}>
+              data-view-class={child.view_class.join(' ')}>
               <strong>{child.name}:&nbsp;</strong>
-              {child.values.join("; ")}
+              {child.values.join('; ')}
             </li>
         )}
       </ul>
-    )
+    );
   }
 
   getExTags(marks){
-    return(
+    return (
       <ul className="ex-tags">
         {marks.map(
           (child, i) =>
@@ -131,18 +131,18 @@ const ListItemMixin = Base => class extends Base {
                 key={i}
                 data-name={child.name}
                 data-path={child.path}
-                data-view-class={child.view_class.join(" ")}>
+                data-view-class={child.view_class.join(' ')}>
               <i className="fa fa-tag"/>&nbsp;
-              {child.values.join(", ")}
+              {child.values.join(', ')}
             </li>
         )}
       </ul>
-    )
+    );
   }
 
   getDescriptionBaloon(data, characteristics, marks, descriptions, exAttrs,exTags){
     if (characteristics.length) {
-      return(
+      return (
         <div className="ex-description-wrapper">
           {exAttrs}
           {descriptions.opened[data.id] && exTags}
@@ -159,11 +159,11 @@ const ListItemMixin = Base => class extends Base {
         </a>
         {descriptionBaloon}
       </div>
-    )
+    );
   }
 
-  getItemContent(url, data, itemBlock, marks, wrapperClassName="wrap-list-item"){
-    return(
+  getItemContent(url, data, itemBlock, marks, wrapperClassName = 'wrap-list-item') {
+    return (
       <div className={wrapperClassName}
            onClickCapture={e => { ::this.handleMouseClick(e); } }>
         <div className="row wrap-list-item__content">
@@ -180,14 +180,15 @@ const ListItemMixin = Base => class extends Base {
                   key={i}
                   data-name={child.name}
                   data-path={child.path}
-                  data-view-class={child.view_class.join(" ")}>
-                <div className="ex-ribbon">{child.values.join(", ")}</div>
+                  data-view-class={child.view_class.join(' ')}>
+                <div className="ex-ribbon">{child.values.join(', ')}</div>
               </li>
           )}
         </ul>
       </div>
-    )
+    );
   }
 };
 
-export default ListItemMixin
+
+export default ListItemMixin;

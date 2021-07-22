@@ -10,13 +10,13 @@ class BaseRoot extends Component {
 
   static getTemplates() {
     return {
-      "data_mart": DataMart,
-      "related": Related
+      'data_mart': DataMart,
+      'related': Related,
     };
   }
 
   static defaultProps = {
-    getTemplates: BaseRoot.getTemplates
+    getTemplates: BaseRoot.getTemplates,
   };
 
   constructor(props) {
@@ -41,8 +41,8 @@ class BaseRoot extends Component {
     } else if (entry_point_id_attr) {
       entry_point_id = entry_point_id_attr.value;
     } else {
-      for(var key in entry_points) {
-        entry_point_id = parseInt(key);
+      for (var key in entry_points) {
+        entry_point_id = parseInt(key, 10);
         if (!isNaN(entry_point_id)) break;
       }
     }
@@ -55,7 +55,7 @@ class BaseRoot extends Component {
         entry_points: entry_points,
         entry_point_id: entry_point_id,
         actions: actions,
-        component_attrs: component_attrs
+        component_attrs: component_attrs,
       }
     );
 
@@ -71,14 +71,14 @@ class BaseRoot extends Component {
 
 function mapState(state) {
   return {
-    datamart_list: state.datamart_list
+    datamart_list: state.datamart_list,
   };
 }
 
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 

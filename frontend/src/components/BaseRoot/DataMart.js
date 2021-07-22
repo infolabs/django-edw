@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Actions from '../../actions/index'
+import Actions from '../../actions/index';
 import Entities from 'components/Entities';
 import Filters from 'components/Filters';
 import Paginator from 'components/Paginator';
@@ -12,7 +12,7 @@ import Statistics from 'components/Statistics';
 import Aggregation from 'components/Aggregation';
 import DataMartsList from 'components/DataMartsList';
 import GroupTitle from 'components/GroupTitle';
-import {closest} from "../../utils/querySelector";
+import {closest} from '../../utils/querySelector';
 
 
 export class DataMart extends Component {
@@ -22,27 +22,27 @@ export class DataMart extends Component {
     const prevCount = prevProps.entities.items && prevProps.entities.items.meta.count,
         { entities, entry_point_id } = this.props,
         count = entities.items.meta && entities.items.meta.count;
-    if (count != prevCount || ((count === undefined) && (prevCount === undefined))) {
+    if (count !== prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i],
             pki = element.attributes.getNamedItem('data-selected-entry-point-id'),
             pk = pki && pki.value;
-        if (pk == entry_point_id) {
+        if (pk === entry_point_id) {
           let targets = [element];
           const container = closest(element, '.ex-data-mart-container');
-          if (container) {
+          if (container)
             targets.push(container);
-          }
+
           const is_initial = (prevCount === undefined) && (count !== undefined);
           for (let j = targets.length - 1; j >= 0; j--) {
             const target = targets[j];
-            target.setAttribute("data-data-count", count);
-            if (is_initial) {
-              target.setAttribute("data-initial-data-count", count);
-            } else if ((count === undefined) && (prevCount === undefined)) {
-              target.setAttribute("data-initial-data-count", '0');
-            }
+            target.setAttribute('data-data-count', count);
+            if (is_initial)
+              target.setAttribute('data-initial-data-count', count);
+            else if ((count === undefined) && (prevCount === undefined))
+              target.setAttribute('data-initial-data-count', '0');
+
           }
         }
       }
@@ -51,7 +51,7 @@ export class DataMart extends Component {
 
   render() {
 
-    const { entry_point_id, entry_points, actions, entities, terms, component_attrs } = this.props;
+    const { entry_point_id, entry_points, actions, component_attrs } = this.props;
 
     return (
       <div className="row ex-datamart">
@@ -101,14 +101,14 @@ export class DataMart extends Component {
 function mapState(state) {
   return {
     entities: state.entities,
-    terms: state.terms
+    terms: state.terms,
   };
 }
 
 function mapDispatch(dispatch) {
   return {
     actions: bindActionCreators(Actions, dispatch),
-    dispatch: dispatch
+    dispatch: dispatch,
   };
 }
 
