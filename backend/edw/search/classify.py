@@ -158,11 +158,11 @@ def analyze_suggestions(search_result):
         if x['rate'] > 0:
             result_suggestions.append(x)
 
-        print('------------------')
-        print('* id:', x['category']['id'])
-        print('* category:', x['category']['name'])
-        print('* score:', x['score'])
-        print('* words:', x['words'])
-    print('>>>>>>>>>>>>>>>>>>>>')
+        #print('------------------')
+        #print('* id:', x['category']['id'])
+        #print('* category:', x['category']['name'])
+        #print('* score:', x['score'])
+        #print('* words:', x['words'])
+    #print('>>>>>>>>>>>>>>>>>>>>')
 
     return result_suggestions
