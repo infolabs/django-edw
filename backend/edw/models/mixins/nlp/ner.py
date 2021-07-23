@@ -223,11 +223,12 @@ class NERMixin(ModelMixin):
     def cleaned_text_for_index(self):
         # Получаем данные для индексации тем же методом, что и при распознавании.
         text = self.get_ner_source()
-        # Цикл по всем имеющимся в объекте типам данных NER
-        for span_type in self.ner_data.keys():
-            # Цикл по всем данным определенного типа
-            for ner_data_by_type in self.ner_data[span_type]:
-                # Если данные включены в список исключаемого к индексации - удаляем их
-                if ner_data_by_type['type'] in self.NO_INDEX_TYPES:
-                    text = text.replace(ner_data_by_type['text'], ' ')
+        if self.ner_data:
+            # Цикл по всем имеющимся в объекте типам данных NER
+            for span_type in self.ner_data.keys():
+                # Цикл по всем данным определенного типа
+                for ner_data_by_type in self.ner_data[span_type]:
+                    # Если данные включены в список исключаемого к индексации - удаляем их
+                    if ner_data_by_type['type'] in self.NO_INDEX_TYPES:
+                        text = text.replace(ner_data_by_type['text'], ' ')
         return text
