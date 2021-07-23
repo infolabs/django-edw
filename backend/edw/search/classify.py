@@ -125,6 +125,7 @@ def analyze_suggestions(search_result):
                     foo['score'] = max(foo['score'], score)
                     foo['count'] += 1
                     foo['words'].update(words)
+
     # переводим множество слов в список
     suggestions = suggestions.values()
     geo_mean_from_entity = 1
@@ -150,10 +151,10 @@ def analyze_suggestions(search_result):
     result_suggestions = []
     for x in suggestions[:10]:
         # Если рейтинг больше нуля, то добавляем тематику в список
-        # 1 - система сомневается, 2 - система уверена, 0- система не уверена
-        if x['rate'] > geo_mean_from_entity-(geo_mean_from_entity*0,4):
+        # 1 - система сомневается, 2 - система уверена, 0 - система не уверена
+        if x['rate'] > geo_mean_from_entity - (geo_mean_from_entity * 0.4):
             x['confidence'] = 2
-        elif x['rate'] < geo_mean_from_entity - (geo_mean_from_entity * 0, 4) and x['rate'] > 0:
+        elif x['rate'] < geo_mean_from_entity - (geo_mean_from_entity * 0.4) and x['rate'] > 0:
             x['confidience'] = 1
         if x['rate'] > 0:
             result_suggestions.append(x)
