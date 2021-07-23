@@ -116,6 +116,7 @@ export const listStyles = StyleSheet.create({
     height: 160,
   },
   containerContentRelated: {
+    paddingTop: 5,
     marginVertical: 25,
     marginHorizontal: 8,
   },
@@ -124,9 +125,16 @@ export const listStyles = StyleSheet.create({
     height: 150,
     marginHorizontal: 5,
     borderRadius: 15,
+    overflow: 'visible',
   },
   cardImageRelated: {
     ...StyleSheet.absoluteFillObject,
+    width: 256,
+    height: 150,
+    borderRadius: 15,
+    borderColor: '#959595',
+    borderWidth: 1,
+    overflow: 'hidden',
   },
   imageBackgroundRelated: {
     ...StyleSheet.absoluteFillObject,

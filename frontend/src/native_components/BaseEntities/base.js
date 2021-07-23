@@ -207,7 +207,6 @@ function useCardShadow(groupSize, numLayers, styles) {
 export function renderEntityItem(props, text, badge, styles) {
   const {data, meta} = props,
     {Domain} = Singleton.getInstance();
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const {onPress, groupSize} = useOnEntityPress(data, meta);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -227,7 +226,6 @@ export function renderEntityItem(props, text, badge, styles) {
   const textStyle = templateIsDataMart
     ? {...styles.entityNameText}
     : {...styles.entityNameText, fontSize: 16};
-
 
   return <Card
     appearance="filled"
@@ -278,6 +276,6 @@ export function renderEntityList(props, styles, createItem) {
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={items}
-        renderItem={(child, i) => createItem(child, i)}
+        renderItem={info => createItem(info.item, info.index)}
       />;
 }
