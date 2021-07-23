@@ -130,13 +130,13 @@ def analyze_suggestions(search_result):
     geo_mean_from_entity = 1
     for x in suggestions:
         x['words'] = list(x['words'])
-        #Вычисляем логарифмы от оценки темы и количества встреченных слов
+        # Вычисляем логарифмы от оценки темы и количества встреченных слов
         log_1 = log(x['score'])
         log_2 = log(x['count'])
         rate = log_1 * log_2 / (log_1 + log_2)
-        #Если близки по смыслу, то оставляем rate, в противном случае изменяем знак на противоположный
+        # Если близки по смыслу, то оставляем rate, в противном случае изменяем знак на противоположный
         x['rate'] = rate if x['similar'] else -rate
-        #Вычисляем среднее геометриеское рейтинга среди всех выявленных тем
+        # Вычисляем среднее геометрическое рейтинга среди всех выявленных тем
         geo_mean_from_entity *= rate
     geo_mean_from_entity = geo_mean_from_entity ** (1/(geo_mean_from_entity/len(suggestions)))
     # сортируем
@@ -146,11 +146,11 @@ def analyze_suggestions(search_result):
         reverse=True
     )
 
-    print('>>> suggestions >>> ')
+    # print('>>> suggestions >>> ')
     result_suggestions = []
     for x in suggestions[:10]:
-        #Если рейтинг больше нуля, то добавляем тематику в список
-        #1 - система сомневается, 2 - система уверена, 0- система не уверена
+        # Если рейтинг больше нуля, то добавляем тематику в список
+        # 1 - система сомневается, 2 - система уверена, 0- система не уверена
         if x['rate'] > geo_mean_from_entity-(geo_mean_from_entity*0,4):
             x['confidence'] = 2
         elif x['rate'] < geo_mean_from_entity - (geo_mean_from_entity * 0, 4) and x['rate'] > 0:
@@ -158,11 +158,11 @@ def analyze_suggestions(search_result):
         if x['rate'] > 0:
             result_suggestions.append(x)
 
-        #print('------------------')
-        #print('* id:', x['category']['id'])
-        #print('* category:', x['category']['name'])
-        #print('* score:', x['score'])
-        #print('* words:', x['words'])
-    #print('>>>>>>>>>>>>>>>>>>>>')
+        # print('------------------')
+        # print('* id:', x['category']['id'])
+        # print('* category:', x['category']['name'])
+        # print('* score:', x['score'])
+        # print('* words:', x['words'])
+    # print('>>>>>>>>>>>>>>>>>>>>')
 
     return result_suggestions
