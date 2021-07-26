@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-edw\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-22 08:59+0000\n"
-"PO-Revision-Date: 2021-04-22 12:02+0300\n"
+"POT-Creation-Date: 2021-07-26 08:59+0000\n"
+"PO-Revision-Date: 2021-07-26 12:02+0300\n"
 "Last-Translator: Infolabs LLC <team@infolabs.ru>\n"
 "Language-Team: EXCENTRICS <info@excentrics.ru>\n"
 "Language: ru\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.0\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: __init__.py:7
@@ -879,15 +879,14 @@ msgstr "Категория пользователя"
 msgid "Unknown customer"
 msgstr "Неизвестный пользователь"
 
-#: models/mixins/entity/nlp/ner.py:37
-msgid "NER data"
-msgstr "Данные NER"
-
-#: models/mixins/entity/nlp/ner.py:38
-msgid "Data obtained after recognition of named entities for the given text"
+#: models/mixins/entity/fsm.py:180
+#, python-format
+msgid ""
+"Change status from \"%(old_status)s\" to \"%(new_status)s\" (\"%(old_state)s"
+"\" -> \"%(new_state)s\")"
 msgstr ""
-"Данные, полученные после распознавания именованных сущностей по заданному "
-"тексту"
+"Изменен статус с \"%(old_status)s\" на \"%(new_status)s\" (\"%(old_state)s\" "
+"-> \"%(new_state)s\")"
 
 #: models/mixins/entity/place/__init__.py:51
 msgid "Region"
@@ -904,6 +903,16 @@ msgstr "Данные ФИАС"
 #: models/mixins/entity/place/fias.py:35
 msgid "Data returned from FIAS for defined address"
 msgstr "Данные по данному месту полученые из ФИАС"
+
+#: models/mixins/nlp/ner.py:51
+msgid "NER data"
+msgstr "Данные NER"
+
+#: models/mixins/nlp/ner.py:52
+msgid "Data obtained after recognition of named entities for the given text"
+msgstr ""
+"Данные, полученные после распознавания именованных сущностей по заданному "
+"тексту"
 
 #: models/mixins/notification.py:30
 msgid "stored_request"
@@ -1221,33 +1230,33 @@ msgstr "Отношение"
 msgid "Any"
 msgstr "Все"
 
-#: rest/serializers/data_mart.py:124 rest/serializers/entity.py:191
-#: rest/serializers/entity.py:220 rest/serializers/entity.py:242
+#: rest/serializers/data_mart.py:124 rest/serializers/entity.py:198
+#: rest/serializers/entity.py:227 rest/serializers/entity.py:249
 #: rest/serializers/term.py:74
 msgid "{} `{}`='{}'"
 msgstr "{} `{}`='{}'"
 
-#: rest/serializers/entity.py:161 rest/serializers/entity.py:300
+#: rest/serializers/entity.py:168 rest/serializers/entity.py:307
 msgid "This field is required."
 msgstr "Это поле обязательно."
 
-#: rest/serializers/entity.py:251 rest/serializers/entity.py:266
+#: rest/serializers/entity.py:258 rest/serializers/entity.py:273
 msgid "Terms with id`s [{}] not found."
 msgstr "Термины с иденификаторами [{}] не найдены."
 
-#: rest/serializers/entity.py:275
+#: rest/serializers/entity.py:282
 msgid "Entities with id`s [{}] not found."
 msgstr "Объекты с идентификаторами [{}] не найдены."
 
-#: rest/serializers/entity.py:283
+#: rest/serializers/entity.py:290
 msgid "The relations [{}] are forbidden."
 msgstr "Использование отношений с идентификаторами [{}] запрещено."
 
-#: rest/serializers/entity.py:291
+#: rest/serializers/entity.py:298
 msgid "The subjects with id`s [{}] are forbidden."
 msgstr "Использование субъектов с идентификаторами [{}] запрещено."
 
-#: rest/serializers/entity.py:294
+#: rest/serializers/entity.py:301
 msgid "The subjects cannot be the empty."
 msgstr "Субъекты не могут быть пусты."
 
@@ -1304,7 +1313,7 @@ msgstr "Начало"
 
 #: templates/edw/admin/base_actions/_updated_objects.html:5
 msgid "Selected"
-msgstr ""
+msgstr "Выбрано"
 
 #: templates/edw/admin/base_actions/_updated_objects.html:5
 msgid "Count:"
