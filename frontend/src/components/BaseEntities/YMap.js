@@ -149,7 +149,7 @@ export class YMapInner extends AbstractMap {
     this.notGroup = this.props.data_mart.not_group || null;
     this.yandexMapPreset = this.props.data_mart.yandex_map_preset || null;
     this.mapConfig = this.props.getMapConfig();
-    if (this.notGroup === "true") this.props.actions.setEntitiesNotGroup(this.notGroup);
+    this.notGroup && this.notGroup === "true" && this.props.actions.setEntitiesNotGroup(true);
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;

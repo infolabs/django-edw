@@ -173,17 +173,16 @@ export function items(state = new EntitiesManager(), action) {
         newState.objects = [...state.objects, ...newState.objects];
       return newState;
     case entityConsts.APPEND_NOT_GROUP_PARAM_TO_META:
-      const stateWithNotGroup = {
+      return {
         ...state,
         meta: {
           ...state.meta,
           request_options: {
             ...state.meta.request_options,
-            not_group: JSON.parse(action.not_group),
+            not_group: action.not_group,
           }
         }
       };
-      return stateWithNotGroup;
     default:
       return state;
   }
