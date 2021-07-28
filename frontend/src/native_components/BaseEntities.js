@@ -69,8 +69,7 @@ function BaseEntities(props) {
 
     const templates = props.getTemplates();
     const component = templates[componentName];
-    const {notifyLoadingEntities, getEntities} = props;
-
+    const {notifyLoadingEntities, getEntities, fromRoute} = props;
     return (React.createElement(
       component, {
         items,
@@ -80,6 +79,7 @@ function BaseEntities(props) {
         notifyLoadingEntities,
         getEntities,
         templateIsDataMart,
+        fromRoute
       }
     ));
   } else if (templateIsDataMart) {
