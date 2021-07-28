@@ -134,17 +134,16 @@ export function useGroupClose(store = null) {
 }
 
 
-function useOnEntityPress(data, meta) {
+function useOnEntityPress(data, meta, fromRoute) {
   const {id, entity_model} = data,
         {navigation} = Singleton.getInstance();
-
   const {groupOpen, groupSize} = useGroupOpen(data, meta);
 
   function onPress(event) {
     if (groupSize)
       groupOpen();
     else
-      navigation.navigate('Detail-' + entity_model, {id});
+      navigation.navigate('Detail-' + entity_model, {id, fromRoute});
   }
 
   return {onPress, groupSize};
@@ -205,10 +204,10 @@ function useCardShadow(groupSize, numLayers, styles) {
 
 
 export function renderEntityItem(props, text, badge, styles) {
-  const {data, meta} = props,
+  const {data, meta, fromRoute} = props,
     {Domain} = Singleton.getInstance();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const {onPress, groupSize} = useOnEntityPress(data, meta);
+  const {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const {shadows, setCardSize} = useCardShadow(groupSize, 2, styles);
 

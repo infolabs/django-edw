@@ -9,6 +9,7 @@ function Tile(props) {
             key={i}
             data={child}
             meta={props.meta}
+            fromRoute={props.fromRoute}
             templateIsDataMart={props.templateIsDataMart}/>;
   }
 
