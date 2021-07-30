@@ -269,9 +269,6 @@ export class YMapInner extends AbstractMap {
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
-      console.log("pinPreset=", pinPreset);
-      console.log("this.yandexMapPreset = ", this.yandexMapPreset);
-
       const osmObj = {
         osmId : '',
         colors : [],
