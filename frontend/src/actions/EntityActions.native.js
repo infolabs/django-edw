@@ -101,6 +101,7 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
               :
               {...message, media: []}
           ));
+          json.messages.reverse();
         }
 
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
@@ -114,7 +115,7 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
 
 export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
   const instance = Singleton.getInstance(),
-    {Urls, Domain} = instance;
+    {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
     const url = `${Domain}${Urls['edw:entity-image-list'](entityId)}`,
@@ -128,6 +129,7 @@ export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IM
 
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
+        navigation.navigate('CreateProblem');
         dispatch({type: dispatchType, image: json});
       })
       .catch((error) => {
