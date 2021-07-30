@@ -92,7 +92,7 @@ export default class AbstractMap extends Component {
   }
 
   _getPinPreset(item) {
-    let pinPreset;
+    let pinPreset = 'islands#blueDotIcon';
     const presetPattern = 'yandex-preset-';
     for (const sm of item.short_marks) {
       for (const cl of sm.view_class) {
@@ -102,6 +102,7 @@ export default class AbstractMap extends Component {
         }
       }
     }
+    return pinPreset;
   }
 
   getPinPreset(item){
