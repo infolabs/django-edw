@@ -203,7 +203,7 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, badge, styles) {
+export function renderEntityItem(props, text, badge, styles, icon=null) {
   const {data, meta, fromRoute} = props,
     {Domain} = Singleton.getInstance();
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -237,7 +237,7 @@ export function renderEntityItem(props, text, badge, styles) {
           <ImageBackground
             source={data.media ? {uri: data.media } : null}
             style={templateIsDataMart ? styles.imageBackground : styles.imageBackgroundRelated}>
-            <Text style={textStyle}>{text}</Text>
+            <Text style={textStyle}>{text}{icon}</Text>
             {badge}
           </ImageBackground>
     </View>

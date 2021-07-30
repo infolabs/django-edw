@@ -28,7 +28,7 @@ export default class TermsTreeItemInfo extends Component {
       if (details[term.id])
         description = details[term.id].description;
       else
-        actions.getTermsItem(term.url);
+        actions.getTerm(term.url);
     }
 
     return (

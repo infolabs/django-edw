@@ -269,6 +269,9 @@ export class YMapInner extends AbstractMap {
             info = this.assembleInfo(item, meta, description),
             balloonContent = ReactDOMServer.renderToString(info);
 
+      console.log("pinPreset=", pinPreset);
+      console.log("this.yandexMapPreset = ", this.yandexMapPreset);
+
       const osmObj = {
         osmId : '',
         colors : [],
@@ -326,7 +329,6 @@ export class YMapInner extends AbstractMap {
       } else if (pinPreset && this.yandexMapPreset === 'true') {
         marker.options = {
           preset: pinPreset,
-          iconColor: pinColor,
           hideIconOnBalloonOpen: false,
         };
       } else {

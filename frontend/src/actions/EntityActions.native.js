@@ -95,16 +95,19 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
         if (json.private_person)
           json.private_person.media = arrayMediaEntity(json.private_person.media).map(item => `${Domain}${item[1]}`);
 
-        json.messages = json.messages.map(message => (
-          message.media ? {...message, media: arrayMediaEntity(message.media).map(item => `${Domain}${item[1]}`)}
-          :
-          {...message, media: []}
-        ));
+        if (json.messages) {
+          json.messages = json.messages.map(message => (
+            message.media ? {...message, media: arrayMediaEntity(message.media).map(item => `${Domain}${item[1]}`)}
+              :
+              {...message, media: []}
+          ));
+        }
+
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
         dispatch({type: dispatchType, data: json});
       })
-      .catch(() => {
-        dispatch({type: actionTypes.ERROR_GET_ENTITY});
+      .catch(error => {
+        dispatch({type: actionTypes.ERROR_GET_ENTITY, error});
       });
   });
 };
