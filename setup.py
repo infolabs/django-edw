@@ -68,7 +68,7 @@ setup(
     zip_safe=False,
     cmdclass={'install': install},
     install_requires=[
-        'Django>=1.9,<1.10',
+        'Django>=1.9,<=1.11',
         'djangorestframework>=3.3',
         'beautifulsoup4>=4.4.0',
         'django-post-office>=2.0.5',
