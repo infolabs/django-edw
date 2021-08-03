@@ -2,7 +2,7 @@
 
 import re
 import json
-from math import log
+import math
 
 from haystack import connections
 from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
@@ -17,6 +17,7 @@ def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, 
     Common Russian stopwords are already filtered in search backend,
     this list must only contain words specific to the entity model.
     """
+
     backend = connections['default'].get_backend()
     fields = [DOCUMENT_FIELD]
     payload = {
@@ -84,10 +85,6 @@ def analyze_suggestions(search_result):
     # Parse search result to get score and words per suggestion
     suggestions = {}
     for hit in search_result['hits']['hits']:
-
-        # print ('hit', hit)
-        # print ()
-
         # When querying all models at the same time,
         # some of them may have [None] in category field,
         # so we ignore them
@@ -109,6 +106,7 @@ def analyze_suggestions(search_result):
                 pass
             else:
                 score = hit['_score']
+                similar = category.get('similar', True)
                 foo = suggestions.get(x, None)
                 if foo is None:
                     suggestions[x] = {
@@ -116,54 +114,82 @@ def analyze_suggestions(search_result):
                         'words': words,
                         'count': 1,
                         'score': score,
-                        'rate': 0,
-                        'similar': category.get('similar', True),
-                        'confidence': 0
+                        'confidience': 0,
+                        'similar': similar
                     }
                 else:
-                    # foo['score'] += score
                     foo['score'] = max(foo['score'], score)
                     foo['count'] += 1
                     foo['words'].update(words)
 
     # переводим множество слов в список
     suggestions = suggestions.values()
-    geo_mean_from_entity = 1
+
+    geo_mean, cnt, min_score = {
+        False: 1,
+        True: 1
+    }, {
+        False: 0,
+        True: 0
+    }, {
+        False: 0,
+        True: 0
+    }
+
     for x in suggestions:
+        similar = x['similar']
+        score = x['score']
+        min_f_metric = min_score[similar]
         x['words'] = list(x['words'])
-        # Вычисляем логарифмы от оценки темы и количества встреченных слов
-        log_1 = log(x['score'])
-        log_2 = log(x['count'])
-        rate = log_1 * log_2 / (log_1 + log_2)
-        # Если близки по смыслу, то оставляем rate, в противном случае изменяем знак на противоположный
-        x['rate'] = rate if x['similar'] else -rate
-        # Вычисляем среднее геометрическое рейтинга среди всех выявленных тем
-        geo_mean_from_entity *= rate
-    geo_mean_from_entity = geo_mean_from_entity ** (1/(geo_mean_from_entity/len(suggestions)))
+        precision = score
+        recall = x['count']
+        B = .2
+        b2 = B ** 2
+
+        # F-metric
+        score = x['score'] = (1 + b2) * precision * recall / (b2 * precision + recall)
+        geo_mean[similar] *= score
+        cnt[similar] += 1
+        min_score[similar] = min(min_f_metric, score) if min_f_metric > 0 else score
+
+        print()
+        print('category, precision, recall', x['category'], precision, recall)
+        print()
+
+    for x in (True, False):
+        # Вычисляем среднее арифметическое и среднее геометрическое рейтинга среди всех выявленных тем
+        _cnt = cnt[x]
+        geo_mean[x] = geo_mean[x] ** (1 / _cnt) if _cnt else 0
+
+    for x in suggestions:
+        similar = x['similar']
+        _min_score = min_score[similar]
+        _delta = geo_mean[similar] - _min_score
+        _shifted_score = x['score'] - _min_score
+        x['confidience'] = math.log2(_shifted_score / _delta) if _shifted_score > 0 and _delta > 0 else 0
+
+    for x in suggestions:
+        if not x['similar']:
+            suggestions['score'] = -suggestions['score']
+
     # сортируем
     suggestions = sorted(
         suggestions,
-        key=lambda x: x['score'],
+        key=lambda x: x['confidience'],
         reverse=True
     )
 
-    # print('>>> suggestions >>> ')
-    result_suggestions = []
-    for x in suggestions[:10]:
-        # Если рейтинг больше нуля, то добавляем тематику в список
-        # 1 - система сомневается, 2 - система уверена, 0 - система не уверена
-        if x['rate'] > geo_mean_from_entity - (geo_mean_from_entity * 0.4):
-            x['confidence'] = 2
-        elif x['rate'] < geo_mean_from_entity - (geo_mean_from_entity * 0.4) and x['rate'] > 0:
-            x['confidience'] = 1
-        if x['rate'] > 0:
-            result_suggestions.append(x)
+    # for development purposes only
+    # print()
+    # for x in suggestions:
+    #     print('------------------')
+    #     print('* id:', x['category']['id'])
+    #     print('* category:', x['category']['name'])
+    #     print('* score:', x['score'])
+    #     print('* confidience:', x['confidience'])
+    #     print('* similar:', x['similar'])
+    #     print('* count:', x['count'])
+    #     print('* words:', x['words'])
+    # print()
 
-        # print('------------------')
-        # print('* id:', x['category']['id'])
-        # print('* category:', x['category']['name'])
-        # print('* score:', x['score'])
-        # print('* words:', x['words'])
-    # print('>>>>>>>>>>>>>>>>>>>>')
-
-    return result_suggestions
+    return suggestions

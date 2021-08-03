@@ -52,7 +52,13 @@ def more_like_this(request):
         except LookupError:
             model = None
 
+
     search_query = model_class.get_search_query(request)
+
+    # for development purposes only
+    # print('========================')
+    # print(search_query)
+    # print()
 
     results = []
     if search_query:
@@ -77,6 +83,7 @@ def more_like_this(request):
                 'model': model,
                 'title': category['name'],
                 'score': suggestion['score'],
+                'confidience': suggestion['confidience'],
                 'words': suggestion['words'],
                 'url': url
             }
