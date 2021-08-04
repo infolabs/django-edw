@@ -152,9 +152,9 @@ def analyze_suggestions(search_result):
         cnt[similar] += 1
         min_score[similar] = min(min_f_metric, score) if min_f_metric > 0 else score
 
-        print()
-        print('category, precision, recall', x['category'], precision, recall)
-        print()
+        # print()
+        # print('category, precision, recall', x['category'], precision, recall)
+        # print()
 
     for x in (True, False):
         # Вычисляем среднее арифметическое и среднее геометрическое рейтинга среди всех выявленных тем
