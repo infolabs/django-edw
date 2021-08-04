@@ -175,7 +175,7 @@ def analyze_suggestions(search_result):
 
     for x in suggestions:
         if not x['similar']:
-            suggestions['score'] = -suggestions['score']
+            x['score'] = -x['score']
 
     # сортируем
     suggestions = sorted(
