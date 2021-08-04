@@ -79,9 +79,14 @@ def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, 
 
 
 def analyze_suggestions(search_result):
-    """
+    '''
     Sort and filter `get_more_like_this` suggestions to classify category.
-    """
+    Интерпретация confidience:
+    менее 1 - точно нет
+    от 1 до 1.23 - слабая уверенность
+    от 1.23 до 1.81 - средняя уверенность
+    более 1.81 - высокая уверенность
+    '''
     # Parse search result to get score and words per suggestion
     suggestions = {}
     for hit in search_result['hits']['hits']:
