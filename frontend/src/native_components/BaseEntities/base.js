@@ -203,11 +203,14 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, badge, styles, icon=null) {
+export function renderEntityItem(props, text, badge, styles, icon=null, customOnPress = null) {
   const {data, meta, fromRoute} = props,
     {Domain} = Singleton.getInstance();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
+  let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
+  if (customOnPress) {
+    onPress = customOnPress;
+  }
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const {shadows, setCardSize} = useCardShadow(groupSize, 2, styles);
 
