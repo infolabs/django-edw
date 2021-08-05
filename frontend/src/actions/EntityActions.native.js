@@ -95,14 +95,8 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
         if (json.private_person)
           json.private_person.media = arrayMediaEntity(json.private_person.media).map(item => `${Domain}${item[1]}`);
 
-        if (json.messages) {
-          json.messages = json.messages.map(message => (
-            message.media ? {...message, media: arrayMediaEntity(message.media).map(item => `${Domain}${item[1]}`)}
-              :
-              {...message, media: []}
-          ));
+        if (json.messages)
           json.messages.reverse();
-        }
 
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
         dispatch({type: dispatchType, data: json});
@@ -113,7 +107,7 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
   });
 };
 
-export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
+export const uploadImage = (entityId, data, nextNavigationName, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
   const instance = Singleton.getInstance(),
     {Urls, Domain, navigation} = instance;
 
@@ -129,7 +123,7 @@ export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IM
 
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
-        navigation.navigate('CreateProblem');
+        navigation.navigate(nextNavigationName);
         dispatch({type: dispatchType, image: json});
       })
       .catch((error) => {
@@ -168,7 +162,6 @@ export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE
     {Urls, Domain} = instance;
 
   getToken().then(token => {
-    // TODO: проверить удаление чужого entity
     const url = `${Domain}${Urls['edw:entity-image-detail'](entityId, imageId)}`,
       parameters = {
         method: 'DELETE',
