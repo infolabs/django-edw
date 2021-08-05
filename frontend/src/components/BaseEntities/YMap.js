@@ -326,6 +326,7 @@ export class YMapInner extends AbstractMap {
       } else if (pinPreset && this.yandexMapPreset === 'true') {
         marker.options = {
           preset: pinPreset,
+          iconColor: pinColor,
           hideIconOnBalloonOpen: false,
         };
       } else {
