@@ -130,21 +130,25 @@ def analyze_suggestions(search_result):
     # переводим множество слов в список
     suggestions = suggestions.values()
 
-    geo_mean, cnt, min_score = {
+    geo_mean, cnt, min_score, max_score = {
         False: 1,
         True: 1
     }, {
         False: 0,
         True: 0
     }, {
-        False: 0,
-        True: 0
+        False: None,
+        True: None
+    }, {
+        False: None,
+        True: None
     }
 
     for x in suggestions:
         similar = x['similar']
         score = x['score']
-        min_f_metric = min_score[similar]
+        _min_score = min_score[similar]
+        _max_score = max_score[similar]
         x['words'] = list(x['words'])
         precision = score
         recall = x['count']
@@ -155,7 +159,8 @@ def analyze_suggestions(search_result):
         score = x['score'] = (1 + b2) * precision * recall / (b2 * precision + recall)
         geo_mean[similar] *= score
         cnt[similar] += 1
-        min_score[similar] = min(min_f_metric, score) if min_f_metric > 0 else score
+        min_score[similar] = score if _min_score is None else min(_min_score, score)
+        max_score[similar] = score if _max_score is None else max(_max_score, score)
 
         # print()
         # print('category, precision, recall', x['category'], precision, recall)
@@ -171,7 +176,9 @@ def analyze_suggestions(search_result):
         _min_score = min_score[similar]
         _delta = geo_mean[similar] - _min_score
         _shifted_score = x['score'] - _min_score
-        x['confidience'] = 0 if _delta == 0 else math.log(_shifted_score / _delta, 4)
+        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 else math.log(
+            _shifted_score / _delta * _min_score / max_score[similar], 4
+        )
 
     for x in suggestions:
         if not x['similar']:
