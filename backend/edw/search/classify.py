@@ -171,7 +171,7 @@ def analyze_suggestions(search_result):
         _min_score = min_score[similar]
         _delta = geo_mean[similar] - _min_score
         _shifted_score = x['score'] - _min_score
-        x['confidience'] = math.log(_shifted_score / _delta, 4) if _delta > 0 else 0
+        x['confidience'] = 0 if _delta == 0 else math.log(_shifted_score / _delta, 4)
 
     for x in suggestions:
         if not x['similar']:
