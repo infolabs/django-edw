@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
+import Color from 'color';
 
 
 function latRad(lat) {
@@ -58,29 +59,43 @@ export default class AbstractMap extends Component {
     return Math.min(latZoom, lngZoom, ZOOM_MAX);
   }
 
-  _getPinColor(item) {
-    let pinColor = 'CECECE';
-    const pinColorPattern = item.extra.group_size ? 'group-pin-color-' : 'pin-color-';
+  getColorFromMarks(item, pattern) {
     for (const sm of item.short_marks) {
       for (const cl of sm.view_class) {
-        if (cl.startsWith(pinColorPattern)) {
-          pinColor = cl.replace(pinColorPattern, '').toUpperCase();
-          return `#${pinColor}`;
+        if (cl.startsWith(pattern)) {
+          const color = cl.replace(pattern, '').toUpperCase();
+          return `#${color}`;
         }
       }
     }
-    return `#${pinColor}`;
+    return null
+  }
+
+  _getPinColor(item) {
+    return this.getColorFromMarks(item, 'pin-color-') || '#CECECE';
   }
 
   getPinColor(item) {
     return this._getPinColor(item);
   }
 
-  getColor() {
-    const backgroundColorContent = 'white',
-          borderColor = 'black',
-          regionColor = 'rgba(0,0,0,0)';
+  _getGroupColor(item) {
+    const color = this.getColorFromMarks(item, 'group-pin-color-');
+    const regionColor = 'rgba(0,0,0,0)';
+    let backgroundColorContent, borderColor;
+
+    if (color) {
+      backgroundColorContent = color;
+      borderColor = Color(color).darken(0.5);
+    } else {
+      backgroundColorContent = 'white';
+      borderColor = 'black';
+    }
     return {backgroundColorContent, borderColor, regionColor};
+  }
+
+  getGroupColor(item) {
+    return this._getGroupColor(item);
   }
 
   convertSnakeToCamelCase(str) {
