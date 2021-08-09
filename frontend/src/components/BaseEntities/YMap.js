@@ -165,7 +165,7 @@ export class YMapInner extends AbstractMap {
              viewBox="0 0 100 100">
            <circle cx="50" cy="50" r="40"
             stroke="{{ options.stroke }}"
-            stroke-width="1.5"
+            stroke-width="3"
             fill="{{ options.color }}"
             vector-effect="non-scaling-stroke"/>
         </svg>
@@ -257,12 +257,12 @@ export class YMapInner extends AbstractMap {
 
       ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
       const isGroup = item.extra && item.extra.group_size;
-      const colorItems = this.getColor(item),
+      const colorItems = this.getGroupColor(item),
             groupColor = colorItems.backgroundColorContent,
             borderGroupColor = colorItems.borderColor,
+            regionColor = colorItems.regionColor,
             pinColor = this.getPinColor(item),
             pinPreset = this.getPinPreset(item),
-            regionColor = colorItems.regionColor,
             descriptions_data = isGroup ? descriptions.groups : descriptions,
             description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
                           descriptions.groups[item.id] : descriptions_data[item.id],
