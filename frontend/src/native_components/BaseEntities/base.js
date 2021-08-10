@@ -134,7 +134,7 @@ export function useGroupClose(store = null) {
 }
 
 
-function useOnEntityPress(data, meta, fromRoute, textState = null, backgroundColorState) {
+function useOnEntityPress(data, meta, fromRoute) {
   const {id, entity_model} = data,
         {navigation} = Singleton.getInstance();
   const {groupOpen, groupSize} = useGroupOpen(data, meta);
@@ -143,7 +143,7 @@ function useOnEntityPress(data, meta, fromRoute, textState = null, backgroundCol
     if (groupSize)
       groupOpen();
     else
-      navigation.navigate('Detail-' + entity_model, {id, fromRoute, textState, backgroundColorState});
+      navigation.navigate('Detail-' + entity_model, {id, fromRoute});
   }
 
   return {onPress, groupSize};
@@ -203,11 +203,11 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, badge, styles, icon=null, customOnPress = null, textState, backgroundColorState) {
+export function renderEntityItem(props, text, badge, styles, icon=null, customOnPress = null) {
   const {data, meta, fromRoute} = props,
     {Domain} = Singleton.getInstance();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute, textState, backgroundColorState);
+  let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
   if (customOnPress) {
     onPress = customOnPress;
   }
