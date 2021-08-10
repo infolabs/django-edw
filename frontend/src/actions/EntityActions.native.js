@@ -123,10 +123,11 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
 
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
-        navigation.navigate(nextNavigationName);
         dispatch({type: dispatchType, image: json});
       })
       .catch((error) => {
+        console.log(error);
+        navigation.navigate(nextNavigationName);
         dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
       });
   });
