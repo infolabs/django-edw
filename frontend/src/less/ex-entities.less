@@ -20,6 +20,38 @@
 
 }
 
+.ex-catalog-grid-4-col > .ex-related-datamart {
+
+  > .ex-entities {
+    > .ex-tiles {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      > .ex-catalog-item-product {
+        width: 24%;
+      }
+      @media(max-width: 767px) {
+        display: inline-block;
+      }
+    }
+  }
+
+  > .row {
+    margin: 0;
+    > .ex-title {
+      @media(max-width: 767px) {
+        margin-right: 0;
+      }
+    }
+    > .ex-paginator > .ex-catalog-pagination > .ex-pagination {
+      @media(max-width: 767px) {
+        margin: 10px 0;
+      }
+    }
+  }
+
+}
+
 
 .entities {
   .ex-opacity(1);
@@ -70,6 +102,10 @@
 
   position: relative;
   z-index: 1;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
 
   .ex-catalog-item-block {
     position: relative;
@@ -511,7 +547,7 @@
     color: @ex-catalog-item-characteristics-color;
 
     padding: @ex-catalog-item-characteristics-padding-vertical @ex-catalog-item-characteristics-padding-horizontal;
-    
+
     ul.ex-attrs {
       .annotation:first-child, :not(.annotation) + .annotation {
         border-top: 1px solid @ex-catalog-item-border;
