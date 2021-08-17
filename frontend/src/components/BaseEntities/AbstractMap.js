@@ -80,18 +80,13 @@ export default class AbstractMap extends Component {
   }
 
   _getGroupColor(item) {
-    const color = this.getColorFromMarks(item, 'group-pin-color-');
+    const DEFAULT_GROUP_COLOR = '#fff';
+    const DEFAULT_GROUP_BORDER_COLOR = '#000';
+    const groupColor = this.getColorFromMarks(item, 'group-pin-color-') || DEFAULT_GROUP_COLOR;
     const regionColor = 'rgba(0,0,0,0)';
-    let backgroundColorContent, borderColor;
+    const groupBorderColor = this.getColorFromMarks(item, 'group-border-color-') || Color(groupColor).darken(0.5);
 
-    if (color) {
-      backgroundColorContent = color;
-      borderColor = Color(color).darken(0.5);
-    } else {
-      backgroundColorContent = 'white';
-      borderColor = 'black';
-    }
-    return {backgroundColorContent, borderColor, regionColor};
+    return {groupColor, groupBorderColor, regionColor};
   }
 
   getGroupColor(item) {
