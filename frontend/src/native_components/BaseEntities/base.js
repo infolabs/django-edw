@@ -1,20 +1,19 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {
-  expandGroup,
-  notifyLoadingEntities,
-  getEntities,
-} from '../../actions/EntitiesActions';
-
+import {expandGroup, notifyLoadingEntities, getEntities} from '../../actions/EntitiesActions';
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {Badge} from 'native-base';
 import {Text, Card, Layout, List} from '@ui-kitten/components';
 import Singleton from '../../utils/singleton';
 
+
 export const maxLengthDescriptionTile = 70;
 export const maxLengthDescriptionListRelated = 90;
 const mediaRegExp = /.*<img.*?src=(['"])(.*?)(['"])/;
+const RELATED_CONTAINER_SIZE = {
+  large: 'large'
+};
 
 export const stylesComponent = StyleSheet.create({
   badge: {
@@ -49,6 +48,7 @@ function getScrollHandler(props) {
       props.getEntities(props.entry_point_id, subj_ids, options, [], true);
     }
   }
+
   return handleScroll;
 }
 
@@ -136,7 +136,7 @@ export function useGroupClose(store = null) {
 
 function useOnEntityPress(data, meta, fromRoute) {
   const {id, entity_model} = data,
-        {navigation} = Singleton.getInstance();
+    {navigation} = Singleton.getInstance();
   const {groupOpen, groupSize} = useGroupOpen(data, meta);
 
   function onPress(event) {
@@ -152,18 +152,18 @@ function useOnEntityPress(data, meta, fromRoute) {
 
 function renderGroupBadge(groupSize, styles) {
   return groupSize
-  ? <Badge style={styles.badgeGroup}>
+    ? <Badge style={styles.badgeGroup}>
       <Text style={styles.badgeText}>{groupSize}</Text>
     </Badge>
-  : null;
+    : null;
 }
 
 
 function useCardShadow(groupSize, numLayers, styles) {
   const topIncrement = 2,
-        leftIncrement = 2.5,
-        rotateZIncrement = 0.25,
-        opacityDecrement = 0.25;
+    leftIncrement = 2.5,
+    rotateZIncrement = 0.25,
+    opacityDecrement = 0.25;
 
   const size = useRef({width: 0, height: 0}).current;
   const [shadows, setShadows] = useState([]);
@@ -191,7 +191,7 @@ function useCardShadow(groupSize, numLayers, styles) {
         ...size,
         top: topIncrement * i,
         left: leftIncrement * i,
-        transform: [{ rotateZ: `${rotateZIncrement * i}deg` }],
+        transform: [{rotateZ: `${rotateZIncrement * i}deg`}],
       };
       newShadows.push(<View key={i} style={style} opacity={1 - i * opacityDecrement}/>);
     }
@@ -203,15 +203,14 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, badge, styles, icon=null, customOnPress = null) {
-  const {data, meta, fromRoute} = props,
+export function renderEntityItem(props, text, badge, styles, icon = null, customOnPress = null) {
+  const {data, meta, fromRoute, containerSize} = props,
     {Domain} = Singleton.getInstance();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
-  if (customOnPress) {
+  if (customOnPress)
     onPress = customOnPress;
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const {shadows, setCardSize} = useCardShadow(groupSize, 2, styles);
 
   const groupName = getItemGroupName(data);
@@ -225,27 +224,44 @@ export function renderEntityItem(props, text, badge, styles, icon=null, customOn
   if ((match = data.media.match(mediaRegExp)))
     data.media = `${Domain}/${match[2].replace(/^\//, '')}`;
 
-  const textStyle = templateIsDataMart
-    ? {...styles.entityNameText}
-    : {...styles.entityNameText, fontSize: 16};
+  let cardContainerStyle,
+    cardImageContainerStyle,
+    imageBackgroundStyle,
+    textStyle;
 
-  return <Card
-    appearance="filled"
-    onPress={onPress}
-    style={templateIsDataMart ? styles.cardContainer : styles.cardContainerRelated}>
-    {shadows}
-    <View
-      onLayout={e => {setCardSize(e.nativeEvent.layout);}}
-      style={templateIsDataMart ? styles.cardImageContainer : styles.cardImageRelated}>
-          <ImageBackground
-            source={data.media ? {uri: data.media } : null}
-            style={templateIsDataMart ? styles.imageBackground : styles.imageBackgroundRelated}>
-            <Text style={textStyle}>{text}{icon}</Text>
-            {badge}
-          </ImageBackground>
-    </View>
-    {renderGroupBadge(groupSize, styles)}
-  </Card>;
+  if (templateIsDataMart) {
+    cardContainerStyle = styles.cardContainer;
+    cardImageContainerStyle = styles.cardImageContainer;
+    imageBackgroundStyle = styles.imageBackground;
+    textStyle = styles.entityNameText;
+  } else {
+    if (containerSize !== RELATED_CONTAINER_SIZE.large) {
+      cardContainerStyle = styles.cardContainerRelated;
+      cardImageContainerStyle = styles.cardImageContainerRelated;
+      imageBackgroundStyle = styles.imageBackgroundRelated;
+      textStyle = {...styles.entityNameText, fontSize: 16};
+    } else {
+      cardContainerStyle = {...styles.cardContainerRelated, height: 256};
+      cardImageContainerStyle = {...styles.cardImageContainerRelated, height: 256};
+      imageBackgroundStyle = {...styles.imageBackgroundRelated, height: 256};
+      textStyle = styles.entityNameText;
+    }
+  }
+
+  return (
+    <Card appearance="filled" onPress={onPress} style={cardContainerStyle}>
+      {shadows}
+      <View onLayout={e => setCardSize(e.nativeEvent.layout)} style={cardImageContainerStyle}>
+        <ImageBackground
+          source={data.media ? {uri: data.media} : null}
+          style={imageBackgroundStyle}>
+          <Text style={textStyle}>{text}{icon}</Text>
+          {badge}
+        </ImageBackground>
+      </View>
+      {renderGroupBadge(groupSize, styles)}
+    </Card>
+  )
 }
 
 
@@ -253,7 +269,8 @@ export function renderEntityTile(props, styles, createItem) {
   const handleScroll = getScrollHandler(props);
   const {items, loading} = props;
 
-  return <ScrollView
+  return (
+    <ScrollView
       scrollEventThrottle={2000}
       onScroll={e => handleScroll(e)}>
       {loading ?
@@ -263,21 +280,35 @@ export function renderEntityTile(props, styles, createItem) {
         : null
       }
       <Layout style={styles.layout}>{items.map(createItem)}</Layout>
-  </ScrollView>;
+    </ScrollView>
+  );
 }
 
 
 export function renderEntityList(props, styles, createItem) {
-  const {items, templateIsDataMart} = props;
+  const {items, templateIsDataMart, dataMartName, containerSize} = props;
 
-  return templateIsDataMart
-    ? renderEntityTile(props, styles, createItem)
-    : <List
-        style={styles.containerRelated}
-        contentContainerStyle={styles.containerContentRelated}
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        data={items}
-        renderItem={info => createItem(info.item, info.index)}
-      />;
+  if (templateIsDataMart) {
+    return renderEntityTile(props, styles, createItem)
+  } else {
+    let containerRelatedViewStyle;
+    if (containerSize !== RELATED_CONTAINER_SIZE.large)
+      containerRelatedViewStyle = styles.containerRelatedView;
+    else
+      containerRelatedViewStyle = {...styles.containerRelatedView,height: 300};
+
+    return (
+      <View style={containerRelatedViewStyle}>
+        <Text style={styles.containerRelatedViewName}>{dataMartName}</Text>
+        <List
+          style={styles.containerRelated}
+          contentContainerStyle={styles.containerContentRelated}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={items}
+          renderItem={info => createItem(info.item, info.index)}
+        />
+      </View>
+    )
+  }
 }

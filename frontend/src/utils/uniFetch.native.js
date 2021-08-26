@@ -17,7 +17,6 @@ const errors = {
   UNKNOWN: 'Неизвестная ошибка.',
 };
 
-
 function handleFetchError(error, args) {
   if (error instanceof TypeError && error.message === NETWORK_ERROR) {
     Alert.alert(
@@ -36,7 +35,6 @@ function handleFetchError(error, args) {
     Sentry.captureMessage(`${url}. Error: ${error}`);
   }
 }
-
 
 function handleFieldErrors(json, response, nameFields) {
   const jsonIsArray = json instanceof Array,
@@ -57,16 +55,19 @@ function handleFieldErrors(json, response, nameFields) {
   return msg;
 }
 
-
 async function resolveJson(response) {
   let json;
 
   try {
     json = await response.json();
   } catch (error) {
-    Alert.alert(title.ERROR, errors.UNKNOWN);
     const msg = `Response without json. Status: ${response.status}. Error: ${error}. Url: ${response.url}.`;
-    Sentry.captureMessage(msg, response);
+    if (STATUS_SERVER_ERRORS.includes(response.status)){
+      Alert.alert(title.ERROR, errors.SERVER);
+    } else {
+      Alert.alert(title.ERROR, errors.UNKNOWN);
+      Sentry.captureMessage(msg, response);
+    }
     throw new Error(msg);
   }
   return json;
@@ -98,12 +99,11 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true) {
       msg = handleFieldErrors(json, response, nameFields);
     } else {
       Alert.alert(title.ERROR, errors.UNKNOWN);
-      msg = `Unknow response code: ${response.code}. Status: ${response.status}`;
+      msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
       Sentry.captureMessage(msg, response);
     }
     throw new Error(msg);
   }
 }
-
 
 export default uniFetch;

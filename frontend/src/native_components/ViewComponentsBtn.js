@@ -1,11 +1,11 @@
 import React from 'react';
+import {View} from 'react-native'
 import ActionCreators from '../actions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {useTheme, Button} from '@ui-kitten/components';
 import {Icon} from 'native-base';
 import {filterUnsupported} from './BaseEntities';
-
 
 
 function ViewComponentsBtn(props) {
@@ -32,10 +32,11 @@ function ViewComponentsBtn(props) {
   else if (nextKey.match(/(_map$)/))
     iconName = 'map-outline';
 
-
   return (
-    <Button onPress={() => changeViewComponent()} size="tiny" appearance="ghost" status="basic">
-      <Icon name={iconName} style={{fontSize: theme['icon-size']}}/>
+    <Button onPress={changeViewComponent} size="tiny" appearance="ghost" status="basic">
+      <View>
+        <Icon name={iconName} style={{fontSize: theme['icon-size']}}/>
+      </View>
     </Button>
   );
 }

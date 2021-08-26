@@ -111,13 +111,20 @@ export const listStyles = StyleSheet.create({
     textShadowColor: '#333',
     textShadowRadius: 5,
   },
+  containerRelatedView: {
+    height: 200,
+    marginTop: 20,
+  },
+  containerRelatedViewName: {
+    marginHorizontal: 13,
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 10,
+  },
   containerRelated: {
     backgroundColor: 'transparent',
-    height: 160,
   },
   containerContentRelated: {
-    paddingTop: 5,
-    marginVertical: 25,
     marginHorizontal: 8,
   },
   cardContainerRelated: {
@@ -127,7 +134,7 @@ export const listStyles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'visible',
   },
-  cardImageRelated: {
+  cardImageContainerRelated: {
     ...StyleSheet.absoluteFillObject,
     width: 256,
     height: 150,

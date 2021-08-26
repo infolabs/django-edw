@@ -10,11 +10,12 @@ function List(props) {
             data={child}
             meta={props.meta}
             fromRoute={props.fromRoute}
-            templateIsDataMart={props.templateIsDataMart}/>;
+            templateIsDataMart={props.templateIsDataMart}
+            containerSize={props.containerSize}/>;
   }
+
   return renderEntityList(props, styles, createItem);
 }
-
 
 function ListItem(props) {
   const text = props.data.entity_name;
@@ -22,6 +23,5 @@ function ListItem(props) {
 
   return renderEntityItem(props, text, badge, styles);
 }
-
 
 export default List;
