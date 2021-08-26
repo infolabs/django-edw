@@ -40,7 +40,7 @@ export const tileStyles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#aaa',
   },
-  imageBackground:{
+  imageBackground: {
     ...StyleSheet.absoluteFillObject,
     height: 260,
   },
@@ -95,7 +95,7 @@ export const listStyles = StyleSheet.create({
     minHeight: 200,
     overflow: 'hidden',
   },
-  imageBackground:{
+  imageBackground: {
     ...StyleSheet.absoluteFillObject,
     height: 200,
   },
@@ -146,5 +146,20 @@ export const listStyles = StyleSheet.create({
   imageBackgroundRelated: {
     ...StyleSheet.absoluteFillObject,
     height: 150,
+  },
+  navigateToDMCardStyle: {
+    borderRadius: 15,
+    borderColor: '#959595',
+    borderWidth: 1,
+    marginLeft: 5,
+    marginRight: 20,
+    backgroundColor: '#e3e3e3',
+    height: '100%',
+  },
+  navigateToDMViewStyle: {
+    width: 40,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
 });

@@ -6,13 +6,14 @@ import ActionCreators from '../../actions';
 
 
 function Related(props) {
-  const {entry_points, entry_point_id, fromRoute, dataMartName, containerSize} = props;
+  const {entry_points, entry_point_id, fromRoute, toRoute, dataMartName, containerSize} = props;
 
   return (
     <Entities {...{
       entry_points,
       entry_point_id,
       fromRoute,
+      toRoute,
       dataMartName,
       containerSize,
     }}/>

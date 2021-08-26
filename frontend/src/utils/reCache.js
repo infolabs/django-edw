@@ -1,7 +1,7 @@
 import {
-    RECACHE_RATE,
-    PLATFORM,
-    NATIVE,
+  RECACHE_RATE,
+  PLATFORM,
+  NATIVE,
 } from '../constants/Common';
 
 

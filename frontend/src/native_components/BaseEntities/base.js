@@ -139,7 +139,7 @@ function useOnEntityPress(data, meta, fromRoute) {
     {navigation} = Singleton.getInstance();
   const {groupOpen, groupSize} = useGroupOpen(data, meta);
 
-  function onPress(event) {
+  function onPress() {
     if (groupSize)
       groupOpen();
     else
@@ -204,8 +204,10 @@ function useCardShadow(groupSize, numLayers, styles) {
 
 
 export function renderEntityItem(props, text, badge, styles, icon = null, customOnPress = null) {
-  const {data, meta, fromRoute, containerSize} = props,
-    {Domain} = Singleton.getInstance();
+  const {data, meta, fromRoute, toRoute, containerSize, items} = props,
+    {Domain, navigation} = Singleton.getInstance();
+
+  const isLastItem = items[items.length - 1].id === data.id;
 
   let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
   if (customOnPress)
@@ -227,7 +229,8 @@ export function renderEntityItem(props, text, badge, styles, icon = null, custom
   let cardContainerStyle,
     cardImageContainerStyle,
     imageBackgroundStyle,
-    textStyle;
+    textStyle,
+    navigateToDMCardStyle;
 
   if (templateIsDataMart) {
     cardContainerStyle = styles.cardContainer;
@@ -240,27 +243,39 @@ export function renderEntityItem(props, text, badge, styles, icon = null, custom
       cardImageContainerStyle = styles.cardImageContainerRelated;
       imageBackgroundStyle = styles.imageBackgroundRelated;
       textStyle = {...styles.entityNameText, fontSize: 16};
+      navigateToDMCardStyle = {...styles.navigateToDMCardStyle, height: 150}
     } else {
-      cardContainerStyle = {...styles.cardContainerRelated, height: 256};
-      cardImageContainerStyle = {...styles.cardImageContainerRelated, height: 256};
-      imageBackgroundStyle = {...styles.imageBackgroundRelated, height: 256};
+      const height = 256;
+      cardContainerStyle = {...styles.cardContainerRelated, height};
+      cardImageContainerStyle = {...styles.cardImageContainerRelated, height};
+      imageBackgroundStyle = {...styles.imageBackgroundRelated, height};
       textStyle = styles.entityNameText;
+      navigateToDMCardStyle = {...styles.navigateToDMCardStyle, height}
     }
   }
 
   return (
-    <Card appearance="filled" onPress={onPress} style={cardContainerStyle}>
-      {shadows}
-      <View onLayout={e => setCardSize(e.nativeEvent.layout)} style={cardImageContainerStyle}>
-        <ImageBackground
-          source={data.media ? {uri: data.media} : null}
-          style={imageBackgroundStyle}>
-          <Text style={textStyle}>{text}{icon}</Text>
-          {badge}
-        </ImageBackground>
-      </View>
-      {renderGroupBadge(groupSize, styles)}
-    </Card>
+    <>
+      <Card appearance="filled" onPress={onPress} style={cardContainerStyle}>
+        {shadows}
+        <View onLayout={e => setCardSize(e.nativeEvent.layout)} style={cardImageContainerStyle}>
+          <ImageBackground
+            source={data.media ? {uri: data.media} : null}
+            style={imageBackgroundStyle}>
+            <Text style={textStyle}>{text}{icon}</Text>
+            {badge}
+          </ImageBackground>
+        </View>
+        {renderGroupBadge(groupSize, styles)}
+      </Card>
+      {isLastItem &&
+        <Card appearance="filled" style={navigateToDMCardStyle} onPress={() => navigation.navigate(toRoute)}>
+          <View style={styles.navigateToDMViewStyle}>
+            <Text>Еще</Text>
+          </View>
+        </Card>
+      }
+    </>
   )
 }
 
@@ -295,7 +310,7 @@ export function renderEntityList(props, styles, createItem) {
     if (containerSize !== RELATED_CONTAINER_SIZE.large)
       containerRelatedViewStyle = styles.containerRelatedView;
     else
-      containerRelatedViewStyle = {...styles.containerRelatedView,height: 300};
+      containerRelatedViewStyle = {...styles.containerRelatedView, height: 300};
 
     return (
       <View style={containerRelatedViewStyle}>

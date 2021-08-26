@@ -1,9 +1,4 @@
 import {
-  PLATFORM,
-  NATIVE,
-} from '../constants/Common';
-
-import {
   LOAD_ENTITY_INFO,
   NOTIFY_LOADING_ENTITIES,
   NOTIFY_LOADING_ENTITY,
