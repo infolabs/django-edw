@@ -39,7 +39,7 @@ class Request(request.Request):
         # copy from: rest_framework.request.Request.__init__
         self._request = request
         # если не устанавливать то user потеряется
-        self.user = request.user
+        self._user = request.user
         self.parsers = parsers or ()
         self.authenticators = authenticators or ()
         self.negotiator = negotiator or self._default_negotiator()
