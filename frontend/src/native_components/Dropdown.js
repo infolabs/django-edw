@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {View} from 'react-native';
 import {OverflowMenu, MenuItem, Text, Button, useTheme} from '@ui-kitten/components';
 import {Icon} from 'native-base';
 import ActionCreators from '../actions';
@@ -52,10 +51,8 @@ function Dropdown(props) {
 
   const renderToggleButton = () => (
     <Button onPress={() => setVisible(true)} style={styles.button} size="large" appearance="ghost" status="basic">
-      <View style={styles.sortView}>
-        <Text style={styles.sortText}>{selected}</Text>
-        <Icon name="chevron-down-outline" style={{fontSize: theme['icon-size']}}/>
-      </View>
+      <Text style={styles.sortText}>{selected}</Text>
+      <Icon name="chevron-down-outline" style={{fontSize: theme['icon-size']}}/>
     </Button>
   );
 

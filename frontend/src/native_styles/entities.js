@@ -40,7 +40,7 @@ export const tileStyles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#aaa',
   },
-  imageBackground:{
+  imageBackground: {
     ...StyleSheet.absoluteFillObject,
     height: 260,
   },
@@ -95,7 +95,7 @@ export const listStyles = StyleSheet.create({
     minHeight: 200,
     overflow: 'hidden',
   },
-  imageBackground:{
+  imageBackground: {
     ...StyleSheet.absoluteFillObject,
     height: 200,
   },
@@ -111,13 +111,20 @@ export const listStyles = StyleSheet.create({
     textShadowColor: '#333',
     textShadowRadius: 5,
   },
+  containerRelatedView: {
+    height: 200,
+    marginTop: 20,
+  },
+  containerRelatedViewName: {
+    marginHorizontal: 13,
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 10,
+  },
   containerRelated: {
     backgroundColor: 'transparent',
-    height: 160,
   },
   containerContentRelated: {
-    paddingTop: 5,
-    marginVertical: 25,
     marginHorizontal: 8,
   },
   cardContainerRelated: {
@@ -127,7 +134,7 @@ export const listStyles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'visible',
   },
-  cardImageRelated: {
+  cardImageContainerRelated: {
     ...StyleSheet.absoluteFillObject,
     width: 256,
     height: 150,
@@ -139,5 +146,20 @@ export const listStyles = StyleSheet.create({
   imageBackgroundRelated: {
     ...StyleSheet.absoluteFillObject,
     height: 150,
+  },
+  navigateToDMCardStyle: {
+    borderRadius: 15,
+    borderColor: '#959595',
+    borderWidth: 1,
+    marginLeft: 5,
+    marginRight: 20,
+    backgroundColor: '#e3e3e3',
+    height: '100%',
+  },
+  navigateToDMViewStyle: {
+    width: 40,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
 });

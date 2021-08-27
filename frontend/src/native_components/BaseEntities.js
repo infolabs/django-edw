@@ -16,7 +16,6 @@ export function filterUnsupported(components) {
   return components.filter(c => !UNSUPPORTED_RES.some(r => r.test(c)));
 }
 
-
 export function getTemplates() {
   return {
     tile: Tile,
@@ -24,11 +23,9 @@ export function getTemplates() {
   };
 }
 
-
 const defaultProps = {
   getTemplates,
 };
-
 
 function BaseEntities(props) {
 
@@ -69,7 +66,7 @@ function BaseEntities(props) {
 
     const templates = props.getTemplates();
     const component = templates[componentName];
-    const {notifyLoadingEntities, getEntities, fromRoute} = props;
+    const {notifyLoadingEntities, getEntities, fromRoute, toRoute, containerSize, dataMartName} = props;
     return (React.createElement(
       component, {
         items,
@@ -79,7 +76,10 @@ function BaseEntities(props) {
         notifyLoadingEntities,
         getEntities,
         templateIsDataMart,
-        fromRoute
+        fromRoute,
+        toRoute,
+        containerSize,
+        dataMartName,
       }
     ));
   } else if (templateIsDataMart) {

@@ -3,18 +3,23 @@ import {listStyles as styles} from '../../native_styles/entities';
 import {renderEntityList, renderEntityItem} from './base';
 
 
-function List(props) {
+export default function List(props) {
   function createItem(child, i) {
-    return <ListItem
-            key={i}
-            data={child}
-            meta={props.meta}
-            fromRoute={props.fromRoute}
-            templateIsDataMart={props.templateIsDataMart}/>;
+    return (
+      <ListItem
+        key={i}
+        data={child}
+        meta={props.meta}
+        fromRoute={props.fromRoute}
+        toRoute={props.toRoute}
+        templateIsDataMart={props.templateIsDataMart}
+        containerSize={props.containerSize}
+        items={props.items}/>
+    );
   }
+
   return renderEntityList(props, styles, createItem);
 }
-
 
 function ListItem(props) {
   const text = props.data.entity_name;
@@ -22,6 +27,3 @@ function ListItem(props) {
 
   return renderEntityItem(props, text, badge, styles);
 }
-
-
-export default List;
