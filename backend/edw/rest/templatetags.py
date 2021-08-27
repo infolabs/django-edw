@@ -38,6 +38,8 @@ class Request(request.Request):
 
         # copy from: rest_framework.request.Request.__init__
         self._request = request
+        # если не устанавливать то user потеряется
+        self.user = request.user
         self.parsers = parsers or ()
         self.authenticators = authenticators or ()
         self.negotiator = negotiator or self._default_negotiator()
@@ -135,9 +137,7 @@ class BaseRetrieveDataTag(Tag):
         Преобразует параметры  запросов внутренних тегов html шаблонов в запросы к REST интерфейсу
         """
         request = Request(origin_request, query_params=QueryDict('', mutable=True))
-
         initial_kwargs = tag_kwargs.copy()
-
         inner_kwargs = initial_kwargs.pop('kwargs', None)
 
         if inner_kwargs is not None:
