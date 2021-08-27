@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import types
+import random
 
 try:
     from rest_framework_filters import MethodFilter
@@ -107,6 +108,13 @@ class RESTOptions(object):
     create = None
     update = None
     validate = None
+
+    DB_FOR_READ = None
+    @staticmethod
+    def db_for_read(self, model, **hints):
+        slaves = self.slaves[:]
+        random.shuffle(slaves)
+        return slaves[0]
 
     validators = None
 
