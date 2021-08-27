@@ -3,17 +3,23 @@ import {tileStyles as styles} from '../../native_styles/entities';
 import {renderEntityTile, renderEntityItem, maxLengthDescriptionTile} from './base';
 
 
-function Tile(props) {
+export default function Tile(props) {
   function createItem(child, i) {
-    return <TileItem
-            key={i}
-            data={child}
-            templateIsDataMart={props.templateIsDataMart}/>;
+    return (
+      <TileItem
+        key={i}
+        data={child}
+        meta={props.meta}
+        fromRoute={props.fromRoute}
+        toRoute={props.toRoute}
+        templateIsDataMart={props.templateIsDataMart}
+        containerSize={props.containerSize}
+        items={props.items}/>
+    );
   }
 
   return renderEntityTile(props, styles, createItem);
 }
-
 
 function TileItem(props) {
   const text = props.data.entity_name.length > maxLengthDescriptionTile
@@ -24,6 +30,3 @@ function TileItem(props) {
 
   return renderEntityItem(props, text, badge, styles);
 }
-
-
-export default Tile;

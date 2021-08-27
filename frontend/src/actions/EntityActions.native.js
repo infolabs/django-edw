@@ -94,18 +94,22 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
 
         if (json.private_person)
           json.private_person.media = arrayMediaEntity(json.private_person.media).map(item => `${Domain}${item[1]}`);
+
+        if (json.messages)
+          json.messages.reverse();
+
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
         dispatch({type: dispatchType, data: json});
       })
-      .catch(() => {
-        dispatch({type: actionTypes.ERROR_GET_ENTITY});
+      .catch(error => {
+        dispatch({type: actionTypes.ERROR_GET_ENTITY, error});
       });
   });
 };
 
-export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
+export const uploadImage = (entityId, data, nextNavigationName, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
   const instance = Singleton.getInstance(),
-    {Urls, Domain} = instance;
+    {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
     const url = `${Domain}${Urls['edw:entity-image-list'](entityId)}`,
@@ -122,6 +126,8 @@ export const uploadImage = (entityId, data, dispatchType = actionTypes.UPLOAD_IM
         dispatch({type: dispatchType, image: json});
       })
       .catch((error) => {
+        console.log(error);
+        navigation.navigate(nextNavigationName);
         dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
       });
   });
@@ -157,7 +163,6 @@ export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE
     {Urls, Domain} = instance;
 
   getToken().then(token => {
-    // TODO: проверить удаление чужого entity
     const url = `${Domain}${Urls['edw:entity-image-detail'](entityId, imageId)}`,
       parameters = {
         method: 'DELETE',

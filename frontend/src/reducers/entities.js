@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import * as dropdownConsts from 'constants/Dropdown';
 import * as entityConsts from 'constants/Entities';
+import {APPEND_NOT_GROUP_PARAM_TO_META} from "../constants/Entities";
 
 /* Entities */
 
@@ -171,6 +172,17 @@ export function items(state = new EntitiesManager(), action) {
       if (action.append && newState.meta.offset !== state.meta.offset)
         newState.objects = [...state.objects, ...newState.objects];
       return newState;
+    case entityConsts.APPEND_NOT_GROUP_PARAM_TO_META:
+      return {
+        ...state,
+        meta: {
+          ...state.meta,
+          request_options: {
+            ...state.meta.request_options,
+            not_group: action.not_group,
+          }
+        }
+      };
     default:
       return state;
   }

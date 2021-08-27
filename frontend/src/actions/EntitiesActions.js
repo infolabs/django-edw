@@ -1,15 +1,11 @@
 import {
-  PLATFORM,
-  NATIVE,
-} from '../constants/Common';
-
-import {
   LOAD_ENTITY_INFO,
   NOTIFY_LOADING_ENTITIES,
   NOTIFY_LOADING_ENTITY,
   LOAD_ENTITIES,
   SHOW_ENTITY_DESC,
   HIDE_ENTITY_DESC,
+  APPEND_NOT_GROUP_PARAM_TO_META,
 } from '../constants/Entities';
 import {
   TOGGLE_DROPDOWN,
@@ -260,4 +256,13 @@ export function notifyLoadingEntities() {
       type: NOTIFY_LOADING_ENTITIES,
     });
   };
+}
+
+export function setEntitiesNotGroup(not_group) {
+  return dispatch => {
+    dispatch({
+      type: APPEND_NOT_GROUP_PARAM_TO_META,
+      not_group
+    })
+  }
 }

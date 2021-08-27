@@ -22,7 +22,7 @@ const {deviceHeight} = platformSettings;
 
 
 function DataMart(props) {
-  const {entry_point_id, entry_points, entities, terms} = props;
+  const {entry_point_id, entry_points, entities, terms, fromRoute} = props;
   const {json} = terms.tree;
 
   const refs = useRef({
@@ -132,7 +132,7 @@ function DataMart(props) {
           }
         </View>
       </View>
-      <Entities entry_points={entry_points} entry_point_id={entry_point_id}/>
+      <Entities entry_points={entry_points} entry_point_id={entry_point_id} fromRoute={fromRoute}/>
       <Animated.View style={{...styles.termTreeAnimatedView, transform: [{translateY: animateTranslateY}]}}>
         {showTermsTree ?
           <SafeAreaView>

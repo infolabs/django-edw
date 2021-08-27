@@ -23,6 +23,7 @@ import {
   hideDescription,
   toggleDropdown,
   selectDropdown,
+  setEntitiesNotGroup,
 } from './EntitiesActions';
 
 import {
@@ -52,4 +53,5 @@ export default {
   selectDropdown,
   changeActiveDataMart,
   setPrevTaggedItems,
+  setEntitiesNotGroup,
 };

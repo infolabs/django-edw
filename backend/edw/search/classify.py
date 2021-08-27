@@ -2,6 +2,7 @@
 
 import re
 import json
+import math
 
 from haystack import connections
 from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
@@ -16,6 +17,7 @@ def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, 
     Common Russian stopwords are already filtered in search backend,
     this list must only contain words specific to the entity model.
     """
+
     backend = connections['default'].get_backend()
     fields = [DOCUMENT_FIELD]
     payload = {
@@ -77,16 +79,17 @@ def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, 
 
 
 def analyze_suggestions(search_result):
-    """
+    '''
     Sort and filter `get_more_like_this` suggestions to classify category.
-    """
+    Интерпретация confidience:
+    менее 1 - точно нет
+    от 1 до 1.23 - слабая уверенность
+    от 1.23 до 1.81 - средняя уверенность
+    более 1.81 - высокая уверенность
+    '''
     # Parse search result to get score and words per suggestion
     suggestions = {}
     for hit in search_result['hits']['hits']:
-
-        # print ('hit', hit)
-        # print ()
-
         # When querying all models at the same time,
         # some of them may have [None] in category field,
         # so we ignore them
@@ -107,35 +110,98 @@ def analyze_suggestions(search_result):
             except json.decoder.JSONDecodeError:
                 pass
             else:
-                score = hit['_score'] if category.get('similar', True) else -hit['_score']
+                score = hit['_score']
+                similar = category.get('similar', True)
                 foo = suggestions.get(x, None)
                 if foo is None:
                     suggestions[x] = {
                         'category': category,
                         'words': words,
-                        'score': score
+                        'count': 1,
+                        'score': score,
+                        'confidience': 0,
+                        'similar': similar
                     }
                 else:
-                    foo['score'] += score
+                    foo['score'] = max(foo['score'], score)
+                    foo['count'] += 1
                     foo['words'].update(words)
+
     # переводим множество слов в список
     suggestions = suggestions.values()
+
+    geo_mean, cnt, min_score, max_score = {
+        False: 1,
+        True: 1
+    }, {
+        False: 0,
+        True: 0
+    }, {
+        False: None,
+        True: None
+    }, {
+        False: None,
+        True: None
+    }
+
     for x in suggestions:
+        similar = x['similar']
+        score = x['score']
+        _min_score = min_score[similar]
+        _max_score = max_score[similar]
         x['words'] = list(x['words'])
+        precision = score
+        recall = x['count']
+        B = .2
+        b2 = B ** 2
+
+        # F-metric
+        score = x['score'] = (1 + b2) * precision * recall / (b2 * precision + recall)
+        geo_mean[similar] *= score
+        cnt[similar] += 1
+        min_score[similar] = score if _min_score is None else min(_min_score, score)
+        max_score[similar] = score if _max_score is None else max(_max_score, score)
+
+        # print()
+        # print('category, precision, recall', x['category'], precision, recall)
+        # print()
+
+    for x in (True, False):
+        # Вычисляем среднее арифметическое и среднее геометрическое рейтинга среди всех выявленных тем
+        _cnt = cnt[x]
+        geo_mean[x] = geo_mean[x] ** (1 / _cnt) if _cnt else 0
+
+    for x in suggestions:
+        similar = x['similar']
+        _min_score = min_score[similar]
+        _delta = geo_mean[similar] - _min_score
+        _shifted_score = x['score'] - _min_score
+        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 else math.log(
+            _shifted_score / _delta * _min_score / max_score[similar], 4
+        )
+
+    for x in suggestions:
+        if not x['similar']:
+            x['score'] = -x['score']
+
     # сортируем
     suggestions = sorted(
         suggestions,
-        key=lambda x: x['score'],
+        key=lambda x: x['confidience'],
         reverse=True
     )
 
-    # print('>>> suggestions >>> ')
-    # for x in suggestions[:10]:
+    # for development purposes only
+    # print()
+    # for x in suggestions:
     #     print('------------------')
     #     print('* id:', x['category']['id'])
     #     print('* category:', x['category']['name'])
     #     print('* score:', x['score'])
+    #     print('* confidience:', x['confidience'])
+    #     print('* similar:', x['similar'])
+    #     print('* count:', x['count'])
     #     print('* words:', x['words'])
-    # print('>>>>>>>>>>>>>>>>>>>>')
+    # print()
 
     return suggestions

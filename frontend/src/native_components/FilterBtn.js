@@ -13,7 +13,7 @@ function FilterBtn(props) {
   const theme = useTheme();
 
   return (
-    <Button onPress={() => visibilityFilters()} size="tiny" appearance="ghost" status="basic">
+    <Button onPress={visibilityFilters} size="tiny" appearance="ghost" status="basic">
       <View style={styles.filteredView}>
         <Icon name="funnel-outline" style={{fontSize: theme['icon-size']}}/>
         {termsIdsTaggedBranch.size ?

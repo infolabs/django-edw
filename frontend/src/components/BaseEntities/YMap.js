@@ -146,14 +146,16 @@ export class YMapInner extends AbstractMap {
 
   componentDidMount() {
     this.osmRegion = this.props.data_mart.osm_region || null;
+    this.notGroup = this.props.data_mart.not_group || null;
     this.yandexMapPreset = this.props.data_mart.yandex_map_preset || null;
     this.mapConfig = this.props.getMapConfig();
-
+    this.notGroup && this.notGroup === "true" && this.props.actions.setEntitiesNotGroup(true);
     const style = `width: {{ options.diameter }}px;
                    height: {{ options.diameter }}px;
                    line-height: {{ options.diameter }}px;
                    left: {{ options.offset.0 }}px;
                    top: {{ options.offset.1 }}px;
+                   color: #3b4747;
                    position: relative;`;
 
     const circle = `
@@ -164,7 +166,7 @@ export class YMapInner extends AbstractMap {
              viewBox="0 0 100 100">
            <circle cx="50" cy="50" r="40"
             stroke="{{ options.stroke }}"
-            stroke-width="1.5"
+            stroke-width="4"
             fill="{{ options.color }}"
             vector-effect="non-scaling-stroke"/>
         </svg>
@@ -254,20 +256,17 @@ export class YMapInner extends AbstractMap {
             lng = parseFloat(coords[1]),
             lat = parseFloat(coords[0]);
 
-      ({ lngMin, lngMax, latMin, latMax } = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
-
-      const isGroup = item.extra && item.extra.group_size;
-      const colorItems = this.getColor(item),
-            groupColor = colorItems.backgroundColorContent,
-            borderGroupColor = colorItems.borderColor,
-            pinColor = this.getPinColor(item),
-            pinPreset = this.getPinPreset(item),
-            regionColor = colorItems.regionColor,
-            descriptions_data = isGroup ? descriptions.groups : descriptions,
-            description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
-                          descriptions.groups[item.id] : descriptions_data[item.id],
-            info = this.assembleInfo(item, meta, description),
-            balloonContent = ReactDOMServer.renderToString(info);
+      ({ lngMin, lngMax, latMin, latMax} = this.adjustBounds(lng, lat, lngMin, lngMax, latMin, latMax));
+      const isGroup = item.extra && item.extra.group_size,
+        colorItems = this.getGroupColor(item),
+        {regionColor} = colorItems,
+        pinColor = this.getPinColor(item),
+        pinPreset = this.getPinPreset(item),
+        descriptions_data = isGroup ? descriptions.groups : descriptions,
+        description = !descriptions_data[item.id] && isGroup && descriptions.groups ?
+          descriptions.groups[item.id] : descriptions_data[item.id],
+        info = this.assembleInfo(item, meta, description),
+        balloonContent = ReactDOMServer.renderToString(info);
 
       const osmObj = {
         osmId : '',
@@ -304,7 +303,9 @@ export class YMapInner extends AbstractMap {
 
       marker.prefix = '';
 
-      if (item.extra && item.extra.group_size) {
+      if (isGroup) {
+        const {groupColor, groupBorderColor} = colorItems;
+
         marker.prefix = 'group-';
         const label = item.extra.group_size.toString(),
               diameter = 17 + label.length * 12,
@@ -313,7 +314,7 @@ export class YMapInner extends AbstractMap {
         marker.options = {
           preset: { iconLayout: this.state.circleLayout },
           iconColor: groupColor,
-          iconStroke: borderGroupColor,
+          iconStroke: groupBorderColor,
           iconDiameter: diameter,
           iconOffset: [-radius / 2, -radius / 2],
           iconShape: {

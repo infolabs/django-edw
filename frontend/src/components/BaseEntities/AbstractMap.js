@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
+import Color from 'color';
 
 
 function latRad(lat) {
@@ -58,29 +59,38 @@ export default class AbstractMap extends Component {
     return Math.min(latZoom, lngZoom, ZOOM_MAX);
   }
 
-  _getPinColor(item) {
-    let pinColor = 'CECECE';
-    const pinColorPattern = item.extra.group_size ? 'group-pin-color-' : 'pin-color-';
+  getColorFromMarks(item, pattern) {
     for (const sm of item.short_marks) {
       for (const cl of sm.view_class) {
-        if (cl.startsWith(pinColorPattern)) {
-          pinColor = cl.replace(pinColorPattern, '').toUpperCase();
-          return `#${pinColor}`;
+        if (cl.startsWith(pattern)) {
+          const color = cl.replace(pattern, '').toUpperCase();
+          return `#${color}`;
         }
       }
     }
-    return `#${pinColor}`;
+    return null
+  }
+
+  _getPinColor(item) {
+    return this.getColorFromMarks(item, 'pin-color-') || '#CECECE';
   }
 
   getPinColor(item) {
     return this._getPinColor(item);
   }
 
-  getColor() {
-    const backgroundColorContent = 'white',
-          borderColor = 'black',
-          regionColor = 'rgba(0,0,0,0)';
-    return {backgroundColorContent, borderColor, regionColor};
+  _getGroupColor(item) {
+    const DEFAULT_GROUP_COLOR = '#fff';
+    const DEFAULT_GROUP_BORDER_COLOR = '#000';
+    const groupColor = this.getColorFromMarks(item, 'group-pin-color-') || DEFAULT_GROUP_COLOR;
+    const regionColor = 'rgba(0,0,0,0)';
+    const groupBorderColor = this.getColorFromMarks(item, 'group-border-color-') || Color(groupColor).darken(0.5);
+
+    return {groupColor, groupBorderColor, regionColor};
+  }
+
+  getGroupColor(item) {
+    return this._getGroupColor(item);
   }
 
   convertSnakeToCamelCase(str) {
@@ -92,7 +102,7 @@ export default class AbstractMap extends Component {
   }
 
   _getPinPreset(item) {
-    let pinPreset;
+    let pinPreset = 'islands#blueDotIcon';
     const presetPattern = 'yandex-preset-';
     for (const sm of item.short_marks) {
       for (const cl of sm.view_class) {
@@ -102,6 +112,7 @@ export default class AbstractMap extends Component {
         }
       }
     }
+    return pinPreset;
   }
 
   getPinPreset(item){

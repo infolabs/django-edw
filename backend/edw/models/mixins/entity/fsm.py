@@ -177,10 +177,12 @@ class FSMTransitionAndLoggingMixin(FSMMixin):
             content_type_id=ContentType.objects.get_for_model(self).pk,
             object_id=self.pk,
             object_repr=force_text(self),
-            change_message=_('Change status from "%(old_status)s" to "%(new_status)s"') %
+            change_message=_('Change status from "%(old_status)s" to "%(new_status)s" ("%(old_state)s" -> "%(new_state)s")') %
                            {
                                'old_status': self.TRANSITION_TARGETS[old_state],
                                'new_status': self.TRANSITION_TARGETS[new_state],
+                               'old_state': old_state,
+                               'new_state': new_state
                            },
             action_flag=CHANGE,
         )
