@@ -112,9 +112,7 @@ class RESTOptions(object):
     DB_FOR_READ = None
     @staticmethod
     def db_for_read(self, model, **hints):
-        slaves = self.slaves[:]
-        random.shuffle(slaves)
-        return slaves[0]
+        return model._rest_meta.DB_FOR_READ
 
     validators = None
 

@@ -55,3 +55,4 @@ social-auth-app-django==2.1.0
 pymorton==1.0.5
 M2Crypto==0.31.0
 pytils==0.3
+django-multidb-router==0.9
