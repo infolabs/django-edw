@@ -268,7 +268,7 @@ export function renderEntityItem(props, text, badge, styles, icon = null, custom
         </View>
         {renderGroupBadge(groupSize, styles)}
       </Card>
-      {isLastItem &&
+      {isLastItem && !templateIsDataMart &&
         <Card appearance="filled" style={navigateToDMCardStyle} onPress={() => navigation.navigate(toRoute)}>
           <View style={styles.navigateToDMViewStyle}>
             <Text>Еще</Text>

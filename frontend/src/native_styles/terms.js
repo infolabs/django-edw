@@ -21,7 +21,7 @@ export const termsTreeItemStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   term: {
-    fontSize: 16,
+    fontSize: 14,
     display: 'flex',
     flexWrap: 'wrap',
   },

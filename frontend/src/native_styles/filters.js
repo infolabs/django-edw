@@ -13,7 +13,7 @@ export const filtersStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    top: 2,
+    top: -2,
     right: -3,
   },
   filteredBadgeText: {
