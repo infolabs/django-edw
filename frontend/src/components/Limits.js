@@ -1,19 +1,19 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import Dropdown from './Dropdown';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import Actions from '../actions/index';
 
 
 class Limits extends Component {
   render() {
-    const { entry_point_id, actions } = this.props,
-          { dropdowns } = this.props.entities,
-          { meta } = this.props.entities.items,
-          { limits } = dropdowns;
+    const {entry_point_id, actions} = this.props,
+      {dropdowns} = this.props.entities,
+      {meta} = this.props.entities.items,
+      {limits} = dropdowns;
 
     let ret = <div/>,
-        limit_options = {};
+      limit_options = {};
 
     if (meta.count <= 1)
       return ret;
@@ -41,24 +41,26 @@ class Limits extends Component {
     if (limits && Object.keys(limit_options).length > 1) {
       let selectedLabel = limits.selected >= max_opt_value ? gettext('All') : limits.selected;
       ret = (
-        <ul className="ex-inline">
-          <li>
-            <span>{gettext('Quantity')} &nbsp; </span>
-          </li>
-          <li>
-            <Dropdown name="limits"
-                      entry_point_id={entry_point_id}
-                      request_var={limits.request_var}
-                      request_options={meta.request_options}
-                      subj_ids={meta.subj_ids}
-                      open={limits.open}
-                      actions={actions}
-                      selected={selectedLabel}
-                      count={meta.count}
-                      options={limit_options}/>
+        <div className="maincol-top__col ex-howmany-items ex-dropdown ex-state-closed">
+          <ul className="ex-inline">
+            <li>
+              <span>{gettext('Quantity')} &nbsp; </span>
+            </li>
+            <li>
+              <Dropdown name="limits"
+                        entry_point_id={entry_point_id}
+                        request_var={limits.request_var}
+                        request_options={meta.request_options}
+                        subj_ids={meta.subj_ids}
+                        open={limits.open}
+                        actions={actions}
+                        selected={selectedLabel}
+                        count={meta.count}
+                        options={limit_options}/>
 
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       );
     }
 

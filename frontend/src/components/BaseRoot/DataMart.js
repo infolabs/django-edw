@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import Actions from '../../actions/index';
 import Entities from 'components/Entities';
 import Filters from 'components/Filters';
@@ -20,14 +20,14 @@ export class DataMart extends Component {
   componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
     const prevCount = prevProps.entities.items && prevProps.entities.items.meta.count,
-        { entities, entry_point_id } = this.props,
-        count = entities.items.meta && entities.items.meta.count;
+      {entities, entry_point_id} = this.props,
+      count = entities.items.meta && entities.items.meta.count;
     if (count !== prevCount || ((count === undefined) && (prevCount === undefined))) {
       const elements = document.getElementsByClassName('ex-data-mart');
       for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i],
-            pki = element.attributes.getNamedItem('data-selected-entry-point-id'),
-            pk = pki && pki.value;
+          pki = element.attributes.getNamedItem('data-selected-entry-point-id'),
+          pk = pki && pki.value;
         if (pk === entry_point_id) {
           let targets = [element];
           const container = closest(element, '.ex-data-mart-container');
@@ -51,19 +51,19 @@ export class DataMart extends Component {
 
   render() {
 
-    const { entry_point_id, entry_points, actions, component_attrs } = this.props;
+    const {entry_point_id, entry_points, actions, component_attrs} = this.props;
 
     return (
       <div className="row ex-datamart">
         {
           Object.keys(entry_points).length > 1 &&
-            <div className="ex-datamart__col ex-datamart__datamarts">
-              <DataMartsList
-                entry_points={entry_points}
-                entry_point_id={entry_point_id}
-                actions={actions}
-              />
-            </div>
+          <div className="ex-datamart__col ex-datamart__datamarts">
+            <DataMartsList
+              entry_points={entry_points}
+              entry_point_id={entry_point_id}
+              actions={actions}
+            />
+          </div>
         }
         <div className="ex-datamart__col ex-datamart__col--small sidebar-filter">
           <Filters entry_points={entry_points} entry_point_id={entry_point_id}/>
@@ -71,16 +71,12 @@ export class DataMart extends Component {
         <div className="ex-datamart__col ex-datamart__col--big main-col">
           <div className="main-col__top maincol-top">
             <div className="maincol-top__col ex-view-as">
-              <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id} />
+              <ViewComponents entry_points={entry_points} entry_point_id={entry_point_id}/>
             </div>
-            <div className="maincol-top__col ex-order-by ex-dropdown ex-state-closed">
-              <Ordering entry_points={entry_points} entry_point_id={entry_point_id} />
-            </div>
-            <div className="maincol-top__col ex-howmany-items ex-dropdown ex-state-closed">
-              <Limits entry_points={entry_points} entry_point_id={entry_point_id} />
-            </div>
+            <Ordering entry_points={entry_points} entry_point_id={entry_point_id}/>
+            <Limits entry_points={entry_points} entry_point_id={entry_point_id}/>
             <div className="maincol-top__col ex-statistic">
-              <Statistics entry_points={entry_points} entry_point_id={entry_point_id} />
+              <Statistics entry_points={entry_points} entry_point_id={entry_point_id}/>
             </div>
           </div>
           <div className="row">
@@ -88,9 +84,9 @@ export class DataMart extends Component {
               <GroupTitle/>
             </div>
           </div>
-          <Entities entry_points={entry_points} entry_point_id={entry_point_id}  component_attrs={component_attrs} />
-          <Paginator entry_points={entry_points} entry_point_id={entry_point_id} />
-          <Aggregation entry_points={entry_points} entry_point_id={entry_point_id} />
+          <Entities entry_points={entry_points} entry_point_id={entry_point_id} component_attrs={component_attrs}/>
+          <Paginator entry_points={entry_points} entry_point_id={entry_point_id}/>
+          <Aggregation entry_points={entry_points} entry_point_id={entry_point_id}/>
         </div>
       </div>
     );
