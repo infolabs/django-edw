@@ -130,7 +130,7 @@ Datamart styles
 
 .ex-datamart {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
 
   .ex-datamart__col {
@@ -139,6 +139,7 @@ Datamart styles
 
   .ex-datamart__col--small {
     max-width: 290px;
+    width: 25%;
     padding: 0 15px;
   }
 
@@ -156,6 +157,9 @@ Datamart styles
     display: flex;
     flex-direction: column;
     padding: 0 15px;
+    max-width: 1000px;
+    min-width: 450px;
+    width: 75%;
 
     .main-col__top {
       display: flex;
