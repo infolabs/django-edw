@@ -10,6 +10,7 @@ import re
 import hmac
 import time
 import hashlib
+import requests
 
 from django.conf import settings
 from django.utils import six
@@ -29,6 +30,7 @@ def get_timestamp():
 
 
 def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
+
     if backend == 'm2crypto' or backend is None:
         from M2Crypto import SMIME, BIO
 
@@ -91,6 +93,22 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
         os.unlink(source_path)
         os.unlink(destination_path)
         return signed_message
+    elif backend == 'crypto-service':
+        service_url = settings.SOCIAL_AUTH_ESIA_CRYPTO_SERVICE_URL
+        service_token = settings.SOCIAL_AUTH_ESIA_CRYPTO_SERVICE_TOKEN
+        response = requests.post(
+            url=service_url,
+            headers={
+                'Authorization':  'Bearer ' + service_token,
+                'Content-Type': 'application/octet-stream',
+                'Accept': 'application/pkcs7-signature',
+                'Content-Encoding': 'binary',
+                'Accept-Encoding': 'binary',
+            },
+            data=data
+        )
+        response.raise_for_status()
+        return response.content
     else:
         raise Exception('Unknown cryptography backend. Use openssl or m2crypto value.')
 
