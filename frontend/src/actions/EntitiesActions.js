@@ -78,14 +78,9 @@ export function getEntityInfo(data, meta = false) {
 }
 
 
-function loadingEntity(id) {
-  return dispatch => {
-    dispatch({
-      type: NOTIFY_LOADING_ENTITY,
-      id,
-    });
-  };
-}
+const loadingEntity = id => dispatch => {
+  dispatch({type: NOTIFY_LOADING_ENTITY, id});
+};
 
 // count sent requests so as to match last response with selected terms
 let inFetch = 0;
@@ -157,9 +152,7 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         if (!compareArrays(stateTerms, responseTerms)) {
           options_obj = stateMeta.request_options;
           options_obj.terms = stateTerms;
-          dispatch(
-            getEntities(mart_id, subj_ids, options_obj, options_arr)
-          );
+          dispatch(getEntities(mart_id, subj_ids, options_obj, options_arr));
           return;
         }
       }
@@ -170,7 +163,6 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         request_options: options_obj,
         append,
       });
-
     });
   };
 }
@@ -194,7 +186,6 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
   } else {
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
   }
-
 }
 
 
@@ -209,60 +200,26 @@ export function expandGroup(item_id, meta) {
 }
 
 
-export function showDescription(entity_id = null) {
-  return dispatch => {
-    dispatch({
-      type: SHOW_ENTITY_DESC,
-      entity_id: entity_id,
-    });
-  };
-}
+export const showDescription = (entity_id = null) => dispatch => {
+  dispatch({type: SHOW_ENTITY_DESC, entity_id})
+};
 
+export const hideDescription = (entity_id = null) => dispatch => {
+  dispatch({type: HIDE_ENTITY_DESC, entity_id});
+};
 
-export function hideDescription(entity_id = null) {
-  return dispatch => {
-    dispatch({
-      type: HIDE_ENTITY_DESC,
-      entity_id: entity_id,
-    });
-  };
-}
+export const toggleDropdown = (dropdown_name = '') => dispatch => {
+  dispatch({type: TOGGLE_DROPDOWN, dropdown_name});
+};
 
+export const selectDropdown = (dropdown_name = '', selected = '') => dispatch => {
+  dispatch({type: SELECT_DROPDOWN, dropdown_name, selected});
+};
 
-export function toggleDropdown(dropdown_name = '') {
-  return dispatch => {
-    dispatch({
-      type: TOGGLE_DROPDOWN,
-      dropdown_name: dropdown_name,
-    });
-  };
-}
+export const notifyLoadingEntities = () => dispatch => {
+  dispatch({type: NOTIFY_LOADING_ENTITIES});
+};
 
-
-export function selectDropdown(dropdown_name = '', selected = '') {
-  return dispatch => {
-    dispatch({
-      type: SELECT_DROPDOWN,
-      dropdown_name: dropdown_name,
-      selected: selected,
-    });
-  };
-}
-
-
-export function notifyLoadingEntities() {
-  return dispatch => {
-    dispatch({
-      type: NOTIFY_LOADING_ENTITIES,
-    });
-  };
-}
-
-export function setEntitiesNotGroup(not_group) {
-  return dispatch => {
-    dispatch({
-      type: APPEND_NOT_GROUP_PARAM_TO_META,
-      not_group
-    })
-  }
-}
+export const setEntitiesNotGroup = not_group => dispatch => {
+  dispatch({type: APPEND_NOT_GROUP_PARAM_TO_META, not_group})
+};
