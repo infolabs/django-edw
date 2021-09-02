@@ -1,11 +1,24 @@
 import React from 'react';
-import {View} from 'react-native';
-import {Text, CheckBox, Radio} from '@ui-kitten/components';
+import {View, TouchableOpacity} from 'react-native';
+import {Text, CheckBox, useStyleSheet} from '@ui-kitten/components';
 import {Icon} from 'native-base';
 import platformSettings from '../constants/Platform';
 import {structures, semanticRules} from '../constants/TermsTree';
-import {termsTreeItemStyles as styles} from '../native_styles/terms';
+import {termsTreeItemStyles} from '../native_styles/terms';
 
+
+// HACK: Radio из '@ui-kitten/components' не подходит. Компонент Text не может изменить цвет внутри Radio
+function Radio(props) {
+  const {onPress, checked, styles, content} = props;
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.radioTouchableOpacity}>
+      <View style={styles.radioView}>
+        {checked && <View style={styles.radioCheckedView}/>}
+      </View>
+      {content}
+    </TouchableOpacity>
+  );
+}
 
 function TermsTreeItem(props) {
 
@@ -25,6 +38,7 @@ function TermsTreeItem(props) {
   }
 
   const {deviceWidth} = platformSettings;
+  const styles = useStyleSheet(termsTreeItemStyles);
 
   const {term, actions, tagged, expanded, realPotential, terms, termsIdsTaggedBranch} = props,
     {children, parent} = term;
@@ -91,13 +105,11 @@ function TermsTreeItem(props) {
     }
 
     render_item = term.structure === structures.STRUCTURE_LIMB ?
-      <Text style={styles.termIsLimb}
-            onPress={() => handleItemPress()}>
+      <Text style={styles.termIsLimb} onPress={handleItemPress}>
         {term.name}
       </Text>
       :
-      <Text style={{...styles.term, fontWeight, color}}
-            onPress={() => handleItemPress()}>
+      <Text style={{...styles.term, fontWeight, color}} onPress={handleItemPress}>
         {term.name}
       </Text>;
 
@@ -106,22 +118,19 @@ function TermsTreeItem(props) {
       fontWeight = any_tagged ? 'normal' : 'bold';
       const key = `reset_item_${term.id}`;
       reset_item = <View style={styles.termView} key={key}>
-          <Radio checked={!any_tagged}
-                 onChange={() => handleResetTermPress()}
-                 style={{...styles.radio}}>
-            <Text style={{...styles.term, fontWeight, color}}
-                  onPress={() => handleItemPress()}>
-              Всё
-            </Text>
-          </Radio>
-        </View>;
+        <Radio checked={!any_tagged}
+               onPress={() => handleResetTermPress()}
+               content={<Text style={{...styles.term, fontWeight}} onPress={handleItemPress}>Всё</Text>}
+               styles={styles}/>
+      </View>;
     }
 
     if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children) &&
       term.structure === structures.STRUCTURE_LIMB) {
       reset_icon = (
-          <Icon style={styles.iconReset} name="md-close-circle"
-                onPress={() => handleResetBranchPress()} />
+        <Icon style={styles.iconReset}
+              name="md-close-circle"
+              onPress={handleResetBranchPress}/>
       );
     }
   }
@@ -163,9 +172,10 @@ function TermsTreeItem(props) {
       ret = (
         <View style={styles.termView}>
           <View style={{...styles.termIsLimbOrAndView}}>
-            <Icon style={styles.termIsLimbOrAndIcon} name={iconName}
-                  onPress={() => handleItemPress()}/>
-            <Text onPress={() => handleItemPress()}>{render_item}</Text>
+            <Icon style={styles.termIsLimbOrAndIcon}
+                  name={iconName}
+                  onPress={handleItemPress}/>
+            <Text onPress={handleItemPress}>{render_item}</Text>
             {reset_icon}
           </View>
           {render_children}
@@ -176,14 +186,13 @@ function TermsTreeItem(props) {
         <View style={styles.termView}>
           {semantic_class === 'ex-xor' ?
             <Radio checked={state_class === 'ex-on'}
-                   style={styles.radio}
-                   onChange={() => handleItemPress()}>
-              {render_item}
-            </Radio>
+                   onPress={handleItemPress}
+                   content={render_item}
+                   styles={styles}/>
             :
             <CheckBox checked={state_class === 'ex-on'}
                       style={styles.checkbox}
-                      onChange={() => handleItemPress()}>
+                      onChange={handleItemPress}>
               {render_item}
               {reset_icon}
             </CheckBox>
@@ -195,6 +204,5 @@ function TermsTreeItem(props) {
   }
   return ret;
 }
-
 
 export default TermsTreeItem;

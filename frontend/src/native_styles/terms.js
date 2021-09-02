@@ -1,7 +1,7 @@
-import {StyleSheet} from 'react-native';
+import {StyleService} from '@ui-kitten/components';
 
 
-export const termsTreeItemStyles = StyleSheet.create({
+export const termsTreeItemStyles = StyleService.create({
   treeContainer: {
     marginLeft: 10,
   },
@@ -42,9 +42,26 @@ export const termsTreeItemStyles = StyleSheet.create({
     marginRight: 7,
     fontSize: 22,
   },
-  radio: {
-    display: 'flex',
-    alignItems: 'flex-start',
+  radioTouchableOpacity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  radioView: {
+    height: 20,
+    width: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#828693',
+    backgroundColor: '#f6f7f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  radioCheckedView: {
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+    backgroundColor: 'color-primary-default',
   },
   checkbox: {
     display: 'flex',

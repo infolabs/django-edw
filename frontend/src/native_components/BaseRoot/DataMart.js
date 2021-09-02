@@ -28,7 +28,6 @@ function DataMart(props) {
   const refs = useRef({
     termsIdsTaggedBranch: new Set(),
     translateY: deviceHeight,
-    usePrevTerms: false,
   }).current;
 
   const [animateTranslateY] = useState(new Animated.Value(refs.translateY));
@@ -45,8 +44,12 @@ function DataMart(props) {
   }, []);
 
   useEffect(() => {
-    if (json.length)
+    if (json.length) {
       setShowTermsTree(true);
+      const {prevItems} = terms.tagged;
+      if (!prevItems.length)
+        props.setPrevTaggedItems();
+    }
   }, [terms.tagged.items]);
 
   useMemo(() => {
@@ -58,40 +61,40 @@ function DataMart(props) {
   }, [refs.translateY]);
 
 
-  function visibilityFilters(visible) {
-    if (refs.usePrevTerms) {
+  function visibilityFilters(visible, usePrevTerms = false) {
+    if (usePrevTerms) {
       const termsItems = terms.tagged.prevItems;
       props.notifyLoadingTerms();
       props.loadTree(entry_point_id, termsItems);
+      refs.termsIdsTaggedBranch.clear();
     } else {
       setShowTermsTree(true);
     }
     setVisibleFilters(visible);
-    if (visible) {
+    if (visible)
       refs.translateY = 0;
-    } else {
+    else
       refs.translateY = deviceHeight;
-    }
-    refs.usePrevTerms = false;
   }
 
 
   function closeFilters() {
-    visibilityFilters(false);
     const {items, prevItems} = terms.tagged;
     if (!compareArrays(items, prevItems)) {
       const meta = entities.items.meta;
       const {subj_ids} = meta;
       props.notifyLoadingEntities();
       props.getEntities(entry_point_id, subj_ids, {terms: prevItems}, []);
-      refs.usePrevTerms = true;
+      visibilityFilters(false, true);
+    } else {
+      visibilityFilters(false);
     }
     setShowTermsTree(false);
   }
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
   function closeFiltersView() {
-    return <Icon onPress={() => closeFilters()} name="close"/>;
+    return <Icon onPress={closeFilters} name="close"/>;
   }
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {
