@@ -3,17 +3,25 @@ import platformSettings from '../constants/Platform';
 
 
 const {deviceHeight, deviceWidth} = platformSettings;
-let showObjectsBtnViewHeight;
+let showObjectsBtnViewHeight,
+  showObjectsBtnViewHeightBottom,
+  termsScrollViewContainerMarginBottom;
 
 if (Platform.OS === 'android') {
   showObjectsBtnViewHeight = 145;
+  showObjectsBtnViewHeightBottom = 0;
+  termsScrollViewContainerMarginBottom = showObjectsBtnViewHeight + 70;
 } else {
-  if (deviceHeight < 700)
+  if (deviceHeight < 700) {
+    showObjectsBtnViewHeightBottom = 40;
     showObjectsBtnViewHeight = 105;
-  else
-    showObjectsBtnViewHeight = 160;
+    termsScrollViewContainerMarginBottom = showObjectsBtnViewHeight * 2;
+  } else {
+    showObjectsBtnViewHeightBottom = 10;
+    showObjectsBtnViewHeight = 150;
+    termsScrollViewContainerMarginBottom = showObjectsBtnViewHeight + 50;
+  }
 }
-let termsScrollViewContainerHeight = showObjectsBtnViewHeight + 70;
 
 export const dataMartStyles = StyleSheet.create({
   headerBtnView: {
@@ -69,7 +77,7 @@ export const dataMartStyles = StyleSheet.create({
   },
   showObjectsBtnView: {
     position: 'absolute',
-    bottom: 0,
+    bottom: showObjectsBtnViewHeightBottom,
     width: deviceWidth,
     shadowOffset: {
       width: 0,
@@ -91,6 +99,6 @@ export const dataMartStyles = StyleSheet.create({
     borderRadius: 10,
   },
   termsScrollViewContainer: {
-    marginBottom: termsScrollViewContainerHeight,
+    marginBottom: termsScrollViewContainerMarginBottom,
   },
 });
