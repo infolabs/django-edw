@@ -82,10 +82,12 @@ def analyze_suggestions(search_result):
     '''
     Sort and filter `get_more_like_this` suggestions to classify category.
     Интерпретация confidience:
-    менее 1 - точно нет
-    от 1 до 1.23 - слабая уверенность
-    от 1.23 до 1.81 - средняя уверенность
-    более 1.81 - высокая уверенность
+    менее 0 - присутствует ошибка в расчете промежуточных параметров
+    от 0 до 0.2 - точно нет
+    от 0.2 до 0.4 - скорее всего нет
+    от 0.4 до 0.6 - возможно да
+    от 0.6 до 0.8 - скорее всего да
+    более 0.8 - точно да
     '''
     # Parse search result to get score and words per suggestion
     suggestions = {}
