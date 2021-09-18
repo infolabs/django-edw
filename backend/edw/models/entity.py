@@ -280,13 +280,14 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result.__class__ = type(str('LazyQuerySetCachedResult'), (QuerySetCachedResultMixin, result.__class__), {})
         return result
 
-    def get_similar(self, value, use_cached_decompress=False, fix_it=False):
+    def get_similar(self, value, use_cached_decompress=False, fix_it=False, many=False):
         """
         ENG: Return similar entity from queryset, semantics isn't considered
         RUS: Получает максимально похожий по каким-либо критериям объект (сущность) из запроса.
         :param value: terms ids
         :param use_cached_decompress: do use cached decompress
         :param fix_it: do fix terms tree on decompress
+        :param many: return similar entities list if 'True'
         :return: similar entity on None
         """
         ids = TermModel.get_all_active_root_ids(use_cache=use_cached_decompress)
@@ -305,7 +306,14 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         try:
             result = similar_entities[0]
         except IndexError:
-            result = None
+            result = [] if many else None
+        else:
+            if many:
+                result = [result] + list(similar_entities.filter(
+                    num=result.num,
+                    avg_lvl=result.avg_lvl,
+                    max_lvl=result.max_lvl
+                ).order_by('created_at')[1:])
         return result
 
     def _get_subj_cache_key(self, subj_ids):
