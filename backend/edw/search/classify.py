@@ -183,7 +183,7 @@ def analyze_suggestions(search_result):
         _delta = delta[similar]
         _min_score = min_score[similar]
         _shifted_score = x['score'] - _min_score
-        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 else math.log(
+        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 or _delta is None else math.log(
             _shifted_score / _delta * _min_score / max_score[similar], 4
         )
 
