@@ -82,7 +82,8 @@ def analyze_suggestions(search_result):
     '''
     Sort and filter `get_more_like_this` suggestions to classify category.
     Интерпретация confidience:
-    до 0.2 - точно нет
+    менее 0 - присутствует ошибка в расчете промежуточных параметров
+    от 0 до 0.2 - точно нет
     от 0.2 до 0.4 - скорее всего нет
     от 0.4 до 0.6 - возможно да
     от 0.6 до 0.8 - скорее всего да
@@ -131,15 +132,12 @@ def analyze_suggestions(search_result):
     # переводим множество слов в список
     suggestions = suggestions.values()
 
-    geo_mean, cnt, min_score, max_score, delta = {
+    geo_mean, cnt, min_score, max_score = {
         False: 1,
         True: 1
     }, {
         False: 0,
         True: 0
-    }, {
-        False: None,
-        True: None
     }, {
         False: None,
         True: None
@@ -163,8 +161,6 @@ def analyze_suggestions(search_result):
         score = x['score'] = (1 + b2) * precision * recall / (b2 * precision + recall)
         geo_mean[similar] *= score
         cnt[similar] += 1
-
-        # min_score и max_score - минимальная и максимальная нормированная F-мера по категориям
         min_score[similar] = score if _min_score is None else min(_min_score, score)
         max_score[similar] = score if _max_score is None else max(_max_score, score)
 
@@ -173,17 +169,16 @@ def analyze_suggestions(search_result):
         # print()
 
     for x in (True, False):
-        # Вычисляем среднее геометрическое рейтинга среди всех выявленных тем
+        # Вычисляем среднее арифметическое и среднее геометрическое рейтинга среди всех выявленных тем
         _cnt = cnt[x]
         geo_mean[x] = geo_mean[x] ** (1 / _cnt) if _cnt else 0
-        delta[x] = geo_mean[x] - min_score[x]
 
     for x in suggestions:
         similar = x['similar']
-        _delta = delta[similar]
         _min_score = min_score[similar]
+        _delta = geo_mean[similar] - _min_score
         _shifted_score = x['score'] - _min_score
-        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 or _delta is None else math.log(
+        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 else math.log(
             _shifted_score / _delta * _min_score / max_score[similar], 4
         )
 
