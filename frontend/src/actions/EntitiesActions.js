@@ -16,9 +16,10 @@ import Singleton from '../utils/singleton';
 import getUrl from '../utils/getUrl';
 import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
+import {NATIVE, PLATFORM} from "../constants/Common";
+
 
 const globalStore = Singleton.getInstance();
-
 
 export function opts2gets(options = {}) {
   let gets = '';
@@ -157,12 +158,22 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         }
       }
 
-      dispatch({
-        type: LOAD_ENTITIES,
-        json: json,
-        request_options: options_obj,
-        append,
-      });
+      if (PLATFORM === NATIVE) {
+        globalStore.edwDispatch = dispatch;
+
+        if (!globalStore.initial_entities)
+          globalStore.initial_entities = {};
+
+        // json.limit === 6 - template_name is related
+        if (!globalStore.initial_entities.hasOwnProperty(mart_id) && json.limit !== 6) {
+          globalStore.initial_entities[mart_id] = {
+            ...json,
+            getEntities: getEntities(mart_id, subj_ids,options_obj, options_arr)
+          };
+        }
+      }
+
+      dispatch({type: LOAD_ENTITIES, request_options: options_obj, json, append});
     });
   };
 }
@@ -176,12 +187,8 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
     json.results.meta = Object.assign(json.results.meta, options_obj);
     json.results.meta = Object.assign(json.results.meta, options_obj2);
 
-    return (dispatch, getState) => {
-      dispatch({
-        type: LOAD_ENTITIES,
-        json: json,
-        request_options: options_obj,
-      });
+    return (dispatch) => {
+      dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
     };
   } else {
     return getEntities(mart_id, subj_ids, options_obj, options_arr);
