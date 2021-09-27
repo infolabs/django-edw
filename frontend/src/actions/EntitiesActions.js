@@ -168,6 +168,7 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         if (!globalStore.initial_entities.hasOwnProperty(mart_id) && json.limit !== 6) {
           globalStore.initial_entities[mart_id] = {
             ...json,
+            notifyLoadingEntities: notifyLoadingEntities(),
             getEntities: getEntities(mart_id, subj_ids,options_obj, options_arr)
           };
         }
