@@ -15,7 +15,7 @@ class BoundaryAdmin(SalmonellaMixin, admin.ModelAdmin):
 
     list_display = ['name', 'active']
 
-    fields = ['term', 'raw_polygons', 'active']
+    fields = ['term', 'order', 'raw_polygons', 'active']
 
     search_fields = ('term__name', 'raw_polygons')
 
