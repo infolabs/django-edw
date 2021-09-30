@@ -46,7 +46,7 @@ class NERMixin(ModelMixin):
         ('&lt;', '<'),
     ]
 
-    TASK_WAIT_EXECUTION_INTERVAL = 5
+    NER_TASK_WAIT_EXECUTION_INTERVAL = 5
 
     ner_data = JSONField(verbose_name=_("NER data"), default={},
         help_text=_("Data obtained after recognition of named entities for the given text"))
@@ -189,7 +189,7 @@ class NERMixin(ModelMixin):
                     "obj_id": self.id,
                     "obj_model": self.__class__.__name__.lower()
                 },
-                expires=self.TASK_WAIT_EXECUTION_INTERVAL,
+                expires=self.NER_TASK_WAIT_EXECUTION_INTERVAL,
                 retry=False,
             )
         except extract_ner_data.OperationalError as exc:
@@ -198,7 +198,7 @@ class NERMixin(ModelMixin):
         else:
             try:
                 ner_data = result.get(
-                    interval=self.TASK_WAIT_EXECUTION_INTERVAL,
+                    interval=self.NER_TASK_WAIT_EXECUTION_INTERVAL,
                     propagate=False,
                 )
             except Exception:
