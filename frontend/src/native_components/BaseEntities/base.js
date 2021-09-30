@@ -203,9 +203,11 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, badge, styles, icon = null, customOnPress = null) {
+export function renderEntityItem(props, text, styles, icon = null, customOnPress = null) {
   const {data, meta, fromRoute, toRoute, containerSize, items} = props,
     {Domain, navigation} = Singleton.getInstance();
+
+  const {textState, backgroundColorState} = useTextState(data.short_marks);
 
   const isLastItem = items[items.length - 1].id === data.id;
 
@@ -261,9 +263,19 @@ export function renderEntityItem(props, text, badge, styles, icon = null, custom
         <View onLayout={e => setCardSize(e.nativeEvent.layout)} style={cardImageContainerStyle}>
           <ImageBackground
             source={data.media ? {uri: data.media} : null}
-            style={imageBackgroundStyle}>
+            style={imageBackgroundStyle || {}}>
             <Text style={textStyle}>{text}{icon}</Text>
-            {badge}
+            {textState ?
+              <Badge style={{...styles.badge, backgroundColor: backgroundColorState}}>
+                <Text style={styles.badgeText}>
+                  {textState.length > 12 ?
+                    `${textState.slice(0, 12)}...`
+                    : textState
+                  }
+                </Text>
+              </Badge>
+              : null
+            }
           </ImageBackground>
         </View>
         {renderGroupBadge(groupSize, styles)}
