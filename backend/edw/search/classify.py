@@ -7,6 +7,8 @@ import math
 from haystack import connections
 from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
 
+from .. import settings as edw_settings
+
 
 def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, model=None):
     """
@@ -90,7 +92,7 @@ def analyze_suggestions(search_result):
     более 0.8 - точно да
     '''
     # Parse search result to get score and words per suggestion
-    suggestions = {}
+    raw_suggestions = {}
     for hit in search_result['hits']['hits']:
         # When querying all models at the same time,
         # some of them may have [None] in category field,
@@ -114,14 +116,13 @@ def analyze_suggestions(search_result):
             else:
                 score = hit['_score']
                 similar = category.get('similar', True)
-                foo = suggestions.get(x, None)
+                foo = raw_suggestions.get(x, None)
                 if foo is None:
-                    suggestions[x] = {
+                    raw_suggestions[x] = {
                         'category': category,
                         'words': words,
                         'count': 1,
                         'score': score,
-                        'confidience': 0,
                         'similar': similar
                     }
                 else:
@@ -129,69 +130,106 @@ def analyze_suggestions(search_result):
                     foo['count'] += 1
                     foo['words'].update(words)
 
-    # переводим множество слов в список
-    suggestions = suggestions.values()
-
-    geo_mean, cnt, min_score, max_score = {
-        False: 1,
-        True: 1
-    }, {
-        False: 0,
-        True: 0
-    }, {
-        False: None,
-        True: None
-    }, {
-        False: None,
-        True: None
+    suggestions = []
+    _suggestions = {
+        True: {
+            'results': [],
+            'geo_mean_score': 1,
+            'min_score': None,
+            'max_score': None,
+        },
+        False: {
+            'results': [],
+            'geo_mean_score': 1,
+            'min_score': None,
+            'max_score': None,
+        },
     }
 
-    for x in suggestions:
+    # получаем балансовый коэффициент для расчета F меры
+    b2 = edw_settings.CLASSIFY['precision_recall_balance'] ** 2
+
+    # Переводим множество слов в список, для "похожих" / "не похожих" категорий формируем разные списки.
+    for x in raw_suggestions.values():
         similar = x['similar']
-        score = x['score']
-        _min_score = min_score[similar]
-        _max_score = max_score[similar]
+        same_suggestions = _suggestions[similar]
+        same_suggestions['results'].append(x)
+        min_score, max_score = same_suggestions['min_score'], same_suggestions['max_score']
         x['words'] = list(x['words'])
-        precision = score
-        recall = x['count']
-        B = .2
-        b2 = B ** 2
+        precision, recall = x['score'], x['count']
 
         # F-metric
         score = x['score'] = (1 + b2) * precision * recall / (b2 * precision + recall)
-        geo_mean[similar] *= score
-        cnt[similar] += 1
-        min_score[similar] = score if _min_score is None else min(_min_score, score)
-        max_score[similar] = score if _max_score is None else max(_max_score, score)
 
-        # print()
-        # print('category, precision, recall', x['category'], precision, recall)
-        # print()
+        same_suggestions['geo_mean_score'] *= score
+        same_suggestions['min_score'] = score if min_score is None else min(min_score, score)
+        same_suggestions['max_score'] = score if max_score is None else max(max_score, score)
 
-    for x in (True, False):
-        # Вычисляем среднее арифметическое и среднее геометрическое рейтинга среди всех выявленных тем
-        _cnt = cnt[x]
-        geo_mean[x] = geo_mean[x] ** (1 / _cnt) if _cnt else 0
+    # получаем балансовый коэффициент для расчета Confidence
+    b2 = edw_settings.CLASSIFY['emission_dispersion_balance'] ** 2
 
-    for x in suggestions:
-        similar = x['similar']
-        _min_score = min_score[similar]
-        _delta = geo_mean[similar] - _min_score
-        _shifted_score = x['score'] - _min_score
-        x['confidience'] = (1 if cnt[similar] == 1 else 0) if _shifted_score == 0 or _delta == 0 else math.log(
-            _shifted_score / _delta * _min_score / max_score[similar], 4
-        )
+    # относительная погрешность
+    relative_error = edw_settings.CLASSIFY['relative_error']
 
-    for x in suggestions:
-        if not x['similar']:
-            x['score'] = -x['score']
+    # обрабатываем результаты отдельно для "похожих" и "не похожих" категорий
+    raw_results = {
+        True: [],
+        False: []
+    }
+    for similar in (True, False):
+        # Вычисляем среднее геометрическое рейтинга среди всех выявленных тем
+        same_suggestions = _suggestions[similar]
+        cnt = len(same_suggestions['results'])
 
-    # сортируем
-    suggestions = sorted(
-        suggestions,
-        key=lambda x: x['confidience'],
-        reverse=True
-    )
+        if cnt:
+            max_score, min_score = same_suggestions['max_score'], same_suggestions['min_score']
+            geo_mean = same_suggestions['geo_mean_score'] = same_suggestions['geo_mean_score'] ** (1 / cnt)
+            delta = same_suggestions['delta_score'] = max_score - min_score
+
+            # Сортируем
+            same_suggestions['results'] = sorted(
+                same_suggestions['results'],
+                key=lambda y: y['score'],
+                reverse=True
+            )
+
+            # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
+            same_suggestions_results = same_suggestions['results']
+            for suggestion in same_suggestions_results:
+                score = suggestion['score']
+                emission = math.fabs(suggestion['score'] - geo_mean) / delta
+                dispersion = delta * score / (max_score ** 2)
+
+                # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
+                suggestion['confidence'] = (1 + b2) * emission * dispersion / (b2 * emission + dispersion)
+
+            #  Фильтрация
+            results = raw_results[similar]
+            d0, c0 = 0, same_suggestions_results[0]['confidence']
+            for suggestion in same_suggestions_results:
+                confidence = suggestion['confidence']
+                d = 1 - confidence / c0
+                if 0 <= d >= d0 - relative_error:
+                    results.append(suggestion)
+                    c0 = confidence
+                    d0 = d
+                else:
+                    break
+
+            if not similar:
+                # Меняем порядок сортировки и знак для "не похожих" категорий
+                results.reverse()
+                for suggestion in results:
+                    suggestion['score'] = -suggestion['score']
+
+            # Добавлям в результирующий список
+            suggestions.extend(results)
+
+        else:
+            # Категории не найдены
+            del same_suggestions['geo_mean_score']
+            del same_suggestions['min_score']
+            del same_suggestions['max_score']
 
     # for development purposes only
     # print()
@@ -200,7 +238,7 @@ def analyze_suggestions(search_result):
     #     print('* id:', x['category']['id'])
     #     print('* category:', x['category']['name'])
     #     print('* score:', x['score'])
-    #     print('* confidience:', x['confidience'])
+    #     print('* confidence:', x['confidence'])
     #     print('* similar:', x['similar'])
     #     print('* count:', x['count'])
     #     print('* words:', x['words'])

@@ -83,7 +83,7 @@ def more_like_this(request):
                 'model': model,
                 'title': category['name'],
                 'score': suggestion['score'],
-                'confidience': suggestion['confidience'],
+                'confidence': suggestion['confidence'],
                 'words': suggestion['words'],
                 'url': url
             }
