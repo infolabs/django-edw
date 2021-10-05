@@ -46,7 +46,7 @@ export const dataMartStyles = StyleSheet.create({
   viewAndFilteredIcon: {
     width: 100,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
   termTreeAnimatedView: {

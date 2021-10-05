@@ -46,7 +46,7 @@ class NERMixin(ModelMixin):
         ('&lt;', '<'),
     ]
 
-    TASK_WAIT_EXECUTION_INTERVAL = 5
+    NER_TASK_WAIT_EXECUTION_INTERVAL = 5
 
     ner_data = JSONField(verbose_name=_("NER data"), default={},
         help_text=_("Data obtained after recognition of named entities for the given text"))
@@ -163,7 +163,7 @@ class NERMixin(ModelMixin):
     def extract_ner(self):
         '''
         Данный метод вызывать только через task`и! Если его вызывать из инстанции объекта то это приведет к перерасходу
-        памяти из-за того, что для каждого запущеного потока сервера будет создана копия данных нужных для извлечения
+        памяти из-за того, что для каждого запущенного потока сервера будет создана копия данных нужных для извлечения
         именованных сущностей. Каждая копия использует 250-350 мегабайт оперативной памяти, на боевом сервере создается
         практически столько потоков сколько есть процессорных ядер, у сервером с большим количеством ядер это приведет
         к тому что память будет использоваться крайне неэффективно.
@@ -189,7 +189,7 @@ class NERMixin(ModelMixin):
                     "obj_id": self.id,
                     "obj_model": self.__class__.__name__.lower()
                 },
-                expires=self.TASK_WAIT_EXECUTION_INTERVAL,
+                expires=self.NER_TASK_WAIT_EXECUTION_INTERVAL,
                 retry=False,
             )
         except extract_ner_data.OperationalError as exc:
@@ -198,7 +198,7 @@ class NERMixin(ModelMixin):
         else:
             try:
                 ner_data = result.get(
-                    interval=self.TASK_WAIT_EXECUTION_INTERVAL,
+                    interval=self.NER_TASK_WAIT_EXECUTION_INTERVAL,
                     propagate=False,
                 )
             except Exception:

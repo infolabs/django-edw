@@ -126,8 +126,8 @@ class BaseBoundary(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         """Example: [[[36.4446651, 50.5952546], [36.4449469, 50.5934115], [36.445167, 50.5929324]], """
         """[[37.0134838, 51.2020471], [37.016944, 51.2008424], [37.0186202, 51.2015776]]]. """
         """Source: https://nominatim.openstreetmap.org/search.php?q=moscow&polygon_geojson=1&format=json"""))
-
     active = models.BooleanField(verbose_name=_('Active'), default=True, db_index=True)
+    order = models.SmallIntegerField(verbose_name=_('Order'), default=0, blank=False, null=False, db_index=True)
 
     objects = BaseBoundaryZoneManager()
 
@@ -234,7 +234,7 @@ BoundaryModel = deferred.MaterializedModel(BaseBoundary)
 
 def get_boundary(longitude, latitude, term_ids=None):
     tree_opts = TermModel._mptt_meta
-    boundaries = BoundaryModel.objects.active().select_related('term').order_by(
+    boundaries = BoundaryModel.objects.active().select_related('term').order_by('-order',
         '-' + 'term__{}'.format(tree_opts.level_attr),
         'term__{}'.format(tree_opts.tree_id_attr), 'term__{}'.format(tree_opts.left_attr))
     if term_ids is not None:
