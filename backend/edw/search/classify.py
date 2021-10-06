@@ -186,35 +186,40 @@ def analyze_suggestions(search_result):
             geo_mean = same_suggestions['geo_mean_score'] = same_suggestions['geo_mean_score'] ** (1 / cnt)
             delta = same_suggestions['delta_score'] = max_score - min_score
 
-            # Сортируем
-            same_suggestions['results'] = sorted(
-                same_suggestions['results'],
-                key=lambda y: y['score'],
-                reverse=True
-            )
-
-            # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
             same_suggestions_results = same_suggestions['results']
-            for suggestion in same_suggestions_results:
-                score = suggestion['score']
-                emission = math.fabs(suggestion['score'] - geo_mean) / delta
-                dispersion = delta * score / (max_score ** 2)
-
-                # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
-                suggestion['confidence'] = (1 + b2) * emission * dispersion / (b2 * emission + dispersion)
-
-            #  Фильтрация
             results = raw_results[similar]
-            d0, c0 = 0, same_suggestions_results[0]['confidence']
-            for suggestion in same_suggestions_results:
-                confidence = suggestion['confidence']
-                d = 1 - confidence / c0
-                if 0 <= d >= d0 - relative_error:
+            if delta != 0:
+                # Сортируем
+                same_suggestions_results = sorted(
+                    same_suggestions_results,
+                    key=lambda y: y['score'],
+                    reverse=True
+                )
+
+                # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
+                for suggestion in same_suggestions_results:
+                    score = suggestion['score']
+                    emission = math.fabs(suggestion['score'] - geo_mean) / delta
+                    dispersion = delta * score / (max_score ** 2)
+
+                    # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
+                    suggestion['confidence'] = (1 + b2) * emission * dispersion / (b2 * emission + dispersion)
+
+
+                #  Фильтрация
+                d0, c0 = 0, same_suggestions_results[0]['confidence']
+                for suggestion in same_suggestions_results:
+                    confidence = suggestion['confidence']
+                    d = 1 - confidence / c0
+                    if 0 <= d >= d0 - relative_error:
+                        results.append(suggestion)
+                        c0, d0 = confidence, d
+                    else:
+                        break
+            else:
+                for suggestion in same_suggestions_results:
+                    suggestion['confidence'] = 0
                     results.append(suggestion)
-                    c0 = confidence
-                    d0 = d
-                else:
-                    break
 
             if not similar:
                 # Меняем порядок сортировки и знак для "не похожих" категорий
