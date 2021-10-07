@@ -183,7 +183,7 @@ def analyze_suggestions(search_result):
 
         if cnt:
             max_score, min_score = same_suggestions['max_score'], same_suggestions['min_score']
-            geo_mean = same_suggestions['geo_mean_score'] = same_suggestions['geo_mean_score'] ** (1 / cnt)
+            geo_mean_score = same_suggestions['geo_mean_score'] = same_suggestions['geo_mean_score'] ** (1 / cnt)
             delta = same_suggestions['delta_score'] = max_score - min_score
 
             same_suggestions_results = same_suggestions['results']
@@ -199,7 +199,7 @@ def analyze_suggestions(search_result):
                 # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
                 for suggestion in same_suggestions_results:
                     score = suggestion['score']
-                    emission = math.fabs(suggestion['score'] - geo_mean) / delta
+                    emission = math.fabs(suggestion['score'] - geo_mean_score) / delta
                     dispersion = delta * score / (max_score ** 2)
 
                     # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
