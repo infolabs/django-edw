@@ -213,24 +213,15 @@ def analyze_suggestions(search_result):
 
 
                 #  Фильтрация
-
-                print("+++", delta_confidence, max_confidence, min_confidence )
-
                 suggestion = same_suggestions_results[0]
                 results.append(suggestion)
 
                 c0 = suggestion['confidence']
                 d0 = (c0 - min_confidence) / delta_confidence
-                print("==============")
-                print(">>> 1 score: ", suggestion['score'], ', confidence: ', c0, ', d: ', d0)
 
                 for suggestion in same_suggestions_results[1:]:
                     c = suggestion['confidence']
                     d = (c - min_confidence) / delta_confidence
-                    print("==============")
-                    print(">>> score: ", suggestion['score'], ', confidence: ', c, ', d0:', d0, ', d: ', d)
-                    print(">>> TEST: ", d <= d0, d - d0 <= relative_error, d - d0, relative_error)
-                    print("==============")
 
                     if d - d0 <= relative_error:
                         results.append(suggestion)
