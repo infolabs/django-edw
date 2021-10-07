@@ -184,11 +184,11 @@ def analyze_suggestions(search_result):
         if cnt:
             max_score, min_score = same_suggestions['max_score'], same_suggestions['min_score']
             geo_mean_score = same_suggestions['geo_mean_score'] = same_suggestions['geo_mean_score'] ** (1 / cnt)
-            delta = same_suggestions['delta_score'] = max_score - min_score
+            delta_score = same_suggestions['delta_score'] = max_score - min_score
 
             same_suggestions_results = same_suggestions['results']
             results = raw_results[similar]
-            if delta != 0:
+            if delta_score != 0:
                 # Сортируем
                 same_suggestions_results = sorted(
                     same_suggestions_results,
@@ -200,8 +200,8 @@ def analyze_suggestions(search_result):
                 min_confidence, max_confidence = None, None
                 for suggestion in same_suggestions_results:
                     score = suggestion['score']
-                    emission = math.fabs(suggestion['score'] - geo_mean_score) / delta
-                    dispersion = delta * score / (max_score ** 2)
+                    emission = math.fabs(suggestion['score'] - geo_mean_score) / delta_score
+                    dispersion = delta_score * score / (max_score ** 2)
 
                     # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
                     confidence = suggestion['confidence'] = (1 + b2) * emission * dispersion / (
@@ -213,7 +213,7 @@ def analyze_suggestions(search_result):
 
 
                 #  Фильтрация
-                d0, c0 = 0, same_suggestions_results[0]['confidence']
+                d0, c0 = 0, max_confidence
                 for suggestion in same_suggestions_results:
                     c = suggestion['confidence']
 
@@ -243,8 +243,6 @@ def analyze_suggestions(search_result):
             del same_suggestions['geo_mean_score']
             del same_suggestions['min_score']
             del same_suggestions['max_score']
-            del same_suggestions['min_confidence']
-            del same_suggestions['max_confidence']
 
     # for development purposes only
     # print()
