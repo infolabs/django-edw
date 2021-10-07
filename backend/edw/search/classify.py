@@ -197,25 +197,33 @@ def analyze_suggestions(search_result):
                 )
 
                 # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
+                min_confidence, max_confidence = None, None
                 for suggestion in same_suggestions_results:
                     score = suggestion['score']
                     emission = math.fabs(suggestion['score'] - geo_mean_score) / delta
                     dispersion = delta * score / (max_score ** 2)
 
                     # Confidence - гармоническое среднее, зависит от разброса значений и их кучности
-                    suggestion['confidence'] = (1 + b2) * emission * dispersion / (b2 * emission + dispersion)
+                    confidence = suggestion['confidence'] = (1 + b2) * emission * dispersion / (
+                            b2 * emission + dispersion)
+
+                    min_confidence = confidence if min_confidence is None else min(min_confidence, confidence)
+                    max_confidence = confidence if max_confidence is None else max(max_confidence, confidence)
+                delta_confidence = max_confidence - min_confidence
 
 
                 #  Фильтрация
                 d0, c0 = 0, same_suggestions_results[0]['confidence']
                 for suggestion in same_suggestions_results:
-                    confidence = suggestion['confidence']
-                    d = 1 - confidence / c0
-                    if 0 <= d >= d0 - relative_error:
-                        results.append(suggestion)
-                        c0, d0 = confidence, d
-                    else:
-                        break
+                    c = suggestion['confidence']
+
+
+                    # d = 1 - confidence / c0
+                    # if 0 <= d >= d0 - relative_error:
+                    #     results.append(suggestion)
+                    #     c0, d0 = confidence, d
+                    # else:
+                    #     break
             else:
                 for suggestion in same_suggestions_results:
                     suggestion['confidence'] = 0
@@ -235,6 +243,8 @@ def analyze_suggestions(search_result):
             del same_suggestions['geo_mean_score']
             del same_suggestions['min_score']
             del same_suggestions['max_score']
+            del same_suggestions['min_confidence']
+            del same_suggestions['max_confidence']
 
     # for development purposes only
     # print()
