@@ -315,27 +315,29 @@ export function renderEntityTile(props, styles, createItem) {
 export function renderEntityList(props, styles, createItem) {
   const {items, templateIsDataMart, dataMartName, containerSize} = props;
 
-  if (templateIsDataMart) {
-    return renderEntityTile(props, styles, createItem)
-  } else {
-    let containerRelatedViewStyle;
-    if (containerSize !== RELATED_CONTAINER_SIZE.large)
-      containerRelatedViewStyle = styles.containerRelatedView;
-    else
-      containerRelatedViewStyle = {...styles.containerRelatedView, height: 300};
+  if (templateIsDataMart)
+    return renderEntityTile(props, styles, createItem);
 
-    return (
-      <View style={containerRelatedViewStyle}>
-        <Text style={styles.containerRelatedViewName}>{dataMartName}</Text>
-        <List
-          style={styles.containerRelated}
-          contentContainerStyle={styles.containerContentRelated}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={items}
-          renderItem={info => createItem(info.item, info.index)}
-        />
-      </View>
-    )
-  }
+  if (!items.length)
+    return null;
+
+  let containerRelatedViewStyle;
+  if (containerSize !== RELATED_CONTAINER_SIZE.large)
+    containerRelatedViewStyle = styles.containerRelatedView;
+  else
+    containerRelatedViewStyle = {...styles.containerRelatedView, height: 300};
+
+  return (
+    <View style={containerRelatedViewStyle}>
+      <Text style={styles.containerRelatedViewName}>{dataMartName}</Text>
+      <List
+        style={styles.containerRelated}
+        contentContainerStyle={styles.containerContentRelated}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        data={items}
+        renderItem={info => createItem(info.item, info.index)}
+      />
+    </View>
+  )
 }

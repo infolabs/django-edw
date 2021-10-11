@@ -22,6 +22,12 @@ function Radio(props) {
 
 function TermsTreeItem(props) {
 
+  const {deviceWidth} = platformSettings;
+  const styles = useStyleSheet(termsTreeItemStyles);
+
+  const {term, actions, tagged, expanded, realPotential, terms, termsIdsTaggedBranch, termViewClasses} = props,
+    {children, parent} = term;
+
   function handleItemPress() {
     const {term, actions} = props;
     actions.toggleTerm(term);
@@ -37,11 +43,19 @@ function TermsTreeItem(props) {
     actions.resetBranch(term);
   }
 
-  const {deviceWidth} = platformSettings;
-  const styles = useStyleSheet(termsTreeItemStyles);
+  function getVisibilityChildrenTree(term) {
+    const termViewClass = term.view_class;
+    let visibleChildTerm = true;
 
-  const {term, actions, tagged, expanded, realPotential, terms, termsIdsTaggedBranch} = props,
-    {children, parent} = term;
+    if (termViewClass) {
+      termViewClasses.map(item => {
+        if (termViewClass.includes(item))
+          visibleChildTerm = false
+      })
+    }
+
+    return visibleChildTerm
+  }
 
   let ex_no_term = '';
   if (realPotential.has_metadata && !realPotential.rils[term.id])
@@ -117,12 +131,18 @@ function TermsTreeItem(props) {
       const any_tagged = tagged.isAnyTagged(children);
       fontWeight = any_tagged ? 'normal' : 'bold';
       const key = `reset_item_${term.id}`;
-      reset_item = <View style={styles.termView} key={key}>
-        <Radio checked={!any_tagged}
-               onPress={() => handleResetTermPress()}
-               content={<Text style={{...styles.term, fontWeight}} onPress={handleItemPress}>Всё</Text>}
-               styles={styles}/>
-      </View>;
+
+      let visibleChildTerm = getVisibilityChildrenTree(term);
+      if (visibleChildTerm) {
+        reset_item = (
+          <View style={styles.termView} key={key}>
+            <Radio checked={!any_tagged}
+                   onPress={() => handleResetTermPress()}
+                   content={<Text style={{...styles.term, fontWeight}} onPress={handleItemPress}>Всё</Text>}
+                   styles={styles}/>
+          </View>
+        )
+      }
     }
 
     if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children) &&
@@ -135,17 +155,23 @@ function TermsTreeItem(props) {
     }
   }
 
-  let render_children = (children.map(child =>
-      <TermsTreeItem key={child.id}
-                     term={child}
-                     tagged={tagged}
-                     expanded={expanded}
-                     realPotential={realPotential}
-                     actions={actions}
-                     terms={terms}
-                     termsIdsTaggedBranch={termsIdsTaggedBranch}
-      />)
-  );
+  let render_children = (children.map(child => {
+    let visibleChild = getVisibilityChildrenTree(child.parent);
+    if (visibleChild) {
+      return (
+        <TermsTreeItem key={child.id}
+                       term={child}
+                       tagged={tagged}
+                       expanded={expanded}
+                       realPotential={realPotential}
+                       actions={actions}
+                       terms={terms}
+                       termViewClasses={termViewClasses}
+                       termsIdsTaggedBranch={termsIdsTaggedBranch}
+        />
+      )
+    }
+  }));
 
   if (reset_item)
     render_children.unshift(reset_item);

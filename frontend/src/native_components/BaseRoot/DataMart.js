@@ -23,6 +23,7 @@ const {deviceHeight} = platformSettings;
 
 function DataMart(props) {
   const {entry_point_id, entry_points, entities, terms, fromRoute} = props;
+  const termViewClasses = props.termViewClasses || [];
   const {json} = terms.tree;
 
   const refs = useRef({
@@ -151,7 +152,7 @@ function DataMart(props) {
               <ScrollView>
                 <View style={styles.termsScrollViewContainer}>
                   <TermsTree entry_points={entry_points} entry_point_id={entry_point_id}
-                             termsIdsTaggedBranch={refs.termsIdsTaggedBranch}/>
+                             termsIdsTaggedBranch={refs.termsIdsTaggedBranch} termViewClasses={termViewClasses}/>
                 </View>
               </ScrollView>
             </View>

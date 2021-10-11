@@ -15,7 +15,7 @@ export function getTemplates() {
 
 function BaseRoot(props) {
   const store = configureStore();
-  const {entry_points, entry_point_id, fromRoute, toRoute, containerSize} = props.attrs;
+  const {entry_points, entry_point_id} = props.attrs;
   const templates = getTemplates();
   // a mobile app uses its own store, in order to get the edw store
   // one can pass an event handler on store changes
@@ -32,12 +32,8 @@ function BaseRoot(props) {
 
   const container_render = React.createElement(
     component, {
-      entry_points,
-      entry_point_id,
-      fromRoute,
-      toRoute,
       dataMartName,
-      containerSize,
+      ...props.attrs,
     }
   );
 
