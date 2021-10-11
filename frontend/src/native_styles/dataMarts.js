@@ -30,6 +30,7 @@ export const dataMartStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 15,
+    backgroundColor: '#fff',
   },
   headerBtn: {
     height: 50,

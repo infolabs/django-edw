@@ -10,7 +10,7 @@ import {termsTreeItemStyles as styles} from '../native_styles/terms';
 
 
 function TermsTree(props) {
-
+  const {termViewClasses} = props;
   const prevPropsRef = useRef(props);
 
   useEffect(() => {
@@ -80,6 +80,7 @@ function TermsTree(props) {
                        realPotential={realPotential}
                        actions={actions}
                        terms={terms}
+                       termViewClasses={termViewClasses}
                        termsIdsTaggedBranch={termsIdsTaggedBranch}/>
       </View>
     )
