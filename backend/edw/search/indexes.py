@@ -46,7 +46,7 @@ class EntityIndex(indexes.SearchIndex):
         return prepared_data
 
     def prepare_categories(self, entity):
-        '''
+        """
         Базовый метод для получения категории объекта, в конкретных индексах его надо перекрыть для получения нужных данных
         :param entity:
         :return:
@@ -58,15 +58,18 @@ class EntityIndex(indexes.SearchIndex):
             ('name', obj.name),
             ('similar', True)
         )), ensure_ascii=False)] if obj else []
-        '''
+        """
         return []
 
     @staticmethod
     def get_characteristics(entity):
-        """Util function"""
+        """
+        Util function
+        Возвращает характеристеки для индексирования, кроме тех которые содержат класс представления - `no-index`
+        """
         return [
             '{}: {}'.format(term.name, ', '.join(term.values))
-            for term in entity.characteristics
+            for term in entity.characteristics if 'no-index' not in term.view_class
         ]
 
     def index_queryset(self, using=None):
