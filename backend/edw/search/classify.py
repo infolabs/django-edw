@@ -197,7 +197,7 @@ def analyze_suggestions(search_result):
                 )
 
                 # Вычисляем показатели для определениия коэффициента уверености в правильном ответе, для каждого варианта
-                min_confidence, max_confidence = None, None
+                max_confidence = None
                 for suggestion in same_suggestions_results:
                     score = suggestion['score']
                     emission = math.fabs(suggestion['score'] - geo_mean_score) / delta_score
@@ -207,26 +207,29 @@ def analyze_suggestions(search_result):
                     confidence = suggestion['confidence'] = (1 + b2) * emission * dispersion / (
                             b2 * emission + dispersion)
 
-                    min_confidence = confidence if min_confidence is None else min(min_confidence, confidence)
                     max_confidence = confidence if max_confidence is None else max(max_confidence, confidence)
-                delta_confidence = max_confidence - min_confidence
-
 
                 #  Фильтрация
                 suggestion = same_suggestions_results[0]
                 results.append(suggestion)
 
                 c0 = suggestion['confidence']
-                d0 = (c0 - min_confidence) / delta_confidence
+                d0 = c0 / max_confidence
 
                 for suggestion in same_suggestions_results[1:]:
                     c = suggestion['confidence']
-                    d = (c - min_confidence) / delta_confidence
+                    d = c / max_confidence
+
+                    # print("* TEST *",  d - d0, "|", d, d0)
 
                     if d - d0 <= relative_error:
                         results.append(suggestion)
                         c0, d0 = c, d
+
+                        # print("+ OK +")
                     else:
+                        # print("- NO -")
+                        # results.append(suggestion)
                         break
 
             else:

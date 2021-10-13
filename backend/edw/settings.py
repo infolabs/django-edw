@@ -88,10 +88,10 @@ CLASSIFY = {
     # баланс между точностью и полнотой
     # принимает значения в диапазоне 0<β<1 если вы хотите отдать приоритет точности,
     # а при β>1 приоритет отдается полноте.
-    'precision_recall_balance': 1.2,
+    'precision_recall_balance': 0.2,
     # баланс между 'выбросом' и 'разбросом'
-    'emission_dispersion_balance': 2,
+    'emission_dispersion_balance': 1.0,
     # относительная погрешность
-    'relative_error': 5 / 100
+    'relative_error': 10 / 100
 }
 CLASSIFY.update(getattr(settings, 'EDW_CLASSIFY', {}))
