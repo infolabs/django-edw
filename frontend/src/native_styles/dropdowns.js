@@ -10,4 +10,7 @@ export const dropDownsStyles = StyleSheet.create({
   sortText: {
     fontSize: 16,
   },
+  sortIcon: {
+    fontSize: 16,
+  }
 });

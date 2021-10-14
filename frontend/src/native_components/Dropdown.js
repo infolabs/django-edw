@@ -52,7 +52,7 @@ function Dropdown(props) {
   const renderToggleButton = () => (
     <Button onPress={() => setVisible(true)} style={styles.button} size="large" appearance="ghost" status="basic">
       <Text style={styles.sortText}>{selected}</Text>
-      <Icon name="chevron-down-outline" style={{fontSize: theme['icon-size']}}/>
+      <Icon name="chevron-down-outline" style={styles.sortIcon}/>
     </Button>
   );
 

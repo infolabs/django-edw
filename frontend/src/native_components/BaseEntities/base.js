@@ -32,6 +32,7 @@ export const stylesComponent = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
+    fontSize: 14,
   },
 });
 
