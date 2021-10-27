@@ -1401,7 +1401,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         RUS: Возвращает дополнительные данные для группы.
         """
         return {
-            'group_name': self.entity_name
+            'group_name': self.entity_name,
+            'group_terms_ids': None
         }
 
     @classmethod
