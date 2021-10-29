@@ -219,6 +219,7 @@ def analyze_suggestions(search_result):
                 has_dominant = False
                 dominant_delta = 0
                 dominant_cnt = 1
+                i = 1
 
                 c0 = suggestion['confidence']
                 d0 = c0 / max_confidence
@@ -239,17 +240,22 @@ def analyze_suggestions(search_result):
                                 potential_dominants.append(suggestion)
                                 dominant_cnt += 1
                         c0, d0 = c, d
+                        i += 1
                     else:
                         break
 
+                for suggestion in same_suggestions_results[i:]:
+                    results.append(suggestion)
+                    suggestion['status'] = 'fake'
+
                 if has_dominant and dominant_delta / dominant_cnt <= relative_error:
                     for suggestion in potential_dominants:
-                        suggestion['dominant'] = True
+                        suggestion['status'] = 'dominant'
 
             else:
                 for suggestion in same_suggestions_results:
                     suggestion['confidence'] = 0
-                    suggestion['dominant'] = True
+                    suggestion['status'] = 'dominant'
                     results.append(suggestion)
 
             if not similar:
