@@ -87,7 +87,7 @@ class FIASMixin(ModelMixin):
     @staticmethod
     def get_fias_data_by_address(address):
         """
-        метод для получения данных по адресу из ФИАС по адресу. Пример данных:
+        Метод для получения данных по адресу из ФИАС по адресу. Пример данных:
         {
             'Place': {
               'ObjectId': 14852881,
@@ -131,39 +131,45 @@ class FIASMixin(ModelMixin):
         'Locality' - данные по населенному пункту или городу, которому принадлежит адресный объект
         'Region' - данные по региону которому принадлежит данный населенный пункт или город
         """
+
         result = {}
-        # формируем запрос получения данных по адресу из ФИАС. Находится
+        # Формируем запрос получения данных по адресу из ФИАС. Находится
         url = SEARCH_URL.format(address)
         resp = requests.get(url, headers=HEADERS)
         if resp.status_code == 200 or resp.status_code == 201:
             try:
                 json_data = resp.json()
             except JSONDecodeError:
-                # Вернулось не пойми что
+                # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
                 pass
             else:
                 try:
-                    # берем первый адрес и из него получаем ID адресного объекта
+                    # Берем первый адрес в списке и из него получаем ID адресного объекта
                     address_code = json_data[0]['ObjectId']
                 except (KeyError, IndexError):
-                    # Вернулось не пойми что
+                    # Вернулось не пойми что либо нужных данных там нет (например не нашлось адресов)
                     pass
                 else:
                     result['Place'] = json_data[0]
                     for lvl in LOCALITY_LEVELS:
-                        # циклом перебираем потенциальные уровни начиная с Населенный пункт
+                        # Циклом перебираем потенциальные уровни начиная с Населенный пункт
                         url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
                         resp = requests.get(url, headers=HEADERS)
                         if resp.status_code == 200 or resp.status_code == 201:
-                            json_data = resp.json()
                             try:
-                                data = json_data["Data"]
-                                if len(data) > 0:
-                                    result['Locality'] = data[0]
-                                    break
-                            except (KeyError, IndexError):
-                                # Вернулось не пойми что
+                                json_data = resp.json()
+                            except JSONDecodeError:
+                                # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
                                 pass
+                            else:
+                                try:
+                                    data = json_data["Data"]
+                                    if len(data) > 0:
+                                        result['Locality'] = data[0]
+                                        break
+                                except (KeyError, IndexError):
+                                    # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
+                                    pass
                     # получаем регион
                     url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
                     resp = requests.get(url, headers=HEADERS)
@@ -171,7 +177,7 @@ class FIASMixin(ModelMixin):
                         try:
                             json_data = resp.json()
                         except JSONDecodeError:
-                            # Вернулось не пойми что
+                            # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
                             pass
                         else:
                             try:
@@ -179,7 +185,7 @@ class FIASMixin(ModelMixin):
                                 if len(data) > 0:
                                     result['Region'] = data[0]
                             except (KeyError, IndexError):
-                                # Вернулось не пойми что
+                                # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
                                 pass
         return result
 
