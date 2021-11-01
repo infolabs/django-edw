@@ -46,9 +46,9 @@ class User(AbstractUser):
         return self.username if self.is_staff else self.email or self.username
 
     def get_full_name(self):
-        full_name = super(User, self).get_full_name()
+        full_name = '{} {} {}'.format(self.last_name, self.first_name, self.patronymic)
         if full_name:
-            return full_name
+            return full_name.strip()
         return self.get_short_name()
 
     def get_short_name(self):
@@ -78,12 +78,12 @@ class BannedEmailDomain(models.Model):
         unique=True,
         db_index=True,
     )
-    
+
     class Meta:
         ordering = ('domain_name',)
         db_table = 'auth_banned_email_domain'
         verbose_name = _("Banned email domain")
         verbose_name_plural = _("Banned email domains")
-    
+
     def __str__(self):
         return self.domain_name
