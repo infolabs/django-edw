@@ -92,6 +92,8 @@ CLASSIFY = {
     # баланс между 'выбросом' и 'разбросом'
     'emission_dispersion_balance': 1.0,
     # относительная погрешность
-    'relative_error': 10 / 100
+    'relative_error': 10 / 100,
+    # разница между доминантом и остальной группой
+    'dominant_difference': 0.333
 }
 CLASSIFY.update(getattr(settings, 'EDW_CLASSIFY', {}))

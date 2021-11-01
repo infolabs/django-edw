@@ -84,6 +84,7 @@ def more_like_this(request):
                 'title': category['name'],
                 'score': suggestion['score'],
                 'confidence': suggestion['confidence'],
+                'status': suggestion.get('status', 'neutral'),
                 'words': suggestion['words'],
                 'url': url
             }

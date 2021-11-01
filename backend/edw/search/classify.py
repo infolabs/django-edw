@@ -170,6 +170,8 @@ def analyze_suggestions(search_result):
 
     # относительная погрешность
     relative_error = edw_settings.CLASSIFY['relative_error']
+    # разница между доминантом и остальной группой
+    dominant_difference = edw_settings.CLASSIFY['dominant_difference']
 
     # обрабатываем результаты отдельно для "похожих" и "не похожих" категорий
     raw_results = {
@@ -213,28 +215,47 @@ def analyze_suggestions(search_result):
                 suggestion = same_suggestions_results[0]
                 results.append(suggestion)
 
+                potential_dominants = [suggestion]
+                has_dominant = False
+                dominant_delta = 0
+                dominant_cnt = 1
+                i = 1
+
                 c0 = suggestion['confidence']
                 d0 = c0 / max_confidence
+                d0_avg = d0
 
                 for suggestion in same_suggestions_results[1:]:
                     c = suggestion['confidence']
                     d = c / max_confidence
-
-                    # print("* TEST *",  d - d0, "|", d, d0)
-
-                    if d - d0 <= relative_error:
+                    delta = d - d0
+                    if delta <= relative_error:
                         results.append(suggestion)
+                        if not has_dominant:
+                            d0_avg = ((dominant_cnt - 1) * d0_avg + d0) / dominant_cnt
+                            if d0_avg - d >= dominant_difference:
+                                has_dominant = True
+                            else:
+                                dominant_delta -= delta
+                                potential_dominants.append(suggestion)
+                                dominant_cnt += 1
                         c0, d0 = c, d
-
-                        # print("+ OK +")
+                        i += 1
                     else:
-                        # print("- NO -")
-                        # results.append(suggestion)
                         break
+
+                for suggestion in same_suggestions_results[i:]:
+                    results.append(suggestion)
+                    suggestion['status'] = 'fake'
+
+                if has_dominant and dominant_delta / dominant_cnt <= relative_error:
+                    for suggestion in potential_dominants:
+                        suggestion['status'] = 'dominant'
 
             else:
                 for suggestion in same_suggestions_results:
                     suggestion['confidence'] = 0
+                    suggestion['status'] = 'dominant'
                     results.append(suggestion)
 
             if not similar:
