@@ -79,7 +79,7 @@ export class DataMart extends Component {
               <Statistics entry_points={entry_points} entry_point_id={entry_point_id}/>
             </div>
           </div>
-          <div className="row">
+          <div className="maincol-top">
             <div className="ex-datamart__col ex-group-title">
               <GroupTitle/>
             </div>

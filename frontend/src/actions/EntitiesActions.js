@@ -17,6 +17,8 @@ import getUrl from '../utils/getUrl';
 import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
 import {NATIVE, PLATFORM} from "../constants/Common";
+import {getTermsTree} from './TermsTreeActions'
+import {LOAD_TERMS_TREE} from "../constants/TermsTree";
 
 
 const globalStore = Singleton.getInstance();
@@ -70,10 +72,8 @@ export function getEntityInfo(data, meta = false) {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-      }).then(response => response.json()).then(json => dispatch({
-        type: LOAD_ENTITY_INFO,
-        json: json,
-      }));
+      }).then(response => response.json()).then(json =>
+        dispatch({type: LOAD_ENTITY_INFO, json}));
     }
   };
 }
@@ -140,10 +140,14 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         stateMetaOrdering = stateMeta.ordering,
         responseMetaOrdering = json.results.meta.ordering,
         stateMetaViewComponent = stateMeta.view_component,
-        responseMetaViewComponent = json.results.meta.view_component;
+        responseMetaViewComponent = json.results.meta.view_component,
+        stateMetaGroupTermsIdsIsEmpty = stateMeta.alike?.group_terms_ids || [],
+        responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
+      if (!compareArrays(stateMetaGroupTermsIdsIsEmpty, responseMetaGroupTermsIds)) {
+        dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
       // Если изменилась сортировка или вид представления, то перезапрос не делаем
-      if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
+      } else if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
         stateDataMartId === responseDataMartId && stateRootLength) {
         const stateTerms = state.terms.tagged.items,
           responseTerms = json.results.meta.terms_ids;
