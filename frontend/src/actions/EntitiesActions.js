@@ -19,6 +19,7 @@ import compareArrays from '../utils/compareArrays';
 import {NATIVE, PLATFORM} from "../constants/Common";
 import {getTermsTree} from './TermsTreeActions'
 import {LOAD_TERMS_TREE} from "../constants/TermsTree";
+import {setAlike} from "../utils/locationHash";
 
 
 const globalStore = Singleton.getInstance();
@@ -135,7 +136,7 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
       const state = getState(),
         stateRootLength = state.terms.tree.root.children.length,
         stateMeta = state.entities.items.meta,
-        stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
+        stateDataMartId = stateMeta.data_mart?.id,
         responseDataMartId = json.results.meta.data_mart.id,
         stateMetaOrdering = stateMeta.ordering,
         responseMetaOrdering = json.results.meta.ordering,
@@ -176,6 +177,8 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
             getEntities: getEntities(mart_id, subj_ids,options_obj, options_arr)
           };
         }
+      } else {
+        !responseMetaGroupTermsIds.length && setAlike(mart_id, '');
       }
 
       dispatch({type: LOAD_ENTITIES, request_options: options_obj, json, append});
@@ -208,6 +211,7 @@ export function expandGroup(item_id, meta) {
   delete request_options.offset;
   delete request_options.limit;
   request_options.alike = item_id;
+  setAlike(mart_id, item_id);
   return getEntities(mart_id, subj_ids, request_options);
 }
 

@@ -34,7 +34,7 @@ class BaseEntities extends Component {
   };
 
   getCookiePreferences() {
-    const entry_point_id = this.props.entry_point_id,
+    const {entry_point_id} = this.props,
           cookie_data = cookie.loadAll(),
           prefix = cookieKey(entry_point_id, document.location.pathname, '');
 
@@ -53,7 +53,7 @@ class BaseEntities extends Component {
   componentDidMount() {
     this.templates = this.props.getTemplates();
 
-    const { entry_points, entry_point_id } = this.props,
+    const {entry_points, entry_point_id} = this.props,
           request_params = entry_points[entry_point_id].request_params || [];
 
     const parms = parseRequestParams(request_params),
@@ -78,27 +78,30 @@ class BaseEntities extends Component {
 
     // if there's no tree and there's an offset in the location hash, make a request
     if (this.props.terms.tree.root.children.length <= 0) {
-      const datamartData = getDatamartsData()[entry_point_id];
-      if (datamartData && datamartData.offset && datamartData.offset !== request_options.offset) {
-        request_options.offset = datamartData.offset;
-        this.props.actions.getEntities(
-          entry_point_id, subj_ids, request_options, options_arr
-        );
+      const dataMartData = getDatamartsData()[entry_point_id];
+      if (dataMartData?.offset && dataMartData.offset !== request_options.offset) {
+        request_options.offset = dataMartData.offset;
+        this.props.actions.getEntities(entry_point_id, subj_ids, request_options, options_arr);
         return;
       }
     }
 
-    this.props.actions.readEntities(
-      entry_point_id, subj_ids, request_options, options_arr
-    );
+    this.props.actions.readEntities(entry_point_id, subj_ids, request_options, options_arr);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { entities } = this.props;
+    const {entities, entry_point_id} = this.props;
+    const dataMartData = getDatamartsData()[entry_point_id];
+    const {meta} = entities.items;
 
     if (!entities.items.loading && prevProps.entities.items.loading) {
-      const { initialized } = this.state,
+      const {initialized} = this.state,
             area = ReactDOM.findDOMNode(this);
+
+      if (dataMartData?.alike && !meta.alike?.id) {
+        this.props.actions.notifyLoadingEntities();
+        this.props.actions.expandGroup(dataMartData.alike, meta);
+      }
 
       if (initialized && area) {
         const areaRect = area.getBoundingClientRect(),
@@ -122,12 +125,11 @@ class BaseEntities extends Component {
   }
 
   render() {
-    const { entities, actions, entry_points, entry_point_id, component_attrs } = this.props;
+    const {entities, actions, entry_points, entry_point_id, component_attrs} = this.props;
 
     const items = entities.items.objects || [],
-        loading = entities.items.loading,
-        descriptions = entities.descriptions,
-        meta = entities.items.meta;
+        {loading, meta} = entities.items,
+        {descriptions} = entities;
 
     // set the first available component if the requested one isn't in the list
     let component_name = entities.items.component;
