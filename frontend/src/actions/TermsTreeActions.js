@@ -31,7 +31,9 @@ export const getTermsTree = (type, mart_id, selected = []) => dispatch => {
       'Content-Type': 'application/json',
     },
   }).then(response => response.json())
-    .then(json => dispatch({type, json}));
+    .then(json => {
+      dispatch({type, json})
+    });
 };
 
 
