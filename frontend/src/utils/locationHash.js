@@ -51,9 +51,10 @@ export function setAlike(dataMartId, alikeId) {
 
   if (!alikeId) {
     const regEx = new RegExp(`(${hashHead}${ALIKE_PREFIX})((\\d*))`),
-          res = hash.match(regEx)[0];
+          resMatch = hash.match(regEx);
 
-    hash = hash.replace(res, '');
+    if (resMatch)
+      hash = hash.replace(resMatch[0], '');
   } else {
     hash = setHash(hash, hashHead, ALIKE_REGEX_POSTFIX, `${ALIKE_PREFIX}${alikeId}`);
   }
