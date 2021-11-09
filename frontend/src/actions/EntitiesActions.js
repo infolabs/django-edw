@@ -18,7 +18,7 @@ import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
 import {NATIVE, PLATFORM} from "../constants/Common";
 import {getTermsTree} from './TermsTreeActions'
-import {LOAD_TERMS_TREE} from "../constants/TermsTree";
+import {LOAD_TERMS_TREE, RELOAD_TERMS_TREE} from "../constants/TermsTree";
 import {setAlike} from "../utils/locationHash";
 
 
@@ -131,7 +131,6 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         'Content-Type': 'application/json',
       },
     }).then(response => response.json()).then(json => {
-
       inFetch--;
       const state = getState(),
         stateRootLength = state.terms.tree.root.children.length,
@@ -142,11 +141,14 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         responseMetaOrdering = json.results.meta.ordering,
         stateMetaViewComponent = stateMeta.view_component,
         responseMetaViewComponent = json.results.meta.view_component,
-        stateMetaGroupTermsIdsIsEmpty = stateMeta.alike?.group_terms_ids || [],
+        stateMetaGroupTermsIds = stateMeta.alike?.group_terms_ids || [],
         responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
-      if (!compareArrays(stateMetaGroupTermsIdsIsEmpty, responseMetaGroupTermsIds)) {
-        dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
+      if (!compareArrays(stateMetaGroupTermsIds, responseMetaGroupTermsIds)) {
+        if (responseMetaGroupTermsIds.length)
+          dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
+        else
+          dispatch(getTermsTree(RELOAD_TERMS_TREE, mart_id, stateMetaGroupTermsIds));
       // Если изменилась сортировка или вид представления, то перезапрос не делаем
       } else if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
         stateDataMartId === responseDataMartId && stateRootLength) {

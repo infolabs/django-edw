@@ -63,8 +63,8 @@ export function setAlike(dataMartId, alikeId) {
 
 
 function setData(dataMarts, regex, key, func) {
-  let matches = regex.exec(window.location.hash);
-  if (matches) {
+  let matches;
+  while ((matches = regex.exec(window.location.hash))) {
     const mart = dataMarts[matches[1]] || {};
     mart[key] = func(matches);
     dataMarts[matches[1]] = mart;
