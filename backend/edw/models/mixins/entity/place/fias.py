@@ -65,6 +65,16 @@ class FIASMixin(ModelMixin):
         return result
 
     @cached_property
+    def fias_locality_guid(self):
+        result = None
+        if self.fias_data != {}:
+            try:
+                result = self.fias_data['Locality']['GUID']
+            except (KeyError, IndexError):
+                pass
+        return result
+
+    @cached_property
     def fias_region_name(self):
         result = None
         if self.fias_data != {}:
