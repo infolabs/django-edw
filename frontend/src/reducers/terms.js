@@ -251,7 +251,6 @@ class TaggedItems {
 
     for (const child of item.children)
       this.untag(child);
-
   }
 
   untagSiblings(item) {

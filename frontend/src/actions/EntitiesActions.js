@@ -17,6 +17,9 @@ import getUrl from '../utils/getUrl';
 import uniFetch from '../utils/uniFetch';
 import compareArrays from '../utils/compareArrays';
 import {NATIVE, PLATFORM} from "../constants/Common";
+import {getTermsTree} from './TermsTreeActions'
+import {LOAD_TERMS_TREE} from "../constants/TermsTree";
+import {setAlike} from "../utils/locationHash";
 
 
 const globalStore = Singleton.getInstance();
@@ -70,10 +73,8 @@ export function getEntityInfo(data, meta = false) {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-      }).then(response => response.json()).then(json => dispatch({
-        type: LOAD_ENTITY_INFO,
-        json: json,
-      }));
+      }).then(response => response.json()).then(json =>
+        dispatch({type: LOAD_ENTITY_INFO, json}));
     }
   };
 }
@@ -135,15 +136,19 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
       const state = getState(),
         stateRootLength = state.terms.tree.root.children.length,
         stateMeta = state.entities.items.meta,
-        stateDataMartId = stateMeta.data_mart && stateMeta.data_mart.id,
+        stateDataMartId = stateMeta.data_mart?.id,
         responseDataMartId = json.results.meta.data_mart.id,
         stateMetaOrdering = stateMeta.ordering,
         responseMetaOrdering = json.results.meta.ordering,
         stateMetaViewComponent = stateMeta.view_component,
-        responseMetaViewComponent = json.results.meta.view_component;
+        responseMetaViewComponent = json.results.meta.view_component,
+        stateMetaGroupTermsIdsIsEmpty = stateMeta.alike?.group_terms_ids || [],
+        responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
+      if (!compareArrays(stateMetaGroupTermsIdsIsEmpty, responseMetaGroupTermsIds)) {
+        dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
       // Если изменилась сортировка или вид представления, то перезапрос не делаем
-      if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
+      } else if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
         stateDataMartId === responseDataMartId && stateRootLength) {
         const stateTerms = state.terms.tagged.items,
           responseTerms = json.results.meta.terms_ids;
@@ -172,6 +177,8 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
             getEntities: getEntities(mart_id, subj_ids,options_obj, options_arr)
           };
         }
+      } else {
+        !responseMetaGroupTermsIds.length && setAlike(mart_id, '');
       }
 
       dispatch({type: LOAD_ENTITIES, request_options: options_obj, json, append});
@@ -204,6 +211,7 @@ export function expandGroup(item_id, meta) {
   delete request_options.offset;
   delete request_options.limit;
   request_options.alike = item_id;
+  setAlike(mart_id, item_id);
   return getEntities(mart_id, subj_ids, request_options);
 }
 
