@@ -46,7 +46,10 @@ class User(AbstractUser):
         return self.username if self.is_staff else self.email or self.username
 
     def get_full_name(self):
-        full_name = '{} {} {}'.format(self.last_name, self.first_name, self.patronymic)
+        last_name = self.last_name if self.last_name is not None else ''
+        first_name = self.first_name if self.first_name is not None else ''
+        patronymic = self.patronymic if self.patronymic is not None else ''
+        full_name = '{} {} {}'.format(last_name, first_name, patronymic)
         if full_name:
             return full_name.strip()
         return self.get_short_name()
