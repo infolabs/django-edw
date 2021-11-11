@@ -297,8 +297,21 @@ export function renderEntityTile(props, styles, createItem) {
   const handleScroll = getScrollHandler(props);
   const {items, loading} = props;
 
+  const scrollRef = useRef();
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  }
+
+  const instance = Singleton.getInstance();
+    instance.scrollToTop = scrollToTop;
+
   return (
     <ScrollView
+      ref={scrollRef}
       scrollEventThrottle={2000}
       onScroll={e => handleScroll(e)}>
       {loading ?

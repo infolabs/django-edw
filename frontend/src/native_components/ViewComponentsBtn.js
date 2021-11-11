@@ -18,7 +18,7 @@ function ViewComponentsBtn(props) {
   const theme = useTheme();
 
   function changeViewComponent() {
-    const options = Object.assign(request_options, {'view_component': nextKey});
+    const options = Object.assign(request_options, {view_component: nextKey, offset: 0});
     props.notifyLoadingEntities();
     props.getEntities(data_mart.id, subj_ids, options);
   }

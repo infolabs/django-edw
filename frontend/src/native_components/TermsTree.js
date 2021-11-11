@@ -55,9 +55,7 @@ function TermsTree(props) {
         request_options.offset = 0;
         props.actions.notifyLoadingEntities();
 
-        props.actions.getEntities(
-          entry_point_id, subj_ids, request_options, options_arr
-        );
+        props.actions.getEntities(entry_point_id, subj_ids, request_options, options_arr);
       }
 
       prevPropsRef.current = props;

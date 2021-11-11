@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
-import {OverflowMenu, MenuItem, Text, Button, useTheme} from '@ui-kitten/components';
+import {OverflowMenu, MenuItem, Text, Button} from '@ui-kitten/components';
 import {Icon} from 'native-base';
 import ActionCreators from '../actions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {dropDownsStyles as styles} from '../native_styles/dropdowns';
+import Singleton from '../../utils/singleton';
 
 
 function Dropdown(props) {
   const {selected, options} = props;
   const [visible, setVisible] = useState(false);
-  const theme = useTheme();
 
   function fixOffset(opts = {}) {
     const total = props.count,
@@ -23,6 +23,11 @@ function Dropdown(props) {
 
   function selectItem(value) {
     const {entry_point_id, subj_ids, name, request_var, request_options} = props;
+
+    const instance = Singleton.getInstance(),
+      {scrollToTop} = instance;
+
+    scrollToTop();
 
     let option = {};
     option[request_var] = value;

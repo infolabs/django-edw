@@ -176,8 +176,9 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
           globalStore.initial_entities[mart_id] = {
             ...json,
             notifyLoadingEntities: notifyLoadingEntities(),
-            getEntities: getEntities(mart_id, subj_ids,options_obj, options_arr)
-          };
+            params: {mart_id, subj_ids, options_obj, options_arr},
+            getEntities
+          }
         }
       } else {
         !responseMetaGroupTermsIds.length && setAlike(mart_id, '');
@@ -200,9 +201,8 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
     return (dispatch) => {
       dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
     };
-  } else {
-    return getEntities(mart_id, subj_ids, options_obj, options_arr);
   }
+  return getEntities(mart_id, subj_ids, options_obj, options_arr);
 }
 
 
