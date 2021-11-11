@@ -107,6 +107,37 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
   });
 };
 
+export const deleteEntity = params => dispatch => {
+  const {id, nextNavigate, refreshDataMart} = params,
+    textLoader = params.textLoader || null,
+    slugConfig = params.slugConfig || null,
+    instance = Singleton.getInstance(),
+    {Urls, Domain, navigation} = instance;
+
+    getToken().then(token => {
+      const url = `${Domain}${Urls['edw:entity-detail'](id)}`,
+        parameters = {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        };
+
+      navigation.navigate('Preloader', {textLoader});
+
+      uniFetch(url, parameters, {}, false)
+        .then(() => {
+          navigation.navigate(nextNavigate)
+          dispatch({type: actionTypes.DELETE_ENTITY});
+          slugConfig && refreshDataMart(slugConfig);
+        })
+        .catch(error => {
+          navigation.goBack()
+          dispatch({type: actionTypes.ERROR_DELETE_ENTITY, error});
+        });
+    })
+}
+
 export const uploadImage = (entityId, data, nextNavigationName, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
   const instance = Singleton.getInstance(),
     {Urls, Domain, navigation} = instance;
@@ -126,7 +157,7 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
         dispatch({type: dispatchType, image: json});
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         navigation.navigate(nextNavigationName);
         dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
       });
