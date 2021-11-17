@@ -13,7 +13,7 @@ class GroupTitle extends Component {
     delete request_options.alike;
     delete request_options.offset;
     this.props.notifyLoadingEntities();
-    this.props.getEntities(mart_id, subj_ids, request_options);
+    this.props.getEntities(mart_id, subj_ids, request_options, [], false, true);
   }
 
   render() {

@@ -87,7 +87,7 @@ const loadingEntity = id => dispatch => {
 // count sent requests so as to match last response with selected terms
 let inFetch = 0;
 
-export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = [], append = false) {
+export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = [], append = false, closeGroup = false) {
   return (dispatch, getState) => {
     // ignore more than 3 simultaneous requests from tree
     const currentMeta = getState().entities.items.meta,
@@ -145,7 +145,7 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
       if (!compareArrays(stateMetaGroupTermsIds, responseMetaGroupTermsIds)) {
-        if (responseMetaGroupTermsIds.length)
+        if (responseMetaGroupTermsIds.length || closeGroup)
           dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
         else
           dispatch(getTermsTree(RELOAD_TERMS_TREE, mart_id, stateMetaGroupTermsIds));
