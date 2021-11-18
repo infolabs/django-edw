@@ -19,8 +19,14 @@ function ViewComponentsBtn(props) {
 
   function changeViewComponent() {
     const options = Object.assign(request_options, {view_component: nextKey, offset: 0});
+    const params = {
+      mart_id: data_mart.id,
+      options_obj: options,
+      subj_ids,
+    };
+
     props.notifyLoadingEntities();
-    props.getEntities(data_mart.id, subj_ids, options);
+    props.getEntities(params);
   }
 
   let iconName = null;

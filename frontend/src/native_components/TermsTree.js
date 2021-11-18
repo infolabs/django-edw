@@ -28,12 +28,12 @@ function TermsTree(props) {
 
   useEffect(() => {
     const prevProps = prevPropsRef.current;
-    const entry_points = prevProps.entry_points,
-      entry_point_id = prevProps.entry_point_id,
-      request_params = entry_points[entry_point_id.toString()].request_params || [],
+    const {entry_points, entry_point_id} = prevProps,
       tagged_current = prevProps.terms.tagged,
       tagged_next = props.terms.tagged,
-      meta = prevProps.entities.items.meta;
+      {meta} = prevProps.entities.items;
+
+    let request_params = entry_points[entry_point_id.toString()].request_params || [];
 
     if (!compareArrays(tagged_current.items, tagged_next.items)) {
       // reload tree
@@ -43,9 +43,9 @@ function TermsTree(props) {
       }
       // reload entities
       if (!tagged_next.entities_ignore) {
-        const params = parseRequestParams(request_params),
-          subj_req_ids = params.subj_ids,
-          options_arr = params.options_arr;
+        request_params = parseRequestParams(request_params);
+        const subj_req_ids = request_params.subj_ids,
+          {options_arr} = request_params;
 
         let request_options = meta.request_options,
           subj_ids = meta.subj_ids || subj_req_ids;
@@ -53,9 +53,14 @@ function TermsTree(props) {
         delete request_options.alike;
         request_options.terms = tagged_next.items;
         request_options.offset = 0;
+        const params = {
+          mart_id: entry_point_id,
+          options_obj: request_options,
+          options_arr,
+          subj_ids,
+        };
         props.actions.notifyLoadingEntities();
-
-        props.actions.getEntities(entry_point_id, subj_ids, request_options, options_arr);
+        props.actions.getEntities(params);
       }
 
       prevPropsRef.current = props;

@@ -53,14 +53,13 @@ class BaseEntities extends Component {
   componentDidMount() {
     this.templates = this.props.getTemplates();
 
-    const {entry_points, entry_point_id} = this.props,
-          request_params = entry_points[entry_point_id].request_params || [];
+    const {entry_points, entry_point_id} = this.props;
 
-    const parms = parseRequestParams(request_params),
-          term_ids = parms.term_ids,
-          subj_ids = parms.subj_ids,
-          limit = parms.limit,
-          options_arr = parms.options_arr;
+    let request_params = entry_points[entry_point_id].request_params || [];
+
+    request_params = parseRequestParams(request_params);
+
+    const {term_ids, subj_ids, limit, options_arr} = request_params;
 
     let request_options = this.props.entities.items.meta.request_options;
 
@@ -81,12 +80,25 @@ class BaseEntities extends Component {
       const dataMartData = getDatamartsData()[entry_point_id];
       if (dataMartData?.offset && dataMartData.offset !== request_options.offset) {
         request_options.offset = dataMartData.offset;
-        this.props.actions.getEntities(entry_point_id, subj_ids, request_options, options_arr);
+        const params = {
+          mart_id: entry_point_id,
+          options_obj: request_options,
+          subj_ids,
+          options_arr
+        };
+        this.props.actions.getEntities(params);
         return;
       }
     }
 
-    this.props.actions.readEntities(entry_point_id, subj_ids, request_options, options_arr);
+    const params = {
+      mart_id: entry_point_id,
+      options_obj: request_options,
+      subj_ids,
+      options_arr
+    };
+
+    this.props.actions.readEntities(params);
   }
 
   componentDidUpdate(prevProps, prevState) {

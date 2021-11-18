@@ -5,27 +5,25 @@ import parseRequestParams from 'utils/parseRequestParams';
 export default class DataMartsList extends Component {
 
   constructor(props) {
-      super(props);
-      this.state = {
-        entry_points: props.entry_points,
-        entry_point_id: props.entry_point_id,
-      };
+    super(props);
+    this.state = {
+      entry_points: props.entry_points,
+      entry_point_id: props.entry_point_id,
+    };
   }
 
-  changeDataMart(pk) {
+  changeDataMart(mart_id) {
+    const {entry_points} = this.props;
 
-    const { entry_points } = this.props,
-            request_params = entry_points[pk].request_params || [];
-    this.props.actions.changeActiveDataMart(pk);
+    let request_params = entry_points[mart_id].request_params || [];
+    this.props.actions.changeActiveDataMart(mart_id);
 
-    const parms = parseRequestParams(request_params),
-          term_ids = parms.term_ids,
-          subj_ids = parms.subj_ids,
-          limit = parms.limit,
-          options_arr = parms.options_arr;
+    request_params = parseRequestParams(request_params);
+
+    const {term_ids, subj_ids, limit, options_arr} = request_params;
 
     this.props.actions.notifyLoadingTerms();
-    this.props.actions.loadTree(pk, term_ids);
+    this.props.actions.loadTree(mart_id, term_ids);
 
     let request_options = {};
 
@@ -35,12 +33,17 @@ export default class DataMartsList extends Component {
       request_options.limit = limit;
 
     this.props.actions.notifyLoadingEntities();
-    this.props.actions.getEntities(pk, subj_ids, request_options, options_arr);
-
+    const params = {
+      options_obj: request_options,
+      mart_id,
+      subj_ids,
+      options_arr
+    };
+    this.props.actions.getEntities(params);
   }
 
   render() {
-    const { entry_points, entry_point_id } = this.props;
+    const {entry_points, entry_point_id} = this.props;
 
     let is_active = (pk) => pk === entry_point_id;
     const keys = Object.keys(entry_points);

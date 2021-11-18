@@ -32,13 +32,11 @@ function BaseEntities(props) {
   const {entities, entry_points, entry_point_id} = props;
 
   useEffect(() => {
-    const request_params = entry_points[entry_point_id].request_params || [];
+    let request_params = entry_points[entry_point_id].request_params || [];
 
-    const params = parseRequestParams(request_params),
-      term_ids = params.term_ids,
-      subj_ids = params.subj_ids,
-      limit = params.limit,
-      options_arr = params.options_arr;
+    request_params = parseRequestParams(request_params);
+
+    const {term_ids, subj_ids, limit, options_arr} = request_params;
 
     let request_options = entities.items.meta.request_options;
 
@@ -49,7 +47,13 @@ function BaseEntities(props) {
       request_options.terms = term_ids;
 
     props.notifyLoadingEntities();
-    props.readEntities(entry_point_id, subj_ids, request_options, options_arr);
+    const params = {
+      mart_id: entry_point_id,
+      options_obj: request_options,
+      subj_ids,
+      options_arr
+    };
+    props.readEntities(params);
   }, []);
 
 

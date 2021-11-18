@@ -87,7 +87,20 @@ const loadingEntity = id => dispatch => {
 // count sent requests so as to match last response with selected terms
 let inFetch = 0;
 
-export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = [], append = false, closeGroup = false) {
+export function getEntities(params) {
+  const {mart_id} = params,
+    subj_ids = params.subj_ids || [],
+    options_arr = params.options_arr || [],
+    append = params.append || false,
+    closeGroup = params.closeGroup || false;
+
+  let options_obj = params.options_obj || {};
+
+  if (PLATFORM === NATIVE && !append) {
+    const scrollToTop = globalStore.scrollToTop;
+    scrollToTop && scrollToTop();
+  }
+
   return (dispatch, getState) => {
     // ignore more than 3 simultaneous requests from tree
     const currentMeta = getState().entities.items.meta,
@@ -160,7 +173,13 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
         if (!compareArrays(stateTerms, responseTerms)) {
           options_obj = stateMeta.request_options;
           options_obj.terms = stateTerms;
-          dispatch(getEntities(mart_id, subj_ids, options_obj, options_arr));
+
+          params = {
+            ...params,
+            options_obj,
+          }
+
+          dispatch(getEntities(params));
           return;
         }
       }
@@ -190,7 +209,11 @@ export function getEntities(mart_id, subj_ids = [], options_obj = {}, options_ar
 }
 
 
-export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_arr = []) {
+export function readEntities(params) {
+  const {mart_id} = params,
+    options_obj = params.options_obj || {},
+    options_arr = params.options_arr || [];
+
   if (globalStore.initial_entities && globalStore.initial_entities[mart_id]) {
     const options_obj2 = optArrToObj(options_arr);
     let json = globalStore.initial_entities[mart_id];
@@ -202,7 +225,7 @@ export function readEntities(mart_id, subj_ids = [], options_obj = {}, options_a
       dispatch({type: LOAD_ENTITIES, json, request_options: options_obj});
     };
   }
-  return getEntities(mart_id, subj_ids, options_obj, options_arr);
+  return getEntities(params);
 }
 
 
@@ -214,7 +237,12 @@ export function expandGroup(item_id, meta) {
   delete request_options.limit;
   request_options.alike = item_id;
   setAlike(mart_id, item_id);
-  return getEntities(mart_id, subj_ids, request_options);
+  const params = {
+    options_obj: request_options,
+    mart_id,
+    subj_ids,
+  };
+  return getEntities(params);
 }
 
 

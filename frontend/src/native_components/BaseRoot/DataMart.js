@@ -20,7 +20,6 @@ import Entities from 'native_components/Entities';
 
 const {deviceHeight} = platformSettings;
 
-
 function DataMart(props) {
   const {entry_point_id, entry_points, entities, terms, fromRoute} = props;
   const termViewClasses = props.termViewClasses || [];
@@ -85,7 +84,12 @@ function DataMart(props) {
       const meta = entities.items.meta;
       const {subj_ids} = meta;
       props.notifyLoadingEntities();
-      props.getEntities(entry_point_id, subj_ids, {terms: prevItems}, []);
+      const params = {
+        mart_id: entry_point_id,
+        options_obj: {terms: prevItems},
+        subj_ids,
+      };
+      props.getEntities(params);
       visibilityFilters(false, true);
     } else {
       visibilityFilters(false);

@@ -1,10 +1,10 @@
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import React, { Component } from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import React, {Component} from 'react';
 import Actions from '../actions/index';
 import TermsTreeItem from './TermsTreeItem';
 import parseRequestParams from 'utils/parseRequestParams';
-import { setDatamartHash, getDatamartsData } from '../utils/locationHash';
+import {setDatamartHash, getDatamartsData} from '../utils/locationHash';
 
 
 function isArraysEqual(a, b) {
@@ -23,32 +23,30 @@ function isArraysEqual(a, b) {
 class TermsTree extends Component {
 
   componentDidMount() {
-    const entry_points = this.props.entry_points,
-          entry_point_id = this.props.entry_point_id,
-          request_params = entry_points[entry_point_id.toString()].request_params || [];
+    const {entry_points, entry_point_id} = this.props;
+    let request_params = entry_points[entry_point_id.toString()].request_params || [];
 
-    const parms = parseRequestParams(request_params),
-          term_ids = parms.term_ids;
+    request_params = parseRequestParams(request_params);
+    const {term_ids} = request_params;
 
     this.props.actions.notifyLoadingTerms();
     this.props.actions.readTree(entry_point_id, term_ids);
   }
 
   componentDidUpdate(prevProps) {
-    const entry_points = prevProps.entry_points,
-          entry_point_id = prevProps.entry_point_id,
-          request_params = entry_points[entry_point_id.toString()].request_params || [],
-          tagged_current = prevProps.terms.tagged,
-          tagged_next = this.props.terms.tagged,
-          meta = prevProps.entities.items.meta;
+    const {entry_points, entry_point_id} = prevProps,
+      tagged_current = prevProps.terms.tagged,
+      tagged_next = this.props.terms.tagged,
+      meta = prevProps.entities.items.meta;
 
-    const parms = parseRequestParams(request_params),
-          subj_req_ids = parms.subj_ids,
-          options_arr = parms.options_arr;
+    let request_params = entry_points[entry_point_id.toString()].request_params || [];
+
+    request_params = parseRequestParams(request_params);
+    const subj_req_ids = request_params.subj_ids,
+      {options_arr} = request_params;
 
     let request_options = meta.request_options,
-        subj_ids = meta.subj_ids || subj_req_ids;
-
+      subj_ids = meta.subj_ids || subj_req_ids;
 
     if (!isArraysEqual(tagged_current.items, tagged_next.items)) {
       // get from hash if exist
@@ -71,25 +69,23 @@ class TermsTree extends Component {
         delete request_options.alike;
         request_options.terms = tagged_next.items;
         request_options.offset = fromHash ? datamartData.offset : 0;
+        const params = {
+          mart_id: entry_point_id,
+          options_obj: request_options,
+          options_arr,
+          subj_ids,
+        };
         this.props.actions.notifyLoadingEntities();
-
-        this.props.actions.getEntities(
-          entry_point_id, subj_ids, request_options, options_arr
-        );
-
+        this.props.actions.getEntities(params);
       }
     }
   }
 
   render() {
-    const { terms, actions } = this.props,
-          term = terms.tree.root,
-          details = terms.details,
-          tagged = terms.tagged,
-          expanded = terms.expanded,
-          infoExpanded = terms.infoExpanded,
-          loading = terms.tree.loading,
-          realPotential = terms.realPotential;
+    const {terms, actions} = this.props,
+      term = terms.tree.root,
+      {details, tagged, expanded, infoExpanded, realPotential} = terms,
+      {loading} = terms.tree;
 
     let tree = '';
     if (term) {
@@ -108,9 +104,9 @@ class TermsTree extends Component {
     let ul_class = loading ? 'terms-tree ex-state-loading' : 'terms-tree';
 
     return (
-        <ul className={ul_class}>
-          {tree}
-        </ul>
+      <ul className={ul_class}>
+        {tree}
+      </ul>
     );
   }
 }

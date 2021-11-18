@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
 import cookieKey from '../utils/hashUtils';
@@ -9,8 +9,8 @@ export default class Dropdown extends Component {
 
   fixOffset(options = {}) {
     const total = this.props.count,
-          offset = options.offset,
-          limit = options.limit;
+      offset = options.offset,
+      limit = options.limit;
     if (total && offset && limit && total < offset + limit)
       options.offset = total - limit - total % limit;
 
@@ -18,21 +18,25 @@ export default class Dropdown extends Component {
   }
 
   selectItem(value) {
-    const { actions, entry_point_id, subj_ids, name, request_var, request_options, entry_points } = this.props;
+    const {actions, entry_point_id, subj_ids, name, request_var, request_options, entry_points} = this.props;
 
     let option = {};
     option[request_var] = value;
     let options = Object.assign(request_options, option);
     actions.selectDropdown(name, value);
     actions.notifyLoadingEntities();
-    if (entry_points){
-      const request_params = entry_points[entry_point_id].request_params,
-            parms = parseRequestParams(request_params),
-            options_arr = parms.options_arr;
-      actions.getEntities(entry_point_id, subj_ids, this.fixOffset(options), options_arr);
-    } else {
-      actions.getEntities(entry_point_id, subj_ids, this.fixOffset(options));
+    const params = {
+      mart_id: entry_point_id,
+      options_obj: this.fixOffset(options),
+      subj_ids,
+    };
+    if (entry_points) {
+      let request_params = entry_points[entry_point_id].request_params || [];
+      request_params = parseRequestParams(request_params);
+      const {options_arr} = request_params;
+      params.options_arr = options_arr;
     }
+    actions.getEntities(params);
   }
 
   componentDidMount() {
@@ -45,7 +49,7 @@ export default class Dropdown extends Component {
 
   handleBodyClick = (e) => {
     const area = ReactDOM.findDOMNode(this),
-          { actions, name, open } = this.props;
+      {actions, name, open} = this.props;
     if (!area.contains(e.target) && open) {
       e.preventDefault();
       e.stopPropagation();
@@ -56,23 +60,23 @@ export default class Dropdown extends Component {
   handleOptionClick(e, value) {
     e.preventDefault();
     e.stopPropagation();
-    const { entry_point_id, request_var  } = this.props;
+    const {entry_point_id, request_var} = this.props;
     this.selectItem(value);
     const cookie_key = cookieKey(entry_point_id, document.location.pathname, request_var);
     let expires = new Date();
     expires.setTime(expires.getTime() + 2592000000); // 2592000000 = 30 * 24 * 60 * 60 * 1000
-    cookie.save(cookie_key, encodeURI(value), { path: '/', expires: expires });
+    cookie.save(cookie_key, encodeURI(value), {path: '/', expires: expires});
   }
 
   handleSelectedClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const { actions, name } = this.props;
+    const {actions, name} = this.props;
     actions.toggleDropdown(name);
   }
 
   render() {
-    const { selected, options, open } = this.props;
+    const {selected, options, open} = this.props;
 
     let opts = {};
     for (const opt of Object.keys(options)) {
@@ -81,20 +85,24 @@ export default class Dropdown extends Component {
     }
 
     return (
-        <div className="ex-sort-dropdown">
-          <a href="#"
-             className="ex-btn ex-btn-default"
-             onClick={(e) => { ::this.handleSelectedClick(e); } }>
-            {selected}<span className="ex-icon-caret-down"/>
-          </a>
-          <ul className={open ? 'ex-dropdown-menu2' : 'ex-dropdown-menu2 ex-dropdown-hide'}>
-            {Object.keys(opts).map(
-              (k, i) => <li key={i} onClick={(e) => { ::this.handleOptionClick(e, k); } }>
-                <a href="#" key={i}>{options[k]}</a>
-              </li>
-            )}
-          </ul>
-        </div>
-      );
+      <div className="ex-sort-dropdown">
+        <a href="#"
+           className="ex-btn ex-btn-default"
+           onClick={(e) => {
+             ::this.handleSelectedClick(e);
+           }}>
+          {selected}<span className="ex-icon-caret-down"/>
+        </a>
+        <ul className={open ? 'ex-dropdown-menu2' : 'ex-dropdown-menu2 ex-dropdown-hide'}>
+          {Object.keys(opts).map(
+            (k, i) => <li key={i} onClick={(e) => {
+              ::this.handleOptionClick(e, k);
+            }}>
+              <a href="#" key={i}>{options[k]}</a>
+            </li>
+          )}
+        </ul>
+      </div>
+    );
   }
 }

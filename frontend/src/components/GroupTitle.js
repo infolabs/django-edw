@@ -6,14 +6,20 @@ import ActionCreators from "../actions";
 
 class GroupTitle extends Component {
   handleMouseClick() {
-    const meta = this.props.entities.items.meta,
+    const {meta} = this.props.entities.items,
       mart_id = meta.data_mart.id,
-      subj_ids = meta.subj_ids;
-    let request_options = meta.request_options;
+      {subj_ids} = meta;
+    let {request_options} = meta;
     delete request_options.alike;
     delete request_options.offset;
     this.props.notifyLoadingEntities();
-    this.props.getEntities(mart_id, subj_ids, request_options, [], false, true);
+    const params = {
+      options_obj: request_options,
+      closeGroup: true,
+      mart_id,
+      subj_ids
+    };
+    this.props.getEntities(params);
   }
 
   render() {

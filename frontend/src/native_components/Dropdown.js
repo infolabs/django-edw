@@ -5,7 +5,6 @@ import ActionCreators from '../actions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {dropDownsStyles as styles} from '../native_styles/dropdowns';
-import Singleton from '../../utils/singleton';
 
 
 function Dropdown(props) {
@@ -23,18 +22,18 @@ function Dropdown(props) {
 
   function selectItem(value) {
     const {entry_point_id, subj_ids, name, request_var, request_options} = props;
-
-    const instance = Singleton.getInstance(),
-      {scrollToTop} = instance;
-
-    scrollToTop();
-
     let option = {};
     option[request_var] = value;
     let opts = Object.assign(request_options, option);
     props.selectDropdown(name, value);
+
+    const params = {
+      mart_id: entry_point_id,
+      options_obj: fixOffset(opts),
+      subj_ids,
+    };
     props.notifyLoadingEntities();
-    props.getEntities(entry_point_id, subj_ids, fixOffset(opts));
+    props.getEntities(params);
   }
 
   function handleOptionClick(value) {

@@ -39,14 +39,20 @@ export const stylesComponent = StyleSheet.create({
 
 function getScrollHandler(props) {
   function handleScroll(e) {
-    const {items, loading, meta} = props;
-    if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height * 2
-      > e.nativeEvent.contentSize.height
+    const {items, loading, meta, entry_point_id} = props;
+    if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height * 2 > e.nativeEvent.contentSize.height
       && !loading && meta.count > items.length) {
       const {subj_ids, limit, offset, request_options} = meta;
       let options = Object.assign(request_options, {'offset': offset + limit});
+
+      const params = {
+      mart_id: entry_point_id,
+        options_obj: options,
+        append: true,
+        subj_ids
+      };
       props.notifyLoadingEntities();
-      props.getEntities(props.entry_point_id, subj_ids, options, [], true);
+      props.getEntities(params)
     }
   }
 
@@ -122,13 +128,19 @@ export function useGroupClose(store = null) {
 
   const groupName = getGroupName(meta);
 
-  function groupClose(e) {
-    const request_options = meta.request_options;
+  function groupClose() {
+    const {request_options} = meta;
     delete request_options.alike;
     delete request_options.offset;
 
+    const params = {
+      mart_id: meta.data_mart.id,
+      subj_ids: meta.subj_ids,
+      options_obj: request_options,
+    };
+
     notifyLoadingEntities()(dispatch);
-    getEntities(meta.data_mart.id, meta.subj_ids, request_options)(dispatch, getState);
+    getEntities(params)(dispatch, getState);
   }
 
   return {groupClose, groupName};
