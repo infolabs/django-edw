@@ -1,16 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework import permissions
 
 from edw.models.related.entity_file import EntityFileModel
 from edw.rest.viewsets import remove_empty_params_from_request
-from edw.rest.filters.related.entity_file import EntityFileFilter
+from edw.rest.filters.related.entity_file import EntityFileFilter as DefaultEntityFileFilter
 from edw.rest.filters.backends import EDWFilterBackend
 from edw.rest.serializers.related.entity_file import EntityFileSerializer
 from edw.rest.permissions import IsFilerFileOwnerOrReadOnly
+
+
+#TODO: попробовать переделать по аналогии с Entity
+entity_file_filter_class = getattr(settings, 'ENTITY_FILE_FILTER_CLASS', None)
+if entity_file_filter_class:
+    from django.utils.module_loading import import_string
+    EntityFileFilter = import_string(entity_file_filter_class)
+else:
+    EntityFileFilter = DefaultEntityFileFilter
 
 
 class EntityFileViewSet(viewsets.ModelViewSet):
