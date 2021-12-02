@@ -165,7 +165,7 @@ class CustomerCategoryMixin(object):
 
     def validate_terms(self, origin, **kwargs):
         """
-        RUS: Добавляет id категории пользоватя
+        RUS: Добавляет id категории пользователя
         """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_customer_category", False):
