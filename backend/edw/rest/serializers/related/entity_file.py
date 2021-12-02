@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mimetypes
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,6 +21,7 @@ class EntityFileSerializer(serializers.ModelSerializer):
     file_size = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    mime_type = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityFileModel
@@ -40,3 +42,7 @@ class EntityFileSerializer(serializers.ModelSerializer):
 
     def get_description(self, instance):
         return u'{}'.format(instance.file.description) if instance.file.description else ""
+
+    def get_mime_type(self, instance):
+        type, encoding = mimetypes.guess_type(str(instance.file.file))
+        return u'{}'.format(type) if type else ""

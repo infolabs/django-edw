@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mimetypes
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,6 +25,7 @@ class EntityImageSerializer(serializers.ModelSerializer):
     alt = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     subject_location = serializers.SerializerMethodField()
+    mime_type = serializers.SerializerMethodField()
 
     class Meta:
         model = EntityImageModel
@@ -57,3 +59,7 @@ class EntityImageSerializer(serializers.ModelSerializer):
 
     def get_subject_location(self, instance):
         return u'{}'.format(instance.image.subject_location) if instance.image.subject_location else ""
+
+    def get_mime_type(self, instance):
+        type, encoding = mimetypes.guess_type(str(instance.image.file))
+        return u'{}'.format(type) if type else ""
