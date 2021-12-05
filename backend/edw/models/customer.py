@@ -235,6 +235,31 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         return self.user.get_full_name()
 
     @property
+    def is_organisation(self):
+        # TODO:
+        return False
+
+    @property
+    def organisation_full_name(self):
+        # TODO:
+        return ""
+
+    @property
+    def organisation_short_name(self):
+        # TODO:
+        return ""
+
+    @property
+    def organisation_inn(self):
+        # TODO:
+        return ""
+
+    @property
+    def organisation_ogrn(self):
+        # TODO:
+        return ""
+
+    @property
     def first_name(self):
         """
         RUS: Возвращает имя пользователя модели Customer.
