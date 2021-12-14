@@ -16,6 +16,16 @@ def transition_event_notification(sender, instance, name, source, target, **kwar
                 'target': target,
             }
         )
+        """
+        # for test
+        print("send notification")
+        send_notification(model_name=instance.__class__.__name__,
+                instance_id=instance.id,
+                source=source,
+                target=target
+        )
+        """
+
     return
 
 

@@ -312,7 +312,7 @@ class ActivationView(APIView):
         # If, due to a browser glitch, there were more than one user created
         # return the oldest one and delete others
         users = User.objects.filter(**lookup_kwargs).order_by('-date_joined')
-        print(users)
+
         if not len(users):
             return None
         elif len(users) == 1:
