@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import urllib
 import re
 
-from django.utils import six
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _

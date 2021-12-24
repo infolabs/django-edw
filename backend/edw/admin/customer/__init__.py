@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.db import IntegrityError, transaction
 
 from edw import settings as edw_settings
