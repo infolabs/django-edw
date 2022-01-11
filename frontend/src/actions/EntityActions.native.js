@@ -99,6 +99,10 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
           json.messages.reverse();
 
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
+        if (json.solution)
+          json.solution = json.solution.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '');
+        if (json.result)
+          json.result = json.result.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '');
         dispatch({type: dispatchType, data: json});
       })
       .catch(error => {
