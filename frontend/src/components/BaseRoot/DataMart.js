@@ -42,7 +42,6 @@ export class DataMart extends Component {
               target.setAttribute('data-initial-data-count', count);
             else if ((count === undefined) && (prevCount === undefined))
               target.setAttribute('data-initial-data-count', '0');
-
           }
         }
       }

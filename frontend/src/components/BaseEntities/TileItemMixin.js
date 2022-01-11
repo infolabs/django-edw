@@ -121,12 +121,10 @@ const TileItemMixin = Base => class extends Base {
   }
 
   getItemContent(data, title, marks){
-    const url = data.extra && data.extra.url ? data.extra.url : data.entity_url;
+    const url = data.extra?.url || data.entity_url;
     return (
       <div className="ex-wrap-action">
-        <div className="ex-media"
-             dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
-
+        <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
         <ul className="ex-ribbons">
           {marks.map(
             (child, i) =>
@@ -139,7 +137,6 @@ const TileItemMixin = Base => class extends Base {
               </li>
           )}
         </ul>
-
         <div className="ex-wrap-title">
           <h4 className="ex-title">
             <a href={url} title={title}>{title}</a>
@@ -149,12 +146,12 @@ const TileItemMixin = Base => class extends Base {
     );
   }
 
-  getItemBlock(descriptionBaloon, itemContent, groupDigit, groupSize){
+  getItemBlock(descriptionBalloon, itemContent, groupDigit, groupSize){
     if (!groupSize){
       return (
         <div className="ex-catalog-item-block"
              onClickCapture={e => { ::this.handleMouseClick(e); } }>
-          {descriptionBaloon}
+          {descriptionBalloon}
           {itemContent}
         </div>
       );
@@ -164,7 +161,7 @@ const TileItemMixin = Base => class extends Base {
              onClickCapture={e => { ::this.handleMouseClick(e); } }>
           <div>
             <div>
-              {descriptionBaloon}
+              {descriptionBalloon}
               {groupDigit}
               {itemContent}
             </div>
