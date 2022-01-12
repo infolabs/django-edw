@@ -36,7 +36,7 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
   });
 };
 
-export const createEntity = (data, url, textLoader, nameFields) => dispatch => {
+export const createEntity = (data, url, actionType, textLoader = null, nameFields = {}) => dispatch => {
   const instance = Singleton.getInstance(),
     {navigation} = instance;
 
@@ -57,7 +57,7 @@ export const createEntity = (data, url, textLoader, nameFields) => dispatch => {
     uniFetch(url, parameters, nameFields)
       .then(() => {
         navigation.navigate('Home');
-        dispatch({type: actionTypes.CREATE_ENTITY});
+        dispatch({type: actionType});
       })
       .catch(() => {
         textLoader && navigation.goBack();
@@ -99,6 +99,10 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
           json.messages.reverse();
 
         json.description = json.description ? json.description.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '') : '';
+        if (json.solution)
+          json.solution = json.solution.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '');
+        if (json.result)
+          json.result = json.result.replace(/<\/p>/gi, '. ').replace(/<.*?>/gi, '');
         dispatch({type: dispatchType, data: json});
       })
       .catch(error => {

@@ -3,6 +3,7 @@
 import requests
 from jsonfield.fields import JSONField
 from simplejson import JSONDecodeError
+from rest_framework.fields import empty
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
@@ -31,6 +32,8 @@ class FIASMixin(ModelMixin):
     """
     Миксин для работы с данными из ФИАС. Добавляет в модель методы получения нужных полей из сохраненного ответа
     """
+    FIAS_VALIDATE_DATA = empty
+
     fias_data = JSONField(verbose_name=_("FIAS data"), default={},
         help_text=_("Data returned from FIAS for defined address"))
 
@@ -94,8 +97,19 @@ class FIASMixin(ModelMixin):
                 pass
         return result
 
-    @staticmethod
-    def get_fias_data_by_address(address):
+    @classmethod
+    def validate_fias_data(cls, data):
+        # Базовый метод, возвращает True если в данных в 'PresentRow' присутствует строка cls.FIAS_VALIDATE_DATA
+        # или если она не установлена. То есть если не установлено то считаем любые данные корректными. Кешируем
+        # проверочные данные в классе.
+        _fias_validate_data = getattr(cls, '_fias_validate_data', empty)
+        if _fias_validate_data == empty:
+            _fias_validate_data = cls.FIAS_VALIDATE_DATA
+            cls._fias_validate_data = _fias_validate_data
+        return _fias_validate_data in data['PresentRow'] if _fias_validate_data != empty else True
+
+    @classmethod
+    def get_fias_data_by_address(cls, address):
         """
         Метод для получения данных по адресу из ФИАС по адресу. Пример данных:
         {
@@ -154,48 +168,56 @@ class FIASMixin(ModelMixin):
                 pass
             else:
                 try:
-                    # Берем первый адрес в списке и из него получаем ID адресного объекта
-                    address_code = json_data[0]['ObjectId']
+                    # Берем первый адрес в списке и из него получаем ID адресного объекта, для проверки того
+                    # что получены корректные данные
+                    json_data[0]['ObjectId']
                 except (KeyError, IndexError):
-                    # Вернулось не пойми что либо нужных данных там нет (например не нашлось адресов)
+                    # Вернулось не пойми что, либо нужных данных там нет (например не нашлось адресов)
                     pass
                 else:
-                    result['Place'] = json_data[0]
-                    for lvl in LOCALITY_LEVELS:
-                        # Циклом перебираем потенциальные уровни начиная с Населенный пункт
-                        url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
-                        resp = requests.get(url, headers=HEADERS)
-                        if resp.status_code == 200 or resp.status_code == 201:
-                            try:
-                                json_data = resp.json()
-                            except JSONDecodeError:
-                                # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
-                                pass
-                            else:
+                    for item in json_data:
+                        # Проверяем что запись соответствует нашим критериям. Например, то что регион ответа совпадает
+                        # с регионом портала.
+                        if cls.validate_fias_data(item):
+                            result['Place'] = item
+                            address_code = result['Place']['ObjectId']
+                            for lvl in LOCALITY_LEVELS:
+                                # Циклом перебираем потенциальные уровни начиная с 'Населенный пункт'
+                                url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
+                                resp = requests.get(url, headers=HEADERS)
+                                if resp.status_code == 200 or resp.status_code == 201:
+                                    try:
+                                        json_data = resp.json()
+                                    except JSONDecodeError:
+                                        # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
+                                        pass
+                                    else:
+                                        try:
+                                            data = json_data["Data"]
+                                            if len(data) > 0:
+                                                result['Locality'] = data[0]
+                                                break
+                                        except (KeyError, IndexError):
+                                            # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
+                                            pass
+                            # получаем регион
+                            url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
+                            resp = requests.get(url, headers=HEADERS)
+                            if resp.status_code == 200 or resp.status_code == 201:
                                 try:
-                                    data = json_data["Data"]
-                                    if len(data) > 0:
-                                        result['Locality'] = data[0]
-                                        break
-                                except (KeyError, IndexError):
-                                    # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
+                                    json_data = resp.json()
+                                except JSONDecodeError:
+                                    # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
                                     pass
-                    # получаем регион
-                    url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
-                    resp = requests.get(url, headers=HEADERS)
-                    if resp.status_code == 200 or resp.status_code == 201:
-                        try:
-                            json_data = resp.json()
-                        except JSONDecodeError:
-                            # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
-                            pass
-                        else:
-                            try:
-                                data = json_data["Data"]
-                                if len(data) > 0:
-                                    result['Region'] = data[0]
-                            except (KeyError, IndexError):
-                                # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
-                                pass
+                                else:
+                                    try:
+                                        data = json_data["Data"]
+                                        if len(data) > 0:
+                                            result['Region'] = data[0]
+                                    except (KeyError, IndexError):
+                                        # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
+                                        pass
+                            # Если что-то нашлось, то прерываем итерирование по результату
+                            break
         return result
 
