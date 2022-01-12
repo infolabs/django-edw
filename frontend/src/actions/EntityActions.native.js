@@ -36,7 +36,7 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
   });
 };
 
-export const createEntity = (data, url, textLoader, nameFields) => dispatch => {
+export const createEntity = (data, url, actionType, textLoader = null, nameFields = {}) => dispatch => {
   const instance = Singleton.getInstance(),
     {navigation} = instance;
 
@@ -57,7 +57,7 @@ export const createEntity = (data, url, textLoader, nameFields) => dispatch => {
     uniFetch(url, parameters, nameFields)
       .then(() => {
         navigation.navigate('Home');
-        dispatch({type: actionTypes.CREATE_ENTITY});
+        dispatch({type: actionType});
       })
       .catch(() => {
         textLoader && navigation.goBack();
