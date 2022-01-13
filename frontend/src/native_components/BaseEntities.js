@@ -10,7 +10,7 @@ import List from './BaseEntities/List';
 import {baseEntitiesStyles as styles} from '../native_styles/baseEntities';
 
 
-const UNSUPPORTED_RES = [/.*ymap/];
+const UNSUPPORTED_RES = [/.*ymap/, /.*yheatmap/];
 
 export function filterUnsupported(components) {
   return components.filter(c => !UNSUPPORTED_RES.some(r => r.test(c)));
