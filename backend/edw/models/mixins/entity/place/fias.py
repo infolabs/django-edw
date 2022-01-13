@@ -242,13 +242,13 @@ class FIASMixin(ModelMixin):
         """
         # Преобразовываем адрес согласно особенностям поиска ФИАС, если вернулась пустая строка - адрес нельзя искать
         address = cls.fias_prepare_address(address)
-        # Добавляем к адресу уточняющие данные, если их там нет, например prefixes ['N-ская область', 'город N-ск']
-        for prefix in prefixes:
-            if not prefix in address:
-                address = f'{prefix}, {address}'
         # Формируем результат для возврата
         result = {}
         if address:
+            # Добавляем к адресу уточняющие данные, если их там нет, например prefixes ['N-ская область', 'город N-ск']
+            for prefix in prefixes:
+                if not prefix in address:
+                    address = f'{prefix}, {address}'
             # Формируем запрос получения данных по адресу из ФИАС. Находится
             url = SEARCH_URL.format(address)
             resp = requests.get(url, headers=HEADERS)
