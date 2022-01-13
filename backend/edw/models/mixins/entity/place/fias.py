@@ -136,10 +136,9 @@ class FIASMixin(ModelMixin):
         if match:
             search_name = search_name.replace(f'{match.group(1)}', '')
         # Добавляем слово дом к номеру
-        match = re.search(',(\d)|\s(\d)', search_name)
+        match = re.search('(\d.{,5})', search_name)
         if match:
-            match_group = match.group(1) if match.group(1) else match.group(2)
-            search_name = search_name.replace(f'{match_group}', f'дом {match_group}')
+            search_name = search_name.replace(f'{match.group(1)}', f'дом {match.group(1)}')
         # Выполняем замену по подстановочному списку
         for replacer in cls.FIAS_ADDRESS_REPLACERS:
             search_name = re.sub(replacer[0], replacer[1], search_name)
@@ -268,6 +267,9 @@ class FIASMixin(ModelMixin):
                         # Вернулось не пойми что, либо нужных данных там нет (например не нашлось адресов)
                         pass
                     else:
+                        # Хак для того, чтоб исключить проблему номеров домов с буквами. Например: ищем дом 111,
+                        # но если есть 111а - он будет первый в списке, а 111 последний
+                        json_data.reverse()
                         for item in json_data:
                             # Проверяем что запись соответствует нашим критериям. Например, то что регион ответа совпадает
                             # с регионом портала.
