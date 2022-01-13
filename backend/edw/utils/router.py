@@ -6,6 +6,9 @@ from multidb import PinningReplicaRouter
 from edw.management.commands.replication_health import REPLICATION_UNHEALTHY_KEY
 
 
+DEFAULT_REPLICATION_MASTER_APP_LABELS = ('sessions', 'email_auth', 'contenttypes', )
+
+
 class EdwReplicationRouter(PinningReplicaRouter):
     initial_replica_databases = None
     unhealthy = []
@@ -22,10 +25,15 @@ class EdwReplicationRouter(PinningReplicaRouter):
         settings.REPLICA_DATABASES = healthy
 
     def db_for_read(self, model, **hints):
-        self.mark_healthy()
+        master_app_labels = getattr(
+            settings, 'REPLICATION_MASTER_APP_LABELS',
+            DEFAULT_REPLICATION_MASTER_APP_LABELS)
 
-        # TODO: doesn't work, for example Term has no _rest_meta and so on
-        if not hasattr(model, '_rest_meta'):
+        if model._meta.app_label in master_app_labels:
             return DEFAULT_DB_ALIAS
-        db = model._rest_meta.db_for_read(self, model, **hints)
-        return db if db is not None else super().db_for_read(model, **hints)
+
+        if hasattr(model, '_rest_meta') and hasattr(model._rest_meta, 'db_for_read'):
+            return model._rest_meta.db_for_read(self, model, **hints)
+
+        self.mark_healthy()
+        return super().db_for_read(model, **hints)
