@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import requests
 from jsonfield.fields import JSONField
 from simplejson import JSONDecodeError
@@ -33,6 +34,17 @@ class FIASMixin(ModelMixin):
     Миксин для работы с данными из ФИАС. Добавляет в модель методы получения нужных полей из сохраненного ответа
     """
     FIAS_VALIDATE_DATA = empty
+    FIAS_ADDRESS_REPLACERS = [
+        ('г\.', 'город '),
+        ('пр\.', 'проспект '),
+        ('просп\.\,', 'проспект,'),
+        ('обл\.\,', 'область,'),
+        ('обл\.', 'область '),
+        ('ул\.', 'улица '),
+        ('пер\. ', 'переулок '),
+        ('м\-н.', 'микрорайон '),
+        ('м\-н', 'микрорайон'),
+    ]
 
     fias_data = JSONField(verbose_name=_("FIAS data"), default={},
         help_text=_("Data returned from FIAS for defined address"))
@@ -109,7 +121,80 @@ class FIASMixin(ModelMixin):
         return _fias_validate_data in data['PresentRow'] if _fias_validate_data != empty else True
 
     @classmethod
-    def get_fias_data_by_address(cls, address):
+    def fias_prepare_address(cls, address):
+        # Метод модифицирует адресную строку для улучшения поиска на сервере ФИАС.
+        # ФИАС не умеет корректно искать такие адреса поэтому просто выходим
+        if 'Unnamed Road' in address:
+            return
+        # Очищаем гугл адреса вида `5439+8R Город, Область, Россия`, оставляем только корректный русскоязычный адрес
+        search_name = address
+        match = re.search('(.*\+.[a-zA-Z0-9])', search_name)
+        if match:
+            search_name = search_name.replace(f'{match.group(1)} ', '')
+        # Очищаем индекс, так как он мешает
+        match = re.search('(,.?\d{6})', search_name)
+        if match:
+            search_name = search_name.replace(f'{match.group(1)}', '')
+        # Добавляем слово дом к номеру
+        match = re.search('(\d.{,5})', search_name)
+        if match:
+            search_name = search_name.replace(f'{match.group(1)}', f'дом {match.group(1)}')
+        # Выполняем замену по подстановочному списку
+        for replacer in cls.FIAS_ADDRESS_REPLACERS:
+            search_name = re.sub(replacer[0], replacer[1], search_name)
+        return re.sub(' +', ' ', search_name)
+
+    @classmethod
+    def get_fias_data_by_id(cls, object_id):
+        """
+        Метод для получения данных по адресу из ФИАС по идентификатору адресного объекта (не GUID!!).
+        Возвращает:
+        'locality' - данные по населенному пункту или городу, которому принадлежит адресный объект.
+        'region' - данные по региону которому принадлежит данный населенный пункт или город
+        """
+        locality = None
+        for lvl in LOCALITY_LEVELS:
+            # Циклом перебираем потенциальные уровни начиная с 'Населенный пункт'
+            url = DETAIL_URL.format(object_id, OBJ_LEVEL, lvl)
+            resp = requests.get(url, headers=HEADERS)
+            if resp.status_code == 200 or resp.status_code == 201:
+                try:
+                    json_data = resp.json()
+                except JSONDecodeError:
+                    # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
+                    pass
+                else:
+                    try:
+                        data = json_data["Data"]
+                        if len(data) > 0:
+                            locality = data[0]
+                            break
+                    except (KeyError, IndexError):
+                        # Вернулось не пойми что, либо нужных данных там нет (пустой json, json без Data...)
+                        pass
+
+        # получаем регион
+        region = None
+        url = DETAIL_URL.format(object_id, OBJ_LEVEL, REGION_LEVEL)
+        resp = requests.get(url, headers=HEADERS)
+        if resp.status_code == 200 or resp.status_code == 201:
+            try:
+                json_data = resp.json()
+            except JSONDecodeError:
+                # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
+                pass
+            else:
+                try:
+                    data = json_data["Data"]
+                    if len(data) > 0:
+                        region = data[0]
+                except (KeyError, IndexError):
+                    # Вернулось не пойми что, либо нужных данных там нет (пустой json, json без Data...)
+                    pass
+        return locality, region
+
+    @classmethod
+    def get_fias_data_by_address(cls, address, prefixes=[]):
         """
         Метод для получения данных по адресу из ФИАС по адресу. Пример данных:
         {
@@ -155,69 +240,42 @@ class FIASMixin(ModelMixin):
         'Locality' - данные по населенному пункту или городу, которому принадлежит адресный объект
         'Region' - данные по региону которому принадлежит данный населенный пункт или город
         """
-
+        # Преобразовываем адрес согласно особенностям поиска ФИАС, если вернулась пустая строка - адрес нельзя искать
+        address = cls.fias_prepare_address(address)
+        # Формируем результат для возврата
         result = {}
-        # Формируем запрос получения данных по адресу из ФИАС. Находится
-        url = SEARCH_URL.format(address)
-        resp = requests.get(url, headers=HEADERS)
-        if resp.status_code == 200 or resp.status_code == 201:
-            try:
-                json_data = resp.json()
-            except JSONDecodeError:
-                # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
-                pass
-            else:
+        if address:
+            # Добавляем к адресу уточняющие данные, если их там нет, например prefixes ['N-ская область', 'город N-ск']
+            for prefix in prefixes:
+                if not prefix in address:
+                    address = f'{prefix}, {address}'
+            # Формируем запрос получения данных по адресу из ФИАС. Находится
+            url = SEARCH_URL.format(address)
+            resp = requests.get(url, headers=HEADERS)
+            if resp.status_code == 200 or resp.status_code == 201:
                 try:
-                    # Берем первый адрес в списке и из него получаем ID адресного объекта, для проверки того
-                    # что получены корректные данные
-                    json_data[0]['ObjectId']
-                except (KeyError, IndexError):
-                    # Вернулось не пойми что, либо нужных данных там нет (например не нашлось адресов)
+                    json_data = resp.json()
+                except JSONDecodeError:
+                    # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
                     pass
                 else:
-                    for item in json_data:
-                        # Проверяем что запись соответствует нашим критериям. Например, то что регион ответа совпадает
-                        # с регионом портала.
-                        if cls.validate_fias_data(item):
-                            result['Place'] = item
-                            address_code = result['Place']['ObjectId']
-                            for lvl in LOCALITY_LEVELS:
-                                # Циклом перебираем потенциальные уровни начиная с 'Населенный пункт'
-                                url = DETAIL_URL.format(address_code, OBJ_LEVEL, lvl)
-                                resp = requests.get(url, headers=HEADERS)
-                                if resp.status_code == 200 or resp.status_code == 201:
-                                    try:
-                                        json_data = resp.json()
-                                    except JSONDecodeError:
-                                        # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
-                                        pass
-                                    else:
-                                        try:
-                                            data = json_data["Data"]
-                                            if len(data) > 0:
-                                                result['Locality'] = data[0]
-                                                break
-                                        except (KeyError, IndexError):
-                                            # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
-                                            pass
-                            # получаем регион
-                            url = DETAIL_URL.format(address_code, OBJ_LEVEL, REGION_LEVEL)
-                            resp = requests.get(url, headers=HEADERS)
-                            if resp.status_code == 200 or resp.status_code == 201:
-                                try:
-                                    json_data = resp.json()
-                                except JSONDecodeError:
-                                    # Получен не JSON объект (чаще всего сервис недоступен, но при этом вернулся статус 200)
-                                    pass
-                                else:
-                                    try:
-                                        data = json_data["Data"]
-                                        if len(data) > 0:
-                                            result['Region'] = data[0]
-                                    except (KeyError, IndexError):
-                                        # Вернулось не пойми что либо нужных данных там нет (пустой json, json без Data...)
-                                        pass
-                            # Если что-то нашлось, то прерываем итерирование по результату
-                            break
+                    try:
+                        # Берем первый адрес в списке и из него получаем ID адресного объекта, для проверки того
+                        # что получены корректные данные
+                        json_data[0]['ObjectId']
+                    except (KeyError, IndexError):
+                        # Вернулось не пойми что, либо нужных данных там нет (например не нашлось адресов)
+                        pass
+                    else:
+                        # Хак для того, чтоб исключить проблему номеров домов с буквами. Например: ищем дом 111,
+                        # но если есть 111а - он будет первый в списке, а 111 последний
+                        json_data.reverse()
+                        for item in json_data:
+                            # Проверяем что запись соответствует нашим критериям. Например, то что регион ответа совпадает
+                            # с регионом портала.
+                            if cls.validate_fias_data(item):
+                                result['Place'] = item
+                                result['Locality'], result['Region'] = cls.get_fias_data_by_id(item['ObjectId'])
+                                # Если что-то нашлось, то прерываем итерирование по результату
+                                break
         return result
-
