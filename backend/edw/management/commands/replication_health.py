@@ -23,20 +23,26 @@ def get_slave_status(connection):
         status = dictfetchall(cursor)[0]
     return status
 
-
-def get_slave_statuses():
-    statuses = {}
+def get_slave_connections():
+    slave_connections = {}
     for alias, db in settings.REPLICA_DATABASES_ALL.items():
         try:
-            connection = connections[alias]
+            slave_connection = connections[alias]
         except ConnectionDoesNotExist:
             db.setdefault('TIME_ZONE', None)
             db.setdefault('CONN_MAX_AGE', 0)
             db.setdefault('OPTIONS', {})
             db.setdefault('AUTOCOMMIT', True)
             backend = load_backend(db['ENGINE'])
-            connection = backend.DatabaseWrapper(db, alias)
-        status = get_slave_status(connection)
+            slave_connection = backend.DatabaseWrapper(db, alias)
+        slave_connections[alias] = slave_connection
+    return slave_connections
+
+
+def get_slave_statuses():
+    statuses = {}
+    for alias, slave_connection in get_slave_connections().items():
+        status = get_slave_status(slave_connection)
         statuses[alias] = status
     return statuses
 

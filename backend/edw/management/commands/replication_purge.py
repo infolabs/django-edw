@@ -1,15 +1,17 @@
 from django.core.management.base import BaseCommand
 from django.db import connection
-from .replication_health import get_slave_statuses, dictfetchall
+from .replication_health import get_slave_connections, get_slave_status, dictfetchall
 
 
 class Command(BaseCommand):
     def handle(self, **options):
-        slave_statuses = get_slave_statuses()
-
         slave_binlogs = []
-        for status in slave_statuses.values():
+        for alias, slave_connection in get_slave_connections().items():
+            status = get_slave_status(slave_connection)
             slave_binlogs.append(status['Master_Log_File'])
+            # flush relay logs
+            with slave_connection.cursor() as cursor:
+                cursor.execute('FLUSH LOGS;')
 
         # Get oldest binlog in use. Purge prior binlogs
         with connection.cursor() as cursor:
