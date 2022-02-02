@@ -191,7 +191,7 @@ export function getEntities(params) {
           globalStore.initial_entities = {};
 
         // json.limit === 6 - template_name is related
-        if (!globalStore.initial_entities.hasOwnProperty(mart_id) && json.limit !== 6) {
+        if (json.limit !== 6) {
           globalStore.initial_entities[mart_id] = {
             ...json,
             notifyLoadingEntities: notifyLoadingEntities(),

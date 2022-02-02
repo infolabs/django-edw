@@ -8,7 +8,7 @@ export const dateFormat = (date, onlyDate = true) => {
 
   const hour = d.getHours();
   const minutes = d.getMinutes();
-  return `${day} ${MONTHS[monthIndex]} ${year} г. ${hour > 10 ? hour : `0${hour}`}:${minutes > 10 ? minutes : `0${minutes}`}`;
+  return `${day} ${MONTHS[monthIndex]} ${year} г. ${hour > 9 ? hour : `0${hour}`}:${minutes > 9 ? minutes : `0${minutes}`}`;
 };
 
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
