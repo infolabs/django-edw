@@ -36,7 +36,9 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
   });
 };
 
-export const createEntity = (data, url, actionType, textLoader = null, nameFields = {}) => dispatch => {
+export const createEntity = params => dispatch => {
+  const {data, url, actionType, refreshDataMart, textLoader = null, nameFields = {}, slugConfig = null} = params;
+
   const instance = Singleton.getInstance(),
     {navigation} = instance;
 
@@ -58,6 +60,7 @@ export const createEntity = (data, url, actionType, textLoader = null, nameField
       .then(() => {
         navigation.navigate('Home');
         dispatch({type: actionType});
+        slugConfig && refreshDataMart(slugConfig);
       })
       .catch(() => {
         textLoader && navigation.goBack();
@@ -137,7 +140,7 @@ export const deleteEntity = params => dispatch => {
       uniFetch(url, parameters, {}, false)
         .then(() => {
           navigation.navigate(nextNavigate)
-          dispatch({type: actionTypes.DELETE_ENTITY});
+          dispatch({type: actionTypes.DELETE_ENTITY, id});
           slugConfig && refreshDataMart(slugConfig);
         })
         .catch(error => {

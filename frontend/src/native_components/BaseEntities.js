@@ -51,7 +51,8 @@ function BaseEntities(props) {
       mart_id: entry_point_id,
       options_obj: request_options,
       subj_ids,
-      options_arr
+      options_arr,
+      template_name: entry_points[entry_point_id].template_name || 'data-mart'
     };
     props.readEntities(params);
   }, []);

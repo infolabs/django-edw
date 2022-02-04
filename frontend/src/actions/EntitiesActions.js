@@ -88,7 +88,7 @@ const loadingEntity = id => dispatch => {
 let inFetch = 0;
 
 export function getEntities(params) {
-  const {mart_id} = params,
+  const {mart_id, template_name} = params,
     subj_ids = params.subj_ids || [],
     options_arr = params.options_arr || [],
     append = params.append || false,
@@ -185,15 +185,15 @@ export function getEntities(params) {
       }
 
       if (PLATFORM === NATIVE) {
-        globalStore.edwDispatch = dispatch;
-
         if (!globalStore.initial_entities)
           globalStore.initial_entities = {};
 
-        // json.limit === 6 - template_name is related
-        if (json.limit !== 6) {
-          globalStore.initial_entities[mart_id] = {
+        const martId = template_name === 'related' ? `${mart_id}_rel` : mart_id;
+
+        if (!globalStore.initial_entities.hasOwnProperty(martId)) {
+          globalStore.initial_entities[martId] = {
             ...json,
+            dispatch,
             notifyLoadingEntities: notifyLoadingEntities(),
             params: {mart_id, subj_ids, options_obj, options_arr},
             getEntities

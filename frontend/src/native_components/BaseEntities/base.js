@@ -121,10 +121,10 @@ export function useGroupClose(store = null) {
   // the hook is used ouside a edw component
   // one can optionally pass the correct store
   const defaultStore = useStore();
-  store = store ? store : defaultStore;
+  store = store || defaultStore;
   const {dispatch, getState} = store;
 
-  const meta = getState().entities && getState().entities.items.meta;
+  const meta = getState().entities?.items.meta;
 
   const groupName = getGroupName(meta);
 
