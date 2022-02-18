@@ -139,8 +139,6 @@ export const listStyles = StyleSheet.create({
     width: 256,
     height: 150,
     borderRadius: 15,
-    borderColor: '#959595',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   imageBackgroundRelated: {
