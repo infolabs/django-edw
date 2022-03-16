@@ -22,6 +22,8 @@ from social_core.exceptions import AuthFailed, AuthMissingParameter
 
 from edw.utils.hash_helpers import create_hash
 
+import logging
+auth_logger = logging.getLogger('logauth')
 
 # https://github.com/sokolovs/esia-oauth2/blob/master/esia/utils.py
 
@@ -190,6 +192,8 @@ class EsiaOAuth2(BaseOAuth2):
     }
 
     def get_user_details(self, response):
+        auth_logger.debug("EsiaOAuth2 get_user_details +++++++")
+        auth_logger.debug(response)
         response['mobile'] = response['mobile'].get('value', '')
         response['email'] = response['email'].get('value', '')
         # У поля username ограничение 30 символов
@@ -204,6 +208,9 @@ class EsiaOAuth2(BaseOAuth2):
         return {k: v for k, v in list(response.items()) if k in fields}
 
     def user_data(self, access_token, *args, **kwargs):
+        auth_logger.debug("EsiaOAuth2 user_data +++++++")
+        auth_logger.debug(kwargs)
+
         id_token = kwargs['response']['id_token']
         payload = jwt.decode(id_token, verify=False)
 
@@ -232,6 +239,8 @@ class EsiaOAuth2(BaseOAuth2):
                 if e['type'] == v:
                     ret[k] = e
 
+        auth_logger.debug("EsiaOAuth2 user_data res:")
+        auth_logger.debug(ret)
         return ret
 
 
