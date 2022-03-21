@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 from jsonfield.fields import JSONField
 
 from edw.models.mixins import ModelMixin
 from edw.rest.serializers.customer import CustomerSerializer
+from django.conf import settings
 
 
 class NotificationMixin(ModelMixin):
@@ -58,8 +61,19 @@ class NotificationMixin(ModelMixin):
         :param recipients: - список объектов получателей
         :return: Список [(email, recipient_object, serialaizer_cls),...]
         """
-
-        return [(customer.email, customer.customer, CustomerSerializer) for customer in recipients if customer.email]
+        result = []
+        regexp = r'([\'|"](.*?)[\'|"])'
+        exclude_email_notification = [pattern for _, pattern in
+                                      re.findall(regexp, str(settings.EXCLUDE_EMAIL_NOTIFICATION))]
+        for customer in recipients:
+            if customer.email:
+                if len(exclude_email_notification):
+                    res = re.search(r'@({})'.format('|'.join(exclude_email_notification)), customer.email)
+                    if res is None:
+                        result.append((customer.email, customer.customer, CustomerSerializer))
+                else:
+                    result.append((customer.email, customer.customer, CustomerSerializer))
+        return result
 
     def get_email_notification_recipients_by_roles(self, recipient_roles):
         """

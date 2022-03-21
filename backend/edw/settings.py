@@ -97,3 +97,6 @@ CLASSIFY = {
     'dominant_difference': 0.333
 }
 CLASSIFY.update(getattr(settings, 'EDW_CLASSIFY', {}))
+
+
+EXCLUDE_EMAIL_NOTIFICATION = []
