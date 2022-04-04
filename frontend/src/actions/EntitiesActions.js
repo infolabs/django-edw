@@ -193,10 +193,18 @@ export function getEntities(params) {
         if (!globalStore.initial_entities.hasOwnProperty(martId)) {
           globalStore.initial_entities[martId] = {
             ...json,
-            dispatch,
-            notifyLoadingEntities: notifyLoadingEntities(),
-            params: {mart_id, subj_ids, options_obj, options_arr},
-            getEntities
+            notifyLoadingEntities: () => dispatch(notifyLoadingEntities()),
+            getEntities: () => dispatch(getEntities({
+              mart_id,
+              subj_ids,
+              options_obj: {...options_obj, offset: 0},
+              options_arr
+            }))
+          };
+        } else {
+          globalStore.initial_entities[martId] = {
+            ...globalStore.initial_entities[martId],
+            ...json
           }
         }
       } else {
