@@ -144,8 +144,15 @@ class EsiaOAuth2(BaseOAuth2):
     ACCESS_TOKEN_URL = BASE_URL + TOKEN_EXCHANGE_PATH
     DEFAULT_SCOPE = ['openid', 'email', 'fullname', 'mobile']
     EXTRA_DATA = [('id', 'id')]
+    GET_ALL_EXTRA_DATA = True #todo: delete
 
     MAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
+
+    def get_json(self, url, *args, **kwargs):
+        auth_logger.debug("EsiaOAuth2 get_json +++++++ url: %s" % url)
+        auth_logger.debug("args: %s" % args)
+        auth_logger.debug("kwargs: %s" % kwargs)
+        return self.request(url, *args, **kwargs).json()
 
     def state_token(self):
         return str(uuid.uuid4())
@@ -164,15 +171,19 @@ class EsiaOAuth2(BaseOAuth2):
         )
 
     def auth_params(self, state=None):
+        auth_logger.debug("EsiaOAuth2 auth_params +++++++ state: %s" % state)
         params = super(EsiaOAuth2, self).auth_params(state)
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
+        auth_logger.debug(params)
         return self.add_and_sign_params(params)
 
     def auth_complete_params(self, state=None):
+        auth_logger.debug("EsiaOAuth2 auth_complete_params +++++++")
         params = super(EsiaOAuth2, self).auth_complete_params(state)
         params['token_type'] = 'Bearer'
         params['state'] = state
+        auth_logger.debug(params)
         return self.add_and_sign_params(params)
 
     DETAILS_MAP = {
@@ -205,27 +216,46 @@ class EsiaOAuth2(BaseOAuth2):
         fields = ['is_trusted', 'username', 'fullname']
         for k in ['info', 'contacts']:
             fields.extend(self.DETAILS_MAP[k].keys())
+        auth_logger.debug("fields %" % fields)
         return {k: v for k, v in list(response.items()) if k in fields}
 
     def user_data(self, access_token, *args, **kwargs):
         auth_logger.debug("EsiaOAuth2 user_data +++++++")
+        auth_logger.debug("scope: %s" % self.get_scope())
         auth_logger.debug(kwargs)
 
         id_token = kwargs['response']['id_token']
         payload = jwt.decode(id_token, verify=False)
-
+        auth_logger.debug("payload")
+        auth_logger.debug(payload)
         oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
         is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
         headers = {'Authorization': "Bearer %s" % access_token}
 
         base_url = '{base}{info}/{oid}'.format(base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid)
+        auth_logger.debug("base_url: %s" % base_url)
+        auth_logger.debug("headers: %s" % headers)
+
         info = self.get_json(base_url, headers=headers)
+        auth_logger.debug("info: %s" % info)
+        auth_logger.debug("contacts url: %s" % base_url + '/ctts?embed=(elements)')
         contacts = self.get_json(base_url + '/ctts?embed=(elements)', headers=headers)
+        auth_logger.debug("contacts: %s" % contacts)
         elements = contacts['elements']
 
         if 'contacts' in self.get_scope():
+            auth_logger.debug("addresses url: %s" % base_url + '/addrs?embed=(elements)')
             addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
+            auth_logger.debug("addresses: %s" % addresses)
             elements.extend(addresses['elements'])
+        if 'usr_org' in self.get_scope():
+            try:
+                auth_logger.debug("usr_org in scope: %s" % addresses)
+                auth_logger.debug("orgs url: %s" % base_url + '/roles')
+                orgs = self.get_json(base_url + '/roles', headers=headers)
+                auth_logger.debug("orgs: %s" % orgs)
+            except Exception as err:
+                auth_logger.debug("---ERR orgs: %s" % err)
 
         ret = {'id': oid, 'is_trusted': bool(is_trusted)}
 
