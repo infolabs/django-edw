@@ -22,6 +22,9 @@ from social_core.exceptions import AuthFailed, AuthMissingParameter
 
 from edw.utils.hash_helpers import create_hash
 
+from social_core.utils import url_add_parameters, parse_qs, handle_http_errors, \
+                    constant_time_compare
+
 import logging
 auth_logger = logging.getLogger('logauth')
 
@@ -144,15 +147,9 @@ class EsiaOAuth2(BaseOAuth2):
     ACCESS_TOKEN_URL = BASE_URL + TOKEN_EXCHANGE_PATH
     DEFAULT_SCOPE = ['openid', 'email', 'fullname', 'mobile']
     EXTRA_DATA = [('id', 'id')]
-    GET_ALL_EXTRA_DATA = True #todo: delete
+    GET_ALL_EXTRA_DATA = True
 
     MAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
-
-    def get_json(self, url, *args, **kwargs):
-        auth_logger.debug("EsiaOAuth2 get_json +++++++ url: %s" % url)
-        auth_logger.debug("args: %s" % args)
-        auth_logger.debug("kwargs: %s" % kwargs)
-        return self.request(url, *args, **kwargs).json()
 
     def state_token(self):
         return str(uuid.uuid4())
@@ -171,19 +168,17 @@ class EsiaOAuth2(BaseOAuth2):
         )
 
     def auth_params(self, state=None):
-        auth_logger.debug("EsiaOAuth2 auth_params +++++++ state: %s" % state)
         params = super(EsiaOAuth2, self).auth_params(state)
         params['response_type'] = 'code'
         params['access_type'] = 'offline'
-        auth_logger.debug(params)
+
         return self.add_and_sign_params(params)
 
     def auth_complete_params(self, state=None):
-        auth_logger.debug("EsiaOAuth2 auth_complete_params +++++++")
         params = super(EsiaOAuth2, self).auth_complete_params(state)
         params['token_type'] = 'Bearer'
         params['state'] = state
-        auth_logger.debug(params)
+
         return self.add_and_sign_params(params)
 
     DETAILS_MAP = {
@@ -203,8 +198,7 @@ class EsiaOAuth2(BaseOAuth2):
     }
 
     def get_user_details(self, response):
-        auth_logger.debug("EsiaOAuth2 get_user_details +++++++")
-        auth_logger.debug(response)
+
         response['mobile'] = response['mobile'].get('value', '')
         response['email'] = response['email'].get('value', '')
         # У поля username ограничение 30 символов
@@ -213,51 +207,34 @@ class EsiaOAuth2(BaseOAuth2):
             None, [response['first_name'], response['middle_name'], response['last_name']])
         )
 
-        fields = ['is_trusted', 'username', 'fullname']
+        fields = ['is_trusted', 'username', 'fullname', 'organisations']
         for k in ['info', 'contacts']:
             fields.extend(self.DETAILS_MAP[k].keys())
-        auth_logger.debug("fields %" % fields)
+
         return {k: v for k, v in list(response.items()) if k in fields}
 
     def user_data(self, access_token, *args, **kwargs):
-        auth_logger.debug("EsiaOAuth2 user_data +++++++")
-        auth_logger.debug("scope: %s" % self.get_scope())
-        auth_logger.debug(kwargs)
 
         id_token = kwargs['response']['id_token']
         payload = jwt.decode(id_token, verify=False)
-        auth_logger.debug("payload")
-        auth_logger.debug(payload)
+
         oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
         is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
+        ret = {'id': oid, 'is_trusted': bool(is_trusted)}
         headers = {'Authorization': "Bearer %s" % access_token}
 
         base_url = '{base}{info}/{oid}'.format(base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid)
-        auth_logger.debug("base_url: %s" % base_url)
-        auth_logger.debug("headers: %s" % headers)
-
         info = self.get_json(base_url, headers=headers)
-        auth_logger.debug("info: %s" % info)
-        auth_logger.debug("contacts url: %s" % base_url + '/ctts?embed=(elements)')
         contacts = self.get_json(base_url + '/ctts?embed=(elements)', headers=headers)
-        auth_logger.debug("contacts: %s" % contacts)
         elements = contacts['elements']
 
         if 'contacts' in self.get_scope():
-            auth_logger.debug("addresses url: %s" % base_url + '/addrs?embed=(elements)')
             addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
-            auth_logger.debug("addresses: %s" % addresses)
             elements.extend(addresses['elements'])
         if 'usr_org' in self.get_scope():
-            try:
-                auth_logger.debug("usr_org in scope: %s" % addresses)
-                auth_logger.debug("orgs url: %s" % base_url + '/roles')
-                orgs = self.get_json(base_url + '/roles', headers=headers)
-                auth_logger.debug("orgs: %s" % orgs)
-            except Exception as err:
-                auth_logger.debug("---ERR orgs: %s" % err)
-
-        ret = {'id': oid, 'is_trusted': bool(is_trusted)}
+            orgs = self.get_json(base_url + '/roles', headers=headers)
+            if orgs and orgs.get('elements') and len(orgs.get('elements')) > 0:
+                ret['organisations'] = orgs.get('elements')
 
         for k, v in self.DETAILS_MAP['info'].items():
             ret[k] = info.get(v, '')
@@ -269,8 +246,219 @@ class EsiaOAuth2(BaseOAuth2):
                 if e['type'] == v:
                     ret[k] = e
 
-        auth_logger.debug("EsiaOAuth2 user_data res:")
-        auth_logger.debug(ret)
+        return ret
+
+class EsiaOAuth2Test(EsiaOAuth2):
+    """
+    Бэкенд для тестирования ЕСИА
+    Эмулирует ответы от ЕСИА
+    """
+    name = 'esia_test'
+
+    BASE_URL = '/'
+    CERTIFICATE = ''
+    PRIVKEY = ''
+
+    AUTHORIZATION_PATH = '/aastest/oauth2/ac'
+    TOKEN_EXCHANGE_PATH = '/aastest/oauth2/te'
+    USER_INFO_PATH = '/rstest/prns'
+
+    ACCESS_TOKEN_METHOD = 'POST'
+    AUTHORIZATION_URL = BASE_URL + AUTHORIZATION_PATH
+    ACCESS_TOKEN_URL = BASE_URL + TOKEN_EXCHANGE_PATH
+    DEFAULT_SCOPE = ['openid', 'email', 'fullname', 'mobile']
+    EXTRA_DATA = [('id', 'id')]
+    GET_ALL_EXTRA_DATA = True
+
+    MAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
+
+    def state_token(self):
+        return str(uuid.uuid4())
+
+    def add_and_sign_params(self, params):
+        return params
+
+    @handle_http_errors
+    def auth_complete(self, *args, **kwargs):
+        access_token = 'eyJ2ZXIiOjEsInR5cCI6IkpXVCIsInNidCI6ImFjY2VzcyIsImFsZyI6IlJTMjU2In0.eyJuYmYiOjE2NDkxNjIxMjYsInNjb3BlIjoiZW1haWw_b2lkPTEwMTk3OTczOTEgaW5uP29pZD0xMDE5Nzk3MzkxIG9wZW5pZCBtb2JpbGU_b2lkPTEwMTk3OTczOTEgYmlydGhkYXRlP29pZD0xMDE5Nzk3MzkxIGZ1bGxuYW1lP29pZD0xMDE5Nzk3MzkxIGdlbmRlcj9vaWQ9MTAxOTc5NzM5MSB1c3Jfb3JnP29pZD0xMDE5Nzk3MzkxIGNvbnRhY3RzP29pZD0xMDE5Nzk3MzkxIiwiaXNzIjoiaHR0cDpcL1wvZXNpYS5nb3N1c2x1Z2kucnVcLyIsInVybjplc2lhOnNpZCI6ImZkMGI1MzMzLWNjZWItNDNlMy1iNTY3LTc3ZTI5OTVjZTJmNiIsInVybjplc2lhOnNial9pZCI6MTAxOTc5NzM5MSwiZXhwIjoxNjQ5MTY1NzI2LCJpYXQiOjE2NDkxNjIxMjYsImNsaWVudF9pZCI6IjE1OTIwNCJ9.MEvKb7j2IuUD7ZOuKrAB3qObXdwigGMUZMXnyCzq-SgvlBZF-yR-fhm2L0Iyj59QAHTr_vCyWpKGZoi6V_jLCVJFwGFeKkJI-p6_TCoHmoRG2iLA5VOsZqc4s3Ov0pQaLYy95JmsrT92QfRJsmkE3DOJuS0o77QRKfoY0l2N9pWSUIGyeJ73qJMk5jQvz-jPQlRFGPnCgbHZFIugXvuJa86soHWAvYmpdc4IaRcXCYlXwps6HVLaX8X5QvbFlGIQCnxpWHCz1PkzsDwvzVkN1c2KOgItSGYk8rk9xQmKXGWCvHkZSnH9r9G_-EuXrfH2-_S3N8mP4QEDGIMOiyswrw'
+        return self.do_auth(access_token, *args, **kwargs)
+
+    @handle_http_errors
+    def do_auth(self, access_token, *args, **kwargs):
+        """Finish the auth process once the access_token was retrieved"""
+        data = self.user_data(access_token, *args, **kwargs)
+        response = kwargs.get('response') or {}
+        response.update(data or {})
+        if 'access_token' not in response:
+            response['access_token'] = access_token
+        kwargs.update({'response': response, 'backend': self})
+        return self.strategy.authenticate(*args, **kwargs)
+
+    def request_access_token(self, *args, **kwargs):
+        return {'response':
+                    {'access_token': 'eyJ2ZXIiOjEsInR5cCI6IkpXVCIsInNidCI6ImFjY2VzcyIsImFsZyI6IlJTMjU2In0.eyJuYmYiOjE2NDkxNjIxMjYsInNjb3BlIjoiZW1haWw_b2lkPTEwMTk3OTczOTEgaW5uP29pZD0xMDE5Nzk3MzkxIG9wZW5pZCBtb2JpbGU_b2lkPTEwMTk3OTczOTEgYmlydGhkYXRlP29pZD0xMDE5Nzk3MzkxIGZ1bGxuYW1lP29pZD0xMDE5Nzk3MzkxIGdlbmRlcj9vaWQ9MTAxOTc5NzM5MSB1c3Jfb3JnP29pZD0xMDE5Nzk3MzkxIGNvbnRhY3RzP29pZD0xMDE5Nzk3MzkxIiwiaXNzIjoiaHR0cDpcL1wvZXNpYS5nb3N1c2x1Z2kucnVcLyIsInVybjplc2lhOnNpZCI6ImZkMGI1MzMzLWNjZWItNDNlMy1iNTY3LTc3ZTI5OTVjZTJmNiIsInVybjplc2lhOnNial9pZCI6MTAxOTc5NzM5MSwiZXhwIjoxNjQ5MTY1NzI2LCJpYXQiOjE2NDkxNjIxMjYsImNsaWVudF9pZCI6IjE1OTIwNCJ9.MEvKb7j2IuUD7ZOuKrAB3qObXdwigGMUZMXnyCzq-SgvlBZF-yR-fhm2L0Iyj59QAHTr_vCyWpKGZoi6V_jLCVJFwGFeKkJI-p6_TCoHmoRG2iLA5VOsZqc4s3Ov0pQaLYy95JmsrT92QfRJsmkE3DOJuS0o77QRKfoY0l2N9pWSUIGyeJ73qJMk5jQvz-jPQlRFGPnCgbHZFIugXvuJa86soHWAvYmpdc4IaRcXCYlXwps6HVLaX8X5QvbFlGIQCnxpWHCz1PkzsDwvzVkN1c2KOgItSGYk8rk9xQmKXGWCvHkZSnH9r9G_-EuXrfH2-_S3N8mP4QEDGIMOiyswrw',
+                     'refresh_token': 'bb809750-71bc-2406-88d1-2388a4be5187',
+                     'id_token': 'eyJ2ZXIiOjAsInR5cCI6IkpXVCIsInNidCI6ImlkIiwiYWxnIjoiUlMyNTYifQ.eyJhdWQiOiIxNTkyMDQiLCJzdWIiOjEwMTk3OTczOTEsIm5iZiI6MTY0OTE2MjEyNiwiYW1yIjoiUFdEIiwidXJuOmVzaWE6YW1kIjoiUFdEIiwiYXV0aF90aW1lIjoxNjQ5MTYyMTI2LCJpc3MiOiJodHRwOlwvXC9lc2lhLmdvc3VzbHVnaS5ydVwvIiwidXJuOmVzaWE6c2lkIjoiZmQwYjUzMzMtY2NlYi00M2UzLWI1NjctNzdlMjk5NWNlMmY2IiwidXJuOmVzaWE6c2JqIjp7InVybjplc2lhOnNiajp0eXAiOiJQIiwidXJuOmVzaWE6c2JqOmlzX3RydSI6dHJ1ZSwidXJuOmVzaWE6c2JqOm9pZCI6MTAxOTc5NzM5MSwidXJuOmVzaWE6c2JqOm5hbSI6Ik9JRC4xMDE5Nzk3MzkxIn0sImV4cCI6MTY0OTE3MjkyNiwiaWF0IjoxNjQ5MTYyMTI2fQ.Q4Mt5gmsqZqcUXbhbBzAgeSGShhKOA856vx6lCkdWOBMWuFNGQvuDixsJVolSlsuwJJqA8Zh7LQcByHHqyqNc1ed2J51nKulrm7hgmDSst50WuASld2A99bE5_Jn6GNlCsnu3xi3KgVtM3lZYhJEJkxPGQ9wyLmMQUXQrNvy_w2nPS6ZGsZr_dgT5_0SLNf4hweDEPxcj8l-EEnHYNU79j4srV8hKMsmPj0gewNUS_P9N2cTO0Mzw0Ihg9j5kfPZuLAejp0ZwE6dlhtKoBkltTwwWhQTYBXSjhLYAj5lzz7dd8dn8eIK86qWhxzY5rtVYAyWaGPKA-MY24VLEq5lHQ',
+                     'state': '7497a6ec-6085-4722-9b35-367ab2139b6a',
+                     'token_type': 'Bearer',
+                     'expires_in': 3600},
+                'user': None, 'request': ''
+                }
+
+    def auth_params(self, state=None):
+        params = super(EsiaOAuth2, self).auth_params(state)
+        params['response_type'] = 'code'
+        params['access_type'] = 'offline'
+
+        return self.add_and_sign_params(params)
+
+    def auth_complete_params(self, state=None):
+        params = super(EsiaOAuth2, self).auth_complete_params(state)
+        params['token_type'] = 'Bearer'
+        params['state'] = state
+
+        return self.add_and_sign_params(params)
+
+    def get_user_details(self, response):
+        response['mobile'] = response['mobile'].get('value', '')
+        response['email'] = response['email'].get('value', '')
+        # У поля username ограничение 30 символов
+        response['username'] = create_hash(response['email'])[:30]
+        response['fullname'] = " ".join(filter(
+            None, [response['first_name'], response['middle_name'], response['last_name']])
+        )
+
+        fields = ['is_trusted', 'username', 'fullname', 'organisations']
+        for k in ['info', 'contacts']:
+            fields.extend(self.DETAILS_MAP[k].keys())
+
+        return {k: v for k, v in list(response.items()) if k in fields}
+
+    def user_data(self, access_token, *args, **kwargs):
+        payload = {'aud': '159204',
+                   'sub': 1019777777,
+                   'nbf': 1649162126,
+                   'amr': 'PWD', 'urn:esia:amd': 'PWD',
+                   'auth_time': 1649162126,
+                   'iss': 'http://esia.gosuslugi.ru/',
+                   'urn:esia:sid': 'fd0b5333-cceb-43e3-b567-77e2995ce2f6',
+                   'urn:esia:sbj': {'urn:esia:sbj:typ': 'P',
+                                    'urn:esia:sbj:is_tru': True,
+                                    'urn:esia:sbj:oid': 1019777777,
+                                    'urn:esia:sbj:nam': 'OID.1019777777'
+                                    },
+                   'exp': 1649172926,
+                   'iat': 1649162126
+                   }
+
+        oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
+        is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
+        ret = {'id': oid, 'is_trusted': bool(is_trusted)}
+        info = {'stateFacts': ['EntityRoot'],
+                'firstName': 'Иван',
+                'lastName': 'Иванов-Тест',
+                'middleName': 'Иванович',
+                'birthDate': '01.10.1981',
+                'gender': 'M',
+                'trusted': True,
+                'inn': '312320000000',
+                'updatedOn': 1519766386,
+                'status': 'REGISTERED',
+                'verifying': False,
+                'rIdDoc': 23560000,
+                'containsUpCfmCode': False,
+                'eTag': 'BBBB5286519A9A0553BC60BE4EAAF4C646FFFFFF'}
+
+        contacts = {'stateFacts': ['hasSize'],
+                    'size': 2,
+                    'eTag': 'DDDDDDD0A111E97A0DB0E308421F4BB6DA6CCCCC',
+                    'elements': [
+                        {'stateFacts': ['Identifiable'],
+                         'id': 66333306,
+                         'type': 'EML',
+                         'vrfStu': 'VERIFIED',
+                         'value': 'esiatest@excentrics.ru',
+                         'eTag': '8AF8A61E9950D736BC98D2728991F20BF88FFFFF'
+                         },
+                        {'stateFacts': ['Identifiable'],
+                         'id': 66333305,
+                         'type': 'MBT',
+                         'vrfStu': 'VERIFIED',
+                         'value': '+7(910)2206415',
+                         'eTag': '70AA666B843F225E247AEB143B3985E9BFDDDDDD'
+                         }]
+                    }
+
+        elements = contacts['elements']
+
+        addresses = {'stateFacts': ['hasSize'],
+                     'size': 2,
+                     'eTag': '13FFFFF71D9D7E40D0DB31A6A032546B46222222',
+                     'elements': [
+                         {'stateFacts': ['Identifiable'],
+                          'id': 29333307,
+                          'type': 'PRG',
+                          'addressStr': 'обл Белгородская, г Белгород, пр-кт Ватутина',
+                          'fiasCode': 'b18a3ed8-4339-44fb-bf8a-03d5e07e40c4',
+                          'flat': '99',
+                          'countryId': 'RUS',
+                          'house': '9',
+                          'zipCode': '308024',
+                          'city': 'Белгород',
+                          'street': 'Ватутина',
+                          'region': 'Белгородская',
+                          'vrfDdt': '0,0,0',
+                          'eTag': 'E26EEEEEB0DA5F421AD5F191D605DE20F395FBF2'
+                          },
+                         {'stateFacts': ['Identifiable'],
+                          'id': 24333385,
+                          'type': 'PLV',
+                          'addressStr': 'Белгородская обл, г Белгород, ул Садовая',
+                          'fiasCode': 'f400cf4b-8888-4f8f-896b-bb580f1cf6aa',
+                          'flat': '1',
+                          'countryId': 'RUS',
+                          'house': '5',
+                          'zipCode': '308000',
+                          'city': 'г Белгород',
+                          'street': 'ул Мира',
+                          'region': 'Белгородская обл',
+                          'vrfDdt': '0,0,0',
+                          'fiasCode2': '31-0-000-001-000-000-0318-0000-000',
+                          'eTag': '0EEEEEE11948665712E7E37877BF49AFDB6A1A72'
+                          }]
+                     }
+        elements.extend(addresses['elements'])
+        orgs = {'stateFacts': ['hasSize'],
+                'size': 1,
+                'elements': [
+                    {'oid': 1063633333,
+                     'prnOid': 1019777777,
+                     'fullName': 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "КОМПАНИЯ"',
+                     'shortName': 'ООО "КОМПАНИЯ"',
+                     'ogrn': '1163123077777',
+                     'type': 'LEGAL',
+                     'chief': True,
+                     'admin': False,
+                     'phone': '+7(4722)333333',
+                     'email': 'team@infolabs.ru',
+                     'active': True,
+                     'hasRightOfSubstitution': True,
+                     'hasApprovalTabAccess': False,
+                     'isLiquidated': False}]
+                }
+        if orgs and orgs.get('elements') and len(orgs.get('elements')) > 0:
+            ret['organisations'] = orgs.get('elements')
+
+        for k, v in self.DETAILS_MAP['info'].items():
+            ret[k] = info.get(v, '')
+
+        for k, v in self.DETAILS_MAP['contacts'].items():
+            if k not in list(ret.keys()):
+                ret[k] = {}
+            for e in elements:
+                if e['type'] == v:
+                    ret[k] = e
+
         return ret
 
 

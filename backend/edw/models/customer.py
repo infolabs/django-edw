@@ -236,27 +236,34 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 
     @property
     def is_organisation(self):
-        # TODO:
-        return False
+        """
+        {'organisation': {'oid': 1063633333, 'prnOid': 1019777777, 'fullName': 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "КОМПАНИЯ"', 'shortName': 'ООО "КОМПАНИЯ"', 'ogrn': '1163123077777', 'type': 'LEGAL', 'chief': True, 'admin': False, 'phone': '+7(4722)333333', 'email': 'team@infolabs.ru', 'active': True, 'hasRightOfSubstitution': True, 'hasApprovalTabAccess': False, 'isLiquidated': False}}
+        :return:
+        """
+        return True if self.extra.get("organisation") and self.extra['organisation'].get('oid') else False
 
     @property
     def organisation_full_name(self):
-        # TODO:
+        if self.extra.get("organisation") and self.extra['organisation'].get('fullName'):
+            return self.extra['organisation'].get('fullName', "")
         return ""
 
     @property
     def organisation_short_name(self):
-        # TODO:
+        if self.extra.get("organisation") and self.extra['organisation'].get('shortName'):
+            return self.extra['organisation'].get('shortName', "")
         return ""
 
     @property
     def organisation_inn(self):
-        # TODO:
+        if self.extra.get("organisation") and self.extra['organisation'].get('inn'):
+            return self.extra['organisation'].get('inn', "")
         return ""
 
     @property
     def organisation_ogrn(self):
-        # TODO:
+        if self.extra.get("organisation") and self.extra['organisation'].get('ogrn'):
+            return self.extra['organisation'].get('ogrn', "")
         return ""
 
     @property
