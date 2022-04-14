@@ -235,36 +235,43 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         return self.user.get_full_name()
 
     @property
+    def organisation_detail(self):
+        if self.extra is not None and self.extra.get("organisation") is not None and \
+                isinstance(self.extra["organisation"], dict):
+
+            return self.extra["organisation"]
+
+        return {}
+
+    @property
     def is_organisation(self):
         """
         {'organisation': {'oid': 1063633333, 'prnOid': 1019777777, 'fullName': 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "КОМПАНИЯ"', 'shortName': 'ООО "КОМПАНИЯ"', 'ogrn': '1163123077777', 'type': 'LEGAL', 'chief': True, 'admin': False, 'phone': '+7(4722)333333', 'email': 'team@infolabs.ru', 'active': True, 'hasRightOfSubstitution': True, 'hasApprovalTabAccess': False, 'isLiquidated': False}}
         :return:
         """
-        return True if self.extra.get("organisation") and self.extra['organisation'].get('oid') else False
+        return True if self.organisation_detail.get('oid', None) is not None else False
 
     @property
     def organisation_full_name(self):
-        if self.extra.get("organisation") and self.extra['organisation'].get('fullName'):
-            return self.extra['organisation'].get('fullName', "")
-        return ""
+
+        return self.organisation_detail.get('fullName', "")
 
     @property
     def organisation_short_name(self):
-        if self.extra.get("organisation") and self.extra['organisation'].get('shortName'):
-            return self.extra['organisation'].get('shortName', "")
-        return ""
+
+        return self.organisation_detail.get('shortName', "")
+
 
     @property
     def organisation_inn(self):
-        if self.extra.get("organisation") and self.extra['organisation'].get('inn'):
-            return self.extra['organisation'].get('inn', "")
-        return ""
+
+        return self.organisation_detail.get('inn', "")
 
     @property
     def organisation_ogrn(self):
-        if self.extra.get("organisation") and self.extra['organisation'].get('ogrn'):
-            return self.extra['organisation'].get('ogrn', "")
-        return ""
+
+        return self.organisation_detail.get('ogrn', "")
+
 
     @property
     def first_name(self):
