@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include, url
 from . import rest_api
-from . import auth
+try:
+    from . import auth
+except:
+    pass
 
 from ..views.term import RebuildTermTreeView
 from ..views.data_mart import RebuildDataMartTreeView
@@ -19,5 +22,11 @@ urlpatterns = (
         name='rebuild_datamart_tree'
     ),
     url(r'^api/', include(rest_api)),
-    url(r'^auth/', include(auth)),
 )
+
+try:
+    urlpatterns = [
+        url(r'^auth/', include(auth)),
+    ] + urlpatterns
+except NameError:
+    pass

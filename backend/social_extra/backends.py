@@ -13,7 +13,10 @@ import hashlib
 import requests
 
 from django.conf import settings
-from django.utils import six
+try:
+    from django.utils import six
+except ImportError:
+    import six
 
 from social_core.backends.oauth import BaseOAuth2
 from social_core.backends.vk import VKOAuth2
@@ -123,8 +126,6 @@ def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
                         params.get('client_id', ''), params.get('state', '')])
     raw_client_secret = smime_sign(certificate_file, private_key_file, plaintext, backend)
     client_secret = base64.urlsafe_b64encode(raw_client_secret)
-    if six.PY2:
-        client_secret = client_secret.decode('utf-8')
     params.update(
         client_secret=client_secret,
     )

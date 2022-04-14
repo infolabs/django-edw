@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from edw.models.entity import BaseEntity, BaseEntityManager, BaseEntityQuerySet, ApiReferenceMixin
@@ -18,7 +17,6 @@ class TodoManager(BaseEntityManager):
     queryset_class = TodoQuerySet
 
 
-@python_2_unicode_compatible
 class Todo(AddedDateTermsValidationMixin, ApiReferenceMixin, BaseEntity):
     PRIORITIES = (
         (1, _("Low")),

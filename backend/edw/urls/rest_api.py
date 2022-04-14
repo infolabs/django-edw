@@ -11,7 +11,10 @@ from edw.views.term import TermViewSet
 from edw.rest import routers
 from edw.views.data_mart import DataMartViewSet
 from edw.views.entity import EntityViewSet, EntitySubjectViewSet
-from edw.search.views import EntitySearchViewSet
+try:
+    from edw.search.views import EntitySearchViewSet
+except ImportError:
+    pass
 
 
 #==============================================================================
@@ -22,7 +25,10 @@ router = routers.DefaultBulkRouter()
 router.register(r'data-marts', DataMartViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'entities', EntityViewSet)
-router.register(r'search', EntitySearchViewSet, base_name='search')
+try:
+    router.register(r'search', EntitySearchViewSet, base_name='search')
+except NameError:
+    pass
 
 data_mart_nested_router = routers.NestedSimpleBulkRouter(router, r'data-marts', lookup='data_mart')
 

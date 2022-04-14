@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import json
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.utils import six
 
 
@@ -55,6 +54,7 @@ def unicode_to_repr(value):
 
 
 def get_from_address():
+    from django.contrib.sites.models import Site
     default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL')
     portal_name = Site.objects.get_current().name
     return f'{portal_name} <{default_from_email}>'

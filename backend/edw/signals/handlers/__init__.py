@@ -14,13 +14,13 @@ try:
     # try import `boundary`
     try:
         from . import boundary
-    except ImproperlyConfigured:
+    except ImportError:
         pass
 
     # try import `postal_zone`
     try:
         from . import postal_zone
-    except ImproperlyConfigured:
+    except ImportError:
         pass
 
     # try import `email_category`
