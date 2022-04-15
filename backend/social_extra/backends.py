@@ -25,8 +25,7 @@ from social_core.exceptions import AuthFailed, AuthMissingParameter
 
 from edw.utils.hash_helpers import create_hash
 
-from social_core.utils import url_add_parameters, parse_qs, handle_http_errors, \
-                    constant_time_compare
+from social_core.utils import handle_http_errors
 
 import logging
 auth_logger = logging.getLogger('logauth')

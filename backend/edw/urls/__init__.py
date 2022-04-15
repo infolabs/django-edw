@@ -25,8 +25,8 @@ urlpatterns = (
 )
 
 try:
-    urlpatterns = [
+    urlpatterns = (
         url(r'^auth/', include(auth)),
-    ] + urlpatterns
+                  ) + urlpatterns
 except NameError:
     pass
