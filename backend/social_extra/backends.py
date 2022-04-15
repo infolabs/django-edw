@@ -184,7 +184,7 @@ class EsiaOAuth2(BaseOAuth2):
     DETAILS_MAP = {
         'info': {
             'first_name': 'firstName',
-            'middle_name': 'middleName',
+            'patronymic': 'middleName',
             'last_name': 'lastName',
             'birth_date': 'birthDate',
             'gender': 'gender',
@@ -204,7 +204,7 @@ class EsiaOAuth2(BaseOAuth2):
         # У поля username ограничение 30 символов
         response['username'] = create_hash(response['email'])[:30]
         response['fullname'] = " ".join(filter(
-            None, [response['first_name'], response['middle_name'], response['last_name']])
+            None, [response['first_name'], response['patronymic'], response['last_name']])
         )
 
         fields = ['is_trusted', 'username', 'fullname', 'organisations']
@@ -325,7 +325,7 @@ class EsiaOAuth2Test(EsiaOAuth2):
         # У поля username ограничение 30 символов
         response['username'] = create_hash(response['email'])[:30]
         response['fullname'] = " ".join(filter(
-            None, [response['first_name'], response['middle_name'], response['last_name']])
+            None, [response['first_name'], response['patronymic'], response['last_name']])
         )
 
         fields = ['is_trusted', 'username', 'fullname', 'organisations']
