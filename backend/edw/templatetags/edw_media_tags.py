@@ -61,7 +61,7 @@ else:
 
 try:
     from easy_thumbnails.files import get_thumbnailer
-except ImportError:
+except (ImportError, RuntimeError):
     pass
 else:
     class GetDefaultThumbnail(Tag):
