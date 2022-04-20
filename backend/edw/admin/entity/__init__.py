@@ -84,7 +84,7 @@ def filter_actions(request, actions):
 try:
     from edw.models.related.entity_image import EntityImageModel
     EntityImageModel()  # Test pass if model materialized
-except (ImproperlyConfigured, ImportError):
+except (ImproperlyConfigured, ImportError, RuntimeError):
     pass
 else:
     from .actions import update_images
