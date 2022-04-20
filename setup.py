@@ -61,8 +61,6 @@ setup(
     packages=find_packages(exclude=['docs', 'requirements']),
     package_dir={
         'edw': 'backend/edw',
-        'email_auth': 'backend/email_auth',
-        'social_extra': 'backend/social_extra',
     },
     include_package_data=True,
     zip_safe=False,
