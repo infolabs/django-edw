@@ -20,7 +20,7 @@ RE_SIZE = re.compile(r'(\d+)x(\d+)$')
 
 try:
     from filer.models import Image
-except ImportError:
+except (ImportError, RuntimeError):
     pass
 else:
     class GetAlignThumbnailInCenterStyles(Tag):
