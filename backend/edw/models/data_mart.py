@@ -521,12 +521,12 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
         """
         return None
 
-    def get_tree_extra(self):
+    def get_tree_extra(self, context):
         """
         ENG: Return extra data for tree serializer.
         RUS: Возвращает дополнительные данные для дерева сериалайзера.
         """
-        return None
+        return self.get_summary_extra(context)
 
     @classmethod
     def validate_term_model(cls):

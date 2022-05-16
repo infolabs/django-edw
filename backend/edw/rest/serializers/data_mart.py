@@ -375,7 +375,7 @@ class DataMartSummarySerializer(DataMartSummarySerializerBase):
 
     class Meta(DataMartCommonSerializer.Meta):
         fields = ('id', 'parent_id', 'name', 'slug', 'data_mart_url', 'data_mart_model', 'is_leaf',
-                  'active', 'view_class', 'short_description', 'media')
+                  'active', 'view_class', 'short_description', 'media', 'extra')
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
@@ -392,7 +392,7 @@ class DataMartTreeSerializerBase(DataMartCommonSerializer):
         super(DataMartTreeSerializerBase, self).__init__(*args, **kwargs)
 
     def get_extra(self, instance):
-        return instance.get_tree_extra()
+        return instance.get_tree_extra(self.context)
 
 
 class _DataMartFilterMixin(object):
