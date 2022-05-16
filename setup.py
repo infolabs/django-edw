@@ -66,12 +66,13 @@ setup(
     },
     include_package_data=True,
     zip_safe=False,
-    cmdclass={'install': install},
+    cmdclass={
+        'install': install
+    },
     install_requires=[
         'Django>=1.9,<=1.11',
         'djangorestframework>=3.3',
         'beautifulsoup4>=4.4.0',
-        'django-post-office>=2.0.5',
         'django-filer>=1.0.6',
         'django-fsm>=2.4.0',
         'django-rest-auth>=0.5.0',
@@ -79,7 +80,5 @@ setup(
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
         'django-polymorphic==1.1',
-        'social-auth-app-django==2.1.0',
-        'M2Crypto==0.31.0',
     ],
 )
