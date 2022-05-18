@@ -67,6 +67,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
     data_mart_pk = None
     subj = None
     format = None
+    model_class = None
 
     permission_classes = [IsReadOnly]
 
@@ -163,10 +164,10 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             'has_owner': False
         }
 
-        model_class = EntityModel
+        self.model_class = EntityModel
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
             obj = self.get_object()
-            model_class = obj.__class__
+            self.model_class = obj.__class__
         elif self.action in ('create', 'list', 'bulk_update', 'partial_bulk_update', 'bulk_destroy'):
             value = self.kwargs.get('data_mart_pk', request.GET.get('data_mart_pk', None))
             if value is not None:
@@ -190,7 +191,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
                         self.permission_denied(request)
 
                 # set model class
-                model_class = data_mart.entities_model
+                self.model_class = data_mart.entities_model
             else:
                 # в случаи списка пытаемся определить модель по полю 'entity_model' первого элемента
                 if isinstance(request.data, list):
@@ -203,11 +204,11 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
                 if entity_model is not None:
                     try:
-                        model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
+                        self.model_class = apps.get_model(EntityModel._meta.app_label, str(entity_model))
                     except LookupError:
                         pass
 
-        permissions = [permission() for permission in model_class._rest_meta.permission_classes]
+        permissions = [permission() for permission in self.model_class._rest_meta.permission_classes]
 
         if not permissions:
             permissions = self.get_permissions()
@@ -247,7 +248,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
             context.update(self.serializer_context)
         if self.extra_serializer_context is not None:
             context.update(self.extra_serializer_context)
-        return context
+        return self.model_class.get_serializer_context(context)
 
     def filter_queryset(self, queryset):
         queryset = super(EntityViewSet, self).filter_queryset(queryset)

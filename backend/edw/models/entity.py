@@ -1454,6 +1454,29 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         return None
 
+    @classmethod
+    def get_serializer_context(cls, context):
+        """
+        Позволяет модифицировать контекст сериалайзера в зависимости от класса модели,
+        метод вызывается при всех обращениях к сериалайзиру ('retrieve', 'update', 'partial_update', 'destroy',
+        'create', 'list', 'bulk_update', 'partial_bulk_update', 'bulk_destroy'). Тип обращения можно получить из
+        context["view"].action. Объект Request доступен через context["request"], формат через context["format"].
+        Так-же в контексте содержится дополнительные данные о фильтрации, группировке, сортировке и т.д. в зависимости
+        от контекста вызова.
+
+        Пример: Модификация объекта сериалайзера 'extra' в модели MyEntity
+
+        context = super(MyEntity, cls).get_serializer_context(context)
+        if context["view"].action == 'list':
+            extra = context.get("extra", None)
+            if extra is None:
+                extra = context["extra"] = {}
+
+            extra["MyModel"] = cls.__name__
+
+        """
+        return context
+
     def get_common_terms_ids(self):
         """
         ENG: Return common terms ids.

@@ -92,7 +92,11 @@ class GetEntities(BaseRetrieveDataTag):
     def get_serializer_context(self):
         context = super(GetEntities, self).get_serializer_context()
         context.update(self.queryset_context)
-        return context
+
+        data_mart = context['data_mart']
+        model_class = data_mart.entities_model if data_mart is not None else EntityModel
+
+        return model_class.get_serializer_context(context)
 
     def filter_queryset(self, queryset):
         queryset = super(GetEntities, self).filter_queryset(queryset)
