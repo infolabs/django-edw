@@ -2,6 +2,8 @@
 from __future__ import unicode_literals, division
 
 import re
+import six
+from six import python_2_unicode_compatible
 from functools import reduce
 from operator import __or__ as OR
 from math import ceil
@@ -15,9 +17,8 @@ from django.core.exceptions import (
 from django.db import models, transaction, connections
 from django.db.models import Q, Count
 from django.db.models.sql.datastructures import EmptyResultSet
-from django.utils import six
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _

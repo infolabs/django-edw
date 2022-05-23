@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 import hashlib
 import os
+import six
 from binascii import hexlify
 
-from django.utils import six
 from django.template.defaultfilters import slugify
 
 

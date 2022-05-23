@@ -3,10 +3,10 @@
  source: https://github.com/awesto/django-shop/blob/7778a4b9cca268ec6ac0df1cbac92fff0d9e886b/shop/deferred.py
 """
 import copy
+import six
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.base import ModelBase
 from django.db import models
-from django.utils import six
 from django.utils.functional import LazyObject, empty
 from polymorphic.models import PolymorphicModelBase
 

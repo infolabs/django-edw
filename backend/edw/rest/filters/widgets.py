@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 
 import urllib
+import six
 
 from django import forms
-from django.utils import six
 from django_filters.widgets import CSVWidget as OriginCSVWidget
 
 

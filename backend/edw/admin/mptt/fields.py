@@ -4,7 +4,7 @@ Form components for working with trees.
 """
 import hashlib
 
-from django.utils import six
+import six
 from django import forms
 from django.core.cache import cache
 from django.forms.fields import ChoiceField

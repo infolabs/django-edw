@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import six
 
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
@@ -10,7 +11,6 @@ from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
 
 from django.forms import Media
-from django.utils import six
 from django.contrib import messages
 from django.conf import settings
 

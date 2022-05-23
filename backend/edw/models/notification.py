@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from six.moves.urllib.parse import urlparse
+
 from bitfield import BitField
 from bitfield.types import Bit
 from filer.fields.file import FilerFileField
@@ -17,7 +19,6 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest
-from django.utils.six.moves.urllib.parse import urlparse
 from django.utils import translation
 
 from edw.models.mixins.notification import NotificationMixin

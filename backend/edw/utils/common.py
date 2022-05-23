@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 import json
+import six
 
 from django.conf import settings
-from django.utils import six
 
 
 class obj(object):

@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, IntegrityError, transaction
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from mptt.exceptions import InvalidMove
@@ -20,7 +20,7 @@ except ImportError:
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from rest_framework.reverse import reverse
-from six import with_metaclass
+from six import with_metaclass, python_2_unicode_compatible
 
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields.tree import TreeForeignKey

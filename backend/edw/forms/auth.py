@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import six
 
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
@@ -10,7 +11,6 @@ from django.forms import fields, widgets, ModelForm
 from django.template import Context
 from django.template.loader import select_template
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel

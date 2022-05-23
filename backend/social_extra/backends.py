@@ -11,12 +11,9 @@ import hmac
 import time
 import hashlib
 import requests
+import six
 
 from django.conf import settings
-try:
-    from django.utils import six
-except ImportError:
-    import six
 
 from social_core.backends.oauth import BaseOAuth2
 from social_core.backends.vk import VKOAuth2

@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 import itertools
 from operator import __or__ as OR
+import six
 
-from django.utils import six
 from django.db.models import Q
 # from django.db.models.signals import pre_delete
 from django.db.models.signals import pre_save

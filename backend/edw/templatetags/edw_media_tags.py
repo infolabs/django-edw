@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 from __future__ import division
 
 import re
+import six
 
 from django import template
 from django.core.files import File
 from django.contrib.staticfiles import finders
 from django.template import TemplateSyntaxError
-from django.utils import six
 
 from classytags.core import Options, Tag
 from classytags.arguments import Argument

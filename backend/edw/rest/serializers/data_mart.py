@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import six
 
 from collections import OrderedDict
 
@@ -13,7 +14,6 @@ from django.core.exceptions import (
 from django.db import models
 from django.template import TemplateDoesNotExist
 from django.template.loader import select_template
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText

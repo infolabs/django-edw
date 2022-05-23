@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import six
 
 from collections import OrderedDict
 
@@ -12,7 +13,6 @@ except ImportError:
 from django.apps import apps
 from django.db.models.expressions import BaseExpression
 from django.template import loader
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _

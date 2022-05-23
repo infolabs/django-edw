@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
-from django.utils import six
+import six
 from django.conf import settings
 try:
     from django.utils.encoding import force_unicode as force_text

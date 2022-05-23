@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 import json
 
+from six import with_metaclass, python_2_unicode_compatible
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.cache import cache
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
-from django.utils.six import with_metaclass
 from django.utils.translation import ugettext_lazy as _
 
 from .term import TermModel

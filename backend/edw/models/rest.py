@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import types
 import random
+import six
 
 try:
     from rest_framework_filters import MethodFilter
@@ -14,7 +15,6 @@ from django.core.exceptions import (
 )
 from django.db import models, transaction
 from django.db.models.base import ModelBase
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from rest_framework import exceptions

@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 import json
+import six
 from functools import reduce
 
 from classytags.core import Tag
 from classytags.core import Options
 from classytags.arguments import Argument
-from django.utils import six
 from django.utils.functional import Promise
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
