@@ -53,7 +53,7 @@ class BaseEmailCategory(with_metaclass(deferred.ForeignKeyBuilder, models.Model)
     RUS: Класс базовая почтовая категория, связанная с термином.
     Определяет поля (Термин, Маска почтового адреса, статус Активен).
     '''
-    term = models.ForeignKey(TermModel, verbose_name=_('Term'), related_name='+', db_index=True)
+    term = models.ForeignKey(TermModel, on_delete=models.CASCADE, verbose_name=_('Term'), related_name='+', db_index=True)
     email_masks = models.TextField(verbose_name=_('Email Address Masks'), null=True, blank=True, help_text=_(
         """You enter on one mask in line. Use '?' and '*' as universal substitutes. """
         """'?' replaces any symbol, '*' replaces any sequence of symbols (including I am empty). """

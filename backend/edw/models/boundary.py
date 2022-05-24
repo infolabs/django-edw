@@ -120,7 +120,7 @@ class BaseBoundary(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     POLYGONS_CACHE_KEY_PATTERN = 'edge_poly:{}'
     POLYGONS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['boundary_polygons']
 
-    term = models.ForeignKey(TermModel, verbose_name=_('Term'), related_name='+', db_index=True)
+    term = models.ForeignKey(TermModel, on_delete=models.CASCADE, verbose_name=_('Term'), related_name='+', db_index=True)
     raw_polygons = models.TextField(verbose_name=_('Polygons'), null=False, blank=False, default="[]",
                                 help_text=_(
         """Example: [[[36.4446651, 50.5952546], [36.4449469, 50.5934115], [36.445167, 50.5929324]], """

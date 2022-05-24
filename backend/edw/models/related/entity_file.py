@@ -21,8 +21,8 @@ class BaseEntityFile(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     ENG: ManyToMany relation from the polymorphic Entity to a set of files.
     RUS: Связь многие-ко многим от полиморфной Сущности к файлам.
     """
-    file = FilerFileField(verbose_name=_('File'))
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
+    file = FilerFileField(on_delete=models.CASCADE, verbose_name=_('File'))
+    entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE, verbose_name=_('Entity'))
     order = models.SmallIntegerField(default=0, blank=False, null=False, db_index=True)
 
     class Meta:

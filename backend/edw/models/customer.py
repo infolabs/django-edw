@@ -9,7 +9,10 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, DEFAULT_DB_ALIAS
-from django.db.models.fields import FieldDoesNotExist
+try:
+    from django.db.models.fields import FieldDoesNotExist
+except ImportError:
+    from django.core.exceptions import FieldDoesNotExist
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
@@ -202,7 +205,7 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     REGISTERED = 2
     CUSTOMER_STATES = ((UNRECOGNIZED, _("Unrecognized")), (GUEST, _("Guest")), (REGISTERED, _("Registered")))
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     recognized = models.PositiveSmallIntegerField(_("Recognized as"), choices=CUSTOMER_STATES,
         help_text=_("Designates the state the customer is recognized as."), default=UNRECOGNIZED)
     salutation = models.CharField(_("Salutation"), max_length=5, choices=SALUTATION)

@@ -21,8 +21,8 @@ class BaseDataMartImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)
     ENG: ManyToMany relation from the polymorphic Datamart to a set of images.
     RUS: Связь многие-ко многим от полиморфной Витрины данных к изображениям.
     """
-    image = image.FilerImageField(verbose_name=_('Image'))
-    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('DataMart'))
+    image = image.FilerImageField(on_delete=models.CASCADE, verbose_name=_('Image'))
+    data_mart = deferred.ForeignKey('BaseDataMart', on_delete=models.CASCADE, verbose_name=_('DataMart'))
     order = models.SmallIntegerField(default=0, blank=False, null=False, db_index=True)
 
     class Meta:

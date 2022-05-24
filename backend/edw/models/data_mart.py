@@ -160,8 +160,8 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
     TERMS_M2M_VERBOSE_NAME = _("Data mart term")
     TERMS_M2M_VERBOSE_NAME_PLURAL = _("Data marts terms")
 
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
-                            verbose_name=_('Parent'))
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
+                            related_name='children', db_index=True, verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255)
     slug = models.SlugField(_("Datamart slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)

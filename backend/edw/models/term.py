@@ -296,8 +296,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         5: ('external_tagging_restriction', messages['external_tagging_restriction'])
     }
 
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
-                            verbose_name=_('Parent'))
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children',
+                            db_index=True, verbose_name=_('Parent'))
     name = models.CharField(verbose_name=_('Name'), max_length=255, db_index=True)
     slug = models.SlugField(_("Term slug"), help_text=_("Used for URLs, auto-generated from name if blank."))
     path = models.CharField(verbose_name=_("Path"), max_length=255, db_index=True, editable=False, unique=True)

@@ -17,8 +17,8 @@ class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKe
     ENG: ManyToMany relation from the polymorphic Entity to a set of Terms.
     RUS: Связь многие-ко многим от полиморфной Сущности к Терминам.
     """
-    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='+')
+    term = deferred.ForeignKey('BaseTerm', on_delete=models.CASCADE, verbose_name=_('Term'), related_name='+', db_index=True)
+    entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE, verbose_name=_('Entity'), related_name='+')
     value = models.CharField(_("Value"), max_length=255)
     view_class = models.CharField(verbose_name=_('View Class'), max_length=255, null=True, blank=True,
                                   help_text=
@@ -59,9 +59,12 @@ class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model
     ENG: Allows to be attached related entities.
     RUS: Позволяет присоединять связанные сущности.
     """
-    from_entity = deferred.ForeignKey('BaseEntity', related_name='forward_relations', verbose_name=_('From Entity'))
-    to_entity = deferred.ForeignKey('BaseEntity', related_name='backward_relations', verbose_name=_('To Entity'))
-    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+', db_index=True)
+    from_entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE,
+        related_name='forward_relations', verbose_name=_('From Entity'))
+    to_entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE,
+        related_name='backward_relations', verbose_name=_('To Entity'))
+    term = deferred.ForeignKey('BaseTerm', on_delete=models.CASCADE,
+        verbose_name=_('Term'), related_name='+', db_index=True)
 
     class Meta:
         """
@@ -92,8 +95,10 @@ class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, model
     ENG: Entity related data marts.
     RUS: Сущность связанных витрин данных.
     """
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'), related_name='+')
-    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='+')
+    entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE,
+        verbose_name=_('Entity'), related_name='+')
+    data_mart = deferred.ForeignKey('BaseDataMart', on_delete=models.CASCADE,
+        verbose_name=_('Data mart'), related_name='+')
 
     class Meta:
         """
@@ -132,8 +137,10 @@ class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Mod
         (RELATION_REVERSE, _('Reverse')),
     )
 
-    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='relations')
-    term = deferred.ForeignKey('BaseTerm', verbose_name=_('Term'), related_name='+')
+    data_mart = deferred.ForeignKey('BaseDataMart', on_delete=models.CASCADE,
+        verbose_name=_('Data mart'), related_name='relations')
+    term = deferred.ForeignKey('BaseTerm', on_delete=models.CASCADE,
+        verbose_name=_('Term'), related_name='+')
     direction = models.CharField(_("Relation direction"),
                                  max_length=1,
                                  choices=RELATION_DIRECTIONS,
@@ -175,8 +182,10 @@ class BaseDataMartPermission(with_metaclass(deferred.ForeignKeyBuilder, models.M
     """
     Data marts permissions per customer
     """
-    data_mart = deferred.ForeignKey('BaseDataMart', verbose_name=_('Data mart'), related_name='permissions')
-    customer = deferred.ForeignKey('BaseCustomer', verbose_name=_('Customer'), related_name='+')
+    data_mart = deferred.ForeignKey('BaseDataMart', on_delete=models.CASCADE,
+        verbose_name=_('Data mart'), related_name='permissions')
+    customer = deferred.ForeignKey('BaseCustomer', on_delete=models.CASCADE,
+        verbose_name=_('Customer'), related_name='+')
     can_add = models.BooleanField(default=True, verbose_name=_("Can add"), db_index=True,
                                   help_text=_("Has this customer add entity to data mart permission."))
     can_change = models.BooleanField(default=True, verbose_name=_("Can change"), db_index=True,

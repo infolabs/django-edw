@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 
-from six import with_metaclass
+from six import with_metaclass, python_2_unicode_compatible
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
@@ -22,8 +21,8 @@ class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     ENG: ManyToMany relation from the polymorphic Entity to a set of images.
     RUS: Связь многие-ко многим от полиморфной Сущности к изображениям.
     """
-    image = image.FilerImageField(verbose_name=_('Image'))
-    entity = deferred.ForeignKey('BaseEntity', verbose_name=_('Entity'))
+    image = image.FilerImageField(on_delete=models.CASCADE, verbose_name=_('Image'))
+    entity = deferred.ForeignKey('BaseEntity', on_delete=models.CASCADE, verbose_name=_('Entity'))
     order = models.SmallIntegerField(default=0, blank=False, null=False, db_index=True)
 
     class Meta:

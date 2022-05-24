@@ -106,7 +106,7 @@ class Notification(models.Model):
                                        dinamic_choices_model_attr='get_notification_recipients_roles_choices')
 
     copy_to = models.ManyToManyField('CustomerProxy', blank=True, limit_choices_to={'is_staff':  True})
-    template = models.ForeignKey(EmailTemplate, verbose_name=_("Template"),
+    template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, verbose_name=_("Template"),
                                  limit_choices_to=Q(language__isnull=True) | Q(language=''))
 
     mode = BitField(flags=MODES, verbose_name=_('Mode'), default=Bit(0).mask)
@@ -370,8 +370,9 @@ class NotificationAttachment(models.Model):
     RUS: Приложение для уведомлений.
     Определяет поле для хранения файлов-уведомлений.
     """
-    notification = models.ForeignKey(Notification)
-    attachment = FilerFileField(null=True, blank=True, related_name='email_attachment', verbose_name=_("Attachment"))
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
+    attachment = FilerFileField(on_delete=models.CASCADE, null=True, blank=True,
+        related_name='email_attachment', verbose_name=_("Attachment"))
 
     class Meta:
         app_label = APP_LABEL

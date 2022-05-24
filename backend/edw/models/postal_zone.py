@@ -53,7 +53,7 @@ class BasePostZone(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
     RUS: Класс базовая почтовая зона, связанная с термином.
     Определяет поля (Термин, Почтовые индексы, статус Активен).
     '''
-    term = models.ForeignKey(TermModel, verbose_name=_('Term'), related_name='+', db_index=True)
+    term = models.ForeignKey(TermModel, on_delete=models.CASCADE, verbose_name=_('Term'), related_name='+', db_index=True)
     postal_codes = models.TextField(verbose_name=_('Postal codes'), null=True, blank=True, help_text=_(
         """You enter on one index in line. Use '?' and '*' as universal substitutes. """
         """'?' replaces any symbol, '*' replaces any sequence of symbols (including I am empty). """
