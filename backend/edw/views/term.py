@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
-from django.core import urlresolvers
+try:
+    from django.core.urlresolvers import reverse
+except ImportError:
+    from django.urls import reverse
 
 from rest_framework import filters
 from rest_framework.response import Response
@@ -160,7 +163,7 @@ class RebuildTermTreeView(APIView):
 
         messages.add_message(request._request, messages.INFO,
                              _("The tree was sucessfully rebuilt"))
-        return HttpResponseRedirect(urlresolvers.reverse(
+        return HttpResponseRedirect(reverse(
             "admin:%s_term_changelist" % app_label)
         )
 

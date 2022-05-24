@@ -71,9 +71,13 @@ class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         # инициализация значений виджетов
+        try:
+            rel = self.model._meta.get_field("copy_to").rel
+        except AttributeError:
+            rel = self.model._meta.get_field("copy_to").remote_field
         kwargs.update(widgets={
             'transition': SelectMultiple(_('Transition'), False, choices=self.model.get_transition_choices()),
-            'copy_to': SalmonellaMultiIdWidget(self.model._meta.get_field("copy_to").rel, admin.site)
+            'copy_to': SalmonellaMultiIdWidget(rel, admin.site)
         },
             field_classes={'avaliable_roles': 'hidden'})
 

@@ -26,6 +26,16 @@ from .update_states import EntitiesUpdateStateAdminForm
 from .update_active import EntitiesUpdateActiveAdminForm
 
 
+try:
+    to_entity_rel = EntityRelationModel._meta.get_field("to_entity").rel
+except AttributeError:
+    to_entity_rel = EntityRelationModel._meta.get_field("to_entity").remote_field
+
+try:
+    datamart_rel = EntityRelatedDataMartModel._meta.get_field("data_mart").rel
+except AttributeError:
+    datamart_rel = EntityRelatedDataMartModel._meta.get_field("data_mart").remote_field
+
 #==============================================================================
 # EntityAdminForm
 #==============================================================================
@@ -64,8 +74,7 @@ class EntityRelationInlineForm(forms.ModelForm):
                                        joiner=' / ', label=_('Relation'))
 
     to_entity = forms.ModelChoiceField(queryset=EntityModel.objects.all(), label=_('Target'),
-                                       widget=SalmonellaIdWidget(
-                                           EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
+                                       widget=SalmonellaIdWidget(to_entity_rel, admin.site))
 
 
 #==============================================================================
@@ -76,7 +85,4 @@ class EntityRelatedDataMartInlineForm(forms.ModelForm):
     Форма связанной витрины данных
     """
     data_mart = forms.ModelChoiceField(queryset=DataMartModel.objects.all(), label=_('Data mart'),
-                                       widget=SalmonellaIdWidget(
-                                           EntityRelatedDataMartModel._meta.get_field("data_mart").rel, admin.site))
-
-
+                                       widget=SalmonellaIdWidget(datamart_rel, admin.site))

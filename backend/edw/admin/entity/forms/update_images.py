@@ -11,6 +11,11 @@ from salmonella.widgets import SalmonellaMultiIdWidget
 from edw.models.related.entity_image import EntityImageModel
 
 
+try:
+    image_rel = EntityImageModel._meta.get_field("image").rel
+except AttributeError:
+    image_rel = EntityImageModel._meta.get_field("image").remote_field
+
 #==============================================================================
 # EntitiesUpdateImagesAdminForm
 #==============================================================================
@@ -19,12 +24,10 @@ class EntitiesUpdateImagesAdminForm(forms.Form):
     Форма обновления изображений объекта
     """
     to_set = forms.ModelMultipleChoiceField(queryset=Image.objects.all(), label=_('Images to set'),
-                                              required=False, widget=SalmonellaMultiIdWidget(
-            EntityImageModel._meta.get_field("image").rel, admin.site))
+                                              required=False, widget=SalmonellaMultiIdWidget(image_rel, admin.site))
     to_set_order = forms.IntegerField(label=_("Order"), required=False)
     to_unset = forms.ModelMultipleChoiceField(queryset=Image.objects.all(), label=_('Images to unset'),
-                                              required=False, widget=SalmonellaMultiIdWidget(
-            EntityImageModel._meta.get_field("image").rel, admin.site))
+                                              required=False, widget=SalmonellaMultiIdWidget(image_rel, admin.site))
 
     def clean(self):
         """

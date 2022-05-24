@@ -9,6 +9,11 @@ from salmonella.widgets import SalmonellaIdWidget
 
 from edw.models.term import TermModel
 
+try:
+    rel = TermModel._meta.get_field("parent").rel
+except AttributeError:
+    rel = TermModel._meta.get_field("parent").remote_field
+
 
 #==============================================================================
 # TermsUpdateParentAdminForm
@@ -21,8 +26,5 @@ class TermsUpdateParentAdminForm(forms.Form):
         queryset=TermModel.objects.all(),
         label=_('Term to set'),
         required=True,
-        widget=SalmonellaIdWidget(
-            TermModel._meta.get_field("parent").rel,
-            admin.site,
-        )
+        widget=SalmonellaIdWidget(rel, admin.site)
     )

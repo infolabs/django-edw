@@ -15,6 +15,10 @@ from edw.models.entity import EntityModel
 from edw.models.related import DataMartRelationModel
 from edw.models.term import TermModel
 
+try:
+    subjects_rel = DataMartRelationModel._meta.get_field("subjects").rel
+except AttributeError:
+    subjects_rel = DataMartRelationModel._meta.get_field("subjects").remote_field
 
 #==============================================================================
 # DataMartAdminForm
@@ -62,7 +66,7 @@ class DataMartRelationInlineForm(forms.ModelForm):
     subjects = forms.ModelMultipleChoiceField(
         queryset=EntityModel.objects.all(),
         label=_('Subjects'),
-        widget=SalmonellaMultiIdWidget(DataMartRelationModel._meta.get_field("subjects").rel, admin.site),
+        widget=SalmonellaMultiIdWidget(subjects_rel, admin.site),
         required=False
     )
 

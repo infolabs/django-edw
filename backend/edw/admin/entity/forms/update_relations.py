@@ -13,6 +13,10 @@ from edw.models.related import EntityRelationModel
 
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField
 
+try:
+    to_entity_rel = EntityRelationModel._meta.get_field("to_entity").rel
+except AttributeError:
+    to_entity_rel = EntityRelationModel._meta.get_field("to_entity").remote_field
 
 #==============================================================================
 # EntitiesUpdateRelationAdminForm
@@ -26,15 +30,13 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
                                        joiner=' / ', label=_('Relation to set'))
 
     to_set_targets = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Targets to set'),
-                                              required=False, widget=SalmonellaMultiIdWidget(
-            EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
+                                       required=False, widget=SalmonellaMultiIdWidget(to_entity_rel, admin.site))
 
     to_unset_term = FullPathTreeNodeChoiceField(queryset=TermModel.objects.attribute_is_relation(), required=False,
-                                              joiner=' / ', label=_('Relation to unset'))
+                                       joiner=' / ', label=_('Relation to unset'))
 
     to_unset_targets = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Targets to unset'),
-                                                required=False, widget=SalmonellaMultiIdWidget(
-            EntityRelationModel._meta.get_field("to_entity").rel, admin.site))
+                                       required=False, widget=SalmonellaMultiIdWidget(to_entity_rel, admin.site))
 
     def clean(self):
         """

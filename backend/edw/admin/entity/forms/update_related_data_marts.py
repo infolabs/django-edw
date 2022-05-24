@@ -10,6 +10,10 @@ from salmonella.widgets import SalmonellaMultiIdWidget
 from edw.models.data_mart import DataMartModel
 from edw.models.related import EntityRelatedDataMartModel
 
+try:
+    datamart_rel = EntityRelatedDataMartModel._meta.get_field("data_mart").rel
+except AttributeError:
+    datamart_rel = EntityRelatedDataMartModel._meta.get_field("data_mart").remote_field
 
 #==============================================================================
 # EntitiesUpdateRelatedDataMartsAdminForm
@@ -22,20 +26,14 @@ class EntitiesUpdateRelatedDataMartsAdminForm(forms.Form):
         queryset=DataMartModel.objects.all(),
         label=_('Data marts to set'),
         required=False,
-        widget=SalmonellaMultiIdWidget(
-            EntityRelatedDataMartModel._meta.get_field("data_mart").rel,
-            admin.site,
-        )
+        widget=SalmonellaMultiIdWidget(datamart_rel, admin.site)
     )
 
     to_unset_datamarts = forms.ModelMultipleChoiceField(
         queryset=DataMartModel.objects.all(),
         label=_('Data marts to unset'),
         required=False,
-        widget=SalmonellaMultiIdWidget(
-            EntityRelatedDataMartModel._meta.get_field("data_mart").rel,
-            admin.site,
-        )
+        widget=SalmonellaMultiIdWidget(datamart_rel, admin.site)
     )
 
     def clean(self):
