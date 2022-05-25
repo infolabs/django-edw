@@ -7,7 +7,7 @@ from django.db.models.sql.compiler import SQLCompiler
 
 _get_group_by = SQLCompiler.get_group_by
 def custom_group_by(self, select, order_by):
-    if not self.query.context.get('_custom_group_by', False) or self.query.group_by is True or not self.query.group_by:
+    if not getattr(self.query, '_custom_group_by', False) or self.query.group_by is True or not self.query.group_by:
         return _get_group_by(self, select, order_by)
 
     expressions = []

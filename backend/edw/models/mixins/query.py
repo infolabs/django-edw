@@ -27,7 +27,7 @@ class CustomGroupByQuerySetMixin(object):
         """
         self.custom_group_by = True
         super(CustomGroupByQuerySetMixin, self).__init__(*args, **kwargs)
-        self.query.context['_custom_group_by'] = self.custom_group_by
+        self.query._custom_group_by = self.custom_group_by
 
     def _clone(self, *args, **kwargs):
         # Django's _clone only copies its own variables, so we need to copy ours here
@@ -35,7 +35,7 @@ class CustomGroupByQuerySetMixin(object):
         RUS: Создает копию, переопределяя значения переменных.
         """
         new = super(CustomGroupByQuerySetMixin, self)._clone(*args, **kwargs)
-        new.custom_group_by = self.query.context['_custom_group_by'] = self.custom_group_by
+        new.custom_group_by = self.query._custom_group_by = self.custom_group_by
         return new
 
 
