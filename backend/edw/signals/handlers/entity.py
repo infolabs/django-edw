@@ -130,7 +130,7 @@ else:
 try:
     from edw.models.related.entity_file import EntityFileModel
     EntityFileModel()  # Test pass if model materialized
-except (ImproperlyConfigured, ImportError):
+except (ImproperlyConfigured, ImportError, RuntimeError):
     pass
 else:
     subclasses.append(EntityFileModel.materialized)

@@ -126,7 +126,7 @@ class IsOwnerOrStaffOrSuperuser(permissions.BasePermission):
  # Register class only if `filer` installed
 try:
     from filer.fields.file import FilerFileField
-except ImportError:
+except (ImportError, RuntimeError):
     pass
 else:
     class IsFilerFileOwnerOrReadOnly(permissions.BasePermission):
