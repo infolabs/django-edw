@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from salmonella.admin import SalmonellaMixin
+try:
+    from salmonella.admin import SalmonellaMixin
+except ImportError:
+    from dynamic_raw_id.admin import DynamicRawIDMixin as SalmonellaMixin
 
 from edw.models.postal_zone import PostZoneModel
 
@@ -20,6 +23,7 @@ class PostalZoneAdmin(SalmonellaMixin, admin.ModelAdmin):
     search_fields = ('term__name', 'postal_codes')
 
     salmonella_fields = ('term',)
+    dynamic_raw_id_fields = ('term',)
 
 
 admin.site.register(PostZoneModel, PostalZoneAdmin)

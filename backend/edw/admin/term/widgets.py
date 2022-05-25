@@ -20,7 +20,7 @@ class TermTreeWidget(forms.SelectMultiple):
         self.active_only = active_only
         super(TermTreeWidget, self).__init__(attrs)
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         """
         Выполняет запрос и возвращает страницу терминов
         """

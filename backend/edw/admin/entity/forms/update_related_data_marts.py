@@ -5,7 +5,10 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 
-from salmonella.widgets import SalmonellaMultiIdWidget
+try:
+    from salmonella.widgets import SalmonellaMultiIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDMultiIdWidget as SalmonellaMultiIdWidget
 
 from edw.models.data_mart import DataMartModel
 from edw.models.related import EntityRelatedDataMartModel

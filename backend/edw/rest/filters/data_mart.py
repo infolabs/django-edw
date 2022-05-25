@@ -14,7 +14,8 @@ except ImportError:
 
 from rest_framework import serializers
 
-from edw.models.data_mart import BaseDataMart
+#from edw.models.data_mart import BaseDataMart
+from edw.models.data_mart import DataMartModel
 
 from .common import NumberInFilter
 
@@ -32,7 +33,8 @@ class DataMartFilter(filters.FilterSet):
     path__icontains = filters.CharFilter(name='path', lookup_expr='icontains', label=_("Path (icontains)"))
 
     class Meta:
-        model = BaseDataMart
+        #model = BaseDataMart
+        model = DataMartModel.materialized
         fields = ['active']
 
     def filter_parent_id(self, name, queryset, value):

@@ -25,7 +25,9 @@ class BaseFilerFileField(fields.FileField):
 
     def get_owner(self, data):
         request = self.context.get('request', None)
-        return request.user if request is not None and request.user.is_authenticated() else None
+        is_authenticated = (request.user.is_authenticated() if callable(request.user.is_authenticated)
+                   else request.user.is_authenticated)
+        return request.user if request is not None and is_authenticated else None
 
     def get_original_filename(self, data):
         return data.name

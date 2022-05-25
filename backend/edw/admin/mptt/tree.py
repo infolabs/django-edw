@@ -5,7 +5,10 @@ import six
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
 
-from salmonella.admin import SalmonellaMixin
+try:
+    from salmonella.admin import SalmonellaMixin
+except ImportError:
+    from dynamic_raw_id.admin import DynamicRawIDMixin as SalmonellaMixin
 
 from django_mptt_admin.admin import DjangoMpttAdmin
 from django_mptt_admin.util import get_tree_from_queryset
@@ -13,6 +16,8 @@ from django_mptt_admin.util import get_tree_from_queryset
 from django.forms import Media
 from django.contrib import messages
 from django.conf import settings
+
+from django import VERSION as DJANGO_VERSION
 
 from edw.admin.mptt.utils import get_mptt_admin_node_template, mptt_admin_node_info_update_with_template
 
@@ -22,6 +27,7 @@ class EdwMpttAdmin(SalmonellaMixin, DjangoMpttAdmin):
     readonly_fields = ['path']
 
     salmonella_fields = ('parent',)
+    dynamic_raw_id_fields = ('parent',)
 
     autoescape = False
 
@@ -48,10 +54,14 @@ class EdwMpttAdmin(SalmonellaMixin, DjangoMpttAdmin):
             obj.delete()
 
     def get_tree_media(self):
-        js = [
-            '/static/django_mptt_admin/jquery_namespace.js',
-            '/static/django_mptt_admin/django_mptt_admin.js',
-        ]
+        js = []
+        if  DJANGO_VERSION[0] < 3:
+            js.append('/static/django_mptt_admin/jquery_namespace.js')
+        else:
+            js.append('/static/admin/js/vendor/jquery/jquery.js')
+
+        js.append('/static/django_mptt_admin/django_mptt_admin.js')
+
         css = {
             'all': [
                 '/static/edw/css/admin/django_mptt_admin.css',

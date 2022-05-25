@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django import forms
-from django.contrib.admin.templatetags.admin_static import static
+try:
+    from django.contrib.admin.templatetags.admin_static import static
+except ImportError:
+    from django.templatetags.static import static
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
 

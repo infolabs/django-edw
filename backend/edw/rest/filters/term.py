@@ -30,7 +30,7 @@ class TermFilter(filters.FilterSet):
     data_mart_pk = MethodFilter()
 
     class Meta:
-        model = BaseTerm
+        model = TermModel.materialized
         fields = ['active']
 
     @cached_property

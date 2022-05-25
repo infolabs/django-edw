@@ -6,7 +6,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 
 from filer.models import Image
-from salmonella.widgets import SalmonellaMultiIdWidget
+try:
+    from salmonella.widgets import SalmonellaMultiIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDMultiIdWidget as SalmonellaMultiIdWidget
 
 from edw.models.related.entity_image import EntityImageModel
 

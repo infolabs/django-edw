@@ -26,24 +26,24 @@ router.register(r'data-marts', DataMartViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'entities', EntityViewSet)
 try:
-    router.register(r'search', EntitySearchViewSet, base_name='search')
+    router.register(r'search', EntitySearchViewSet, basename='search')
 except NameError:
     pass
 
 data_mart_nested_router = routers.NestedSimpleBulkRouter(router, r'data-marts', lookup='data_mart')
 
-data_mart_nested_router.register(r'children', DataMartViewSet, base_name='data-mart-children')
-data_mart_nested_router.register(r'terms', TermViewSet, base_name='data-mart-term')
-data_mart_nested_router.register(r'entities', EntityViewSet, base_name='data-mart-entity')
+data_mart_nested_router.register(r'children', DataMartViewSet, basename='data-mart-children')
+data_mart_nested_router.register(r'terms', TermViewSet, basename='data-mart-term')
+data_mart_nested_router.register(r'entities', EntityViewSet, basename='data-mart-entity')
 
 term_nested_router = routers.NestedSimpleBulkRouter(router, r'terms', lookup='term')
-term_nested_router.register(r'children', TermViewSet, base_name='term-children')
+term_nested_router.register(r'children', TermViewSet, basename='term-children')
 
 entity_nested_router = routers.NestedSimpleBulkRouter(router, r'entities', lookup='entity')
-entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='entity-by-subject')
+entity_nested_router.register(r'subj', EntitySubjectViewSet, basename='entity-by-subject')
 
 data_mart_entity_nested_router = routers.NestedSimpleBulkRouter(data_mart_nested_router, r'entities', lookup='entity')
-data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, base_name='data-mart-entity-by-subject')
+data_mart_entity_nested_router.register(r'subj', EntitySubjectViewSet, basename='data-mart-entity-by-subject')
 
 
 try:
@@ -55,7 +55,7 @@ else:
     from edw.views.related.data_mart_image import DataMartImageViewSet
 
     router.register(r'data-marts-images', DataMartImageViewSet)
-    data_mart_nested_router.register(r'images', DataMartImageViewSet, base_name='entity-image')
+    data_mart_nested_router.register(r'images', DataMartImageViewSet, basename='entity-image')
 
 try:
     from edw.models.related.entity_image import EntityImageModel
@@ -66,7 +66,7 @@ else:
     from edw.views.related.entity_image import EntityImageViewSet
 
     router.register(r'entities-images', EntityImageViewSet)
-    entity_nested_router.register(r'images', EntityImageViewSet, base_name='entity-image')
+    entity_nested_router.register(r'images', EntityImageViewSet, basename='entity-image')
 
 try:
     from edw.models.related.entity_file import EntityFileModel
@@ -77,7 +77,7 @@ else:
     from edw.views.related.entity_file import EntityFileViewSet
 
     router.register(r'entities-files', EntityFileViewSet)
-    entity_nested_router.register(r'files', EntityFileViewSet, base_name='entity-file')
+    entity_nested_router.register(r'files', EntityFileViewSet, basename='entity-file')
 
 
 #==============================================================================

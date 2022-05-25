@@ -12,6 +12,15 @@ def get_customer(request, force=False):
 
 
 class CustomerMiddleware(object):
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.process_request(request)
+        response = self.get_response(request)
+        response = self.process_response(request, response)
+        return response
+
     def process_request(self, request):
         assert hasattr(request, 'session'), "The django-edw middleware requires session middleware to be installed. Edit your MIDDLEWARE_CLASSES setting to insert 'django.contrib.sessions.middleware.SessionMiddleware'."
         assert hasattr(request, 'user'), "The django-edw middleware requires an authentication middleware to be installed. Edit your MIDDLEWARE_CLASSES setting to insert 'django.contrib.auth.middleware.AuthenticationMiddleware'."

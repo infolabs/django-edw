@@ -572,8 +572,10 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             'can_delete': False,
             'has_owner': False
         }
+        is_authenticated = (request.user.is_authenticated() if callable(request.user.is_authenticated)
+                   else request.user.is_authenticated)
         user = request.user
-        if user.is_authenticated() and user.is_active:
+        if is_authenticated and user.is_active:
             if user.is_superuser or not DataMartPermissionModel.objects.filter(data_mart_id=self.id).exists():
                 result = {
                     'can_add': True,

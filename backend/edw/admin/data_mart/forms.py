@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from salmonella.widgets import SalmonellaMultiIdWidget
+try:
+    from salmonella.widgets import SalmonellaMultiIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDMultiIdWidget as SalmonellaMultiIdWidget
 
 from edw.admin.customer.widgets import CustomerIdWidget
 from edw.admin.mptt.fields import FullPathTreeNodeChoiceField

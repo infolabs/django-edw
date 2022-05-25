@@ -2,9 +2,12 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from salmonella.admin import SalmonellaMixin
-
 from edw.models.boundary import BoundaryModel
+
+try:
+    from salmonella.admin import SalmonellaMixin
+except ImportError:
+    from dynamic_raw_id.admin import DynamicRawIDMixin as SalmonellaMixin
 
 
 # ===========================================================================================
@@ -20,6 +23,7 @@ class BoundaryAdmin(SalmonellaMixin, admin.ModelAdmin):
     search_fields = ('term__name', 'raw_polygons')
 
     salmonella_fields = ('term',)
+    dynamic_raw_id_fields = ('term',)
 
 
 admin.site.register(BoundaryModel, BoundaryAdmin)

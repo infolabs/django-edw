@@ -57,7 +57,9 @@ class AuthFormsView(GenericAPIView):
 
 class GetTokenView(GenericAPIView):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_anonymous():
+        is_anonymous = (request.user.is_anonymous() if callable(request.user.is_anonymous)
+                        else request.user.is_anonymous)
+        if not is_anonymous:
             email = request.customer.user.email
             try:
                 token, created = Token.objects.get_or_create(user=request.user)
@@ -83,7 +85,9 @@ class LoginView(OriginalLoginView):
         """
         Logs in as the given user
         """
-        dead_user = None if self.request.user.is_anonymous() or self.request.customer.is_registered() else self.request.customer.user
+        is_anonymous = (self.request.user.is_anonymous() if callable(self.request.user.is_anonymous)
+                        else self.request.user.is_anonymous)
+        dead_user = None if is_anonymous or self.request.customer.is_registered() else self.request.customer.user
         super(LoginView, self).login()  # this rotates the session_key
         if dead_user and dead_user.is_active is False:
             dead_user.delete()  # to keep the database clean

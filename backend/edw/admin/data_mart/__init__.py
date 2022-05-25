@@ -69,6 +69,7 @@ class DataMartRelationInline(admin.TabularInline):
     fields = ['term', 'direction', 'subjects']
 
     salmonella_fields = ('parent', 'subjects')
+    dynamic_raw_id_fields = ('parent', 'subjects')
 
     fk_name = 'data_mart'
 
@@ -86,6 +87,7 @@ class DataMartPermissionInline(admin.TabularInline):
     fields = ['customer', 'can_add', 'can_change', 'can_delete']
 
     salmonella_fields = ('customer', )
+    dynamic_raw_id_fields = ('customer', )
 
     fk_name = 'data_mart'
 

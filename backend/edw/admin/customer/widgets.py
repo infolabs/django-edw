@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django.contrib.admin.views.main import TO_FIELD_VAR
-from salmonella.widgets import SalmonellaIdWidget
+try:
+    from salmonella.widgets import SalmonellaIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDWidget as SalmonellaIdWidget
 
 from edw.admin.customer import CustomerProxy
 

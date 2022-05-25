@@ -145,7 +145,9 @@ class CustomerManager(models.Manager):
         ENG: Return an Customer object for the current User object.
         RUS: Возвращает объект Customer для текущего объекта User. 
         """
-        if request.user.is_anonymous() and request.session.session_key:
+        is_anonymous = (request.user.is_anonymous() if callable(request.user.is_anonymous)
+                        else request.user.is_anonymous)
+        if is_anonymous and request.session.session_key:
             # the visitor is determined through the session key
             user = self._get_visiting_user(request.session.session_key)
         else:
@@ -155,7 +157,9 @@ class CustomerManager(models.Manager):
                 return user.customer
         except AttributeError:
             pass
-        if request.user.is_authenticated():
+        is_authenticated = (request.user.is_authenticated() if callable(request.user.is_authenticated)
+                   else request.user.is_authenticated)
+        if request.user.is_authenticated:
             customer, created = self.get_or_create(user=user)
             if created:  # `user` has been created by another app than shop
                 customer.recognized = self.model.REGISTERED

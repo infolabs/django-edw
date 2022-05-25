@@ -11,7 +11,10 @@ from django.utils.http import urlencode
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
 
-from salmonella.filters import SalmonellaFilter
+try:
+    from salmonella.filters import SalmonellaFilter
+except ImportError:
+    from dynamic_raw_id.filters import DynamicRawIDFilter as SalmonellaFilter
 
 from edw.models.entity import EntityModel
 

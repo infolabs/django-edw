@@ -4,8 +4,14 @@ from __future__ import unicode_literals
 import json
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
-from salmonella.admin import SalmonellaMixin
-from salmonella.widgets import SalmonellaMultiIdWidget
+try:
+    from salmonella.admin import SalmonellaMixin
+except ImportError:
+    from dynamic_raw_id.admin import DynamicRawIDMixin as SalmonellaMixin
+try:
+    from salmonella.widgets import SalmonellaMultiIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDMultiIdWidget as SalmonellaMultiIdWidget
 
 from django.contrib import admin
 from django.utils.safestring import mark_safe

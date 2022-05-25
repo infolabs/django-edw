@@ -5,7 +5,10 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 
-from salmonella.widgets import SalmonellaIdWidget
+try:
+    from salmonella.widgets import SalmonellaIdWidget
+except ImportError:
+    from dynamic_raw_id.widgets import DynamicRawIDWidget as SalmonellaIdWidget
 
 from edw.models.term import BaseTerm, TermModel
 from edw.models.entity import EntityModel
