@@ -24,7 +24,7 @@ class CustomerInlineAdmin(admin.StackedInline):
     def get_extra(self, request, obj=None, **kwargs):
         return 0 if obj is None else 1
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
 

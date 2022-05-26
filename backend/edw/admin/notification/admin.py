@@ -81,11 +81,11 @@ class NotificationAdmin(SalmonellaMixin, admin.ModelAdmin):
             rel = self.model._meta.get_field("copy_to").rel
         except AttributeError:
             rel = self.model._meta.get_field("copy_to").remote_field
+
         kwargs.update(widgets={
             'transition': SelectMultiple(_('Transition'), False, choices=self.model.get_transition_choices()),
             'copy_to': SalmonellaMultiIdWidget(rel, admin.site)
-        },
-            field_classes={'avaliable_roles': 'hidden'})
+        }, field_classes={'avaliable_roles': 'hidden'})
 
         return super(NotificationAdmin, self).get_form(request, obj, **kwargs)
 

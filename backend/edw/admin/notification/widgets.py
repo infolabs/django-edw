@@ -24,7 +24,7 @@ class SelectMultiple(forms.SelectMultiple):
 
         self.verbose_name = verbose_name
         self.is_stacked = is_stacked
-        super(SelectMultiple, self).__init__(attrs, choices)
+        super(SelectMultiple, self).__init__(attrs=attrs, choices=choices)
 
     def render(self, name, value, attrs=None, renderer=None):
         # render(name, value, attrs=None, renderer=None)

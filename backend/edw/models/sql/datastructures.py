@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django import VERSION as DJANGO_VERSION
 from django.db.models.sql.datastructures import Join
+from django.db.models.query import RawQuerySet
+
+
+class CustomMeta:
+    db_table = None
 
 
 class CustomJoin(Join):
     def __init__(self, subquery, subquery_params, parent_alias, table_alias, join_type, join_field, nullable):
         self.subquery_params = subquery_params
+
+        if DJANGO_VERSION[0] >= 3 and isinstance(join_field.related_model, RawQuerySet):
+            # TODO: this is a temporary fix, check if CustomJoin works
+            join_field.related_model._meta = CustomMeta
+
         super(CustomJoin, self).__init__(subquery, parent_alias, table_alias, join_type, join_field, nullable)
 
     def as_sql(self, compiler, connection):

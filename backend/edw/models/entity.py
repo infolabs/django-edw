@@ -191,7 +191,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                 except EmptyResultSet:
                     result = []
                 else:
-                    idx = result.query.get_context(self._JOIN_INDEX_KEY, 1)
+                    idx = getattr(result.query, self._JOIN_INDEX_KEY, 1)
 
                     inner_model = getattr(base_qs.model, field_name).through
                     outer_table = base_qs.query.get_initial_alias()
@@ -238,7 +238,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                     # Make queryset
                     result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
 
-                    result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
+                    setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
 
         result.semantic_filter_meta = tree
         return result
@@ -258,7 +258,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         inner_qs = self.order_by().values_list('pk', flat=True)
         inner_model_name = self.model._meta.object_name
 
-        idx = self.query.get_context(self._JOIN_INDEX_KEY, 1)
+        idx = getattr(self.query, self._JOIN_INDEX_KEY, 1)
         join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
 
         entity_alias = "{}_id".format(inner_model_name.lower())
@@ -266,7 +266,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         # Make queryset
         result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
 
-        result.query.add_context(self._JOIN_INDEX_KEY, idx + 1)
+        setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
 
         return result
 

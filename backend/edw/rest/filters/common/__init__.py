@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django import VERSION as DJANGO_VERSION
 from django.template import Context, RequestContext, Template
 
 from django_filters.filters import (
@@ -26,13 +27,39 @@ class NumberInFilter(BaseInFilter, NumberFilter):
 #     pass
 
 
+if DJANGO_VERSION[0] >= 3:
+    filter_original_init = Filter.__init__
+
+    def filter_custom_init(self, *args, **kwargs):
+        """
+        Patch django_filters, newer versions ignore 'name' kwarg
+        """
+        self.name = kwargs.pop('name', None)
+        filter_original_init(self, *args, **kwargs)
+        if self.name and not self.field_name:
+            self.field_name = self.name
+
+    Filter.__init__ = filter_custom_init
+
+
 class MethodFilter(Filter):
     """
     This filter will allow you to run a method that exists on the filterset class
     """
+    name = None
+
     def __init__(self, *args, **kwargs):
         self.action = kwargs.pop('action', '')
         super(MethodFilter, self).__init__(*args, **kwargs)
+
+    @property
+    def field_name(self):
+        return self.name
+
+    @field_name.setter
+    def field_name(self, value):
+        self.name = value
+
 
     def resolve_action(self):
         """
