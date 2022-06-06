@@ -72,7 +72,6 @@ setup(
     install_requires=[
         'Django>=1.9,<=1.11',
         'djangorestframework>=3.3',
-        'beautifulsoup4>=4.4.0',
         'django-filer>=1.0.6',
         'django-fsm>=2.4.0',
         'django-rest-auth>=0.5.0',
