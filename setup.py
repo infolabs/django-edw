@@ -70,7 +70,7 @@ setup(
         'install': install
     },
     install_requires=[
-        'Django>=1.9,<=1.11',
+        'Django>=1.9,<=1.11.29',
         'djangorestframework>=3.3',
         'django-filer>=1.0.6',
         'django-fsm>=2.4.0',
