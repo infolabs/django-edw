@@ -78,6 +78,6 @@ setup(
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
         'djangorestframework-filters==0.8.0',
-        'django-polymorphic==1.1',
+        'django-polymorphic>=1.1',
     ],
 )
