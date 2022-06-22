@@ -77,7 +77,7 @@ setup(
         'django-rest-auth>=0.5.0',
         'django-select2>=5.5.0',
         'djangorestframework-recursive==0.1.1',
-        'djangorestframework-filters==0.8.0',
+        'djangorestframework-filters==0.11.1',
         'django-polymorphic>=1.1',
     ],
 )
