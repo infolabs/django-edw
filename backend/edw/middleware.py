@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.http import HttpResponseRedirect
 from django.utils.functional import SimpleLazyObject
 from django.utils import timezone
 from edw.models.customer import CustomerModel
-
+from edw import settings as edw_settings
 
 def get_customer(request, force=False):
     if force or not hasattr(request, '_cached_customer'):
@@ -16,7 +17,7 @@ class CustomerMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.process_request(request)
+        self.process_request(request)
         response = self.get_response(request)
         response = self.process_response(request, response)
         return response
@@ -33,6 +34,8 @@ class CustomerMiddleware(object):
                 # only update last_access when rendering the main page
                 request.customer.last_access = timezone.now()
                 request.customer.save(update_fields=['last_access'])
+                if response.status_code == 401:
+                    return HttpResponseRedirect(f'{edw_settings.UNAUTHORIZED_LOGIN_URL}?next={request.get_full_path()}')
         except AttributeError:
             pass
         return response

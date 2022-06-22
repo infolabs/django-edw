@@ -100,3 +100,6 @@ CLASSIFY.update(getattr(settings, 'EDW_CLASSIFY', {}))
 
 
 EXCLUDE_EMAIL_NOTIFICATION = []
+
+
+UNAUTHORIZED_LOGIN_URL = getattr(settings, 'EDW_UNAUTHORIZED_LOGIN_URL', '/edw/auth/login/')
