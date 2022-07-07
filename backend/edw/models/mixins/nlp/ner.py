@@ -5,9 +5,9 @@ from natasha import (
     Segmenter,
     MorphVocab,
 
-    DatesExtractor,
     MoneyExtractor,
     NamesExtractor,
+
 
     NewsEmbedding,
     NewsMorphTagger,
@@ -18,6 +18,15 @@ from natasha import (
     LOC,
     ORG
 )
+from natasha.grammars.date import Date, MONTHS, MONTH, DAY, YEAR, YEAR_SHORT, YEAR_WORD
+from natasha.extractors import Extractor
+
+from yargy import (
+    rule, or_
+)
+from yargy.predicates import dictionary
+
+
 from celery.utils.log import get_logger
 
 from django.utils.translation import ugettext_lazy as _
@@ -26,6 +35,57 @@ from edw.models.mixins import ModelMixin
 from edw.models.mixins.nlp import Doc
 from edw.tasks import extract_ner_data
 
+
+def get_month_value_by_key(key):
+    try:
+        month = MONTHS.__getitem__(key)
+    except:
+        month = MONTHS.get(key)
+
+    return month
+
+MONTH_NAME = dictionary(MONTHS).interpretation(
+    Date.month.normalized().custom(get_month_value_by_key)
+)
+
+DATE = or_(
+    rule(
+        DAY,
+        '.',
+        MONTH,
+        '.',
+        or_(
+            YEAR,
+            YEAR_SHORT
+        ),
+        YEAR_WORD.optional()
+    ),
+    rule(
+        YEAR,
+        YEAR_WORD
+    ),
+    rule(
+        DAY,
+        MONTH_NAME
+    ),
+    rule(
+        MONTH_NAME,
+        YEAR,
+        YEAR_WORD.optional()
+    ),
+    rule(
+        DAY,
+        MONTH_NAME,
+        YEAR,
+        YEAR_WORD.optional()
+    ),
+).interpretation(
+    Date
+)
+
+class DatesExtractor(Extractor):
+    def __init__(self, morph):
+        Extractor.__init__(self, DATE, morph)
 
 class NERMixin(ModelMixin):
     """
