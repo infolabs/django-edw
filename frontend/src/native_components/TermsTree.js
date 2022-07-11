@@ -5,7 +5,7 @@ import {bindActionCreators} from 'redux';
 import TermsTreeItem from './TermsTreeItem';
 import ActionCreators from '../actions';
 import parseRequestParams from '../utils/parseRequestParams';
-import compareArrays from '../../utils/compareArrays';
+import compareArrays from '../utils/compareArrays';
 import {termsTreeItemStyles as styles} from '../native_styles/terms';
 
 

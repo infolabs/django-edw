@@ -4,7 +4,7 @@ import ActionCreators from '../actions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {Text, Button, useTheme} from '@ui-kitten/components';
-import {Icon} from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {filtersStyles as styles} from '../native_styles/filters';
 
 

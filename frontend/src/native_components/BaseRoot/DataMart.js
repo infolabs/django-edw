@@ -8,7 +8,7 @@ import FilterBtn from '../FilterBtn';
 import ActionCreators from '../../actions';
 import {bindActionCreators} from 'redux';
 import platformSettings from '../../constants/Platform';
-import {Icon} from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 import TermsTree from '../TermsTree';
 import getDeclinedName from '../../utils/getDeclinedName';
 import ViewComponentsBtn from '../ViewComponentsBtn';
@@ -99,7 +99,7 @@ function DataMart(props) {
 
   // HACK. Свойство onPress у TopNavigationAction не работает. Поэтому пришлось использовать иконку с native-base
   function closeFiltersView() {
-    return <Icon onPress={closeFilters} name="close"/>;
+    return <Icon onPress={closeFilters} name="close" size={30} />;
   }
 
   if (entities.items.meta.count === 0 && terms.tagged.entities_ignore) {

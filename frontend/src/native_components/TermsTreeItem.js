@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity} from 'react-native';
 import {Text, CheckBox, useStyleSheet} from '@ui-kitten/components';
-import {Icon} from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 import platformSettings from '../constants/Platform';
 import {structures, semanticRules} from '../constants/TermsTree';
 import {termsTreeItemStyles} from '../native_styles/terms';

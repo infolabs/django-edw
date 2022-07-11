@@ -24,7 +24,7 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
         body: JSON.stringify(data),
       };
 
-    textLoader && navigation.navigate('Preloader', {textLoader});
+    textLoader && navigation.navigate({name: 'Preloader', props: {textLoader}, merge: true});
 
     uniFetch(url, parameters, nameFields)
       .then(() => {
@@ -54,7 +54,7 @@ export const createEntity = params => dispatch => {
       body: JSON.stringify(data),
     };
 
-    textLoader && navigation.navigate('Preloader', {textLoader});
+    textLoader && navigation.navigate({name: 'Preloader', props: {textLoader}, merge: true});
 
     uniFetch(url, parameters, nameFields)
       .then(() => {
@@ -68,6 +68,7 @@ export const createEntity = params => dispatch => {
       });
   });
 };
+
 
 export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch => {
   getToken().then((token) => {
@@ -135,11 +136,11 @@ export const deleteEntity = params => dispatch => {
           },
         };
 
-      navigation.navigate('Preloader', {textLoader});
+      navigation.navigate({name: 'Preloader', props: {textLoader}, merge: true});
 
       uniFetch(url, parameters, {}, false)
         .then(() => {
-          navigation.navigate(nextNavigate)
+          navigation.navigate({name: nextNavigate, props: {}, merge: true});
           dispatch({type: actionTypes.DELETE_ENTITY, id});
           slugConfig && refreshDataMart(slugConfig);
         })
@@ -170,7 +171,7 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
       })
       .catch((error) => {
         console.error(error);
-        navigation.navigate(nextNavigationName);
+        navigation.navigate({name: nextNavigationName, props: {}, merge: true});
         dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
       });
   });

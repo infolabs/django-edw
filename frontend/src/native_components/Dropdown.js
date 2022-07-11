@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {OverflowMenu, MenuItem, Text, Button} from '@ui-kitten/components';
-import {Icon} from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 import ActionCreators from '../actions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
