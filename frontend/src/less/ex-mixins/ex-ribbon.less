@@ -39,3 +39,13 @@
   }
 }
 
+.ex-baloon-ribbon (@ribbon-bg: @ex-gray-light; @ribbon-color: contrast(@ribbon-bg); @ex-ribbon-font-size: @ex-font-size-small; @ex-ribbon-font-weight: inherit; @ex-ribbon-text-transform: uppercase) {
+
+  .ex-ribbon-color(@ribbon-bg; @ribbon-color);
+  line-height: floor((@ex-ribbon-font-size * @ex-line-height-base));
+  text-transform: @ex-ribbon-text-transform;
+
+  &:after {
+    font-size: .75em;
+  }
+}
