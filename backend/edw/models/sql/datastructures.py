@@ -28,10 +28,10 @@ class CustomJoin(Join):
         """
         params = []
         sql = []
-        alias_str = '' if self.table_alias == self.table_name else (' %s' % self.table_alias)
         params.extend(self.subquery_params)
         qn = compiler.quote_name_unless_alias
         qn2 = connection.ops.quote_name
+        alias_str = '' if self.table_alias == self.table_name else (' %s' % qn2(self.table_alias))
         sql.append('%s (%s)%s ON (' % (self.join_type, self.table_name, alias_str))
         for index, (lhs_col, rhs_col) in enumerate(self.join_cols):
             if index != 0:
