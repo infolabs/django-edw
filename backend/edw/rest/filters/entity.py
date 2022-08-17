@@ -22,7 +22,10 @@ from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
 from edw.rest.filters.common import template_render
 from edw.models.data_mart import DataMartModel
-from edw.models.entity import BaseEntity, EntityModel
+from edw.models.entity import (
+    BaseEntity,
+    EntityModel
+)
 from edw.models.rest import (
     DynamicFilterSetMixin,
     DynamicFilterMixin,
@@ -567,7 +570,6 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
                     queryset = queryset.alike(alike_id, *group_by)
                     # добавляем в информацию о фильтре
                     request.GET['_filter_queryset'] = queryset
-
                 queryset_with_counts = queryset.group_by(*group_by)
                 if queryset_with_counts.count() > 1:
                     queryset = queryset_with_counts

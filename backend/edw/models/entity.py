@@ -15,7 +15,7 @@ from django.core.exceptions import (
     MultipleObjectsReturned
 )
 from django.db import models, transaction, connections
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Max
 try:
     from django.db.models.sql.datastructures import EmptyResultSet
 except ImportError:
@@ -102,6 +102,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     """
     SEMANTIC_FILTERS_CHUNK_LIMIT = edw_settings.SEMANTIC_FILTER['filters_chunk_limit']
     GROUP_SIZE_ALIAS = 'group_size'
+    GROUP_ID_ALIAS = '__group_id'
     _JOIN_INDEX_KEY = '_join_idx'
 
     def group_by(self, *fields):
@@ -109,8 +110,10 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         RUS: Возвращает результат запроса, выбранный в результате группировки данных.
         """
         result = self.annotate(**{
-            self.GROUP_SIZE_ALIAS: Count('id', distinct=True)
+            self.GROUP_SIZE_ALIAS: Count('id', distinct=True),
+            self.GROUP_ID_ALIAS: Max('id', distinct=True)
         })
+        result.custom_count_key = self.GROUP_ID_ALIAS
         result.query.group_by = fields
         return result
 

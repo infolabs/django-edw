@@ -12,9 +12,9 @@ from django.core.exceptions import EmptyResultSet
 from edw.models.sql.datastructures import CustomJoin
 
 
-#==============================================================================
+# ==============================================================================
 # CustomGroupByQuerySetMixin
-#==============================================================================
+# ==============================================================================
 class CustomGroupByQuerySetMixin(object):
     """
     Для корректной работы необходимо подключить edw/patches/sql/compiler.py
@@ -35,18 +35,28 @@ class CustomGroupByQuerySetMixin(object):
         RUS: Создает копию, переопределяя значения переменных.
         """
         new = super(CustomGroupByQuerySetMixin, self)._clone(*args, **kwargs)
-        new.custom_group_by = self.query._custom_group_by = self.custom_group_by
+        new.custom_group_by = new.query._custom_group_by = self.custom_group_by
         return new
 
 
-#==============================================================================
+# ==============================================================================
 # CustomCountQuerySetMixin
-#==============================================================================
+# ==============================================================================
 class CustomCountQuerySetMixin(object):
     """
     В оригинале работает `return self.query.get_count(using=self.db)` довольно медленно,
     попробуем немного оптимизировать...
     """
+    def __init__(self, *args, **kwargs):
+        self.custom_count_key = 'id'
+        super(CustomCountQuerySetMixin, self).__init__(*args, **kwargs)
+
+    def _clone(self, *args, **kwargs):
+        # Django's _clone only copies its own variables, so we need to copy ours here
+        new = super(CustomCountQuerySetMixin, self)._clone(*args, **kwargs)
+        new.custom_count_key = self.custom_count_key
+        return new
+
     def count(self):
         """
         Performs a SELECT COUNT() and returns the number of records as an
@@ -56,19 +66,19 @@ class CustomCountQuerySetMixin(object):
             return len(self._result_cache)
 
         if self.query.group_by is None:
-            values = ['id']
+            values = [self.custom_count_key]
         else:
             values = list(self.query.group_by)
-            if 'id' not in set(values):
-                values.insert(0, 'id')
+            if self.custom_count_key not in set(values):
+                values.insert(0, self.custom_count_key)
 
-        result = self.values(*values).aggregate(__count=Count('id'))['__count']
+        result = self.values(*values).aggregate(__count=Count(self.custom_count_key))['__count']
         return 0 if result is None else result
 
 
-#==============================================================================
+# ==============================================================================
 # Join QuerySet Functionality
-#==============================================================================
+# ==============================================================================
 
 def join_to(queryset, subquery, table_field, subquery_field, alias, join_type, nullable):
     """
@@ -134,9 +144,9 @@ def left_join_to(queryset, subquery, table_field, subquery_field, alias):
         return queryset
 
 
-#==============================================================================
+# ==============================================================================
 # JoinQuerySetMixin
-#==============================================================================
+# ==============================================================================
 class JoinQuerySetMixin(object):
     """
     Добавляем функционал JOIN
