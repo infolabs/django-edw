@@ -158,10 +158,12 @@ export function getEntities(params) {
         responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
       if (!compareArrays(stateMetaGroupTermsIds, responseMetaGroupTermsIds)) {
-        if (responseMetaGroupTermsIds.length || closeGroup)
-          dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, responseMetaGroupTermsIds));
-        else
+        if (responseMetaGroupTermsIds.length || closeGroup) {
+          const comboTerms = responseMetaGroupTermsIds.concat(options_obj.terms);
+          dispatch(getTermsTree(LOAD_TERMS_TREE, mart_id, comboTerms));
+        } else {
           dispatch(getTermsTree(RELOAD_TERMS_TREE, mart_id, stateMetaGroupTermsIds));
+        }
       // Если изменилась сортировка или вид представления, то перезапрос не делаем
       } else if (inFetch === 0 && stateMetaOrdering === responseMetaOrdering && stateMetaViewComponent === responseMetaViewComponent &&
         stateDataMartId === responseDataMartId && stateRootLength) {
