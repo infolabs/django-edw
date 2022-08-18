@@ -27,9 +27,14 @@ class BaseRoot extends Component {
   render() {
 
     const {store, dom_attrs, actions, datamart_list} = this.props,
-          entry_points = JSON.parse(dom_attrs.getNamedItem('data-entry-points').value),
+          entry_points_item = dom_attrs.getNamedItem('data-entry-points'),
+          entry_points = entry_points_item
+            ? JSON.parse(dom_attrs.getNamedItem('data-entry-points').value) : {},
           entry_point_id_attr = dom_attrs.getNamedItem('data-selected-entry-point-id');
     let component_attrs = dom_attrs.getNamedItem('data-component-attrs') || {};
+
+    if (Object.keys(entry_points).length === 0 && entry_point_id_attr)
+      entry_points[entry_point_id_attr.value] = {};
 
     if (component_attrs.value)
       component_attrs = JSON.parse(component_attrs.value);
