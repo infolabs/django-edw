@@ -6,6 +6,7 @@ import {
   SHOW_ENTITY_DESC,
   HIDE_ENTITY_DESC,
   APPEND_NOT_GROUP_PARAM_TO_META,
+  SAVE_UNEXPANDED_GROUP_TERMS,
 } from '../constants/Entities';
 import {
   TOGGLE_DROPDOWN,
@@ -88,7 +89,7 @@ const loadingEntity = id => dispatch => {
 let inFetch = 0;
 
 export function getEntities(params) {
-  const {mart_id, template_name} = params,
+  const {mart_id, template_name, unexpandedGroupTerms} = params,
     subj_ids = params.subj_ids || [],
     options_arr = params.options_arr || [],
     append = params.append || false,
@@ -133,6 +134,19 @@ export function getEntities(params) {
       if (itemMatch)
         options_obj[itemMatch[1]] = itemMatch[2];
     });
+
+    // save terms on group expansion, the param is only set when expandGroup is called
+    if (unexpandedGroupTerms && Array.isArray(unexpandedGroupTerms))
+      dispatch({type: SAVE_UNEXPANDED_GROUP_TERMS, unexpandedGroupTerms});
+
+    // restore terms on group close, clear saved if no 'alike' in request options
+    const unexpanded = getState() && getState().entities && getState().entities.unexpandedGroupTerms;
+    if (unexpanded) {
+      if (closeGroup)
+        options_obj.terms = unexpanded;
+      if (unexpanded.length && !options_obj.alike)
+        dispatch({type: SAVE_UNEXPANDED_GROUP_TERMS, unexpandedGroupTerms: []});
+    }
 
     inFetch++;
 
@@ -251,6 +265,7 @@ export function expandGroup(item_id, meta) {
     options_obj: request_options,
     mart_id,
     subj_ids,
+    unexpandedGroupTerms: request_options.terms,
   };
   return getEntities(params);
 }

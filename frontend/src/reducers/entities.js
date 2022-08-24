@@ -238,12 +238,22 @@ function descriptions(state = new Descriptions(), action) {
   }
 }
 
+function unexpandedGroupTerms(state = [], action) {
+    switch (action.type) {
+        case entityConsts.SAVE_UNEXPANDED_GROUP_TERMS:
+            return action.unexpandedGroupTerms;
+        default:
+          return state;
+    }
+}
+
 const entities = combineReducers({
     items,
     dropdowns,
     descriptions,
     loading,
     loadingItems,
+    unexpandedGroupTerms,
 });
 
 
