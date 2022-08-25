@@ -7,6 +7,7 @@ const STATUS_ERRORS = [400, 401, 402, 403, ...STATUS_SERVER_ERRORS];
 const DEFAULT_ERROR_FIELDS = ['detail', 'non_field_errors', '__all__', 'token'];
 const NETWORK_ERROR = 'Network request failed';
 const RETRY = 'Повторить попытку';
+const CANCEL = 'Отменить';
 const title = {
   SUCCESS: 'Запрос выполнен успешно',
   ERROR: 'Ошибка выполнения запроса',
@@ -17,23 +18,32 @@ const errors = {
   UNKNOWN: 'Неизвестная ошибка.',
 };
 
-function handleFetchError(error, args) {
+
+
+//onPress: () => uniFetch(...args),
+const AsyncAlert = (title, msg, args) => new Promise((resolve, reject) => {
+  Alert.alert(title, msg, [{
+    text: CANCEL,
+    style: 'cancel',
+    onPress: () => { resolve(false); },
+  }, {
+    text: RETRY,
+    style: 'default',
+    onPress: () => { resolve(true); },
+  }], { cancelable: false });
+});
+
+
+async function handleFetchError(error, args) {
   if (error instanceof TypeError && error.message === NETWORK_ERROR) {
-    Alert.alert(
-      title.ERROR,
-      errors.NETWORK,
-      [
-        {
-          text: RETRY,
-          onPress: () => uniFetch(...args),
-        },
-      ],
-      {cancelable: false},
-    );
+    const retry = await AsyncAlert(title.ERROR, errors.NETWORK, args);
+    if (retry)
+      return await uniFetch(...args);
   } else {
     const url = args[0];
     Sentry.captureMessage(`${url}. Error: ${error}`);
   }
+  return null;
 }
 
 function handleFieldErrors(json, response, nameFields) {
@@ -81,7 +91,9 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true) {
   try {
     response = await fetch(url, params);
   } catch (error) {
-    handleFetchError(error, arguments);
+    const handled = await handleFetchError(error, arguments);
+    if (handled instanceof Response)
+      return handled;
     throw error;
   }
 
