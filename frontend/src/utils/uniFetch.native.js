@@ -19,8 +19,6 @@ const errors = {
 };
 
 
-
-//onPress: () => uniFetch(...args),
 const AsyncAlert = (title, msg, args) => new Promise((resolve, reject) => {
   Alert.alert(title, msg, [{
     text: CANCEL,
@@ -46,6 +44,7 @@ async function handleFetchError(error, args) {
   return null;
 }
 
+
 function handleFieldErrors(json, response, nameFields) {
   const jsonIsArray = json instanceof Array,
         jsonKeys = jsonIsArray ? Object.keys(json[0]) : Object.keys(json);
@@ -64,6 +63,7 @@ function handleFieldErrors(json, response, nameFields) {
   }
   return msg;
 }
+
 
 async function resolveJson(response) {
   let json;
