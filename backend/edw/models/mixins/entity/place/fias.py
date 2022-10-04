@@ -55,7 +55,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Place']['Name']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
@@ -65,7 +65,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Locality']['Name']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
@@ -75,7 +75,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Locality']['objId']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
@@ -85,7 +85,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Locality']['GUID']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
@@ -95,7 +95,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Region']['Name']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
@@ -105,7 +105,7 @@ class FIASMixin(ModelMixin):
         if self.fias_data != {}:
             try:
                 result = self.fias_data['Region']['objId']
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 pass
         return result
 
