@@ -138,14 +138,21 @@ def get_postcode(location):
         _raw_obj = dict2obj(location.raw)
     else:
         raise GeocoderException(_("Expect location"))
-    try:
-        address_components = _raw_obj.address_components # google
-    except:
+
+    address_components = getattr(_raw_obj, 'address_components', None) # google
+    metaDataProperty = getattr(_raw_obj, 'metaDataProperty', None) # yandex
+    if address_components is None and metaDataProperty is None:
         raise GeocoderException("{} `{}`".format(_("Postcode not found in raw data"), location))
     postalcode = None
-    for address_component in address_components:
-        if 'postal_code' in address_component.types:
-            postalcode = address_component.long_name
+    if address_components:
+        for address_component in address_components:
+            if 'postal_code' in address_component.types:
+                postalcode = address_component.long_name
+    if metaDataProperty:
+        try:
+            postalcode = metaDataProperty.GeocoderMetaData.Address.postal_code
+        except AttributeError:
+            pass
     if not postalcode:
         raise GeocoderException("{} `{}`".format(_("Postcode not found in raw data"), location))
     return postalcode
