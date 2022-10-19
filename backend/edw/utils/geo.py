@@ -157,7 +157,6 @@ def get_postcode(location):
         raise GeocoderException("{} `{}`".format(_("Postcode not found in raw data"), location))
     return postalcode
 
-
 #=================================================
 # Get location name
 #=================================================
@@ -176,6 +175,14 @@ def get_name(location):
         name = _raw_obj.formatted_address  # google
     except:
         try:
+            # TODO
+            # Формат адреса от Google: Народный б-р, 79Б, Белгород, Белгородская обл., Россия, 308009
+            # Формат адреса от Yandex: Россия, Белгород, Народный бульвар, 79Б
+            #
+            # При необходимости можно из raw метадаты Яндекса отформатировать адрес как у Google,
+            # собрать строку по частям: улица, дом, город, область, страна, индекс
+            # То что находится в метадате, можно посмотреть так:
+            # print(location.raw) <- напечатает оригинальный словарь в консоль
             name = _raw_obj.metaDataProperty.GeocoderMetaData.text  # yandex
         except:
             pass
