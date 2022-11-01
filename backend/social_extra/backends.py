@@ -11,7 +11,10 @@ import hmac
 import time
 import hashlib
 import requests
+from requests.exceptions import RequestException
 import six
+
+from django.http import HttpResponseRedirect
 
 from django.conf import settings
 
@@ -26,6 +29,13 @@ from social_core.utils import handle_http_errors
 
 import logging
 auth_logger = logging.getLogger('logauth')
+
+
+URL_ERROR_PATTERN = '/cabinet/error/?code={}&ajax=1'
+
+
+class ERROR_CODES:
+    ESIA_AUTH = 3
 
 # https://github.com/sokolovs/esia-oauth2/blob/master/esia/utils.py
 
@@ -221,17 +231,21 @@ class EsiaOAuth2(BaseOAuth2):
         headers = {'Authorization': "Bearer %s" % access_token}
 
         base_url = '{base}{info}/{oid}'.format(base=self.BASE_URL, info=self.USER_INFO_PATH, oid=oid)
-        info = self.get_json(base_url, headers=headers)
-        contacts = self.get_json(base_url + '/ctts?embed=(elements)', headers=headers)
-        elements = contacts['elements']
 
-        if 'contacts' in self.get_scope():
-            addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
-            elements.extend(addresses['elements'])
-        if 'usr_org' in self.get_scope():
-            orgs = self.get_json(base_url + '/roles', headers=headers)
-            if orgs and orgs.get('elements') and len(orgs.get('elements')) > 0:
-                ret['organisations'] = orgs.get('elements')
+        try:
+            info = self.get_json(base_url, headers=headers)
+            contacts = self.get_json(base_url + '/ctts?embed=(elements)', headers=headers)
+            elements = contacts['elements']
+
+            if 'contacts' in self.get_scope():
+                addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
+                elements.extend(addresses['elements'])
+            if 'usr_org' in self.get_scope():
+                orgs = self.get_json(base_url + '/roles', headers=headers)
+                if orgs and orgs.get('elements') and len(orgs.get('elements')) > 0:
+                    ret['organisations'] = orgs.get('elements')
+        except RequestException:
+            return HttpResponseRedirect(URL_ERROR_PATTERN.format(ERROR_CODES.ESIA_AUTH))
 
         for k, v in self.DETAILS_MAP['info'].items():
             ret[k] = info.get(v, '')
