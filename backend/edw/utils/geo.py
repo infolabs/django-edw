@@ -117,7 +117,16 @@ def get_location_from_geocoder(geoposition=None, query=None):
         if geoposition is not None:
             location = _get_location_from_geocoder_by_geoposition(geoposition, config)
         elif query is not None:
-            location = _get_location_from_geocoder_by_query(query, config)
+            # Из документации Google
+            #
+            # Note: URLs must be properly encoded to be valid and are limited to 8192 characters
+            # for all web services. Be aware of this limit when constructing your URLs. Note that
+            # different browsers, proxies, and servers may have different URL character limits as well.
+            #
+            # Метод научного тыка показал, что строка из 2000 русских символов не вызывает 4xx ошибок
+            # на всякий случай пусть будет 1500
+            # "Адрес, состоящий из 138 знаков, стал претендентом на внесение в книгу рекордов России."
+            location = _get_location_from_geocoder_by_query(query[:1500], config)
         else:
             raise GeocoderException(_('Both of geoposition and query can`t be None'))
     else:
