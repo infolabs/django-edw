@@ -1598,6 +1598,19 @@ msgstr "Ожидается место"
 msgid "Postcode not found in raw data"
 msgstr "Почтовый индекс не найден в данных ответа"
 
+#: utils/geo.py:266
+msgid "Geocoder API key was not found in GeoPy config"
+msgstr "API геокодера не найден в конфигурации GeoPy"
+
+#: utils/geo.py:298
+msgid "Correct GeoPy geocoder config was not found"
+msgstr "Корректная конфигурация GeoPy не найдена"
+
+#: utils/geo.py:304
+#, python-format
+msgid "Geocoding service %(service)s is not supported"
+msgstr "Сервис геокодирования %(service)s не поддерживается"
+
 #: views/auth.py:66
 msgid "User is not recognized as \"registered\""
 msgstr "Пользователь не определен как \"Зарегистрированный\""

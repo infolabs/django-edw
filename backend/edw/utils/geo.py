@@ -13,6 +13,7 @@ from django.db.models.query import QuerySet
 
 from django.db.models import Value, F
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ImproperlyConfigured
 
 from geopy.geocoders import get_geocoder_for_service
 from geopy.exc import GeocoderQuotaExceeded
@@ -260,12 +261,14 @@ YANDEX_FORMAT = 'json'
 YANDEX_MAPS_LANG = 'ru_RU'
 
 
-def forward_geocode_yandex(address, referer=None):
-    if not hasattr(settings, 'GEOPOSITION_YANDEX_MAPS_API_KEY'):
-        raise AttributeError
+def forward_geocode_yandex(config, address, referer=None):
+    if not config.get('init', None) or not config['init'].get('api_key', None):
+        raise ImproperlyConfigured(_('Geocoder API key was not found in GeoPy config'))
+
+    apikey = config['init']['api_key']
     tpl = "https://geocode-maps.yandex.ru/1.x/?geocode={geocode}&apikey={apikey}&kind={kind}&format={fmt}&lang={lang}"
     url = tpl.format(geocode=address,
-                     apikey=settings.GEOPOSITION_YANDEX_MAPS_API_KEY,
+                     apikey=apikey,
                      kind=YANDEX_KIND,
                      fmt=YANDEX_FORMAT,
                      lang=YANDEX_MAPS_LANG)
@@ -290,7 +293,14 @@ def forward_geocode_yandex(address, referer=None):
 
 
 def forward_geocode(address, referer=None):
-    if settings.GEOPOSITION_WIDGET == 'yandex':
-        return forward_geocode_yandex(address, referer)
+    config = getattr(settings, 'GEOPY_GEOCODER_CONFIG', None)
+    if config is None or 'service' not in config:
+        raise ImproperlyConfigured(_('Correct GeoPy geocoder config was not found'))
+
+    service = config['service']
+
+    if service == 'yandex':
+        return forward_geocode_yandex(config, address, referer)
     else:
-        raise NotImplementedError
+        raise NotImplementedError(
+            _('Geocoding service %(service)s is not supported') % { "service" : service })
