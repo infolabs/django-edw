@@ -53,6 +53,10 @@ from .term import TermModel
 from .. import deferred
 from .. import settings as edw_settings
 from ..signals.entity import post_save as entity_post_save
+from ..signals.entity import (
+    post_add_relations,
+    pre_delete_relations
+)
 from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
@@ -1594,11 +1598,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
         if rewrite:
             # delete excess relations
-            EntityRelationModel.objects.filter(**{
+            instances = EntityRelationModel.objects.filter(**{
                 'term_id': rel_id, from_entity_id_key: from_entity_id
             }).exclude(**{
                 to_entity_id__in_key: to_entities_ids
-            }).delete()
+            })
+            if instances.exists():
+                pre_delete_relations.send(sender=EntityRelationModel, instances=instances, rel_ids=[rel_id, ])
+                instances.delete()
 
         # add relations
         if to_entities_ids:
@@ -1615,7 +1622,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                     from_entity_id_key: from_entity_id,
                     to_entity_id_key: x
                 }) for x in not_in_db_ids]
-                EntityRelationModel.objects.bulk_create(to_insert)
+                instances = EntityRelationModel.objects.bulk_create(to_insert)
+                post_add_relations.send(sender=EntityRelationModel, instances=instances,
+                                        rel_id=rel_id, direction=direction)
 
     def set_relations(self, rel_id, to_entities_ids, direction, rewrite=True):
         """
@@ -1699,9 +1708,17 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             if rel_r_ids:
                 q_r &= BaseEntity.__make_relations_filter(rel_r_ids)
 
-        q = q_f if q_f is not None else None
+        if q_f is not None:
+            q = q_f
+            instances = EntityRelationModel.objects.filter(q_f)
+            pre_delete_relations.send(sender=EntityRelationModel, instances=instances, rel_ids=rel_f_ids)
+        else:
+            q = None
+
         if q_r is not None:
             q = q | q_r if q is not None else q_r
+            instances = EntityRelationModel.objects.filter(q_r)
+            pre_delete_relations.send(sender=EntityRelationModel, instances=instances, rel_ids=rel_r_ids)
 
         if q is not None:
             EntityRelationModel.objects.filter(q).delete()

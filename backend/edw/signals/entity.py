@@ -10,3 +10,15 @@ external_remove_terms = Signal(providing_args=["instance", "pk_set"])
 
 
 post_save = Signal(providing_args=["instance", "origin"])
+
+
+post_add_relations = Signal(providing_args=["instances", "rel_id", "direction"])
+# :param instances: list of instances
+# :param rel_id: relation `id`
+# :param direction: - relation direction (`f` or `r`, if `f` - `from_entity_id` is identical for all instances)
+
+
+pre_delete_relations = Signal(providing_args=["instances", "rel_ids"])
+# :param instances: queryset of instances
+# :param rel_ids: id's filter (`id` or `slug` list, need normalization).
+# If `[]` - delete all relations, else only contained in the list

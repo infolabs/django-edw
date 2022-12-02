@@ -661,6 +661,24 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return reverse('edw:{}-detail'.format(self.__class__._meta.model_name.lower()), kwargs={'pk': self.pk},
                        request=request, format=format)
 
+    @staticmethod
+    def normalize_keys(values):
+        """
+        Convert keys list (ids & slugs) to relations ids set
+        """
+        ids, slugs = set(), set()
+        for x in values:
+            try:
+                rel_id = int(x)
+            except ValueError:
+                # it was a string, not an int. Add value to slugs
+                slugs.add(x)
+            else:
+                ids.add(rel_id)
+        if slugs:
+            ids = ids | set(TermModel.objects.filter(slug__in=slugs).values_list('id', flat=True))
+        return ids
+
 
 # ==============================================================================
 # TermModel

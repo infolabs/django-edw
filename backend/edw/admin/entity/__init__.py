@@ -33,9 +33,15 @@ from .forms import (
 
 from edw.rest.filters.entity import EntityFilter
 
-#===========================================================================================
+from edw.signals.entity import (
+    post_add_relations,
+    pre_delete_relations
+)
+
+
+# ===========================================================================================
 # import edw actions
-#===========================================================================================
+# ===========================================================================================
 from .actions import (
     update_terms,
     update_relations,
@@ -93,12 +99,11 @@ else:
     from .actions import update_images
 
     EDW_ACTIONS.append(update_images)
-#===========================================================================================
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityRelationFilter
-#===========================================================================================
+# ===========================================================================================
 class EntityRelationFilter(SalmonellaFilter):
     """
     Фильтр связанных объектов
@@ -112,9 +117,9 @@ class EntityRelationFilter(SalmonellaFilter):
         self.title = _("Entity Relation")
 
 
-#===========================================================================================
+# ===========================================================================================
 # TermsTreeFilter
-#===========================================================================================
+# ===========================================================================================
 class TermsTreeFilter(admin.ListFilter):
     """
     Фильтр терминов дерева
@@ -194,9 +199,9 @@ class TermsTreeFilter(admin.ListFilter):
         return f.qs
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityCharacteristicOrMarkInline
-#===========================================================================================
+# ===========================================================================================
 class EntityCharacteristicOrMarkInline(admin.TabularInline):
     """
     Параметры класса Характеристики или метки объекта
@@ -207,9 +212,9 @@ class EntityCharacteristicOrMarkInline(admin.TabularInline):
     form = EntityCharacteristicOrMarkInlineForm
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityRelationInline
-#===========================================================================================
+# ===========================================================================================
 class EntityRelationInline(admin.TabularInline):
     """
     Параметры класса Связанные объекты
@@ -221,9 +226,9 @@ class EntityRelationInline(admin.TabularInline):
     form = EntityRelationInlineForm
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityRelatedDataMartInline
-#===========================================================================================
+# ===========================================================================================
 class EntityRelatedDataMartInline(admin.TabularInline):
     """
     Параметры класса Связанные витрины данных
@@ -235,9 +240,9 @@ class EntityRelatedDataMartInline(admin.TabularInline):
     form = EntityRelatedDataMartInlineForm
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityChildModelAdmin
-#===========================================================================================
+# ===========================================================================================
 class EntityChildModelAdmin(PolymorphicChildModelAdmin):
     """
     Параметры класса для интерфейса администратора дочерней модели
@@ -301,17 +306,46 @@ class EntityChildModelAdmin(PolymorphicChildModelAdmin):
         )
 
     def get_actions(self, request):
-       """
+        """
         Возвращает фильтр задач администратора дочерней модели
         """
-       actions = super(EntityChildModelAdmin, self).get_actions(request)
-       return filter_actions(request, actions)
+        actions = super(EntityChildModelAdmin, self).get_actions(request)
+        return filter_actions(request, actions)
+
+    def save_formset(self, request, form, formset, change):
+
+        if issubclass(formset.model, EntityRelationModel):
+            instances = formset.save(commit=False)
+            rel_ids = set()
+            to_delete = []
+            for obj in formset.deleted_objects:
+                rel_ids.add(obj.term_id)
+                to_delete.append(obj.id)
+            if to_delete:
+                qs = EntityRelationModel.objects.filter(id__in=to_delete)
+                pre_delete_relations.send(sender=EntityRelationModel, instances=qs, rel_ids=rel_ids)
+                qs.delete()
+            for instance in instances:
+                if instance.id is not None:
+                    qs = EntityRelationModel.objects.filter(id=instance.id)
+                    try:
+                        origin = qs.get()
+                    except EntityRelationModel.DoesNotExist:
+                        pass
+                    else:
+                        pre_delete_relations.send(sender=EntityRelationModel, instances=qs, rel_ids=[origin.term_id, ])
+                instance.save()
+                post_add_relations.send(sender=EntityRelationModel, instances=[instance, ],
+                                        rel_id=instance.term_id, direction="f")
+        else:
+            super(EntityChildModelAdmin, self).save_formset(request, form, formset, change)
 
 
-#===========================================================================================
+# ===========================================================================================
 # EntityChildActiveOnlyModelAdmin
-#===========================================================================================
+# ===========================================================================================
 class EntityChildActiveOnlyModelAdmin(EntityChildModelAdmin):
+
     def changelist_view(self, request, extra_context=None):
         # При нахождении в списке объектов патчим запрос
         match = request.resolver_match
