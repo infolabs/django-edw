@@ -22,3 +22,8 @@ pre_delete_relations = Signal(providing_args=["instances", "rel_ids"])
 # :param instances: queryset of instances
 # :param rel_ids: id's filter (`id` or `slug` list, need normalization).
 # If `[]` - delete all relations, else only contained in the list
+
+# Use code pattern `TermModel.normalize_keys(rel_ids) & TermModel.normalize_keys(['my_relation_slug'])`
+# for detecting target relations in `post_add_relations` and `pre_delete_relations` signals
+# Static method TermModel.normalize_keys(values: Iterable[Union[int, str]]) -> Set[int]
+# convert keys list (ids & slugs) to relations ids set

@@ -8,6 +8,16 @@ from functools import reduce
 from operator import __or__ as OR
 from math import ceil
 
+from typing import (
+    Union,
+    Type,
+    Iterable,
+)
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 from django.core.cache import cache
 from django.core.exceptions import (
     FieldDoesNotExist,
@@ -1565,7 +1575,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return self.get_related_entities(rel_id, 'r')
 
     @staticmethod
-    def _set_relations(rel_id, from_entity_id, to_entities_ids, direction='f', rewrite=True):
+    def _set_relations(rel_id: Union[int, str], from_entity_id: int, to_entities_ids: Iterable[int],
+                       direction: Literal['f', 'r'] = 'f', rewrite=True) -> None:
         """
         ENG: Set relations
         :param rel_id: relation term `id` or `slug`
@@ -1626,11 +1637,11 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                 post_add_relations.send(sender=EntityRelationModel, instances=instances,
                                         rel_id=rel_id, direction=direction)
 
-    def set_relations(self, rel_id, to_entities_ids, direction, rewrite=True):
+    def set_relations(self, rel_id: Union[int, str], to_entities_ids: Iterable[int],
+                      direction: Literal['f', 'r'], rewrite=True) -> None:
         """
         ENG: Set relations forward/backward(reverse)
         :param rel_id: relation term `id` or `slug`
-        :param from_entity_id: from entity id
         :param to_entities_ids: to entity, list of id`s
         :param direction: direction of relation, forward - `f`, backward(reverse) - `r`.
         :param rewrite: if value is False - don't delete excess relations, default - True
@@ -1639,21 +1650,22 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         """
         self._set_relations(rel_id, self.id, to_entities_ids, direction=direction, rewrite=rewrite)
 
-    def set_forward_relations(self, rel_id, to_entities_ids, rewrite=True):
+    def set_forward_relations(self, rel_id: Union[int, str], to_entities_ids: Iterable[int], rewrite=True) -> None:
         """
         ENG: Set forward relations, shortcut for set_relations(..., 'f').
         RUS: Устанавливает прямые связи, сокращенние для set_relations(..., 'f').
         """
         self.set_relations(rel_id, to_entities_ids, 'f', rewrite=rewrite)
 
-    def set_reverse_relations(self, rel_id, to_entities_ids, rewrite=True):
+    def set_reverse_relations(self, rel_id: Union[int, str], to_entities_ids: Iterable[int], rewrite=True) -> None:
         """
         ENG: Set backward(reverse) relations, shortcut for set_relations(..., 'r').
         RUS: Устанавливает обратные (реверсивные) связи, сокращенние для set_relations(..., 'r').
         """
         self.set_relations(rel_id, to_entities_ids, 'r', rewrite=rewrite)
 
-    def set_bidirectional_relations(self, rel_id, to_entities_ids, rewrite=True):
+    def set_bidirectional_relations(self, rel_id: Union[int, str], to_entities_ids: Iterable[int],
+                                    rewrite=True) -> None:
         """
         ENG: Set bidirectional relations.
         RUS: Устанавливает двунаправленные связи (прямые и обратные (реверсивные)).
@@ -1662,7 +1674,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         self.set_reverse_relations(rel_id, to_entities_ids, rewrite=rewrite)
 
     @staticmethod
-    def __make_relations_filter(values):
+    def __make_relations_filter(values: Iterable[Union[int, str]]) -> models.Q:
         """
         Split values list to ids & slugs
         """
@@ -1683,7 +1695,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         return reduce(OR, q_lst)
 
     @staticmethod
-    def _remove_relations(from_entity_id, rel_f_ids, rel_r_ids):
+    def _remove_relations(from_entity_id: int, rel_f_ids: Iterable[Union[int, str]],
+                          rel_r_ids: Iterable[Union[int, str]]) -> None:
         """
         ENG: Remove forward and backward(reverse) relations.
         :param from_entity_id: from entity id
@@ -1723,7 +1736,8 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         if q is not None:
             EntityRelationModel.objects.filter(q).delete()
 
-    def remove_relations(self, rel_f_ids=empty, rel_r_ids=empty):
+    def remove_relations(self, rel_f_ids: Union[Iterable[Union[int, str]], Type[empty]] = empty,
+                         rel_r_ids: Union[Iterable[Union[int, str]], Type[empty]] = empty) -> None:
         """
         Remove forward and backward(reverse) relations
         :param rel_f_ids: forward relations id's filter (`id` or `slug` list). If `None` - relations do not delete,

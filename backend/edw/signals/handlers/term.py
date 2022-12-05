@@ -35,6 +35,7 @@ def _get_attribute_ancestors_key(sender, id, attribute_mode):
         sender.SELECT_RELATED_CACHE_KEY_PATTERN.format(fields='parent')
     ])
 
+
 def get_attribute_ancestors_keys(sender, instance):
     return [_get_attribute_ancestors_key(sender, id, attribute_mode) for id in
             instance.get_descendants(include_self=True).values_list('id', flat=True) for attribute_mode in
@@ -50,6 +51,10 @@ def get_data_mart_all_active_terms_keys():
     return [DataMartModel.ALL_ACTIVE_TERMS_COUNT_CACHE_KEY, DataMartModel.ALL_ACTIVE_TERMS_IDS_CACHE_KEY]
 
 
+def get_ids_by_slug_key(sender, instance):
+    return sender.IDS_BY_SLUG_CACHE_KEY_PATTERN.format(slug=instance.slug)
+
+
 #==============================================================================
 # Term model event handlers
 #==============================================================================
@@ -57,6 +62,9 @@ def invalidate_term_before_save(sender, instance, **kwargs):
     if instance.id is not None:
         try:
             original = sender._default_manager.get(pk=instance.id)
+        except sender.DoesNotExist:
+            pass
+        else:
             if original.parent_id != instance.parent_id:
                 if original.active != instance.active:
                     TermModel.clear_children_buffer()  # Clear children buffer
@@ -100,8 +108,8 @@ def invalidate_term_before_save(sender, instance, **kwargs):
                         instance._all_active_attributes_descendants_validate = True
                     cache.delete_many(keys)
 
-        except sender.DoesNotExist:
-            pass
+            if original.slug != instance.slug:
+                cache.delete(get_ids_by_slug_key(sender, original))
     else:
         TermModel.clear_children_buffer()  # Clear children buffer
 
@@ -112,8 +120,8 @@ def invalidate_term_after_save(sender, instance, **kwargs):
             keys = get_children_keys(sender, instance.parent_id)
             cache.delete_many(keys)
     TermModel.clear_decompress_buffer()  # Clear decompress buffer
-    cache.delete(TermModel.ALL_ACTIVE_ROOT_IDS_CACHE_KEY) # Clear all active root ids cache
-    EntityModel.clear_terms_cache_buffer() # Clear terms ids buffer
+    cache.delete(TermModel.ALL_ACTIVE_ROOT_IDS_CACHE_KEY)  # Clear all active root ids cache
+    EntityModel.clear_terms_cache_buffer()  # Clear terms ids buffer
 
 
 def invalidate_term_before_delete(sender, instance, **kwargs):
@@ -122,6 +130,7 @@ def invalidate_term_before_delete(sender, instance, **kwargs):
         keys.extend(get_data_mart_all_active_terms_keys())
         keys.extend(get_all_active_attributes_descendants_keys(sender))
     cache.delete_many(keys)
+    cache.delete(get_ids_by_slug_key(sender, instance))
     invalidate_term_after_save(sender, instance, **kwargs)
 
 

@@ -3,6 +3,13 @@ from __future__ import unicode_literals
 
 import inspect
 
+from typing import (
+    Union,
+    Iterable,
+    List,
+    Set
+)
+
 from bitfield import BitField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -250,6 +257,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
     ATTRIBUTE_FILTER_CACHE_KEY_PATTERN = '{mode}:atf'
     ATTRIBUTE_EXCLUDE_CACHE_KEY_PATTERN = '{mode}:ate'
     ATTRIBUTE_ANCESTORS_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_attribute_ancestors']
+
+    IDS_BY_SLUG_CACHE_KEY_PATTERN = 't_sl_ids:{slug}'
+    IDS_BY_SLUG_CACHE_TIMEOUT = edw_settings.CACHE_DURATIONS['term_ids_by_slug']
 
     OR_RULE = 10
     XOR_RULE = 20
@@ -607,7 +617,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         cache.delete_many(keys)
 
     @staticmethod
-    def get_all_active_characteristics_descendants_ids():
+    def get_all_active_characteristics_descendants_ids() -> List[int]:
         """
         RUS: Получает кэшированные id всех характеристик потомков со статусом активен.
         """
@@ -625,7 +635,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return descendants_ids
 
     @staticmethod
-    def get_all_active_marks_descendants_ids():
+    def get_all_active_marks_descendants_ids() -> List[int]:
         """
         RUS: Получает кэшированные id всех меток потомков со статусом активен.
         """
@@ -642,7 +652,7 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return descendants_ids
 
     @staticmethod
-    def get_all_active_root_ids(use_cache=True):
+    def get_all_active_root_ids(use_cache=True) -> List[int]:
         """
         RUS: Получает кэшированные id всех пользователей со статусом активен.
         """
@@ -662,7 +672,20 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                        request=request, format=format)
 
     @staticmethod
-    def normalize_keys(values):
+    def get_ids_by_slug(slug: str) -> Iterable[int]:
+        return TermModel.objects.filter(slug=slug).values_list('id', flat=True)
+
+    @staticmethod
+    def get_cached_ids_by_slug(slug: str) -> List[int]:
+        key = BaseTerm.IDS_BY_SLUG_CACHE_KEY_PATTERN.format(slug=slug)
+        ids = cache.get(key, None)
+        if ids is None:
+            ids = list(BaseTerm.get_ids_by_slug(slug))
+            cache.set(key, ids, BaseTerm.IDS_BY_SLUG_CACHE_TIMEOUT)
+        return ids
+
+    @staticmethod
+    def normalize_keys(values: Iterable[Union[int, str]]) -> Set[int]:
         """
         Convert keys list (ids & slugs) to relations ids set
         """
@@ -675,8 +698,8 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
                 slugs.add(x)
             else:
                 ids.add(rel_id)
-        if slugs:
-            ids = ids | set(TermModel.objects.filter(slug__in=slugs).values_list('id', flat=True))
+        for slug in slugs:
+            ids.update(BaseTerm.get_cached_ids_by_slug(slug))
         return ids
 
 

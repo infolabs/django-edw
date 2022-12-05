@@ -101,6 +101,9 @@ def invalidate_data_mart_before_save(sender, instance, **kwargs):
     if instance.id is not None:
         try:
             original = sender._default_manager.get(pk=instance.id)
+        except sender.DoesNotExist:
+            pass
+        else:
             if original.parent_id != instance.parent_id:
                 if original.active != instance.active:
                     DataMartModel.clear_children_buffer()  # Clear children buffer
@@ -123,8 +126,6 @@ def invalidate_data_mart_before_save(sender, instance, **kwargs):
                         keys.extend(get_children_keys(sender, parent_id))
                     cache.delete_many(keys)
                     instance._parent_id_validate = True
-        except sender.DoesNotExist:
-            pass
 
 
 def invalidate_data_mart_after_save(sender, instance, **kwargs):
