@@ -685,9 +685,9 @@ class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilte
         return ids
 
     @staticmethod
-    def normalize_keys(values: Iterable[Union[int, str]]) -> Set[int]:
+    def normalize_keys(*values: Union[int, str]) -> Set[int]:
         """
-        Convert keys list (ids & slugs) to relations ids set
+        Convert keys *values list (ids & slugs) to relations ids set
         """
         ids, slugs = set(), set()
         for x in values:
