@@ -130,7 +130,7 @@ export function getEntities(params) {
       url += '&' + options_arr.join('&');
 
     options_arr.map(item => {
-      const itemMatch = item.match(/(.*?)=(\d{1,})/);
+      const itemMatch = item.match(/(.*?)=([a-zA-Z0-9\,\s]+)/);
       if (itemMatch)
         options_obj[itemMatch[1]] = itemMatch[2];
     });
