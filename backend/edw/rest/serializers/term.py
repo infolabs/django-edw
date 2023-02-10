@@ -273,9 +273,11 @@ class _TermsFilterMixin(object):
     def to_representation(self, data):
         next_depth = self.depth + 1
         selected_terms = self.get_selected_terms()
-        if (self.max_depth is not None and next_depth <= self.max_depth or
-                self.is_expanded_specification or
-                selected_terms is not None):
+        if self.is_expanded_specification or selected_terms is not None if self.max_depth is None else (
+            self.is_expanded_specification or selected_terms is not None or next_depth > 2 if (
+                    next_depth <= self.max_depth
+            ) else False
+        ):
             terms = self.prepare_data(self.active_only_filter(data))
             for term in terms:
                 term._depth = next_depth
