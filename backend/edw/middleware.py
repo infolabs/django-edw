@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.utils.functional import SimpleLazyObject
 from django.utils import timezone
 from edw.models.customer import CustomerModel
@@ -35,7 +35,10 @@ class CustomerMiddleware(object):
                 request.customer.last_access = timezone.now()
                 request.customer.save(update_fields=['last_access'])
                 if response.status_code == 401:
-                    return HttpResponseRedirect(f'{edw_settings.UNAUTHORIZED_LOGIN_URL}?next={request.get_full_path()}')
+                    if edw_settings.UNAUTHORIZED_REDIRECT:
+                        return HttpResponseRedirect(f'{edw_settings.UNAUTHORIZED_LOGIN_URL}?next={request.get_full_path()}')
+                    else:
+                        raise Http404
         except AttributeError:
             pass
         return response

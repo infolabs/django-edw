@@ -13,6 +13,8 @@ class Paginator extends Component {
     this.state = {
       options_arr: [],
     };
+
+    this.PAGINATOR_OBJECT_ARRS_KEY = 'dm-paginator-object-arrs'
   }
 
   requestOptions() {
@@ -43,11 +45,38 @@ class Paginator extends Component {
     this.getEntities(limit * (n - 1));
   }
 
+  updateOptionsArr() {
+    const globalStore = window._global_singleton_instance
+    const datamartKey = this.props.entry_points[this.props.entry_point_id].key
+
+    if (!!!datamartKey)
+      return
+
+    if (globalStore && globalStore[this.PAGINATOR_OBJECT_ARRS_KEY] &&
+        globalStore[this.PAGINATOR_OBJECT_ARRS_KEY][datamartKey]) {
+
+      globalStore[this.PAGINATOR_OBJECT_ARRS_KEY][datamartKey].map(item => {
+
+        const itemMatch = item.match(/(.*?)=([a-zA-Z0-9\,\s]+)/);
+
+        if (itemMatch) {
+          this.state.options_arr = this.state.options_arr.filter(old_item => !old_item.includes(itemMatch[1]));
+          this.state.options_arr.push(item);
+        }
+      });
+
+      this.setState({
+      options_arr: this.state.options_arr
+      });
+    }
+  }
+
   getEntities(offset) {
     const {entry_point_id} = this.props;
     const {subj_ids, request_options} = this.props.entities.items.meta;
     let options = Object.assign(request_options, {offset});
     setOffset(this.props.entry_point_id, options.offset);
+    this.updateOptionsArr();
     const params = {
       mart_id: entry_point_id,
       options_obj: options,

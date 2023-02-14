@@ -6,8 +6,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
-from edw.models.defaults.customer import Customer
-
 USERNAME_FIELD_HELP_TEXT = _(
     'Required field. Length must not exceed 30 characters. Only letters, digits and symbols @/./+/-/_ are accepted.'
 )
@@ -43,7 +41,7 @@ class CustomerChangeForm(UserChangeForm):
     email = forms.EmailField(required=False)
 
     class Meta(UserChangeForm.Meta):
-        model = Customer
+        model = get_user_model()
 
     def __init__(self, *args, **kwargs):
         initial = kwargs.get('initial', {})

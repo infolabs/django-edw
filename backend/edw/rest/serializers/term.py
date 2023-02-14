@@ -272,20 +272,19 @@ class _TermsFilterMixin(object):
 
     def to_representation(self, data):
         next_depth = self.depth + 1
-        if self.max_depth is not None and next_depth > self.max_depth:
-            terms = []
+        selected_terms = self.get_selected_terms()
+        if (self.max_depth is not None and next_depth <= self.max_depth or
+                self.is_expanded_specification or
+                selected_terms is not None):
+            terms = self.prepare_data(self.active_only_filter(data))
+            for term in terms:
+                term._depth = next_depth
+                try:
+                    term._selected_term_info = selected_terms.pop(term.id)
+                except (KeyError, AttributeError):
+                    term._selected_term_info = None
         else:
-            selected_terms = self.get_selected_terms()
-            if self.is_expanded_specification or selected_terms is not None:
-                terms = self.prepare_data(self.active_only_filter(data))
-                for term in terms:
-                    term._depth = next_depth
-                    try:
-                        term._selected_term_info = selected_terms.pop(term.id)
-                    except (KeyError, AttributeError):
-                        term._selected_term_info = None
-            else:
-                terms = []
+            terms = []
         return super(_TermsFilterMixin, self).to_representation(terms)
 
 
