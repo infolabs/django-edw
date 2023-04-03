@@ -18,7 +18,10 @@ from django.utils.translation import ugettext_lazy as _
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
 from edw.signals.auth import customer_registered
-from email_auth.models import BannedEmailDomain
+try:
+    from email_auth.models import BannedEmailDomain
+except (ImportError, RuntimeError):
+    pass
 
 
 class RegisterUserForm(ModelForm):
@@ -52,11 +55,14 @@ class RegisterUserForm(ModelForm):
         super(RegisterUserForm, self).__init__(data=data, instance=instance, *args, **kwargs)
 
     def clean_email(self):
-        banned_domains = BannedEmailDomain.objects.values_list('domain_name', flat=True)
+        try:
+            banned_domains = BannedEmailDomain.objects.values_list('domain_name', flat=True)
+        except NameError:
+            banned_domains = []
         domain = self.cleaned_data['email'].partition('@')[2]
         if domain in banned_domains:
             raise ValidationError(_('Domain name "%(domain)s" is not supported') % {'domain': domain})
-        
+
         # check for uniqueness of email address
         if get_user_model().objects.filter(email=self.cleaned_data['email']).exists():
             msg = _("A customer with the e-mail address ‘{email}’ already exists.\n"
@@ -71,7 +77,7 @@ class RegisterUserForm(ModelForm):
             if cleaned_data['password1'] != cleaned_data['password2']:
                 msg = _("Passwords do not match")
                 raise ValidationError(msg)
-                
+
         return cleaned_data
 
     def _parce_fio_to_fullname(self, user, fio):
