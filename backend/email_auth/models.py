@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 """
 Alternative implementation of Django's authentication User model, which allows to authenticate
 against the email field in addition to the username fields.
 This alternative implementation is activated by setting ``AUTH_USER_MODEL = 'edw.User'`` in
 settings.py, otherwise the default Django or another customized implementation will be used.
 """
+
+# standard library
+from __future__ import unicode_literals
+import logging
+
+# Django
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
@@ -14,11 +20,32 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class UserManager(BaseUserManager):
+
+    def _process_similar_email(self, username):
+        single_user = self.filter(is_active=True, email=username).order_by('-date_joined').first()
+        another_users_query = self.filter(is_active=True, email=username).exclude(id=single_user.id)
+        similar_users_id = list(another_users_query.values_list('id', flat=True))
+        another_users_query.update(is_active=False)
+        logger = logging.getLogger('logfile_error')
+        msg = 'Several users with the same email "{username}".' \
+              ' One account remained active (id={active_user_id}),' \
+              ' else users (id={nonactive_users_id}) set status' \
+              ' "is_active=False")'.format(
+                        username=username,
+                        active_user_id=single_user.id,
+                        nonactive_users_id=similar_users_id
+                    )
+        logger.error(msg)
+        return single_user
+
     def get_by_natural_key(self, username):
         try:
             return self.get(username=username)
         except self.model.DoesNotExist:
-            return self.get(is_active=True, email=username)
+            try:
+                return self.get(is_active=True, email=username)
+            except self.model.MultipleObjectsReturned:
+                return self._process_similar_email(username)
 
 
 class User(AbstractUser):
