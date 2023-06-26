@@ -42,23 +42,26 @@ from edw.signals.entity import (
 # ===========================================================================================
 # import edw actions
 # ===========================================================================================
-from .actions import (
-    update_terms,
-    update_relations,
-    update_additional_characteristics_or_marks,
-    update_related_data_marts,
-    update_states,
-    update_active,
-    force_validate,
-    make_terms_by_additional_attrs,
-    normalize_additional_attrs,
-    bulk_delete
-)
-
-EDW_ACTIONS = [
-    update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
-    update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs, bulk_delete
-]
+try:
+    from .actions import (
+        update_terms,
+        update_relations,
+        update_additional_characteristics_or_marks,
+        update_related_data_marts,
+        update_states,
+        update_active,
+        force_validate,
+        make_terms_by_additional_attrs,
+        normalize_additional_attrs,
+        bulk_delete
+    )
+except ModuleNotFoundError:
+    EDW_ACTIONS = []
+else:
+    EDW_ACTIONS = [
+        update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
+        update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs, bulk_delete
+    ]
 
 DISABLED_ACTIONS = [
     "update_terms",

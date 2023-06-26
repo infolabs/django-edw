@@ -10,7 +10,6 @@ from edw.admin.data_mart.forms import (
 )
 from edw.models.related import DataMartRelationModel, DataMartPermissionModel
 from edw.admin.mptt.tree import EdwMpttAdmin
-from edw.admin.data_mart.actions.update_terms import update_terms
 
 
 class DataMartAdmin(EdwMpttAdmin):
@@ -19,7 +18,11 @@ class DataMartAdmin(EdwMpttAdmin):
     """
     form = DataMartAdminForm
 
-    actions = [update_terms, ]
+    try:
+        from edw.admin.data_mart.actions.update_terms import update_terms
+        actions = [update_terms]
+    except ModuleNotFoundError:
+        pass
 
     # todo: Add ', ('system_flags', BitFieldListFilter)',
     # Django 1.7 support, fixes

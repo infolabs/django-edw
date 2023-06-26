@@ -14,7 +14,6 @@ from edw.models.term import BaseTerm, TermModel
 from edw.rest.viewsets import remove_empty_params_from_request
 from edw.rest.serializers.term import TermSummarySerializer
 from edw.admin.term.serializers import WidgetTermTreeSerializer
-from edw.admin.term.actions import update_terms_parent
 from edw.admin.mptt.tree import EdwMpttAdmin
 
 
@@ -40,7 +39,11 @@ class TermAdmin(EdwMpttAdmin):
 
     tree_auto_open = 0
 
-    actions = [update_terms_parent]
+    try:
+        from edw.admin.term.actions import update_terms_parent
+        actions = [update_terms_parent]
+    except ModuleNotFoundError:
+        pass
 
     change_tree_template = 'edw/admin/term/change_list.html'
 
