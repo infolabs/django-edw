@@ -3,7 +3,12 @@ import re
 
 from os.path import isfile
 from subprocess import check_call
-from celery import current_app
+
+try:
+    from celery import current_app
+except ModuleNotFoundError:
+    pass
+
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
