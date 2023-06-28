@@ -36,9 +36,12 @@ class Command(BaseCommand):
         if backend == 'django_redis.cache.RedisCache':
             self.get_parameters(location)
         # Redis DB number of Celery broker
-        broker_url = current_app.conf.broker_url
-        if broker_url.startswith('redis'):
-            self.get_parameters(broker_url)
+        try:
+            broker_url = current_app.conf.broker_url
+            if broker_url.startswith('redis'):
+                self.get_parameters(broker_url)
+        except:
+            pass
 
         command = [
             executable_path,
