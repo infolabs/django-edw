@@ -56,6 +56,9 @@ def unicode_to_repr(value):
 def get_from_address():
     from django.contrib.sites.models import Site
     default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL')
+    sender_extra_format = getattr(settings, 'DEFAULT_SENDER_EXTRA_FORMAT')
     portal_name = Site.objects.get_current().name
-    return f'{portal_name} <{default_from_email}>'
 
+    if sender_extra_format:
+        return f'{portal_name} <{default_from_email}>'
+    return default_from_email
