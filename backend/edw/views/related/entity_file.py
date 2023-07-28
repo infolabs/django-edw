@@ -43,6 +43,16 @@ class EntityFileViewSet(viewsets.ModelViewSet):
     def create(self, request, entity_pk=None, *args, **kwargs):
         if entity_pk is not None and request.data.get('entity', None) is None:
             request.data['entity'] = entity_pk
+
+        from edw.models.entity import EntityModel
+        entity = EntityModel.objects.get(pk=request.data['entity'])
+        if entity.entity_model == 'competitioninitiative':
+            name = request.data['file'].name
+            import hashlib
+            import os
+            salt = os.urandom(32)
+            hash_name = hashlib.sha256(name.split('.')[0].encode('utf-8')+salt).hexdigest()
+            request.data['file'].name = '{}.{}'.format(hash_name, name.split('.')[1])
         return super(EntityFileViewSet, self).create(request, *args, **kwargs)
 
     def update(self, request, entity_pk=None, *args, **kwargs):
