@@ -42,7 +42,10 @@ else:
                     raise TemplateSyntaxError(
                         "%r is not a valid size." % size)
             size_ratio = size[1] / size[0]
-            thumbnail_ratio = height / width
+            try:
+                thumbnail_ratio = height / width
+            except TypeError:
+                return ''
             outer = 'padding-top: {:.0f}%;'.format(size_ratio * 100)
             if size_ratio < thumbnail_ratio:
                 gap = (1 - size_ratio / thumbnail_ratio) * 50

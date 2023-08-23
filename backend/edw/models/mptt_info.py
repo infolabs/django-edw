@@ -109,8 +109,8 @@ class TermTreeInfo(dict):
         RUS: Создает дерево, у которого удалены id лишних узлов.
         """
         if ids is None:
-            ids = []
-        # ids = uniq(ids)
+            ids = uniq(ids)
+
         origin_root_term = self.root.term
         root = TermInfo(term=origin_root_term.__class__(semantic_rule=origin_root_term.semantic_rule,
                                                         active=origin_root_term.active))

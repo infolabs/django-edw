@@ -3,7 +3,12 @@ import re
 
 from os.path import isfile
 from subprocess import check_call
-from celery import current_app
+
+try:
+    from celery import current_app
+except ModuleNotFoundError:
+    pass
+
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -36,9 +41,12 @@ class Command(BaseCommand):
         if backend == 'django_redis.cache.RedisCache':
             self.get_parameters(location)
         # Redis DB number of Celery broker
-        broker_url = current_app.conf.broker_url
-        if broker_url.startswith('redis'):
-            self.get_parameters(broker_url)
+        try:
+            broker_url = current_app.conf.broker_url
+            if broker_url.startswith('redis'):
+                self.get_parameters(broker_url)
+        except:
+            pass
 
         command = [
             executable_path,

@@ -5,7 +5,7 @@ import json
 import six
 
 from django.conf import settings
-
+import edw.settings as edw_settings
 
 class obj(object):
     def __init__(self, dict_):
@@ -56,6 +56,9 @@ def unicode_to_repr(value):
 def get_from_address():
     from django.contrib.sites.models import Site
     default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL')
+    sender_extra_format = getattr(edw_settings, 'SENDER_EXTRA_FORMAT')
     portal_name = Site.objects.get_current().name
-    return f'{portal_name} <{default_from_email}>'
 
+    if sender_extra_format == 1:
+        return f'{portal_name} <{default_from_email}>'
+    return default_from_email

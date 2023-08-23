@@ -52,7 +52,7 @@ class CustomerAdmin(UserAdmin):
     form = CustomerChangeForm
     add_form = CustomerCreationForm
     inlines = (CustomerInlineAdmin,)
-    list_display = ('username', 'email', 'salutation', 'last_name', 'first_name', 'patronymic', 'recognized',
+    list_display = ('username', 'email', 'phone', 'salutation', 'last_name', 'first_name', 'patronymic', 'recognized',
                     'last_access', 'is_unexpired')
     fieldsets = list()
     for fieldset in UserAdmin.fieldsets:
