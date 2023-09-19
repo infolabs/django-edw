@@ -89,15 +89,16 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
       .then(response => response.json()).then(json => {
         // TODO: MatchAll в react-native v0.64.2 для андроида не поддерживается. Возможно, пофиксят в будущем, и тогда
         // нужно будет убрать проверку и удалить пакет string.prototype.matchall.
+        // нужно ли это делать в edw или перенести в мобильное приложение, тк явно используется json объект osk?
         const arrayMediaEntity = media => Platform.OS === 'ios' ?
-            Array.from(media.matchAll(/(?:href=['"])(\/media\S+.[jpg|jpeg|png])/gm))
+            Array.from(media.matchAll(/(?:href=['"])(\/media\S+.[jpg|jpeg|png|pdf|docx|xlsx])['"]/gm))
             :
-            [...matchAll(media, /(?:href=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
+            [...matchAll(media, /(?:href=['"])(\/media\S+.[jpg|jpeg|png|pdf|docx|xlsx])['"]/gm)];
 
         const arrayMediaPerson = media => Platform.OS === 'ios' ?
-            Array.from(media.matchAll(/(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm))
+            Array.from(media.matchAll(/(?:src=['"])(\/media\S+.[jpg|jpeg|png])['"]/gm))
             :
-            [...matchAll(media, /(?:src=['"])(\/media\S+.[jpg|jpeg|png])/gm)];
+            [...matchAll(media, /(?:src=['"])(\/media\S+.[jpg|jpeg|png])['"]/gm)];
 
         json.media = arrayMediaEntity(json.media).map(item => `${Domain}${item[1]}`);
 
