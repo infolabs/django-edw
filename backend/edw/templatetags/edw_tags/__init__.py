@@ -3,7 +3,7 @@
 from django import template
 
 from edw.templatetags.edw_tags.common import (
-    time, date, split, trim, multiply, divide, minimal, maximal,
+    time, date, split, trim, multiply, divide, modulo, minimal, maximal,
     bitwise_and, to_list, zip_lists, append_value, empty_str,
     select_attr, set_attr, select_value, set_value, flatten, union, uniq,
     intersection, replace_pattern,
@@ -25,6 +25,7 @@ register.filter(append_value)
 register.filter(empty_str)
 register.filter(multiply)
 register.filter(divide)
+register.filter(modulo)
 register.filter(minimal)
 register.filter(maximal)
 register.filter(bitwise_and)
