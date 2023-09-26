@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django import get_version
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import OneToOneRel
 from django.contrib import admin
@@ -16,6 +17,8 @@ from edw.models.customer import CustomerModel
 
 from .forms import CustomerChangeForm, CustomerCreationForm
 
+IS_DJANGO3 = get_version().startswith('3.')
+
 
 class CustomerInlineAdmin(admin.StackedInline):
     model = CustomerModel
@@ -25,7 +28,10 @@ class CustomerInlineAdmin(admin.StackedInline):
         return 0 if obj is None else 1
 
     def has_add_permission(self, request, obj=None):
-        return False
+        if not IS_DJANGO3:
+            return False
+        super_ret = super(CustomerInlineAdmin, self).has_add_permission(request, obj)
+        return False if obj is None else super_ret
 
 
 class CustomerListFilter(admin.SimpleListFilter):
