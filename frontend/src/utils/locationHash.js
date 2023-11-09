@@ -13,8 +13,11 @@ const ALIKE_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + ALIKE_REGEX_POSTFIX, 'g
 
 
 function replaceHash(newhash) {
-  if ((`${newhash}`).charAt(0) !== '#')
+  newhash = `${newhash}`;
+  if (newhash.length && newhash.charAt(0) !== '#')
     newhash = `#${newhash}`;
+  if (newhash.length === 1 && newhash.charAt(0) === '#')
+    newhash = '';
   history.replaceState(undefined, undefined, newhash);
 }
 
