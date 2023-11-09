@@ -1,7 +1,5 @@
-django.jQuery(function($) {
-'use strict';
-
-// be more intuitive, reorganize layout by moving fieldset 'Customers' on the top
-$('fieldset:first-child').before($('#customer-group'));
-
+var djangoQquery = django.jQuery || $;
+djangoQquery(function($) {
+  'use strict';
+  $('fieldset.module.aligned:first-child').before($('#customer-group'));
 });

@@ -3,6 +3,8 @@ import os
 import tempfile
 import base64
 import datetime
+from urllib.parse import urlencode, unquote
+
 import pytz
 import uuid
 import jwt
@@ -38,6 +40,7 @@ class ERROR_CODES:
     ESIA_AUTH = 3
 
 # https://github.com/sokolovs/esia-oauth2/blob/master/esia/utils.py
+
 
 def get_timestamp():
     return datetime.datetime.now(pytz.utc).strftime('%Y.%m.%d %H:%M:%S %z').strip()
@@ -110,19 +113,23 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
     elif backend == 'crypto-service':
         service_url = settings.SOCIAL_AUTH_ESIA_CRYPTO_SERVICE_URL
         service_token = settings.SOCIAL_AUTH_ESIA_CRYPTO_SERVICE_TOKEN
-        response = requests.post(
-            url=service_url,
-            headers={
-                'Authorization':  'Bearer ' + service_token,
-                'Content-Type': 'application/octet-stream',
-                'Accept': 'application/pkcs7-signature',
-                'Content-Encoding': 'binary',
-                'Accept-Encoding': 'binary',
-            },
-            data=data
-        )
-        response.raise_for_status()
-        return response.content
+        try:
+            response = requests.post(
+                url=service_url,
+                headers={
+                    'Authorization':  'Bearer ' + service_token,
+                    'Content-Type': 'application/octet-stream',
+                    'Accept': 'application/pkcs7-signature',
+                    'Content-Encoding': 'binary',
+                    'Accept-Encoding': 'binary',
+                },
+                data=data
+            )
+            response.raise_for_status()
+        except RequestException:
+            return ERROR_CODES.ESIA_AUTH
+        else:
+            return response.content
     else:
         raise Exception('Unknown cryptography backend. Use openssl or m2crypto value.')
 
@@ -130,11 +137,16 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
 def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
     plaintext = ''.join([params.get('scope', ''), params.get('timestamp', ''),
                         params.get('client_id', ''), params.get('state', '')])
+
     raw_client_secret = smime_sign(certificate_file, private_key_file, plaintext, backend)
-    client_secret = base64.urlsafe_b64encode(raw_client_secret)
-    params.update(
-        client_secret=client_secret,
-    )
+
+    if raw_client_secret == ERROR_CODES.ESIA_AUTH:
+        params.update(crypto_error=True)
+    else:
+        client_secret = base64.urlsafe_b64encode(raw_client_secret)
+        params.update(
+            client_secret=client_secret,
+        )
     return params
 
 
@@ -160,6 +172,23 @@ class EsiaOAuth2(BaseOAuth2):
 
     def state_token(self):
         return str(uuid.uuid4())
+
+    def auth_url(self):
+        """Return redirect url"""
+        state = self.get_or_create_state()
+        params = self.auth_params(state)
+
+        if params.get('crypto_error'):
+            return URL_ERROR_PATTERN.format(ERROR_CODES.ESIA_AUTH)
+
+        params.update(self.get_scope_argument())
+        params.update(self.auth_extra_arguments())
+        params = urlencode(params)
+        if not self.REDIRECT_STATE:
+            # redirect_uri matching is strictly enforced, so match the
+            # providers value exactly.
+            params = unquote(params)
+        return f"{self.authorization_url()}?{params}"
 
     def add_and_sign_params(self, params):
         params['timestamp'] = get_timestamp()

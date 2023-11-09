@@ -145,6 +145,10 @@ def divide(value, arg):
     return value / arg
 
 
+def modulo(value, arg):
+    return value % arg
+
+
 def minimal(value, arg):
     return min(value, arg)
 
