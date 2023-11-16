@@ -18,6 +18,8 @@ const RELATED_CONTAINER_SIZE = {
 export const stylesComponent = StyleSheet.create({
   badge: {
     position: 'absolute',
+    flexDirection: 'column',
+    gap: 2,
     bottom: 15,
     left: 15,
     zIndex: 4,
@@ -60,30 +62,37 @@ function getScrollHandler(props) {
 }
 
 
-function getColor(item, backgroundColorState) {
+function getColor(mark, defaultColor) {
   const prefixes = ['color-', 'pin-color-'];
+  let color = 'gray';
+  const colorClass = mark.view_class.find(
+    c => prefixes.some(p => c.startsWith(p)));
+  if (!colorClass)
+    return color;
   for (const p of prefixes) {
-    if (item.startsWith(p))
-      backgroundColorState = `#${item.replace(p, '')}`;
+    if (colorClass.startsWith(p)) {
+      return `#${colorClass.replace(p, '')}`;
+    }
   }
-  return backgroundColorState;
+  return color;
 }
 
 
 export function useTextState(short_marks) {
-  let textState = null, backgroundColorState = 'gray';
-
+  const textState = [], backgroundColorState = [];
   short_marks = short_marks === undefined ? [] : short_marks;
-
   short_marks.map(mark => {
-    if (mark.name === 'Состояние' || mark.name === 'Системное состояние') {
-      textState = mark.values[0];
-      mark.view_class.map(item => {
-        backgroundColorState = getColor(item, backgroundColorState);
-      });
+    if (
+      !mark.view_class.includes('hide-in-ribbon') &&
+      !mark.view_class.includes('hidden') &&
+      !mark.view_class.includes('hide-in-all-and-person-problem')
+    ) {
+      const text = mark.values.join(', ');
+      textState.push(text);
+      let color = getColor(mark, 'gray');
+      backgroundColorState.push(color);
     }
   });
-
   return {textState, backgroundColorState};
 }
 
@@ -278,17 +287,16 @@ export function renderEntityItem(props, text, styles, icon = null, customOnPress
             source={data.media ? {uri: data.media} : null}
             style={imageBackgroundStyle || {}}>
             <Text style={textStyle}>{text}{icon}</Text>
-            {textState ?
-              <Badge style={{...styles.badge, backgroundColor: backgroundColorState}}>
-                <Text style={styles.badgeText}>
-                  {textState.length > 12 ?
-                    `${textState.slice(0, 12)}...`
-                    : textState
-                  }
-                </Text>
-              </Badge>
-              : null
-            }
+            <View style={styles.badge}>
+              {textState.length ? textState.map((t, i) => (
+                <Badge key={i} style={{backgroundColor: backgroundColorState[i]}}>
+                  <Text style={styles.badgeText}>
+                    {t.length > 12 ? `${t.slice(0, 12)}...` : t}
+                  </Text>
+                </Badge>
+               )) : null
+              }
+            </View>
           </ImageBackground>
         </View>
         {renderGroupBadge(groupSize, styles)}

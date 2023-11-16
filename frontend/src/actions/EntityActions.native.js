@@ -165,7 +165,6 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
         },
         body: data,
       };
-
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
         dispatch({type: dispatchType, image: json});
