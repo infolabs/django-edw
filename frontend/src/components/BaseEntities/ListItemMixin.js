@@ -99,14 +99,16 @@ const ListItemMixin = Base => class extends Base {
           <li className="annotation">
             {Object.keys(annotations).map(
               (key, i) =>
+              annotations[key].value != null ?
                 <div key={i}>
-                  <strong>{annotations[key].name}:&nbsp;</strong>
-                  {annotations[key].value instanceof Array ?
-                    annotations[key].value.map((val, k) => <span key={k}>{val};&nbsp;</span>)
-                  :
-                    <span key={key}>{annotations[key].value}</span>
-                  }
-                </div>
+                    <strong>{annotations[key].name}:&nbsp;</strong>
+                    {annotations[key].value instanceof Array ?
+                      annotations[key].value.map((val, k) => <span key={k}>{val};&nbsp;</span>)
+                    :
+                      <span key={key}>{annotations[key].value}</span>
+                    }
+                  </div> :
+                  ''
             )}
           </li>
         }
