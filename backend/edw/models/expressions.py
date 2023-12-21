@@ -39,6 +39,11 @@ class ToSeconds(Func):
         self.template = '%(function)s(%(expressions)s)'
         return super(ToSeconds, self).as_sql(compiler, connection)
 
+    def as_postgresql(self, compiler, connection):
+        self.function = 'epoch'
+        self.template = 'EXTRACT(%(function)s FROM %(expressions)s)'
+        return super(ToSeconds, self).as_sql(compiler, connection)
+
 
 class Sin(Func):
     """
