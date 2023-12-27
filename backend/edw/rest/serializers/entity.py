@@ -179,7 +179,9 @@ class EntityValidator(object):
         # Determine the existing instance, if this is an update operation.
         instance = getattr(self.serializer, 'instance', None)
 
+
         validated_data = dict(attrs)
+
         request_method = self.serializer.request_method
 
         available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
@@ -312,12 +314,17 @@ class EntityValidator(object):
         # model validation
         model_fields = model._meta.get_fields()
         validated_data_keys = set(validated_data.keys())
+
         # exclude fields from RESTMeta
-        exclude = model._rest_meta.exclude
+        # удаляем поля только для чтения, поскольку иначе при валидации модели может вызываться ошибка
+        read_only_fields = (k for k, v in model._rest_meta.include.items() if v[1].get('read_only', False))
+        exclude = list(set(model._rest_meta.exclude) | set(read_only_fields))
+
         # exclude not model fields from validate data
         for x in list(validated_data_keys - set([f.name for f in model_fields])):
             validated_data.pop(x)
         if request_method == 'PATCH':
+
             required_fields = [f.name for f in model_fields if not isinstance(f, (
                 RelatedField, ForeignObjectRel)) and not getattr(f, 'blank', False) is True and getattr(
                 f, 'default', NOT_PROVIDED) is NOT_PROVIDED]
