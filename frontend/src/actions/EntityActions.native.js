@@ -73,7 +73,7 @@ export const createEntity = params => dispatch => {
 export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch => {
   getToken().then((token) => {
     const instance = Singleton.getInstance(),
-          {Urls, Domain} = instance;
+          {Urls, Domain, navigation} = instance;
 
     const url = reCache(`${Domain}${Urls['edw:entity-detail'](id,'json')}`),
           parameters = {
@@ -116,8 +116,12 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
         dispatch({type: dispatchType, data: json});
       })
       .catch(error => {
+        //console.error(error);
         dispatch({type: actionTypes.ERROR_GET_ENTITY, error});
+        navigation?.navigate({name: 'Home', params: {}, merge: true});
       });
+  }).catch(error => {
+    //console.error(error);
   });
 };
 
