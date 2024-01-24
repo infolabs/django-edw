@@ -316,9 +316,7 @@ class EntityValidator(object):
         validated_data_keys = set(validated_data.keys())
 
         # exclude fields from RESTMeta
-        # удаляем поля только для чтения, поскольку иначе при валидации модели может вызываться ошибка
-        read_only_fields = (k for k, v in model._rest_meta.include.items() if v[1].get('read_only', False))
-        exclude = list(set(model._rest_meta.exclude) | set(read_only_fields))
+        exclude = model._rest_meta.exclude
 
         # exclude not model fields from validate data
         for x in list(validated_data_keys - set([f.name for f in model_fields])):
