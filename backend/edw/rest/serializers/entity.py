@@ -179,7 +179,6 @@ class EntityValidator(object):
         # Determine the existing instance, if this is an update operation.
         instance = getattr(self.serializer, 'instance', None)
 
-
         validated_data = dict(attrs)
 
         request_method = self.serializer.request_method
@@ -315,8 +314,13 @@ class EntityValidator(object):
         model_fields = model._meta.get_fields()
         validated_data_keys = set(validated_data.keys())
 
-        # exclude fields from RESTMeta
-        exclude = model._rest_meta.exclude
+        # удаляем поля только для чтения, поскольку иначе при валидации модели может вызываться ошибка
+        try:
+            read_only_fields = (k for k, v in model._rest_meta.include.items() if v[-1:][0].get('read_only', False))
+            exclude = list(set(model._rest_meta.exclude) | set(read_only_fields))
+        except:
+            # exclude fields from RESTMeta
+            exclude = model._rest_meta.exclude
 
         # exclude not model fields from validate data
         for x in list(validated_data_keys - set([f.name for f in model_fields])):
