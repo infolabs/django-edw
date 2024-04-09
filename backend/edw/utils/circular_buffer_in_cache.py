@@ -8,10 +8,18 @@ from django.utils.functional import cached_property
 
 class empty:
     """
-    This class is used to represent no data being provided for a given input
-    or output value.
 
-    It is required because `None` may be a valid input or output value.
+    Class empty
+
+    This is a placeholder class that does not contain any specific logic or functionality.
+    This is particularly useful for distinguishing between a None value (which may be a valid value in some contexts) and a lack of data.
+
+    Methods:
+        None
+
+    Attributes:
+        None
+
     """
     pass
 
@@ -20,7 +28,32 @@ class empty:
 # Circular buffer
 #==============================================================================
 class RingBuffer(object):
-    """Ring buffer"""
+    """RingBuffer class represents a circular buffer that stores a fixed number of elements.
+        The buffer is implemented using a cache storage.
+
+    Attributes:
+        BUFFER_SIZE_CACHE_KEY_PATTERN (str): The pattern used to generate the cache key for storing the buffer size.
+        BUFFER_INDEX_CACHE_KEY_PATTERN (str): The pattern used to generate the cache key for storing the buffer index.
+        BUFFER_ELEMENT_CACHE_KEY_PATTERN (str): The pattern used to generate the cache key for storing buffer elements.
+        BUFFER_CACHE_TIMEOUT (int): The timeout for cache entries, in seconds.
+        _registry (dict): A dictionary used to store instances of the RingBuffer class.
+
+    Methods:
+        factory(key, max_size=100, empty=None)
+        __init__(self, key, max_size, empty, from_factory=False)
+        init_size()
+        size()
+        size(val)
+        init_index()
+        index()
+        index(val)
+        incr_index(val=1)
+        set_element(index, val)
+        get_element(index)
+        record(val)
+        get_all()
+        clear()
+    """
     BUFFER_SIZE_CACHE_KEY_PATTERN = 'rng_buf:{key}:sz'
     BUFFER_INDEX_CACHE_KEY_PATTERN = 'rng_buf:{key}:in'
     BUFFER_ELEMENT_CACHE_KEY_PATTERN = 'rng_buf:{key}:{index}:el'
