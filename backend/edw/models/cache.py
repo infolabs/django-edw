@@ -13,10 +13,13 @@ DEFAULT_CACHE_TIMEOUT = 300  # 5 minutes
 
 class empty:
     """
-    ENG: This class is used to represent no data being provided for a given input
-    or output value.
-    It is required because `None` may be a valid input or output value.
-    RUS: Используется для представления данных, не содержащихся в данном входном или выходном значении.
+    The empty class instances are used to represent a lack of data for a given input or output value.
+    This is particularly useful for distinguishing between a None value (which may be a valid value in some contexts) and a lack of data.
+    Subsequently, the empty class is used as a default value for certain actions like getting a value from a cache in _get_from_global_cache.
+    If the cache result is equal to an empty instance, it means that there was no data found in the cache, thus some operation must be performed to calculate the result and set it to the cache.
+    The choice of creating an empty class for this purpose, instead of using None or some other built-in marker, provides more flexibility and clarity.
+    By using a distinct 'empty' class, it's clear when a value is purposely set to None versus when no data is provided.
+    This encapsulation via unique class instance makes more explicit and less error-prone to handle cases of a "no data" scenario.
     """
     pass
 
