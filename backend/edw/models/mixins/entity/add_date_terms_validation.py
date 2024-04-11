@@ -20,7 +20,24 @@ _default_system_flags_restriction = (TermModel.system_flags.delete_restriction |
 
 class BaseAddedDateTermsValidationMixin(object):
     """
-    RUS: Миксин управления терминами даты.
+    Class: BaseAddedDateTermsValidationMixin
+
+    This class is a mixin that provides methods for validating the added date terms. It includes the following methods:
+
+    1. local_created_at(self)
+        - Returns the local created date and time of the object
+
+    2. need_terms_validation_after_save(self, origin, **kwargs)
+        - This method sets flags in the date term for validation after saving the object.
+        - Parameters:
+            - origin: The original object (before saving)
+            - **kwargs: Additional keyword arguments
+        - Returns:
+            - True if validation is needed
+            - False otherwise
+
+    Note: This class requires the 'created_at' field to be present in the object.
+
     """
     REQUIRED_FIELDS = ('created_at',)
 
@@ -41,7 +58,30 @@ class BaseAddedDateTermsValidationMixin(object):
 
 
 class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
+    """
+    AddedDayTermsValidationMixin
 
+        This class is a mixin that provides methods for validating and manipulating terms related to the day of creation.
+        It includes methods for validating the term model and for validating and adding terms based on the day of creation.
+
+    Attributes:
+        ADDED_DAY_ROOT_TERM_SLUG (str): The slug for the root term representing the day of creation.
+        ADDED_DAY_KEY (str): The key format for individual day terms. Each day is represented by a key in the format 'added-day-<day>'.
+        ADDED_DAY_RANGE_KEY (str): The key format for range day terms. Each range is represented by a key in the format 'added-day-<start>-<end>'.
+
+    Methods:
+        validate_term_model():
+            Validates the term model for the day of creation. Checks if the day term exists in the TermModel.
+            If it does not exist, creates the range terms and individual day terms within those ranges.
+
+        validate_terms(origin, **kwargs):
+            Validates and sets the corresponding day of creation term based on the given objects.
+            If force_validate_terms flag is True or validate_added_date flag is True in the context, the terms will be revalidated.
+            Removes existing day terms from the object's terms and adds the corresponding day term based on the day of creation.
+
+        get_added_days():
+            Returns the day terms. If the day terms do not exist in the TermModel, returns the day terms from the EntityModel.
+    """
     ADDED_DAY_ROOT_TERM_SLUG = "added-day"
     ADDED_DAY_KEY = 'added-day-{:02d}'
     ADDED_DAY_RANGE_KEY = 'added-day-{0:02d}-{1:02d}'
@@ -139,7 +179,18 @@ class AddedDayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
 
 class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
+    """
+    Class that extends the `BaseAddedDateTermsValidationMixin` class.
 
+    Attributes:
+        ADDED_MONTH_ROOT_TERM_SLUG (str): The slug for the root term of the added month.
+        ADDED_MONTH_KEY (str): The key format for each month term.
+
+    Methods:
+        validate_term_model: Adds the month terms to the TermModel model if they are not already present.
+        validate_terms: Sets the corresponding month term for the given objects.
+        get_added_months: Adds the month terms to the EntityModel model if they are not already present.
+    """
     ADDED_MONTH_ROOT_TERM_SLUG = "added-month"
     ADDED_MONTH_KEY = 'added-month-{:02d}'
 
@@ -219,7 +270,21 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
 
 
 class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
+    """
+    Class: AddedYearTermsValidationMixin
 
+    This class is a mixin that provides methods for adding and validating the "Added Year" term in the TermModel.
+
+    Methods:
+    - validate_term_model(): Adds the "Added Year" term to the TermModel if it doesn't exist.
+    - validate_terms(origin, **kwargs): Assigns the corresponding "Added Year" term based on the object's created year.
+    - get_added_years(year): Retrieves the "Added Year" term from the TermModel or its descendants, and creates it if it doesn't exist.
+
+    Note: This class is a mixin and should be inherited by another class.
+
+    "Added Year" term slug: 'added-year'
+    "Added Year" term key format: 'added-year-{year}'
+    """
     ADDED_YEAR_ROOT_TERM_SLUG = "added-year"
     ADDED_YEAR_KEY = 'added-year-{}'
 
