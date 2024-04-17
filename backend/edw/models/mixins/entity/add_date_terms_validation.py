@@ -253,7 +253,14 @@ class AddedMonthTermsValidationMixin(BaseAddedDateTermsValidationMixin):
     @staticmethod
     def get_added_months():
         """
-        RUS: добавляет месяцы в модель EntityModel, если они отсутствуют.
+
+        get_added_months()
+
+        This method is a static method of the EntityModel class. It returns a dictionary containing the added months.
+
+        Returns:
+            dict: A dictionary containing the added months. The keys are the slugs of the terms, and the values are the terms themselves.
+
         """
         added_months = getattr(EntityModel, "_added_months_cache", None)
         if added_months is None:
@@ -366,7 +373,101 @@ class AddedYearTermsValidationMixin(BaseAddedDateTermsValidationMixin):
                     added_years[year_key] = term
         return added_years
 
+class AddedWeekdayTermsValidationMixin(BaseAddedDateTermsValidationMixin):
+    ADDED_WEEKDAY_ROOT_TERM_SLUG = "added-weekday"
+    ADDED_WEEKDAY_KEY = 'added-weekday-{}'
+
+    WEEKDAY_NAMES = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+
+    @classmethod
+    def validate_term_model(cls):
+        """
+        RUS: Добавляет день недели в модель терминов TermModel.
+        """
+        key = 'vldt:wkd_add'
+        need_validation = EntityModel._validate_term_model_cache.get(key, True)
+        if need_validation:
+            EntityModel._validate_term_model_cache[key] = False
+            system_flags = _default_system_flags_restriction
+            with transaction.atomic():
+                try: # added weekday
+                    added_weekday = TermModel.objects.get(slug=cls.ADDED_WEEKDAY_ROOT_TERM_SLUG, parent=None)
+                except TermModel.DoesNotExist:
+                    added_weekday = TermModel(
+                        slug=cls.ADDED_WEEKDAY_ROOT_TERM_SLUG,
+                        parent=None,
+                        name=_('Added weekday'),
+                        semantic_rule=TermModel.OR_RULE,
+                        system_flags=system_flags)
+                    added_weekday.save()
+            for i in range(7):
+                weekday_key = cls.ADDED_WEEKDAY_KEY.format(i)
+                with transaction.atomic():
+                    try:
+                        TermModel.objects.get(slug=weekday_key, parent=added_weekday)
+                    except TermModel.DoesNotExist:
+                        month = TermModel(slug=weekday_key,
+                                          parent_id=added_weekday.id,
+                                          name=_(cls.WEEKDAY_NAMES[i]),
+                                          semantic_rule=TermModel.OR_RULE,
+                                          system_flags=system_flags)
+                        month.save()
+        super(AddedWeekdayTermsValidationMixin, cls).validate_term_model()
+
+    def validate_terms(self, origin, **kwargs):
+        """
+        RUS: Проставляет по данным объектам соответствующий термин День недели создания.
+        """
+        context = kwargs["context"]
+        force_validate_terms = context.get("force_validate_terms", False)
+        if force_validate_terms or context.get("validate_added_date", False):
+            added_weekdays = self.get_added_weekdays()
+            if force_validate_terms:
+                self.terms.remove(*[x.id for x in added_weekdays.values()])
+            elif origin is not None:
+                term = added_weekdays[self.ADDED_WEEKDAY_KEY.format(origin.local_created_at.weekday())]
+                self.terms.remove(term)
+            term = added_weekdays[self.ADDED_WEEKDAY_KEY.format(self.local_created_at.weekday())]
+            self.terms.add(term)
+        super(AddedWeekdayTermsValidationMixin, self).validate_terms(origin, **kwargs)
+
+    @staticmethod
+    def get_added_weekdays():
+        """
+            Retrieves a dictionary of added weekday terms from the EntityModel.
+
+            The added weekday terms are cached in the `_added_weekdays_cache` attribute of the EntityModel class.
+            If the cache is empty, the method retrieves the added weekday terms by querying the TermModel.
+
+            Returns:
+                dict: A dictionary of added weekday terms, where the keys are the term slugs and the values are the term objects.
+
+            Raises:
+                None.
+
+            Example Usage:
+                added_weekdays = get_added_weekdays()
+                print(added_weekdays)
+        """
+        added_weekdays = getattr(EntityModel, "_added_weekdays_cache", None)
+        if added_weekdays is None:
+            added_weekdays = {}
+            try:
+                root = TermModel.objects.get(slug=AddedWeekdayTermsValidationMixin.ADDED_WEEKDAY_ROOT_TERM_SLUG,
+                                             parent=None)
+                for term in root.get_descendants(include_self=True):
+                    added_weekdays[term.slug] = term
+            except TermModel.DoesNotExist:
+                pass
+            else:
+                EntityModel._added_weekdays_cache = added_weekdays
+        return added_weekdays
+
 
 class AddedDateTermsValidationMixin(AddedYearTermsValidationMixin, AddedMonthTermsValidationMixin,
                                     AddedDayTermsValidationMixin):
+    pass
+
+
+class AddedDateAndWeekdayTermsValidationMixin(AddedDateTermsValidationMixin, AddedWeekdayTermsValidationMixin):
     pass
