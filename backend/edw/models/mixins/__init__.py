@@ -4,6 +4,7 @@ Mixin support for django models
 """
 from __future__ import unicode_literals
 
+import sys
 import copy
 
 from django.db import models
@@ -24,6 +25,10 @@ class ModelMixin(object):
         RUS: Добавляет поля класса переданному объекту.
         """
         assert issubclass(target, models.Model)
+
+        if ('migrate' in sys.argv):
+            # skip adding duplicate columns to the migration query
+            return
 
         fields = {}
 
