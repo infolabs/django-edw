@@ -286,10 +286,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                     # Make inner queryset
                     inner_qs = inner_model.objects.raw(raw_sql, sql_params)
 
-                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>\n\n")
-                    print(inner_qs)
-                    print(">>>>>>>>>>>>>>>>>>>>>>>>>>\n\n")
-
                     # TODO: оптимизировать запрос за счёт получения списка id объектов
                     # cursor = connection.cursor()
                     # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
