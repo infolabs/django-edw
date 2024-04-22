@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.db.models.sql.compiler import SQLCompiler
 
 
 _get_group_by = SQLCompiler.get_group_by
-def custom_group_by(self, select, order_by):
+def custom_get_group_by(self, select, order_by):
     if not getattr(self.query, '_custom_group_by', False) or self.query.group_by is True or not self.query.group_by:
         return _get_group_by(self, select, order_by)
 
@@ -33,5 +32,6 @@ def custom_group_by(self, select, order_by):
                 seen.add((sql, tuple(params)))
     return result
 
-SQLCompiler.get_group_by = custom_group_by
+SQLCompiler.get_group_by = custom_get_group_by
+
 
