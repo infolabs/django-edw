@@ -123,12 +123,57 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         RUS: Возвращает результат запроса, выбранный в результате группировки данных.
         """
-        result = self.annotate(**{
-            self.GROUP_SIZE_ALIAS: Count('id', distinct=True),
-            self.GROUP_ID_ALIAS: Max('id', distinct=True)
-        })
-        result.custom_count_key = self.GROUP_ID_ALIAS
-        result.query.group_by = fields
+        pk_alias = self.model._meta.pk.get_attname_column()[1]
+
+        base_qs = self.annotate(**{
+            self.GROUP_SIZE_ALIAS: Count('id'),
+            self.GROUP_ID_ALIAS: Max('id')
+        }).values(self.GROUP_SIZE_ALIAS, self.GROUP_ID_ALIAS)
+
+        base_qs.query.group_by = fields
+
+        result = base_qs.model.objects.all()
+
+        try:
+            base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
+        except EmptyResultSet:
+            result = []
+        else:
+            idx = getattr(self.query, self._JOIN_INDEX_KEY, 1)
+
+            model = base_qs.model
+            table = base_qs.query.get_initial_alias()
+
+            # Make safe names
+            db_ops = connections[self.db].ops
+            qn = db_ops.quote_name
+            safe_table, sk_alias = [
+                qn(x) for x in (table, self.GROUP_ID_ALIAS)
+            ]
+
+            # Aliases for inner subquery and nested first table
+            s = model._meta.object_name.upper()
+            table_alias = "{}{}".format(s, idx)
+            join_alias = "{}_IJ{}".format(s, idx)
+
+            # Black magic, transform queryset
+            regex = re.compile("(.+?\s+FROM\s+){}(.+?INNER\s+JOIN\s+)".format(
+                 safe_table), re.IGNORECASE)
+            raw_sql = regex.sub(r'\1{} AS {}\2'.format( safe_table, table_alias
+            ), base_raw_sql, 1).replace('{}.'.format(safe_table), '{}.'.format(table_alias))
+
+            # Make inner queryset
+            inner_qs = model.objects.raw(raw_sql, sql_params)
+
+            # Make queryset
+            result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
+
+            # Add annotation
+            result.query.extra = {self.GROUP_SIZE_ALIAS: (qn(self.GROUP_SIZE_ALIAS), [])}
+
+            # Add join index for future
+            setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
+
         return result
 
     def alike(self, pk, *fields):
