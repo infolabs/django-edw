@@ -17,7 +17,7 @@ function replaceHash(newhash) {
   if (newhash.length && newhash.charAt(0) !== '#')
     newhash = `#${newhash}`;
   if (newhash.length === 1 && newhash.charAt(0) === '#')
-    newhash = '';
+    newhash = location.pathname;
   history.replaceState(undefined, undefined, newhash);
 }
 
