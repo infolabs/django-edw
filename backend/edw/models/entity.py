@@ -30,6 +30,7 @@ try:
     from django.db.models.sql.datastructures import EmptyResultSet
 except ImportError:
     from django.core.exceptions import EmptyResultSet
+from django.db.models.sql.datastructures import Join
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property, lazy
@@ -45,6 +46,7 @@ from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from rest_framework.reverse import reverse
 
+from .sql.datastructures import CustomJoin
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .data_mart import DataMartModel
 from .mixins.query import (
@@ -123,16 +125,38 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         RUS: Возвращает результат запроса, выбранный в результате группировки данных.
         """
-        pk_alias = self.model._meta.pk.get_attname_column()[1]
-
-        base_qs = self.annotate(**{
+        group_by_annotation = {
             self.GROUP_SIZE_ALIAS: Count('id'),
             self.GROUP_ID_ALIAS: Max('id')
-        }).values(self.GROUP_SIZE_ALIAS, self.GROUP_ID_ALIAS)
+        }
 
+        pk_alias = self.model._meta.pk.get_attname_column()[1]
+
+        result = self._chain() # clone query
+
+        custom_joins = {alias for alias, table in result.query.alias_map.items() if (
+            isinstance(table, CustomJoin) and table.join_field.related_model._meta.db_table != alias)}
+        # delete custom joins from result query, it already contains in inner joins
+        for alias in custom_joins:
+            del result.query.alias_map[alias]
+
+        # delete where case from result query
+        result.query.where.children = []
+
+        # make inner query
+        base_qs = self.annotate(**group_by_annotation).values(*group_by_annotation.keys())
         base_qs.query.group_by = fields
 
-        result = base_qs.model.objects.all()
+        left_joins = {
+            alias: table.join_field.related_model._meta.model_name for alias, table in result.query.alias_map.items() if (
+                isinstance(table, Join) and table.join_field.related_model._meta.db_table == alias and (
+                    table.join_type.upper().find('LEFT') != -1))}
+        model_names = set()
+        [model_names.update(base_qs.query.solve_lookup_type(field)[1][:-1]) for field in fields]
+        # del garbage joins
+        for alias, model_name in left_joins.items():
+            if model_name not in model_names:
+                del base_qs.query.alias_map[alias]
 
         try:
             base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
