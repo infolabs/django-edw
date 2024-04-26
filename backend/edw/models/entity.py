@@ -132,7 +132,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
         pk_alias = self.model._meta.pk.get_attname_column()[1]
 
-        result = self._chain() # clone query
+        result = self._clone() # clone query
 
         custom_joins = {alias for alias, table in result.query.alias_map.items() if (
             isinstance(table, CustomJoin) and table.join_field.related_model._meta.db_table != alias)}
