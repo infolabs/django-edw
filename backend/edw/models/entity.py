@@ -134,6 +134,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
         result = self._clone() # clone query
 
+        # TODO: оптимизировать запрос за счёт удаления лишних JOIN'ов
         custom_joins = {alias for alias, table in result.query.alias_map.items() if (
             isinstance(table, CustomJoin) and table.join_field.related_model._meta.db_table != alias)}
         # delete custom joins from result query, it already contains in inner joins
@@ -146,17 +147,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         # make inner query
         base_qs = self.annotate(**group_by_annotation).values(*group_by_annotation.keys())
         base_qs.query.group_by = fields
-
-        left_joins = {
-            alias: table.join_field.related_model._meta.model_name for alias, table in result.query.alias_map.items() if (
-                isinstance(table, Join) and table.join_field.related_model._meta.db_table == alias and (
-                    table.join_type.upper().find('LEFT') != -1))}
-        model_names = set()
-        [model_names.update(base_qs.query.solve_lookup_type(field)[1][:-1]) for field in fields]
-        # del garbage joins
-        for alias, model_name in left_joins.items():
-            if model_name not in model_names:
-                del base_qs.query.alias_map[alias]
 
         try:
             base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
@@ -1365,14 +1355,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         RUS: Возвращает список id активных терминов.
         """
         return list(self.terms.active().values_list('id', flat=True))
-
-    @cached_property
-    def category(self):
-        """
-        ENG: Return object which is considered this object’s category. Override in child models.
-        RUS: Вернуть объект, который считается категорией этого объекта. Перекрывайте дочерних моделях.
-        """
-        return NotImplementedError()
 
     def get_data_mart(self):
         """
