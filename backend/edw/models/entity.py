@@ -606,10 +606,11 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         RUS: Извлекает пользовательскую информацию о запросе, который будет использоваться для эмуляции запроса Django
         во время оффлайн-рендеринга (визуализации).
         """
+        get_ip = getattr(ip, 'get_ip', lambda r: ip.get_client_ip(r)[0])
         return {
             'language': get_language_from_request(request),
             'absolute_base_uri': request.build_absolute_uri('/'),
-            'remote_ip': ip.get_ip(request),
+            'remote_ip': get_ip(request),
             'user_agent': request.META.get('HTTP_USER_AGENT'),
             'username': request.user.username if request.user else None,
         }
