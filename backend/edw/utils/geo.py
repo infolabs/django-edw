@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models.query import QuerySet
 
-from django.db.models import Value, F
+from django.db.models import Value, F, ExpressionWrapper
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
@@ -245,9 +245,12 @@ def get_closest(model_or_queryset, geo_field, latitude, longitude):
 
     expression = EARTH_RADIUS_METERS * Acos(Cos(from_lat) * Cos(to_lat) *
                     Cos(to_lon - from_lon) + Sin(from_lat) * Sin(to_lat))
+
+    expression_wrapper = ExpressionWrapper(expression, output_field=models.FloatField())
+
     queryset = model_or_queryset if isinstance(model_or_queryset, QuerySet) else model_or_queryset.objects.all()
     places = queryset.annotate(latitude=geo_to_latitude(geo_field), longitude=geo_to_longitude(geo_field)).annotate(
-        distance=expression).order_by('distance')
+        distance=expression_wrapper).order_by('distance')
 
     return places
 
