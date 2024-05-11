@@ -70,14 +70,14 @@ setup(
         'install': install
     },
     install_requires=[
-        'Django>=1.9,<=1.11.29',
+        'Django>=1.9,<4.0',
         'djangorestframework>=3.3',
         'django-filer>=1.0.6',
         'django-fsm>=2.4.0',
         'django-rest-auth>=0.5.0',
         'django-select2>=5.5.0',
-        'djangorestframework-recursive==0.1.2',
-        'djangorestframework-filters==0.11.1',
+        'djangorestframework-recursive>=0.1.2',
+        'djangorestframework-filters>=0.11.1',
         'django-polymorphic>=1.1',
     ],
 )
