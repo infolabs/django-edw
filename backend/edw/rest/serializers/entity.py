@@ -614,8 +614,13 @@ class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass
                     field.parent = self.root
                 value = getattr(instance, key, empty)
                 if value == empty:
-                    value = [getattr(instance, x) for x in alias] if isinstance(
-                        alias, (tuple, list)) else getattr(instance, alias)
+                    if isinstance(alias, (tuple, list)):
+                        value = [getattr(instance, x) for x in alias]
+                    elif isinstance(alias, str):
+                        value = getattr(instance, alias)
+                    else:
+                        # поля аннотации не соответствуют экземпляру объекта
+                        continue
                 if value is None:
                     try:
                         value = field.to_representation(value)
