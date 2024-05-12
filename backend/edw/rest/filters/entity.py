@@ -10,8 +10,10 @@ try:
 except ImportError:
     from .common import MethodFilter
 
+from django import VERSION
 from django.apps import apps
 from django.db.models.expressions import BaseExpression
+from django.db.models import F
 from django.template import loader
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -602,11 +604,6 @@ class EntityOrderingFilter(OrderingFilter):
     def __init__(self):
         self._extra_ordering = None
 
-    def filter_queryset(self, request, queryset, view):
-        if view.action in ("bulk_update", "partial_bulk_update"):
-            return queryset
-        return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
-
     def get_ordering(self, request, queryset, view):
         ordering = get_data_mart_cookie_setting(request, "ordering")
         if ordering is not None:
@@ -634,3 +631,33 @@ class EntityOrderingFilter(OrderingFilter):
             fields.update(dict(valid_fields))
             result = list(fields.items())
         return result
+
+
+def filter_queryset_v1(self, request, queryset, view):
+    if view.action in ("bulk_update", "partial_bulk_update"):
+        return queryset
+    return super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
+
+
+def filter_queryset_v2(self, request, queryset, view):
+    if view.action in ("bulk_update", "partial_bulk_update"):
+        return queryset
+    queryset = super(EntityOrderingFilter, self).filter_queryset(request, queryset, view)
+    ordering = self.get_ordering(request, queryset, view)
+    if not ordering:
+        return queryset
+    f_ordering = []
+    for o in ordering:
+        if not o:
+            continue
+        if o[0] == '-':
+            f_ordering.append(F(o[1:]).desc(nulls_last=True))
+        else:
+            f_ordering.append(F(o).asc(nulls_last=True))
+    return queryset.order_by(*f_ordering)
+
+
+if VERSION[0] < 2:
+    EntityOrderingFilter.filter_queryset = filter_queryset_v1
+else:
+    EntityOrderingFilter.filter_queryset = filter_queryset_v2
