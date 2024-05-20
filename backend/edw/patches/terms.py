@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_str
 
 from edw.models.entity import EntityModel
@@ -22,7 +23,11 @@ def entitymodel_terms_m2m__str__(self):
     Improves string representation of m2m relationship objects
     """
     term_title = "{} - {}".format(self.term.parent.name, self.term.name) if self.term.parent else self.term.name
-    return smart_str("{} → {}".format(self.entity.get_real_instance().entity_name, term_title))
+    try:
+        entity_name = self.entity.get_real_instance().entity_name
+    except ObjectDoesNotExist:
+        entity_name = ''
+    return smart_str("{} → {}".format(entity_name, term_title))
 
 EntityModelTerms.__str__ = entitymodel_terms_m2m__str__
 
