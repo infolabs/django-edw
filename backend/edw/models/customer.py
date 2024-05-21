@@ -159,7 +159,7 @@ class CustomerManager(models.Manager):
             pass
         is_authenticated = (request.user.is_authenticated() if callable(request.user.is_authenticated)
                    else request.user.is_authenticated)
-        if request.user.is_authenticated:
+        if is_authenticated:
             customer, created = self.get_or_create(user=user)
             if created:  # `user` has been created by another app than shop
                 customer.recognized = self.model.REGISTERED
@@ -173,7 +173,9 @@ class CustomerManager(models.Manager):
         RUS: Возвращает объект Customer при прохождении аутентификации 
         или создает новый объект.
         """
-        if request.user.is_authenticated():
+        is_authenticated = (request.user.is_authenticated() if callable(request.user.is_authenticated)
+                   else request.user.is_authenticated)
+        if is_authenticated:
             user = request.user
             recognized = self.model.REGISTERED
         else:
