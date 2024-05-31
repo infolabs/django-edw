@@ -16,8 +16,8 @@ import requests
 from requests.exceptions import RequestException
 import six
 
+from django import VERSION
 from django.http import HttpResponseRedirect
-
 from django.conf import settings
 
 from social_core.backends.oauth import BaseOAuth2
@@ -252,7 +252,8 @@ class EsiaOAuth2(BaseOAuth2):
     def user_data(self, access_token, *args, **kwargs):
 
         id_token = kwargs['response']['id_token']
-        payload = jwt.decode(id_token, verify=False)
+        payload = (jwt.decode(id_token, verify=False) if VERSION[0] < 2 else
+                   jwt.decode(id_token, algorithms=['HS256'], options={'verify_signature':False}))
 
         oid = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:oid')
         is_trusted = payload.get('urn:esia:sbj', {}).get('urn:esia:sbj:is_tru')
