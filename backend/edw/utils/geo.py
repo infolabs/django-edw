@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
-import requests
-
 from functools import wraps
 import time
 
@@ -16,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from geopy.geocoders import get_geocoder_for_service
+from geopy import GoogleV3, Yandex
 from geopy.exc import GeocoderQuotaExceeded
 
 from edw.utils.common import dict2obj
@@ -268,30 +266,48 @@ def forward_geocode_yandex(config, address, referer=None):
     if not config.get('init', None) or not config['init'].get('api_key', None):
         raise ImproperlyConfigured(_('Geocoder API key was not found in GeoPy config'))
 
-    apikey = config['init']['api_key']
-    tpl = "https://geocode-maps.yandex.ru/1.x/?geocode={geocode}&apikey={apikey}&kind={kind}&format={fmt}&lang={lang}"
-    url = tpl.format(geocode=address,
-                     apikey=apikey,
-                     kind=YANDEX_KIND,
-                     fmt=YANDEX_FORMAT,
-                     lang=YANDEX_MAPS_LANG)
-
-    headers = {'User-Agent': "curl/7.38.0"}
-    if referer is not None:
-        headers.update({'referer': referer})
-    r = requests.get(url, headers=headers)
-    r.raise_for_status()
-
-    geocollection = r.json()['response']['GeoObjectCollection']['featureMember']
     results = []
+    apikey = config['init']['api_key']
+    yandex = Yandex(api_key=apikey)
+    geocollection = yandex.geocode(query=address, lang=YANDEX_MAPS_LANG, exactly_one=False)
     for g in geocollection:
-        address = g['GeoObject']['metaDataProperty']['GeocoderMetaData']['Address']
-        point = g['GeoObject']['Point']
+        address = g.raw['metaDataProperty']['GeocoderMetaData']['Address']
+        point = g.raw['Point']
         results.append({
             'text': address['formatted'],
             'postal_code': address.get('postal_code', None),
-            'geoposition': point['pos']
+            'geoposition': point['pos'],
+
         })
+
+    return results
+
+def forward_geocode_google(config, address):
+    if not config.get('init', None) or not config['init'].get('api_key', None):
+        raise ImproperlyConfigured(_('Geocoder API key was not found in GeoPy config'))
+
+    results = []
+    apikey = config['init']['api_key']
+    google = GoogleV3(api_key=apikey)
+    geocollection = google.geocode(query=address, language=YANDEX_MAPS_LANG, exactly_one=False)
+    for g in geocollection:
+        formatted_address = g.raw['formatted_address']
+        geoposition = f'{g.longitude} {g.latitude}'
+        postal_code = None
+        for c in g.raw['address_components']:
+            try:
+                if c['types'][0] == 'postal_code':
+                    postal_code = c['long_name']
+            except Exception:
+                pass
+
+        results.append({
+            'text': formatted_address,
+            'postal_code': postal_code,
+            'geoposition': geoposition,
+
+        })
+
     return results
 
 
@@ -304,6 +320,8 @@ def forward_geocode(address, referer=None):
 
     if service == 'yandex':
         return forward_geocode_yandex(config, address, referer)
+    elif service == 'googlev3':
+        return forward_geocode_google(config, address)
     else:
         raise NotImplementedError(
             _('Geocoding service %(service)s is not supported') % { "service" : service })
