@@ -8,7 +8,7 @@ from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark
 
 
 @shared_task(name='normalize_entities_additional_attrs')
-def normalize_entities_additional_attrs(entities_ids):
+def normalize_entities_additional_attrs(entities_ids, **kwargs):
     does_not_exist_entities_ids = []
 
     entities = EntityModel.objects.filter(id__in=entities_ids)
@@ -38,6 +38,6 @@ def normalize_entities_additional_attrs(entities_ids):
                 additional_attrs.filter(term__in=delete_attr_ids).delete()
 
     return {
-        'entities_ids': entities_ids,
+        'existing_entities_ids': existing_entities_ids,
         'does_not_exist_entities_ids': does_not_exist_entities_ids
     }

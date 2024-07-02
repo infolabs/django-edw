@@ -7,7 +7,7 @@ from edw.models.entity import EntityModel
 
 
 @shared_task(name='entities_bulk_delete')
-def entities_bulk_delete(entities_ids):
+def entities_bulk_delete(entities_ids, **kwargs):
     does_not_exist_entities_ids = []
 
     entities = EntityModel.objects.filter(id__in=entities_ids)
@@ -22,6 +22,6 @@ def entities_bulk_delete(entities_ids):
         e.delete()
 
     return {
-        'entities_ids': entities_ids,
+        'existing_entities_ids': existing_entities_ids,
         'does_not_exist_entities_ids': does_not_exist_entities_ids,
     }

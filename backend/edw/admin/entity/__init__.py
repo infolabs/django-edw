@@ -53,14 +53,16 @@ try:
         force_validate,
         make_terms_by_additional_attrs,
         normalize_additional_attrs,
-        bulk_delete
+        bulk_delete,
+        merge
     )
 except ModuleNotFoundError:
     EDW_ACTIONS = []
 else:
     EDW_ACTIONS = [
         update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
-        update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs, bulk_delete
+        update_states, update_active, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs,
+        bulk_delete, merge
     ]
 
 DISABLED_ACTIONS = [
@@ -74,7 +76,8 @@ DISABLED_ACTIONS = [
     "force_validate",
     "make_terms_from_additional_characteristics_or_marks",
     "remove_additional_characteristics_or_marks_with_exists_value_term",
-    "bulk_delete"
+    "bulk_delete",
+    "merge"
 ]
 
 

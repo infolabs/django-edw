@@ -10,7 +10,22 @@
                 {{ form.non_field_errors }}
             {% endif %}
 
-            {% block fieldsets %}{% endblock %}
+{% block fieldsets %}
+<div class="inline-group" id="options-group">
+    <div class="inline-related tabular">
+        <fieldset class="module">
+{% for field in form %}
+    <div class="form-row field-{{ field.name }}">
+        <div>
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+        </div>
+    </div>
+{% endfor %}
+        </fieldset>
+    </div>
+</div>
+{% endblock %}
 
             {% include 'edw/admin/base_actions/_updated_objects.html' %}
 

@@ -10,7 +10,7 @@ from edw.models.defaults.mapping import AdditionalEntityCharacteristicOrMark
 
 
 @shared_task(name='entities_make_terms_by_additional_attrs')
-def entities_make_terms_by_additional_attrs(entities_ids):
+def entities_make_terms_by_additional_attrs(entities_ids, **kwargs):
     does_not_exist_entities_ids = []
 
     entities = EntityModel.objects.filter(id__in=entities_ids)
@@ -39,6 +39,6 @@ def entities_make_terms_by_additional_attrs(entities_ids):
                         print(e)
 
     return {
-        'entities_ids': entities_ids,
+        'existing_entities_ids': existing_entities_ids,
         'does_not_exist_entities_ids': does_not_exist_entities_ids
     }

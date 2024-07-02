@@ -22,3 +22,4 @@ from .force_validate import force_validate
 from .make_terms_by_additional_attrs import make_terms_by_additional_attrs
 from .normalize_additional_attrs import normalize_additional_attrs
 from .bulk_delete import bulk_delete
+from .merge import merge

@@ -23,10 +23,16 @@ class BaseActionAdminForm(forms.Form):
     """
      Базовая форма администратора объекта
     """
-    pass
+    def __init__(self, *args, **kwargs):
+        """
+        Конструктор для корректного отображения объектов
+        """
+        self.opts = kwargs.pop('opts', None)
+        super(BaseActionAdminForm, self).__init__(*args, **kwargs)
 
 
-def objects_action(modeladmin, request, queryset, action, action_task, title, chunk_size):
+def objects_action(modeladmin, request, queryset, action, action_task, title, chunk_size,
+                   admin_form_class=BaseActionAdminForm):
     """
     Создает цепочку Celery в случае отправки запроса методом POST и валидности формы.
     Возвращает шаблон подтверждения
@@ -35,10 +41,8 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
     app_label = opts.app_label
 
     if request.POST.get('post'):
-        form = BaseActionAdminForm(request.POST)
-
+        form = admin_form_class(request.POST, opts=opts)
         if form.is_valid():
-
             n = queryset.count()
             if n:
                 i = 0
@@ -49,8 +53,9 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
                         obj_display = force_text(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
-                    tasks.append(action_task.si([x.id for x in chunk]))
-
+                    tasks.append(action_task.si([x.id for x in chunk], app_label=opts.app_label,
+                                                model_name=opts.model_name,
+                                                **form.cleaned_data))
                     i += chunk_size
 
                 chain(reduce(OR, tasks)).apply_async()
@@ -63,7 +68,7 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
             return None
 
     else:
-        form = BaseActionAdminForm()
+        form = admin_form_class(opts=opts)
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
