@@ -5,6 +5,7 @@ from celery import shared_task
 
 from edw.models.entity import EntityModel
 
+# todo: Delete it, depricated. Use `set_boolean` action
 
 @shared_task(name='update_entities_active')
 def update_entities_active(entities_ids, to_set_active):

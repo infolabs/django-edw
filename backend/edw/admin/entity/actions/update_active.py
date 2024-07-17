@@ -20,6 +20,7 @@ from edw.admin.entity.forms import EntitiesUpdateActiveAdminForm
 from edw.tasks import update_entities_active
 
 
+# todo: Delete it, depricated. Use `set_boolean` action
 def update_active(modeladmin, request, queryset):
     """
     ENG: Update active for multiple entities

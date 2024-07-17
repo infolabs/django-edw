@@ -9,7 +9,7 @@ from django.contrib import admin
 #==============================================================================
 # EntitiesUpdateActiveAdminForm
 #==============================================================================
-
+# todo: Delete it, depricated. Use `set_boolean` action
 BOOLE = (
     ("", _("-"*9)),
     (True, _("Yes")),

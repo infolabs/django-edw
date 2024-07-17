@@ -25,6 +25,7 @@ from .normalize_entities_additional_attrs import normalize_entities_additional_a
 from .send_notification import send_notification
 from .bulk_delete import entities_bulk_delete
 from .merge_entities import merge_entities
+from .set_boolean_in_entities import set_boolean_in_entities
 
 try:
     from .delete_post_office_email import delete_post_office_email
