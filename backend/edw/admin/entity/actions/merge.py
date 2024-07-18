@@ -12,7 +12,6 @@ from edw.admin.entity.forms.merge import MergeEntitiesActionAdminForm
 def merge(modeladmin, request, queryset):
     """
     ENG: Merge multiple entities
-
     """
     CHUNK_SIZE = getattr(settings, 'EDW_MERGE_ENTITIES_ACTION_CHUNK_SIZE', 100)
 

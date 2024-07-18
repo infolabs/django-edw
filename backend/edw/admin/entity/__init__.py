@@ -55,7 +55,8 @@ try:
         normalize_additional_attrs,
         bulk_delete,
         merge,
-        set_boolean
+        set_boolean,
+        set_foreign_key
     )
 except ModuleNotFoundError:
     EDW_ACTIONS = []
@@ -63,7 +64,7 @@ else:
     EDW_ACTIONS = [
         update_terms, update_relations, update_additional_characteristics_or_marks, update_related_data_marts,
         update_states, force_validate, make_terms_by_additional_attrs, normalize_additional_attrs,
-        bulk_delete, merge, set_boolean,
+        bulk_delete, merge, set_boolean, set_foreign_key
     ]
 
 DISABLED_ACTIONS = [
@@ -80,6 +81,7 @@ DISABLED_ACTIONS = [
     "bulk_delete",
     "merge",
     "set_boolean",
+    "set_foreign_key",
 ]
 
 

@@ -24,3 +24,4 @@ from .normalize_additional_attrs import normalize_additional_attrs
 from .bulk_delete import bulk_delete
 from .merge import merge
 from .set_boolean import set_boolean
+from .set_foreign_key import set_foreign_key

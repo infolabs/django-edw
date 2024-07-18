@@ -1,5 +1,10 @@
 {% extends "edw/admin/base_actions/_change_form.html" %}
-{% load i18n l10n %}
+{% load i18n l10n static %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'dynamic_raw_id/js/dynamic_raw_id.js' %}"></script>
+{% endblock %}
+
 {% block content %}
     <div class="container-fluid">
         <form action="" method="post">{% csrf_token %}

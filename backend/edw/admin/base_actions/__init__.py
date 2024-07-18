@@ -5,6 +5,7 @@ from operator import __or__ as OR
 from functools import reduce
 from celery import chain
 
+from django.db.models.base import Model
 from django import forms
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
@@ -52,10 +53,9 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
                     for obj in chunk:
                         obj_display = force_text(obj)
                         modeladmin.log_change(request, obj, obj_display)
-
-                    tasks.append(action_task.si([x.id for x in chunk], app_label=opts.app_label,
-                                                model_name=opts.model_name,
-                                                **form.cleaned_data))
+                    tasks.append(
+                        action_task.si([x.id for x in chunk], app_label=opts.app_label, model_name=opts.model_name,
+                                       **{k:(v.pk if isinstance(v, Model) else v) for (k, v) in form.cleaned_data.items()}))
                     i += chunk_size
 
                 chain(reduce(OR, tasks)).apply_async()
