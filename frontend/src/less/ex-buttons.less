@@ -23,7 +23,7 @@
 
 // Success appears as green
 .ex-btn-success {
-  .ex-button-variant(@ex-btn-success-color; @ex-btn-success-bg; @ex-btn-success-border);
+    .ex-button-variant(@ex-btn-success-color; @ex-btn-success-bg; @ex-btn-success-border; @btn-hover-bg: darken(desaturate(@ex-btn-success-bg, 20%), 10%); @btn-hover-border: darken(@ex-btn-success-border, 20%));
 }
 // Info appears as blue-green
 .ex-btn-info {
@@ -35,5 +35,5 @@
 }
 // Danger and error appear as red
 .ex-btn-danger {
-  .ex-button-variant(@ex-btn-danger-color; @ex-btn-danger-bg; @ex-btn-danger-border);
+  .ex-button-variant(@ex-btn-danger-color; @ex-btn-danger-bg; @ex-btn-danger-border; @btn-hover-bg: darken(desaturate(@ex-btn-danger-bg, 30%), 12%); @btn-hover-border: darken(@ex-btn-danger-border, 20%));
 }
