@@ -40,7 +40,7 @@ def merge_entities(entities_ids, **kwargs):
             char_fields = [field for field in opts.fields if isinstance(field, fields.CharField) and not getattr(
                 field, 'protected', False) and kwargs.get(field.name, False)]
             for field in char_fields:
-                value = joiner.join([getattr(x, field.name) for x in entities])[:field.max_length]
+                value = joiner.join([value for x in entities if (value := getattr(x, field.name)) is not None])[:field.max_length]
                 setattr(head, field.name, value)
 
             # merge common terms
