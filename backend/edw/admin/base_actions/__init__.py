@@ -6,6 +6,7 @@ from functools import reduce
 from celery import chain
 
 from django.db.models.base import Model
+from django.core.paginator import Paginator
 from django import forms
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
@@ -17,6 +18,8 @@ except ImportError:
 from django.utils.translation import ugettext_lazy as _
 
 
+from django.db import connection
+
 #==============================================================================
 # BaseActionAdminForm
 #==============================================================================
@@ -24,6 +27,14 @@ class BaseActionAdminForm(forms.Form):
     """
      Базовая форма администратора объекта
     """
+
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Конструктор для корректного отображения объектов
@@ -45,6 +56,7 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
         form = admin_form_class(request.POST, opts=opts)
         if form.is_valid():
             n = queryset.count()
+
             if n:
                 i = 0
                 tasks = []
@@ -68,18 +80,21 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
             return None
 
     else:
-        form = admin_form_class(opts=opts)
+        form = admin_form_class(opts=opts, initial={'select_across': request.POST.get('select_across', '0')})
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
     else:
         objects_name = force_text(opts.verbose_name_plural)
 
+    paginator = Paginator(queryset, modeladmin.list_per_page)
+
     context = {
         "title": title,
         'form': form,
         "objects_name": objects_name,
-        'queryset': queryset,
+        # 'queryset': queryset,
+        'queryset': paginator.page(1),
         "opts": opts,
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,

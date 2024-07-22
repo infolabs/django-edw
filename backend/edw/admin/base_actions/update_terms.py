@@ -57,6 +57,8 @@ def update_terms(modeladmin, request, queryset, task, template=None):
             return None
 
     else:
+        # todo: use `select_across` - edw/admin/base_actions/__init__.py:83
+
         form = EntitiesUpdateTermsAdminForm()
 
     if len(queryset) == 1:
