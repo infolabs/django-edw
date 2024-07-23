@@ -26,7 +26,6 @@ from .update_relations import EntitiesUpdateRelationAdminForm
 from .update_additional_characteristics_or_marks import EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm
 from .update_related_data_marts import EntitiesUpdateRelatedDataMartsAdminForm
 from .update_states import EntitiesUpdateStateAdminForm
-from .update_active import EntitiesUpdateActiveAdminForm
 
 
 try:
