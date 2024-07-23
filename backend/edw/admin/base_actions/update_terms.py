@@ -11,6 +11,7 @@ try:
     from django.utils.encoding import force_unicode as force_text
 except ImportError:
     from django.utils.encoding import force_text
+from django.core.paginator import Paginator
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
@@ -57,21 +58,22 @@ def update_terms(modeladmin, request, queryset, task, template=None):
             return None
 
     else:
-        # todo: use `select_across` - edw/admin/base_actions/__init__.py:83
-
-        form = EntitiesUpdateTermsAdminForm()
+        form = EntitiesUpdateTermsAdminForm(initial={'select_across': request.POST.get('select_across', '0')})
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
     else:
         objects_name = force_text(opts.verbose_name_plural)
 
+    paginator = Paginator(queryset, modeladmin.list_per_page)
+
     title = _("Update terms for multiple entities")
     context = {
         "title": title,
         'form': form,
         "objects_name": objects_name,
-        'queryset': queryset,
+        # 'queryset': queryset,
+        'queryset': paginator.page(1),
         "opts": opts,
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,

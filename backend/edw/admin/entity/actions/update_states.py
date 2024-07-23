@@ -7,6 +7,7 @@ from functools import reduce
 from celery import chain
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import model_ngettext
@@ -67,19 +68,23 @@ def update_states(modeladmin, request, queryset):
             # Return None to display the change list page again.
             return None
     else:
-        form = EntitiesUpdateStateAdminForm(entities_model=entities_model)
+        form = EntitiesUpdateStateAdminForm(entities_model=entities_model,
+                                            initial={'select_across': request.POST.get('select_across', '0')})
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)
     else:
         objects_name = force_text(opts.verbose_name_plural)
 
+    paginator = Paginator(queryset, modeladmin.list_per_page)
+
     title = _("Update state for multiple entities")
     context = {
         "title": title,
         'form': form,
         "objects_name": objects_name,
-        'queryset': queryset,
+        # 'queryset': queryset,
+        'queryset': paginator.page(1),
         "opts": opts,
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,

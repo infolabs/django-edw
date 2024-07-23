@@ -32,6 +32,13 @@ class EntitiesUpdateImagesAdminForm(forms.Form):
     to_unset = forms.ModelMultipleChoiceField(queryset=Image.objects.all(), label=_('Images to unset'),
                                               required=False, widget=SalmonellaMultiIdWidget(image_rel, admin.site))
 
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
+
     def clean(self):
         """
         Словарь проверенных и нормализованных данных формы обновления изображений объекта

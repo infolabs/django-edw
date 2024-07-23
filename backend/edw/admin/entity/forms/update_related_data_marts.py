@@ -39,6 +39,13 @@ class EntitiesUpdateRelatedDataMartsAdminForm(forms.Form):
         widget=SalmonellaMultiIdWidget(datamart_rel, admin.site)
     )
 
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
+
     def clean(self):
         """
         Словарь проверенных и нормализованных данных формы обновления связанных витрин данных объекта

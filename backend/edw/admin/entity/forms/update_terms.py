@@ -20,6 +20,12 @@ class EntitiesUpdateTermsAdminForm(forms.Form):
     to_unset = forms.ModelMultipleChoiceField(queryset=TermModel.objects.all(), required=False, label=_("Terms to unset"),
                                               widget=TermTreeWidget(external_tagging_restriction=True, fix_it=False))
 
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
 
     def clean(self):
         """

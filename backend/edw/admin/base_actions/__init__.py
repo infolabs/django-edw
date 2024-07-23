@@ -56,7 +56,6 @@ def objects_action(modeladmin, request, queryset, action, action_task, title, ch
         form = admin_form_class(request.POST, opts=opts)
         if form.is_valid():
             n = queryset.count()
-
             if n:
                 i = 0
                 tasks = []

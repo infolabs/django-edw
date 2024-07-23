@@ -43,6 +43,13 @@ class EntitiesUpdateAdditionalCharacteristicsOrMarksAdminForm(forms.Form):
         label=_('Term'),
     )
 
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
+
     def clean(self):
         """
         Словарь проверенных и нормализованных данных формы дополнительных характеристик или меток объекта

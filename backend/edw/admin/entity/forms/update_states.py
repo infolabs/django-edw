@@ -17,6 +17,14 @@ class EntitiesUpdateStateAdminForm(forms.Form):
     """
     state = forms.ChoiceField(choices=(('', _("-"*9)),), label=_('State'))
 
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
+
+
     def __init__(self, *args, **kwargs):
         """
         Конструктор для корректного отображения объектов

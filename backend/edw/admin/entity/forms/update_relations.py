@@ -21,6 +21,7 @@ try:
 except AttributeError:
     to_entity_rel = EntityRelationModel._meta.get_field("to_entity").remote_field
 
+
 #==============================================================================
 # EntitiesUpdateRelationAdminForm
 #==============================================================================
@@ -40,6 +41,13 @@ class EntitiesUpdateRelationAdminForm(forms.Form):
 
     to_unset_targets = forms.ModelMultipleChoiceField(queryset=EntityModel.objects.all(), label=_('Targets to unset'),
                                        required=False, widget=SalmonellaMultiIdWidget(to_entity_rel, admin.site))
+
+    select_across = forms.BooleanField(
+        label='',
+        required=False,
+        initial=0,
+        widget=forms.HiddenInput({'class': 'select-across'}),
+    )
 
     def clean(self):
         """
