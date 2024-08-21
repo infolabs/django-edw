@@ -2,7 +2,7 @@
 <div class="inline-group" id="entities-group">
     <div class="inline-related tabular">
         <fieldset class="module">
-            <h2>{% trans 'Selected' %} {{ opts.verbose_name_plural }} <sup>{% trans 'Count:' %} {{ queryset|length }}</sup></h2>
+            <h2>{% trans 'Selected' %} {{ opts.verbose_name_plural }} <sup>{% trans 'Count:' %} {{ queryset.paginator.count }}</sup></h2>
             <table>
                 <thead>
                     <tr>

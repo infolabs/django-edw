@@ -18,8 +18,6 @@ except ImportError:
 from django.utils.translation import ugettext_lazy as _
 
 
-from django.db import connection
-
 #==============================================================================
 # BaseActionAdminForm
 #==============================================================================
