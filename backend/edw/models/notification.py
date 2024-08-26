@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from six.moves.urllib.parse import urlparse
+from operator import __or__ as OR
+from functools import reduce
 
 from bitfield import BitField
 from bitfield.types import Bit
@@ -210,10 +212,15 @@ class Notification(models.Model):
         :param kwargs:
 
         """
-
-        transition_name = cls.get_transition_name(type(object), source, target)
-
-        for n in Notification.objects.filter(transition__contains=transition_name, active=True):
+        # Переходы в FSM могут быть с заданным исходным статусом и с маскированным `*` статусом, то есть переход
+        # из определенного или из любого статуса в конкретный. Соответственно надо выбирать из уведомлений два вида имен
+        # переходов, потому добавляем через Q оба.
+        q_lst = [
+            Q(**{"transition__contains": cls.get_transition_name(type(object), source, target)}),
+            Q(**{"transition__contains": cls.get_transition_name(type(object), '*', target)})
+        ]
+        notifications = Notification.objects.filter(reduce(OR, q_lst)).filter(active=True)
+        for n in notifications:
             if n.mode.email:
                 n.notify_by_email(object, source, target)
             if n.mode.push:
