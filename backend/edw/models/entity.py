@@ -30,7 +30,7 @@ try:
     from django.db.models.sql.datastructures import EmptyResultSet
 except ImportError:
     from django.core.exceptions import EmptyResultSet
-from django.db.models.sql.datastructures import Join
+# from django.db.models.sql.datastructures import Join
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property, lazy
