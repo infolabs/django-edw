@@ -30,15 +30,11 @@ class CustomerMiddleware(object):
     def process_response(self, request, response):
         content_type = response.get('content-type')
         try:
-            if content_type.startswith('text/html'):
-                # only update last_access when rendering the main page
-                request.customer.last_access = timezone.now()
-                request.customer.save(update_fields=['last_access'])
-                if response.status_code == 401:
-                    if edw_settings.UNAUTHORIZED_REDIRECT:
-                        return HttpResponseRedirect(f'{edw_settings.UNAUTHORIZED_LOGIN_URL}?next={request.get_full_path()}')
-                    else:
-                        raise Http404
+            if content_type.startswith('text/html') and response.status_code == 401:
+                if edw_settings.UNAUTHORIZED_REDIRECT:
+                    return HttpResponseRedirect(f'{edw_settings.UNAUTHORIZED_LOGIN_URL}?next={request.get_full_path()}')
+                else:
+                    raise Http404
         except AttributeError:
             pass
         return response
