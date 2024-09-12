@@ -23,10 +23,6 @@ export function getTemplates() {
   };
 }
 
-const defaultProps = {
-  getTemplates,
-};
-
 function BaseEntities(props) {
 
   const {entities, entry_points, entry_point_id} = props;
@@ -69,7 +65,7 @@ function BaseEntities(props) {
     const dmComponents = filterUnsupported(Object.keys(dataMart.view_components));
     const componentName = dmComponents.indexOf(meta.view_component) > -1 ? meta.view_component : dmComponents[0];
 
-    const templates = props.getTemplates();
+    const templates = props.getTemplates ? props.getTemplates() : getTemplates();
     const component = templates[componentName];
     const {notifyLoadingEntities, getEntities, fromRoute, toRoute, containerSize, dataMartName} = props;
     return (React.createElement(
@@ -97,8 +93,6 @@ function BaseEntities(props) {
     return null;
   }
 }
-
-BaseEntities.defaultProps = defaultProps;
 
 const mapStateToProps = state => ({
   terms: state.terms,
