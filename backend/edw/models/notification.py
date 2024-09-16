@@ -231,7 +231,7 @@ class Notification(models.Model):
     def get_notify_recipients_roles(self):
         """
         RUS: Получение списка ролей персон для уведомления из модели
-        :return: [Идентивикатор роли,...]
+        :return: [Идентификатор роли,...]
         """
 
         return [recipient_id for recipient_id in self.notify_to_roles if recipient_id!=self.RECIPIENTS_ROLES_CHOICES[0][0]]
