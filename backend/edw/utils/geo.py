@@ -311,8 +311,10 @@ def forward_geocode_google(config, address):
     return results
 
 
-def forward_geocode(address, referer=None):
-    config = getattr(settings, 'GEOPY_GEOCODER_CONFIG', None)
+def forward_geocode(address, config=None, referer=None):
+    if config is None:
+        config = getattr(settings, 'GEOPY_GEOCODER_CONFIG', None)
+
     if config is None or 'service' not in config:
         raise ImproperlyConfigured(_('Correct GeoPy geocoder config was not found'))
 
