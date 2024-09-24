@@ -14,21 +14,24 @@ class Field(object):
 
 
 class ModelRel(object):
-    def __init__(self, model):
+    def __init__(self, model, to_field):
+        self.to_field = to_field
+
         self.to = model
         self.limit_choices_to = {}
         self.model = model
 
     def get_related_field(self):
-        return Field('customer')
+        return Field(self.to_field)
+
 
 
 #==============================================================================
 # ModelIdWidget
 #==============================================================================
 class ModelIdWidget(SalmonellaIdWidget):
-    def __init__(self, admin_site, rel, to_field, attrs=None, using=None):
-        self.to_field = to_field
+    def __init__(self, admin_site, rel, attrs=None, using=None):
+        self.to_field = rel.to_field
         super(ModelIdWidget, self).__init__(rel, admin_site, attrs, using)
 
     def url_parameters(self):

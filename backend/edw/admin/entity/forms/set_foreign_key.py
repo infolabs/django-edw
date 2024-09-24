@@ -23,5 +23,5 @@ class SetForeignKeyInEntitiesActionAdminForm(BaseActionAdminForm):
 
             self.fields[field.name] = forms.ModelChoiceField(
                 queryset=field.related_model.objects.all(), required=False, to_field_name=field.related_model._meta.pk.name,
-                widget=ModelIdWidget(admin.site, ModelRel(field.related_model), field.related_model._meta.pk.name),
+                widget=ModelIdWidget(admin.site, ModelRel(field.related_model, field.related_model._meta.pk.name)),
                 label=_(field.verbose_name))
