@@ -10,6 +10,7 @@ from haystack.constants import DOCUMENT_FIELD, DJANGO_CT
 from .. import settings as edw_settings
 
 
+# todo: move this function to 'nash-region'
 def get_more_like_this(like, unlike=None, ignore_like=None, ignore_unlike=None, model=None):
     """
     Perform `more_like_this` query to find similar model instances.

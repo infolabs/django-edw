@@ -21,6 +21,7 @@ class EntityIndex(indexes.SearchIndex):
         use_template=True,
     )
 
+    # todo: move this field to 'nash-region'
     categories = indexes.MultiValueField(
         stored=True,
         indexed=True,
@@ -45,6 +46,7 @@ class EntityIndex(indexes.SearchIndex):
         prepared_data.update({DJANGO_CT: get_model_ct(self.get_model()())})
         return prepared_data
 
+    # todo: move this method to 'nash-region'
     def prepare_categories(self, entity):
         """
         Базовый метод для получения категории объекта, в конкретных индексах его надо перекрыть для получения нужных данных

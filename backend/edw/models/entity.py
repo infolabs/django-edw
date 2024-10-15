@@ -383,6 +383,12 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             avg_lvl=models.Avg(lvl_expr),
             max_lvl=models.Max(lvl_expr)
         ).order_by('-num', '-avg_lvl', '-max_lvl', 'created_at')
+
+        print("====>", similar_entities)
+
+
+        print("====>", similar_entities.values('id', 'num', 'avg_lvl', 'max_lvl', 'created_at'))
+
         try:
             result = similar_entities[0]
         except IndexError:

@@ -35,6 +35,7 @@ class EntitySearchViewSet(ListModelMixin, ViewSetMixin, HaystackGenericAPIView):
     #     return [self.request.current_page.get_template()]
 
 
+# todo: move this function to 'nash-region'
 def more_like_this(request):
     """
     Классификатор объектов
