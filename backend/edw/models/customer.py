@@ -240,13 +240,13 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
         """
         RUS: Возвращает полное имя пользователя модели Customer.
         """
-        return self.user.get_full_name()
+        full_name = self.user.get_full_name()
+        return full_name if full_name != '' else self.get_username()
 
     @property
     def organisation_detail(self):
         if self.extra is not None and self.extra.get("organisation") is not None and \
                 isinstance(self.extra["organisation"], dict):
-
             return self.extra["organisation"]
 
         return {}
