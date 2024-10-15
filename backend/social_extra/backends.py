@@ -294,15 +294,15 @@ class EsiaOAuth2Test(EsiaOAuth2):
     Бэкенд для тестирования ЕСИА
     Эмулирует ответы от ЕСИА
     """
-    name = 'esia_test'
+    name = 'esia'
 
-    BASE_URL = '/'
+    BASE_URL = '/oauth/complete/esia/'
     CERTIFICATE = ''
     PRIVKEY = ''
 
-    AUTHORIZATION_PATH = '/aastest/oauth2/ac'
-    TOKEN_EXCHANGE_PATH = '/aastest/oauth2/te'
-    USER_INFO_PATH = '/rstest/prns'
+    AUTHORIZATION_PATH = ''
+    TOKEN_EXCHANGE_PATH = ''
+    USER_INFO_PATH = ''
 
     ACCESS_TOKEN_METHOD = 'POST'
     AUTHORIZATION_URL = BASE_URL + AUTHORIZATION_PATH
