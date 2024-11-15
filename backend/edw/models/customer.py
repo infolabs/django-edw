@@ -280,7 +280,6 @@ class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
 
         return self.organisation_detail.get('ogrn', "")
 
-
     @property
     def first_name(self):
         """
