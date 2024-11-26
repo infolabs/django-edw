@@ -1,6 +1,9 @@
 import React from 'react';
-import {listStyles as styles} from '../../native_styles/entities';
-import {renderEntityList, renderEntityItem} from './base';
+import {listStyles} from '../../native_styles/entities';
+import {renderEntityList, renderEntityItem, stylesComponent} from './base';
+
+
+const styles = Object.assign(listStyles, stylesComponent);
 
 
 export default function List(props) {
@@ -23,7 +26,6 @@ export default function List(props) {
 
 function ListItem(props) {
   const text = props.data.entity_name;
-  const badge = null;
 
-  return renderEntityItem(props, text, badge, styles);
+  return renderEntityItem(props, text, styles);
 }
