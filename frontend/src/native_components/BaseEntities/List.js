@@ -27,5 +27,5 @@ export default function List(props) {
 function ListItem(props) {
   const text = props.data.entity_name;
 
-  return renderEntityItem(props, text, styles);
+  return renderEntityItem(props, text, styles, null, null, true);
 }

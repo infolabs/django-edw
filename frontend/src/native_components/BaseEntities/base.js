@@ -14,6 +14,9 @@ const mediaRegExp = /.*<img.*?src=(['"])(.*?)(['"])/;
 const RELATED_CONTAINER_SIZE = {
   large: 'large'
 };
+const IGNORE_EXTRA_KEYS = [
+
+]
 
 export const stylesComponent = StyleSheet.create({
   badge: {
@@ -35,6 +38,27 @@ export const stylesComponent = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 14,
+  },
+  annotations: {
+    position: 'absolute',
+    flexDirection: 'column',
+    gap: 2,
+    bottom: 48,
+    left: 16,
+    zIndex: 3,
+  },
+  annotationsItem: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  annotationsText: {
+    color: '#111',
+    fontSize: 15,
+  },
+  annotationsTextBold: {
+    color: '#111',
+    fontSize: 15,
+    fontWeight: 'bold',
   },
 });
 
@@ -225,7 +249,14 @@ function useCardShadow(groupSize, numLayers, styles) {
 }
 
 
-export function renderEntityItem(props, text, styles, icon = null, customOnPress = null) {
+export function renderEntityItem(
+  props,
+  text,
+  styles,
+  icon = null,
+  customOnPress = null,
+  renderAnnotations = false,
+) {
   const {data, meta, fromRoute, toRoute, containerSize, items} = props,
     {Domain, navigation} = Singleton.getInstance();
 
@@ -278,6 +309,25 @@ export function renderEntityItem(props, text, styles, icon = null, customOnPress
     }
   }
 
+  const annotations = {};
+  let badgeTextLimit = 12;
+  if (renderAnnotations) {
+    if (data.extra) {
+      for (const [key, val] of Object.entries(data.extra)) {
+        if (val instanceof Object && 'name' in val && 'value' in val)
+          annotations[key] = val;
+      }
+    }
+    const characteristics = data.short_characteristics || [];
+    for (const c of characteristics) {
+      const a = {};
+      a['name'] = c.name;
+      a['value'] = c.values.join(', ');
+      annotations[c.path] = a;
+      badgeTextLimit = 30;
+    }
+  }
+
   return (
     <>
       <Card appearance="filled" onPress={onPress} style={cardContainerStyle}>
@@ -287,11 +337,27 @@ export function renderEntityItem(props, text, styles, icon = null, customOnPress
             source={data.media ? {uri: data.media} : null}
             style={imageBackgroundStyle || {}}>
             <Text style={textStyle}>{text}{icon}</Text>
+
+            <View style={styles.annotations}>
+              {Object.keys(annotations).map((t, i) => {
+                return (
+                  <View key={t + i} style={styles.annotationsItem} >
+                    <Text style={styles.annotationsTextBold}>
+                      {annotations[t].name}:
+                    </Text>
+                    <Text style={styles.annotationsText}>
+                      {annotations[t].value}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+
             <View style={styles.badge}>
               {textState.length ? textState.map((t, i) => (
                 <Badge key={i} style={{backgroundColor: backgroundColorState[i]}}>
                   <Text style={styles.badgeText}>
-                    {t.length > 12 ? `${t.slice(0, 12)}...` : t}
+                    {t.length > badgeTextLimit ? `${t.slice(0, badgeTextLimit)}...` : t}
                   </Text>
                 </Badge>
                )) : null
