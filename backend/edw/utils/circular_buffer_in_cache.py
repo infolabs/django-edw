@@ -58,21 +58,22 @@ class RingBuffer(object):
     BUFFER_INDEX_CACHE_KEY_PATTERN = 'rng_buf:{key}:in'
     BUFFER_ELEMENT_CACHE_KEY_PATTERN = 'rng_buf:{key}:{index}:el'
 
-    BUFFER_CACHE_TIMEOUT = 2592000  # 60*60*24*30, 30 days
+    DEFAULT_BUFFER_CACHE_TIMEOUT = 2592000  # 60*60*24*30, 30 days
 
     _registry = {}
 
     @staticmethod
-    def factory(key, max_size=100, empty=empty):
+    def factory(key, max_size=100, empty=empty, timeout=None):
         result = RingBuffer._registry.get(key, None)
         if result is None:
-            result = RingBuffer._registry[key] = RingBuffer(key, max_size, empty, True)
+            result = RingBuffer._registry[key] = RingBuffer(key, max_size, empty, True, timeout)
         return result
 
-    def __init__(self, key, max_size, empty, from_factory=False):
+    def __init__(self, key, max_size, empty, from_factory=False, timeout=None):
         assert from_factory, 'use "factory" method, for instance create'
         self.key = key
         self.empty = empty
+        self.timeout = timeout if timeout else self.DEFAULT_BUFFER_CACHE_TIMEOUT
         self.max_size = max(max_size, self.init_size())
         self.init_index()
 
@@ -88,7 +89,7 @@ class RingBuffer(object):
         val = cache.get(self.buffer_size_cache_key, None)
         if val is None:
             val = 0
-            cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_size_cache_key, val, self.timeout)
         return val
 
     @property
@@ -96,18 +97,18 @@ class RingBuffer(object):
         val = cache.get(self.buffer_size_cache_key, None)
         if val is None:  # HACK: if cache timeout expire
             val = self.max_size
-            cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_size_cache_key, val, self.timeout)
         return val
 
     @size.setter
     def size(self, val):
-        cache.set(self.buffer_size_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
+        cache.set(self.buffer_size_cache_key, val, self.timeout)
 
     def init_index(self):
         val = cache.get(self.buffer_index_cache_key, None)
         if val is None:
             val = -1
-            cache.set(self.buffer_index_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
+            cache.set(self.buffer_index_cache_key, val, self.timeout)
         return val
 
     @property
@@ -116,7 +117,7 @@ class RingBuffer(object):
 
     @index.setter
     def index(self, val):
-        cache.set(self.buffer_index_cache_key, val, self.BUFFER_CACHE_TIMEOUT)
+        cache.set(self.buffer_index_cache_key, val, self.timeout)
 
     def incr_index(self, val=1):
         try:
@@ -127,7 +128,7 @@ class RingBuffer(object):
 
     def set_element(self, index, val):
         key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=index)
-        cache.set(key, val, self.BUFFER_CACHE_TIMEOUT)
+        cache.set(key, val, self.timeout)
 
     def get_element(self, index):
         key = RingBuffer.BUFFER_ELEMENT_CACHE_KEY_PATTERN.format(key=self.key, index=index)
