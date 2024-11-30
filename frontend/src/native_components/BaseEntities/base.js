@@ -14,9 +14,7 @@ const mediaRegExp = /.*<img.*?src=(['"])(.*?)(['"])/;
 const RELATED_CONTAINER_SIZE = {
   large: 'large'
 };
-const IGNORE_EXTRA_KEYS = [
-
-]
+const MAX_ANNOTATIONS = 4;
 
 export const stylesComponent = StyleSheet.create({
   badge: {
@@ -40,11 +38,10 @@ export const stylesComponent = StyleSheet.create({
     fontSize: 14,
   },
   annotations: {
-    position: 'absolute',
     flexDirection: 'column',
     gap: 2,
-    bottom: 48,
-    left: 16,
+    bottom: 2,
+    left: 3,
     zIndex: 3,
   },
   annotationsItem: {
@@ -326,6 +323,10 @@ export function renderEntityItem(
       annotations[c.path] = a;
       badgeTextLimit = 30;
     }
+    for (const [i, k] of Object.keys(annotations).entries()) {
+      if (i > MAX_ANNOTATIONS - 1)
+        delete annotations[k];
+    }
   }
 
   return (
@@ -338,22 +339,21 @@ export function renderEntityItem(
             style={imageBackgroundStyle || {}}>
             <Text style={textStyle}>{text}{icon}</Text>
 
-            <View style={styles.annotations}>
-              {Object.keys(annotations).map((t, i) => {
-                return (
-                  <View key={t + i} style={styles.annotationsItem} >
-                    <Text style={styles.annotationsTextBold}>
-                      {annotations[t].name}:
-                    </Text>
-                    <Text style={styles.annotationsText}>
-                      {annotations[t].value}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-
             <View style={styles.badge}>
+              <View style={styles.annotations}>
+                {Object.keys(annotations).map((t, i) => {
+                  return (
+                    <View key={t + i} style={styles.annotationsItem} >
+                      <Text style={styles.annotationsTextBold} allowFontScaling={false}>
+                        {annotations[t].name}:
+                      </Text>
+                      <Text style={styles.annotationsText} allowFontScaling={false}>
+                        {annotations[t].value}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
               {textState.length ? textState.map((t, i) => (
                 <Badge key={i} style={{backgroundColor: backgroundColorState[i]}}>
                   <Text style={styles.badgeText}>

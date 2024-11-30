@@ -62,10 +62,11 @@ function BaseEntities(props) {
       (entry_points[entry_point_id].template_name === 'data-mart');
 
   if (dataMart) {
-    const dmComponents = filterUnsupported(Object.keys(dataMart.view_components));
+    let dmComponents = filterUnsupported(Object.keys(dataMart.view_components));
+    const templates = props.getTemplates ? props.getTemplates() : getTemplates();
+    dmComponents =  Array.from(new Set(dmComponents.concat(Object.keys(templates))));
     const componentName = dmComponents.indexOf(meta.view_component) > -1 ? meta.view_component : dmComponents[0];
 
-    const templates = props.getTemplates ? props.getTemplates() : getTemplates();
     const component = templates[componentName];
     const {notifyLoadingEntities, getEntities, fromRoute, toRoute, containerSize, dataMartName} = props;
     return (React.createElement(

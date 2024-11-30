@@ -3,7 +3,7 @@ import {listStyles} from '../../native_styles/entities';
 import {renderEntityList, renderEntityItem, stylesComponent} from './base';
 
 
-const styles = Object.assign(listStyles, stylesComponent);
+const styles = Object.assign({}, listStyles, stylesComponent);
 
 
 export default function List(props) {
