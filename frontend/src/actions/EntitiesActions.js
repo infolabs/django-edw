@@ -104,16 +104,16 @@ export function getEntities(params) {
 
   return (dispatch, getState) => {
     // ignore more than 3 simultaneous requests from tree
-    const currentMeta = getState().entities.items.meta,
-      treeRootLength = getState().terms.tree.root.children.length,
-      currentDataMartId = currentMeta.data_mart && currentMeta.data_mart.id;
+    const currentMeta = getState().entities?.items?.meta,
+      treeRootLength = getState().terms?.tree?.root?.children?.length,
+      currentDataMartId = currentMeta?.data_mart && currentMeta.data_mart.id;
 
     if (treeRootLength && currentDataMartId === mart_id && inFetch > 3)
       return;
 
     // set computed initial terms if not set
     const terms = getState().terms,
-      tagged = terms.tagged.items,
+      tagged = terms?.tagged?.items || [],
       options_obj2 = optArrToObj(options_arr);
     if (treeRootLength && !options_obj.terms && (!options_obj2.terms || !options_obj2.terms.length))
       options_obj.terms = tagged;
@@ -160,15 +160,15 @@ export function getEntities(params) {
     }).then(response => response.json()).then(json => {
       inFetch--;
       const state = getState(),
-        stateRootLength = state.terms.tree.root.children.length,
-        stateMeta = state.entities.items.meta,
-        stateDataMartId = stateMeta.data_mart?.id,
+        stateRootLength = state?.terms?.tree.root.children.length,
+        stateMeta = state?.entities?.items.meta,
+        stateDataMartId = stateMeta?.data_mart?.id,
         responseDataMartId = json.results.meta.data_mart.id,
-        stateMetaOrdering = stateMeta.ordering,
+        stateMetaOrdering = stateMeta?.ordering,
         responseMetaOrdering = json.results.meta.ordering,
-        stateMetaViewComponent = stateMeta.view_component,
+        stateMetaViewComponent = stateMeta?.view_component,
         responseMetaViewComponent = json.results.meta.view_component,
-        stateMetaGroupTermsIds = stateMeta.alike?.group_terms_ids || [],
+        stateMetaGroupTermsIds = stateMeta?.alike?.group_terms_ids || [],
         responseMetaGroupTermsIds = json.results.meta.alike?.group_terms_ids || [];
 
       if (!compareArrays(stateMetaGroupTermsIds, responseMetaGroupTermsIds)) {
