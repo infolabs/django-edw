@@ -37,7 +37,16 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
 };
 
 export const createEntity = params => dispatch => {
-  const {data, url, actionType, refreshDataMart, textLoader = null, nameFields = {}, slugConfig = null} = params;
+  const {
+    data,
+    url,
+    actionType,
+    refreshDataMart,
+    textLoader = null,
+    nameFields = {},
+    slugConfig = null,
+    nextScreen = {name: 'Home'},
+  } = params;
 
   const instance = Singleton.getInstance(),
     {navigation} = instance;
@@ -58,7 +67,7 @@ export const createEntity = params => dispatch => {
 
     uniFetch(url, parameters, nameFields)
       .then(() => {
-        navigation.navigate('Home');
+        navigation.navigate(nextScreen.name, nextScreen.params);
         dispatch({type: actionType});
         slugConfig && refreshDataMart(slugConfig);
       })
