@@ -79,7 +79,7 @@ export const createEntity = params => dispatch => {
 };
 
 
-export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch => {
+export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY, extraQuery = '') => dispatch => {
   getToken().then((token) => {
     const instance = Singleton.getInstance(),
           {Urls, Domain, navigation} = instance;
@@ -94,7 +94,7 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY) => dispatch
             },
           };
 
-    uniFetch(url, parameters)
+    uniFetch(url + extraQuery, parameters)
       .then(response => response.json()).then(json => {
         // TODO: MatchAll в react-native v0.64.2 для андроида не поддерживается. Возможно, пофиксят в будущем, и тогда
         // нужно будет убрать проверку и удалить пакет string.prototype.matchall.
