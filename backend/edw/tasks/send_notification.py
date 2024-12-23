@@ -15,15 +15,19 @@ def send_notification(model_name, instance_id, source, target):
         'source': source,
         'target': target,
     }
-    model = apps.get_model(settings.EDW_APP_LABEL, model_name)
-    instance = model.objects.filter(id=instance_id).first()
-    if instance:
-        instance.send_notification(source, target)
-        res.update({
-            'status': 'success'
-        })
+    try:
+        model = apps.get_model(settings.EDW_APP_LABEL, model_name)
+    except LookupError:
+        return {}
     else:
-        res.update({
-            'status': 'error'
-        })
-    return res
+        instance = model.objects.filter(id=instance_id).first()
+        if instance:
+            instance.send_notification(source, target)
+            res.update({
+                'status': 'success'
+            })
+        else:
+            res.update({
+                'status': 'error'
+            })
+        return res
