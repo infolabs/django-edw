@@ -6,7 +6,7 @@ import six
 from six import python_2_unicode_compatible
 from functools import reduce
 from operator import __or__ as OR
-from math import ceil
+# from math import ceil
 
 from typing import (
     Union,
@@ -25,7 +25,14 @@ from django.core.exceptions import (
     MultipleObjectsReturned
 )
 from django.db import models, transaction, connections
-from django.db.models import Q, Count, Max
+from django.db.models import (
+    Q,
+    Count,
+    Max,
+    OuterRef,
+    Subquery,
+    Exists
+)
 try:
     from django.db.models.sql.datastructures import EmptyResultSet
 except ImportError:
@@ -116,7 +123,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     """
     RUS: Запрос к базовой сущности базы данных.
     """
-    SEMANTIC_FILTERS_CHUNK_LIMIT = edw_settings.SEMANTIC_FILTER['filters_chunk_limit']
+    # SEMANTIC_FILTERS_CHUNK_LIMIT = edw_settings.SEMANTIC_FILTER['filters_chunk_limit']
     GROUP_SIZE_ALIAS = 'group_size'
     GROUP_ID_ALIAS = '__group_id'
     _JOIN_INDEX_KEY = '_join_idx'
@@ -215,7 +222,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         return self.filter(active=False)
 
     @add_cache_key('sf')  # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
-    def semantic_filter(self, value, use_cached_decompress=False, field_name='terms', fix_it=False, trim_ids=None):
+    def semantic_filter(self, value, use_cached_decompress=False, field_name='term', fix_it=False, trim_ids=None):
         """
         RUS: Добавляет фиктивный ключ не для кэширования. Возвращает отфильтрованные по семантическим правилам
         распакованные кэшированные данные тематической модели.
@@ -225,96 +232,102 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         if trim_ids is not None:
             # "обрезаем" дерево в случаи необходимости
             tree = tree.soft_trim(trim_ids)
-
+        result = self
         # формируем фильтры
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
-
-        result = self
         filters_cnt = len(filters)
         if filters_cnt:
             """
             # Pythonic, but working to slow, try refactor queryset
+            filters = tree.root.term.make_filters(term_info=tree.root, field_name='terms')
+            result = self.filter(filters[0])
+            for x in filters[1:]:
+                result = result.filter(x)
+            result = result.distinct()
             """
-            # result = self.filter(filters[0])
-            # for x in filters[1:]:
-            #     result = result.filter(x)
-            # result = result.distinct()
+            inner_model = self.model.terms.through
+            base_qs = inner_model.objects.values('entity')
+            for x in filters:
+                subquery = base_qs.filter(entity=OuterRef('pk')).filter(x)
+                result = result.filter(Exists(Subquery(subquery[:1])))
 
-            base_model = next(get_polymorphic_ancestors_models(self.model))
-            pk_alias = self.model._meta.pk.get_attname_column()[1]
-
-            # формируем пачки из фильтров, это позволяет СУБД формировать более оптимальный план запроса
-            j = i = filters_cnt / ceil(filters_cnt / self.SEMANTIC_FILTERS_CHUNK_LIMIT)
-            chunked_filters = []
-            start = 0
-            while j < filters_cnt:
-                stop = round(j)
-                chunked_filters.append(filters[start:stop])
-                j += i
-                start = stop
-            chunked_filters.append(filters[start:])
-
-            # формируем запрос
-            for filters_chunk in chunked_filters:
-                base_qs = base_model.objects.all().filter(filters_chunk[0])
-                for x in filters_chunk[1:]:
-                    base_qs = base_qs.filter(x)
-
-                base_qs = base_qs.distinct().values_list('id', flat=True)
-
-                try:
-                    base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
-                except EmptyResultSet:
-                    result = []
-                else:
-                    idx = getattr(result.query, self._JOIN_INDEX_KEY, 1)
-
-                    inner_model = getattr(base_qs.model, field_name).through
-                    outer_table = base_qs.query.get_initial_alias()
-                    inner_table = inner_model.objects.all().query.get_initial_alias()
-
-                    entity_alias = "{}_id".format(base_model._meta.object_name.lower())
-
-                    # Make safe names
-                    db_ops = connections[self.db].ops
-                    qn = db_ops.quote_name
-                    safe_inner_table, safe_outer_table, safe_entity_alias = [
-                        qn(x) for x in (inner_table, outer_table, entity_alias)
-                    ]
-
-                    # Aliases for inner subquery and nested first table
-                    sk_alias = qn("sk{}".format(idx))
-                    s = inner_model._meta.object_name.upper()
-                    inner_table_alias = "{}{}".format(s, idx)
-                    join_alias = "{}_IJ{}".format(s, idx)
-
-                    # Black magic, transform queryset
-                    regex = re.compile("{}.+?(\s+FROM\s+){}(.+?)INNER\s+JOIN\s+{}\s+ON.+?\)\s*".format(
-                        safe_outer_table, safe_outer_table, safe_inner_table), re.IGNORECASE)
-                    raw_sql = regex.sub(r'{}.{} AS {}\1{} AS {}\2'.format(
-                        inner_table_alias, safe_entity_alias, sk_alias, safe_inner_table, inner_table_alias
-                    ), base_raw_sql, 1).replace(
-                        '{}.{}'.format(safe_outer_table, qn("id")), '{}.{}'.format(inner_table_alias, safe_entity_alias)
-                    ).replace('{}.'.format(safe_inner_table), '{}.'.format(inner_table_alias))
-
-                    # Make inner queryset
-                    inner_qs = inner_model.objects.raw(raw_sql, sql_params)
-
-                    # TODO: оптимизировать запрос за счёт получения списка id объектов
-                    # cursor = connection.cursor()
-                    # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
-                    #                sql_params)
-                    # ids = [item[0] for item in cursor.fetchall()]
-                    # ids_cnt = len(ids)
-                    # if ids_cnt < self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT:
-                    #     result = result.filter(id__in=ids) if ids_cnt else self.filter(id=None)
-                    # else:
-                    #     result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
-
-                    # Make queryset
-                    result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
-
-                    setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
+            # Old code, for history
+            #
+            # base_model = next(get_polymorphic_ancestors_models(self.model))
+            # pk_alias = self.model._meta.pk.get_attname_column()[1]
+            #
+            # # формируем пачки из фильтров, это позволяет СУБД формировать более оптимальный план запроса
+            # j = i = filters_cnt / ceil(filters_cnt / self.SEMANTIC_FILTERS_CHUNK_LIMIT)
+            # chunked_filters = []
+            # start = 0
+            # while j < filters_cnt:
+            #     stop = round(j)
+            #     chunked_filters.append(filters[start:stop])
+            #     j += i
+            #     start = stop
+            # chunked_filters.append(filters[start:])
+            #
+            # # формируем запрос
+            # for filters_chunk in chunked_filters:
+            #     base_qs = base_model.objects.all().filter(filters_chunk[0])
+            #     for x in filters_chunk[1:]:
+            #         base_qs = base_qs.filter(x)
+            #
+            #     base_qs = base_qs.distinct().values_list('id', flat=True)
+            #
+            #     try:
+            #         base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
+            #     except EmptyResultSet:
+            #         result = []
+            #     else:
+            #         idx = getattr(result.query, self._JOIN_INDEX_KEY, 1)
+            #
+            #         inner_model = getattr(base_qs.model, field_name).through
+            #         outer_table = base_qs.query.get_initial_alias()
+            #         inner_table = inner_model.objects.all().query.get_initial_alias()
+            #
+            #         entity_alias = "{}_id".format(base_model._meta.object_name.lower())
+            #
+            #         # Make safe names
+            #         db_ops = connections[self.db].ops
+            #         qn = db_ops.quote_name
+            #         safe_inner_table, safe_outer_table, safe_entity_alias = [
+            #             qn(x) for x in (inner_table, outer_table, entity_alias)
+            #         ]
+            #
+            #         # Aliases for inner subquery and nested first table
+            #         sk_alias = qn("sk{}".format(idx))
+            #         s = inner_model._meta.object_name.upper()
+            #         inner_table_alias = "{}{}".format(s, idx)
+            #         join_alias = "{}_IJ{}".format(s, idx)
+            #
+            #         # Black magic, transform queryset
+            #         regex = re.compile("{}.+?(\s+FROM\s+){}(.+?)INNER\s+JOIN\s+{}\s+ON.+?\)\s*".format(
+            #             safe_outer_table, safe_outer_table, safe_inner_table), re.IGNORECASE)
+            #         raw_sql = regex.sub(r'{}.{} AS {}\1{} AS {}\2'.format(
+            #             inner_table_alias, safe_entity_alias, sk_alias, safe_inner_table, inner_table_alias
+            #         ), base_raw_sql, 1).replace(
+            #             '{}.{}'.format(safe_outer_table, qn("id")), '{}.{}'.format(inner_table_alias, safe_entity_alias)
+            #         ).replace('{}.'.format(safe_inner_table), '{}.'.format(inner_table_alias))
+            #
+            #         # Make inner queryset
+            #         inner_qs = inner_model.objects.raw(raw_sql, sql_params)
+            #
+            #         # TODO: оптимизировать запрос за счёт получения списка id объектов
+            #         # cursor = connection.cursor()
+            #         # cursor.execute("{} LIMIT {}".format(raw_sql, self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT),
+            #         #                sql_params)
+            #         # ids = [item[0] for item in cursor.fetchall()]
+            #         # ids_cnt = len(ids)
+            #         # if ids_cnt < self.SEMANTIC_FILTER_FAST_SUBQUERY_RESULTS_LIMIT:
+            #         #     result = result.filter(id__in=ids) if ids_cnt else self.filter(id=None)
+            #         # else:
+            #         #     result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
+            #
+            #         # Make queryset
+            #         result = result.inner_join(inner_qs, pk_alias, sk_alias, join_alias)
+            #
+            #         setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
 
         result.semantic_filter_meta = tree
         return result

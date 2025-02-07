@@ -79,10 +79,10 @@ REGISTRATION_PROCESS = {
 REGISTRATION_PROCESS.update(getattr(settings, 'EDW_REGISTRATION_PROCESS', {}))
 
 
-SEMANTIC_FILTER = {
-    'filters_chunk_limit': 5
-}
-SEMANTIC_FILTER.update(getattr(settings, 'EDW_SEMANTIC_FILTER', {}))
+# SEMANTIC_FILTER = {
+#     'filters_chunk_limit': 5
+# }
+# SEMANTIC_FILTER.update(getattr(settings, 'EDW_SEMANTIC_FILTER', {}))
 
 
 CLASSIFY = {
