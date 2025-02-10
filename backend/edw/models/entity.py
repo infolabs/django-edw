@@ -178,8 +178,19 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             join_alias = "{}_IJ{}".format(s, idx)
 
             # Black magic, transform queryset
-            regex = re.compile("(.+?\s+FROM\s+){}(.+?INNER\s+JOIN\s+)".format(
-                 safe_table), re.IGNORECASE)
+            # todo: remove comments
+            '''
+            # old 
+            # regex = re.compile("(.+?\s+FROM\s+){}(.+?INNER\s+JOIN\s+)".format(
+            #      safe_table), re.IGNORECASE)
+            # new
+            # regex = re.compile("(.+?\s+FROM\s+){}(.+?LEFT\s+OUTER\s+JOIN\s+)".format(
+            #     safe_table), re.IGNORECASE)
+            '''
+
+            regex = re.compile("(.+?\s+FROM\s+){}(\s+)".format(
+                safe_table), re.IGNORECASE)
+
             raw_sql = regex.sub(r'\1{} AS {}\2'.format( safe_table, table_alias
             ), base_raw_sql, 1).replace('{}.'.format(safe_table), '{}.'.format(table_alias))
 
