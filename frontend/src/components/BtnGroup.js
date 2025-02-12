@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import cookie from 'react-cookies';
 import cookieKey from '../utils/hashUtils';
-
+import parseRequestParams from 'utils/parseRequestParams';
 
 export default class BtnGroup extends Component {
 
@@ -16,7 +16,7 @@ export default class BtnGroup extends Component {
   }
 
   selectItem(value) {
-    const {actions, entry_point_id, subj_ids, name, request_var, request_options} = this.props;
+    const {actions, entry_point_id, entry_points, subj_ids, name, request_var, request_options} = this.props;
     let option = {};
     option[request_var] = value;
     let options = Object.assign(request_options, option);
@@ -27,6 +27,12 @@ export default class BtnGroup extends Component {
       options_obj: this.fixOffset(options),
       subj_ids,
     };
+    if (entry_points) {
+      let request_params = entry_points[entry_point_id].request_params || [];
+      request_params = parseRequestParams(request_params);
+      const {options_arr} = request_params;
+      params.options_arr = options_arr;
+    }
     actions.getEntities(params);
   }
 

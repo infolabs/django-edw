@@ -7,7 +7,7 @@ import Actions from '../actions/index';
 
 class ViewComponents extends Component {
   render() {
-    const { entry_point_id, actions } = this.props,
+    const { entry_point_id, entry_points, actions } = this.props,
           { dropdowns } = this.props.entities,
           { meta } = this.props.entities.items,
           { view_components } = dropdowns;
@@ -37,6 +37,7 @@ class ViewComponents extends Component {
                 name="view_components"
                 request_var={view_components.request_var}
                 entry_point_id={entry_point_id}
+                entry_points = {entry_points}
                 subj_ids={meta.subj_ids}
                 request_options={request_options}
                 open={view_components.open}
