@@ -247,7 +247,15 @@ class EntityFilter(BaseEntityFilter):
             self.rel_ids = self.data_mart_rel_ids
             queryset = self.filter_rel(name, queryset, None)
 
-        self.data['_initial_queryset'] = initial_queryset = self.data['_initial_queryset'].semantic_filter(
+        initial_queryset = self.data['_initial_queryset']
+
+        # optimization, add filtration by `polymorphic_ctype_id`
+        dm_entities_model = self.data_mart.entities_model
+        if dm_entities_model != DataMartModel.get_base_entity_model():
+            initial_queryset = initial_queryset.instance_of(dm_entities_model)
+            queryset = queryset.instance_of(dm_entities_model)
+
+        self.data['_initial_queryset'] = initial_queryset = initial_queryset.semantic_filter(
             self.data_mart_term_ids, use_cached_decompress=self.use_cached_decompress, fix_it=True)
 
         self.data['_initial_filter_meta'] = initial_queryset.semantic_filter_meta
