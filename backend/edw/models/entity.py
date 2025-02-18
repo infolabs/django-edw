@@ -6,7 +6,6 @@ import six
 from six import python_2_unicode_compatible
 from functools import reduce
 from operator import __or__ as OR
-# from math import ceil
 
 from typing import (
     Union,
@@ -37,7 +36,7 @@ try:
     from django.db.models.sql.datastructures import EmptyResultSet
 except ImportError:
     from django.core.exceptions import EmptyResultSet
-# from django.db.models.sql.datastructures import Join
+
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property, lazy
@@ -419,6 +418,16 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=(hash_unsorted_list(subj_ids) if subj_ids else ''))
 
+    def _alias_is_true_or_reducer(self, aliases):
+        q_lst = []
+        aliases_keys = aliases.keys()
+        for key in aliases_keys:
+            q_lst.append(models.Q(**{key: True}))
+        qs = self.alias(**aliases).filter(reduce(OR, q_lst))
+        for key in aliases_keys:
+            del qs.query.annotations[key]
+        return qs
+
     @add_cache_key(_get_subj_cache_key)
     def subj(self, subj_ids):
         """
@@ -427,20 +436,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         :return:
         """
         base_manager = EntityRelationModel.objects
-        from_subquery = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(to_entity__in=subj_ids)
-        to_subquery = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(from_entity__in=subj_ids)
+        forward_relations = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(to_entity__in=subj_ids)
+        backward_relations = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(from_entity__in=subj_ids)
         aliases = {
-            'exist_from_subj': Exists(Subquery(from_subquery[:1])),
-            'exist_to_subj': Exists(Subquery(to_subquery[:1]))
+            'exist_forward': Exists(Subquery(forward_relations[:1])),
+            'exist_backward': Exists(Subquery(backward_relations[:1]))
         }
-        q_lst = []
-        aliases_keys = aliases.keys()
-        for key in aliases_keys:
-            q_lst.append(models.Q(**{key: True}))
-        qs = self.alias(**aliases).filter(reduce(OR, q_lst))
-        for key in aliases_keys:
-            del qs.query.annotations[key]
-
+        qs = self._alias_is_true_or_reducer(aliases)
         '''
         # Pythonic, but working to slow, try refactor queryset ^
         q_lst = [models.Q(models.Q(forward_relations__to_entity__in=subj_ids)),
@@ -467,14 +469,15 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         :param rel_r_ids: backward (reverse) relations ids
         :return:
         """
-        qs = self
         base_manager = EntityRelationModel.objects
+        aliases = {}
         if rel_f_ids:
-            subquery = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(term__in=rel_f_ids)
-            qs = qs.filter(Exists(Subquery(subquery[:1])))
+            forward_relations = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(term__in=rel_f_ids)
+            aliases['exist_forward'] = Exists(Subquery(forward_relations[:1]))
         if rel_r_ids:
-            subquery = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(term__in=rel_r_ids)
-            qs = qs.filter(Exists(Subquery(subquery[:1])))
+            backward_relations = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(term__in=rel_r_ids)
+            aliases['exist_backward'] = Exists(Subquery(backward_relations[:1]))
+        qs = self._alias_is_true_or_reducer(aliases)
         '''
         # Pythonic, but working to slow, try refactor queryset ^
         q_lst = []
@@ -483,6 +486,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         if rel_r_ids:
             q_lst.append(models.Q(backward_relations__term__in=rel_r_ids))
         qs = self.filter(reduce(OR, q_lst)).distinct()
+        # print(qs.query.__str__())
         '''
         return qs
 
@@ -509,19 +513,44 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         :param rel_r_ids: backward (reverse) relations ids
         :return:
         """
-
-        # base_manager = EntityRelationModel.objects
-        # from_subquery = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
-        #     to_entity__in=subj_ids)
-        # to_subquery = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(from_entity__in=subj_ids)
-        # qs = self.alias(exist_from_subj=Exists(Subquery(from_subquery[:1])),
-        #                 exist_to_subj=Exists(Subquery(to_subquery[:1]))).filter(
-        #     models.Q(exist_from_subj=True) | models.Q(exist_to_subj=True))
-
-
-        # print("+++ subj_and_rel +++")
-
-
+        base_manager = EntityRelationModel.objects
+        aliases = {}
+        if isinstance(subj, (tuple, list)):
+            # субъекты представлены списком для прямых и обратных связей, он общий для всех связей
+            if rel_f_ids:
+                forward_relations = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
+                    to_entity__in=subj, term__in=rel_f_ids)
+                aliases['exist_forward'] = Exists(Subquery(forward_relations[:1]))
+            if rel_r_ids:
+                backward_relations = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
+                    from_entity__in=subj, term__in=rel_r_ids)
+                aliases['exist_backward'] = Exists(Subquery(backward_relations[:1]))
+        else:
+            # отдельные списки под каждый вид связей
+            i = -1
+            for i, rel_id in enumerate(rel_f_ids):
+                subj_ids = subj[rel_id]
+                if subj_ids:
+                    forward_relation = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
+                        to_entity__in=subj_ids, term=rel_id)
+                    aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
+                else:
+                    backward_relation = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
+                        term=rel_id)
+                    aliases[f"exist_backward_{i}"] = Exists(Subquery(backward_relation[:1]))
+            for i, rel_id in enumerate(rel_r_ids, start=i + 1):
+                subj_ids = subj[rel_id]
+                if subj_ids:
+                    backward_relation = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
+                        from_entity__in=subj_ids, term=rel_id)
+                    aliases[f"exist_backward_{i}"] = Exists(Subquery(backward_relation[:1]))
+                else:
+                    forward_relation = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
+                        term=rel_id)
+                    aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
+        qs = self._alias_is_true_or_reducer(aliases)
+        '''
+        # Pythonic, but working to slow, try refactor queryset ^
         q_lst = []
         if isinstance(subj, (tuple, list)):
             # субъекты представлены списком для прямых и обратных связей. он общий для всех связей
@@ -549,11 +578,8 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                     q_lst.append(models.Q(forward_relations__term=rel_id))
 
         qs = self.filter(reduce(OR, q_lst)).distinct()
-
         # print(qs.query.__str__())
-
-        # print("++++++++++++++++++++")
-
+        '''
         return qs
 
     @cached_property
