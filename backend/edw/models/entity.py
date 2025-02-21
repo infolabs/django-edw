@@ -367,6 +367,10 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
         # try find related terms ids boundary
         semantic_filters = getattr(tree, '_semantic_filters', None) if tree else None
+
+        # todo: Check!!!
+        semantic_filters = None
+
         if semantic_filters:
             # Make "fast" queryset
             related_terms_ids_boundary = self._get_related_terms_ids_boundary_from_semantic_filters(semantic_filters)
