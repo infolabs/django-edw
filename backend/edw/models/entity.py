@@ -30,7 +30,8 @@ from django.db.models import (
     Max,
     OuterRef,
     Subquery,
-    Exists
+    Exists,
+    # QuerySet
 )
 try:
     from django.db.models.sql.datastructures import EmptyResultSet
@@ -113,7 +114,7 @@ def _get_terms_ids(entities_qs, tree):
     """
     result = getattr(entities_qs, '_terms_ids_cache', None)
     if result is None:
-        result = entities_qs._terms_ids_cache = list(tree.trim(entities_qs.get_related_terms_ids()).keys())
+        result = entities_qs._terms_ids_cache = list(tree.trim(entities_qs.get_related_terms_ids(tree)).keys())
     return result
 
 
@@ -236,7 +237,10 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         # формируем фильтры
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
         filters_cnt = len(filters)
+
         if filters_cnt:
+            # save filters for future use
+            setattr(tree, '_semantic_filters', filters)
             """
             # Pythonic, but working to slow, try refactor queryset
             filters = tree.root.term.make_filters(term_info=tree.root, field_name='terms')
@@ -335,7 +339,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result.semantic_filter_meta = tree
         return result
 
-    def get_related_terms_ids(self):
+    @staticmethod
+    def _get_related_terms_ids_boundary_from_semantic_filters(filters):
+        result = []
+        [result.extend(v) if isinstance(v, (tuple, list)) else result.append(v) for x in filters for _, v in x.children]
+        return result
+
+    def get_related_terms_ids(self, tree=None):
         """
         # Pythonic, but working to slow, try improve speed by using INNER JOIN
         result = self.model.terms.through.objects.filter(**{
@@ -344,9 +354,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             ): self.values_list('pk', flat=True)}).distinct().values_list('term_id', flat=True)
         RUS: Возвращает тематическую модель, сформированную в результате SQL-запроса к реляционным данным.
         """
-        outer_model = self.model.terms.through
-        outer_qs = outer_model.objects.distinct().values_list('term_id', flat=True)
-
         inner_qs = self.order_by().values_list('pk', flat=True)
         inner_model_name = self.model._meta.object_name
 
@@ -355,11 +362,23 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
         entity_alias = "{}_id".format(inner_model_name.lower())
 
-        # Make queryset
-        result = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
+        outer_model = self.model.terms.through
+        outer_qs = outer_model.objects.values_list('term_id', flat=True)
+
+        # try find related terms ids boundary
+        semantic_filters = getattr(tree, '_semantic_filters', None) if tree else None
+        if semantic_filters:
+            # Make "fast" queryset
+            related_terms_ids_boundary = self._get_related_terms_ids_boundary_from_semantic_filters(semantic_filters)
+            subquery = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias).filter(
+                term=OuterRef('pk'))
+            result = TermModel.objects.filter(id__in=related_terms_ids_boundary).filter(
+                Exists(Subquery(subquery[:1]))).order_by().values_list('pk', flat=True)
+        else:
+            # Make "slow" queryset
+            result = inner_join_to(outer_qs.distinct(), inner_qs, entity_alias, 'id', join_alias)
 
         setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
-
         return result
 
     def _get_terms_ids_cache_key(self, tree):
@@ -549,6 +568,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                         term=rel_id)
                     aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
         qs = self._alias_is_true_or_reducer(aliases)
+
         '''
         # Pythonic, but working to slow, try refactor queryset ^
         q_lst = []
@@ -619,6 +639,9 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
+
+        # print("\n\n ================ _active_terms_for_characteristics ================== \n\n")
+
         return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
             tree_opts.tree_id_attr, tree_opts.left_attr))
 
@@ -630,6 +653,9 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_marks_descendants_ids()
+
+        # print("\n\n ================ _active_terms_for_marks ================== \n\n")
+
         return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
             tree_opts.tree_id_attr, tree_opts.left_attr))
 
@@ -1461,6 +1487,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         all_data_mart_terms_ids = DataMartModel.get_all_active_terms_ids()
         crossing_terms_ids = list(set(all_entity_terms_ids) & set(all_data_mart_terms_ids))
         tree_opts = DataMartModel._mptt_meta
+
+        # print("\n\n ================ get_data_mart ================== \n\n")
+
         crossing_data_marts_info = DataMartModel.objects.distinct().filter(
             terms__id__in=crossing_terms_ids).annotate(num=models.Count('terms__id')).values('id', 'num').order_by(
             '-num', '-' + tree_opts.level_attr, tree_opts.tree_id_attr, tree_opts.left_attr)
