@@ -237,10 +237,9 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         # формируем фильтры
         filters = tree.root.term.make_filters(term_info=tree.root, field_name=field_name)
         filters_cnt = len(filters)
-
         if filters_cnt:
-            # save filters for future use
-            setattr(tree, '_semantic_filters', filters)
+            # save semantic filters flag for future use
+            setattr(tree, '_has_semantic_filters', True)
             """
             # Pythonic, but working to slow, try refactor queryset
             filters = tree.root.term.make_filters(term_info=tree.root, field_name='terms')
@@ -339,12 +338,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result.semantic_filter_meta = tree
         return result
 
-    @staticmethod
-    def _get_related_terms_ids_boundary_from_semantic_filters(filters):
-        result = []
-        [result.extend(v) if isinstance(v, (tuple, list)) else result.append(v) for x in filters for _, v in x.children]
-        return result
-
     def get_related_terms_ids(self, tree=None):
         """
         # Pythonic, but working to slow, try improve speed by using INNER JOIN
@@ -365,23 +358,18 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         outer_model = self.model.terms.through
         outer_qs = outer_model.objects.values_list('term_id', flat=True)
 
-        # try find related terms ids boundary
-        semantic_filters = getattr(tree, '_semantic_filters', None) if tree else None
-
-        # todo: Check!!!
-        semantic_filters = None
-
-        if semantic_filters:
+        # try find related terms boundary ids
+        has_semantic_filters = getattr(tree, '_has_semantic_filters', False) if tree else False
+        if has_semantic_filters:
             # Make "fast" queryset
-            related_terms_ids_boundary = self._get_related_terms_ids_boundary_from_semantic_filters(semantic_filters)
+            terms_boundary_ids = tree.expand().keys()
             subquery = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias).filter(
                 term=OuterRef('pk'))
-            result = TermModel.objects.filter(id__in=related_terms_ids_boundary).filter(
+            result = TermModel.objects.filter(id__in=terms_boundary_ids).filter(
                 Exists(Subquery(subquery[:1]))).order_by().values_list('pk', flat=True)
         else:
             # Make "slow" queryset
             result = inner_join_to(outer_qs.distinct(), inner_qs, entity_alias, 'id', join_alias)
-
         setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
         return result
 
