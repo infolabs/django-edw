@@ -254,10 +254,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                 subquery = base_qs.filter(entity=OuterRef('pk')).filter(x)
                 result = result.filter(Exists(Subquery(subquery[:1])))
 
-            # print("=start=====================================")
-            # print(result.query.__str__())
-            # print("=end=======================================")
-
             # Old code, for history
             #
             # base_model = next(get_polymorphic_ancestors_models(self.model))
@@ -631,9 +627,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
-
-        # print("\n\n ================ _active_terms_for_characteristics ================== \n\n")
-
         return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
             tree_opts.tree_id_attr, tree_opts.left_attr))
 
@@ -645,9 +638,6 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_marks_descendants_ids()
-
-        # print("\n\n ================ _active_terms_for_marks ================== \n\n")
-
         return list(TermModel.objects.filter(entities__id__in=self.ids, id__in=descendants_ids).distinct().order_by(
             tree_opts.tree_id_attr, tree_opts.left_attr))
 
@@ -1479,9 +1469,6 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         all_data_mart_terms_ids = DataMartModel.get_all_active_terms_ids()
         crossing_terms_ids = list(set(all_entity_terms_ids) & set(all_data_mart_terms_ids))
         tree_opts = DataMartModel._mptt_meta
-
-        # print("\n\n ================ get_data_mart ================== \n\n")
-
         crossing_data_marts_info = DataMartModel.objects.distinct().filter(
             terms__id__in=crossing_terms_ids).annotate(num=models.Count('terms__id')).values('id', 'num').order_by(
             '-num', '-' + tree_opts.level_attr, tree_opts.tree_id_attr, tree_opts.left_attr)
