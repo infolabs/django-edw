@@ -354,18 +354,18 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         outer_model = self.model.terms.through
         outer_qs = outer_model.objects.values_list('term_id', flat=True)
 
+        # Make "slow" queryset
+        result = inner_join_to(outer_qs.distinct(), inner_qs, entity_alias, 'id', join_alias)
+
         # try find related terms boundary ids
         has_semantic_filters = getattr(tree, '_has_semantic_filters', False) if tree else False
         if has_semantic_filters:
-            # Make "fast" queryset
+            # Make "little fast" queryset
+
             terms_boundary_ids = tree.expand().keys()
-            subquery = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias).filter(
-                term=OuterRef('pk'))
-            result = TermModel.objects.filter(id__in=terms_boundary_ids).filter(
-                Exists(Subquery(subquery[:1]))).order_by().values_list('pk', flat=True)
-        else:
-            # Make "slow" queryset
-            result = inner_join_to(outer_qs.distinct(), inner_qs, entity_alias, 'id', join_alias)
+            result = result.filter(term__in=terms_boundary_ids)
+            # todo: rewrite to `group by` and count for future use
+
         setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
         return result
 
