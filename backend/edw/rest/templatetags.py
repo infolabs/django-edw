@@ -16,17 +16,6 @@ from rest_framework.settings import api_settings
 from rest_framework.renderers import JSONRenderer
 
 
-def _get_count(queryset):
-    """
-    ENG: Determine an object count, supporting either querysets or regular lists.
-    RUS: Возвращает количество объектов, поддерживающих запрос к базе данных с помощью метода .count() или len().
-    """
-    try:
-        return queryset.count()
-    except (AttributeError, TypeError):
-        return len(queryset)
-
-
 class Request(request.Request):
 
     def __init__(self, request, query_params=None, parsers=None, authenticators=None,
@@ -97,6 +86,9 @@ class BaseRetrieveDataTag(Tag):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
 
     disallow_kwargs = ['varname']
+
+    _paginator = None
+    _page_len = None
 
     def permission_denied(self, request, message=None):
         """
@@ -271,11 +263,8 @@ class BaseRetrieveDataTag(Tag):
         ENG: The paginator instance associated with the templatetag, or `None`.
         RUS: Функция-пагинатор для управления разбитыми на страницы данными.
         """
-        if not hasattr(self, '_paginator'):
-            if self.pagination_class is None:
-                self._paginator = None
-            else:
-                self._paginator = self.pagination_class()
+        if self._paginator is None and self.pagination_class is not None:
+            self._paginator = self.pagination_class()
         return self._paginator
 
     def paginate_queryset(self, queryset):
@@ -287,8 +276,8 @@ class BaseRetrieveDataTag(Tag):
         if self.paginator is None:
             return None
 
-        self._queryset_count = _get_count(queryset)
         page = self.paginator.paginate_queryset(queryset, self.request, view=self)
+
         self._page_len = len(page)
         return page
 
@@ -299,9 +288,10 @@ class BaseRetrieveDataTag(Tag):
         """
         assert self.paginator is not None
 
+        queryset_count = self.paginator.count
         return {
-            "count": self._queryset_count,
-            "is_paginated": self._page_len < self._queryset_count,
+            "count": queryset_count,
+            "is_paginated": self._page_len < queryset_count,
             "results": data
         }
 
