@@ -163,6 +163,25 @@ class Notification(models.Model):
         return choices
 
     @classmethod
+    def _generate_choice_entry(cls, model_class, source_state, target_state):
+        """Генерирует кортеж (name, title) для перехода."""
+        transition_name = cls.get_transition_name(
+            model_class,
+            source_state,
+            target_state
+        )
+
+        transition_title = "{model_name}: {source_label} - {target_label} ({source} - {target})".format(
+            model_name=model_class._meta.verbose_name,
+            source_label=model_class.get_transition_name(source_state),
+            target_label=model_class.get_transition_name(target_state),
+            source=source_state,
+            target=target_state
+        )
+
+        return transition_name, transition_title
+
+    @classmethod
     def get_transition_choices(cls):
         """
         Получает доступные варианты переходов состояний для всех моделей.
@@ -175,24 +194,6 @@ class Notification(models.Model):
                 [("transition_name", "human_readable_title"), ...]
         """
 
-        def generate_choice_entry(model_class, source_state, target_state):
-            """Генерирует кортеж (name, title) для перехода."""
-            transition_name = cls.get_transition_name(
-                model_class,
-                source_state,
-                target_state
-            )
-
-            transition_title = "{model_name}: {source_label} - {target_label} ({source} - {target})".format(
-                model_name=model_class._meta.verbose_name,
-                source_label=model_class.get_transition_name(source_state),
-                target_label=model_class.get_transition_name(target_state),
-                source=source_state,
-                target=target_state
-            )
-
-            return transition_name, transition_title
-
         choices = {}
 
         for sender_class in cls.get_senders_objects():
@@ -204,7 +205,7 @@ class Notification(models.Model):
                 )
 
                 for target_state in targets:
-                    key, value = generate_choice_entry(
+                    key, value = cls._generate_choice_entry(
                         sender_class,
                         transition.source,
                         target_state
