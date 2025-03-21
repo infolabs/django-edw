@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django_fsm import RETURN_VALUE
 from six.moves.urllib.parse import urlparse
 from operator import __or__ as OR
 from functools import reduce
@@ -162,24 +163,55 @@ class Notification(models.Model):
         return choices
 
     @classmethod
+    def _generate_choice_entry(cls, model_class, source_state, target_state):
+        """Генерирует кортеж (name, title) для перехода."""
+        transition_name = cls.get_transition_name(
+            model_class,
+            source_state,
+            target_state
+        )
+
+        transition_title = "{model_name}: {source_label} - {target_label} ({source} - {target})".format(
+            model_name=model_class._meta.verbose_name,
+            source_label=model_class.get_transition_name(source_state),
+            target_label=model_class.get_transition_name(target_state),
+            source=source_state,
+            target=target_state
+        )
+
+        return transition_name, transition_title
+
+    @classmethod
     def get_transition_choices(cls):
         """
-        RUS: Получение доступных вариантов переходов состояний для всех моделей
-        :return:
-            [(ransition_choice_name, transition_choice_title),...]
+        Получает доступные варианты переходов состояний для всех моделей.
+
+        Формирует уникальные переходы в виде списка кортежей (name, title),
+        отсортированных по человекочитаемому названию.
+
+        Returns:
+            List[Tuple[str, str]]: Список вариантов переходов в формате:
+                [("transition_name", "human_readable_title"), ...]
         """
+
         choices = {}
-        for clazz in cls.get_senders_objects():
-            for transition in clazz.get_notification_transitions():
-                transition_choice_name = cls.get_transition_name(clazz, transition.source, transition.target)
-                transition_choice_title = "{}: {} - {} ({} - {})".format(
-                    clazz._meta.verbose_name,
-                    clazz.get_transition_name(transition.source),
-                    clazz.get_transition_name(transition.target),
-                    transition.source,
-                    transition.target
+
+        for sender_class in cls.get_senders_objects():
+            for transition in sender_class.get_notification_transitions():
+                targets = (
+                    transition.target.allowed_states
+                    if isinstance(transition.target, RETURN_VALUE)
+                    else [transition.target]
                 )
-                choices[transition_choice_name] = transition_choice_title
+
+                for target_state in targets:
+                    key, value = cls._generate_choice_entry(
+                        sender_class,
+                        transition.source,
+                        target_state
+                    )
+                    if key not in choices:
+                        choices[key] = value
 
         return sorted(choices.items(), key=lambda item: item[1])
 
