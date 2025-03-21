@@ -3,6 +3,8 @@ from __future__ import unicode_literals, division
 
 import re
 import six
+import math
+
 from six import python_2_unicode_compatible
 from functools import reduce
 from operator import __or__ as OR
@@ -62,6 +64,7 @@ from .mixins.query import (
     JoinQuerySetMixin,
     inner_join_to,
 )
+from .utils import get_db_vendor
 from .related import (
     AdditionalEntityCharacteristicOrMarkModel,
     EntityRelationModel,
@@ -334,7 +337,43 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result.semantic_filter_meta = tree
         return result
 
-    def get_related_terms_ids(self, tree=None):
+    def force_index(self, index_name=None):
+        vendor = get_db_vendor()
+        if vendor == 'mysql':
+            try:
+                base_raw_sql, sql_params = self.query.get_compiler(self.db).as_sql()
+            except EmptyResultSet:
+                result = self
+            else:
+                # Для MySQL: USE INDEX
+                # FORCE INDEX is going to be deprecated after MySQL 8
+                if index_name is None:
+                    index_name = 'PRIMARY'
+
+                # Make safe names
+                db_ops = connections[self.db].ops
+                qn = db_ops.quote_name
+
+                safe_table = qn(self.model._meta.db_table)
+
+                # Black magic, transform queryset
+                regex = re.compile("({}.+?\s+FROM\s+{})(.*?)".format(safe_table, safe_table), re.IGNORECASE)
+
+                raw_sql = regex.sub(r'\1 USE INDEX ({})\2'.format(
+                            index_name,
+                        ), base_raw_sql, 1)
+
+                # Make queryset
+                result = self.model.objects.raw(raw_sql, sql_params)
+            return result
+
+        # elif vendor == 'postgresql':
+        #     # Для PostgreSQL: pg_hint_plan через комментарий - /*+ IndexScan(myapp_mymodel my_custom_index) */
+        #     return self......
+
+        return self  # Для других СУБД игнорируем
+
+    def get_related_terms_ids(self, tree=None, min_limit=10000, limit_log_base=10):
         """
         # Pythonic, but working to slow, try improve speed by using INNER JOIN
         result = self.model.terms.through.objects.filter(**{
@@ -343,31 +382,70 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             ): self.values_list('pk', flat=True)}).distinct().values_list('term_id', flat=True)
         RUS: Возвращает тематическую модель, сформированную в результате SQL-запроса к реляционным данным.
         """
-        inner_qs = self.order_by().values_list('pk', flat=True)
+        # try find related terms boundary ids
+        has_semantic_filters = getattr(tree, '_has_semantic_filters', False) if tree else False
+        terms_boundary_ids = set(tree.expand().keys()) if has_semantic_filters else set()
+
+        # `_count` - sets early in `edw.rest.serializers.entity.EntitySummaryMetadataSerializer.get_potential_terms_ids`
+        count = getattr(self, '_count', None)
+        if count is not None and count > min_limit:
+            limit = round(count / math.log(count, limit_log_base))
+            i = count // limit
+        else:
+            limit = 0
+            i = 1
+
+        outer_model = self.model.terms.through
         inner_model_name = self.model._meta.object_name
 
         idx = getattr(self.query, self._JOIN_INDEX_KEY, 1)
-        join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
 
-        entity_alias = "{}_id".format(inner_model_name.lower())
+        last_id = None
+        result = set()
+        offset = 0
 
-        outer_model = self.model.terms.through
-        outer_qs = outer_model.objects.values_list('term_id', flat=True)
+        for j in range(1, i + 1):
+            entities_ids, terms_ids = set(), set()
 
-        # Make "slow" queryset
-        result = inner_join_to(outer_qs.distinct(), inner_qs, entity_alias, 'id', join_alias)
+            inner_qs = self.order_by('id').values_list('pk', flat=True)
 
-        # try find related terms boundary ids
-        has_semantic_filters = getattr(tree, '_has_semantic_filters', False) if tree else False
-        if has_semantic_filters:
-            # Make "little fast" queryset
+            if last_id is not None:
+                inner_qs = inner_qs.filter(id__gt=last_id)
 
-            terms_boundary_ids = tree.expand().keys()
-            result = result.filter(term__in=terms_boundary_ids)
-            # todo: rewrite to `group by` and count for future use
+            if limit and i != j:
+                inner_qs = inner_qs[offset:offset + limit]
 
-        setattr(result.query, self._JOIN_INDEX_KEY, idx + 1)
-        return result
+            # use index for maximum performance
+            inner_qs = inner_qs.force_index()
+
+            join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
+            entity_alias = "{}_id".format(inner_model_name.lower())
+
+            outer_qs = outer_model.objects.values_list('term_id').annotate(last_id=Max("entity_id"))
+
+            # Make "slow" queryset
+            result_qs = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
+
+            if terms_boundary_ids:
+                # Make "little fast" queryset
+                result_qs = result_qs.filter(term__in=terms_boundary_ids)
+            elif result:
+                result_qs = result_qs.exclude(term__in=result)
+
+            # split result
+            [(terms_ids.add(x), entities_ids.add(y)) for x, y in result_qs]
+
+            if entities_ids:
+                last_id = max(entities_ids)
+                offset = 0
+            else:
+                offset += limit
+                continue
+
+            terms_boundary_ids -= terms_ids
+            result.update(terms_ids)
+
+        return list(result)
 
     def _get_terms_ids_cache_key(self, tree):
         """

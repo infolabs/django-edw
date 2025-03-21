@@ -955,16 +955,26 @@ class EntitySummaryMetadataSerializer(serializers.Serializer):
             cache.delete(old_key)
 
     def get_potential_terms_ids(self, instance):
+        request = self.context['request']
         tree = self.context['initial_filter_meta']
         initial_queryset = self.context['initial_queryset']
+
+        # `_entities_count` - sets early in `edw.rest.pagination.EntityPagination.paginate_queryset`
+        setattr(initial_queryset, '_count', request.GET.get('_entities_count', None))
+
         return initial_queryset.get_terms_ids(tree).cache(on_cache_set=self.on_terms_ids_cache_set,
                                                           timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
 
     def _get_cached_real_terms_ids(self, instance):
+        request = self.context['request']
         real_terms_ids = getattr(self, '_cached_real_terms_ids', None)
         if real_terms_ids is None:
             tree = self.context['terms_filter_meta']
             filter_queryset = self.context['filter_queryset']
+
+            # `_entities_count` - sets early in `edw.rest.pagination.EntityPagination.paginate_queryset`
+            setattr(filter_queryset, '_count', request.GET.get('_entities_count', None))
+
             real_terms_ids = self._cached_real_terms_ids = filter_queryset.get_terms_ids(tree).cache(
                 on_cache_set=self.on_terms_ids_cache_set, timeout=EntityModel.TERMS_IDS_CACHE_TIMEOUT)
         return real_terms_ids

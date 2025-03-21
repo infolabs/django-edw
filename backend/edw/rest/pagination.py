@@ -94,3 +94,8 @@ class EntityPagination(EDWLimitOffsetPagination):
         limit = get_data_mart_cookie_setting(request, "limit")
         limit = int(limit) if limit else super(EntityPagination, self).get_limit(request)
         return min(limit, self.max_limit)
+
+    def paginate_queryset(self, *args, **kwargs):
+        result = super(EntityPagination, self).paginate_queryset(*args, **kwargs)
+        self.request.GET['_entities_count'] = self.count
+        return result
