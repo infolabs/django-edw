@@ -15,6 +15,9 @@ class BeforeDateRangeFilter(DateRangeFilter):
     """
     choices = [
         # Example: created_at__before_date_range=last_week
+        ('last_quarter_of_hour', _('Last quarter of an hour')),  # Объекты старше 15 минут
+        ('last_half_hour', _('Last half hour')),  # Объекты старше 30 минут
+        ('last_hour', _('Last hour')),  # Объекты старше 1 часа
         ('present_day', _('Present day')), # Объекты, существующие более 1 дня (архивируются на 2-й день)
         ('until_yesterday', _('Until yesterday')), # Объекты старше 2 дней
         ('last_week', _('Last week')), # Объекты старше недели
@@ -24,8 +27,17 @@ class BeforeDateRangeFilter(DateRangeFilter):
     ]
 
     filters = {
+        'last_quarter_of_hour': lambda qs, name: qs.filter(**{
+            '%s__lt' % name: now() - timedelta(minutes=15),
+        }),
+        'last_half_hour': lambda qs, name: qs.filter(**{
+            '%s__lt' % name: now() - timedelta(minutes=30),
+        }),
+        'last_hour': lambda qs, name: qs.filter(**{
+            '%s__lt' % name: now() - timedelta(hours=1),
+        }),
         'present_day': lambda qs, name: qs.filter(**{
-            '%s__lt' % name: now() - timedelta(days=1),
+            '%s__lt' % name: _truncate(now() - timedelta(days=1)),
         }),
         'until_yesterday': lambda qs, name: qs.filter(**{
             '%s__lt' % name: _truncate(now() - timedelta(days=2)),
