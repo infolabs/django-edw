@@ -23,6 +23,7 @@ from rest_framework import serializers
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
 from edw.rest.filters.common import template_render
+from edw.rest.filters.filters import BeforeDateRangeFilter
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import (
     BaseEntity,
@@ -132,7 +133,8 @@ _COMPARISONS_LABELS = {
     'lte': _('less than or equal'),
     'gt': _('greater than'),
     'gte': _('greater than or equal'),
-    'date_range': _('date range')
+    'date_range': _('date range'),
+    'before_date_range': _('before date range')
 }
 
 _FIELDS_LABELS = {
@@ -156,10 +158,13 @@ class EntityFilter(BaseEntityFilter):
     # Пример: created_at=2019-10-10T00:00:00Z
     created_at = filters.IsoDateTimeFilter(name='created_at', lookup_expr='exact', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['exact']))
-    # Пример: created_at__date_range=1
-    # 1 - сегодня, 2 - последние 7 дней, 3 - это месяц, 4 - этот год, 5 - вчера
+    # Пример: created_at__date_range=today
+    # 'today' - сегодня, 'week' - последние 7 дней, 'month' - это месяц, 'year' - этот год, 'yesterday' - вчера
     created_at__date_range = filters.DateRangeFilter(name='created_at', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['date_range']))
+    # Пример: created_at__before_date_range=last_week
+    created_at__before_date_range = BeforeDateRangeFilter(name='created_at', label=_format_label(
+        _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['before_date_range']))
     created_at__lt = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lt', label=_format_label(
         _FIELDS_LABELS['created_at'], _COMPARISONS_LABELS['lt']))
     created_at__lte = filters.IsoDateTimeFilter(name='created_at', lookup_expr='lte', label=_format_label(
@@ -172,6 +177,8 @@ class EntityFilter(BaseEntityFilter):
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['exact']))
     updated_at__date_range = filters.DateRangeFilter(name='updated_at', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['date_range']))
+    updated_at__before_date_range = BeforeDateRangeFilter(name='updated_at', label=_format_label(
+        _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['before_date_range']))
     updated_at__lt = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='lt', label=_format_label(
         _FIELDS_LABELS['updated_at'], _COMPARISONS_LABELS['lt']))
     updated_at__lte = filters.IsoDateTimeFilter(name='updated_at', lookup_expr='lte', label=_format_label(
