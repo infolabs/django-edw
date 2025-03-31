@@ -1,8 +1,12 @@
 from datetime import timedelta
 
-from django_filters.filters import DateRangeFilter, _truncate
+from django_filters.filters import DateRangeFilter
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
+
+
+def _truncate(dt):
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 class BeforeDateRangeFilter(DateRangeFilter):
@@ -10,18 +14,18 @@ class BeforeDateRangeFilter(DateRangeFilter):
     Filter based on date range calculated before set interval.
     """
     choices = [
-        ('present_day', _('Present day')), # Example: created_at__before_date_range=last_week
-        ('until_yesterday', _('Until yesterday')),
-        ('last_week', _('Last week')),
-        ('last_month', _('Last month')),
-        ('last_half_year', _('Last half of the year')),
-        ('last_year', _('Last year')),
-
+        # Example: created_at__before_date_range=last_week
+        ('present_day', _('Present day')), # Объекты, существующие более 1 дня (архивируются на 2-й день)
+        ('until_yesterday', _('Until yesterday')), # Объекты старше 2 дней
+        ('last_week', _('Last week')), # Объекты старше недели
+        ('last_month', _('Last month')), # Объекты старше месяца (приблизительный расчет)
+        ('last_half_year', _('Last half of the year')), # Объекты старше полугода
+        ('last_year', _('Last year')), # Объекты старше года
     ]
 
     filters = {
         'present_day': lambda qs, name: qs.filter(**{
-            '%s__lt' % name: _truncate(now() - timedelta(days=1)),
+            '%s__lt' % name: now() - timedelta(days=1),
         }),
         'until_yesterday': lambda qs, name: qs.filter(**{
             '%s__lt' % name: _truncate(now() - timedelta(days=2)),
