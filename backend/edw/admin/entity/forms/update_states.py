@@ -24,7 +24,6 @@ class EntitiesUpdateStateAdminForm(forms.Form):
         widget=forms.HiddenInput({'class': 'select-across'}),
     )
 
-
     def __init__(self, *args, **kwargs):
         """
         Конструктор для корректного отображения объектов
@@ -36,8 +35,17 @@ class EntitiesUpdateStateAdminForm(forms.Form):
         transition_states = getattr(entities_model, 'TRANSITION_TARGETS', {})
         if transition_states:
             choices = []
-            for k, v in transition_states.items():
-                choices.append((k, v))
+            for status, value in transition_states.items():
+                try:
+                    if isinstance(value, str):
+                        label = value
+                    elif isinstance(value, (tuple, list)) and len(value) > 0:
+                        label = value[0]
+                    else:
+                        label = str(status).capitalize()
+                    choices.append((status, label))
+                except:
+                    choices.append((status, str(status).capitalize()))
             self.fields['state'].choices = choices
 
     def clean(self):
