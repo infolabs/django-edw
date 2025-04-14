@@ -14,9 +14,58 @@ Datamart styles
       }
     }
   }
-  &[data-initial-data-count~="0"] {
-    display: none;
-  }
+  // &[data-initial-data-count~="0"] {
+  //   display: none;
+  // }
+}
+
+.ex-no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #666;
+    }
+
+    &__icon-wrapper {
+        margin-bottom: 15px;
+    }
+
+    &__icon {
+        &:before {
+            display: inline;
+            background-image: none;
+            background-position: 0 0;
+            background-repeat: repeat;
+            font-family: FontAwesome;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: inherit;
+            content: "\f05a";
+            font-size: 48px;
+            color: #ccc;
+        }
+    }
+
+    &__message-wrapper {
+        margin: 0;
+    }
+
+    &__message {
+        font-size: 16px;
+        
+        &:after {
+            content: 'Нет данных для отображения';
+        }
+    }
 }
 
 .ex-related-datamart {

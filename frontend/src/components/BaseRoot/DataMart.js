@@ -12,6 +12,7 @@ import Statistics from 'components/Statistics';
 import Aggregation from 'components/Aggregation';
 import DataMartsList from 'components/DataMartsList';
 import GroupTitle from 'components/GroupTitle';
+import NoDataTemplate from '../NoDataTemplate';
 import {closest} from '../../utils/querySelector';
 
 
@@ -49,8 +50,12 @@ export class DataMart extends Component {
   }
 
   render() {
+    const {entry_point_id, entry_points, actions, component_attrs, entities} = this.props;
+    const hasNoData = !entities?.items?.loading && entities?.items?.meta?.count === 0;
 
-    const {entry_point_id, entry_points, actions, component_attrs} = this.props;
+    if (hasNoData) {
+      return <NoDataTemplate />;
+    }
 
     return (
       <div className="row ex-datamart">
