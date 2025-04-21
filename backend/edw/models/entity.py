@@ -404,46 +404,47 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         result = set()
         offset = 0
 
-        for j in range(1, i + 1):
-            entities_ids, terms_ids = set(), set()
+        with transaction.atomic():
+            for j in range(1, i + 1):
+                entities_ids, terms_ids = set(), set()
 
-            inner_qs = self.order_by('id').values_list('pk', flat=True)
+                inner_qs = self.order_by('id').values_list('pk', flat=True)
 
-            if last_id is not None:
-                inner_qs = inner_qs.filter(id__gt=last_id)
+                if last_id is not None:
+                    inner_qs = inner_qs.filter(id__gt=last_id)
 
-            if limit and i != j:
-                inner_qs = inner_qs[offset:offset + limit]
+                if limit and i != j:
+                    inner_qs = inner_qs[offset:offset + limit]
 
-            # use index for maximum performance
-            inner_qs = inner_qs.force_index()
+                # use index for maximum performance
+                inner_qs = inner_qs.force_index()
 
-            join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
-            entity_alias = "{}_id".format(inner_model_name.lower())
+                join_alias = "{}_IJ{}".format(inner_model_name.upper(), idx)
+                entity_alias = "{}_id".format(inner_model_name.lower())
 
-            outer_qs = outer_model.objects.values_list('term_id').annotate(last_id=Max("entity_id"))
+                outer_qs = outer_model.objects.values_list('term_id').annotate(last_id=Max("entity_id"))
 
-            # Make "slow" queryset
-            result_qs = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
+                # Make "slow" queryset
+                result_qs = inner_join_to(outer_qs, inner_qs, entity_alias, 'id', join_alias)
 
-            if terms_boundary_ids:
-                # Make "little fast" queryset
-                result_qs = result_qs.filter(term__in=terms_boundary_ids)
-            elif result:
-                result_qs = result_qs.exclude(term__in=result)
+                if terms_boundary_ids:
+                    # Make "little fast" queryset
+                    result_qs = result_qs.filter(term__in=terms_boundary_ids)
+                elif result:
+                    result_qs = result_qs.exclude(term__in=result)
 
-            # split result
-            [(terms_ids.add(x), entities_ids.add(y)) for x, y in result_qs]
+                # split result
+                [(terms_ids.add(x), entities_ids.add(y)) for x, y in result_qs]
 
-            if entities_ids:
-                last_id = max(entities_ids)
-                offset = 0
-            else:
-                offset += limit
-                continue
+                if entities_ids:
+                    last_id = max(entities_ids)
+                    offset = 0
+                else:
+                    offset += limit
+                    continue
 
-            terms_boundary_ids -= terms_ids
-            result.update(terms_ids)
+                terms_boundary_ids -= terms_ids
+                result.update(terms_ids)
 
         return list(result)
 
@@ -1433,8 +1434,15 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def additional_characteristics(self):
         """
-        ENG: Return additional characteristics of current entity.
-        RUS: Возвращает дополнительные характеристики текущей сущности.
+        Возвращает дополнительные характеристики текущей сущности.
+        
+        Метод получает из базы данных все дополнительные характеристики, связанные с текущей сущностью.
+        Характеристики фильтруются по признаку is_characteristic в атрибутах термина и сортируются 
+        в соответствии с древовидной структурой терминов.
+        
+        Returns:
+            QuerySet: Набор объектов AdditionalEntityCharacteristicOrMarkModel, представляющих
+                     дополнительные характеристики сущности.
         """
         tree_opts = TermModel._mptt_meta
         return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
