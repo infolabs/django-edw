@@ -133,7 +133,16 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def group_by(self, *fields):
         """
-        RUS: Возвращает результат запроса, выбранный в результате группировки данных.
+        Возвращает результат запроса, сгруппированный по указанным полям.
+        
+        Создает SQL-запрос с GROUP BY, который группирует записи по указанным полям.
+        Дополнительно аннотирует результат размером группы (group_size) и идентификатором группы.
+        
+        Args:
+            *fields: Поля, по которым нужно группировать данные.
+            
+        Returns:
+            QuerySet: Клонированный QuerySet с примененной группировкой.
         """
         group_by_annotation = {
             self.GROUP_SIZE_ALIAS: Count('id'),
@@ -203,7 +212,15 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def alike(self, pk, *fields):
         """
-        RUS: Возвращает отфильтрованные по первичному ключу значения из запроса.
+        Возвращает объекты с такими же значениями полей, как у объекта с указанным primary key.
+        
+        Args:
+            pk: Первичный ключ объекта, подобные которому нужно найти.
+            *fields: Поля, по которым проверяется совпадение.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet с объектами, у которых значения указанных полей 
+                     совпадают со значениями у исходного объекта.
         """
         try:
             alike = self.values(*fields).filter(pk=pk)[0]
@@ -214,22 +231,46 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @add_cache_key('actv')
     def active(self):
         """
-        RUS: Возвращает отфильтрованные значения из запроса со статусом активен.
+        Возвращает только активные объекты.
+        
+        Фильтрует QuerySet, оставляя только записи со значением active=True.
+        Результат кэшируется с ключом 'actv'.
+        
+        Returns:
+            QuerySet: QuerySet, содержащий только активные объекты.
         """
         return self.filter(active=True)
 
     @add_cache_key('unactv')
     def unactive(self):
         """
-        RUS: Возвращает отфильтрованные значения из запроса, у которых нет статуса активен (неактивные).
+        Возвращает только неактивные объекты.
+        
+        Фильтрует QuerySet, оставляя только записи со значением active=False.
+        Результат кэшируется с ключом 'unactv'.
+        
+        Returns:
+            QuerySet: QuerySet, содержащий только неактивные объекты.
         """
         return self.filter(active=False)
 
     @add_cache_key('sf')  # Add dummy key, not for caching. Use `result.semantic_filter_meta` if needed
     def semantic_filter(self, value, use_cached_decompress=False, field_name='term', fix_it=False, trim_ids=None):
         """
-        RUS: Добавляет фиктивный ключ не для кэширования. Возвращает отфильтрованные по семантическим правилам
-        распакованные кэшированные данные тематической модели.
+        Применяет семантическую фильтрацию к QuerySet на основе древовидной структуры терминов.
+        
+        Декомпрессирует значение в дерево терминов и строит фильтры на основе семантических правил.
+        Результат может быть кэширован и обрезан при необходимости.
+        
+        Args:
+            value: Значение для декомпрессии в дерево терминов.
+            use_cached_decompress: Использовать ли кэшированную декомпрессию.
+            field_name: Имя поля для фильтрации.
+            fix_it: Исправлять ли дерево терминов при декомпрессии.
+            trim_ids: Список ID для обрезки дерева терминов.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet согласно семантическим правилам.
         """
         decompress = TermModel.cached_decompress if use_cached_decompress else TermModel.decompress
         tree = decompress(value, fix_it)
@@ -338,6 +379,19 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         return result
 
     def force_index(self, index_name=None):
+        """
+        Принудительно использует указанный индекс в SQL-запросе для MySQL.
+        
+        Модифицирует SQL-запрос, добавляя USE INDEX для оптимизации производительности запроса.
+        Работает только для MySQL, для других СУБД возвращает неизмененный QuerySet.
+        
+        Args:
+            index_name: Имя индекса для использования. По умолчанию 'PRIMARY'.
+            
+        Returns:
+            QuerySet: QuerySet с принудительным использованием индекса (для MySQL) 
+                     или исходный QuerySet (для других СУБД).
+        """
         vendor = get_db_vendor()
         if vendor == 'mysql':
             try:
@@ -375,12 +429,18 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def get_related_terms_ids(self, tree=None, min_limit=10000, limit_log_base=10):
         """
-        # Pythonic, but working to slow, try improve speed by using INNER JOIN
-        result = self.model.terms.through.objects.filter(**{
-            "{entity}_id__in".format(
-                entity_model=self.model._meta.object_name.lower()
-            ): self.values_list('pk', flat=True)}).distinct().values_list('term_id', flat=True)
-        RUS: Возвращает тематическую модель, сформированную в результате SQL-запроса к реляционным данным.
+        Возвращает список ID связанных терминов для объектов в QuerySet.
+        
+        Выполняет SQL-запрос к реляционным данным, оптимизированный для
+        больших наборов данных с использованием INNER JOIN.
+        
+        Args:
+            tree: Дерево терминов для определения границ выборки.
+            min_limit: Минимальное количество объектов для применения ограничения запроса.
+            limit_log_base: База логарифма для расчета размера страницы при ограничении.
+            
+        Returns:
+            list: Список ID связанных терминов.
         """
         # try find related terms boundary ids
         has_semantic_filters = getattr(tree, '_has_semantic_filters', False) if tree else False
@@ -450,12 +510,31 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def _get_terms_ids_cache_key(self, tree):
         """
-        RUS: Создается ключ кэширования для сформированной тематической модели и задается хэш.
+        Создает ключ кэширования для дерева терминов.
+        
+        Формирует уникальный ключ кэша на основе хэша дерева терминов.
+        
+        Args:
+            tree: Дерево терминов.
+            
+        Returns:
+            str: Ключ кэша для хранения ID терминов.
         """
         return self.model.TERMS_IDS_CACHE_KEY_PATTERN.format(tree_hash=tree.get_hash())
 
     @add_cache_key(_get_terms_ids_cache_key)
     def get_terms_ids(self, tree):
+        """
+        Возвращает список ID терминов для текущего QuerySet с учетом дерева терминов.
+        
+        Использует отложенное вычисление и кэширование результата.
+        
+        Args:
+            tree: Дерево терминов для фильтрации.
+            
+        Returns:
+            list: Кэшированный список ID терминов.
+        """
         # отложенное вычисление
         result = lazy(_get_terms_ids, list)(self, tree)
         # примиксовываем вычислитель кэша
@@ -464,13 +543,19 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def get_similar(self, value, use_cached_decompress=False, fix_it=False, many=False):
         """
-        ENG: Return similar entity from queryset, semantics isn't considered
-        RUS: Получает максимально похожий по каким-либо критериям объект (сущность) из запроса.
-        :param value: terms ids
-        :param use_cached_decompress: do use cached decompress
-        :param fix_it: do fix terms tree on decompress
-        :param many: return similar entities list if 'True'
-        :return: similar entity on None
+        Находит объекты, семантически похожие на заданные параметры.
+        
+        Ищет объекты в QuerySet, которые максимально похожи по сходству терминов,
+        без учета семантических правил.
+        
+        Args:
+            value: Список ID терминов для поиска похожих объектов.
+            use_cached_decompress: Использовать ли кэшированную декомпрессию.
+            fix_it: Исправлять ли дерево терминов при декомпрессии.
+            many: Возвращать ли список похожих объектов (True) или только первый (False).
+            
+        Returns:
+            Entity/list/None: Похожий объект, список похожих объектов или None, если ничего не найдено.
         """
         ids = TermModel.get_all_active_root_ids(use_cache=use_cached_decompress)
         ids.extend(value)
@@ -500,11 +585,29 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def _get_subj_cache_key(self, subj_ids):
         """
-        RUS: Возвращает кэш id модели субъектов.
+        Формирует ключ кэша для фильтрации по субъектам.
+        
+        Args:
+            subj_ids: Список ID субъектов.
+            
+        Returns:
+            str: Ключ кэша для фильтрации по субъектам.
         """
         return self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=(hash_unsorted_list(subj_ids) if subj_ids else ''))
 
     def _alias_is_true_or_reducer(self, aliases):
+        """
+        Создает и применяет фильтр на основе OR-объединения нескольких полей-псевдонимов.
+        
+        Метод используется внутренними методами фильтрации для создания эффективных запросов
+        с использованием псевдонимов и объединения их через OR.
+        
+        Args:
+            aliases: Словарь псевдонимов для аннотирования.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet с примененным OR-редуктором.
+        """
         q_lst = []
         aliases_keys = aliases.keys()
         for key in aliases_keys:
@@ -517,9 +620,16 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @add_cache_key(_get_subj_cache_key)
     def subj(self, subj_ids):
         """
-        RUS: Возвращает отфильтрованные связанные id субъектов.
-        :param subj_ids: subjects ids
-        :return:
+        Фильтрует объекты, связанные с указанными субъектами.
+        
+        Находит объекты, которые имеют прямые или обратные связи с указанными субъектами.
+        Результат кэшируется.
+        
+        Args:
+            subj_ids: Список ID субъектов для фильтрации.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet объектов, связанных с субъектами.
         """
         base_manager = EntityRelationModel.objects
         forward_relations = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(to_entity__in=subj_ids)
@@ -539,7 +649,14 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def _get_rel_cache_key(self, rel_f_ids, rel_r_ids):
         """
-        RUS: Возвращает ключ кэша связей для модели.
+        Формирует ключ кэша для фильтрации по связям.
+        
+        Args:
+            rel_f_ids: Список ID прямых связей.
+            rel_r_ids: Список ID обратных связей.
+            
+        Returns:
+            str: Ключ кэша для фильтрации по связям.
         """
         _hash = "{rel_f_ids}:{rel_r_ids}".format(
             rel_f_ids=hash_unsorted_list(rel_f_ids) if rel_f_ids else '',
@@ -550,10 +667,17 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @add_cache_key(_get_rel_cache_key)
     def rel(self, rel_f_ids, rel_r_ids):
         """
-        RUS: Возвращает отфильтрованные id связей терминов.
-        :param rel_f_ids: forward relations ids
-        :param rel_r_ids: backward (reverse) relations ids
-        :return:
+        Фильтрует объекты на основе прямых и обратных связей.
+        
+        Находит объекты, которые имеют указанные типы прямых или обратных связей.
+        Результат кэшируется.
+        
+        Args:
+            rel_f_ids: Список ID прямых связей для фильтрации.
+            rel_r_ids: Список ID обратных связей для фильтрации.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet объектов с указанными связями.
         """
         base_manager = EntityRelationModel.objects
         aliases = {}
@@ -578,7 +702,14 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
     def _get_subj_and_rel_cache_key(self, subj, *rel_ids):
         """
-        RUS: Возвращает ключ кэша субъекта и соответствующий ему ключ связей.
+        Формирует ключ кэша для фильтрации по субъектам и связям.
+        
+        Args:
+            subj: Список ID субъектов или словарь {relation_id: [subjects_ids]}.
+            *rel_ids: Списки ID прямых и обратных связей.
+            
+        Returns:
+            str: Ключ кэша для фильтрации по субъектам и связям.
         """
         if isinstance(subj, (tuple, list)):
             subj_key=self._get_subj_cache_key(subj),
@@ -593,11 +724,18 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @add_cache_key(_get_subj_and_rel_cache_key)
     def subj_and_rel(self, subj, rel_f_ids, rel_r_ids):
         """
-        RUS: Возвращает фильтр субъектов и терминов и соответствующих им связей.
-        :param subj: list [subjects ids] or dict - {relation_id: [subjects ids]...}
-        :param rel_f_ids: forward relations ids
-        :param rel_r_ids: backward (reverse) relations ids
-        :return:
+        Фильтрует объекты на основе субъектов и их связей.
+        
+        Находит объекты, которые связаны с указанными субъектами определенными типами связей.
+        Позволяет указать разные субъекты для разных типов связей.
+        
+        Args:
+            subj: Список ID субъектов или словарь {relation_id: [subjects_ids]}.
+            rel_f_ids: Список ID прямых связей для фильтрации.
+            rel_r_ids: Список ID обратных связей для фильтрации.
+            
+        Returns:
+            QuerySet: Отфильтрованный QuerySet объектов с указанными связями с субъектами.
         """
         base_manager = EntityRelationModel.objects
         aliases = {}
@@ -672,15 +810,25 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def ids(self):
         """
-        RUS: Возвращает список id.
+        Возвращает список ID всех объектов в QuerySet.
+        
+        Returns:
+            list: Список идентификаторов объектов.
         """
         return list(self.values_list('id', flat=True))
 
     @cached_property
     def additional_characteristics(self):
         """
-        ENG: Return additional characteristics of current queryset.
-        RUS: Возвращает дополнительные характеристики текущего запроса к базе данных.
+        Возвращает дополнительные характеристики текущей сущности.
+        
+        Метод получает из базы данных все дополнительные характеристики, связанные с текущей сущностью.
+        Характеристики фильтруются по признаку is_characteristic в атрибутах термина и сортируются 
+        в соответствии с древовидной структурой терминов.
+        
+        Returns:
+            QuerySet: Набор объектов AdditionalEntityCharacteristicOrMarkModel, представляющих
+                     дополнительные характеристики сущности.
         """
         tree_opts = TermModel._mptt_meta
         return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
@@ -690,8 +838,15 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def additional_marks(self):
         """
-        ENG: Return additional marks of current queryset.
-        RUS: Возвращает дополнительные метки текущего запроса к базе данных.
+        Возвращает дополнительные метки текущей сущности.
+        
+        Метод получает из базы данных все дополнительные метки, связанные с текущей сущностью.
+        Метки фильтруются по признаку is_mark в атрибутах термина и сортируются 
+        в соответствии с древовидной структурой терминов.
+        
+        Returns:
+            QuerySet: Набор объектов AdditionalEntityCharacteristicOrMarkModel, представляющих
+                     дополнительные метки сущности.
         """
         tree_opts = TermModel._mptt_meta
         return AdditionalEntityCharacteristicOrMarkModel.objects.filter(
@@ -701,8 +856,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def _active_terms_for_characteristics(self):
         """
-        ENG: Return terms for characteristics of current queryset.
-        RUS: Возвращает термины для характеристик текущего запроса к базе данных.
+        Возвращает активные термины для характеристик текущей сущности.
+        
+        Получает список активных терминов, которые являются характеристиками
+        и связаны с данной сущностью.
+        
+        Returns:
+            list: Список терминов-характеристик, связанных с сущностью.
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_characteristics_descendants_ids()
@@ -712,8 +872,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def _active_terms_for_marks(self):
         """
-        ENG: Return terms for marks of current queryset
-        RUS: Возвращает термины для меток текущего запроса к базе данных.
+        Возвращает активные термины для меток текущей сущности.
+        
+        Получает список активных терминов, которые являются метками
+        и связаны с данной сущностью.
+        
+        Returns:
+            list: Список терминов-меток, связанных с сущностью.
         """
         tree_opts = TermModel._mptt_meta
         descendants_ids = TermModel.get_all_active_marks_descendants_ids()
@@ -723,8 +888,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def characteristics_getter(self):
         """
-        RUS: Получает все характеристики объектов, включая характеристики активных терминов,
-        дополнительные характеристики, характеристики атрибутов тематической модели.
+        Возвращает объект для получения характеристик объектов в QuerySet.
+        
+        Создает и настраивает экземпляр EntityCharacteristicOrMarkGetter для
+        получения характеристик объектов.
+        
+        Returns:
+            EntityCharacteristicOrMarkGetter: Объект для получения характеристик.
         """
         tree_opts = TermModel._mptt_meta
         return EntityCharacteristicOrMarkGetter(
@@ -738,23 +908,36 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def characteristics(self):
         """
-        ENG: Return all characteristics objects of current queryset.
-        RUS: Возвращает все характеристики объектов текущего запроса к базе данных.
+        Возвращает все характеристики объектов в QuerySet.
+        
+        Returns:
+            list: Полный список характеристик для объектов.
         """
         return self.characteristics_getter.all()
 
     @cached_property
     def short_characteristics(self):
         """
-        RUS: Возвращает короткие характеристики объектов текущего запроса к базе данных.
+        Возвращает сокращенный список характеристик объектов в QuerySet.
+        
+        Ограничивает количество характеристик до максимального значения,
+        определенного в модели.
+        
+        Returns:
+            list: Сокращенный список характеристик для объектов.
         """
         return self.characteristics_getter[:self.model.SHORT_CHARACTERISTICS_MAX_COUNT]
 
     @cached_property
     def marks_getter(self):
         """
-        RUS: Получает все метки объектов, включая метки активных терминов,
-        дополнительные метки, метки атрибутов тематической модели.
+        Возвращает объект для получения меток объектов в QuerySet.
+        
+        Создает и настраивает экземпляр EntityCharacteristicOrMarkGetter для
+        получения меток объектов.
+        
+        Returns:
+            EntityCharacteristicOrMarkGetter: Объект для получения меток.
         """
         tree_opts = TermModel._mptt_meta
         return EntityCharacteristicOrMarkGetter(
@@ -768,24 +951,38 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
     @cached_property
     def marks(self):
         """
-        ENG: Return all marks objects of current queryset.
-        RUS: Возвращает все метки объектов текущего запроса к базе данных.
+        Возвращает все метки объектов в QuerySet.
+        
+        Returns:
+            list: Полный список меток для объектов.
         """
         return self.marks_getter.all()
 
     @cached_property
     def short_marks(self):
         """
-        RUS: Возвращает короткие метки объектов текущего запроса к базе данных.
+        Возвращает сокращенный список меток объектов в QuerySet.
+        
+        Ограничивает количество меток до максимального значения,
+        определенного в модели.
+        
+        Returns:
+            list: Сокращенный список меток для объектов.
         """
         return self.marks_getter[:self.model.SHORT_MARKS_MAX_COUNT]
 
     def stored_request(self, request):
         """
-        ENG: Extract useful information about the request to be used for emulating a Django request
-        during offline rendering.
-        RUS: Извлекает пользовательскую информацию о запросе, который будет использоваться для эмуляции запроса Django
-        во время оффлайн-рендеринга (визуализации).
+        Извлекает полезную информацию из запроса для эмуляции запроса Django.
+        
+        Сохраняет данные о языке, базовом URI, IP-адресе, User-Agent и пользователе
+        для последующего использования при оффлайн-рендеринге.
+        
+        Args:
+            request: Объект запроса Django.
+            
+        Returns:
+            dict: Словарь с извлеченной информацией о запросе.
         """
         get_ip = getattr(ip, 'get_ip', lambda r: ip.get_client_ip(r)[0])
         return {
@@ -1149,19 +1346,25 @@ def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
 @python_2_unicode_compatible
 class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
     """
-    ENG: An abstract basic object model for the EDW. It is intended to be overridden by one or
-    more polymorphic models, adding all the fields and relations, required to describe this
-    type of object.
-
-    Some attributes for this class are mandatory. They shall be implemented as property method.
-    The following fields MUST be implemented by the inheriting class:
-    `entity_name`: Return the pronounced name for this object in its localized language.
-
-    Additionally the inheriting class MUST implement the following methods `get_absolute_url()`
-    and etc. See below for details.
-    RUS: Абстрактная базовая объектная модель для EDW.
-    Она предназначен для переопределения одной или более полиморфной модели, добавляет все поля
-    и отношения, необходимые для описания этого типа объекта.
+    Абстрактная базовая модель для сущностей в EDW.
+    
+    Представляет собой основу для всех типов сущностей в системе.
+    Класс предназначен для переопределения полиморфными моделями, которые добавляют
+    необходимые поля и отношения для конкретных типов сущностей.
+    
+    Обязательные атрибуты:
+    - entity_name: должен возвращать локализованное название сущности
+    
+    Обязательные методы:
+    - get_absolute_url(): должен возвращать канонический URL сущности
+    
+    Attributes:
+        SHORT_CHARACTERISTICS_MAX_COUNT: Максимальное количество характеристик в сокращенном списке.
+        SHORT_MARKS_MAX_COUNT: Максимальное количество меток в сокращенном списке.
+        terms: ManyToMany связь с терминами для классификации сущностей.
+        created_at: Дата и время создания сущности.
+        updated_at: Дата и время последнего обновления сущности.
+        active: Флаг, указывающий, является ли сущность активной и видимой.
     """
     SHORT_CHARACTERISTICS_MAX_COUNT = edw_settings.ENTITY_ATTRIBUTES['short_characteristics_max_count']
     SHORT_MARKS_MAX_COUNT = edw_settings.ENTITY_ATTRIBUTES['short_marks_max_count']
@@ -1234,8 +1437,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def entity_type(self):
         """
-        ENG: Returns the polymorphic type of the object.
-        RUS: Возвращает полиморфный тип объекта.
+        Возвращает полиморфный тип объекта.
+        
+        Полиморфный тип определяется типом контента (ContentType) для конкретного
+        экземпляра модели и используется для различения разных типов сущностей.
+        
+        Returns:
+            str: Строковое представление типа полиморфной модели.
         """
         return force_text(self.polymorphic_ctype)
     entity_type.short_description = _("Entity type")
@@ -1243,8 +1451,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def entity_model(self):
         """
-        ENG: Returns the polymorphic model name of the object's class.
-        RUS: Возвращает имя полиморфной модели класса объекта.
+        Возвращает имя полиморфной модели класса объекта.
+        
+        Получает модель из кэша типов контента для оптимизации производительности.
+        
+        Returns:
+            str: Имя модели сущности.
         """
         # init in `edw/signals/handlers/entity.py`
         content_type_cache = self._content_type_cache
@@ -1258,8 +1470,20 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def get_absolute_url(self, request=None, format=None):
         """
-        ENG: Hook for returning the canonical Django URL of this object.
-        RUS: Возвращает абсолютные путь URL объекта.
+        Возвращает канонический URL объекта.
+        
+        Этот метод должен быть переопределен в дочерних классах для генерации
+        правильного URL адреса для конкретного типа сущности.
+        
+        Args:
+            request: Опциональный объект запроса Django.
+            format: Опциональный формат URL.
+            
+        Returns:
+            str: Абсолютный URL объекта.
+            
+        Raises:
+            NotImplementedError: Если метод не реализован в дочернем классе.
         """
         msg = "Method get_absolute_url() must be implemented by subclass: `{}`"
         raise NotImplementedError(msg.format(self.__class__.__name__))
@@ -1267,21 +1491,45 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def get_ordering_modes(cls, **kwargs):
         """
-        RUS: Возвращает отсортированные модели, являющиеся методами класса.
+        Возвращает доступные режимы сортировки для сущностей.
+        
+        Определяет, какие режимы сортировки доступны при отображении 
+        списка сущностей.
+        
+        Args:
+            **kwargs: Дополнительные параметры для настройки режимов сортировки.
+            
+        Returns:
+            tuple: Кортеж кортежей (код_сортировки, описание).
         """
         return cls.ORDERING_MODES
 
     @classmethod
     def get_view_components(cls, **kwargs):
         """
-        RUS: Возвращает view components (компоненты представлений): табличное представление, плиточное представление.
+        Возвращает доступные компоненты представления для сущностей.
+        
+        Определяет, какие варианты отображения доступны при просмотре 
+        списка сущностей (список, плитка, таблица и т.д.).
+        
+        Args:
+            **kwargs: Дополнительные параметры для настройки компонентов представления.
+            
+        Returns:
+            tuple: Кортеж кортежей (код_компонента, описание).
         """
         return cls.VIEW_COMPONENTS
 
     @classmethod
     def get_all_subclasses(cls):
         """
-        RUS: Возвращает все подклассы и их наследники.
+        Возвращает все подклассы и их наследников рекурсивно.
+        
+        Метод рекурсивно находит все классы, наследующие от текущего класса,
+        включая вложенные уровни наследования.
+        
+        Yields:
+            class: Классы-наследники текущего класса.
         """
         for subclass in cls.__subclasses__():
             for subsubclass in subclass.get_all_subclasses():
@@ -1291,7 +1539,16 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @staticmethod
     def get_entities_types(from_cache=True):
         """
-        RUS: Возвращает типы сущности.
+        Возвращает типы сущностей, связанные с терминами.
+        
+        Создает словарь, связывающий слаги терминов с соответствующими 
+        терминами, представляющими типы сущностей в системе.
+        
+        Args:
+            from_cache: Использовать ли кэшированные типы сущностей.
+            
+        Returns:
+            dict: Словарь {slug: term} с типами сущностей.
         """
         entities_types = getattr(EntityModel, "_entities_types_cache", None)
         if entities_types is None or not from_cache:
@@ -1316,8 +1573,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def validate_term_model(cls):
         """
-        Валидация модели терминов.
-        Добавляет термины класса объекта в дерево согласно структуре наследования.
+        Валидирует модель терминов и создает структуру терминов согласно иерархии классов.
+        
+        Добавляет термины класса объекта в дерево в соответствии со структурой наследования.
+        Для каждого класса в иерархии наследования создается соответствующий термин,
+        если он еще не существует.
+        
+        Термины создаются с ограничениями на изменение, чтобы сохранить целостность системы.
         """
         if EntityModel.materialized.__subclasses__():
             parent = None
@@ -1356,13 +1618,26 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @classmethod
     def validate_data_mart_model(cls):
         """
-        Validate data mart model
+        Валидирует модель витрины данных.
+        
+        Заглушка, предназначенная для переопределения в дочерних классах
+        для валидации модели витрины данных.
         """
         pass
 
     def need_terms_validation_after_save(self, origin, **kwargs):
         """
-        RUS: Проверяет термины после сохранения, являются они оригинальными и входит Модель сущности в субкласс.
+        Определяет, требуется ли валидация терминов после сохранения.
+        
+        Проверяет, является ли объект новым (origin=None) и входит ли модель
+        сущности в подклассы EntityModel.materialized.
+        
+        Args:
+            origin: Оригинальный объект до сохранения или None для новых объектов.
+            **kwargs: Словарь контекста с дополнительными параметрами.
+            
+        Returns:
+            bool: True, если требуется валидация терминов, иначе False.
         """
         if origin is None and EntityModel.materialized.__subclasses__():
             do_validate = kwargs["context"]["validate_entity_type"] = True
@@ -1372,7 +1647,14 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def validate_terms(self, origin, **kwargs):
         """
-        RUS: Создает ключ кэша терминов и добавляет термин с ключом.
+        Валидирует термины сущности и добавляет термины по типу сущности.
+        
+        Находит термин, соответствующий классу сущности, и добавляет его к сущности.
+        Выполняется только при создании нового объекта или при принудительной валидации.
+        
+        Args:
+            origin: Оригинальный объект до сохранения или None для новых объектов.
+            **kwargs: Словарь контекста с дополнительными параметрами.
         """
         context = kwargs["context"]
         if context.get("force_validate_terms", False) or context.get("validate_entity_type", False):
@@ -1385,15 +1667,33 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def pre_save_entity(self, origin, *args, **kwargs):
         """
-        Normally not needed.
-        This function call before `.save()` method.
-        :param origin:
-        :return:
+        Выполняет действия перед сохранением сущности.
+        
+        Метод вызывается перед методом save() и может быть переопределен
+        в дочерних классах для реализации дополнительной логики.
+        
+        Args:
+            origin: Оригинальный объект до сохранения или None для новых объектов.
+            *args: Дополнительные позиционные аргументы.
+            **kwargs: Дополнительные именованные аргументы.
         """
+        pass
 
     def save(self, *args, **kwargs):
         """
-        RUS: Сохраняет термины с использованием принудительного обновления и принудительной валидации.
+        Сохраняет сущность с дополнительной логикой валидации терминов.
+        
+        При создании нового объекта или при принудительной валидации терминов
+        выполняет валидацию и добавление необходимых терминов.
+        
+        Args:
+            *args: Позиционные аргументы для метода save().
+            **kwargs: Именованные аргументы для метода save(), включая
+                     force_update - принудительное обновление,
+                     force_validate_terms - принудительная валидация терминов.
+                     
+        Returns:
+            object: Результат выполнения метода save() родительского класса.
         """
         force_update = kwargs.get('force_update', False)
         if not force_update:
@@ -1427,7 +1727,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def patch_terms_many_related_manager(self):
         """
-        RUS: Переопределяет методы менеджера множественных связей терминов.
+        Переопределяет методы менеджера множественных связей терминов.
+        
+        Производит патчинг метода add() ManyRelatedManager для терминов,
+        чтобы реализовать дополнительную логику при добавлении терминов.
         """
         patch_class_method(self.terms.__class__, 'add', _entity_terms_many_related_manager_add)
 
@@ -1483,7 +1786,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def characteristics_getter(self):
         """
-        RUS: Получает характеристики объекта текущей сущности.
+        Возвращает объект для получения характеристик объектов в QuerySet.
+        
+        Создает и настраивает экземпляр EntityCharacteristicOrMarkGetter для
+        получения характеристик объектов.
+        
+        Returns:
+            EntityCharacteristicOrMarkGetter: Объект для получения характеристик.
         """
         tree_opts = TermModel._mptt_meta
         return EntityCharacteristicOrMarkGetter(
@@ -1497,8 +1806,10 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def characteristics(self):
         """
-        ENG: Return all characteristics objects of current entity.
-        RUS: Возвращает все характеристики объектов текущей сущности.
+        Возвращает все характеристики объектов в QuerySet.
+        
+        Returns:
+            list: Полный список характеристик для объектов.
         """
         return self.characteristics_getter.all()
 
@@ -1541,14 +1852,24 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @cached_property
     def active_terms_ids(self):
         """
-        RUS: Возвращает список id активных терминов.
+        Возвращает список идентификаторов активных терминов сущности.
+        
+        Получает идентификаторы всех активных терминов, связанных с сущностью.
+        
+        Returns:
+            list: Список идентификаторов активных терминов.
         """
         return list(self.terms.active().values_list('id', flat=True))
 
     def get_data_mart(self):
         """
-        ENG: Return entity data mart.
-        RUS: Возвращает экземпляр витрины данных.
+        Возвращает витрину данных, соответствующую текущей сущности.
+        
+        Находит витрину данных на основе пересечения терминов сущности и терминов
+        всех витрин данных. Выбирает витрину с наибольшим числом совпадающих терминов.
+        
+        Returns:
+            DataMartModel/None: Экземпляр витрины данных или None, если подходящая витрина не найдена.
         """
         entity_terms_ids = self.active_terms_ids
         all_entity_terms_ids = list(TermModel.decompress(entity_terms_ids, fix_it=False).keys())
@@ -1572,7 +1893,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @staticmethod
     def get_data_mart_cache_buffer():
         """
-        RUS: Помещает ключ кэша витрины данных в кольцевой буфер.
+        Возвращает кольцевой буфер для кэширования ключей витрин данных.
+        
+        Создает или возвращает существующий кольцевой буфер с ограниченным размером
+        для хранения ключей кэша витрин данных.
+        
+        Returns:
+            RingBuffer: Объект кольцевого буфера для ключей кэша.
         """
         return RingBuffer.factory(BaseEntity.DATA_MART_BUFFER_CACHE_KEY,
                                   max_size=BaseEntity.DATA_MART_BUFFER_CACHE_SIZE)
@@ -1580,7 +1907,9 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
     @staticmethod
     def clear_data_mart_cache_buffer():
         """
-        RUS: Очищает ключ кэша витрины данных из буфера.
+        Очищает буфер кэша витрин данных и удаляет связанные ключи из кэша.
+        
+        Получает все ключи из буфера, очищает буфер и удаляет значения из кэша.
         """
         buf = BaseEntity.get_data_mart_cache_buffer()
         keys = buf.get_all()
@@ -1589,7 +1918,12 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def get_data_mart_cache_key(self):
         """
-        RUS: Возвращает шаблон ключа кэша витрины данных.
+        Возвращает ключ кэша для витрины данных текущей сущности.
+        
+        Формирует ключ кэша на основе идентификатора сущности и шаблона ключа.
+        
+        Returns:
+            str: Ключ кэша для витрины данных.
         """
         return self.DATA_MART_CACHE_KEY_PATTERN.format(
             id=self.id
@@ -1597,7 +1931,13 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
 
     def get_cached_data_mart(self):
         """
-        RUS: Возвращает витрину данных с ключом кэша.
+        Retrieves the cached data mart for the current entity.
+        
+        Attempts to get the data mart from cache. If not found,
+        computes it, saves to cache, and records the key in the buffer.
+        
+        Returns:
+            DataMartModel/None: Instance of data mart or None.
         """
         key = self.get_data_mart_cache_key()
         data_mart = cache.get(key, empty)
@@ -1609,7 +1949,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
             if old_key != buf.empty:
                 cache.delete(old_key)
         return data_mart
-
+    
     @cached_property
     def data_mart(self):
         """
@@ -2029,3 +2369,5 @@ class ApiReferenceMixin(object):
         """
         return reverse('edw:{}-detail'.format(EntityModel._meta.model_name.lower()), kwargs={'pk': self.pk}, request=request,
                        format=format)
+
+
