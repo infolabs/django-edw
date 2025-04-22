@@ -14,6 +14,7 @@ from typing import (
     Type,
     Iterable,
     List,
+    Any
 )
 try:
     from typing import Literal
@@ -112,7 +113,7 @@ def get_polymorphic_ancestors_models(ChildModel):
 # BaseEntityQuerySet
 # ==============================================================================
 
-def _get_terms_ids(entities_qs: 'BaseEntityQuerySet', tree: 'TermModel') -> List[int]:
+def _get_terms_ids(entities_qs: 'BaseEntityQuerySet', tree: Any) -> List[int]:
     """
     Возвращает список идентификаторов терминов, актуализированных согласно выборке объектов и дереву терминов.
     
