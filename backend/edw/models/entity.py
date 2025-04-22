@@ -996,8 +996,19 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
 
 class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
     """
-    ENG: A base ModelManager for all non-object manipulation needs, mostly statistics and querying.
-    RUS: Базовая модель менеджера для всех необъектных запросов, в основном статистики и опросов.
+    Базовый менеджер моделей для работы с сущностями EDW.
+    
+    Предоставляет функциональность для запросов, статистики и неманипулятивных 
+    операций с сущностями. Наследуется от PolymorphicManager и использует
+    BaseEntityQuerySet для расширенных возможностей запросов.
+    
+    Основные функции:
+    - Обработка запросов к базе данных для сущностей
+    - Предоставление методов для фильтрации сущностей по различным критериям
+    - Поддержка полиморфных запросов для работы с разными типами сущностей
+    
+    Все пользовательские модели сущностей должны иметь менеджер, 
+    наследуемый от этого класса.
     """
     queryset_class = BaseEntityQuerySet
 
@@ -1015,32 +1026,54 @@ class BaseEntityManager(PolymorphicManager.from_queryset(BaseEntityQuerySet)):
 
     def indexable(self):
         """
-        ENG: Return a queryset of indexable Entities.
-        RUS: Возвращает запрос индексированных сущностей.
+        Возвращает QuerySet активных сущностей, доступных для индексации.
+        
+        Метод используется поисковыми системами и другими компонентами,
+        которым требуется индексировать только активные объекты.
+        
+        Returns:
+            QuerySet: QuerySet, содержащий только активные сущности.
         """
         return self.active()
 
 
 class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTModelBase):
     """
-    ENG: The BaseEntity class must refer to their materialized model definition, for instance when
-    accessing its model manager. Since polymoriphic object classes, normally are materialized
-    by more than one model, this metaclass finds the most generic one and associates its
-    MaterializedModel with it.
-    For instance,``EntityModel.objects.all()`` returns all available objects from the edw.
-    RUS: BaseEntity класс должен ссылаться на материализованное определение модели, например, для
-    доступа к менеджеру модели. Поскольку полиморфные классы объектов, как правило, материализуются
-    по нескольким моделям, этот метакласс находит наиболее общий и связывает  собственную модель
-    MaterializedModel с ним.
+    Метакласс для полиморфных сущностей, обеспечивающий правильную материализацию моделей.
+    
+    Назначение:
+    - Создает связь между полиморфными классами и их материализованными моделями
+    - Обеспечивает корректную работу с моделями при полиморфном наследовании
+    - Выполняет проверки безопасности для создаваемых сущностей
+    
+    Принцип работы:
+    Поскольку полиморфные классы объектов обычно материализуются несколькими моделями,
+    данный метакласс находит наиболее общую модель и связывает её MaterializedModel
+    с соответствующими классами. Это позволяет, например, получить все доступные
+    объекты из базы данных через EntityModel.objects.all().
+    
+    Пример:
+        EntityModel.objects.all() - возвращает все доступные объекты из EDW,
+        благодаря правильной материализации моделей через этот метакласс.
     """
 
     @classmethod
     def perform_model_checks(cls, Model):
         """
-        ENG: Perform some safety checks on the EntityModel being created.
-        RUS: Выполняет некоторые проверки безопасности в созданной модели сущности EntityModel.
-        Объекты модели сущности должны наследоваться от BaseEntityManager.
-        Базовый класс должен входить в модель PolymorphicModelBase.
+        Выполняет проверки безопасности и корректности для создаваемой модели сущности.
+        
+        Метод проверяет, что модель сущности соответствует всем требованиям:
+        1. Объект manager (objects) должен быть наследником BaseEntityManager
+        2. Модель должна иметь атрибут или свойство entity_name
+        3. Модель должна иметь все обязательные поля, указанные в REQUIRED_FIELDS 
+           в каждом из абстрактных базовых классов
+        
+        Args:
+            Model: Класс модели для проверки
+            
+        Raises:
+            NotImplementedError: Если модель не соответствует требованиям безопасности или
+                                 не реализует необходимые поля и методы
         """
         if not isinstance(Model.objects, BaseEntityManager):
             msg = "Class `{}.objects` must provide ModelManager inheriting from BaseEntityManager"
@@ -1079,12 +1112,32 @@ class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTMode
 # ==============================================================================
 class EntityCharacteristicOrMarkInfo(object):
     """
-    RUS: Характеристики или метки сущности.
+    Класс для хранения и обработки информации о характеристиках или метках сущности.
+    
+    Представляет собой контейнер для хранения структурированной информации 
+    о характеристиках или метках сущности, включая название, путь в дереве терминов,
+    значения и представления.
+    
+    Attributes:
+        name: Название характеристики или метки.
+        path: Путь в дереве терминов.
+        values: Список значений характеристики или метки.
+        view_class: Список классов представления.
+        tree_id: Идентификатор дерева терминов.
+        tree_left: Левая граница в дереве терминов (для MPTT).
     """
 
     def __init__(self, name, path, values, view_class, tree_id, tree_left):
         """
-        RUS: Конструктор класса.
+        Инициализирует объект характеристики или метки сущности.
+        
+        Args:
+            name: Название характеристики/метки.
+            path: Путь в иерархии терминов.
+            values: Список значений характеристики/метки.
+            view_class: Список классов представления для UI.
+            tree_id: Идентификатор дерева для MPTT.
+            tree_left: Левая граница в дереве MPTT для сортировки.
         """
         self.name = name
         self.path = path
@@ -1094,23 +1147,58 @@ class EntityCharacteristicOrMarkInfo(object):
         self.tree_left = tree_left
 
     def __lt__(self, other):
+        """
+        Сравнивает два объекта для сортировки по дереву MPTT.
+        
+        Сравнение происходит сначала по tree_id, а затем по tree_left,
+        что соответствует порядку обхода дерева MPTT.
+        
+        Args:
+            other: Другой объект EntityCharacteristicOrMarkInfo для сравнения.
+            
+        Returns:
+            bool: True, если текущий объект должен быть размещен перед other.
+        """
         if self.tree_id == other.tree_id:
             return self.tree_left < other.tree_left
         else:
             return self.tree_id < other.tree_id
 
     def __eq__(self, other):
+        """
+        Проверяет равенство двух объектов по их позиции в дереве MPTT.
+        
+        Args:
+            other: Другой объект EntityCharacteristicOrMarkInfo для сравнения.
+            
+        Returns:
+            bool: True, если объекты находятся в одной позиции дерева.
+        """
         return self.tree_id == other.tree_id and self.tree_left == other.tree_left
 
     def __repr__(self):
         """
-        RUS: Возвращает строковое представление объекта.
+        Возвращает строковое представление объекта.
+        
+        Представляет объект в виде кортежа (name, values) для отладки и логирования.
+        
+        Returns:
+            str: Строковое представление объекта.
         """
         return repr((self.name, self.values))
 
     def view_class_findall(self, pattern):
         """
-        RUS: Ищет совпадения в массиве классов представления `view_class` по маске `pattern`
+        Ищет совпадения в массиве классов представления по регулярному выражению.
+        
+        Метод перебирает все классы представления и находит в них фрагменты,
+        соответствующие заданному регулярному выражению.
+        
+        Args:
+            pattern: Регулярное выражение для поиска в классах представления.
+            
+        Returns:
+            list: Список найденных совпадений.
         """
         result = []
         for x in self.view_class:
@@ -1120,13 +1208,38 @@ class EntityCharacteristicOrMarkInfo(object):
 
 class EntityCharacteristicOrMarkGetter(object):
     """
-    ENG: Represents a lazy database lookup for a set of attributes.
-    RUS: Представляет ленивый поиск в базе данных для набора атрибутов.
+    Класс для ленивого получения и кэширования характеристик или меток сущности.
+    
+    Обеспечивает эффективное извлечение характеристик или меток сущности из базы данных
+    с использованием стратегии ленивой загрузки и кэширования. Позволяет получать
+    данные в ограниченном количестве и использовать индексирование для доступа.
+    
+    Особенности:
+    - Кэширование результатов для повторного использования
+    - Поддержка ограничения количества возвращаемых элементов
+    - Извлечение данных из базовых терминов и дополнительных характеристик/меток
+    - Поддержка индексации и срезов для удобного доступа
+    
+    Attributes:
+        terms: Список терминов для обработки.
+        additional_characteristics_or_marks: Дополнительные характеристики или метки.
+        attribute_mode: Режим атрибута (характеристика или метка).
+        tree_opts: Параметры дерева терминов для MPTT.
+        _result_cache: Кэш результатов для разных ограничений.
+        attributes_ancestors_local_cache: Локальный кэш предков атрибутов.
     """
     def __init__(self, terms, additional_characteristics_or_marks, attribute_mode, tree_opts,
                  attributes_ancestors_local_cache=None):
         """
-        RUS: Конструктор класса.
+        Инициализирует получатель характеристик или меток сущности.
+        
+        Args:
+            terms: Список терминов, связанных с сущностью.
+            additional_characteristics_or_marks: Дополнительные характеристики или метки сущности.
+            attribute_mode: Режим атрибута (TermModel.attributes.is_characteristic или 
+                           TermModel.attributes.is_mark).
+            tree_opts: Параметры MPTT для дерева терминов.
+            attributes_ancestors_local_cache: Опциональный локальный кэш предков атрибутов.
         """
         self.terms = terms
         self.additional_characteristics_or_marks = additional_characteristics_or_marks
@@ -1137,7 +1250,16 @@ class EntityCharacteristicOrMarkGetter(object):
 
     def all(self, limit=None):
         """
-        RUS: Устанавливает границу размеров результата кэша.
+        Возвращает все характеристики или метки, опционально ограниченные по количеству.
+        
+        Использует кэширование для оптимизации повторных запросов с одинаковым
+        ограничением. При первом запросе вычисляет и кэширует результат.
+        
+        Args:
+            limit: Максимальное количество возвращаемых элементов или None для всех.
+            
+        Returns:
+            list: Список объектов EntityCharacteristicOrMarkInfo.
         """
         if limit not in self._result_cache:
             self._result_cache[limit] = result = self._get_attributes(limit)
@@ -1147,8 +1269,21 @@ class EntityCharacteristicOrMarkGetter(object):
 
     def __getitem__(self, k):
         """
-        ENG: Retrieves an item or slice from the set of results.
-        RUS: Извлекает элемент или срез из набора результатов.
+        Обеспечивает доступ к элементам по индексу или срезу.
+        
+        Позволяет использовать синтаксис индексации и срезов для получения
+        характеристик или меток. Преобразует индекс или срез в соответствующий
+        вызов метода all() с ограничением.
+        
+        Args:
+            k: Индекс или срез для доступа к элементам.
+            
+        Returns:
+            object/list: Элемент или список элементов EntityCharacteristicOrMarkInfo.
+            
+        Raises:
+            TypeError: Если k не является целым числом или срезом.
+            AssertionError: Если используется отрицательное индексирование.
         """
         if not isinstance(k, (slice,) + six.integer_types):
             raise TypeError
