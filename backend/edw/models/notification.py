@@ -391,6 +391,8 @@ class Notification(models.Model):
                 push.send(recipient[0], template=template, context=context, render_on_delivery=True)
 
         elif mode == 'telegram' and tg is not None:
+            if 'telegram_bot_token' in kwargs and kwargs['telegram_bot_token']:
+                context['telegram_bot_token'] = kwargs['telegram_bot_token']
             for recipient in recipients:
                 tg.send(recipient[0], template=template, context=context, render_on_delivery=True)
 
@@ -400,8 +402,10 @@ class Notification(models.Model):
             recipients_roles = self.get_notify_recipients_roles()
             if recipients_roles:
                 recipients.extend(object.get_telegram_notification_recipients_by_roles(recipients_roles))
-
-            self.notify(recipients, object, source, target, 'telegram')
+            kwargs = {}
+            if hasattr(object, 'telegram_notify_bot_token') and object.telegram_notify_bot_token:
+                kwargs['telegram_bot_token'] = object.telegram_notify_bot_token
+            self.notify(recipients, object, source, target, 'telegram', **kwargs)
 
 
 class NotificationAttachment(models.Model):
