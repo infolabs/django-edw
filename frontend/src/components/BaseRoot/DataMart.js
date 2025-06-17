@@ -52,8 +52,10 @@ export class DataMart extends Component {
   render() {
     const {entry_point_id, entry_points, actions, component_attrs, entities} = this.props;
     const hasNoData = !entities?.items?.loading && entities?.items?.meta?.count === 0;
+    const rawShowNoDataInBlock = entry_points[entry_point_id]?.show_no_data_in_block;
+    const showNoDataInBlock = rawShowNoDataInBlock === true || rawShowNoDataInBlock === 'True' || rawShowNoDataInBlock === 'true';
 
-    if (hasNoData) {
+    if (hasNoData && !showNoDataInBlock) {
       return <NoDataTemplate />;
     }
 
@@ -88,7 +90,8 @@ export class DataMart extends Component {
               <GroupTitle/>
             </div>
           </div>
-          <Entities entry_points={entry_points} entry_point_id={entry_point_id} component_attrs={component_attrs}/>
+          {hasNoData && showNoDataInBlock && <NoDataTemplate />}
+          {!hasNoData && <Entities entry_points={entry_points} entry_point_id={entry_point_id} component_attrs={component_attrs}/>}
           <Paginator entry_points={entry_points} entry_point_id={entry_point_id}/>
           <Aggregation entry_points={entry_points} entry_point_id={entry_point_id}/>
         </div>
