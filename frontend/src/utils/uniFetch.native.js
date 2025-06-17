@@ -1,5 +1,5 @@
 import {Alert} from 'react-native';
-import * as Sentry from '@sentry/react-native';
+// import * as Sentry from '@sentry/react-native';
 
 
 const STATUS_SERVER_ERRORS = [408, 500, 501, 502, 503, 504];
@@ -39,7 +39,8 @@ async function handleFetchError(error, args) {
       return await uniFetch(...args);
   } else {
     const url = args[0];
-    Sentry.captureMessage(`${url}. Error: ${error}`);
+    // Sentry.captureMessage(`${url}. Error: ${error}`);
+    console.error(`SocialLogin Error. Url: {url}. Error: ${error}`);
   }
   return null;
 }
@@ -76,7 +77,7 @@ async function resolveJson(response) {
       Alert.alert(title.ERROR, errors.SERVER);
     } else {
       Alert.alert(title.ERROR, errors.UNKNOWN);
-      Sentry.captureMessage(msg, response);
+      // Sentry.captureMessage(msg, response);
     }
     throw new Error(msg);
   }
@@ -113,7 +114,7 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, er
       msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
       const handleUnknownError = () => {
         Alert.alert(title.ERROR, errors.UNKNOWN);
-        Sentry.captureMessage(msg, response);
+        // Sentry.captureMessage(msg, response);
       }
       if (errorCallback)
         errorCallback(response, handleUnknownError);
