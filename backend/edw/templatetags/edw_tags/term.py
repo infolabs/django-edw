@@ -8,12 +8,6 @@ from edw.models.term import TermModel
 from edw.rest.templatetags import BaseRetrieveDataTag
 from edw.rest.serializers.term import TermTreeSerializer
 
-from typing import Any, Dict, List, Optional
-
-# todo: Сделать темлейттег для получения id терминов + cached=False
-# todo: Прокидываем в request_params из витрины
-
-
 
 class GetTermTree(BaseRetrieveDataTag):
     name = 'get_term_tree'
