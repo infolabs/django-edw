@@ -13,7 +13,7 @@ import TermsTree from '../TermsTree';
 import getDeclinedName from '../../utils/getDeclinedName';
 import ViewComponentsBtn from '../ViewComponentsBtn';
 import {filterUnsupported} from '../BaseEntities';
-import {dataMartStyles as styles} from '../../native_styles/dataMarts';
+import {dataMartStyles} from '../../native_styles/dataMarts';
 import compareArrays from '../../utils/compareArrays';
 import Entities from 'native_components/Entities';
 
@@ -21,10 +21,11 @@ import Entities from 'native_components/Entities';
 const {deviceHeight} = platformSettings;
 
 function DataMart(props) {
-  const {entry_point_id, entry_points, entities, terms, fromRoute} = props;
+  const {entry_point_id, entry_points, entities, terms, fromRoute, style} = props;
   const termViewClasses = props.termViewClasses || [];
   const {json} = terms.tree;
 
+  const styles = Object.assign({}, dataMartStyles, style);
   const refs = useRef({
     termsIdsTaggedBranch: new Set(),
     translateY: deviceHeight,
@@ -163,7 +164,7 @@ function DataMart(props) {
             {entities.items.meta.count !== undefined ?
               <View style={styles.showObjectsBtnView}>
                 <Button
-                  style={{...styles.showObjectsBtn, backgroundColor: theme['color-primary-400']}}
+                  style={styles.showObjectsBtn}
                   size="giant"
                   onPress={() => {
                     visibilityFilters(!visibleFilters);

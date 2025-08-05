@@ -340,6 +340,9 @@ export function renderEntityItem(
     paddingTop: textStyle.paddingVertical,
     paddingBottom: 2,
     paddingVertical: undefined,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
   };
 
   return (
@@ -368,7 +371,7 @@ export function renderEntityItem(
 
             <View style={styles.badge}>
               {textState.length ? textState.map((t, i) => (
-                <Badge key={i} style={{backgroundColor: backgroundColorState[i]}}>
+                <Badge key={i} style={{backgroundColor: backgroundColorState[i], borderRadius: 50}}>
                   <Text style={styles.badgeText}>
                     {t.length > badgeTextLimit ? `${t.slice(0, badgeTextLimit)}...` : t}
                   </Text>
