@@ -7,9 +7,9 @@ const TERMS_REGEX_POSTFIX  = TERMS_PREFIX + '(([0-9]+,?)+)';
 const OFFSET_REGEX_POSTFIX  = OFFSET_PREFIX + '([0-9]+)';
 const ALIKE_REGEX_POSTFIX  = ALIKE_PREFIX + '([0-9]+)';
 
-const TERMS_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + TERMS_REGEX_POSTFIX, 'g');
-const OFFSET_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + OFFSET_REGEX_POSTFIX, 'g');
-const ALIKE_REGEX  = new RegExp(DM_PREFIX + '([0-9]+)' + ALIKE_REGEX_POSTFIX, 'g');
+const TERMS_REGEX  = new RegExp(DM_PREFIX + '([a-zA-Z0-9_-]+)' + TERMS_REGEX_POSTFIX, 'g');
+const OFFSET_REGEX  = new RegExp(DM_PREFIX + '([a-zA-Z0-9_-]+)' + OFFSET_REGEX_POSTFIX, 'g');
+const ALIKE_REGEX  = new RegExp(DM_PREFIX + '([a-zA-Z0-9_-]+)' + ALIKE_REGEX_POSTFIX, 'g');
 
 
 function replaceHash(newhash) {
@@ -47,6 +47,7 @@ export function setDatamartHash(dataMartId, terms_ids, offset = 0) {
 
   replaceHash(hash);
 }
+
 
 export function setAlike(dataMartId, alikeId) {
   let hash = window.location.hash;

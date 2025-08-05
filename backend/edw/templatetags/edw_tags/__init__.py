@@ -11,7 +11,7 @@ from edw.templatetags.edw_tags.common import (
 from edw.templatetags.edw_tags.entities import GetEntity, GetEntities
 from edw.templatetags.edw_tags.data_marts import GetDataMart, GetDataMarts
 from edw.templatetags.edw_tags.frontend import CompactJson, AddToSingletonJs, jsondumps
-from edw.templatetags.edw_tags.term import GetTermTree, attributes_has_view_class
+from edw.templatetags.edw_tags.term import GetTermTree, GetTermIdsBySlugs, attributes_has_view_class
 
 register = template.Library()
 
@@ -51,3 +51,4 @@ register.tag(AddToSingletonJs)
 
 register.filter(attributes_has_view_class)
 register.tag(GetTermTree)
+register.tag(GetTermIdsBySlugs)

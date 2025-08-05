@@ -47,7 +47,6 @@ def get_timestamp():
 
 
 def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
-
     if backend == 'm2crypto' or backend is None:
         from M2Crypto import SMIME, BIO
 
@@ -130,6 +129,32 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
             return ERROR_CODES.ESIA_AUTH
         else:
             return response.content
+    elif backend == 'cryptopro':
+        import pycades
+        container_pin = getattr(
+            settings,
+            'SOCIAL_AUTH_ESIA_CRYPTO_KEY_CONTAINER_PIN',
+            '',
+        )
+        store = pycades.Store()
+        store.Open(
+            pycades.CAPICOM_CURRENT_USER_STORE,
+            pycades.CAPICOM_MY_STORE,
+            pycades.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED,
+        )
+        certs = store.Certificates
+        certs_count = certs.Count
+        if certs_count < 1:
+            raise Exception('Cryptopro has no installed certificates to sign data.')
+        signer = pycades.Signer()
+        signer.Certificate = certs.Item(1)
+        signer.CheckCertificate = True
+        if container_pin:
+            signer.KeyPin = container_pin
+        signedData = pycades.SignedData()
+        signedData.Content = data
+        signature = signedData.SignCades(signer, pycades.CADESCOM_CADES_BES)
+        return signature.encode('utf-8')
     else:
         raise Exception('Unknown cryptography backend. Use openssl or m2crypto value.')
 
@@ -317,6 +342,14 @@ class EsiaOAuth2Test(EsiaOAuth2):
         return str(uuid.uuid4())
 
     def add_and_sign_params(self, params):
+        # # Test signing
+        # crypto_backend = self.setting('CRYPTO', 'm2crypto')
+        # sign_params(
+            # params,
+            # certificate_file=None,
+            # private_key_file=None,
+            # backend=crypto_backend
+        # )
         return params
 
     @handle_http_errors
