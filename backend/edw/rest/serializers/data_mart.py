@@ -346,9 +346,7 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
     active = None
 
     class Meta(DataMartCommonSerializer.Meta):
-        exclude = ('active', 'polymorphic_ctype', '_relations', 'terms', 'parent', 'lft', 'rght', 'tree_id', 'level',
-                   )
-                   #'short_description')
+        exclude = ('polymorphic_ctype', '_relations', 'lft', 'rght', 'tree_id', 'level',)
 
     def get_media(self, data_mart):
         return self.render_html(data_mart, 'media')
