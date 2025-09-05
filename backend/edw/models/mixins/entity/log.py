@@ -31,7 +31,7 @@ class CommonLoggingMixin(object):
             pass
 
     def change_log(self, user_id, attribute, old_state, new_state, additional_message=""):
-        message = _('Change "{attribute}" -> "{old_state}" -> "{new_state}').format(
+        message = _('Change "{attribute}" -> "{old_state}" -> "{new_state}"').format(
             **{'attribute': attribute,
              'old_state': old_state,
              'new_state': new_state,
