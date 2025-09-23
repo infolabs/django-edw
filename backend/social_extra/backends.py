@@ -537,7 +537,7 @@ class EsiaOAuth2Test(EsiaOAuth2):
 
 
 class VKOAuth2Https(VKOAuth2):
-    AUTHORIZATION_URL = 'https://oauth.vk.com/authorize'
+    AUTHORIZATION_URL = 'https://oauth.vk.ru/authorize'
 
 
 class TelegramAuth(TelegramAuthBase):
