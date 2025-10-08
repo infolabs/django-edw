@@ -295,6 +295,9 @@ class EsiaOAuth2(BaseOAuth2):
             if 'contacts' in self.get_scope():
                 addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
                 elements.extend(addresses['elements'])
+            elif 'addresses' in self.get_scope():
+                addresses = self.get_json(base_url + '/addrs?embed=(elements)', headers=headers)
+                elements.extend(addresses['elements'])
             if 'usr_org' in self.get_scope():
                 orgs = self.get_json(base_url + '/roles', headers=headers)
                 if orgs and orgs.get('elements') and len(orgs.get('elements')) > 0:
