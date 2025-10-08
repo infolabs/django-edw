@@ -187,6 +187,8 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
         try:
             base_raw_sql, sql_params = base_qs.query.get_compiler(self.db).as_sql()
         except EmptyResultSet:
+            # TODO: заменить на QuerySet (например, self.none()),
+            # чтобы избежать неоднозначности типов у вызывающих сторон
             result = []
         else:
             idx = getattr(self.query, self._JOIN_INDEX_KEY, 1)
@@ -240,7 +242,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                      совпадают со значениями у исходного объекта.
         """
         try:
-            alike = self.values(*fields).filter(pk=pk)[0]
+            alike = self.model.objects.values(*fields).filter(pk=pk)[0]
         except IndexError:
             return self.none()
         return self.filter(**alike)

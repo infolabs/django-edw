@@ -51,9 +51,10 @@ export const dataMartStyles = StyleSheet.create({
     alignItems: 'center',
   },
   termTreeAnimatedView: {
-    height: deviceHeight,
     width: deviceWidth,
-    position: 'absolute',
+    height:deviceHeight-100,
+    position:'absolute',
+    top:0,
     backgroundColor: '#fff',
     bottom: 0,
     zIndex: 4,

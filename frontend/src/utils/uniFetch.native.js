@@ -52,15 +52,16 @@ function handleFieldErrors(json, response, nameFields) {
 
   let msg = `Response error. Code: ${response.code}. Status: ${response.status}. Url: ${response.url}`;
   if (!STATUS_SERVER_ERRORS.includes(response.status)) {
-    jsonKeys.map(item => {
+    const msqs = jsonKeys.map(item => {
       const fieldError = nameFields.hasOwnProperty(item) ? nameFields[item] : item,
             valueError = jsonIsArray ? json[0][item] : json[item];
       msg = DEFAULT_ERROR_FIELDS.includes(fieldError) ? `${valueError}` : `${fieldError}: ${valueError}`;
-      Alert.alert(
-        title.ERROR,
-        msg
-      );
+      return msg;
     });
+    Alert.alert(
+        title.ERROR,
+        msqs.join('\n')
+      );
   }
   return msg;
 }
@@ -87,7 +88,6 @@ async function resolveJson(response) {
 
 async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, errorCallback = null) {
   params.credentials = 'include';
-
   let response;
   try {
     response = await fetch(url, params);
@@ -109,6 +109,7 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, er
     let msg;
     if (STATUS_ERRORS.includes(response.status)) {
       const json = await resolveJson(response);
+
       msg = handleFieldErrors(json, response, nameFields);
     } else {
       msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;

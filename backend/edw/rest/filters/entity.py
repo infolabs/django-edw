@@ -14,6 +14,7 @@ from django import VERSION
 from django.apps import apps
 from django.db.models.expressions import BaseExpression
 from django.db.models import F
+from django.db.models.query import QuerySet as DjangoQuerySet
 from django.template import loader
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -588,9 +589,14 @@ class EntityGroupByFilter(DynamicGroupByMixin, BaseFilterBackend):
                     # добавляем в информацию о фильтре
                     request.GET['_filter_queryset'] = queryset
                 queryset_with_counts = queryset.group_by(*group_by)
-                if queryset_with_counts.count() > 1:
-                    queryset = queryset_with_counts
+                if isinstance(queryset_with_counts, DjangoQuerySet):
+                    count_value = queryset_with_counts.count()
+                    if count_value > 1:
+                        queryset = queryset_with_counts
+                    else:
+                        group_by = []
                 else:
+                    # В случае списка (например, при EmptyResultSet) просто сбрасываем group_by
                     group_by = []
         elif view.action == 'retrieve':
             group_by = self._get_group_by(request, queryset, view)

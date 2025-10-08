@@ -4,7 +4,7 @@ import reCache from '../utils/reCache';
 import uniFetch from '../utils/uniFetch';
 import {actionTypes} from '../constants/Entity';
 import Singleton from '../utils/singleton';
-import {getToken} from '../utils/token';
+import {getToken, removeToken} from '../utils/token';
 
 
 export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => dispatch => {
@@ -31,6 +31,15 @@ export const setDataEntity = (id, data, textLoader = null, nameFields = {}) => d
         dispatch({type: actionTypes.SET_DATA_ENTITY});
       })
       .catch((error) => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return;
+        }
         dispatch({type: actionTypes.ERROR_SET_DATA_ENTITY});
       });
   });
@@ -71,7 +80,16 @@ export const createEntity = params => dispatch => {
         dispatch({type: actionType});
         slugConfig && refreshDataMart(slugConfig);
       })
-      .catch(() => {
+      .catch((error) => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return;
+        }
         textLoader && navigation.goBack();
         dispatch({type: actionTypes.ERROR_CREATE_ENTITY});
       });
@@ -125,6 +143,15 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY, extraQuery 
         dispatch({type: dispatchType, data: json});
       })
       .catch(error => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return
+        }
         //console.error(error);
         dispatch({type: actionTypes.ERROR_GET_ENTITY, error});
         navigation?.navigate({name: 'Home', params: {}, merge: true});
@@ -159,6 +186,15 @@ export const deleteEntity = params => dispatch => {
           slugConfig && refreshDataMart(slugConfig);
         })
         .catch(error => {
+          if (error.message === 'Недопустимый токен.') {
+            removeToken().then(() => {
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+              });
+            });
+            return;
+          }
           navigation.goBack()
           dispatch({type: actionTypes.ERROR_DELETE_ENTITY, error});
         });
@@ -180,9 +216,18 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
       };
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
-        dispatch({type: dispatchType, image: json});
-      })
+      dispatch({type: dispatchType, image: json});
+    })
       .catch((error) => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return;
+        }
         console.error(error);
         navigation.navigate({name: nextNavigationName, props: {}, merge: true});
         dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
@@ -192,7 +237,7 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
 
 export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_IMAGES) => dispatch => {
   const instance = Singleton.getInstance(),
-    {Urls, Domain} = instance;
+    {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
     const url = reCache(`${Domain}${Urls['edw:entity-image-list'](entityId)}`),
@@ -208,8 +253,17 @@ export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
         dispatch({type: dispatchType, images: json.results});
-      })
-      .catch(() => {
+    })
+      .catch((error) => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return;
+        }
         dispatch({type: actionTypes.ERROR_GET_ENTITY_IMAGES});
       });
   });
@@ -217,7 +271,7 @@ export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_
 
 export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE_IMAGE) => dispatch => {
   const instance = Singleton.getInstance(),
-    {Urls, Domain} = instance;
+    {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
     const url = `${Domain}${Urls['edw:entity-image-detail'](entityId, imageId)}`,
@@ -232,7 +286,16 @@ export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE
       .then(() => {
         dispatch({type: dispatchType, imageId});
       })
-      .catch(() => {
+      .catch((error) => {
+        if (error.message === 'Недопустимый токен.') {
+          removeToken().then(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main', params: {screen: 'SignIn'}}],
+            });
+          });
+          return;
+        }
         dispatch({type: actionTypes.ERROR_DELETE_IMAGE});
       });
   });
