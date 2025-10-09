@@ -86,15 +86,17 @@ async function resolveJson(response) {
 }
 
 
-async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, errorCallback = null) {
+async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, errorCallback = null, alertError = true) {
   params.credentials = 'include';
   let response;
   try {
     response = await fetch(url, params);
   } catch (error) {
-    const handled = await handleFetchError(error, arguments);
-    if (handled instanceof Response)
-      return handled;
+    if (alertError) {
+      const handled = await handleFetchError(error, arguments);
+      if (handled instanceof Response)
+        return handled;
+    }
     throw error;
   }
 
@@ -107,20 +109,22 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, er
     }
   } else {
     let msg;
-    if (STATUS_ERRORS.includes(response.status)) {
-      const json = await resolveJson(response);
+    if (alertError) {
+      if (STATUS_ERRORS.includes(response.status)) {
+        const json = await resolveJson(response);
 
-      msg = handleFieldErrors(json, response, nameFields);
-    } else {
-      msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
-      const handleUnknownError = () => {
-        Alert.alert(title.ERROR, errors.UNKNOWN);
-        // Sentry.captureMessage(msg, response);
+        msg = handleFieldErrors(json, response, nameFields);
+      } else {
+        msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
+        const handleUnknownError = () => {
+          Alert.alert(title.ERROR, errors.UNKNOWN);
+          // Sentry.captureMessage(msg, response);
+        }
+        if (errorCallback)
+          errorCallback(response, handleUnknownError);
+        else
+          handleUnknownError();
       }
-      if (errorCallback)
-        errorCallback(response, handleUnknownError);
-      else
-        handleUnknownError();
     }
     throw new Error(msg);
   }
