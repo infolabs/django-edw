@@ -241,8 +241,13 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             QuerySet: Отфильтрованный QuerySet с объектами, у которых значения указанных полей 
                      совпадают со значениями у исходного объекта.
         """
+        # Клонируем текущий queryset, сохраняя JOIN'ы и аннотации,
+        # но убираем WHERE-условия
+        lookup_qs = self._clone()
+        lookup_qs.query.where = lookup_qs.query.where_class()
+        
         try:
-            alike = self.model.objects.values(*fields).filter(pk=pk)[0]
+            alike = lookup_qs.values(*fields).filter(pk=pk)[0]
         except IndexError:
             return self.none()
         return self.filter(**alike)
