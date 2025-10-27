@@ -201,12 +201,13 @@ export const deleteEntity = params => dispatch => {
     })
 }
 
-export const uploadImage = (entityId, data, nextNavigationName, dispatchType = actionTypes.UPLOAD_IMAGE) => dispatch => {
+export const uploadFile = (entityId, data, isFile = false, nextNavigationName, dispatchType = actionTypes.UPLOAD_FILE) => dispatch => {
   const instance = Singleton.getInstance(),
     {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
-    const url = `${Domain}${Urls['edw:entity-image-list'](entityId)}`,
+    const type = `edw:entity-${isFile ? 'file':'image'}-list`,
+    url = `${Domain}${Urls[type](entityId)}`,
       parameters = {
         method: 'POST',
         headers: {
@@ -216,7 +217,7 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
       };
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
-      dispatch({type: dispatchType, image: json});
+      dispatch({type: dispatchType, [isFile? 'file':'image']: json});
     })
       .catch((error) => {
         if (error.message === 'Недопустимый токен.') {
@@ -230,17 +231,17 @@ export const uploadImage = (entityId, data, nextNavigationName, dispatchType = a
         }
         console.error(error);
         navigation.navigate({name: nextNavigationName, props: {}, merge: true});
-        dispatch({type: actionTypes.ERROR_UPLOAD_IMAGE});
+        dispatch({type: actionTypes.ERROR_UPLOAD_FILE});
       });
   });
 };
 
-export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_IMAGES) => dispatch => {
+export const getEntityFiles= (entityId, isFile = false, dispatchType = actionTypes.GET_ENTITY_FILES) => dispatch => {
   const instance = Singleton.getInstance(),
     {Urls, Domain, navigation} = instance;
-
   getToken().then(token => {
-    const url = reCache(`${Domain}${Urls['edw:entity-image-list'](entityId)}`),
+    const type = `edw:entity-${isFile ? 'file':'image'}-list`,
+    url = reCache(`${Domain}${Urls[type](entityId)}`),
       parameters = {
         method: 'GET',
         headers: {
@@ -252,7 +253,7 @@ export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_
 
     uniFetch(url, parameters)
       .then(response => response.json()).then(json => {
-        dispatch({type: dispatchType, images: json.results});
+        dispatch({type: dispatchType, [isFile? 'entityFiles':'images']: json.results});
     })
       .catch((error) => {
         if (error.message === 'Недопустимый токен.') {
@@ -264,27 +265,27 @@ export const getEntityImages = (entityId, dispatchType = actionTypes.GET_ENTITY_
           });
           return;
         }
-        dispatch({type: actionTypes.ERROR_GET_ENTITY_IMAGES});
+        dispatch({type: actionTypes.ERROR_GET_ENTITY_FILES});
       });
   });
 };
 
-export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE_IMAGE) => dispatch => {
+export const deleteFile = (entityId, fileId, isFile = false, dispatchType = actionTypes.DELETE_FILE) => dispatch => {
   const instance = Singleton.getInstance(),
     {Urls, Domain, navigation} = instance;
 
   getToken().then(token => {
-    const url = `${Domain}${Urls['edw:entity-image-detail'](entityId, imageId)}`,
+    const type = `edw:entity-${isFile?'file': 'image'}-detail`,
+    url = `${Domain}${Urls[type](entityId, fileId)}`,
       parameters = {
         method: 'DELETE',
         headers: {
           'Authorization': `Token ${token}`,
         },
       };
-
     uniFetch(url, parameters, {}, false)
       .then(() => {
-        dispatch({type: dispatchType, imageId});
+        dispatch({type: dispatchType, id: fileId});
       })
       .catch((error) => {
         if (error.message === 'Недопустимый токен.') {
@@ -296,7 +297,7 @@ export const deleteImage = (entityId, imageId, dispatchType = actionTypes.DELETE
           });
           return;
         }
-        dispatch({type: actionTypes.ERROR_DELETE_IMAGE});
+        dispatch({type: actionTypes.ERROR_DELETE_FILE});
       });
   });
 };
