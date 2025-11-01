@@ -7,6 +7,7 @@ import time
 from django.conf import settings
 from django.db import models
 from django.db.models.query import QuerySet
+from requests.exceptions import HTTPError
 
 from django.db.models import Value, F, ExpressionWrapper
 from django.utils.translation import ugettext_lazy as _
@@ -269,17 +270,19 @@ def forward_geocode_yandex(config, address, referer=None):
     results = []
     apikey = config['init']['api_key']
     yandex = Yandex(api_key=apikey)
-    geocollection = yandex.geocode(query=address, lang=YANDEX_MAPS_LANG, exactly_one=False)
-    for g in geocollection:
-        address = g.raw['metaDataProperty']['GeocoderMetaData']['Address']
-        point = g.raw['Point']
-        results.append({
-            'text': address['formatted'],
-            'postal_code': address.get('postal_code', None),
-            'geoposition': point['pos'],
+    try:
+        geocollection = yandex.geocode(query=address, lang=YANDEX_MAPS_LANG, exactly_one=False)
+        for g in geocollection:
+            address = g.raw['metaDataProperty']['GeocoderMetaData']['Address']
+            point = g.raw['Point']
+            results.append({
+                'text': address['formatted'],
+                'postal_code': address.get('postal_code', None),
+                'geoposition': point['pos'],
 
-        })
-
+            })
+    except Exception as e:
+        raise e
     return results
 
 def forward_geocode_google(config, address):
