@@ -7,7 +7,6 @@ import time
 from django.conf import settings
 from django.db import models
 from django.db.models.query import QuerySet
-from requests.exceptions import HTTPError
 
 from django.db.models import Value, F, ExpressionWrapper
 from django.utils.translation import ugettext_lazy as _
