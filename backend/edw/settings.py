@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 from django.conf import settings
 from rest_framework.settings import api_settings
 
@@ -103,6 +102,6 @@ CLASSIFY.update(getattr(settings, 'EDW_CLASSIFY', {}))
 EXCLUDE_EMAIL_NOTIFICATION = []
 
 SENDER_EXTRA_FORMAT = getattr(settings, 'EDW_SENDER_EXTRA_FORMAT', True)
-
+NAME_MAX_LENGTH = getattr(settings, 'EDW_NAME_MAX_LENGTH', 30)
 UNAUTHORIZED_REDIRECT = getattr(settings, 'EDW_UNAUTHORIZED_REDIRECT', True)
 UNAUTHORIZED_LOGIN_URL = getattr(settings, 'EDW_UNAUTHORIZED_LOGIN_URL', '/edw/auth/login/')

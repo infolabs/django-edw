@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
-
+from edw.settings import NAME_MAX_LENGTH
 USERNAME_FIELD_HELP_TEXT = _(
     'Required field. Length must not exceed 30 characters. Only letters, digits and symbols @/./+/-/_ are accepted.'
 )
@@ -25,7 +25,7 @@ class CustomerCreationForm(UserCreationForm):
     def clean(self):
         if 'username' in self.cleaned_data:
             username = self.cleaned_data['username']
-            if username and len(username) > 30:
+            if username and len(username) > NAME_MAX_LENGTH:
                 raise forms.ValidationError(USERNAME_LENGTH_VALIDATION_TEXT)
 
     def save(self, commit=True):
