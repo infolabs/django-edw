@@ -43,6 +43,11 @@ try:
 except ModuleNotFoundError:
     tg = None
 
+try:
+    from max import notify as max_notify
+except ModuleNotFoundError:
+    max_notify = None
+
 email_validator = EmailValidator()
 
 
@@ -80,7 +85,8 @@ class Notification(models.Model):
     MODES = {
         0: ('email', _('By Email')),
         1: ('push', _('By Push Notification')),
-        2: ('telegram', _('By Telegram'))
+        2: ('telegram', _('By Telegram')),
+        3: ('max', _('By Max'))
     }
 
     RECIPIENTS_EMPTY_CHOICES_VALUE = ('0', _("Nobody"))
@@ -259,6 +265,8 @@ class Notification(models.Model):
                 n.notify_by_push(object, source, target)
             if n.mode.telegram:
                 n.notify_by_telegram(object, source, target)
+            if n.mode.max:
+                n.notify_by_max(object, source, target)
 
     def get_notify_recipients_roles(self):
         """
@@ -395,6 +403,10 @@ class Notification(models.Model):
                 context['telegram_bot_token'] = kwargs['telegram_bot_token']
             for recipient in recipients:
                 tg.send(recipient[0], template=template, context=context, render_on_delivery=True)
+        
+        elif mode == 'max' and max_notify is not None:
+            for recipient in recipients:
+                max_notify.send(recipient[0], template=template, context=context, render_on_delivery=True)
 
     def notify_by_telegram(self, object, source, target):
         if tg is not None:
@@ -406,6 +418,15 @@ class Notification(models.Model):
             if hasattr(object, 'telegram_notify_bot_token') and object.telegram_notify_bot_token:
                 kwargs['telegram_bot_token'] = object.telegram_notify_bot_token
             self.notify(recipients, object, source, target, 'telegram', **kwargs)
+    
+    def notify_by_max(self, object, source, target):
+        if max_notify is not None:
+            recipients = []
+            recipients_roles = self.get_notify_recipients_roles()
+            if recipients_roles:
+                recipients.extend(object.get_max_notification_recipients_by_roles(recipients_roles))
+            self.notify(recipients, object, source, target, 'max')
+
 
 
 class NotificationAttachment(models.Model):
