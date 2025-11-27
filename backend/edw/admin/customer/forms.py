@@ -52,7 +52,7 @@ class CustomerChangeForm(UserChangeForm):
     def clean(self):
         if 'username' in self.cleaned_data:
             username = self.cleaned_data['username']
-            if username and len(username) > 30:
+            if username and len(username) > NAME_MAX_LENGTH:
                 raise forms.ValidationError(USERNAME_LENGTH_VALIDATION_TEXT)
 
     def clean_email(self):
