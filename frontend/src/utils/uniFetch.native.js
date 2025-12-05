@@ -32,8 +32,8 @@ const AsyncAlert = (title, msg, args) => new Promise((resolve, reject) => {
 });
 
 
-async function handleFetchError(error, args) {
-  if (error instanceof TypeError && error.message === NETWORK_ERROR) {
+async function handleFetchError(error, args, alertError = true) {
+  if (error instanceof TypeError && error.message === NETWORK_ERROR && alertError) {
     const retry = await AsyncAlert(title.ERROR, errors.NETWORK, args);
     if (retry)
       return await uniFetch(...args);
@@ -46,7 +46,7 @@ async function handleFetchError(error, args) {
 }
 
 
-function handleFieldErrors(json, response, nameFields) {
+function handleFieldErrors(json, response, nameFields, alertError = true) {
   const jsonIsArray = json instanceof Array,
         jsonKeys = jsonIsArray ? Object.keys(json[0]) : Object.keys(json);
 
@@ -58,6 +58,7 @@ function handleFieldErrors(json, response, nameFields) {
       msg = DEFAULT_ERROR_FIELDS.includes(fieldError) ? `${valueError}` : `${fieldError}: ${valueError}`;
       return msg;
     });
+    if(alertError)
     Alert.alert(
         title.ERROR,
         msqs.join('\n')
@@ -92,11 +93,9 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, er
   try {
     response = await fetch(url, params);
   } catch (error) {
-    if (alertError) {
-      const handled = await handleFetchError(error, arguments);
-      if (handled instanceof Response)
-        return handled;
-    }
+    const handled = await handleFetchError(error, arguments, alertError);
+    if (handled instanceof Response)
+      return handled;
     throw error;
   }
 
@@ -109,22 +108,21 @@ async function uniFetch(url, params = {}, nameFields = {}, returnJson = true, er
     }
   } else {
     let msg;
-    if (alertError) {
-      if (STATUS_ERRORS.includes(response.status)) {
-        const json = await resolveJson(response);
+    if (STATUS_ERRORS.includes(response.status)) {
+      const json = await resolveJson(response);
 
-        msg = handleFieldErrors(json, response, nameFields);
-      } else {
-        msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
-        const handleUnknownError = () => {
-          Alert.alert(title.ERROR, errors.UNKNOWN);
-          // Sentry.captureMessage(msg, response);
-        }
-        if (errorCallback)
-          errorCallback(response, handleUnknownError);
-        else
-          handleUnknownError();
+      msg = handleFieldErrors(json, response, nameFields, alertError);
+    } else {
+      msg = `Unknow response code: ${response.code}. Url: ${url}. Status: ${response.status}`;
+      const handleUnknownError = () => {
+        if(alertError)
+        Alert.alert(title.ERROR, errors.UNKNOWN);
+        // Sentry.captureMessage(msg, response);
       }
+      if (errorCallback)
+        errorCallback(response, handleUnknownError);
+      else
+        handleUnknownError();
     }
     throw new Error(msg);
   }
