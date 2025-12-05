@@ -162,7 +162,7 @@ export const getEntity = (id, dispatchType = actionTypes.GET_ENTITY, extraQuery 
 };
 
 export const deleteEntity = params => dispatch => {
-  const {id, nextNavigate, refreshDataMart} = params,
+  const {id, data, nextNavigate, refreshDataMart} = params,
     textLoader = params.textLoader || null,
     slugConfig = params.slugConfig || null,
     instance = Singleton.getInstance(),
@@ -171,11 +171,15 @@ export const deleteEntity = params => dispatch => {
     getToken().then(token => {
       const url = `${Domain}${Urls['edw:entity-detail'](id)}`,
         parameters = {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        };
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      };
 
       navigation.navigate({name: 'Preloader', props: {textLoader}, merge: true});
 
