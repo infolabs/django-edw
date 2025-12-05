@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react';
 import {View, Animated, ScrollView} from 'react-native';
 import {Text, TopNavigation, Button, useTheme} from '@ui-kitten/components';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import Ordering from '../Ordering';
 import FilterBtn from '../FilterBtn';
@@ -36,7 +36,7 @@ function DataMart(props) {
   // Флаг showTermsTree нужен для того, чтобы не показывать термины, пока не отсеяться ненужные.
   // Т.к. при первоначальной загрузке мы получаем абсолютно все термины
   const [showTermsTree, setShowTermsTree] = useState(false);
-
+  const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   useEffect(() => {
@@ -162,7 +162,7 @@ function DataMart(props) {
               </ScrollView>
             </View>
             {entities.items.meta.count !== undefined ?
-              <View style={styles.showObjectsBtnView}>
+              <View style={{...styles.showObjectsBtnView, marginBottom:insets.bottom}}>
                 <Button
                   style={styles.showObjectsBtn}
                   size="giant"
