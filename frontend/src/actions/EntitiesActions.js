@@ -214,7 +214,8 @@ export function getEntities(params) {
               mart_id,
               subj_ids,
               options_obj: {...options_obj, offset: 0},
-              options_arr
+              options_arr,
+              template_name
             }))
           };
         } else {
