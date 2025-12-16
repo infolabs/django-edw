@@ -25,12 +25,15 @@ class Related extends Component {
         if (pk === entry_point_id) {
           let targets = [element];
           const container = closest(element, '.ex-data-mart-container');
-          if (container)
+          if (container) {
+            container.classList.add('related');
             targets.push(container);
+          }
 
           const is_initial = (prevCount === undefined) && (count !== undefined);
           for (let j = targets.length - 1; j >= 0; j--) {
             const target = targets[j];
+            target.setAttribute('template-name', 'related');
             target.setAttribute('data-data-count', count);
             if (is_initial)
               target.setAttribute('data-initial-data-count', count);
