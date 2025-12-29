@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
+import {addTargetBlankForHtml} from "../../utils/htmlChanger";
 
 
 const TileItemMixin = Base => class extends Base {
@@ -122,9 +123,11 @@ const TileItemMixin = Base => class extends Base {
 
   getItemContent(data, title, marks){
     const url = data.extra?.url || data.entity_url;
+    const isRedirect = data.short_characteristics.find(char=>char.path === 'entity/publication_wrapper/redirect-url');
+    const media = isRedirect ? addTargetBlankForHtml(data.media) : data.media;
     return (
       <div className="ex-wrap-action">
-        <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
+        <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}}/>
         <ul className="ex-ribbons">
           {marks.map(
             (child, i) =>
@@ -139,7 +142,7 @@ const TileItemMixin = Base => class extends Base {
         </ul>
         <div className="ex-wrap-title">
           <h4 className="ex-title">
-            <a href={url} title={title}>{title}</a>
+            <a href={url} target={isRedirect ? '_blank': '_self'} title={title}>{title}</a>
           </h4>
         </div>
       </div>

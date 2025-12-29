@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import marked from 'marked';
+import {addTargetBlankForHtml} from "../../utils/htmlChanger";
 
 
 const TOGGLE_DESCRIPTION_DELAY = 100;
@@ -154,9 +155,10 @@ const ListItemMixin = Base => class extends Base {
   }
 
   getItemBlock(url, data, title, descriptionBaloon){
+    const isRedirect = data.short_characteristics.find(char=>char.path === 'entity/publication_wrapper/redirect-url');
     return (
       <div className="wrap-list-item__description">
-        <a href={url}>
+        <a href={url} target={isRedirect ? '_blank': '_self'} >
           <h4>{title}</h4>
         </a>
         {descriptionBaloon}
@@ -165,12 +167,14 @@ const ListItemMixin = Base => class extends Base {
   }
 
   getItemContent(url, data, itemBlock, marks, wrapperClassName = 'wrap-list-item') {
+    const isRedirect = data.short_characteristics.find(char=>char.path === 'entity/publication_wrapper/redirect-url');
+    const media = isRedirect ? addTargetBlankForHtml(data.media) : data.media;
     return (
       <div className={wrapperClassName}
            onClickCapture={e => { ::this.handleMouseClick(e); } }>
         <div className="row wrap-list-item__content">
           <div className="wrap-list-item__image">
-            <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(data.media, {sanitize: false})}}/>
+            <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}}/>
           </div>
           {itemBlock}
         </div>
