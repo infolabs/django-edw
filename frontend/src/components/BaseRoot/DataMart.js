@@ -17,6 +17,12 @@ import {closest} from '../../utils/querySelector';
 
 
 export class DataMart extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      wasEmptyOnInit: null,
+    };
+  }
 
   componentDidUpdate(prevProps) {
     // устанавливаем data-data-count и data-initial-data-count
@@ -50,13 +56,17 @@ export class DataMart extends Component {
         }
       }
     }
+    if (count !== undefined && this.state.wasEmptyOnInit === null) {
+      this.setState({wasEmptyOnInit: count === 0});
+    }
   }
 
   render() {
     const {entry_point_id, entry_points, actions, component_attrs, entities} = this.props;
+    const { wasEmptyOnInit } = this.state;
     const hasNoData = !entities?.items?.loading && entities?.items?.meta?.count === 0;
     const rawShowNoDataInBlock = entry_points[entry_point_id]?.show_no_data_in_block;
-    const showNoDataInBlock = rawShowNoDataInBlock === true || rawShowNoDataInBlock === 'True' || rawShowNoDataInBlock === 'true';
+    const showNoDataInBlock = rawShowNoDataInBlock === true || rawShowNoDataInBlock === 'True' || rawShowNoDataInBlock === 'true' || !wasEmptyOnInit;
 
     if (hasNoData && !showNoDataInBlock) {
       return <NoDataTemplate />;
