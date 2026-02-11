@@ -195,6 +195,8 @@ class EsiaOAuth2(BaseOAuth2):
 
     MAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
 
+    ESIA_EMAIL_PATTERN = '{}@esia.ru'
+
     def state_token(self):
         return str(uuid.uuid4())
 
@@ -261,9 +263,12 @@ class EsiaOAuth2(BaseOAuth2):
     def get_user_details(self, response):
 
         response['mobile'] = response['mobile'].get('value', '')
-        response['email'] = response['email'].get('value', '')
+        email = response['email'].get('value', '')
+        if not email:
+            email = self.ESIA_EMAIL_PATTERN.format(response.get(self.ID_KEY))
+        response['email'] = email
         # У поля username ограничение 30 символов
-        response['username'] = create_hash(response['email'])[:30]
+        response['username'] = create_hash(email)[:30]
         response['fullname'] = " ".join(filter(
             None, [response['first_name'], response['patronymic'], response['last_name']])
         )
