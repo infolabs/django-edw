@@ -14,6 +14,7 @@ from django.forms import fields, widgets, ModelForm
 from django.template import Context
 from django.template.loader import select_template
 from django.utils.translation import ugettext_lazy as _
+from constance import config
 
 from edw import settings as edw_settings
 from edw.models.customer import CustomerModel
@@ -34,6 +35,12 @@ class RegisterUserForm(ModelForm):
     )
     email = fields.EmailField(label=_("Your e-mail address"),
                               help_text=_("E-mail address is used as login"))
+
+    locality_id = fields.IntegerField(
+        label=_("Your locality"),
+        help_text=_("Example: Moscow"),
+        required=False,
+    )
     preset_password = fields.BooleanField(required=False, label=_("Preset password"),
         widget=widgets.CheckboxInput(),
         help_text=_("Send a randomly generated password to your e-mail address"))
@@ -45,7 +52,7 @@ class RegisterUserForm(ModelForm):
 
     class Meta:
         model = CustomerModel
-        fields = ('fio', 'email', 'password1', 'password2',)
+        fields = ('fio', 'email', 'locality_id', 'password1', 'password2',)
 
     def __init__(self, data=None, instance=None, *args, **kwargs):
         if data and data.get('preset_password', False):
@@ -53,6 +60,8 @@ class RegisterUserForm(ModelForm):
             password = get_user_model().objects.make_random_password(pwd_length)
             data['password1'] = data['password2'] = password
         super(RegisterUserForm, self).__init__(data=data, instance=instance, *args, **kwargs)
+        if getattr(config, 'ALLOW_LOCALITY', False):
+            self.fields['locality_id'].required = True
 
     def clean_email(self):
         try:
@@ -103,6 +112,7 @@ class RegisterUserForm(ModelForm):
         self._parce_fio_to_fullname(self.instance.user, self.cleaned_data['fio'])
         customer = super(RegisterUserForm, self).save(commit)
         password = self.cleaned_data['password1']
+        locality_id = self.cleaned_data['locality_id']
         #пароль и ссылка на активацию в одном письме либо только пароль, если не требуется активация
         if do_activation:
             if self.cleaned_data['preset_password']:
@@ -110,7 +120,7 @@ class RegisterUserForm(ModelForm):
             user = authenticate(username=customer.user.username, password=password)
             login(request, user)
         else:
-            self._send_activation_email(request, customer.user, password)
+            self._send_activation_email(request, customer.user, password, True, locality_id)
             logout(request)
         customer_registered.send_robust(sender=self.__class__, customer=customer, request=request)
 
@@ -139,7 +149,7 @@ class RegisterUserForm(ModelForm):
         ]).render(context)
         user.email_user(subject, body)
 
-    def _send_activation_email(self, request, user, password=None, is_activation=True):
+    def _send_activation_email(self, request, user, password=None, is_activation=True, locality_id=None):
         """
         Send the activation email. The activation key is simply the
         username, signed using TimestampSigner.
@@ -160,6 +170,9 @@ class RegisterUserForm(ModelForm):
                 'activation_link': activation_link,
                 'expiration_days': edw_settings.REGISTRATION_PROCESS['account_activation_days'],
             })
+
+        if config.ALLOW_LOCALITY:
+            context.update({'locality_id': locality_id})
 
         if password:
             context.update({

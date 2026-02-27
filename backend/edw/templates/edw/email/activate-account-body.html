@@ -3,9 +3,9 @@
         {% blocktrans %}You are receiving this email because you asked for registration for your
         user account at «{{ site_name }}».{% endblocktrans %}
 
-        <a href="{{ activation_link }}" style="display: block; text-align: center; text-transform: uppercase; padding: 6px 12px; font-size: 1.4rem; text-decoration: none; color: white; background: #26C6DA; max-width: 250px; margin: 20px auto;">{% blocktrans %}Activate{% endblocktrans %}</a>
+        <a href="{{ activation_link }}{% if locality_id %}?locality_id={{ locality_id }}{% endif %}" style="display: block; text-align: center; text-transform: uppercase; padding: 6px 12px; font-size: 1.4rem; text-decoration: none; color: white; background: #26C6DA; max-width: 250px; margin: 20px auto;">{% blocktrans %}Activate{% endblocktrans %}</a>
 
-        {% blocktrans %}To activate your account сlick a button above or this link: {{ activation_link }}.{% endblocktrans %}
+        {% blocktrans %}To activate your account сlick a button above or this link: {% endblocktrans %}{{ activation_link }}{% if locality_id %}?locality_id={{ locality_id }}{% endif %}.
 
         {% blocktrans %}Link is valid for {{ expiration_days }} days.{% endblocktrans %} {% blocktrans %}If links are disallowed in your post-manager just copy this link and paste it into url field of your browser.{% endblocktrans %}
 
