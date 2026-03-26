@@ -187,8 +187,11 @@ export function getEntities(params) {
         // if datamarts match, tree exists and it is the last response in the queue
         // and it mismatches with the selected terms, call the function again
         if (!compareArrays(stateTerms, responseTerms)) {
-          options_obj = stateMeta.request_options;
-          options_obj.terms = stateTerms;
+          const mergedRetry = {
+            ...options_obj,
+            terms: stateTerms,
+          };
+          options_obj = mergedRetry;
 
           params = {
             ...params,
