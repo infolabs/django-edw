@@ -7,6 +7,7 @@ import time
 from django.conf import settings
 from django.db import models
 from django.db.models.query import QuerySet
+from django.db.models.functions import Greatest, Least
 
 from django.db.models import Value, F, ExpressionWrapper
 from django.utils.translation import ugettext_lazy as _
@@ -241,8 +242,9 @@ def get_closest(model_or_queryset, geo_field, latitude, longitude):
     to_lat = Radians(F('latitude'))
     to_lon = Radians(F('longitude'))
 
-    expression = EARTH_RADIUS_METERS * Acos(Cos(from_lat) * Cos(to_lat) *
-                    Cos(to_lon - from_lon) + Sin(from_lat) * Sin(to_lat))
+    acos_arg = Cos(from_lat) * Cos(to_lat) * Cos(to_lon - from_lon) + Sin(from_lat) * Sin(to_lat)
+    clamped_acos_arg = Greatest(Value(-1.0), Least(Value(1.0), acos_arg))
+    expression = EARTH_RADIUS_METERS * Acos(clamped_acos_arg)
 
     expression_wrapper = ExpressionWrapper(expression, output_field=models.FloatField())
 
