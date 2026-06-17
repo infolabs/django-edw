@@ -14,7 +14,6 @@ import time
 import hashlib
 import requests
 from requests.exceptions import RequestException
-import six
 
 from django import VERSION
 from django.http import HttpResponseRedirect
@@ -136,13 +135,24 @@ def smime_sign(certificate_file, private_key_file, data, backend='m2crypto'):
             'SOCIAL_AUTH_ESIA_CRYPTO_KEY_CONTAINER_PIN',
             '',
         )
+        cert_thumbprint = getattr(
+            settings,
+            'SOCIAL_AUTH_ESIA_CERT_THUMBPRINT',
+            '',
+        )
         store = pycades.Store()
         store.Open(
             pycades.CAPICOM_CURRENT_USER_STORE,
             pycades.CAPICOM_MY_STORE,
             pycades.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED,
         )
-        certs = store.Certificates
+        if cert_thumbprint:
+            certs = store.Certificates.Find(
+                pycades.CAPICOM_CERTIFICATE_FIND_SHA1_HASH,
+                cert_thumbprint
+            )
+        else:    
+            certs = store.Certificates
         certs_count = certs.Count
         if certs_count < 1:
             raise Exception('Cryptopro has no installed certificates to sign data.')
@@ -168,7 +178,10 @@ def sign_params(params, certificate_file, private_key_file, backend='m2crypto'):
     if raw_client_secret == ERROR_CODES.ESIA_AUTH:
         params.update(crypto_error=True)
     else:
-        client_secret = base64.urlsafe_b64encode(raw_client_secret)
+        if backend == 'cryptopro':
+            client_secret =  raw_client_secret.decode().replace('\r\n', '')
+        else:
+            client_secret = base64.urlsafe_b64encode(raw_client_secret)
         params.update(
             client_secret=client_secret,
         )
@@ -261,7 +274,6 @@ class EsiaOAuth2(BaseOAuth2):
     }
 
     def get_user_details(self, response):
-
         response['mobile'] = response['mobile'].get('value', '')
         email = response['email'].get('value', '')
         response['email'] = email
@@ -403,9 +415,12 @@ class EsiaOAuth2Test(EsiaOAuth2):
 
     def get_user_details(self, response):
         response['mobile'] = response['mobile'].get('value', '')
-        response['email'] = response['email'].get('value', '')
+        email = response['email'].get('value', '')
+        response['email'] = email
+        if not email:
+            email = self.ESIA_EMAIL_PATTERN.format(response.get(self.ID_KEY))
+        response['username'] = create_hash(email)[:30]
         # У поля username ограничение 30 символов
-        response['username'] = create_hash(response['email'])[:30]
         response['fullname'] = " ".join(filter(
             None, [response['first_name'], response['patronymic'], response['last_name']])
         )
@@ -540,7 +555,8 @@ class EsiaOAuth2Test(EsiaOAuth2):
             for e in elements:
                 if e['type'] == v:
                     ret[k] = e
-
+        print('>>>>>>>>>>>>>>')
+        print(ret)
         return ret
 
 
