@@ -40,7 +40,7 @@ async function handleFetchError(error, args, alertError = true) {
   } else {
     const url = args[0];
     // Sentry.captureMessage(`${url}. Error: ${error}`);
-    console.error(`SocialLogin Error. Url: {url}. Error: ${error}`);
+    console.error(`uniFetch Error. Url: ${url}. Error: ${error}`);
   }
   return null;
 }
