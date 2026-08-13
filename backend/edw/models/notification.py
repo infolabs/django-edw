@@ -318,8 +318,28 @@ class Notification(models.Model):
             if recipients_roles:
                 recipients.extend(object.get_push_notification_recipients_by_roles(recipients_roles))
 
+            recipients = self.deduplicate_push_recipients(recipients)
+
             if recipients:
                 self.notify(recipients, object, source, target, 'push')
+
+    @staticmethod
+    def deduplicate_push_recipients(recipients):
+        """
+        RUS: Убирает повторы получателей push уведомлений. Один и тот же человек может попасть
+        и в copy_to, и в роли, а каждый повтор — это ещё одно уведомление на то же устройство.
+        :param recipients: [(токены, получатель, класс сериализации), ...]
+        :return: список без повторов
+        """
+        result, seen = [], set()
+        for recipient in recipients:
+            tokens = recipient[0]
+            key = tuple(tokens) if isinstance(tokens, (list, tuple)) else tokens
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(recipient)
+        return result
 
     def notify(self, recipients, object, source, target, mode='email', **kwargs):
         """
