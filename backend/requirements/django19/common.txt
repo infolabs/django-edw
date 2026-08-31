@@ -1,5 +1,5 @@
 coverage==4.0
-Django==1.9.8
+Django==2.2.28
 django-admin-sortable2==0.6.3
 django-allauth==0.23.0
 django-angular==0.8.1
