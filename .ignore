@@ -6,7 +6,8 @@ backend/sandbox/
 # Собранная статика пакета
 backend/edw/static/
 frontend/dist/
-docs/
+# Черновики docs/other не ищем. Канонические документы в docs/ — ищем.
+docs/other/
 # Локали и миграции
 */locale/**
 */migrations/**
