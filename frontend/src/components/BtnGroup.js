@@ -58,7 +58,7 @@ export default class BtnGroup extends Component {
             return <a
               key={i}
               onClick={(e) => {
-                is_selected ? null : ::this.handleOptionClick(e, k);
+                is_selected ? null : this.handleOptionClick(e, k);
               }}
               className={'ex-btn ex-btn-default ' + k + (is_selected ? ' active' : '')}
             >

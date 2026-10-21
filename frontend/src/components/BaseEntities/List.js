@@ -71,6 +71,7 @@ class ListItem extends ListItemMixin(Component) {
 
     return (
       <div className={className}
+         ref={this.setAreaRef}
          onMouseOver={e => this.handleMouseOver(e)}
          onMouseOut={e => this.handleMouseOut(e)}
          style={{minHeight: this.state.minHeight}}>

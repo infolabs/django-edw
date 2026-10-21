@@ -29,7 +29,7 @@ class GroupTitle extends Component {
       return alike ? (
         <span className={className}>
           {alike.group_name}
-          <i onClick={e => {::this.handleMouseClick()}} className="ex-icon-reset"/>
+          <i onClick={e => {this.handleMouseClick()}} className="ex-icon-reset"/>
         </span>
       ) : null
   }

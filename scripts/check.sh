@@ -11,7 +11,10 @@
 #    накат на пустую sqlite и накат через --fake-initial на синтетический
 #    снимок прежней схемы (таблицы без миграций);
 # 4. проверяет адаптеры зависимостей на офлайн-стеке матрицы;
-# 5. прогоняет контрактные тесты E1/E3, права API E4 (edw.rest.permissions,
+# 5. проверяет фронтенд: React 18 createRoot, отсутствие оператора :: и поиска
+#    DOM-узла по инстансу, smoke-тесты рендера и сборку production-бандла
+#    через предсобранный node_modules (esbuild, без npm install);
+# 6. прогоняет контрактные тесты E1/E3, права API E4 (edw.rest.permissions,
 #    DataMartPermission) и тесты матрицы, импортируя edw из собранного wheel.
 #
 # pip/npm install не вызываются, внешние БД и сеть не используются:
@@ -47,14 +50,14 @@ cd "${REPO_ROOT}"
 echo "== EDW contracts check =="
 "${PYTHON}" -c "import django, rest_framework, pytest; print('python: {}'.format(__import__('sys').version.split()[0])); print('django: {}'.format(django.get_version())); print('drf: {}'.format(rest_framework.VERSION)); print('pytest: {}'.format(pytest.__version__))"
 
-echo "== 1/5 матрица зависимостей G0.1 =="
+echo "== 1/7 матрица зависимостей G0.1 =="
 if ! PYTHONPATH="${BACKEND}" DJANGO_SETTINGS_MODULE="edw_contract_settings" \
         "${PYTHON}" -c 'from edw.tests.contract import matrix; raise SystemExit(matrix.main())'; then
     echo "CHECK FAIL: pyproject.toml расходится с матрицей G0.1" >&2
     exit 1
 fi
 
-echo "== 2/5 сборка wheel (PEP 517) =="
+echo "== 2/7 сборка wheel (PEP 517) =="
 if ! "${PYTHON}" -m build --wheel --no-isolation --outdir "${WORK}/dist" "${REPO_ROOT}" >"${WORK}/build.log" 2>&1; then
     cat "${WORK}/build.log" >&2
     echo "CHECK FAIL: wheel не собрался" >&2
@@ -94,7 +97,7 @@ print('  пакеты: edw, email_auth, social_extra')
 print('  package data: templates={}, static={}, locale={}'.format(templates, static, locale))
 PY
 
-echo "== 2/5 проверка editable =="
+echo "== 3/7 проверка editable =="
 if ! "${PYTHON}" - "${WORK}/editable" "${BACKEND}" >"${WORK}/editable.log" 2>&1 <<'PY'; then
 import os
 import sys
@@ -138,7 +141,7 @@ PY
 fi
 grep '^  editable:' "${WORK}/editable.log" || true
 
-echo "== 3/5 миграции (drift, пустая sqlite, снимок прежней схемы) =="
+echo "== 4/7 миграции (drift, пустая sqlite, снимок прежней схемы) =="
 MIGRATION_DB="${WORK}/migrations"
 mkdir -p "${MIGRATION_DB}"
 
@@ -191,7 +194,7 @@ assert empty == legacy, (
 print('  схема после миграций и после --fake-initial совпадает: {} таблиц'.format(len(empty)))
 PY
 
-echo "== 4/5 адаптеры зависимостей матрицы =="
+echo "== 5/7 адаптеры зависимостей матрицы =="
 "${PYTHON}" -m zipfile -e "${WHEEL}" "${WORK}/site"
 export PYTHONPATH="${WORK}/site:${BACKEND}"
 export EDW_CHECK_SITE="${WORK}/site"
@@ -204,7 +207,198 @@ if ! "${PYTHON}" "${REPO_ROOT}/scripts/check_adapters.py" >"${WORK}/adapters.log
 fi
 cat "${WORK}/adapters.log"
 
-echo "== 5/5 контракты E1/E3, права API E4 (edw из собранного wheel) =="
+echo "== 6/7 frontend: React 18 createRoot, refs, smoke-тесты и production-бандл =="
+
+FRONTEND_DIR="${REPO_ROOT}/frontend"
+EDW_NODE_MODULES="${EDW_NODE_MODULES:-/home/agent/workspace/venvs/edw-frontend/node_modules}"
+NODE_BIN="${NODE_BIN:-node}"
+
+frontend_fail() {
+    echo "CHECK FAIL: $*" >&2
+    exit 1
+}
+
+if ! command -v "${NODE_BIN}" >/dev/null 2>&1; then
+    frontend_fail "не найден node (${NODE_BIN})"
+fi
+if [[ ! -d "${EDW_NODE_MODULES}/react" || ! -d "${EDW_NODE_MODULES}/esbuild" ]]; then
+    frontend_fail "нет предсобранного frontend node_modules в ${EDW_NODE_MODULES}"
+fi
+
+# Сборка и тесты берут пакеты только из предсобранного дерева: npm install
+# не вызывается ни здесь, ни внутри scripts/build.mjs / scripts/test.mjs.
+export NODE_PATH="${EDW_NODE_MODULES}"
+export EDW_NODE_MODULES
+
+# 6.1 Исходники: ни оператора привязки ::, ни поиска DOM-узла по инстансу.
+if grep -rIn --include='*.js' -E '(^|[^:[:alnum:]_$])::[[:alpha:]_$]' "${FRONTEND_DIR}/src" >"${WORK}/bindings.log" 2>&1; then
+    cat "${WORK}/bindings.log" >&2
+    frontend_fail "в frontend/src остались привязки через оператор ::"
+fi
+
+if grep -rIn --include='*.js' 'findDOMNode' "${FRONTEND_DIR}/src" >"${WORK}/finddomnode.log" 2>&1; then
+    cat "${WORK}/finddomnode.log" >&2
+    frontend_fail "в frontend/src остался поиск DOM-узла по инстансу"
+fi
+
+if grep -rIn --include='*.js' -E '![a-z-]+!' "${FRONTEND_DIR}/src" >"${WORK}/inlineloaders.log" 2>&1; then
+    cat "${WORK}/inlineloaders.log" >&2
+    frontend_fail "в frontend/src остались inline-цепочки загрузчиков"
+fi
+
+if ! grep -q "from 'react-dom/client'" "${FRONTEND_DIR}/src/index.js" \
+        || ! grep -q 'createRoot' "${FRONTEND_DIR}/src/index.js"; then
+    frontend_fail "frontend/src/index.js не переведён на createRoot"
+fi
+if grep -qE "ReactDOM\.render\(|from 'react-dom'" "${FRONTEND_DIR}/src/index.js"; then
+    frontend_fail "frontend/src/index.js всё ещё использует legacy ReactDOM.render"
+fi
+echo "  исходники: 0 привязок ::, 0 поисков DOM-узла по инстансу, index.js на createRoot"
+
+# 6.2 package.json: React/ReactDOM по матрице G0.1 (цель 18.3) и скрипты сборки.
+if ! "${NODE_BIN}" - "${FRONTEND_DIR}/package.json" <<'JS'
+const pkg = require(process.argv[2]);
+const problems = [];
+const deps = Object.assign({}, pkg.dependencies, pkg.devDependencies);
+
+const checkReact = (name) => {
+  const raw = deps[name];
+  const match = /^[\^~]?(\d+)\.(\d+)(\.\d+)?/.exec(raw || '');
+  if (!match) {
+    problems.push(`${name}: версия не указана (${raw || 'нет'})`);
+    return;
+  }
+  const major = Number(match[1]);
+  const minor = Number(match[2]);
+  if (major !== 18 || minor < 3)
+    problems.push(`${name}: ожидается 18.3+, в package.json ${raw}`);
+};
+
+checkReact('react');
+checkReact('react-dom');
+
+for (const script of ['build', 'test']) {
+  if (!pkg.scripts || !pkg.scripts[script])
+    problems.push(`package.json: нет scripts.${script}`);
+}
+
+if (problems.length) {
+  console.error(problems.join('\n'));
+  process.exit(1);
+}
+
+console.log(`  package.json: react ${deps.react}, react-dom ${deps['react-dom']}, scripts build/test на месте`);
+JS
+then
+    frontend_fail "package.json не соответствует цели React 18.3"
+fi
+
+# 6.3 webpack.config.js: пути от __dirname, TerserPlugin, без dev-server client.
+if ! "${NODE_BIN}" --check "${FRONTEND_DIR}/webpack.config.js" >"${WORK}/webpack-syntax.log" 2>&1; then
+    cat "${WORK}/webpack-syntax.log" >&2
+    frontend_fail "webpack.config.js не разбирается"
+fi
+if ! grep -q 'TerserPlugin' "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js не подключает TerserPlugin"
+fi
+if ! grep -q 'path.resolve(__dirname' "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js не считает пути от __dirname"
+fi
+if ! grep -q "static', 'edw', 'js'" "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js не собирает бандл в backend/edw/static/edw/js"
+fi
+if grep -q '/app/' "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js содержит зашитые пути деплоя (/app/...)"
+fi
+if grep -q 'webpack-dev-server' "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js подключает клиент dev-server"
+fi
+if grep -qE '\bloaders[[:space:]]*:' "${FRONTEND_DIR}/webpack.config.js"; then
+    frontend_fail "webpack.config.js использует устаревший ключ loaders:"
+fi
+echo "  webpack.config.js: path.resolve(__dirname), TerserPlugin, без dev-server client и loaders:"
+
+# 6.4 smoke-тесты рендера: дерево терминов, фасеты, витрина DataMart.
+set +o errexit
+"${NODE_BIN}" "${FRONTEND_DIR}/scripts/test.mjs" >"${WORK}/frontend-tests.log" 2>&1
+FRONTEND_TESTS_STATUS=$?
+set -o errexit
+cat "${WORK}/frontend-tests.log"
+if [[ ${FRONTEND_TESTS_STATUS} -ne 0 ]]; then
+    frontend_fail "smoke-тесты фронтенда (exit ${FRONTEND_TESTS_STATUS})"
+fi
+
+TESTS_LINE="$(grep -E '^TESTS passed=[0-9]+ failed=[0-9]+$' "${WORK}/frontend-tests.log" | tail -n 1 || true)"
+[[ -n "${TESTS_LINE}" ]] || frontend_fail "не удалось разобрать результат smoke-тестов"
+TESTS_PASSED="${TESTS_LINE#TESTS passed=}"
+TESTS_PASSED="${TESTS_PASSED%% *}"
+TESTS_FAILED="${TESTS_LINE##*failed=}"
+if [[ "${TESTS_FAILED}" -ne 0 ]]; then
+    frontend_fail "smoke-тесты фронтенда: провалов ${TESTS_FAILED}"
+fi
+if [[ "${TESTS_PASSED}" -lt 3 ]]; then
+    frontend_fail "smoke-тестов меньше трёх (${TESTS_PASSED})"
+fi
+
+# 6.5 production-бандл: детерминированная сборка в backend/edw/static/edw/js.
+set +o errexit
+"${NODE_BIN}" "${FRONTEND_DIR}/scripts/build.mjs" "${WORK}/bundle-a.js" >"${WORK}/build-a.log" 2>&1
+BUILD_A=$?
+"${NODE_BIN}" "${FRONTEND_DIR}/scripts/build.mjs" >"${WORK}/build-main.log" 2>&1
+BUILD_MAIN=$?
+set -o errexit
+cat "${WORK}/build-main.log"
+if [[ ${BUILD_A} -ne 0 ]]; then
+    cat "${WORK}/build-a.log" >&2
+    frontend_fail "production-бандл не собрался (exit ${BUILD_A})"
+fi
+if [[ ${BUILD_MAIN} -ne 0 ]]; then
+    frontend_fail "production-бандл не собрался в backend/edw/static/edw/js (exit ${BUILD_MAIN})"
+fi
+
+BUNDLE="${REPO_ROOT}/backend/edw/static/edw/js/bundle.js"
+[[ -s "${BUNDLE}" ]] || frontend_fail "сборка не создала ${BUNDLE}"
+if ! "${NODE_BIN}" --check "${BUNDLE}" >"${WORK}/bundle-syntax.log" 2>&1; then
+    cat "${WORK}/bundle-syntax.log" >&2
+    frontend_fail "production-бандл не разбирается как JavaScript"
+fi
+
+# Детерминированность: тот же вход — тот же побайтный выход.
+BUNDLE_A_SHA="$(sha256sum "${WORK}/bundle-a.js" | cut -d' ' -f1)"
+BUNDLE_SHA="$(sha256sum "${BUNDLE}" | cut -d' ' -f1)"
+if [[ "${BUNDLE_A_SHA}" != "${BUNDLE_SHA}" ]]; then
+    frontend_fail "сборка недетерминирована: sha256 ${BUNDLE_A_SHA} != ${BUNDLE_SHA}"
+fi
+
+# Клиент dev-server не должен попадать в production-бандл.
+for marker in 'webpack-dev-server' 'webpack/hot' 'WebSocketClient' 'sockjs'; do
+    if grep -q "${marker}" "${BUNDLE}"; then
+        frontend_fail "в production-бандле найден маркер dev-server: ${marker}"
+    fi
+done
+if ! grep -q 'createRoot' "${BUNDLE}"; then
+    frontend_fail "production-бандл не содержит createRoot"
+fi
+if ! grep -q 'ex-data-mart' "${BUNDLE}"; then
+    frontend_fail "production-бандл не содержит инициализацию виджета"
+fi
+
+BUNDLE_SIZE="$(wc -c <"${BUNDLE}" | tr -d ' ')"
+if [[ "${BUNDLE_SIZE}" -lt 100000 ]]; then
+    frontend_fail "production-бандл подозрительно мал: ${BUNDLE_SIZE} байт"
+fi
+
+# Бандл должен исполняться: без node-глобалов (require/module) и с вставкой
+# скомпилированных less-стилей на инициализации входа.
+if ! "${NODE_BIN}" "${FRONTEND_DIR}/scripts/check-bundle.mjs" "${BUNDLE}" >"${WORK}/bundle-load.log" 2>&1; then
+    cat "${WORK}/bundle-load.log" >&2
+    frontend_fail "production-бандл не исполняется"
+fi
+cat "${WORK}/bundle-load.log"
+
+echo "  бандл: backend/edw/static/edw/js/bundle.js, ${BUNDLE_SIZE} байт, sha256 ${BUNDLE_SHA:0:16}, без dev-server client"
+
+echo "== 7/7 контракты E1/E3, права API E4 (edw из собранного wheel) =="
 "${PYTHON}" - <<'PY'
 import os
 

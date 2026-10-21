@@ -1,6 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import marked from 'marked';
+import marked from 'utils/marked';
 import {addTargetBlankForHtml} from "../../utils/htmlChanger";
 
 
@@ -14,6 +13,15 @@ const ListItemMixin = Base => class extends Base {
       minHeight: 0,
       isHover: false,
     };
+  }
+
+  // Корневой DOM-узел элемента отдаётся callback-ref из render (ListItem).
+  setAreaRef = (area) => {
+    this._area = area;
+  };
+
+  getAreaNode() {
+    return this._area || null;
   }
 
   handleMouseOver(e) {
@@ -53,7 +61,7 @@ const ListItemMixin = Base => class extends Base {
       if (lastIsHover === isHover) {
         if (isHover) {
           try {
-            const area = ReactDOM.findDOMNode(context),
+            const area = context.getAreaNode(),
                   areaRect = area.getBoundingClientRect();
             context.setState({minHeight: areaRect.height});
           } catch (err) {
@@ -77,8 +85,11 @@ const ListItemMixin = Base => class extends Base {
   }
 
   getIsHover(clientX, clientY) {
-    const area = ReactDOM.findDOMNode(this),
-          areaRect = area.getBoundingClientRect(),
+    const area = this.getAreaNode();
+    if (!area)
+      return false;
+
+    const areaRect = area.getBoundingClientRect(),
           posX = clientX - areaRect.left,
           posY = clientY - areaRect.top;
 
@@ -171,7 +182,7 @@ const ListItemMixin = Base => class extends Base {
     const media = isRedirect ? addTargetBlankForHtml(data.media) : data.media;
     return (
       <div className={wrapperClassName}
-           onClickCapture={e => { ::this.handleMouseClick(e); } }>
+           onClickCapture={e => { this.handleMouseClick(e); } }>
         <div className="row wrap-list-item__content">
           <div className="wrap-list-item__image">
             <div className="ex-media" dangerouslySetInnerHTML={{__html: marked(media, {sanitize: false})}}/>

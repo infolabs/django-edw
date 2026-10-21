@@ -35,12 +35,12 @@ export default class TermsTreeItemInfo extends Component {
       <span className="ex-description-wrapper">
         <i className="ex-icon-info"
            title="Info"
-           onClick={e => { ::this.handleIconClick(e);}}/>
+           onClick={e => { this.handleIconClick(e);}}/>
         <div className={infoExpanded[term.id] ? 'ex-baloon ex-baloon-show' : 'ex-baloon ex-baloon-hide'}>
           <div className="ex-arrow"/>
           <button type="button"
                 className="ex-close"
-                onClick={e => { ::this.handleCloseClick(e); }}>×</button>
+                onClick={e => { this.handleCloseClick(e); }}>×</button>
           <p>{description}</p>
         </div>
       </span>

@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "webpack --config webpack.config.js --progress --colors"
+    "build": "node scripts/build.mjs",
+    "build:webpack": "webpack --config webpack.config.js --mode production",
+    "test": "node scripts/test.mjs"
   },
   "repository": {
     "type": "git",
@@ -30,8 +32,8 @@
   "dependencies": {
     "classnames": "^2.1.2",
     "marked": "^0.3.5",
-    "react": "^16.1.0",
-    "react-dom": "^16.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-google-maps": "^6.0.1",
     "react-yandex-maps": "^3.0.2",
     "react-cookies": "0.1.0",
@@ -60,6 +62,7 @@
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "babel-loader": "^8.1.0",
+    "esbuild": "^0.25.12",
     "node-libs-browser": "^0.5.2",
     "raw-loader": "^4.0.1",
     "react-hot-loader": "^4.12.21",
@@ -69,6 +72,7 @@
     "style-loader": "^1.2.1",
     "less-loader": "^6.1.0",
     "less": "^3.11.1",
+    "css-loader": "^3.5.3",
     "todomvc-app-css": "^2.0.1",
     "webpack": "^4.43.0",
     "webpack-bundle-tracker": "^0.4.2-beta",

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import marked from 'marked';
+import marked from 'utils/marked';
 import Color from 'color';
 
 
@@ -31,9 +30,18 @@ export default class AbstractMap extends Component {
       this.setState({itemsChanged});
   }
 
+  // Корневой DOM-узел карты отдаётся callback-ref подклассом (Map/YMap).
+  setAreaRef = (area) => {
+    this._area = area;
+  };
+
+  getAreaNode() {
+    return this._area || null;
+  }
+
   componentDidMount(x, y, z) {
     this.setState({
-      div: ReactDOM.findDOMNode(this),
+      div: this.getAreaNode(),
     });
   }
 

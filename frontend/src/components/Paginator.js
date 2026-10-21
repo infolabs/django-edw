@@ -167,7 +167,7 @@ class Paginator extends Component {
     if (hasPrevious) {
       previous = (
         <li key="prev" onClick={e => {
-          ::this.handlePrevClick(e);
+          this.handlePrevClick(e);
         }}>
           <a href="#"><i className="ex-icon-chevron-left"/></a>
         </li>
@@ -187,7 +187,7 @@ class Paginator extends Component {
       pagesOutsideTrailingRange.forEach(function (n) {
         pages.push(
           <li key={n} onClick={e => {
-            ::self.handlePageClick(e, n);
+            self.handlePageClick(e, n);
           }}>
             <a href="#">{n}</a>
           </li>
@@ -206,7 +206,7 @@ class Paginator extends Component {
       } else {
         pages.push(
           <li key={n} onClick={e => {
-            ::self.handlePageClick(e, n);
+            self.handlePageClick(e, n);
           }}>
             <a href="#">{n}</a>
           </li>
@@ -221,7 +221,7 @@ class Paginator extends Component {
       pagesOutsideLeadingRange.reverse().forEach(function (n) {
         pages.push(
           <li key={n} onClick={e => {
-            ::self.handlePageClick(e, n);
+            self.handlePageClick(e, n);
           }}>
             <a href="#">{n}</a>
           </li>
@@ -233,7 +233,7 @@ class Paginator extends Component {
     if (hasNext) {
       next = (
         <li key="next" onClick={e => {
-          ::this.handleNextClick(e);
+          this.handleNextClick(e);
         }}>
           <a href="#"><i className="ex-icon-chevron-right"/></a>
         </li>

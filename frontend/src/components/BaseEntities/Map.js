@@ -166,7 +166,7 @@ export default class Map extends AbstractMap {
       return null;
 
     return (
-      <div className={entities_class}>
+      <div className={entities_class} ref={this.setAreaRef}>
         <ProblemMap markers={markers}
                     lng={map_lng}
                     lat={map_lat}

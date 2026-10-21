@@ -1,6 +1,5 @@
 import React from 'react';
-import marked from 'marked';
-import ReactDOM from 'react-dom';
+import marked from 'utils/marked';
 
 const TableItemMixin = Base => class extends Base{
     constructor() {
@@ -12,6 +11,15 @@ const TableItemMixin = Base => class extends Base{
             v_pos: null,
         };
     }
+
+  // Корневой DOM-узел строки отдаётся callback-ref из getItemBlock.
+  setAreaRef = (area) => {
+    this._area = area;
+  };
+
+  getAreaNode() {
+    return this._area || null;
+  }
 
   handleMouseOver(e) {
         this.componentDidMount();
@@ -40,8 +48,8 @@ const TableItemMixin = Base => class extends Base{
   }
 
   componentDidMount(x, y, z){
-    const area = ReactDOM.findDOMNode(this),
-          info = area.getElementsByClassName('ex-catalog-item-block')[0];
+    const area = this.getAreaNode(),
+          info = area && area.getElementsByClassName('ex-catalog-item-block')[0];
 
     if (info) {
       // HACK: для правильного определения размера в хроме функция вызывается с таймаутом
@@ -123,10 +131,10 @@ const TableItemMixin = Base => class extends Base{
                     <i className={`fa fa-ellipsis-h fa-lg  more-info ex-catalog-item-block`}
                        aria-hidden="true"
                     onMouseOver={e => {
-                        ::this.handleMouseOver(e)
+                        this.handleMouseOver(e)
                     }}
                     onMouseOut={e => {
-                        ::this.handleMouseOut(e)
+                        this.handleMouseOut(e)
                     }}>
                         {descriptionBalloon}
                     </i>
@@ -181,6 +189,7 @@ const TableItemMixin = Base => class extends Base{
     getItemBlock(itemContent) {
         return (
             <tr className={`table-item table-row ex-catalog-item `}
+                ref={this.setAreaRef}
                 data-vertical-position={this.state.v_pos}>
                 {itemContent}
             </tr>

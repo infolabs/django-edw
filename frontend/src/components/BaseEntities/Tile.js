@@ -60,11 +60,12 @@ class TileItem extends TileItemMixin(Component) {
 
     return (
       <li className={liClass}
+          ref={this.setAreaRef}
           data-horizontal-position={this.state.h_pos}
           data-vertical-position="center"
           data-index={index}
-          onMouseOver={e => { ::this.handleMouseOver(e); } }
-          onMouseOut={e => { ::this.handleMouseOut(e); } }>
+          onMouseOver={e => { this.handleMouseOver(e); } }
+          onMouseOut={e => { this.handleMouseOut(e); } }>
           {itemBlock}
       </li>
     );

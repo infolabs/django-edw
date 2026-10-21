@@ -1,6 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import marked from 'marked';
+import marked from 'utils/marked';
 import {addTargetBlankForHtml} from "../../utils/htmlChanger";
 
 
@@ -11,6 +10,15 @@ const TileItemMixin = Base => class extends Base {
     this.state = {
       h_pos: null,
     };
+  }
+
+  // Корневой DOM-узел элемента отдаётся callback-ref из render (TileItem).
+  setAreaRef = (area) => {
+    this._area = area;
+  };
+
+  getAreaNode() {
+    return this._area || null;
   }
 
   handleMouseOver(e){
@@ -50,8 +58,11 @@ const TileItemMixin = Base => class extends Base {
   }
 
   getIsHover(clientX, clientY){
-    const area = ReactDOM.findDOMNode(this),
-          areaRect = area.getBoundingClientRect(),
+    const area = this.getAreaNode();
+    if (!area)
+      return false;
+
+    const areaRect = area.getBoundingClientRect(),
           posX = clientX - areaRect.left,
           posY = clientY - areaRect.top;
 
@@ -59,8 +70,8 @@ const TileItemMixin = Base => class extends Base {
   }
 
   componentDidMount(x, y, z){
-    const area = ReactDOM.findDOMNode(this),
-          info = area.getElementsByClassName('ex-description-wrapper')[0];
+    const area = this.getAreaNode(),
+          info = area && area.getElementsByClassName('ex-description-wrapper')[0];
     // areaRect = area.getBoundingClientRect(),
     if (info) {
       // HACK: для правильного определения размера в хроме функция вызывается с таймаутом
@@ -153,7 +164,7 @@ const TileItemMixin = Base => class extends Base {
     if (!groupSize){
       return (
         <div className="ex-catalog-item-block"
-             onClickCapture={e => { ::this.handleMouseClick(e); } }>
+             onClickCapture={e => { this.handleMouseClick(e); } }>
           {descriptionBalloon}
           {itemContent}
         </div>
@@ -161,7 +172,7 @@ const TileItemMixin = Base => class extends Base {
     } else {
       return (
         <div className="ex-catalog-item-block ex-catalog-item-variants"
-             onClickCapture={e => { ::this.handleMouseClick(e); } }>
+             onClickCapture={e => { this.handleMouseClick(e); } }>
           <div>
             <div>
               {descriptionBalloon}

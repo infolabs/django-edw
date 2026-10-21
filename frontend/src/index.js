@@ -1,15 +1,21 @@
-require('es6-promise').polyfill();
-require('isomorphic-fetch');
+// EDW frontend entry point (react-redux, React 18.3).
+//
+// Полифиллы es6-promise/isomorphic-fetch больше не подключаются: офлайн-дерево
+// зависимостей их не содержит, а целевые браузеры React 18.3 поддерживают
+// Promise и fetch нативно.
+//
+// Стили подключаются обычным import: сборщик (webpack style-loader или esbuild
+// плагин) сам компилирует less и вставляет результат в документ.
+import './less/styles.less';
 
 import React from 'react';
-import {render} from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import configureStore from 'store/configureStore';
 import Root from 'components/Root';
 
 import Singleton from 'utils/singleton';
 
-// => returns compiled css code from style.less, resolves imports and url(...)s
-var css = require("!style!raw!less!./less/styles.less");
+const ROOT_PROP = '_edwReactRoot';
 
 const globalStore = Singleton.getInstance();
 
@@ -30,8 +36,10 @@ for (let i = data_marts.length - 1; i >= 0; i--) {
   }
   globalStore[alias] = store;
 
-  render(
-    <Root store={store} dom_attrs={dom_attrs} />,
-    data_mart
-  );
+  // createRoot вместо устаревшего ReactDOM.render. Повторная инициализация
+  // того же контейнера (повторная вставка скрипта, hot reload) переиспользует
+  // уже созданный root, чтобы не плодить дубли деревьев.
+  const root = data_mart[ROOT_PROP] || createRoot(data_mart);
+  data_mart[ROOT_PROP] = root;
+  root.render(<Root store={store} dom_attrs={dom_attrs} />);
 }

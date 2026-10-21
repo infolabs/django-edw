@@ -7,3 +7,7 @@
 /build/
 /dist/
 *.egg-info/
+
+# артефакты сборки фронтенда (frontend/scripts/build.mjs, frontend/scripts/test.mjs)
+/backend/edw/static/edw/js/bundle.js
+/frontend/webpack-stats.json

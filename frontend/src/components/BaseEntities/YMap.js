@@ -364,7 +364,7 @@ export class YMapInner extends AbstractMap {
       this._map.setBounds(mapState.bounds, {checkZoomRange: true});
 
     return (
-      <div className={entitiesClass}>
+      <div className={entitiesClass} ref={this.setAreaRef}>
         <Map style={{ height: MAP_HEIGHT }}
              state={mapState}
              options={{suppressMapOpenBlock: true}}

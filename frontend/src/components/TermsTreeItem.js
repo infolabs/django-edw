@@ -73,7 +73,7 @@ export default class TermsTreeItem extends Component {
         state_class = 'ex-other';
 
       render_item = (
-        <span className="ex-label" onClick={e => { ::this.handleItemClick(e); } } >
+        <span className="ex-label" onClick={e => { this.handleItemClick(e); } } >
           <i className="ex-icon-slug"/>
           {term.name}
         </span>
@@ -86,7 +86,7 @@ export default class TermsTreeItem extends Component {
 
         reset_item = (
           <li className={reset_class}>
-              <span className="ex-label" onClick={e => { ::this.handleResetTermClick(e); } } >
+              <span className="ex-label" onClick={e => { this.handleResetTermClick(e); } } >
                 <i className="ex-icon-slug"/>
                 { gettext('All') }
               </span>
@@ -97,7 +97,7 @@ export default class TermsTreeItem extends Component {
       if (children.length && !tagged.isAncestorTagged(term) && tagged.isAnyTagged(children)
         && term.structure === consts.STRUCTURE_LIMB) {
         reset_icon = (
-          <i onClick={e => { ::this.handleResetBranchClick(e); } }
+          <i onClick={e => { this.handleResetBranchClick(e); } }
              className="ex-icon-reset"/>
         );
       }

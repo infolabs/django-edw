@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
 import cookieKey from '../utils/hashUtils';
 import parseRequestParams from 'utils/parseRequestParams';
@@ -39,6 +38,12 @@ export default class Dropdown extends Component {
     actions.getEntities(params);
   }
 
+  // Ссылка на корневой DOM-узел: поиск узла по инстансу не поддерживается
+  // в StrictMode (React 18.3) и удалён в React 19.
+  setAreaRef = (area) => {
+    this._area = area;
+  };
+
   componentDidMount() {
     document.body.addEventListener('click', this.handleBodyClick);
   }
@@ -48,8 +53,10 @@ export default class Dropdown extends Component {
   }
 
   handleBodyClick = (e) => {
-    const area = ReactDOM.findDOMNode(this),
+    const area = this._area,
       {actions, name, open} = this.props;
+    if (!area)
+      return;
     if (!area.contains(e.target) && open) {
       e.preventDefault();
       e.stopPropagation();
@@ -85,18 +92,18 @@ export default class Dropdown extends Component {
     }
 
     return (
-      <div className="ex-sort-dropdown">
+      <div className="ex-sort-dropdown" ref={this.setAreaRef}>
         <a href="#"
            className="ex-btn ex-btn-default"
            onClick={(e) => {
-             ::this.handleSelectedClick(e);
+             this.handleSelectedClick(e);
            }}>
           {selected}<span className="ex-icon-caret-down"/>
         </a>
         <ul className={open ? 'ex-dropdown-menu2' : 'ex-dropdown-menu2 ex-dropdown-hide'}>
           {Object.keys(opts).map(
             (k, i) => <li key={i} onClick={(e) => {
-              ::this.handleOptionClick(e, k);
+              this.handleOptionClick(e, k);
             }}>
               <a href="#" key={i}>{options[k]}</a>
             </li>

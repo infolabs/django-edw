@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import Scroll from 'react-scroll';
 import Actions from '../actions/index';
 import cookie from 'react-cookies';
@@ -19,6 +18,18 @@ class BaseEntities extends Component {
   state = {
     initialized: false,
   };
+
+  // Ссылка на дочерний компонент шаблона (Tile/List/Map/YMap) вместо
+  // поиска узла по инстансу: каждый шаблон отдаёт свой корневой DOM-узел
+  // через getAreaNode().
+  setTemplateRef = (component) => {
+    this.templates_instance = component;
+  };
+
+  getAreaNode() {
+    const instance = this.templates_instance;
+    return instance && typeof instance.getAreaNode === 'function' ? instance.getAreaNode() : null;
+  }
 
   static getTemplates() {
     return {
@@ -108,7 +119,7 @@ class BaseEntities extends Component {
 
     if (!entities.items.loading && prevProps.entities.items.loading) {
       const {initialized} = this.state,
-            area = ReactDOM.findDOMNode(this);
+            area = this.getAreaNode();
 
       if (dataMartData?.alike && !meta.alike?.id) {
         this.props.actions.notifyLoadingEntities();
@@ -160,6 +171,7 @@ class BaseEntities extends Component {
       const component = this.templates[component_name];
       ret = React.createElement(
         component, {
+          ref: this.setTemplateRef,
           items: items,
           actions: actions,
           meta: meta,
