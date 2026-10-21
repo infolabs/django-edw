@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-edw"
+version = "0.2.0"
+description = "A RESTful Django Enterprise Data Warehouse"
+readme = "README.md"
+authors = [
+    {name = "InfoLabs LLC", email = "team@infolabs.ru"},
+]
+license = {file = "LICENSE.txt"}
+urls = {Homepage = "https://bitbucket.org/info-labs/django-edw.git"}
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [
+    "Django>=1.9,<4.0",
+    "djangorestframework>=3.3",
+    "django-filer>=1.0.6",
+    "django-fsm>=2.4.0",
+    "django-rest-auth>=0.5.0",
+    "django-select2>=5.5.0",
+    "djangorestframework-recursive>=0.1.2",
+    "djangorestframework-filters>=0.11.1",
+    "django-polymorphic>=1.1",
+]
+
+[tool.setuptools]
+package-dir = {"" = "backend"}
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+exclude = ["sandbox*"]
+
+[tool.setuptools.package-data]
+edw = ["templates/**/*", "static/**/*", "locale/**/*"]
+email_auth = ["locale/**/*"]
