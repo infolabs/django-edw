@@ -121,8 +121,13 @@ class CustomerManager(models.Manager):
         RUS: Создает пользователя Customer, если он аутентифицирован.
         """
         customer = super(CustomerManager, self).create(*args, **kwargs)
-        if 'user' in kwargs and kwargs['user'].is_authenticated():
-            customer.recognized = self.model.REGISTERED
+        user = kwargs.get('user')
+        if user is not None:
+            # Django >= 1.10: is_authenticated - свойство, а не метод.
+            is_authenticated = (user.is_authenticated() if callable(user.is_authenticated)
+                                else user.is_authenticated)
+            if is_authenticated:
+                customer.recognized = self.model.REGISTERED
         return customer
 
     def _get_visiting_user(self, session_key):

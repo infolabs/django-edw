@@ -22,10 +22,14 @@ from django.utils.translation import gettext_lazy as _
 
 from edw.models.related import (
     BaseAdditionalEntityCharacteristicOrMark,
+    BaseDataMartPermission,
     BaseDataMartRelation,
     BaseEntityRelation,
     BaseEntityRelatedDataMart,
 )
+
+# Клиент синтетического контура: нужен DataMartPermission как цель FK customer.
+from edw.models.defaults.customer import Customer  # noqa: E402,F401
 
 
 class AdditionalEntityCharacteristicOrMark(BaseAdditionalEntityCharacteristicOrMark):
@@ -53,6 +57,13 @@ class EntityRelatedDataMart(BaseEntityRelatedDataMart):
     """Материализация связи «сущность — витрина данных»."""
 
     class Meta(BaseEntityRelatedDataMart.Meta):
+        abstract = False
+
+
+class DataMartPermission(BaseDataMartPermission):
+    """Материализация прав доступа клиента к витрине данных."""
+
+    class Meta(BaseDataMartPermission.Meta):
         abstract = False
 
 

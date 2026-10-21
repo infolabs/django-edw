@@ -54,6 +54,18 @@ class IsSuperuserOrReadOnly(IsReadOnly):
                 request.user.is_active and request.user.is_superuser)
 
 
+def get_data_mart_permissions(request):
+    """
+    Права витрины данных, вычисленные представлением и положенные в GET.
+
+    В query-string значение всегда строка, поэтому доверяем только mapping:
+    иначе клиентский параметр ``?_data_mart_permissions=...`` приводил бы к
+    ошибке индексации вместо отказа. Возвращает None, если прав нет.
+    """
+    data_mart_permissions = request.GET.get('_data_mart_permissions', None)
+    return data_mart_permissions if isinstance(data_mart_permissions, dict) else None
+
+
 class IsSuperuserOrDataMartHasOwnerOrReadOnly(IsSuperuserOrReadOnly):
     """
     Разрешает доступ на чтение, либо
@@ -62,14 +74,14 @@ class IsSuperuserOrDataMartHasOwnerOrReadOnly(IsSuperuserOrReadOnly):
     2. У витрины данных есть владелец, полномочия проверяются встроенными во вьюв и валидатор механизмами
     """
     def has_object_permission(self, request, view, obj):
-        data_mart_permissions = request.GET.get('_data_mart_permissions', None)
+        data_mart_permissions = get_data_mart_permissions(request)
         return super(IsSuperuserOrDataMartHasOwnerOrReadOnly, self).has_object_permission(request, view, obj) or (
-            data_mart_permissions is not None and data_mart_permissions['has_owner'])
+            data_mart_permissions is not None and data_mart_permissions.get('has_owner', False))
 
     def has_permission(self, request, view):
-        data_mart_permissions = request.GET.get('_data_mart_permissions', None)
+        data_mart_permissions = get_data_mart_permissions(request)
         return super(IsSuperuserOrDataMartHasOwnerOrReadOnly, self).has_permission(request, view) or (
-            data_mart_permissions is not None and data_mart_permissions['has_owner'])
+            data_mart_permissions is not None and data_mart_permissions.get('has_owner', False))
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

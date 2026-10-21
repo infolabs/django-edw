@@ -24,10 +24,12 @@ USE_TZ = True
 TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'ru'
 
+# E4: миграционные проверки накатывают схему на файловую sqlite; тесты
+# по-прежнему работают на sqlite в памяти (EDW_CONTRACT_DB не задан).
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': os.environ.get('EDW_CONTRACT_DB', ':memory:'),
     }
 }
 

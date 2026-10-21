@@ -6,7 +6,6 @@ import hashlib
 
 from django import forms
 from django.core.cache import cache
-from django.forms.fields import ChoiceField
 
 from django.utils.encoding import smart_str
 
@@ -80,7 +79,13 @@ class FullPathTreeNodeChoiceFieldMixin(object):
 
         return choices
 
-    choices = property(_get_choices, ChoiceField._set_choices)
+    def _set_choices(self, value):
+        # Современный Django убрал ChoiceField._set_choices: choices объявлены
+        # property, а присваивание нормализует и значение виджета.
+        self._choices = value
+        self.widget.choices = value
+
+    choices = property(_get_choices, _set_choices)
 
 
 class FullPathTreeNodeChoiceField(FullPathTreeNodeChoiceFieldMixin, forms.ModelChoiceField):
