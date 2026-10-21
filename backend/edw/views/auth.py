@@ -5,8 +5,8 @@ from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.tokens import default_token_generator
 from django.core import signing
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -183,7 +183,7 @@ class PasswordResetConfirmView(GenericAPIView):
     Since the URL for this view is part in the email's body text, expose it to the URL patterns as:
 
     ```
-    url(r'^password-reset-confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    re_path(r'^password-reset-confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     ```
 
@@ -204,7 +204,7 @@ class PasswordResetConfirmView(GenericAPIView):
         serializer = serializer_class(data=data, context=self.get_serializer_context())
         if not serializer.is_valid():
             return Response({'validlink': False})
-        return Response({'validlink': True, 'user_name': force_text(serializer.user)})
+        return Response({'validlink': True, 'user_name': force_str(serializer.user)})
 
     def post(self, request, uidb64=None, token=None):
         data = {'uid': uidb64,

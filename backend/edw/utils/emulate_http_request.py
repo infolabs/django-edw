@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.shortcuts import get_current_site

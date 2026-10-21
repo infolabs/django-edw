@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import transaction
 from django.db.models import Q
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from geoposition import str_to_geoposition
 from geoposition.geohash import geo_expand
@@ -48,7 +48,7 @@ class PlaceMixin(object):
                     region = TermModel(
                         slug=cls.REGION_ROOT_TERM_SLUG,
                         parent=None,
-                        name=force_text(_('Region')),
+                        name=force_str(_('Region')),
                         semantic_rule=TermModel.XOR_RULE,
                         system_flags=(TermModel.system_flags.delete_restriction |
                                       TermModel.system_flags.change_parent_restriction |
@@ -61,7 +61,7 @@ class PlaceMixin(object):
                     terra_incognita = TermModel(
                         slug=cls.TERRA_INCOGNITA_TERM_SLUG,
                         parent_id=region.id,
-                        name=force_text(_('Terra Incognita')),
+                        name=force_str(_('Terra Incognita')),
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=(TermModel.system_flags.delete_restriction |
                                       TermModel.system_flags.change_parent_restriction |

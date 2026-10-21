@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.tasks import update_entities_terms
 from edw.admin.base_actions import update_terms as base_update_terms

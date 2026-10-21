@@ -6,7 +6,6 @@ E1: контракт TermModel: дерево MPTT, пути, декомпрес�
 from __future__ import unicode_literals
 
 import pytest
-from django.core.exceptions import FieldError
 from django.db.models import Q
 
 from edw.models.defaults.term import Term
@@ -132,16 +131,15 @@ def test_semantic_rule_and_filters():
     assert query.children == [('terms__in', [root.pk, c.pk, d.pk])]
 
 
-@pytest.mark.xfail(
-    reason="semantic_filter() в BaseEntityQuerySet фильтрует через values('entity'), "
-           "а автоматическая through-модель называет FK по корневой модели (contractentity)",
-    strict=False,
-    raises=FieldError,
-)
 def test_semantic_filter_queryset_contract(entity_types):
     or_root = Term.objects.create(name='OR root', slug='or-root', semantic_rule=Term.OR_RULE)
     a = Term.objects.create(name='A', slug='a', parent=or_root)
     entity = ContractEntity.objects.create(name='A-entity')
     entity.terms.add(a)
+    other = ContractEntity.objects.create(name='other-entity')
 
-    list(EntityModel.objects.semantic_filter([or_root.pk, a.pk]))
+    # FK на сущность в автоматической through-модели называется по model_name
+    # модели (contractentity), а не литералом 'entity'.
+    result = list(EntityModel.objects.semantic_filter([or_root.pk, a.pk]))
+    assert [obj.pk for obj in result] == [entity.pk]
+    assert other.pk not in [obj.pk for obj in result]

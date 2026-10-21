@@ -6,7 +6,7 @@ from jsonfield.fields import JSONField
 from simplejson import JSONDecodeError
 from rest_framework.fields import empty
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.functional import cached_property
 
 from edw.models.mixins import ModelMixin

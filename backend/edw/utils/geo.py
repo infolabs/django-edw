@@ -10,7 +10,7 @@ from django.db.models.query import QuerySet
 from django.db.models.functions import Greatest, Least
 
 from django.db.models import Value, F, ExpressionWrapper
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from geopy.geocoders import get_geocoder_for_service

@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.tasks import update_data_mart_terms
 from edw.admin.base_actions import update_terms as base_update_terms

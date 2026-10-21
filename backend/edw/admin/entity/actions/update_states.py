@@ -11,11 +11,8 @@ from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import model_ngettext
-from django.utils.translation import ugettext_lazy as _
-try:
-    from django.utils.encoding import force_unicode as force_text
-except ImportError:
-    from django.utils.encoding import force_text
+from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 
 from edw.models.data_mart import DataMartModel
 from edw.tasks import update_entities_states
@@ -52,7 +49,7 @@ def update_states(modeladmin, request, queryset):
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
                     for obj in chunk:
-                        obj_display = force_text(obj)
+                        obj_display = force_str(obj)
                         modeladmin.log_change(request, obj, obj_display)
 
                     tasks.append(update_entities_states.si([x.id for x in chunk], state))
@@ -72,9 +69,9 @@ def update_states(modeladmin, request, queryset):
                                             initial={'select_across': request.POST.get('select_across', '0')})
 
     if len(queryset) == 1:
-        objects_name = force_text(opts.verbose_name)
+        objects_name = force_str(opts.verbose_name)
     else:
-        objects_name = force_text(opts.verbose_name_plural)
+        objects_name = force_str(opts.verbose_name_plural)
 
     paginator = Paginator(queryset, modeladmin.list_per_page)
 

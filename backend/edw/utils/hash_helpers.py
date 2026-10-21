@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import hashlib
 import os
-import six
 from binascii import hexlify
 
 from django.template.defaultfilters import slugify
@@ -14,8 +13,7 @@ from django.template.defaultfilters import slugify
 #==============================================================================
 def create_hash(key):
     _hash = hashlib.md5()
-    if six.PY3:
-        key = key.encode('utf-8')
+    key = key.encode('utf-8')
     _hash.update(key)
     return _hash.hexdigest()
 
@@ -25,7 +23,7 @@ def create_hash(key):
 #==============================================================================
 def create_uid():
     ret = hexlify(os.urandom(16))
-    return ret.decode('utf-8') if six.PY3 else ret
+    return ret.decode('utf-8')
 
 
 #==============================================================================

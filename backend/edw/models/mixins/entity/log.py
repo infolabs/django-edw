@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class CommonLoggingMixin(object):
@@ -22,7 +22,7 @@ class CommonLoggingMixin(object):
                 user_id=user_id,
                 content_type_id=ContentType.objects.get_for_model(self).pk,
                 object_id=self.pk,
-                object_repr=force_text(self),
+                object_repr=force_str(self),
                 change_message=message,
                 action_flag=type,
             )

@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from six import with_metaclass, python_2_unicode_compatible
+from django.utils.translation import gettext_lazy as _
 
 from edw import deferred
 
@@ -11,8 +10,7 @@ from edw import deferred
 #==============================================================================
 # BaseAdditionalEntityCharacteristicOrMark
 #==============================================================================
-@python_2_unicode_compatible
-class BaseAdditionalEntityCharacteristicOrMark(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseAdditionalEntityCharacteristicOrMark(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: ManyToMany relation from the polymorphic Entity to a set of Terms.
     RUS: Связь многие-ко многим от полиморфной Сущности к Терминам.
@@ -53,8 +51,7 @@ AdditionalEntityCharacteristicOrMarkModel = deferred.MaterializedModel(BaseAddit
 #==============================================================================
 # BaseEntityRelation
 #==============================================================================
-@python_2_unicode_compatible
-class BaseEntityRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseEntityRelation(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: Allows to be attached related entities.
     RUS: Позволяет присоединять связанные сущности.
@@ -89,8 +86,7 @@ EntityRelationModel = deferred.MaterializedModel(BaseEntityRelation)
 #==============================================================================
 # BaseEntityRelatedDataMart
 #==============================================================================
-@python_2_unicode_compatible
-class BaseEntityRelatedDataMart(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseEntityRelatedDataMart(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: Entity related data marts.
     RUS: Сущность связанных витрин данных.
@@ -121,8 +117,7 @@ EntityRelatedDataMartModel = deferred.MaterializedModel(BaseEntityRelatedDataMar
 #==============================================================================
 # BaseDataMartRelation
 #==============================================================================
-@python_2_unicode_compatible
-class BaseDataMartRelation(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseDataMartRelation(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: Entity related data marts.
     RUS: Сущность связанных витрин данных.
@@ -177,8 +172,7 @@ DataMartRelationModel = deferred.MaterializedModel(BaseDataMartRelation)
 #==============================================================================
 # BaseDataMartPermission
 #==============================================================================
-@python_2_unicode_compatible
-class BaseDataMartPermission(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseDataMartPermission(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     Data marts permissions per customer
     """

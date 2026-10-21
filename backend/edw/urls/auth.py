@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import re_path
 from django.utils.module_loading import import_string
 
 from edw.views.auth import AuthFormsView
@@ -25,20 +25,20 @@ else:
 
 
 urlpatterns = [
-    url(r'^password/reset/$', PasswordResetView.as_view(),
+    re_path(r'^password/reset/$', PasswordResetView.as_view(),
         name='password-reset'),
-    url(r'^login/$', LoginView.as_view(),
+    re_path(r'^login/$', LoginView.as_view(),
         name='login'),
-    url(r'^register/$', AuthFormsView.as_view(form_class=RegisterUserForm),
+    re_path(r'^register/$', AuthFormsView.as_view(form_class=RegisterUserForm),
         name='register-user'),
-    url(r'^activate/(?P<activation_key>[-:\w]+)/$', ActivationView.as_view(),
+    re_path(r'^activate/(?P<activation_key>[-:\w]+)/$', ActivationView.as_view(),
         name='registration_activate'),
-    # url(r'^continue/$', AuthFormsView.as_view(form_class=ContinueAsGuestForm),
+    # re_path(r'^continue/$', AuthFormsView.as_view(form_class=ContinueAsGuestForm),
     #    name='continue-as-guest'),
-    url(r'^logout/$', LogoutView.as_view(),
+    re_path(r'^logout/$', LogoutView.as_view(),
         name='logout'),
-    url(r'^get-token/$', GetTokenView.as_view(),
+    re_path(r'^get-token/$', GetTokenView.as_view(),
         name='get-token'),
-    url(r'^password/change/$', PasswordChangeView.as_view(),
+    re_path(r'^password/change/$', PasswordChangeView.as_view(),
         name='password-change'),
 ]

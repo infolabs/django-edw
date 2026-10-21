@@ -2,10 +2,8 @@
 from __future__ import unicode_literals, division
 
 import re
-import six
 import math
 
-from six import python_2_unicode_compatible
 from functools import reduce
 from operator import __or__ as OR
 
@@ -43,13 +41,13 @@ except ImportError:
     from django.core.exceptions import EmptyResultSet
 
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from ipware import ip
 from polymorphic.base import PolymorphicModelBase
-try:  # six.PY2
+try:
     from polymorphic.manager import PolymorphicManager
 except ImportError:
     from polymorphic.managers import PolymorphicManager
@@ -85,12 +83,6 @@ from ..utils.circular_buffer_in_cache import RingBuffer, empty
 from ..utils.hash_helpers import hash_unsorted_list
 from ..utils.monkey_patching import patch_class_method
 from ..utils.set_helpers import uniq
-
-
-# округление в стиле python 3
-if six.PY2:
-    _round = round
-    round = lambda x: int(_round(x))
 
 
 # ==============================================================================
@@ -317,9 +309,17 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             result = result.distinct()
             """
             inner_model = self.model.terms.through
-            base_qs = inner_model.objects.values('entity')
+            # Автоматическая through-модель называет FK по model_name модели,
+            # объявившей M2M. В материализованных приложениях это не всегда
+            # 'entity', поэтому имя FK определяется по модели, а не литералом.
+            entity_fk_name = next(
+                field.name for field in inner_model._meta.fields
+                if field.is_relation and isinstance(field.related_model, type)
+                and issubclass(self.model, field.related_model)
+            )
+            base_qs = inner_model.objects.values(entity_fk_name)
             for x in filters:
-                subquery = base_qs.filter(entity=OuterRef('pk')).filter(x)
+                subquery = base_qs.filter(**{entity_fk_name: OuterRef('pk')}).filter(x)
                 result = result.filter(Exists(Subquery(subquery[:1])))
 
             # Old code, for history
@@ -736,7 +736,7 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
             str: Ключ кэша для фильтрации по субъектам и связям.
         """
         if isinstance(subj, (tuple, list)):
-            subj_key=self._get_subj_cache_key(subj),
+            subj_key = self._get_subj_cache_key(subj)
         else:
             subj_key = self.model.SUBJECT_CACHE_KEY_PATTERN.format(subj_hash=",".join(["{}.{}".format(
                 rel_id, hash_unsorted_list(subj_ids) if subj_ids else '') for rel_id, subj_ids in sorted(subj.items())]))
@@ -781,21 +781,21 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                 if subj_ids:
                     forward_relation = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
                         to_entity__in=subj_ids, term=rel_id)
-                    aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
                 else:
-                    backward_relation = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
+                    # нет фильтра по субъектам: направление связи сохраняется (как в rel())
+                    forward_relation = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
                         term=rel_id)
-                    aliases[f"exist_backward_{i}"] = Exists(Subquery(backward_relation[:1]))
+                aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
             for i, rel_id in enumerate(rel_r_ids, start=i + 1):
                 subj_ids = subj[rel_id]
                 if subj_ids:
                     backward_relation = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
                         from_entity__in=subj_ids, term=rel_id)
-                    aliases[f"exist_backward_{i}"] = Exists(Subquery(backward_relation[:1]))
                 else:
-                    forward_relation = base_manager.values('from_entity').filter(from_entity=OuterRef('pk')).filter(
+                    # нет фильтра по субъектам: направление связи сохраняется (как в rel())
+                    backward_relation = base_manager.values('to_entity').filter(to_entity=OuterRef('pk')).filter(
                         term=rel_id)
-                    aliases[f"exist_forward_{i}"] = Exists(Subquery(forward_relation[:1]))
+                aliases[f"exist_backward_{i}"] = Exists(Subquery(backward_relation[:1]))
         qs = self._alias_is_true_or_reducer(aliases)
 
         '''
@@ -817,14 +817,14 @@ class BaseEntityQuerySet(JoinQuerySetMixin, CustomCountQuerySetMixin, CustomGrou
                     q_lst.append(models.Q(forward_relations__to_entity__in=subj_ids) &
                                  models.Q(forward_relations__term=rel_id))
                 else:
-                    q_lst.append(models.Q(backward_relations__term=rel_id))
+                    q_lst.append(models.Q(forward_relations__term=rel_id))
             for rel_id in rel_r_ids:
                 subj_ids = subj[rel_id]
                 if subj_ids:
                     q_lst.append(models.Q(backward_relations__from_entity__in=subj_ids) &
                                  models.Q(backward_relations__term=rel_id))
                 else:
-                    q_lst.append(models.Q(forward_relations__term=rel_id))
+                    q_lst.append(models.Q(backward_relations__term=rel_id))
 
         qs = self.filter(reduce(OR, q_lst)).distinct()
         # print(qs.query.__str__())
@@ -1309,7 +1309,7 @@ class EntityCharacteristicOrMarkGetter(object):
             TypeError: Если k не является целым числом или срезом.
             AssertionError: Если используется отрицательное индексирование.
         """
-        if not isinstance(k, (slice,) + six.integer_types):
+        if not isinstance(k, (slice, int)):
             raise TypeError
         assert ((not isinstance(k, slice) and (k >= 0)) or
                 (isinstance(k, slice) and (k.start is None or k.start >= 0) and
@@ -1502,8 +1502,7 @@ def _entity_terms_many_related_manager_add(self, *objs, **kwargs):
 # ==============================================================================
 # BaseEntity
 # ==============================================================================
-@python_2_unicode_compatible
-class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel)):
+class BaseEntity(PolymorphicModel, metaclass=PolymorphicEntityMetaclass):
     """
     Абстрактная базовая модель для сущностей в EDW.
     
@@ -1604,7 +1603,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
         Returns:
             str: Строковое представление типа полиморфной модели.
         """
-        return force_text(self.polymorphic_ctype)
+        return force_str(self.polymorphic_ctype)
     entity_type.short_description = _("Entity type")
 
     @cached_property
@@ -1762,7 +1761,7 @@ class BaseEntity(six.with_metaclass(PolymorphicEntityMetaclass, PolymorphicModel
                         except TermModel.DoesNotExist:
                             term = TermModel(slug=slug,
                                              parent_id=parent.id if parent else None,
-                                             name=force_text(Model._meta.verbose_name),
+                                             name=force_str(Model._meta.verbose_name),
                                              semantic_rule=TermModel.XOR_RULE,
                                              system_flags=(TermModel.system_flags.delete_restriction |
                                                            TermModel.system_flags.change_parent_restriction |

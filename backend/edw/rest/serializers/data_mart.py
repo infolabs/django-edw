@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 
 from collections import OrderedDict
 
@@ -19,7 +18,7 @@ from django.utils.html import strip_spaces_between_tags
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.text import Truncator
 from django.utils.translation import get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework_recursive.fields import RecursiveField
@@ -352,7 +351,7 @@ class DataMartDetailSerializer(DataMartDetailSerializerBase):
         return self.render_html(data_mart, 'media')
 
 
-class DataMartSummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass, DataMartCommonSerializer)):
+class DataMartSummarySerializerBase(DataMartCommonSerializer, metaclass=SerializerRegistryMetaclass):
     """
     Serialize a summary of the polymorphic DataMart model.
     """

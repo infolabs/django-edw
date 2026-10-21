@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from __future__ import division
 
 import re
-import six
 
 from django import template
 from django.core.files import File
@@ -34,7 +33,7 @@ else:
         )
 
         def render_tag(self, context, size, width, height, varname):
-            if isinstance(size, six.string_types):
+            if isinstance(size, str):
                 m = RE_SIZE.match(size)
                 if m:
                     size = (int(m.group(1)), int(m.group(2)))
@@ -77,7 +76,7 @@ else:
         )
 
         def render_tag(self, context, size, replace_alpha, varname):
-            if isinstance(size, six.string_types):
+            if isinstance(size, str):
                 m = RE_SIZE.match(size)
                 if m:
                     size = (int(m.group(1)), int(m.group(2)))

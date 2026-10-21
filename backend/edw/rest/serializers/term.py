@@ -10,13 +10,14 @@ from django.core.exceptions import (
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework_recursive.fields import RecursiveField
 
 from edw.utils.common import unicode_to_repr
+from edw.rest.filters.common import parse_null_boolean
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     BasePermissionsSerializerMixin,
@@ -358,7 +359,7 @@ class _TermTreeRootSerializer(_TermsFilterMixin, serializers.ListSerializer):
         NULL - 'n', 'N', 'null', 'Null', 'NULL', '', None
         :return: `fix_it` value in context or request, default: None
         """
-        return serializers.NullBooleanField().to_internal_value(value)
+        return parse_null_boolean(value)
 
     @cached_property
     @get_from_context_or_request('selected', [])

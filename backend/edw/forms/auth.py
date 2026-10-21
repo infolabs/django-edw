@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.sites.shortcuts import get_current_site
@@ -13,7 +12,7 @@ except ImportError:
 from django.forms import fields, widgets, ModelForm
 from django.template import Context
 from django.template.loader import select_template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from constance import config
 
 from edw import settings as edw_settings
@@ -178,8 +177,6 @@ class RegisterUserForm(ModelForm):
             context.update({
                 'password': password
             })
-        if six.PY2:
-            context = Context(context)
 
         tmp_is_activation = 'send' if not is_activation else 'activate'
         subject = select_template([

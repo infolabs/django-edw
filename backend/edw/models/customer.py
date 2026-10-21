@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import string
-from six import with_metaclass, python_2_unicode_compatible
 from importlib import import_module
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -16,7 +15,7 @@ except ImportError:
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from jsonfield.fields import JSONField
 from .. import deferred
 
@@ -194,8 +193,7 @@ class CustomerManager(models.Manager):
         return (customer, is_created)
 
 
-@python_2_unicode_compatible
-class BaseCustomer(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseCustomer(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: Base class for edw customers.
 

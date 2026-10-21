@@ -37,14 +37,15 @@ sqlite в памяти и locmem-кэш. `pip`/`npm install`, сеть и вне
 * `app/apps.py` прогревает cache-флаги EDW, чтобы `AppConfig.ready()` ядра не
   обращался к БД до её создания в тестах.
 
-## Зафиксированные известные ограничения (xfail, non-strict)
+## Бывшие известные ограничения (исправлены в E3)
 
-1. `BaseEntityQuerySet.semantic_filter()` фильтрует through-модель по полю
+1. `BaseEntityQuerySet.semantic_filter()` фильтровал through-модель по полю
    `entity`, но автоматическая through-модель называет FK по корневой модели
-   (`contractentity`) → `FieldError`.
-2. Вставка третьего уровня дерева `DataMart` падает с
-   `TypeError: unhashable type: 'DataMart'`: `BaseDataMart` определяет `__eq__`
-   без `__hash__`, а mptt складывает экземпляры в `set`.
+   (`contractentity`) → `FieldError`. Теперь имя FK определяется по модели.
+2. Вставка третьего уровня дерева `DataMart` падала с
+   `TypeError: unhashable type: 'DataMart'`: `BaseDataMart` определял `__eq__`
+   без `__hash__`, а mptt складывает экземпляры в `set`. Теперь `__hash__`
+   согласован с `__eq__`.
 
-Оба теста помечены `xfail(strict=False)`: после исправления ядра они станут
-XPASS и не сломают проверку.
+Оба теста идут без `xfail`: `test_semantic_filter_queryset_contract`,
+`test_datamart_third_level_insertion`.

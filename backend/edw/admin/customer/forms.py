@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from edw.settings import NAME_MAX_LENGTH
 USERNAME_FIELD_HELP_TEXT = _(
     'Required field. Length must not exceed 30 characters. Only letters, digits and symbols @/./+/-/_ are accepted.'

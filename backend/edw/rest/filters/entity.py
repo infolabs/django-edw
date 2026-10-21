@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 
 from collections import OrderedDict
 
@@ -18,12 +17,12 @@ from django.db.models.query import QuerySet as DjangoQuerySet
 from django.template import loader
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.filters import OrderingFilter, BaseFilterBackend
 
-from edw.rest.filters.common import template_render
+from edw.rest.filters.common import parse_null_boolean, template_render
 from edw.rest.filters.filters import BeforeDateRangeFilter
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import (
@@ -210,7 +209,7 @@ class EntityFilter(BaseEntityFilter):
         :return: `is_active` value parse from `self._active` or
             `self.data['active']`, default: None
         """
-        return serializers.NullBooleanField().to_internal_value(value)
+        return parse_null_boolean(value)
 
     def filter_active(self, name, queryset, value):
         self._is_active = value
@@ -442,7 +441,7 @@ class EntityMetaFilter(BaseFilterBackend):
                         n = len(value)
                         if n > 1:
                             field = value[1]
-                            if isinstance(field, six.string_types):
+                            if isinstance(field, str):
                                 field = import_string(field)()
                             name = value[2] if n > 2 else None
                             annotation_meta[key] = (annotate, field, name)
@@ -492,7 +491,7 @@ class EntityMetaFilter(BaseFilterBackend):
                     n = len(value)
                     if n > 1:
                         field = value[1]
-                        if isinstance(field, six.string_types):
+                        if isinstance(field, str):
                             field = import_string(field)()
                         name = value[2] if n > 2 else None
                     else:

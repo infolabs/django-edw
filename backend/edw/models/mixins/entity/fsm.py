@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import transaction
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.models.mixins.entity import get_or_create_model_class_wrapper_term, ENTITY_CLASS_WRAPPER_TERM_SLUG_PATTERN
 from edw.models.term import TermModel
@@ -95,7 +95,7 @@ class FSMMixin(object):
                     states_parent_term = TermModel(
                         slug=cls.STATE_ROOT_TERM_SLUG,
                         parent_id=model_root_term.id,
-                        name=force_text(cls._meta.get_field('status').verbose_name),
+                        name=force_str(cls._meta.get_field('status').verbose_name),
                         semantic_rule=TermModel.XOR_RULE,
                         system_flags=system_flags
                     )
@@ -109,7 +109,7 @@ class FSMMixin(object):
                         state = TermModel(
                             slug=state_key,
                             parent_id=states_parent_term.id,
-                            name=force_text(state_name),
+                            name=force_str(state_name),
                             semantic_rule=TermModel.OR_RULE,
                             system_flags=system_flags
                         )
@@ -176,7 +176,7 @@ class FSMTransitionAndLoggingMixin(FSMMixin):
             user_id=user_id,
             content_type_id=ContentType.objects.get_for_model(self).pk,
             object_id=self.pk,
-            object_repr=force_text(self),
+            object_repr=force_str(self),
             change_message=_('Change status from "%(old_status)s" to "%(new_status)s" ("%(old_state)s" -> "%(new_state)s")') %
                            {
                                'old_status': self.TRANSITION_TARGETS[old_state],

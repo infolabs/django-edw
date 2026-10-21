@@ -5,14 +5,10 @@ from __future__ import unicode_literals
 from operator import __or__ as OR
 from functools import reduce
 
-import six
 from django.conf import settings
-try:
-    from django.utils.encoding import force_unicode as force_text
-except ImportError:
-    from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.core.paginator import Paginator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import model_ngettext
@@ -44,7 +40,7 @@ def update_terms(modeladmin, request, queryset, task, template=None):
                 while i < n:
                     chunk = queryset[i:i + CHUNK_SIZE]
                     for obj in chunk:
-                        obj_display = force_text(obj)
+                        obj_display = force_str(obj)
                         modeladmin.log_change(request, obj, obj_display)
                     tasks.append(task.si([x.id for x in chunk], to_set, to_unset))
                     i += CHUNK_SIZE
@@ -61,9 +57,9 @@ def update_terms(modeladmin, request, queryset, task, template=None):
         form = EntitiesUpdateTermsAdminForm(initial={'select_across': request.POST.get('select_across', '0')})
 
     if len(queryset) == 1:
-        objects_name = force_text(opts.verbose_name)
+        objects_name = force_str(opts.verbose_name)
     else:
-        objects_name = force_text(opts.verbose_name_plural)
+        objects_name = force_str(opts.verbose_name_plural)
 
     paginator = Paginator(queryset, modeladmin.list_per_page)
 
@@ -81,7 +77,7 @@ def update_terms(modeladmin, request, queryset, task, template=None):
         'action': 'update_terms',
     }
     # Display the confirmation page
-    kwargs = {} if six.PY3 else {'current_app': modeladmin.admin_site.name}
+    kwargs = {}
     return TemplateResponse(request, template if template is not None else "edw/admin/base_actions/update_terms.html",
                             context, **kwargs)
 

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.admin.base_actions import objects_action
 from edw.tasks import normalize_entities_additional_attrs

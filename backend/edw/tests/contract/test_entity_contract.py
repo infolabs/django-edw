@@ -121,9 +121,12 @@ def test_subj_and_rel_list_and_mapping_modes(entity_types):
     # отдельный список субъектов на связь: непустой список — прямые связи
     assert names(ContractEntity.objects.subj_and_rel({relation_term.pk: [beta.pk]},
                                                      [relation_term.pk], [])) == ['Alpha']
-    # пустой список — только обратные связи по терму, без фильтра по субъекту
+    # пустой список — нет фильтра по субъектам, направление связи сохраняется
     assert names(ContractEntity.objects.subj_and_rel({relation_term.pk: []},
-                                                     [relation_term.pk], [])) == ['Beta']
+                                                     [relation_term.pk], [])) == ['Alpha']
+    # пустой список для обратной связи — сущности на стороне to_entity
+    assert names(ContractEntity.objects.subj_and_rel({relation_term.pk: []},
+                                                     [], [relation_term.pk])) == ['Beta']
 
 
 def test_additional_characteristic_or_mark_contract(entity_types):

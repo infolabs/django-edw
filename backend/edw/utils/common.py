@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import json
-import six
 
 from django.conf import settings
 import edw.settings as edw_settings
@@ -48,8 +47,6 @@ def unicode_to_repr(value):
     # Coerce a unicode string to the correct repr return type, depending on
     # the Python version. We wrap all our `__repr__` implementations with
     # this and then use unicode throughout internally.
-    if six.PY2:
-        return value.encode('utf-8')
     return value
 
 

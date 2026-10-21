@@ -5,7 +5,7 @@ from functools import update_wrapper
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.conf.urls import url
+from django.urls import re_path
 from django.utils.safestring import mark_safe
 
 from rest_framework.serializers import BooleanField
@@ -78,7 +78,7 @@ class TermAdmin(EdwMpttAdmin):
 
         # prepend new urls to existing urls
         return [
-            url(r'^select_json/$', wrap(self.term_select_json_view), name="edw_term_select_json")
+            re_path(r'^select_json/$', wrap(self.term_select_json_view), name="edw_term_select_json")
         ] + super(TermAdmin, self).get_urls()
 
     @remove_empty_params_from_request()

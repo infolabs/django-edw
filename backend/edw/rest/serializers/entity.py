@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 
 from collections import OrderedDict
 from django.apps import apps
@@ -23,7 +22,7 @@ from django.utils.html import strip_spaces_between_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe, SafeText
 from django.utils.translation import get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -536,7 +535,7 @@ def _get_aggregation(queryset, aggregation_meta, root):
 #==============================================================================
 # EntitySummarySerializerBase
 #==============================================================================
-class EntitySummarySerializerBase(six.with_metaclass(SerializerRegistryMetaclass, EntityCommonSerializer)):
+class EntitySummarySerializerBase(EntityCommonSerializer, metaclass=SerializerRegistryMetaclass):
     """
     Serialize a summary of the polymorphic Entity model, suitable for Catalog List Views and other Views.
     """

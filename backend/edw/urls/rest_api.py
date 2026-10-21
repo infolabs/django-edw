@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 
 from django.core.exceptions import ImproperlyConfigured
-from django.conf.urls import url, include
+from django.urls import re_path, include
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -84,13 +84,13 @@ else:
 # urls
 #==============================================================================
 edw_patterns = ([
-    url(r'^', include(router.urls)),
-    url(r'^', include(format_suffix_patterns(data_mart_nested_router.urls))),
-    url(r'^', include(format_suffix_patterns(term_nested_router.urls))),
-    url(r'^', include(format_suffix_patterns(entity_nested_router.urls))),
-    url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))
+    re_path(r'^', include(router.urls)),
+    re_path(r'^', include(format_suffix_patterns(data_mart_nested_router.urls))),
+    re_path(r'^', include(format_suffix_patterns(term_nested_router.urls))),
+    re_path(r'^', include(format_suffix_patterns(entity_nested_router.urls))),
+    re_path(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))
 ], 'edw')
 
 urlpatterns = [
-    url(r'^', include(edw_patterns)),
+    re_path(r'^', include(edw_patterns)),
 ]

@@ -15,7 +15,7 @@ except ImportError:
 
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.models.notification import NotificationAttachment
 from edw.admin.notification.forms import NotificationForm

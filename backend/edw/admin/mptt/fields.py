@@ -4,15 +4,11 @@ Form components for working with trees.
 """
 import hashlib
 
-import six
 from django import forms
 from django.core.cache import cache
 from django.forms.fields import ChoiceField
 
-try:
-    from django.utils.encoding import smart_text
-except ImportError:
-    from django.utils.encoding import smart_unicode as smart_text
+from django.utils.encoding import smart_str
 
 from django.utils.html import conditional_escape, mark_safe
 from django.db.utils import ProgrammingError
@@ -53,8 +49,7 @@ class FullPathTreeNodeChoiceFieldMixin(object):
             return []
 
         hash_ids = ';'.join(str(x) for x in ids)
-        if six.PY3:
-            hash_ids = hash_ids.encode('utf-8')
+        hash_ids = hash_ids.encode('utf-8')
         hash.update(hash_ids)
 
         required = self.empty_label is not None and self.initial is not None
@@ -77,7 +72,7 @@ class FullPathTreeNodeChoiceFieldMixin(object):
                     term = tree[parent_id].term
                     path.insert(0, term)
                     parent_id = term.parent_id
-                choices.append((id, mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in path]))))
+                choices.append((id, mark_safe(self.joiner.join([conditional_escape(smart_str(i)) for i in path]))))
 
             self.queryset._queryset_hash = key
             self.queryset._choices_cache = choices

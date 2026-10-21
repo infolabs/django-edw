@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db.models import Count
 from django.db.models.fields.related import ForeignObject
 from django.db.models.options import Options
-from django.db.models.sql.where import ExtraWhere
 from django.db.models import DO_NOTHING
 from django.db.models.sql.query import RawQuery
 from django.core.exceptions import EmptyResultSet
@@ -29,12 +28,12 @@ class CustomGroupByQuerySetMixin(object):
         super(CustomGroupByQuerySetMixin, self).__init__(*args, **kwargs)
         self.query._custom_group_by = self.custom_group_by
 
-    def _clone(self, *args, **kwargs):
+    def _clone(self):
         # Django's _clone only copies its own variables, so we need to copy ours here
         """
         RUS: Создает копию, переопределяя значения переменных.
         """
-        new = super(CustomGroupByQuerySetMixin, self)._clone(*args, **kwargs)
+        new = super(CustomGroupByQuerySetMixin, self)._clone()
         new.custom_group_by = new.query._custom_group_by = self.custom_group_by
         return new
 
@@ -51,9 +50,9 @@ class CustomCountQuerySetMixin(object):
         self.custom_count_key = 'id'
         super(CustomCountQuerySetMixin, self).__init__(*args, **kwargs)
 
-    def _clone(self, *args, **kwargs):
+    def _clone(self):
         # Django's _clone only copies its own variables, so we need to copy ours here
-        new = super(CustomCountQuerySetMixin, self)._clone(*args, **kwargs)
+        new = super(CustomCountQuerySetMixin, self)._clone()
         new.custom_count_key = self.custom_count_key
         return new
 
@@ -84,14 +83,12 @@ def join_to(queryset, subquery, table_field, subquery_field, alias, join_type, n
     """
     Add a join on `subquery` to `queryset` (having table `table`).
     """
-    # here you can set complex clause for join
-    def extra_join_cond(where_class, alias, related_alias):
-        if (alias, related_alias) == ('[sys].[columns]',
-                                      '[sys].[database_permissions]'):
-            where = '[sys].[columns].[column_id] = ' \
-                    '[sys].[database_permissions].[minor_id]'
-            children = [ExtraWhere([where], ())]
-            return where_class(children)
+    # здесь можно задать сложное условие JOIN; сигнатура Django 4.0+:
+    # get_extra_restriction(alias, related_alias)
+    def extra_join_cond(alias, related_alias):
+        # Условие возвращается узлом WHERE (django.db.models.sql.where.WhereNode)
+        # или Q-объектом. Класс ExtraWhere удалён в Django 4.0, поэтому
+        # произвольный SQL здесь больше не подставляется.
         return None
 
     table = queryset.model
@@ -110,7 +107,8 @@ def join_to(queryset, subquery, table_field, subquery_field, alias, join_type, n
 
     join = CustomJoin(
         subquery_sql, subquery_params, table._meta.db_table,
-        alias, join_type, foreign_object, nullable)
+        alias, join_type, foreign_object, nullable,
+        join_cols=((table_field, subquery_field),))
 
     # init first alias for this query
     queryset.query.get_initial_alias()

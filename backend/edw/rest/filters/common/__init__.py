@@ -12,6 +12,8 @@ from django_filters.filters import (
 )
 from django_filters.fields import BaseCSVField
 
+from rest_framework.exceptions import ValidationError
+
 from edw.rest.filters.widgets import CSVWidget as CustomCSVWidget
 
 
@@ -94,6 +96,37 @@ class MethodFilter(Filter):
         """
         self.resolve_action()
         return self.action(self.name, qs, value)
+
+
+def parse_null_boolean(value):
+    """
+    Разбирает «мягкое» булево значение: True / False / None.
+
+    Заменяет удалённое в DRF 3.15 поле с нестрогим разбором булева значения:
+    TRUE  - 't', 'T', 'true', 'True', 'TRUE', '1', 1, True
+    FALSE - 'f', 'F', 'false', 'False', 'FALSE', '0', 0, 0.0, False
+    NULL  - 'n', 'N', 'null', 'Null', 'NULL', '', None
+
+    :param value: значение из query-параметра, запроса или контекста.
+    :return: True, False или None.
+    :raises rest_framework.exceptions.ValidationError: для недопустимого значения.
+    """
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in ('t', 'true', '1'):
+            return True
+        if normalized in ('f', 'false', '0', '0.0'):
+            return False
+        if normalized in ('n', 'null', ''):
+            return None
+    elif value is None:
+        return None
+    elif isinstance(value, bool):
+        return value
+    elif isinstance(value, (int, float)):
+        return bool(value)
+
+    raise ValidationError('“{}” is not a valid boolean.'.format(value))
 
 
 def template_render(template, context=None, request=None):

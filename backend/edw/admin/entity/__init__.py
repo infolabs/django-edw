@@ -6,7 +6,7 @@ import re
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.http import urlencode
 
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin

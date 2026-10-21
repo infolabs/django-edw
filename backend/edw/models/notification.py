@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django_fsm import RETURN_VALUE
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 from operator import __or__ as OR
 from functools import reduce
 
@@ -17,7 +17,7 @@ from rest_framework.settings import api_settings
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AnonymousUser

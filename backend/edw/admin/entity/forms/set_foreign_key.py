@@ -3,7 +3,7 @@ from django.db.models.fields.related import ForeignKey
 
 from django.contrib import admin
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.admin.base_actions import BaseActionAdminForm
 from edw.admin.entity.widgets.dynamic_raw_id import ModelIdWidget, ModelRel

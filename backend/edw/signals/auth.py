@@ -6,7 +6,7 @@ from django.dispatch import Signal
 
 
 # A new customer has registered.
-customer_registered = Signal(providing_args=["customer", "request"])
+customer_registered = Signal()
 
 # A user has activated his or her account.
-user_activated = Signal(providing_args=["user", "request"])
+user_activated = Signal()

@@ -2,10 +2,9 @@
 from __future__ import unicode_literals
 
 import re
-from six import with_metaclass, python_2_unicode_compatible
 from django.db import models
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .term import TermModel
 from .. import deferred
@@ -46,8 +45,7 @@ class BaseEmailCategoryManager(models.Manager):
 # =========================================================================================================
 #  BaseEmailCategory
 # =========================================================================================================
-@python_2_unicode_compatible
-class BaseEmailCategory(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseEmailCategory(models.Model, metaclass=deferred.ForeignKeyBuilder):
     '''
     Related to Term email category
     RUS: Класс базовая почтовая категория, связанная с термином.

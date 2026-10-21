@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import calendar
 from django.db import transaction
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.models.entity import EntityModel
 from edw.models.term import TermModel

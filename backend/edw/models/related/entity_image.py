@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 
-from six import with_metaclass, python_2_unicode_compatible
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 from filer.fields import image
@@ -15,8 +14,7 @@ from edw import deferred
 #==============================================================================
 # BaseEntityImage
 #==============================================================================
-@python_2_unicode_compatible
-class BaseEntityImage(with_metaclass(deferred.ForeignKeyBuilder, models.Model)):
+class BaseEntityImage(models.Model, metaclass=deferred.ForeignKeyBuilder):
     """
     ENG: ManyToMany relation from the polymorphic Entity to a set of images.
     RUS: Связь многие-ко многим от полиморфной Сущности к изображениям.

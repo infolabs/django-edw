@@ -3,11 +3,11 @@
 from django.dispatch import Signal
 
 
-move_to_done = Signal(providing_args=["instance", "target", "position"])
+move_to_done = Signal()
 
-pre_save = Signal(providing_args=["instance"])
+pre_save = Signal()
 
-post_save = Signal(providing_args=["instance"])
+post_save = Signal()
 
 
 class MPTTModelSignalSenderMixin(object):

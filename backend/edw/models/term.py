@@ -15,15 +15,14 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q, F
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.exceptions import InvalidMove
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, MPTTModelBase
 from mptt.querysets import TreeQuerySet
 from rest_framework.reverse import reverse
-from six import with_metaclass, python_2_unicode_compatible
 
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields.tree import TreeForeignKey
@@ -42,7 +41,7 @@ from ..utils.set_helpers import uniq
 # make_path
 # ==============================================================================
 def _join_path(joiner, field, ancestors):
-    return joiner.join([force_text(getattr(i, field)) for i in ancestors])
+    return joiner.join([force_str(getattr(i, field)) for i in ancestors])
 
 
 def make_path(obj, items):
@@ -223,9 +222,8 @@ class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):
 # ==============================================================================
 # BaseTerm
 # ==============================================================================
-@python_2_unicode_compatible
-class BaseTerm(with_metaclass(BaseTermMetaclass, AndRuleFilterMixin, OrRuleFilterMixin,
-                              MPTTModelSignalSenderMixin, MPTTModel)):
+class BaseTerm(AndRuleFilterMixin, OrRuleFilterMixin, MPTTModelSignalSenderMixin, MPTTModel,
+               metaclass=BaseTermMetaclass):
     """
     ENG: The fundamental parts of a enterprise data warehouse. In detail focused hierarchical dictionary of terms.
     RUS: Основные части корпоративного хранилища данных. Иерархический словарь терминов.

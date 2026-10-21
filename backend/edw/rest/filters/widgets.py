@@ -2,21 +2,16 @@
 from __future__ import unicode_literals
 
 
-import urllib
-import six
+import urllib.parse
 
 from django import forms
 from django_filters.widgets import CSVWidget as OriginCSVWidget
 
 
-if six.PY3:
-    def parse_query(value):
-        if isinstance(value, int):
-            return [str(value)]
-        return urllib.parse.unquote(value).split(',')
-else:
-    def parse_query(value):
-        return urllib.unquote(value).decode('utf8').split(',')
+def parse_query(value):
+    if isinstance(value, int):
+        return [str(value)]
+    return urllib.parse.unquote(value).split(',')
 
 
 class CSVWidget(OriginCSVWidget):

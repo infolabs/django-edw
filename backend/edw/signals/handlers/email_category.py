@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import itertools
 from operator import __or__ as OR
-import six
 
 from django.db.models import Q
 # from django.db.models.signals import pre_delete
@@ -16,8 +15,7 @@ from edw.models.email_category import EmailCategoryModel
 from edw.signals import make_dispatch_uid
 
 
-if six.PY3:
-    from functools import reduce
+from functools import reduce
 
 
 # ==============================================================================

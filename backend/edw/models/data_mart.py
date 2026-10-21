@@ -6,21 +6,20 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, IntegrityError, transaction
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.exceptions import InvalidMove
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, MPTTModelBase
 from polymorphic.base import PolymorphicModelBase
-try:  # six.PY2
+try:
     from polymorphic.manager import PolymorphicManager
 except ImportError:
     from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.query import PolymorphicQuerySet
 from rest_framework.reverse import reverse
-from six import with_metaclass, python_2_unicode_compatible
 
 from .cache import add_cache_key, QuerySetCachedResultMixin
 from .fields.tree import TreeForeignKey
@@ -114,8 +113,7 @@ class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, Polymorph
             raise NotImplementedError(msg.format(Model.__name__, BaseDataMartManager.__name__))
 
 
-@python_2_unicode_compatible
-class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel)):
+class BaseDataMart(MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel, metaclass=BaseDataMartMetaclass):
     """
     ENG: The data marts for a enterprise data warehouse.
     RUS: Витрина данных для MDM – системы (корпоративного хранилища),
@@ -241,12 +239,19 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             return NotImplemented
         return self.pk == other.pk
 
+    def __hash__(self):
+        """
+        RUS: Хэш, согласованный с __eq__ (сравнение по первичному ключу).
+        Без него экземпляры нехешируемы, а mptt складывает узлы дерева в set.
+        """
+        return hash(self.pk)
+
     def data_mart_type(self):
         """
         ENG: Returns the polymorphic type of the object.
         RUS: Возвращает полиморфный тип объекта
         """
-        return force_text(self.polymorphic_ctype)
+        return force_str(self.polymorphic_ctype)
     data_mart_type.short_description = _("Data mart type")
 
     @property

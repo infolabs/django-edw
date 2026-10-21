@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import transaction
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.db.models import Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from edw.models.entity import EntityModel
 from edw.models.email_category import get_email_category
@@ -42,7 +42,7 @@ class CustomerCategoryMixin(object):
                     customer_category = TermModel(
                         slug=cls.CUSTOMER_CATEGORY_ROOT_TERM_SLUG,
                         parent=None,
-                        name=force_text(_('Customer category')),
+                        name=force_str(_('Customer category')),
                         semantic_rule=TermModel.XOR_RULE,
                         system_flags=(TermModel.system_flags.delete_restriction |
                                       TermModel.system_flags.change_parent_restriction |
@@ -55,7 +55,7 @@ class CustomerCategoryMixin(object):
                     unknown_customer = TermModel(
                         slug=cls.UNKNOWN_CUSTOMER_TERM_SLUG,
                         parent_id=customer_category.id,
-                        name=force_text(_('Unknown customer')),
+                        name=force_str(_('Unknown customer')),
                         semantic_rule=TermModel.OR_RULE,
                         system_flags=(TermModel.system_flags.delete_restriction |
                                       TermModel.system_flags.change_parent_restriction |

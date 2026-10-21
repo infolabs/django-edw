@@ -1,6 +1,5 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
@@ -79,16 +78,14 @@ class EdwMpttAdmin(SalmonellaMixin, DjangoMpttAdmin):
             Вспомогательная функция создания дерева витрины данных.
             Возвращает обновленную html-страницу дерева
             """
-            if six.PY3:
-                node_info['label'] = node_info['name']
+            node_info['label'] = node_info['name']
 
             mptt_admin_node_info_update_with_template(admin_instance=self,
                                                       template=get_mptt_admin_node_template(instance),
                                                       instance=instance,
                                                       node_info=node_info)
         args = [qs, handle_create_node, max_level]
-        if six.PY3:
-            args.append('name')
+        args.append('name')
         return get_tree_from_queryset(*args)
 
     def i18n_javascript(self, request):

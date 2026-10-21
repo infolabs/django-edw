@@ -39,13 +39,7 @@ def test_datamart_tree_and_defaults():
     assert str(root) == 'Root'
 
 
-@pytest.mark.xfail(
-    reason="BaseDataMart определяет __eq__ без __hash__; mptt при вставке 3-го уровня "
-           "складывает экземпляры в set и падает с TypeError: unhashable type",
-    strict=False,
-    raises=TypeError,
-)
-def test_datamart_third_level_insertion_known_break():
+def test_datamart_third_level_insertion():
     root = DataMart.objects.create(name='Root', slug='root')
     child = DataMart.objects.create(name='Child', slug='child', parent=root)
     DataMart.objects.create(name='Leaf', slug='leaf', parent=child)
