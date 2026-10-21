@@ -1,0 +1,4231 @@
+{
+  "schema": "edw-inventory/1.0",
+  "mission": {
+    "name": "edw-modernize",
+    "card": "E0",
+    "class": "code",
+    "role": "work",
+    "generated_at_utc": "2026-10-21T19:37:32Z",
+    "base_sha": "25590306df82f9605ac689c36ba55d0ab98dfb65",
+    "branch": "mission/edw-modernize",
+    "repo_root": "django-edw",
+    "generator": "read-only AST/regex scan + runtime probes; код продукта не изменялся",
+    "scope": {
+      "backend": [
+        "setup.py",
+        "backend/edw/",
+        "backend/email_auth/",
+        "backend/social_extra/",
+        "backend/sandbox/"
+      ],
+      "frontend": [
+        "frontend/package.json",
+        "frontend/webpack.config.js",
+        "frontend/src/"
+      ],
+      "excluded": [
+        "migrations вне счётчиков API",
+        "docs/_build (только как legacy-кандидат)"
+      ]
+    },
+    "constraints": [
+      "no network",
+      "no pip/npm install",
+      "no code changes before G0.1"
+    ]
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "django": "5.2.18",
+    "djangorestframework": "3.18.3",
+    "django_polymorphic": "4.11.7",
+    "django_mptt": "0.20.0",
+    "six": "1.17.0",
+    "checks": {
+      "django.utils.translation.ugettext": false,
+      "django.utils.translation.ugettext_lazy": false,
+      "django.utils.encoding.force_text": false,
+      "django.utils.encoding.smart_text": false,
+      "django.utils.encoding.force_unicode": false,
+      "django.conf.urls.url": false,
+      "django.conf.urls.patterns": false,
+      "django.core.urlresolvers": false,
+      "django.db.models.NullBooleanField": true,
+      "rest_framework.serializers.NullBooleanField": false,
+      "six.python_2_unicode_compatible": true,
+      "django.db.models.sql.where.ExtraWhere": true,
+      "django.db.models.sql.query.RawQuery": true,
+      "ForeignObject.get_extra_restriction.signature": "(self, alias, related_alias)",
+      "SQLCompiler.get_group_by.signature": "(self, select, order_by)",
+      "SQLCompiler.collapse_group_by.signature": "(self, expressions, having)",
+      "Join.__init__.signature": "(self, table_name, parent_alias, table_alias, join_type, join_field, nullable, filtered_relation=None)",
+      "Join.as_sql.signature": "(self, compiler, connection)",
+      "ModelBase.__new__.signature": "(cls, name, bases, attrs, **kwargs)",
+      "polymorphic.models.PolymorphicModelBase": true,
+      "mptt.models.MPTTModelBase": true,
+      "BaseUserManager": true,
+      "timezone.utc": false,
+      "USE_L10N": false,
+      "STATICFILES_STORAGE": false,
+      "STORAGES": true,
+      "BaseUserManager.make_random_password": false
+    }
+  },
+  "counters": {
+    "definitions": {
+      "providing_args": "вхождения providing_args= в продуктном Python-коде",
+      "ugettext": "вхождения ugettext/ugettext_lazy/ungettext в продуктном Python-коде (+8 в backend/sandbox, см. sandbox_breakdown)",
+      "force_text_smart_text": "вхождения force_text и smart_text (включая алиасы force_unicode/smart_unicode)",
+      "python_2_unicode_compatible": "вхождения декоратора/импорта (six)",
+      "django_conf_urls_url": "активные вызовы url(...) в файлах, импортирующих django.conf.urls (без комментариев); +18 в sandbox",
+      "NullBooleanField": "вхождения NullBooleanField (оба — DRF serializers)",
+      "stage0_bind": "подтверждённые структурные биндинги S0.1–S0.5",
+      "findDOMNode": "вызовы ReactDOM.findDOMNode в frontend/src",
+      "native_js": "файлы *.native.js в frontend/src"
+    },
+    "numbers": {
+      "providing_args": 11,
+      "ugettext": 84,
+      "force_text_smart_text": 71,
+      "python_2_unicode_compatible": 26,
+      "django_conf_urls_url": 18,
+      "NullBooleanField": 2,
+      "stage0_bind": 5,
+      "findDOMNode": 8,
+      "native_js": 7
+    },
+    "scope": "числа — продуктный код (backend/edw, backend/email_auth, backend/social_extra, setup.py); backend/sandbox учтён отдельно",
+    "sandbox_breakdown": {
+      "ugettext": 8,
+      "force_text_smart_text": 0,
+      "url_call_sites": 18,
+      "patterns_calls": 4
+    },
+    "totals_including_sandbox": {
+      "ugettext": 92,
+      "url_call_sites": 36
+    }
+  },
+  "codebase": {
+    "git_tracked_files": 568,
+    "python_total": {
+      "files": 299,
+      "loc": 28206
+    },
+    "python_product": {
+      "files": 265,
+      "loc": 25917
+    },
+    "python_sandbox": {
+      "files": 34,
+      "loc": 2289
+    },
+    "python_migrations": {
+      "files": 21,
+      "loc": 901
+    },
+    "frontend_src_js": {
+      "files": 85,
+      "loc": 7549
+    },
+    "frontend_native_js": {
+      "files": 7,
+      "loc": 504
+    },
+    "frontend_native_components": {
+      "files": 15,
+      "loc": 1466
+    },
+    "frontend_native_styles": {
+      "files": 6,
+      "loc": 392
+    },
+    "frontend_less_css": {
+      "files": 22,
+      "loc": 3732
+    },
+    "templates_html": {
+      "files": 32,
+      "loc": 850
+    },
+    "static_tracked_assets": {
+      "files": 23,
+      "loc": 10746,
+      "git_tracked_total": 38
+    },
+    "search_adapter": {
+      "files": 8,
+      "loc": 840
+    },
+    "nlp_mixin": {
+      "files": 2,
+      "loc": 333
+    },
+    "place_mixin": {
+      "files": 2,
+      "loc": 479
+    },
+    "docs_build_tracked": 39,
+    "docs_build_loc": 20496,
+    "requirements_loc": 64,
+    "sandbox_tracked": 52
+  },
+  "dependencies": {
+    "python": {
+      "setup_py_install_requires": {
+        "count": 9,
+        "items": [
+          "Django>=1.9,<4.0",
+          "djangorestframework>=3.3",
+          "django-filer>=1.0.6",
+          "django-fsm>=2.4.0",
+          "django-rest-auth>=0.5.0",
+          "django-select2>=5.5.0",
+          "djangorestframework-recursive>=0.1.2",
+          "djangorestframework-filters>=0.11.1",
+          "django-polymorphic>=1.1"
+        ],
+        "declared_range": "Django>=1.9,<4.0 — уже несовместимо с 5.2"
+      },
+      "requirements_django19": [
+        {
+          "path": "backend/requirements/django19/common.txt",
+          "entries": 57,
+          "unique_names": 56,
+          "duplicates": [
+            "elasticsearch"
+          ],
+          "nested_includes": [],
+          "items": [
+            "coverage==4.0",
+            "Django==1.9.8",
+            "django-admin-sortable2==0.6.3",
+            "django-allauth==0.23.0",
+            "django-angular==0.8.1",
+            "django-appconf==1.0.1",
+            "django-ckeditor==5.1.0",
+            "django-compress==1.0.1",
+            "django-compressor==1.6",
+            "django-filter==0.13.0",
+            "django-fsm==2.5.0",
+            "django-fsm-admin==1.2.2",
+            "django-haystack==2.5.0",
+            "django-ipware==1.1.1",
+            "django-mptt==0.7.4",
+            "django-mptt-admin==0.4.0",
+            "django-pipeline==1.6.8",
+            "django-polymorphic==1.1",
+            "django-polymorphic-tree",
+            "django-post-office==2.0.7",
+            "django-rest-auth==0.5.0",
+            "djangorestframework==3.3.3",
+            "djangorestframework-filters==0.8.0",
+            "djangorestframework-recursive==0.1.1",
+            "django-salmonella==1.0",
+            "django-sekizai==0.9.0",
+            "django-select2==5.5.0",
+            "drf-haystack==1.6.1",
+            "drf-nested-routers==0.11.1",
+            "easy-thumbnails==2.3",
+            "elasticsearch==1.9.0",
+            "flake8==2.4.1",
+            "html5lib==0.9999999",
+            "jsonfield==1.0.3",
+            "mock==1.3.0",
+            "Pillow==2.9.0",
+            "Pygments==2.0.2",
+            "pytest==2.8.3",
+            "pytest-django==2.9.1",
+            "pytz==2015.7",
+            "requests==2.7.0",
+            "six==1.10.0",
+            "tox==2.1.1",
+            "urllib3==1.12",
+            "django-webpack-loader==0.3.2",
+            "django-js-reverse==0.7.2",
+            "django-bitfield==1.8.0",
+            "django-constance==1.3.3",
+            "humanize==0.5.1",
+            "pyelasticsearch==1.4",
+            "elasticsearch==1.9.0",
+            "geopy==2.2.0",
+            "social-auth-app-django==2.1.0",
+            "pymorton==1.0.5",
+            "M2Crypto==0.31.0",
+            "pytils==0.3",
+            "django-multidb-router==0.9"
+          ]
+        },
+        {
+          "path": "backend/requirements/django19/testing.txt",
+          "entries": 6,
+          "unique_names": 6,
+          "duplicates": [],
+          "nested_includes": [
+            "-r common.txt"
+          ],
+          "items": [
+            "flake8==2.4.1",
+            "pytest==2.8.3",
+            "coverage==4.0",
+            "pytest-django==2.9.1",
+            "mock==1.3.0",
+            "tox==2.1.1"
+          ]
+        }
+      ],
+      "used_third_party": [
+        {
+          "module": "django",
+          "distribution": "django",
+          "kind": "mixed",
+          "imports": 552,
+          "imports_inside_try": 35,
+          "files": 179,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "5.2.18",
+          "example_file": "backend/edw/__init__.py"
+        },
+        {
+          "module": "rest_framework",
+          "distribution": "djangorestframework",
+          "kind": "mixed",
+          "imports": 75,
+          "imports_inside_try": 6,
+          "files": 39,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "3.18.3",
+          "example_file": "backend/edw/admin/term/__init__.py"
+        },
+        {
+          "module": "celery",
+          "distribution": "celery",
+          "kind": "mixed",
+          "imports": 31,
+          "imports_inside_try": 1,
+          "files": 31,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/base_actions/__init__.py"
+        },
+        {
+          "module": "six",
+          "distribution": "six",
+          "kind": "runtime",
+          "imports": 31,
+          "imports_inside_try": 0,
+          "files": 30,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "1.17.0",
+          "example_file": "backend/edw/admin/base_actions/update_terms.py"
+        },
+        {
+          "module": "salmonella",
+          "distribution": "django-salmonella",
+          "kind": "optional",
+          "imports": 14,
+          "imports_inside_try": 14,
+          "files": 13,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/boundary.py"
+        },
+        {
+          "module": "dynamic_raw_id",
+          "distribution": "django-dynamic-raw-id",
+          "kind": "optional",
+          "imports": 14,
+          "imports_inside_try": 14,
+          "files": 13,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/boundary.py"
+        },
+        {
+          "module": "haystack",
+          "distribution": "django-haystack",
+          "kind": "runtime",
+          "imports": 13,
+          "imports_inside_try": 0,
+          "files": 6,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/management/commands/test_more_like_this.old.py"
+        },
+        {
+          "module": "polymorphic",
+          "distribution": "django-polymorphic",
+          "kind": "mixed",
+          "imports": 12,
+          "imports_inside_try": 4,
+          "files": 4,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "4.11.7",
+          "example_file": "backend/edw/admin/entity/__init__.py"
+        },
+        {
+          "module": "rest_framework_filters",
+          "distribution": "djangorestframework-filters",
+          "kind": "mixed",
+          "imports": 12,
+          "imports_inside_try": 6,
+          "files": 8,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/rest.py"
+        },
+        {
+          "module": "classytags",
+          "distribution": "django-classy-tags",
+          "kind": "runtime",
+          "imports": 12,
+          "imports_inside_try": 0,
+          "files": 6,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.1.0",
+          "example_file": "backend/edw/rest/templatetags.py"
+        },
+        {
+          "module": "filer",
+          "distribution": "django-filer",
+          "kind": "mixed",
+          "imports": 9,
+          "imports_inside_try": 2,
+          "files": 9,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "3.6.0",
+          "example_file": "backend/edw/admin/entity/forms/update_images.py"
+        },
+        {
+          "module": "mptt",
+          "distribution": "django-mptt",
+          "kind": "runtime",
+          "imports": 9,
+          "imports_inside_try": 0,
+          "files": 4,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "0.20.0",
+          "example_file": "backend/edw/models/data_mart.py"
+        },
+        {
+          "module": "bitfield",
+          "distribution": "django-bitfield",
+          "kind": "runtime",
+          "imports": 8,
+          "imports_inside_try": 0,
+          "files": 5,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/mptt/tree.py"
+        },
+        {
+          "module": "django_filters",
+          "distribution": "django-filter",
+          "kind": "runtime",
+          "imports": 7,
+          "imports_inside_try": 0,
+          "files": 5,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "26.2",
+          "example_file": "backend/edw/forms/fields.py"
+        },
+        {
+          "module": "rest_framework_bulk",
+          "distribution": "djangorestframework-bulk",
+          "kind": "runtime",
+          "imports": 7,
+          "imports_inside_try": 0,
+          "files": 7,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/rest/routers.py"
+        },
+        {
+          "module": "natasha",
+          "distribution": "natasha",
+          "kind": "runtime",
+          "imports": 6,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/__init__.py"
+        },
+        {
+          "module": "drf_haystack",
+          "distribution": "drf-haystack",
+          "kind": "runtime",
+          "imports": 5,
+          "imports_inside_try": 0,
+          "files": 3,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/search/filters.py"
+        },
+        {
+          "module": "social_core",
+          "distribution": "social-auth-core",
+          "kind": "runtime",
+          "imports": 5,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "requests",
+          "distribution": "requests",
+          "kind": "runtime",
+          "imports": 4,
+          "imports_inside_try": 0,
+          "files": 3,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "2.34.2",
+          "example_file": "backend/edw/management/commands/update_index_max_window.py"
+        },
+        {
+          "module": "jsonfield",
+          "distribution": "jsonfield",
+          "kind": "runtime",
+          "imports": 4,
+          "imports_inside_try": 0,
+          "files": 4,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "3.2.0",
+          "example_file": "backend/edw/models/customer.py"
+        },
+        {
+          "module": "post_office",
+          "distribution": "django-post-office",
+          "kind": "runtime",
+          "imports": 4,
+          "imports_inside_try": 0,
+          "files": 3,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "3.12.0",
+          "example_file": "backend/edw/models/email.py"
+        },
+        {
+          "module": "geopy",
+          "distribution": "geopy",
+          "kind": "runtime",
+          "imports": 4,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/entity/place/__init__.py"
+        },
+        {
+          "module": "adminsortable2",
+          "distribution": "django-admin-sortable2",
+          "kind": "runtime",
+          "imports": 3,
+          "imports_inside_try": 0,
+          "files": 3,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "2.3.1",
+          "example_file": "backend/edw/admin/data_mart/data_mart_image.py"
+        },
+        {
+          "module": "geoposition",
+          "distribution": "django-geoposition",
+          "kind": "runtime",
+          "imports": 3,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/entity/place/__init__.py"
+        },
+        {
+          "module": "django_mptt_admin",
+          "distribution": "django-mptt-admin",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "3.1.0",
+          "example_file": "backend/edw/admin/mptt/tree.py"
+        },
+        {
+          "module": "yargy",
+          "distribution": "yargy",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/ner.py"
+        },
+        {
+          "module": "django_fsm",
+          "distribution": "django-fsm",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "rest_auth",
+          "distribution": "django-rest-auth",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/rest/serializers/auth.py"
+        },
+        {
+          "module": "rest_framework_recursive",
+          "distribution": "djangorestframework-recursive",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": true,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/rest/serializers/data_mart.py"
+        },
+        {
+          "module": "dateutil",
+          "distribution": "python-dateutil",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "2.9.0.post0",
+          "example_file": "backend/edw/templatetags/edw_tags/common.py"
+        },
+        {
+          "module": "constance",
+          "distribution": "django-constance",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "4.3.5",
+          "example_file": "backend/edw/forms/auth.py"
+        },
+        {
+          "module": "typing_extensions",
+          "distribution": "typing-extensions",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.16.0",
+          "example_file": "backend/edw/models/entity.py"
+        },
+        {
+          "module": "ipware",
+          "distribution": "django-ipware",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "8.0.0",
+          "example_file": "backend/edw/models/entity.py"
+        },
+        {
+          "module": "simplejson",
+          "distribution": "simplejson",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.2.0",
+          "example_file": "backend/edw/models/mixins/entity/place/fias.py"
+        },
+        {
+          "module": "fcm_async",
+          "distribution": "fcm_async",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "telegram",
+          "distribution": "telegram",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "max",
+          "distribution": "max",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "rest_framework_nested",
+          "distribution": "drf-nested-routers",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "0.95.3",
+          "example_file": "backend/edw/rest/routers.py"
+        },
+        {
+          "module": "pytils",
+          "distribution": "pytils",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "0.4.4",
+          "example_file": "backend/edw/tasks/make_terms_by_additional_attrs.py"
+        },
+        {
+          "module": "easy_thumbnails",
+          "distribution": "easy-thumbnails",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "2.10.1",
+          "example_file": "backend/edw/templatetags/edw_media_tags.py"
+        },
+        {
+          "module": "multidb",
+          "distribution": "django-multidb-router",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/utils/router.py"
+        },
+        {
+          "module": "pytz",
+          "distribution": "pytz",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": true,
+          "provisioned_version": "2026.5",
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "jwt",
+          "distribution": "PyJWT",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "M2Crypto",
+          "distribution": "M2Crypto",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": true,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "pycades",
+          "distribution": "pycades",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        }
+      ],
+      "used_third_party_count": 45,
+      "build_dependencies": [
+        {
+          "module": "setuptools",
+          "imports": 2
+        },
+        {
+          "module": "pypandoc",
+          "imports": 1
+        }
+      ],
+      "undeclared_in_setup_and_requirements": [
+        {
+          "module": "celery",
+          "distribution": "celery",
+          "kind": "mixed",
+          "imports": 31,
+          "imports_inside_try": 1,
+          "files": 31,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/base_actions/__init__.py"
+        },
+        {
+          "module": "dynamic_raw_id",
+          "distribution": "django-dynamic-raw-id",
+          "kind": "optional",
+          "imports": 14,
+          "imports_inside_try": 14,
+          "files": 13,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/boundary.py"
+        },
+        {
+          "module": "classytags",
+          "distribution": "django-classy-tags",
+          "kind": "runtime",
+          "imports": 12,
+          "imports_inside_try": 0,
+          "files": 6,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.1.0",
+          "example_file": "backend/edw/rest/templatetags.py"
+        },
+        {
+          "module": "rest_framework_bulk",
+          "distribution": "djangorestframework-bulk",
+          "kind": "runtime",
+          "imports": 7,
+          "imports_inside_try": 0,
+          "files": 7,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/rest/routers.py"
+        },
+        {
+          "module": "natasha",
+          "distribution": "natasha",
+          "kind": "runtime",
+          "imports": 6,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/__init__.py"
+        },
+        {
+          "module": "social_core",
+          "distribution": "social-auth-core",
+          "kind": "runtime",
+          "imports": 5,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "geoposition",
+          "distribution": "django-geoposition",
+          "kind": "runtime",
+          "imports": 3,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/entity/place/__init__.py"
+        },
+        {
+          "module": "yargy",
+          "distribution": "yargy",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/ner.py"
+        },
+        {
+          "module": "dateutil",
+          "distribution": "python-dateutil",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "2.9.0.post0",
+          "example_file": "backend/edw/templatetags/edw_tags/common.py"
+        },
+        {
+          "module": "typing_extensions",
+          "distribution": "typing-extensions",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.16.0",
+          "example_file": "backend/edw/models/entity.py"
+        },
+        {
+          "module": "simplejson",
+          "distribution": "simplejson",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.2.0",
+          "example_file": "backend/edw/models/mixins/entity/place/fias.py"
+        },
+        {
+          "module": "fcm_async",
+          "distribution": "fcm_async",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "telegram",
+          "distribution": "telegram",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "max",
+          "distribution": "max",
+          "kind": "optional",
+          "imports": 1,
+          "imports_inside_try": 1,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "jwt",
+          "distribution": "PyJWT",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "pycades",
+          "distribution": "pycades",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        }
+      ],
+      "runtime_undeclared": [
+        {
+          "module": "celery",
+          "distribution": "celery",
+          "kind": "mixed",
+          "imports": 31,
+          "imports_inside_try": 1,
+          "files": 31,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/admin/base_actions/__init__.py"
+        },
+        {
+          "module": "classytags",
+          "distribution": "django-classy-tags",
+          "kind": "runtime",
+          "imports": 12,
+          "imports_inside_try": 0,
+          "files": 6,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.1.0",
+          "example_file": "backend/edw/rest/templatetags.py"
+        },
+        {
+          "module": "rest_framework_bulk",
+          "distribution": "djangorestframework-bulk",
+          "kind": "runtime",
+          "imports": 7,
+          "imports_inside_try": 0,
+          "files": 7,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/rest/routers.py"
+        },
+        {
+          "module": "natasha",
+          "distribution": "natasha",
+          "kind": "runtime",
+          "imports": 6,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/__init__.py"
+        },
+        {
+          "module": "social_core",
+          "distribution": "social-auth-core",
+          "kind": "runtime",
+          "imports": 5,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "geoposition",
+          "distribution": "django-geoposition",
+          "kind": "runtime",
+          "imports": 3,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/entity/place/__init__.py"
+        },
+        {
+          "module": "yargy",
+          "distribution": "yargy",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/mixins/nlp/ner.py"
+        },
+        {
+          "module": "dateutil",
+          "distribution": "python-dateutil",
+          "kind": "runtime",
+          "imports": 2,
+          "imports_inside_try": 0,
+          "files": 2,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "2.9.0.post0",
+          "example_file": "backend/edw/templatetags/edw_tags/common.py"
+        },
+        {
+          "module": "simplejson",
+          "distribution": "simplejson",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": true,
+          "provisioned_version": "4.2.0",
+          "example_file": "backend/edw/models/mixins/entity/place/fias.py"
+        },
+        {
+          "module": "fcm_async",
+          "distribution": "fcm_async",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/edw/models/notification.py"
+        },
+        {
+          "module": "jwt",
+          "distribution": "PyJWT",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        },
+        {
+          "module": "pycades",
+          "distribution": "pycades",
+          "kind": "runtime",
+          "imports": 1,
+          "imports_inside_try": 0,
+          "files": 1,
+          "declared_in_setup_py": false,
+          "declared_in_requirements": false,
+          "provisioned_offline": false,
+          "provisioned_version": null,
+          "example_file": "backend/social_extra/backends.py"
+        }
+      ],
+      "sandbox_used_third_party": [
+        {
+          "module": "django",
+          "imports": 65,
+          "files": 27
+        },
+        {
+          "module": "bitfield",
+          "imports": 3,
+          "files": 3
+        },
+        {
+          "module": "rest_framework",
+          "imports": 3,
+          "files": 3
+        },
+        {
+          "module": "adminsortable2",
+          "imports": 2,
+          "files": 2
+        },
+        {
+          "module": "ckeditor",
+          "imports": 2,
+          "files": 2
+        },
+        {
+          "module": "jsonfield",
+          "imports": 2,
+          "files": 2
+        },
+        {
+          "module": "filer",
+          "imports": 2,
+          "files": 2
+        },
+        {
+          "module": "polymorphic",
+          "imports": 1,
+          "files": 1
+        }
+      ]
+    },
+    "javascript": {
+      "package_json": "frontend/package.json",
+      "dependencies_count": 27,
+      "devDependencies_count": 23,
+      "dependencies": {
+        "classnames": "^2.1.2",
+        "marked": "^0.3.5",
+        "react": "^16.1.0",
+        "react-dom": "^16.1.0",
+        "react-google-maps": "^6.0.1",
+        "react-yandex-maps": "^3.0.2",
+        "react-cookies": "0.1.0",
+        "react-scroll": "1.7.9",
+        "react-select": "^3.1.0",
+        "react-redux": "^5.0.1",
+        "redux": "^3.6.0",
+        "redux-logger": "^3.0.6",
+        "redux-thunk": "^2.3.0",
+        "whatwg-fetch": "^2.0.1",
+        "redux-devtools": "^3.4.0",
+        "isomorphic-fetch": "^2.2.1",
+        "es6-promise": "^4.2.8",
+        "color": "^3.1.2",
+        "color-convert": "^2.0.1",
+        "color-string": "^1.5.3",
+        "@ckeditor/ckeditor5-react": "^2.1.0",
+        "@ckeditor/ckeditor5-build-classic": "^19.0.0",
+        "@ckeditor/ckeditor5-build-decoupled-document": "^24.0.0",
+        "react-native": "0.64.0-rc.2",
+        "@ui-kitten/components": "^5.0.0",
+        "native-base": "^2.13.14",
+        "react-native-loading-spinner-overlay": "^2.0.0"
+      },
+      "devDependencies": {
+        "@babel/cli": "^7.8.4",
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
+        "@babel/plugin-proposal-function-bind": "^7.8.3",
+        "@babel/preset-env": "^7.9.6",
+        "@babel/preset-react": "^7.9.4",
+        "babel-loader": "^8.1.0",
+        "node-libs-browser": "^0.5.2",
+        "raw-loader": "^4.0.1",
+        "react-hot-loader": "^4.12.21",
+        "redux-devtools": "^3.0.1",
+        "redux-devtools-dock-monitor": "^1.0.1",
+        "redux-devtools-log-monitor": "^1.0.2",
+        "style-loader": "^1.2.1",
+        "less-loader": "^6.1.0",
+        "less": "^3.11.1",
+        "todomvc-app-css": "^2.0.1",
+        "webpack": "^4.43.0",
+        "webpack-bundle-tracker": "^0.4.2-beta",
+        "webpack-dev-server": "^3.11.0",
+        "webpack-cli": "^3.3.11",
+        "terser-webpack-plugin": "^3.0.1",
+        "clean-webpack-plugin": "^3.0.0"
+      },
+      "used_third_party": [
+        {
+          "package": "react",
+          "imports": 44,
+          "files": 44,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^16.1.0",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/Aggregation.js"
+        },
+        {
+          "package": "redux",
+          "imports": 26,
+          "files": 26,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^3.6.0",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/Aggregation.js"
+        },
+        {
+          "package": "react-redux",
+          "imports": 24,
+          "files": 24,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^5.0.1",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/Aggregation.js"
+        },
+        {
+          "package": "react-native",
+          "imports": 15,
+          "files": 15,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "0.64.0-rc.2",
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/actions/EntityActions.native.js"
+        },
+        {
+          "package": "react-dom",
+          "imports": 8,
+          "files": 8,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^16.1.0",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities.js"
+        },
+        {
+          "package": "@ui-kitten/components",
+          "imports": 7,
+          "files": 7,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^5.0.0",
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseEntities/base.js"
+        },
+        {
+          "package": "react-native-vector-icons",
+          "imports": 5,
+          "files": 5,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+        },
+        {
+          "package": "marked",
+          "imports": 4,
+          "files": 4,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^0.3.5",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities/AbstractMap.js"
+        },
+        {
+          "package": "react-cookies",
+          "imports": 3,
+          "files": 3,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "0.1.0",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities.js"
+        },
+        {
+          "package": "color",
+          "imports": 2,
+          "files": 2,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^3.1.2",
+          "available_offline": false,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities/AbstractMap.js"
+        },
+        {
+          "package": "react-native-loading-spinner-overlay",
+          "imports": 2,
+          "files": 2,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^2.0.0",
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseEntities.js"
+        },
+        {
+          "package": "redux-thunk",
+          "imports": 2,
+          "files": 2,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^2.3.0",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/store/configureStore.dev.js"
+        },
+        {
+          "package": "string.prototype.matchall",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/actions/EntityActions.native.js"
+        },
+        {
+          "package": "react-google-maps",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^6.0.1",
+          "available_offline": false,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities/Map.js"
+        },
+        {
+          "package": "react-yandex-maps",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^3.0.2",
+          "available_offline": false,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities/YMap.js"
+        },
+        {
+          "package": "react-scroll",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "1.7.9",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/components/BaseEntities.js"
+        },
+        {
+          "package": "es6-promise",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^4.2.8",
+          "available_offline": false,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/index.js"
+        },
+        {
+          "package": "isomorphic-fetch",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^2.2.1",
+          "available_offline": false,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/index.js"
+        },
+        {
+          "package": "native-base",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^2.13.14",
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseEntities/base.js"
+        },
+        {
+          "package": "react-native-safe-area-context",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+        },
+        {
+          "package": "redux-logger",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": true,
+          "declared_devDependency": false,
+          "declared_range": "^3.0.6",
+          "available_offline": true,
+          "used_in_native_island_only": false,
+          "example_file": "frontend/src/store/configureStore.dev.js"
+        },
+        {
+          "package": "@react-native-async-storage/async-storage",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/utils/token.native.js"
+        },
+        {
+          "package": "@sentry/react-native",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/utils/uniFetch.native.js"
+        }
+      ],
+      "used_third_party_count": 23,
+      "undeclared_imports": [
+        {
+          "package": "react-native-vector-icons",
+          "imports": 5,
+          "files": 5,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+        },
+        {
+          "package": "string.prototype.matchall",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/actions/EntityActions.native.js"
+        },
+        {
+          "package": "react-native-safe-area-context",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+        },
+        {
+          "package": "@react-native-async-storage/async-storage",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/utils/token.native.js"
+        },
+        {
+          "package": "@sentry/react-native",
+          "imports": 1,
+          "files": 1,
+          "declared_dependency": false,
+          "declared_devDependency": false,
+          "declared_range": null,
+          "available_offline": false,
+          "used_in_native_island_only": true,
+          "example_file": "frontend/src/utils/uniFetch.native.js"
+        }
+      ],
+      "unavailable_offline": [
+        "react-native",
+        "@ui-kitten/components",
+        "react-native-vector-icons",
+        "color",
+        "react-native-loading-spinner-overlay",
+        "string.prototype.matchall",
+        "react-google-maps",
+        "react-yandex-maps",
+        "es6-promise",
+        "isomorphic-fetch",
+        "native-base",
+        "react-native-safe-area-context",
+        "@react-native-async-storage/async-storage",
+        "@sentry/react-native"
+      ],
+      "native_island_only": [
+        "react-native",
+        "@ui-kitten/components",
+        "react-native-vector-icons",
+        "react-native-loading-spinner-overlay",
+        "string.prototype.matchall",
+        "native-base",
+        "react-native-safe-area-context",
+        "@react-native-async-storage/async-storage",
+        "@sentry/react-native"
+      ],
+      "declared_in_package_json_not_imported_from_src": [
+        "@ckeditor/ckeditor5-build-classic",
+        "@ckeditor/ckeditor5-build-decoupled-document",
+        "@ckeditor/ckeditor5-react",
+        "classnames",
+        "color-convert",
+        "color-string",
+        "react-select",
+        "redux-devtools",
+        "whatwg-fetch"
+      ]
+    },
+    "sandbox": {
+      "requirements": [
+        "-r ../requirements/django19/common.txt",
+        "mysql_python",
+        "git+https://github.com/divio/django-filer.git"
+      ],
+      "package_json_deps": {
+        "less": "^2.7.1",
+        "uglify-js": "^2.7.3",
+        "bower": "^1.7.9"
+      },
+      "bower_json_deps": {
+        "jquery": "~2.1.4",
+        "picturefill": "~3.0.1",
+        "select2": "~4.0.0"
+      }
+    }
+  },
+  "extension_points": [
+    {
+      "name": "deferred.ForeignKeyBuilder",
+      "kind": "metaclass / model materialization",
+      "file": "backend/edw/deferred.py",
+      "line": 66,
+      "declaration": "class ForeignKeyBuilder(ModelBase):",
+      "purpose": "позволяет объявлять FK/O2O/M2M на абстрактные модели и материализует их на реальных моделях",
+      "consumers_or_usage": [
+        "deferred.PolymorphicForeignKeyBuilder",
+        "BaseTermMetaclass",
+        "BaseDataMartMetaclass",
+        "8 моделей в models/"
+      ],
+      "upgrade_risk": "переопределяет ModelBase.__new__ и Meta/app_label; чувствителен к смене внутренностей ModelBase и к метаклассам django-polymorphic 1.1 → 4.11"
+    },
+    {
+      "name": "deferred.PolymorphicForeignKeyBuilder",
+      "kind": "metaclass",
+      "file": "backend/edw/deferred.py",
+      "line": 206,
+      "declaration": "class PolymorphicForeignKeyBuilder(ForeignKeyBuilder, PolymorphicModelBase):",
+      "purpose": "склейка ForeignKeyBuilder и PolymorphicModelBase для полиморфных сущностей",
+      "consumers_or_usage": [
+        "PolymorphicEntityMetaclass в models/entity.py"
+      ],
+      "upgrade_risk": "MRO ForeignKeyBuilder(ModelBase) + PolymorphicModelBase; при смене метакласса polymorphic порядок __new__ и _meta может измениться"
+    },
+    {
+      "name": "deferred.MaterializedModel",
+      "kind": "lazy model proxy",
+      "file": "backend/edw/deferred.py",
+      "line": 210,
+      "declaration": "class MaterializedModel(LazyObject):",
+      "purpose": "ленивая ссылка на материализованную модель (TermModel, DataMartModel, EntityModel, CustomerModel)",
+      "consumers_or_usage": [
+        "TermModel",
+        "DataMartModel",
+        "EntityModel",
+        "CustomerModel",
+        "5 моделей в models/related/"
+      ],
+      "upgrade_risk": "LazyObject/__deepcopy__ и проверка empty; зависит от django.utils.functional.empty"
+    },
+    {
+      "name": "PolymorphicEntityMetaclass",
+      "kind": "metaclass",
+      "file": "backend/edw/models/entity.py",
+      "line": 1064,
+      "declaration": "class PolymorphicEntityMetaclass(deferred.PolymorphicForeignKeyBuilder, RESTModelBase):",
+      "purpose": "материализация полиморфных сущностей и проверка REQUIRED_FIELDS/manager/entity_name",
+      "consumers_or_usage": [
+        "BaseEntity (models/entity.py)"
+      ],
+      "upgrade_risk": "обходит Model.mro() и PolymorphicModelBase._meta.abstract; ломается при изменении порядка инициализации polymorphic 4.x"
+    },
+    {
+      "name": "BaseTermMetaclass",
+      "kind": "metaclass",
+      "file": "backend/edw/models/term.py",
+      "line": 205,
+      "declaration": "class BaseTermMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase):",
+      "purpose": "проверяет, что objects у модели термина — BaseTermManager",
+      "consumers_or_usage": [
+        "BaseTerm",
+        "TermModel"
+      ],
+      "upgrade_risk": "наследует ForeignKeyBuilder + MPTTModelBase"
+    },
+    {
+      "name": "TermModel",
+      "kind": "public extension point (lazy model)",
+      "file": "backend/edw/models/term.py",
+      "line": 709,
+      "declaration": "TermModel = deferred.MaterializedModel(BaseTerm)",
+      "purpose": "точка расширения дерева терминов: проекты наследуют BaseTerm или подменяют TermModel",
+      "consumers_or_usage": [
+        "models/defaults/term.py",
+        "models/entity.py",
+        "admin/term",
+        "rest/filters/term.py"
+      ],
+      "upgrade_risk": "зависит от MaterializedModel и метакласса; используется в 20+ модулях"
+    },
+    {
+      "name": "BaseDataMartMetaclass",
+      "kind": "metaclass",
+      "file": "backend/edw/models/data_mart.py",
+      "line": 99,
+      "declaration": "class BaseDataMartMetaclass(deferred.ForeignKeyBuilder, MPTTModelBase, PolymorphicModelBase, RESTModelBase):",
+      "purpose": "проверяет manager витрины данных (BaseDataMartManager)",
+      "consumers_or_usage": [
+        "BaseDataMart",
+        "DataMartModel"
+      ],
+      "upgrade_risk": "ForeignKeyBuilder + MPTTModelBase + PolymorphicModelBase + RESTModelBase — самый широкий MRO"
+    },
+    {
+      "name": "DataMartModel",
+      "kind": "public extension point (lazy model)",
+      "file": "backend/edw/models/data_mart.py",
+      "line": 596,
+      "declaration": "DataMartModel = deferred.MaterializedModel(BaseDataMart)",
+      "purpose": "точка расширения витрин данных: проекты наследуют BaseDataMart",
+      "consumers_or_usage": [
+        "models/entity.py",
+        "models/defaults/data_mart.py",
+        "views/data_mart.py",
+        "rest/serializers/data_mart.py"
+      ],
+      "upgrade_risk": "тот же MaterializedModel-контракт; участвует в entity.related_data_marts"
+    },
+    {
+      "name": "CustomJoin",
+      "kind": "SQL extension",
+      "file": "backend/edw/models/sql/datastructures.py",
+      "line": 13,
+      "declaration": "class CustomJoin(Join):",
+      "purpose": "ручной JOIN по подзапросу для фильтрации сущностей",
+      "consumers_or_usage": [
+        "models/mixins/query.py"
+      ],
+      "upgrade_risk": "переопределяет Join.as_sql и вызывает 3-аргументный get_extra_restriction — в Django 4.0+ сигнатура 2-аргументная (см. stage0_bind)"
+    },
+    {
+      "name": "CustomGroupByQuerySetMixin",
+      "kind": "queryset extension",
+      "file": "backend/edw/models/mixins/query.py",
+      "line": 18,
+      "declaration": "class CustomGroupByQuerySetMixin(object):",
+      "purpose": "кастомный GROUP BY через monkey-patch SQLCompiler.get_group_by",
+      "consumers_or_usage": [
+        "edw/patches/sql/compiler.py"
+      ],
+      "upgrade_risk": "патч приватного метода компилятора; см. stage0_bind"
+    },
+    {
+      "name": "SerializerRegistryMetaclass",
+      "kind": "serializer registry",
+      "file": "backend/edw/rest/serializers/entity.py",
+      "line": 475,
+      "declaration": "class SerializerRegistryMetaclass(serializers.SerializerMetaclass):",
+      "purpose": "реестр сериализаторов сущностей/витрин по моделям",
+      "consumers_or_usage": [
+        "EntitySummarySerializerBase",
+        "DataMartSummarySerializerBase"
+      ],
+      "upgrade_risk": "наследует DRF SerializerMetaclass; зависит от DRF internals"
+    }
+  ],
+  "removed_django_apis": [
+    {
+      "id": "R1",
+      "api": "Signal(providing_args=...)",
+      "removed_in": "Django 4.0",
+      "category": "удалённый API",
+      "counter": "providing_args",
+      "occurrences": 11,
+      "lines": 11,
+      "files": 4,
+      "hits": [
+        {
+          "file": "backend/edw/signals/auth.py",
+          "line": 9,
+          "code": "customer_registered = Signal(providing_args=[\"customer\", \"request\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/auth.py",
+          "line": 12,
+          "code": "user_activated = Signal(providing_args=[\"user\", \"request\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/entity.py",
+          "line": 6,
+          "code": "external_add_terms = Signal(providing_args=[\"instance\", \"pk_set\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/entity.py",
+          "line": 9,
+          "code": "external_remove_terms = Signal(providing_args=[\"instance\", \"pk_set\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/entity.py",
+          "line": 12,
+          "code": "post_save = Signal(providing_args=[\"instance\", \"origin\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/entity.py",
+          "line": 15,
+          "code": "post_add_relations = Signal(providing_args=[\"instances\", \"rel_id\", \"direction\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/entity.py",
+          "line": 21,
+          "code": "pre_delete_relations = Signal(providing_args=[\"instances\", \"rel_ids\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/mptt.py",
+          "line": 6,
+          "code": "move_to_done = Signal(providing_args=[\"instance\", \"target\", \"position\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/mptt.py",
+          "line": 8,
+          "code": "pre_save = Signal(providing_args=[\"instance\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/mptt.py",
+          "line": 10,
+          "code": "post_save = Signal(providing_args=[\"instance\"])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/signals/place.py",
+          "line": 6,
+          "code": "zone_changed = Signal(providing_args=[\"instance\", \"zone_term_ids_to_remove\", \"zone_term_ids_to_add\"])",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "providing_args — параметр django.dispatch.Signal; в 4.0 удалён -> TypeError при импорте edw.signals.*",
+      "status": "BROKEN_RUNTIME"
+    },
+    {
+      "id": "R2",
+      "api": "ugettext / ugettext_lazy / ungettext",
+      "removed_in": "Django 4.0",
+      "category": "удалённый API",
+      "counter": "ugettext",
+      "occurrences": 84,
+      "lines": 84,
+      "files": 81,
+      "hits": [
+        {
+          "file": "backend/edw/__init__.py",
+          "line": 3,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 18,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 15,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/customer/__init__.py",
+          "line": 11,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/customer/forms.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/data_mart/actions/update_terms.py",
+          "line": 1,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/data_mart/forms.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/__init__.py",
+          "line": 9,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/bulk_delete.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/force_validate.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/make_terms_by_additional_attrs.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/merge.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/normalize_additional_attrs.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/set_boolean.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/set_foreign_key.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 13,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 15,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 14,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 14,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 14,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_terms.py",
+          "line": 2,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/__init__.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/merge.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/set_boolean.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/set_foreign_key.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_additional_characteristics_or_marks.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_images.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_related_data_marts.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_relations.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_states.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/forms/update_terms.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/notification/admin.py",
+          "line": 18,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/notification/forms.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 13,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/forms/update_terms_parent.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/apps.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/forms/auth.py",
+          "line": 16,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/forms/fields.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/delete_post_office_email.py",
+          "line": 2,
+          "code": "from django.utils.translation import ugettext",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/delete_post_office_email.py",
+          "line": 12,
+          "code": "help = ugettext(\"Delete history to emails\")",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/delete_post_office_email.py",
+          "line": 20,
+          "code": "help=ugettext('Count days to save emails')",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/delete_post_office_email.py",
+          "line": 27,
+          "code": "raise CommandError(ugettext('`days_to_save` must be positive'))",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/edwcustomers.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/management/commands/test_more_like_this.old.py",
+          "line": 9,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/boundary.py",
+          "line": 12,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/customer.py",
+          "line": 19,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/data_mart.py",
+          "line": 11,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/defaults/customer.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/defaults/data_mart.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/defaults/term.py",
+          "line": 4,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/email_category.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 49,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/fields/tree.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/__init__.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/add_date_terms_validation.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/customer_category.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/fsm.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/log.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/place/__init__.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/place/fias.py",
+          "line": 9,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/nlp/ner.py",
+          "line": 32,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/notification.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/notification.py",
+          "line": 20,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/postal_zone.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/data_mart_image.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_file.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_image.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/term.py",
+          "line": 20,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/filters/data_mart.py",
+          "line": 7,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/filters/entity.py",
+          "line": 21,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/filters/term.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/data_mart.py",
+          "line": 22,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/entity.py",
+          "line": 26,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/filer_fields.py",
+          "line": 8,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/related/data_mart_image.py",
+          "line": 5,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/related/entity_file.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/related/entity_image.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/term.py",
+          "line": 13,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/utils/geo.py",
+          "line": 13,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/auth.py",
+          "line": 9,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/data_mart.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/term.py",
+          "line": 6,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/email_auth/models.py",
+          "line": 19,
+          "code": "from django.utils.translation import ugettext_lazy as _",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "translation.ugettext=False, translation.ugettext_lazy=False",
+      "status": "BROKEN_IMPORT"
+    },
+    {
+      "id": "R3",
+      "api": "force_text / smart_text",
+      "removed_in": "Django 4.0",
+      "category": "удалённый API",
+      "counter": "force_text_smart_text",
+      "occurrences": 71,
+      "lines": 71,
+      "files": 19,
+      "hits": [
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 15,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 17,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 63,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 83,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 85,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 11,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 13,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 47,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 64,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 66,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 15,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 17,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 48,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 72,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 74,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 17,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 19,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 52,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 85,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 87,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 18,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 48,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 72,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 74,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 18,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 50,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 74,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 76,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 18,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 55,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 75,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 77,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/mptt/fields.py",
+          "line": 13,
+          "code": "from django.utils.encoding import smart_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/mptt/fields.py",
+          "line": 15,
+          "code": "from django.utils.encoding import smart_unicode as smart_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/mptt/fields.py",
+          "line": 80,
+          "code": "choices.append((id, mark_safe(self.joiner.join([conditional_escape(smart_text(i)) for i in path]))))",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 10,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 12,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 48,
+          "code": "obj_display = force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 71,
+          "code": "objects_name = force_text(opts.verbose_name)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 73,
+          "code": "objects_name = force_text(opts.verbose_name_plural)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/data_mart.py",
+          "line": 9,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/data_mart.py",
+          "line": 249,
+          "code": "return force_text(self.polymorphic_ctype)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 46,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 1607,
+          "code": "return force_text(self.polymorphic_ctype)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 1765,
+          "code": "name=force_text(Model._meta.verbose_name),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/__init__.py",
+          "line": 5,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/__init__.py",
+          "line": 43,
+          "code": "name=force_text(cls._meta.verbose_name),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/customer_category.py",
+          "line": 5,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/customer_category.py",
+          "line": 45,
+          "code": "name=force_text(_('Customer category')),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/customer_category.py",
+          "line": 58,
+          "code": "name=force_text(_('Unknown customer')),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/fsm.py",
+          "line": 5,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/fsm.py",
+          "line": 98,
+          "code": "name=force_text(cls._meta.get_field('status').verbose_name),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/fsm.py",
+          "line": 112,
+          "code": "name=force_text(state_name),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/fsm.py",
+          "line": 179,
+          "code": "object_repr=force_text(self),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/log.py",
+          "line": 4,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/log.py",
+          "line": 25,
+          "code": "object_repr=force_text(self),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/place/__init__.py",
+          "line": 6,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/place/__init__.py",
+          "line": 51,
+          "code": "name=force_text(_('Region')),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/mixins/entity/place/__init__.py",
+          "line": 64,
+          "code": "name=force_text(_('Terra Incognita')),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/term.py",
+          "line": 18,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/term.py",
+          "line": 45,
+          "code": "return joiner.join([force_text(getattr(i, field)) for i in ancestors])",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 12,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 17,
+          "code": "from django.utils.encoding import smart_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 19,
+          "code": "from django.utils.encoding import smart_unicode as smart_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 37,
+          "code": "ret = x + smart_text(y)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 59,
+          "code": "return force_text(obj)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/auth.py",
+          "line": 8,
+          "code": "from django.utils.encoding import force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/auth.py",
+          "line": 207,
+          "code": "return Response({'validlink': True, 'user_name': force_text(serializer.user)})",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "encoding.force_text=False, encoding.smart_text=False",
+      "status": "BROKEN_IMPORT"
+    },
+    {
+      "id": "R4",
+      "api": "force_unicode / smart_unicode (алиасы в try/except)",
+      "removed_in": "Django 2.0",
+      "category": "удалённый API",
+      "counter": "force_unicode_smart_unicode_aliases",
+      "occurrences": 10,
+      "lines": 10,
+      "files": 10,
+      "hits": [
+        {
+          "file": "backend/edw/admin/base_actions/__init__.py",
+          "line": 15,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/base_actions/update_terms.py",
+          "line": 11,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_additional_characteristics_or_marks.py",
+          "line": 15,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_images.py",
+          "line": 17,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_related_data_marts.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_relations.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/entity/actions/update_states.py",
+          "line": 16,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/mptt/fields.py",
+          "line": 15,
+          "code": "from django.utils.encoding import smart_unicode as smart_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/admin/term/actions/update_terms_parent.py",
+          "line": 10,
+          "code": "from django.utils.encoding import force_unicode as force_text",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/templatetags/edw_tags/frontend.py",
+          "line": 19,
+          "code": "from django.utils.encoding import smart_unicode as smart_text",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "encoding.force_unicode=False",
+      "status": "BROKEN_FALLBACK",
+      "note": "except ImportError ведёт на force_text, которого в 5.2 нет"
+    },
+    {
+      "id": "R5",
+      "api": "python_2_unicode_compatible (from six)",
+      "removed_in": "Django 3.0 (в six остался)",
+      "category": "legacy-декоратор",
+      "counter": "python_2_unicode_compatible",
+      "occurrences": 26,
+      "lines": 26,
+      "files": 11,
+      "hits": [
+        {
+          "file": "backend/edw/models/boundary.py",
+          "line": 6,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/boundary.py",
+          "line": 112,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/customer.py",
+          "line": 4,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/customer.py",
+          "line": 197,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/data_mart.py",
+          "line": 23,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/data_mart.py",
+          "line": 117,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/email_category.py",
+          "line": 5,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/email_category.py",
+          "line": 49,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 8,
+          "code": "from six import python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/entity.py",
+          "line": 1505,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/postal_zone.py",
+          "line": 5,
+          "code": "from six import with_metaclass,  python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/postal_zone.py",
+          "line": 49,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 6,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 14,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 56,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 92,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 124,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/__init__.py",
+          "line": 180,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/data_mart_image.py",
+          "line": 5,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/data_mart_image.py",
+          "line": 18,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_file.py",
+          "line": 5,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_file.py",
+          "line": 18,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_image.py",
+          "line": 5,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/related/entity_image.py",
+          "line": 18,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/term.py",
+          "line": 26,
+          "code": "from six import with_metaclass, python_2_unicode_compatible",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/models/term.py",
+          "line": 226,
+          "code": "@python_2_unicode_compatible",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "six.python_2_unicode_compatible=True",
+      "status": "AVAILABLE_BUT_LEGACY",
+      "note": "импорт из six работает, но декоратор — no-op на py3"
+    },
+    {
+      "id": "R6",
+      "api": "django.conf.urls.url()",
+      "removed_in": "Django 4.0",
+      "category": "удалённый API",
+      "counter": "django_conf_urls_url",
+      "occurrences": 18,
+      "lines": 18,
+      "files": 4,
+      "hits": [
+        {
+          "file": "backend/edw/admin/term/__init__.py",
+          "line": 81,
+          "code": "url(r'^select_json/$', wrap(self.term_select_json_view), name=\"edw_term_select_json\")",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/__init__.py",
+          "line": 16,
+          "code": "url(r'^rebuild_term_tree/',",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/__init__.py",
+          "line": 20,
+          "code": "url(r'^rebuild_datamart_tree/',",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/__init__.py",
+          "line": 24,
+          "code": "url(r'^api/', include(rest_api)),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/__init__.py",
+          "line": 29,
+          "code": "url(r'^auth/', include(auth)),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 28,
+          "code": "url(r'^password/reset/$', PasswordResetView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 30,
+          "code": "url(r'^login/$', LoginView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 32,
+          "code": "url(r'^register/$', AuthFormsView.as_view(form_class=RegisterUserForm),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 34,
+          "code": "url(r'^activate/(?P<activation_key>[-:\\w]+)/$', ActivationView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 38,
+          "code": "url(r'^logout/$', LogoutView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 40,
+          "code": "url(r'^get-token/$', GetTokenView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/auth.py",
+          "line": 42,
+          "code": "url(r'^password/change/$', PasswordChangeView.as_view(),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 87,
+          "code": "url(r'^', include(router.urls)),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 88,
+          "code": "url(r'^', include(format_suffix_patterns(data_mart_nested_router.urls))),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 89,
+          "code": "url(r'^', include(format_suffix_patterns(term_nested_router.urls))),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 90,
+          "code": "url(r'^', include(format_suffix_patterns(entity_nested_router.urls))),",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 91,
+          "code": "url(r'^', include(format_suffix_patterns(data_mart_entity_nested_router.urls)))",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/urls/rest_api.py",
+          "line": 95,
+          "code": "url(r'^', include(edw_patterns)),",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "conf.urls.url=False",
+      "status": "BROKEN_IMPORT",
+      "note": "импорт из django.conf.urls; файлов-импортёров 4; всего строк url( с комментариями 19; sandbox отдельно — 18 активных вызовов"
+    },
+    {
+      "id": "R7",
+      "api": "NullBooleanField",
+      "removed_in": "Django 4.0 / DRF 3.14-deprecated",
+      "category": "удалённый API",
+      "counter": "NullBooleanField",
+      "occurrences": 2,
+      "lines": 2,
+      "files": 2,
+      "hits": [
+        {
+          "file": "backend/edw/rest/filters/entity.py",
+          "line": 213,
+          "code": "return serializers.NullBooleanField().to_internal_value(value)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/rest/serializers/term.py",
+          "line": 361,
+          "code": "return serializers.NullBooleanField().to_internal_value(value)",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "DRF serializers.NullBooleanField=False; django models.NullBooleanField=True",
+      "status": "BROKEN_RUNTIME",
+      "note": "оба вхождения — rest_framework.serializers.NullBooleanField (удалён в DRF 3.18.3); django.db.models.NullBooleanField в 5.2 остался только для исторических миграций (checks fields.E903)"
+    },
+    {
+      "id": "R8",
+      "api": "django.conf.urls.patterns() (sandbox)",
+      "removed_in": "Django 1.10",
+      "category": "удалённый API (sandbox)",
+      "counter": "sandbox_patterns",
+      "occurrences": 4,
+      "lines": 4,
+      "files": 2,
+      "hits": [
+        {
+          "file": "backend/sandbox/sample/urls.py",
+          "line": 21,
+          "code": "urlpatterns = patterns('',",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/sample/urls.py",
+          "line": 35,
+          "code": "urlpatterns = patterns('',",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/todos/urls.py",
+          "line": 36,
+          "code": "urlpatterns = patterns('',",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/todos/urls.py",
+          "line": 53,
+          "code": "urlpatterns = patterns('',",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "conf.urls.patterns=False",
+      "status": "BROKEN_IMPORT",
+      "note": "только в backend/sandbox"
+    },
+    {
+      "id": "R9",
+      "api": "django.core.urlresolvers",
+      "removed_in": "Django 2.0",
+      "category": "guarded legacy",
+      "counter": "django_core_urlresolvers_guarded",
+      "occurrences": 3,
+      "lines": 3,
+      "files": 3,
+      "hits": [
+        {
+          "file": "backend/edw/forms/auth.py",
+          "line": 10,
+          "code": "from django.core.urlresolvers import reverse",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/data_mart.py",
+          "line": 8,
+          "code": "from django.core.urlresolvers import reverse",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/views/term.py",
+          "line": 8,
+          "code": "from django.core.urlresolvers import reverse",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "модуль отсутствует (spec=False)",
+      "status": "SAFE_GUARDED",
+      "note": "try: django.core.urlresolvers except ImportError: django.urls — рабочий fallback"
+    },
+    {
+      "id": "R10",
+      "api": "BaseUserManager.make_random_password()",
+      "removed_in": "Django 5.1",
+      "category": "удалённый API",
+      "counter": "make_random_password",
+      "occurrences": 2,
+      "lines": 2,
+      "files": 1,
+      "hits": [
+        {
+          "file": "backend/edw/forms/auth.py",
+          "line": 60,
+          "code": "password = get_user_model().objects.make_random_password(pwd_length)",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/edw/forms/auth.py",
+          "line": 221,
+          "code": "#            password = get_user_model().objects.make_random_password(length=30)",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "BaseUserManager.make_random_password=False",
+      "status": "BROKEN_RUNTIME",
+      "note": "forms/auth.py:60 — активный вызов в RegisterUserForm; forms/auth.py:221 — закомментирован"
+    },
+    {
+      "id": "R11",
+      "api": "django.utils.timezone.utc",
+      "removed_in": "Django 5.0",
+      "category": "удалённый API",
+      "counter": "timezone_utc",
+      "occurrences": 1,
+      "lines": 1,
+      "files": 1,
+      "hits": [
+        {
+          "file": "backend/edw/utils/dateutils.py",
+          "line": 58,
+          "code": "return dt.replace(tzinfo=timezone.utc).astimezone(local_tz)",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "timezone.utc=False",
+      "status": "BROKEN_RUNTIME",
+      "note": "utils/dateutils.py:58 — dt.replace(tzinfo=timezone.utc); заменяется на datetime.timezone.utc"
+    },
+    {
+      "id": "R12",
+      "api": "settings USE_L10N / STATICFILES_STORAGE (sandbox)",
+      "removed_in": "Django 5.0 / 5.1",
+      "category": "удалённые настройки (sandbox)",
+      "counter": "sandbox_settings_removed",
+      "occurrences": 4,
+      "lines": 4,
+      "files": 2,
+      "hits": [
+        {
+          "file": "backend/sandbox/sample/settings.py",
+          "line": 72,
+          "code": "USE_L10N = True",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/sample/settings.py",
+          "line": 216,
+          "code": "STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/todos/settings.py",
+          "line": 75,
+          "code": "USE_L10N = True",
+          "occurrences": 1
+        },
+        {
+          "file": "backend/sandbox/todos/settings.py",
+          "line": 219,
+          "code": "STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'",
+          "occurrences": 1
+        }
+      ],
+      "runtime_check": "USE_L10N=False, STATICFILES_STORAGE=False, STORAGES=True",
+      "status": "BROKEN_SETTING",
+      "note": "только sandbox/sample/settings.py и sandbox/todos/settings.py"
+    }
+  ],
+  "stage0_bind": {
+    "confirmed_count": 5,
+    "items": [
+      {
+        "id": "S0.1",
+        "item": "3-аргументный get_extra_restriction в CustomJoin",
+        "confirmed": true,
+        "evidence": [
+          {
+            "file": "backend/edw/models/sql/datastructures.py",
+            "line": 45,
+            "code": "self.join_field.get_extra_restriction(compiler.query.where_class, self.table_alias, self.parent_alias)"
+          },
+          {
+            "file": "backend/edw/models/mixins/query.py",
+            "line": 88,
+            "code": "def extra_join_cond(where_class, alias, related_alias):"
+          }
+        ],
+        "runtime_check": "ForeignObject.get_extra_restriction(self, alias, related_alias) — 3 переданных аргумента дают TypeError",
+        "verdict": "BROKEN",
+        "why_blocker": "Django 4.0 убрал параметр where_class из get_extra_restriction"
+      },
+      {
+        "id": "S0.2",
+        "item": "ExtraWhere в mixins/query.py",
+        "confirmed": true,
+        "evidence": [
+          {
+            "file": "backend/edw/models/mixins/query.py",
+            "line": 7,
+            "code": "from django.db.models.sql.where import ExtraWhere"
+          },
+          {
+            "file": "backend/edw/models/mixins/query.py",
+            "line": 93,
+            "code": "children = [ExtraWhere([where], ())]"
+          }
+        ],
+        "runtime_check": "django.db.models.sql.where.ExtraWhere: True (внутренний API, не документирован)",
+        "verdict": "RISK",
+        "why_blocker": "внутренний класс SQL-слоя; контракт where_class/children не гарантирован между версиями"
+      },
+      {
+        "id": "S0.3",
+        "item": "monkey-patch SQLCompiler.get_group_by",
+        "confirmed": true,
+        "evidence": [
+          {
+            "file": "backend/edw/patches/sql/compiler.py",
+            "line": 35,
+            "code": "SQLCompiler.get_group_by = custom_get_group_by"
+          },
+          {
+            "file": "backend/edw/patches/sql/compiler.py",
+            "line": 8,
+            "code": "def custom_get_group_by(self, select, order_by):"
+          }
+        ],
+        "runtime_check": "get_group_by(self, select, order_by), collapse_group_by(self, expressions, having) — сигнатуры совпадают, но патч подменяет приватный метод",
+        "verdict": "RISK",
+        "why_blocker": "полная копия тела get_group_by от старой Django; расходится с 5.2 по деталям (resolve_ref, compile, having) и не покрыта тестами"
+      },
+      {
+        "id": "S0.4",
+        "item": "кортеж в entity.py около стр. 739",
+        "confirmed": true,
+        "evidence": [
+          {
+            "file": "backend/edw/models/entity.py",
+            "line": 739,
+            "code": "subj_key=self._get_subj_cache_key(subj),"
+          }
+        ],
+        "runtime_check": "запятая в конце выражения делает subj_key кортежем; ключ кэша форматируется как ('...',)",
+        "verdict": "BUG_CONFIRMED",
+        "why_blocker": "строка кэш-ключа отличается от ветки dict, кэш не переиспользуется между вызовами subj_and_rel(subj=[...]) и subj_and_rel(subj={...})"
+      },
+      {
+        "id": "S0.5",
+        "item": "инверсия направления в subj_and_rel (entity.py, ~785-798)",
+        "confirmed": true,
+        "evidence": [
+          {
+            "file": "backend/edw/models/entity.py",
+            "line": 786,
+            "code": "else: backward_relation = ...values('to_entity')... # для прямых связей"
+          },
+          {
+            "file": "backend/edw/models/entity.py",
+            "line": 796,
+            "code": "else: forward_relation = ...values('from_entity')... # для обратных связей"
+          }
+        ],
+        "runtime_check": "при пустом списке субъектов прямые связи фильтруются как обратные и наоборот",
+        "verdict": "BUG_CONFIRMED",
+        "why_blocker": "пустой список субъектов (subj={rel_id: []}) меняет направление связи — семантика фильтра неверна, тестов нет"
+      }
+    ],
+    "summary": {
+      "broken_now": [
+        "S0.1"
+      ],
+      "bug_confirmed": [
+        "S0.4",
+        "S0.5"
+      ],
+      "risk": [
+        "S0.2",
+        "S0.3"
+      ]
+    }
+  },
+  "frontend_legacy": {
+    "entry": "frontend/src/index.js (webpack entry './src/index')",
+    "webpack_resolve_extensions": [
+      ".js"
+    ],
+    "native_island": {
+      "native_js_files": [
+        "frontend/src/actions/EntityActions.native.js",
+        "frontend/src/constants/Entity.native.js",
+        "frontend/src/constants/Platform.native.js",
+        "frontend/src/utils/dateformat.native.js",
+        "frontend/src/utils/getDeclinedName.native.js",
+        "frontend/src/utils/token.native.js",
+        "frontend/src/utils/uniFetch.native.js"
+      ],
+      "native_components_files": [
+        "frontend/src/native_components/BaseEntities.js",
+        "frontend/src/native_components/BaseEntities/List.js",
+        "frontend/src/native_components/BaseEntities/Tile.js",
+        "frontend/src/native_components/BaseEntities/base.js",
+        "frontend/src/native_components/BaseRoot.js",
+        "frontend/src/native_components/BaseRoot/DataMart.js",
+        "frontend/src/native_components/BaseRoot/Related.js",
+        "frontend/src/native_components/Dropdown.js",
+        "frontend/src/native_components/Entities.js",
+        "frontend/src/native_components/FilterBtn.js",
+        "frontend/src/native_components/Ordering.js",
+        "frontend/src/native_components/Root.js",
+        "frontend/src/native_components/TermsTree.js",
+        "frontend/src/native_components/TermsTreeItem.js",
+        "frontend/src/native_components/ViewComponentsBtn.js"
+      ],
+      "native_styles_files": [
+        "frontend/src/native_styles/baseEntities.js",
+        "frontend/src/native_styles/dataMarts.js",
+        "frontend/src/native_styles/dropdowns.js",
+        "frontend/src/native_styles/entities.js",
+        "frontend/src/native_styles/filters.js",
+        "frontend/src/native_styles/terms.js"
+      ],
+      "react_native_importers": [
+        "frontend/src/actions/EntityActions.native.js",
+        "frontend/src/constants/Platform.native.js",
+        "frontend/src/native_components/BaseEntities.js",
+        "frontend/src/native_components/BaseEntities/base.js",
+        "frontend/src/native_components/BaseRoot/DataMart.js",
+        "frontend/src/native_components/FilterBtn.js",
+        "frontend/src/native_components/TermsTree.js",
+        "frontend/src/native_components/TermsTreeItem.js",
+        "frontend/src/native_components/ViewComponentsBtn.js",
+        "frontend/src/native_styles/baseEntities.js",
+        "frontend/src/native_styles/dataMarts.js",
+        "frontend/src/native_styles/dropdowns.js",
+        "frontend/src/native_styles/entities.js",
+        "frontend/src/native_styles/filters.js",
+        "frontend/src/utils/uniFetch.native.js"
+      ],
+      "ui_kitten_importers": [
+        "frontend/src/native_components/BaseEntities/base.js",
+        "frontend/src/native_components/BaseRoot/DataMart.js",
+        "frontend/src/native_components/Dropdown.js",
+        "frontend/src/native_components/FilterBtn.js",
+        "frontend/src/native_components/TermsTreeItem.js",
+        "frontend/src/native_components/ViewComponentsBtn.js",
+        "frontend/src/native_styles/terms.js"
+      ],
+      "native_base_importers": [
+        "frontend/src/native_components/BaseEntities.js",
+        "frontend/src/native_components/BaseEntities/base.js",
+        "frontend/src/native_components/BaseRoot/DataMart.js",
+        "frontend/src/native_components/Dropdown.js",
+        "frontend/src/native_components/FilterBtn.js",
+        "frontend/src/native_components/TermsTreeItem.js",
+        "frontend/src/native_components/ViewComponentsBtn.js"
+      ],
+      "reachable_from_web_entry": false,
+      "evidence": [
+        "webpack.config.js:37 extensions: ['.js'] — '.native.js' не резолвится без явного суффикса",
+        "ни один import не заканчивается на '.native': импорты вида '../constants/Platform', '../utils/uniFetch', '../utils/token' целятся в несуществующие *.js",
+        "единственные упоминания native_components/native_styles — внутри самого острова",
+        "react-native / @ui-kitten / native-base импортируются только в острове"
+      ]
+    },
+    "findDOMNode": {
+      "occurrences": 8,
+      "files": 6,
+      "hits": [
+        {
+          "file": "frontend/src/components/BaseEntities/AbstractMap.js",
+          "line": 36,
+          "code": "div: ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/ListItemMixin.js",
+          "line": 56,
+          "code": "const area = ReactDOM.findDOMNode(context),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/ListItemMixin.js",
+          "line": 80,
+          "code": "const area = ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TableItemMixin.js",
+          "line": 43,
+          "code": "const area = ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TileItemMixin.js",
+          "line": 53,
+          "code": "const area = ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TileItemMixin.js",
+          "line": 62,
+          "code": "const area = ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities.js",
+          "line": 111,
+          "code": "area = ReactDOM.findDOMNode(this);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Dropdown.js",
+          "line": 51,
+          "code": "const area = ReactDOM.findDOMNode(this),",
+          "occurrences": 1
+        }
+      ],
+      "note": "React 19 удаляет findDOMNode из react-dom; в react 16.1 это рабочий, но legacy API"
+    },
+    "js_bind_operator": {
+      "occurrences": 21,
+      "files": 10,
+      "hits": [
+        {
+          "file": "frontend/src/components/BaseEntities/ListItemMixin.js",
+          "line": 174,
+          "code": "onClickCapture={e => { ::this.handleMouseClick(e); } }>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TableItemMixin.js",
+          "line": 126,
+          "code": "::this.handleMouseOver(e)",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TableItemMixin.js",
+          "line": 129,
+          "code": "::this.handleMouseOut(e)",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/Tile.js",
+          "line": 66,
+          "code": "onMouseOver={e => { ::this.handleMouseOver(e); } }",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/Tile.js",
+          "line": 67,
+          "code": "onMouseOut={e => { ::this.handleMouseOut(e); } }>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TileItemMixin.js",
+          "line": 156,
+          "code": "onClickCapture={e => { ::this.handleMouseClick(e); } }>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BaseEntities/TileItemMixin.js",
+          "line": 164,
+          "code": "onClickCapture={e => { ::this.handleMouseClick(e); } }>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/BtnGroup.js",
+          "line": 61,
+          "code": "is_selected ? null : ::this.handleOptionClick(e, k);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Dropdown.js",
+          "line": 92,
+          "code": "::this.handleSelectedClick(e);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Dropdown.js",
+          "line": 99,
+          "code": "::this.handleOptionClick(e, k);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/GroupTitle.js",
+          "line": 32,
+          "code": "<i onClick={e => {::this.handleMouseClick()}} className=\"ex-icon-reset\"/>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Paginator.js",
+          "line": 170,
+          "code": "::this.handlePrevClick(e);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Paginator.js",
+          "line": 190,
+          "code": "::self.handlePageClick(e, n);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Paginator.js",
+          "line": 209,
+          "code": "::self.handlePageClick(e, n);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Paginator.js",
+          "line": 224,
+          "code": "::self.handlePageClick(e, n);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/Paginator.js",
+          "line": 236,
+          "code": "::this.handleNextClick(e);",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/TermsTreeItem.js",
+          "line": 76,
+          "code": "<span className=\"ex-label\" onClick={e => { ::this.handleItemClick(e); } } >",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/TermsTreeItem.js",
+          "line": 89,
+          "code": "<span className=\"ex-label\" onClick={e => { ::this.handleResetTermClick(e); } } >",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/TermsTreeItem.js",
+          "line": 100,
+          "code": "<i onClick={e => { ::this.handleResetBranchClick(e); } }",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/TermsTreeItemInfo.js",
+          "line": 38,
+          "code": "onClick={e => { ::this.handleIconClick(e);}}/>",
+          "occurrences": 1
+        },
+        {
+          "file": "frontend/src/components/TermsTreeItemInfo.js",
+          "line": 43,
+          "code": "onClick={e => { ::this.handleCloseClick(e); }}>×</button>",
+          "occurrences": 1
+        }
+      ],
+      "note": "оператор :: (function-bind) — только Babel-плагин proposal-function-bind; в современном JSX/ES2022 не парсится без плагина"
+    },
+    "declared_frontend_deps": {
+      "dependencies": 27,
+      "devDependencies": 23,
+      "dependencies_map": {
+        "classnames": "^2.1.2",
+        "marked": "^0.3.5",
+        "react": "^16.1.0",
+        "react-dom": "^16.1.0",
+        "react-google-maps": "^6.0.1",
+        "react-yandex-maps": "^3.0.2",
+        "react-cookies": "0.1.0",
+        "react-scroll": "1.7.9",
+        "react-select": "^3.1.0",
+        "react-redux": "^5.0.1",
+        "redux": "^3.6.0",
+        "redux-logger": "^3.0.6",
+        "redux-thunk": "^2.3.0",
+        "whatwg-fetch": "^2.0.1",
+        "redux-devtools": "^3.4.0",
+        "isomorphic-fetch": "^2.2.1",
+        "es6-promise": "^4.2.8",
+        "color": "^3.1.2",
+        "color-convert": "^2.0.1",
+        "color-string": "^1.5.3",
+        "@ckeditor/ckeditor5-react": "^2.1.0",
+        "@ckeditor/ckeditor5-build-classic": "^19.0.0",
+        "@ckeditor/ckeditor5-build-decoupled-document": "^24.0.0",
+        "react-native": "0.64.0-rc.2",
+        "@ui-kitten/components": "^5.0.0",
+        "native-base": "^2.13.14",
+        "react-native-loading-spinner-overlay": "^2.0.0"
+      },
+      "devDependencies_map": {
+        "@babel/cli": "^7.8.4",
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
+        "@babel/plugin-proposal-function-bind": "^7.8.3",
+        "@babel/preset-env": "^7.9.6",
+        "@babel/preset-react": "^7.9.4",
+        "babel-loader": "^8.1.0",
+        "node-libs-browser": "^0.5.2",
+        "raw-loader": "^4.0.1",
+        "react-hot-loader": "^4.12.21",
+        "redux-devtools": "^3.0.1",
+        "redux-devtools-dock-monitor": "^1.0.1",
+        "redux-devtools-log-monitor": "^1.0.2",
+        "style-loader": "^1.2.1",
+        "less-loader": "^6.1.0",
+        "less": "^3.11.1",
+        "todomvc-app-css": "^2.0.1",
+        "webpack": "^4.43.0",
+        "webpack-bundle-tracker": "^0.4.2-beta",
+        "webpack-dev-server": "^3.11.0",
+        "webpack-cli": "^3.3.11",
+        "terser-webpack-plugin": "^3.0.1",
+        "clean-webpack-plugin": "^3.0.0"
+      }
+    },
+    "undeclared_frontend_imports": [
+      {
+        "package": "react-native-vector-icons",
+        "imports": 5,
+        "files": 5,
+        "declared_dependency": false,
+        "declared_devDependency": false,
+        "declared_range": null,
+        "available_offline": false,
+        "used_in_native_island_only": true,
+        "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+      },
+      {
+        "package": "string.prototype.matchall",
+        "imports": 1,
+        "files": 1,
+        "declared_dependency": false,
+        "declared_devDependency": false,
+        "declared_range": null,
+        "available_offline": false,
+        "used_in_native_island_only": true,
+        "example_file": "frontend/src/actions/EntityActions.native.js"
+      },
+      {
+        "package": "react-native-safe-area-context",
+        "imports": 1,
+        "files": 1,
+        "declared_dependency": false,
+        "declared_devDependency": false,
+        "declared_range": null,
+        "available_offline": false,
+        "used_in_native_island_only": true,
+        "example_file": "frontend/src/native_components/BaseRoot/DataMart.js"
+      },
+      {
+        "package": "@react-native-async-storage/async-storage",
+        "imports": 1,
+        "files": 1,
+        "declared_dependency": false,
+        "declared_devDependency": false,
+        "declared_range": null,
+        "available_offline": false,
+        "used_in_native_island_only": true,
+        "example_file": "frontend/src/utils/token.native.js"
+      },
+      {
+        "package": "@sentry/react-native",
+        "imports": 1,
+        "files": 1,
+        "declared_dependency": false,
+        "declared_devDependency": false,
+        "declared_range": null,
+        "available_offline": false,
+        "used_in_native_island_only": true,
+        "example_file": "frontend/src/utils/uniFetch.native.js"
+      }
+    ],
+    "unavailable_offline": [
+      "react-native",
+      "@ui-kitten/components",
+      "react-native-vector-icons",
+      "color",
+      "react-native-loading-spinner-overlay",
+      "string.prototype.matchall",
+      "react-google-maps",
+      "react-yandex-maps",
+      "es6-promise",
+      "isomorphic-fetch",
+      "native-base",
+      "react-native-safe-area-context",
+      "@react-native-async-storage/async-storage",
+      "@sentry/react-native"
+    ]
+  },
+  "legacy_candidates": [
+    {
+      "id": "L1",
+      "title": "backend/sandbox — тестовый каркас пакета",
+      "paths": [
+        "backend/sandbox/"
+      ],
+      "files": 52,
+      "loc": 2289,
+      "evidence": [
+        "backend/sandbox/__init__.py делает каталог пакетом, find_packages() включает его в дистрибутив",
+        "sandbox/sample/urls.py и sandbox/todos/urls.py: from django.conf.urls import url, patterns (patterns удалён в Django 1.10)",
+        "sandbox/requirements.txt: mysql_python + git+https://github.com/divio/django-filer.git (сеть, запрещена)",
+        "sandbox/bower.json: jquery ~2.1.4, picturefill ~3.0.1, select2 ~4.0.0",
+        ".ignore: 'Песочница пакета: тестовый каркас (52 файла, bower.json, manage.py, package.json)'"
+      ],
+      "proposed_action": "исключить из find_packages/sdist (exclude=['sandbox*']) либо вынести в отдельный репозиторий",
+      "risk_if_kept": "52 файла нерабочего кода в дистрибутиве; patterns/url ломают установку под 5.2",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L2",
+      "title": "frontend native-остров (React Native / UI Kitten)",
+      "paths": [
+        "frontend/src/native_components/",
+        "frontend/src/native_styles/",
+        "frontend/src/**/*.native.js"
+      ],
+      "files": 28,
+      "loc": 2362,
+      "evidence": [
+        "webpack.config.js:37 extensions: ['.js'] — '.native.js' не резолвится без явного суффикса",
+        "ни один import не заканчивается на '.native': импорты вида '../constants/Platform', '../utils/uniFetch', '../utils/token' целятся в несуществующие *.js",
+        "единственные упоминания native_components/native_styles — внутри самого острова",
+        "react-native / @ui-kitten / native-base импортируются только в острове"
+      ],
+      "proposed_action": "удалить остров и 5 native-зависимостей из package.json (react-native, native-base, @ui-kitten/components, react-native-loading-spinner-overlay, react-native-vector-icons)",
+      "risk_if_kept": "второй UI-стек в зависимостях, не собирается webpack'ом; 28 файлов/2362 строки мёртвого кода",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L3",
+      "title": "NL-миксин natasha/yargy",
+      "paths": [
+        "backend/edw/models/mixins/nlp/"
+      ],
+      "files": 2,
+      "loc": 333,
+      "evidence": [
+        "edw/models/mixins/nlp/ner.py:35 импортирует только edw.models.mixins.nlp (сам себя)",
+        "внешних импортёров mixins.nlp нет (grep по backend/edw)",
+        "natasha/yargy не объявлены ни в setup.py, ни в common.txt",
+        "ner.py дополнительно тянет celery.utils.log"
+      ],
+      "proposed_action": "удалить подпакет или вынести NLP-адаптер за пределы ядра",
+      "risk_if_kept": "мёртвый код + undeclared-зависимости, которые не установятся офлайн",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L4",
+      "title": "haystack/elasticsearch адаптер поиска",
+      "paths": [
+        "backend/edw/search/"
+      ],
+      "files": 8,
+      "loc": 840,
+      "evidence": [
+        "edw/urls/rest_api.py:13-16,27-31 — импорт edw.search.views и регистрация роутера в try/except ImportError",
+        "search/engines.py: копия Elasticsearch5SearchBackend + haystack_* анализаторы",
+        "django-haystack==2.5.0, drf-haystack==1.6.1, pyelasticsearch, elasticsearch==1.9.0 — только в backend/requirements/django19/common.txt, в setup.py отсутствуют",
+        "elasticsearch==1.9.0 продублирован в common.txt"
+      ],
+      "proposed_action": "оставить опциональным расширением, но зафиксировать extra_requires и убрать копию ES-бэкенда",
+      "risk_if_kept": "необъявленная опциональная зависимость; старый ES-клиент несовместим с текущим haystack",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L5",
+      "title": "geoposition/geopy place-адаптер",
+      "paths": [
+        "backend/edw/models/mixins/entity/place/"
+      ],
+      "files": 2,
+      "loc": 479,
+      "evidence": [
+        "place/__init__.py импортирует geoposition.str_to_geoposition и geopy.exc.GeopyError на уровне модуля",
+        "подключается через signals/handlers/boundary.py и postal_zone.py внутри try/except",
+        "django-geoposition отсутствует и в setup.py, и в common.txt (geopy — только в common.txt)",
+        "rest/filters/common/geoposition.py — фильтр по геопозиции"
+      ],
+      "proposed_action": "объявить django-geoposition в extra_requires либо изолировать адаптер",
+      "risk_if_kept": "недостающая зависимость: при её отсутствии boundary/postal_zone тихо отключаются",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L6",
+      "title": "setup.py _post_install и layout пакета",
+      "paths": [
+        "setup.py"
+      ],
+      "files": 1,
+      "loc": 83,
+      "evidence": [
+        "setup.py:20 def _post_install",
+        "setup.py:34 st_install.run(self)",
+        "find_packages(exclude=['docs','requirements']) находит backend.*, а package_dir задаёт edw/email_auth/social_extra",
+        "_post_install копирует backend/<pkg> в корень install_lib и удаляет backend"
+      ],
+      "proposed_action": "перейти на src-layout + pyproject.toml, убрать install_lib-хак и cmdclass",
+      "risk_if_kept": "ломается при PEP 517/editable-install и в новых setuptools; version='0.2.0' при Django 1.9-контракте",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L7",
+      "title": "невалидная management-команда test_more_like_this.old.py",
+      "paths": [
+        "backend/edw/management/commands/test_more_like_this.old.py"
+      ],
+      "files": 1,
+      "loc": 168,
+      "evidence": [
+        "имя файла содержит точку: Django не импортирует модуль 'test_more_like_this.old' как команду",
+        "модуль импортирует haystack.utils.get_model_ct и ugettext_lazy"
+      ],
+      "proposed_action": "удалить файл",
+      "risk_if_kept": "мёртвый файл в дистрибутиве, тянет haystack/ugettext",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L8",
+      "title": "собранная документация docs/_build",
+      "paths": [
+        "docs/_build/"
+      ],
+      "files": 39,
+      "loc": 20496,
+      "evidence": [
+        "39 файлов сгенерированного HTML/doctree в VCS",
+        "исходники — docs/index.rst и docs/conf.py"
+      ],
+      "proposed_action": "убрать из VCS, собирать в CI",
+      "risk_if_kept": "шум в diffs и ревью, устаревшая копия документации",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L9",
+      "title": "собранная статика backend/edw/static",
+      "paths": [
+        "backend/edw/static/"
+      ],
+      "files": 38,
+      "loc": 10746,
+      "evidence": [
+        ".ignore: 'Собранная статика пакета'",
+        "38 файлов в VCS, из них 23 js/css (jquery.compat.js, tree.jquery.js, *.min.css), остальное — картинки/шрифты"
+      ],
+      "proposed_action": "оставить как package_data или собирать при сборке",
+      "risk_if_kept": "бинарь в VCS, расхождения с исходниками less/js",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    },
+    {
+      "id": "L10",
+      "title": "requirements/django19 — пины давно не поддерживаемого стека",
+      "paths": [
+        "backend/requirements/"
+      ],
+      "files": 2,
+      "loc": 64,
+      "evidence": [
+        "Django==1.9.8, djangorestframework==3.3.3, django-polymorphic==1.1, django-mptt==0.7.4, Pillow==2.9.0",
+        "elasticsearch==1.9.0 встречается дважды",
+        "mysql_python и git+https в sandbox/requirements.txt (сеть)",
+        "pip install/npm install в миссии запрещены — пины нельзя переустановить офлайн"
+      ],
+      "proposed_action": "пометить как архив, вести требования для 5.2 (requirements/django52)",
+      "risk_if_kept": "вводит в заблуждение при развёртывании",
+      "approval_gate": "G0.1",
+      "status": "pending_approval"
+    }
+  ],
+  "gate_G0_1": {
+    "gate": "G0.1",
+    "decision": "PENDING_APPROVAL",
+    "blocks": [
+      "любые правки исходников продукта до утверждения матрицы"
+    ],
+    "approve_legacy_candidates": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7",
+      "L8",
+      "L9",
+      "L10"
+    ],
+    "approve_removal_scope": {
+      "sandbox": "backend/sandbox/ (52 файла)",
+      "frontend_native_island": "28 файлов, 5 npm-зависимостей",
+      "nlp_mixin": "2 файла, natasha/yargy",
+      "docs_build": "39 файлов"
+    },
+    "must_not_change_before_gate": [
+      "backend/",
+      "frontend/",
+      "setup.py",
+      "package.json",
+      "webpack.config.js"
+    ],
+    "allowed_change": [
+      "добавление edw-inventory.json"
+    ]
+  },
+  "git_state": {
+    "base_sha": "25590306df82f9605ac689c36ba55d0ab98dfb65",
+    "branch": "mission/edw-modernize",
+    "remote": "no-push://mission/edw-modernize",
+    "tracked_files": 568,
+    "status_before_write": [
+      "?? edw-inventory.json"
+    ],
+    "commits_made_by_card": 0,
+    "notes": "артефакт добавлен в рабочее дерево и не закоммичен: коммит не требовался, sha = base_sha",
+    "status_after_write": [
+      "?? edw-inventory.json"
+    ]
+  },
+  "validation": {
+    "json_tool": "PASS",
+    "json_tool_stderr": "",
+    "json_reload": "PASS",
+    "artifact_path": "django-edw/edw-inventory.json",
+    "artifact_bytes": 149753,
+    "counters_match": true,
+    "mission_checks": {
+      "python3_m_json_tool": "PASS",
+      "artifact_present_in_tree": true,
+      "product_code_touched": [],
+      "git_status_clean_except_artifact": true,
+      "base_sha_unchanged": true,
+      "no_network_used": true,
+      "no_pip_npm_install": true,
+      "code_changes_before_G0_1": "none"
+    }
+  }
+}
