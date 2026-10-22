@@ -12,6 +12,7 @@ except ImportError:
 from django.forms import fields, widgets, ModelForm
 from django.template import Context
 from django.template.loader import select_template
+from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from constance import config
 
@@ -56,7 +57,8 @@ class RegisterUserForm(ModelForm):
     def __init__(self, data=None, instance=None, *args, **kwargs):
         if data and data.get('preset_password', False):
             pwd_length = max(self.base_fields['password1'].min_length, 8)
-            password = get_user_model().objects.make_random_password(pwd_length)
+            # E5.fix: менеджер пользователей больше не генерирует пароль (Django 5.1).
+            password = get_random_string(pwd_length)
             data['password1'] = data['password2'] = password
         super(RegisterUserForm, self).__init__(data=data, instance=instance, *args, **kwargs)
         if getattr(config, 'ALLOW_LOCALITY', False):
@@ -215,6 +217,6 @@ class RegisterUserForm(ModelForm):
 #        self.instance.user.is_active = edw_settings.GUEST_IS_ACTIVE_USER
 #        if self.instance.user.is_active:
 #            # set a usable password, otherwise the user later can not reset its password
-#            password = get_user_model().objects.make_random_password(length=30)
+#            password = get_random_string(30)
 #            self.instance.user.set_password(password)
 #        return super(ContinueAsGuestForm, self).save(commit)

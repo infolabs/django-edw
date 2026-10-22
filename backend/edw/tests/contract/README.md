@@ -1,4 +1,4 @@
-# E1/E4: характеризационные тесты контрактов django-edw
+# E1/E4/E5: характеризационные тесты контрактов django-edw
 
 Синтетический offline-контур для фиксации текущего поведения ядра EDW.
 Запуск:
@@ -11,7 +11,9 @@
 sqlite в памяти и locmem-кэш. `pip`/`npm install`, сеть и внешние БД не нужны.
 Кроме контрактов E1/E3 `check.sh` проверяет матрицу зависимостей G0.1, миграции
 (`makemigrations --check --dry-run`, накат на пустую sqlite и `--fake-initial`
-на снимок прежней схемы) и адаптеры django-filer / django-filter / django-fsm-2.
+на снимок прежней схемы), адаптеры django-filer / django-filter / django-fsm-2
+и статический барьер E5.fix: в продуктовом коде нет `timezone.utc` и
+`UserManager.make_random_password` (удалены в Django 5.0/5.1).
 
 ## Состав
 
@@ -36,6 +38,11 @@ sqlite в памяти и locmem-кэш. `pip`/`npm install`, сеть и вне
   `DataMartPermission` deny-by-default и проверка прав через реальный DRF-view.
 * `test_dependency_matrix.py` (E4) — `pyproject.toml` против матрицы G0.1 и
   адаптеры django-filter / django-mptt / django-fsm-2.
+* `test_removed_api_contract.py` (E5.fix) — регрессия по API, удалённым в
+  Django 5.0/5.1: `datetime_to_local` с UTC-конвертацией через `datetime`
+  (не `django.utils.timezone.utc`), генерация пароля `RegisterUserForm` через
+  `django.utils.crypto.get_random_string` (не `UserManager.make_random_password`)
+  и статический барьер по всем продуктовым модулям `edw`.
 * `matrix.py` — единый источник целевых границ зависимостей для теста и
   первого шага `scripts/check.sh`.
 

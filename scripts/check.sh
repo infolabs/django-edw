@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
-# E1/E2/E4: характеризационная проверка контрактов django-edw, упаковки,
-# матрицы зависимостей, миграций и прав API.
+# E1/E2/E4/E5: характеризационная проверка контрактов django-edw, упаковки,
+# матрицы зависимостей, миграций, прав API и отсутствия удалённых в Django
+# 5.0/5.1 вызовов (E5.fix).
 #
 # 1. сверяет pyproject.toml с целевой матрицей G0.1 из edw-inventory.json;
 # 2. собирает wheel из pyproject.toml (PEP 517, --no-isolation, без сети)
@@ -14,7 +15,9 @@
 # 5. проверяет фронтенд: React 18 createRoot, отсутствие оператора :: и поиска
 #    DOM-узла по инстансу, smoke-тесты рендера и сборку production-бандла
 #    через предсобранный node_modules (esbuild, без npm install);
-# 6. прогоняет контрактные тесты E1/E3, права API E4 (edw.rest.permissions,
+# 6. статический барьер: в продуктовом коде нет имён, удалённых в Django 5.0/5.1
+#    (timezone.utc, UserManager.make_random_password), а замены на месте;
+# 7. прогоняет контрактные тесты E1/E3/E5.fix, права API E4 (edw.rest.permissions,
 #    DataMartPermission) и тесты матрицы, импортируя edw из собранного wheel.
 #
 # pip/npm install не вызываются, внешние БД и сеть не используются:
@@ -50,14 +53,14 @@ cd "${REPO_ROOT}"
 echo "== EDW contracts check =="
 "${PYTHON}" -c "import django, rest_framework, pytest; print('python: {}'.format(__import__('sys').version.split()[0])); print('django: {}'.format(django.get_version())); print('drf: {}'.format(rest_framework.VERSION)); print('pytest: {}'.format(pytest.__version__))"
 
-echo "== 1/7 матрица зависимостей G0.1 =="
+echo "== 1/8 матрица зависимостей G0.1 =="
 if ! PYTHONPATH="${BACKEND}" DJANGO_SETTINGS_MODULE="edw_contract_settings" \
         "${PYTHON}" -c 'from edw.tests.contract import matrix; raise SystemExit(matrix.main())'; then
     echo "CHECK FAIL: pyproject.toml расходится с матрицей G0.1" >&2
     exit 1
 fi
 
-echo "== 2/7 сборка wheel (PEP 517) =="
+echo "== 2/8 сборка wheel (PEP 517) =="
 if ! "${PYTHON}" -m build --wheel --no-isolation --outdir "${WORK}/dist" "${REPO_ROOT}" >"${WORK}/build.log" 2>&1; then
     cat "${WORK}/build.log" >&2
     echo "CHECK FAIL: wheel не собрался" >&2
@@ -97,7 +100,7 @@ print('  пакеты: edw, email_auth, social_extra')
 print('  package data: templates={}, static={}, locale={}'.format(templates, static, locale))
 PY
 
-echo "== 3/7 проверка editable =="
+echo "== 3/8 проверка editable =="
 if ! "${PYTHON}" - "${WORK}/editable" "${BACKEND}" >"${WORK}/editable.log" 2>&1 <<'PY'; then
 import os
 import sys
@@ -141,7 +144,7 @@ PY
 fi
 grep '^  editable:' "${WORK}/editable.log" || true
 
-echo "== 4/7 миграции (drift, пустая sqlite, снимок прежней схемы) =="
+echo "== 4/8 миграции (drift, пустая sqlite, снимок прежней схемы) =="
 MIGRATION_DB="${WORK}/migrations"
 mkdir -p "${MIGRATION_DB}"
 
@@ -194,7 +197,7 @@ assert empty == legacy, (
 print('  схема после миграций и после --fake-initial совпадает: {} таблиц'.format(len(empty)))
 PY
 
-echo "== 5/7 адаптеры зависимостей матрицы =="
+echo "== 5/8 адаптеры зависимостей матрицы =="
 "${PYTHON}" -m zipfile -e "${WHEEL}" "${WORK}/site"
 export PYTHONPATH="${WORK}/site:${BACKEND}"
 export EDW_CHECK_SITE="${WORK}/site"
@@ -207,7 +210,7 @@ if ! "${PYTHON}" "${REPO_ROOT}/scripts/check_adapters.py" >"${WORK}/adapters.log
 fi
 cat "${WORK}/adapters.log"
 
-echo "== 6/7 frontend: React 18 createRoot, refs, smoke-тесты и production-бандл =="
+echo "== 6/8 frontend: React 18 createRoot, refs, smoke-тесты и production-бандл =="
 
 FRONTEND_DIR="${REPO_ROOT}/frontend"
 EDW_NODE_MODULES="${EDW_NODE_MODULES:-/home/agent/workspace/venvs/edw-frontend/node_modules}"
@@ -398,7 +401,42 @@ cat "${WORK}/bundle-load.log"
 
 echo "  бандл: backend/edw/static/edw/js/bundle.js, ${BUNDLE_SIZE} байт, sha256 ${BUNDLE_SHA:0:16}, без dev-server client"
 
-echo "== 7/7 контракты E1/E3, права API E4 (edw из собранного wheel) =="
+echo "== 7/8 статический барьер удалённых API Django 5.0/5.1 =="
+
+# E5.fix: E6 нашёл в продукте два вызова API, удалённых в целевом стеке:
+#   * django.utils.timezone.utc — удалён в Django 5.0 (замена: datetime.timezone.utc);
+#   * UserManager.make_random_password() — удалён в Django 5.1
+#     (замена: django.utils.crypto.get_random_string).
+# Шаблон намеренно не ловит допустимые замены datetime.timezone.utc и
+# datetime_timezone.utc: левее `timezone` не должно быть `_`, `.` или буквы.
+# Используется ERE (grep -E), поэтому негативный lookbehind записан как группа.
+REMOVED_API_RE='(^|[^.A-Za-z0-9_])timezone[[:space:]]*\.[[:space:]]*utc|timezone[[:space:]]+import[[:space:]]+utc|make_random_password'
+
+removed_api_scan=()
+for package in edw email_auth social_extra; do
+    if [[ -d "${BACKEND}/${package}" ]]; then
+        removed_api_scan+=("${BACKEND}/${package}")
+    fi
+done
+
+if grep -rInE --include='*.py' --exclude-dir=tests --exclude-dir=__pycache__ \
+        "${REMOVED_API_RE}" "${removed_api_scan[@]}" >"${WORK}/removed-api.log" 2>&1; then
+    cat "${WORK}/removed-api.log" >&2
+    echo "CHECK FAIL: в продуктовом коде остались API, удалённые в Django 5.0/5.1" >&2
+    exit 1
+fi
+# Проверка самих замен: они обязаны быть на месте, а не просто удалены.
+if ! grep -q 'datetime_timezone\.utc' "${BACKEND}/edw/utils/dateutils.py"; then
+    echo "CHECK FAIL: dateutils не переведён на datetime.timezone.utc" >&2
+    exit 1
+fi
+if ! grep -q 'get_random_string' "${BACKEND}/edw/forms/auth.py"; then
+    echo "CHECK FAIL: forms/auth.py не переведён на django.utils.crypto.get_random_string" >&2
+    exit 1
+fi
+echo "  продуктовый код: 0 вызовов timezone.utc и make_random_password, замены на месте"
+
+echo "== 8/8 контракты E1/E3/E5.fix, права API E4 (edw из собранного wheel) =="
 "${PYTHON}" - <<'PY'
 import os
 

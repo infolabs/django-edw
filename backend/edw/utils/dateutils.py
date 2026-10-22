@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timezone as datetime_timezone
 
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
@@ -55,4 +55,5 @@ def datetime_to_local(dt):
     :param dt: datetime
     :return:
     """
-    return dt.replace(tzinfo=timezone.utc).astimezone(local_tz)
+    # E5.fix: utc исчез из django.utils.timezone в Django 5.0 — берём UTC из datetime.
+    return dt.replace(tzinfo=datetime_timezone.utc).astimezone(local_tz)
