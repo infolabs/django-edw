@@ -13,7 +13,7 @@ from typing import (
 from bitfield import BitField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.db import models, IntegrityError, transaction
+from django.db import models, IntegrityError, router, transaction
 from django.db.models import Q, F
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
@@ -418,21 +418,27 @@ class BaseTerm(AndRuleFilterMixin, OrRuleFilterMixin, MPTTModelSignalSenderMixin
         """
         force_update = kwargs.get('force_update', False)
         do_correct_term_unique_error = kwargs.pop('do_correct_term_unique_error', True)
+        # E9/R5: the whole save chain (validation reads, the atomic block and
+        # the writes) uses one alias -- the write alias Django resolved for this
+        # instance.  Opening an implicit ``default`` transaction here made the
+        # InfLabs single-alias guard refuse the save halfway through.
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+        kwargs['using'] = using
         if not force_update:
             model_class = self.__class__
             ancestors = self.ancestors_list
             try:
-                origin = model_class._default_manager.get(pk=self.pk)
+                origin = model_class._default_manager.using(using).get(pk=self.pk)
             except model_class.DoesNotExist:
                 origin = None
             if not origin or origin.view_class != self.view_class:
                 self.view_class = ' '.join([x.lower() for x in self.view_class.split()]) if self.view_class else None
             self._make_path(ancestors + [self, ])
             try:
-                with transaction.atomic():
+                with transaction.atomic(using=using):
                     result = super(BaseTerm, self).save(*args, **kwargs)
             except IntegrityError as e:
-                if model_class._default_manager.exclude(pk=self.pk).filter(path=self.path).exists():
+                if model_class._default_manager.using(using).exclude(pk=self.pk).filter(path=self.path).exists():
                     if do_correct_term_unique_error:
                         self.slug = get_unique_slug(self.slug, self.id)
                         self._make_path(ancestors + [self, ])
@@ -446,7 +452,7 @@ class BaseTerm(AndRuleFilterMixin, OrRuleFilterMixin, MPTTModelSignalSenderMixin
                     update_id_list = list(self.get_family().values_list('id', flat=True))
                 else:
                     update_id_list = list(self.get_descendants(include_self=False).values_list('id', flat=True))
-                model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
+                model_class._default_manager.using(using).filter(id__in=update_id_list).update(active=self.active)
         else:
             result = super(BaseTerm, self).save(*args, **kwargs)
         return result

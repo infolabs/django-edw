@@ -5,7 +5,7 @@ from bitfield import BitField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models, IntegrityError, transaction
+from django.db import models, IntegrityError, router, transaction
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -329,22 +329,27 @@ class BaseDataMart(MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel, meta
 
     def save(self, *args, **kwargs):
         force_update = kwargs.get('force_update', False)
+        # E9/R5: one alias for the validation reads, the atomic block and the
+        # writes; an implicit ``default`` transaction broke the InfLabs
+        # single-alias guard when a write router selected another database.
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+        kwargs['using'] = using
         if not force_update:
             model_class = self.__class__
             ancestors = self.ancestors_list
             # determine whether this instance is already in the db
             try:
-                origin = model_class._default_manager.get(pk=self.id)
+                origin = model_class._default_manager.using(using).get(pk=self.id)
             except model_class.DoesNotExist:
                 origin = None
             if not origin or origin.view_class != self.view_class:
                 self.view_class = ' '.join([x.lower() for x in self.view_class.split()]) if self.view_class else None
             self._make_path(ancestors + [self])
             try:
-                with transaction.atomic():
+                with transaction.atomic(using=using):
                     result = super(BaseDataMart, self).save(*args, **kwargs)
             except IntegrityError as e:
-                if model_class._default_manager.exclude(pk=self.pk).filter(path=self.path).exists():
+                if model_class._default_manager.using(using).exclude(pk=self.pk).filter(path=self.path).exists():
                     self.slug = get_unique_slug(self.slug, self.id)
                     self._make_path(ancestors + [self])
                     result = super(BaseDataMart, self).save(*args, **kwargs)
@@ -355,7 +360,7 @@ class BaseDataMart(MPTTModelSignalSenderMixin, MPTTModel, PolymorphicModel, meta
                     update_id_list = list(self.get_family().values_list('id', flat=True))
                 else:
                     update_id_list = list(self.get_descendants(include_self=False).values_list('id', flat=True))
-                model_class._default_manager.filter(id__in=update_id_list).update(active=self.active)
+                model_class._default_manager.using(using).filter(id__in=update_id_list).update(active=self.active)
             force_validate_terms = kwargs.get('force_validate_terms', False)
             validation_context = {}
             if force_validate_terms or self.need_terms_validation(origin, context=validation_context):

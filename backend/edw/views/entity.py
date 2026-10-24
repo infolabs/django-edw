@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.apps import apps
+from django.utils.translation import gettext_lazy as _
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 
@@ -27,6 +28,8 @@ from edw.rest.serializers.entity import (
 from edw.rest.viewsets import (
     BulkDestroyPolicyMixin,
     CustomSerializerViewSetMixin,
+    SingleWriteAliasGuardMixin,
+    enforce_url_scope,
     remove_empty_params_from_request,
 )
 from edw.views.generics import get_object_or_404
@@ -44,7 +47,8 @@ except ImportError:
         return action(detail=True, **kwargs)
 
 
-class EntityViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkModelViewSet):
+class EntityViewSet(BulkDestroyPolicyMixin, SingleWriteAliasGuardMixin,
+                    CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving entities.
     Additional actions:
@@ -98,10 +102,12 @@ class EntityViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkMo
             else:
                 request.GET['active'] = True
 
+        # E9/R2: the nested data-mart URL segment bounds every action; the
+        # query string may not replace it.
         if self.data_mart_pk is not None:
-            request.GET['data_mart_pk'] = str(self.data_mart_pk)
+            enforce_url_scope(request, 'data_mart_pk', self.data_mart_pk, _('data mart'))
         elif data_mart_pk is not None:
-            request.GET.setdefault('data_mart_pk', data_mart_pk)
+            enforce_url_scope(request, 'data_mart_pk', data_mart_pk, _('data mart'))
 
         super(EntityViewSet, self).initial(request, *args, **kwargs)
         if hasattr(self.extra_serializer_context, '__call__'):

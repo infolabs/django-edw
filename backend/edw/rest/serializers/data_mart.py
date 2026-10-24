@@ -34,7 +34,7 @@ from edw.models.rest import (
     CheckPermissionsSerializerMixin,
     CheckPermissionsBulkListSerializerMixin
 )
-from edw.rest.serializers.bulk import ScopedBulkAdmissionMixin
+from edw.rest.serializers.bulk import ScopedBulkAdmissionMixin, apply_nested_scope
 from edw.rest.serializers.decorators import get_from_context_or_request
 from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
@@ -192,6 +192,16 @@ class DataMartCommonSerializer(CheckPermissionsSerializerMixin,
             else:
                 validated_data['parent_id'] = None
         return validated_data
+
+    def validate(self, attrs):
+        """
+        E9/R2: the nested URL data-mart parent is mandatory for writes.
+
+        The body may not re-point a create/update outside the URL scope; the
+        URL parent is written as ``parent_id``.
+        """
+        attrs = super(DataMartCommonSerializer, self).validate(attrs)
+        return apply_nested_scope(self, attrs, validated=True)
 
     def create(self, validated_data):
         """

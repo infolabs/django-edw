@@ -29,6 +29,8 @@ from edw.models.data_mart import DataMartModel
 from edw.rest.viewsets import (
     BulkDestroyPolicyMixin,
     CustomSerializerViewSetMixin,
+    SingleWriteAliasGuardMixin,
+    enforce_url_scope,
     remove_empty_params_from_request,
 )
 from edw.rest.pagination import DataMartPagination
@@ -46,7 +48,8 @@ except ImportError:
         return action(detail=False, **kwargs)
 
 
-class DataMartViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkModelViewSet):
+class DataMartViewSet(BulkDestroyPolicyMixin, SingleWriteAliasGuardMixin,
+                      CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving data marts.
     Additional actions:
@@ -75,28 +78,55 @@ class DataMartViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, Bulk
     pagination_class = DataMartPagination
 
     bulk_destroy_scope_params = ('id__in', 'slug', 'path', 'parent_id', 'data_mart_pk')
+    # E9/R1: only a parameter DataMartFilter really declares and applies may
+    # bound a collection DELETE.
+    bulk_destroy_requires_declared_filters = True
+
+    # E9/R2: nested URL scope captured in ``initial`` (see ``initial``).
+    bulk_scope_parent_raw = None
+    _bulk_scope_parent_pk = None
+    _bulk_scope_parent_pk_resolved = False
 
     def allow_bulk_destroy(self, qs, filtered):
         """
-        Collection DELETE is refused unless the request names a concrete
-        subset and every named data mart is a leaf without a delete
-        restriction.
+        Collection DELETE is refused unless the request names a concrete,
+        filterset-declared scope, every named data mart is a leaf without a
+        delete restriction, and the complete deletion effect set is exactly the
+        named data marts (no implicit MPTT/CASCADE cascade).
         """
-        if not self._has_explicit_bulk_destroy_scope():
+        if not self._has_explicit_bulk_destroy_scope(filtered):
             return False
-        return self._bulk_destroy_targets_are_explicit(filtered)
+        if not self._bulk_destroy_targets_are_explicit(filtered):
+            return False
+        return self._bulk_destroy_effect_is_explicit(filtered)
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(DataMartViewSet, self).initialize_request(*args, **kwargs)
 
     def initial(self, request, *args, **kwargs):
-        # Nested /data-marts/<data_mart_pk>/children/ routes scope every
-        # action, not only list: filters and bulk admission need the parent.
+        # E9/R2: nested /data-marts/<data_mart_pk>/children/ scopes every
+        # action, not only list.  The URL parent is mandatory and a conflicting
+        # query value is refused explicitly.
         data_mart_pk = kwargs.get('data_mart_pk')
-        if data_mart_pk is not None and request.GET.get('parent_id') is None:
-            request.GET.setdefault('parent_id', data_mart_pk)
+        if data_mart_pk is not None:
+            enforce_url_scope(request, 'parent_id', data_mart_pk, _('data mart'))
+            self.bulk_scope_parent_raw = str(data_mart_pk)
         return super(DataMartViewSet, self).initial(request, *args, **kwargs)
+
+    def get_bulk_scope_parent_pk(self):
+        """Resolved pk of the mandatory nested URL parent (None if absent)."""
+        raw = self.bulk_scope_parent_raw
+        if raw is None:
+            return None
+        if not self._bulk_scope_parent_pk_resolved:
+            self._bulk_scope_parent_pk_resolved = True
+            try:
+                self._bulk_scope_parent_pk = int(raw)
+            except (TypeError, ValueError):
+                self._bulk_scope_parent_pk = DataMartModel.objects.filter(
+                    slug=raw).values_list('pk', flat=True).first()
+        return self._bulk_scope_parent_pk
 
     def get_object(self):
         # try find object by `slug`
