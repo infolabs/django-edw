@@ -1,0 +1,58 @@
+{
+  "schema": "edw-modernize/e7-runtime-report/1",
+  "card": "E7.runtime",
+  "branch": "mission/edw-modernize",
+  "base_sha": "103621aaec659296a458031be8be0cd8e9c8f0ee",
+  "source_sha": "8d78a27ea1aa4b36fb8791f08bd6298904a39b9e",
+  "wheel": {
+    "file": "django_edw-0.2.0-py3-none-any.whl",
+    "sha256": "dbe7af1f827aa1c9815a5577459fb6d364fba5f748c6dc476c95363a89f040f6",
+    "build": "PEP 517 setuptools --no-isolation from a copy outside the clone; SOURCE_DATE_EPOCH from the implementation commit, identical digest observed on repeated builds",
+    "install": "pip --no-index --no-deps --force-reinstall into the prepared venv",
+    "active_sources": "site-packages/edw",
+    "source_files_compared": 371,
+    "record_entries_verified": 378,
+    "source_mismatches": 0
+  },
+  "versions": {
+    "python": "3.12.3",
+    "Django": "5.2.18",
+    "djangorestframework": "3.18.3",
+    "django-bitfield": "2.4.0",
+    "djangorestframework-bulk": "0.3.0a1",
+    "djangorestframework-bulk-source": "InfLabs e39983cb549ddc5245e726ab26261e318964258a",
+    "djangorestframework-bulk-wheel-sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6",
+    "django-filter": "26.2",
+    "djangorestframework-filters": "1.0.0.dev2",
+    "djangorestframework-recursive": "0.1.2",
+    "drf-nested-routers": "0.95.3",
+    "django-mptt": "0.20.0",
+    "django-polymorphic": "4.11.7",
+    "django-select2": "8.4.8",
+    "django-filer": "3.6.0",
+    "django-fsm-2": "4.2.4"
+  },
+  "counters": {
+    "check_exit": 0,
+    "real_gate_exit": 0,
+    "tests_passed": 45,
+    "tests_failed": 0,
+    "migrations_drift": 0,
+    "stub_modules_active": 0,
+    "legacy_contract_tests_passed": 82,
+    "real_runtime_tests_passed": 45,
+    "pip_check_errors": 0
+  },
+  "codes": [
+    "E7.runtime"
+  ],
+  "result": "done",
+  "summary": "Bulk POST/PUT/PATCH/DELETE now use the real InfLabs 0.3.0a1 consumer contract: scoped whole-batch POST admission inside the view queryset with per-object permissions before writes, duplicate/ambiguous identity and new-slug rules, explicit default-deny collection DELETE (no cascade via a parent, no delete-restriction target, data-mart can_delete for entities), one write alias. Validators use requires_context/__call__(attrs, serializer); the global-manager upsert is gone. filterset_class is wired for filters and the legacy filter_class path is explicit and tested; filters change the selection and preserve queryset/permission constraints. A separate real-runtime gate builds and installs the wheel offline, compares 371 installed sources and 378 RECORD entries, and runs the 45-test runtime suite (routers, bulk CRUD/permissions/rollback, filters, BitField/RecursiveField, one root Entity) plus migrations drift.",
+  "unverified": [
+    "Optional auth/admin/search/task/geo extra groups are declared but not installed or verified for the pilot.",
+    "No live database, deployment, restart, release or push was performed; tests use synthetic SQLite only.",
+    "Single write alias and single-database transactions only; distributed atomicity is not claimed or tested.",
+    "The djangorestframework-filters 1.0.0.dev2 + django-filter 26.2 pin is the accepted research matrix, not a maintained-support proof.",
+    "Independent E8.runtimecheck acceptance is still pending."
+  ]
+}
