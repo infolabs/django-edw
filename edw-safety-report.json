@@ -34,6 +34,7 @@
     "check_exit": 0,
     "confirmed_defects_left": 0,
     "e8_confirmed_defects_closed": 5,
+    "e8_derived_independent_tests_passed": 21,
     "e8_negative_cases_ported": 13,
     "historical_suite_passed": 45,
     "migrations_drift": 0,
@@ -62,6 +63,21 @@
     "test_build_tooling": "10 declared test/build-only distributions explicitly added to the gate environment (not to the runtime closure)",
     "visible_distributions_core": 31,
     "visible_distributions_gate": 42
+  },
+  "independent_gate": {
+    "command": "e9-work/run_gate.sh (outside the product commit)",
+    "e8_derived_suite": {
+      "failed": 0,
+      "passed": 21,
+      "skipped": 0,
+      "tests": 21
+    },
+    "exit": 0,
+    "note": "the E8 read-replica expectation (bulk POST succeeds) is superseded by the approved R5 early fail-closed contract; that case is covered by the product R5 suite instead",
+    "problems": [],
+    "read_replica_case_deselected": 1,
+    "report_sha_is_ancestor_of_head": true,
+    "wheel_digest_matched_report": true
   },
   "mission": "edw-modernize",
   "preserved": {
