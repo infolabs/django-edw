@@ -1,0 +1,213 @@
+{
+  "base_sha": "17adea07406a9b5b06424a32bbbc700135638f31",
+  "baseline": {
+    "e8_checked_tests": {
+      "failed": 13,
+      "passed": 15,
+      "total": 28
+    },
+    "e8_confirmed_defects": 5,
+    "e8_result": "failed",
+    "historical_evidence_sha256": {
+      "e8-runtimecheck.xml": "980f722a853c18d1f3a5db899039d5c7931e371f0e9eca33c47a6154258e79f5",
+      "edw-runtime-report.json": "777e53a8c706ceda894f09b912ceabc53b26aea87ed995185e9c5cac98e99b67",
+      "findings.md": "c6bd900501ce5a619d761e5b526e4e9f59879d39439f70b872c9e1def556c6ea",
+      "summary.json": "c7767d4653f8567c3e2a4ef42baec2cd476fd4dd97ca81d32f61938ffc98ebea"
+    },
+    "historical_evidence_unchanged": true,
+    "provider": {
+      "name": "djangorestframework-bulk",
+      "source": "InfLabs e39983cb549ddc5245e726ab26261e318964258a",
+      "version": "0.3.0a1",
+      "wheel_sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6"
+    },
+    "provider_unchanged": true,
+    "reference_candidate_sha": "17adea07406a9b5b06424a32bbbc700135638f31",
+    "reference_wheel_sha256": "dbe7af1f827aa1c9815a5577459fb6d364fba5f748c6dc476c95363a89f040f6"
+  },
+  "branch": "mission/edw-modernize",
+  "card": "E9.safety",
+  "codes": [
+    "E9.safety"
+  ],
+  "counters": {
+    "check_exit": 0,
+    "confirmed_defects_left": 0,
+    "e8_confirmed_defects_closed": 5,
+    "e8_negative_cases_ported": 13,
+    "historical_suite_passed": 45,
+    "migrations_drift": 0,
+    "r1_scope_tests": 9,
+    "r2_nested_tests": 7,
+    "r3_admission_tests": 5,
+    "r4_delete_effect_tests": 5,
+    "r5_alias_tests": 3,
+    "r6_gate_suites": 2,
+    "r6_mandatory_closure_distributions": 30,
+    "r6_wheel_builds": 2,
+    "safety_gate_exit": 0,
+    "tests_failed": 0,
+    "tests_passed": 74,
+    "tests_skipped": 0
+  },
+  "fresh_closure": {
+    "core_smoke": "django.setup + migrate + bulk POST/upsert + collection/detail DELETE policy executed by the extracted wheel",
+    "environment": "fresh `python -m venv --without-pip` outside the clone",
+    "installer_commands": 0,
+    "mandatory_closure_distributions": 30,
+    "mandatory_requirements": 20,
+    "mandatory_requirements_unsatisfied": 0,
+    "method": "wheel payload extracted + exact mandatory closure symlinked from the prepared wheelhouse; no package manager runs",
+    "network_requests": 0,
+    "test_build_tooling": "10 declared test/build-only distributions explicitly added to the gate environment (not to the runtime closure)",
+    "visible_distributions_core": 31,
+    "visible_distributions_gate": 42
+  },
+  "mission": "edw-modernize",
+  "preserved": {
+    "author_runtime_suite": "71-test runtime gate is green; the 45 historical tests are unchanged",
+    "bitfield": "roundtrip/deconstruct/filter green",
+    "filters": "filterset_class and legacy filter_class paths green",
+    "historical_tests_untouched": true,
+    "migrations": "makemigrations --check --dry-run exits 0",
+    "recursive_field": "real nested term/data-mart tree output green",
+    "rollback": "apply-failure, real IntegrityError and late-hook rollback green",
+    "routers": "real InfLabs router/nested router contract green"
+  },
+  "requirements": {
+    "R1": {
+      "contract": "collection DELETE is authorized only by predicates the filterset declares and really applies; unknown/ignored/empty scope is refused; the ORM collector effect set equals the named leaves",
+      "evidence": [
+        "runtime_tests/test_safety_r1_delete_scope.py",
+        "edw/rest/viewsets.py::BulkDestroyPolicyMixin._bulk_destroy_scope_is_applied"
+      ],
+      "status": "closed",
+      "tests": 9
+    },
+    "R2": {
+      "contract": "nested URL parent/data-mart bounds POST/PUT/PATCH/DELETE; a conflicting query scope is refused explicitly; a body parent_id/parent__slug cannot re-point the write (URL parent wins)",
+      "evidence": [
+        "runtime_tests/test_safety_r2_nested_scope.py",
+        "edw/rest/viewsets.py::enforce_url_scope",
+        "edw/rest/serializers/bulk.py::apply_nested_scope"
+      ],
+      "status": "closed",
+      "tests": 7
+    },
+    "R3": {
+      "contract": "typed identity lookup, scoped target and whole-batch object permission run before the state-aware validators; forbidden and unknown identities are refused before validators; the admitted identity is the saved identity",
+      "evidence": [
+        "runtime_tests/test_safety_r3_post_admission.py",
+        "edw/rest/serializers/bulk.py::ScopedBulkAdmissionMixin.run_child_validation"
+      ],
+      "status": "closed",
+      "tests": 5
+    },
+    "R4": {
+      "contract": "collection and detail DELETE default-deny implicit MPTT/CASCADE effects (subtree, characteristics/marks, related data); per-object delete callbacks keep the batch atomic",
+      "evidence": [
+        "runtime_tests/test_safety_r4_delete_effects.py",
+        "edw/rest/viewsets.py::BulkDestroyPolicyMixin._delete_cascade_objects"
+      ],
+      "status": "closed",
+      "tests": 5
+    },
+    "R5": {
+      "contract": "one write alias for the whole admission/validation/atomic/save chain; models no longer open an implicit default-database transaction; divergent read/write routers are refused before validators and the first write; distributed atomicity is not claimed",
+      "evidence": [
+        "runtime_tests_safety_alias/test_safety_r5_write_alias.py",
+        "edw/rest/viewsets.py::SingleWriteAliasGuardMixin",
+        "edw/models/term.py::BaseTerm.save",
+        "edw/models/data_mart.py::BaseDataMart.save"
+      ],
+      "status": "closed",
+      "tests": 3
+    },
+    "R6": {
+      "contract": "E8 negatives live in the product regression gate as durable tests; no historical test rewritten; before/after state is captured before status assertions; wheel built outside the clone with a fresh mandatory-only closure under pipefail; failures/errors/skips fail the gate",
+      "evidence": [
+        "scripts/check_safety.sh",
+        "scripts/check_safety_env.py",
+        "runtime_tests/test_safety_r1_delete_scope.py .. test_safety_r4_delete_effects.py",
+        "runtime_tests_safety_alias/test_safety_r5_write_alias.py"
+      ],
+      "status": "closed",
+      "tests": 29
+    }
+  },
+  "result": "done",
+  "role": "work",
+  "schema": "edw-modernize/e9-safety-report/1",
+  "scope": "bounded R1-R6 safety repair over the frozen failed candidate; not a full runtime acceptance",
+  "sha": "9cd26d68cc91316481ab2b6dff336d17ddc13ad7",
+  "source_date_epoch": 1792880757,
+  "source_tree_sha": "6bdb05e3d956bca1908f02b592d2af25fced929a",
+  "tests": {
+    "alias_suite": {
+      "by_module": {
+        "test_safety_r5_write_alias": 3
+      },
+      "failed": 0,
+      "passed": 3,
+      "skipped": 0,
+      "tests": 3
+    },
+    "gate_command": "scripts/check_safety.sh",
+    "runtime_suite": {
+      "by_module": {
+        "test_runtime_bulk": 22,
+        "test_runtime_contracts": 5,
+        "test_runtime_distributions": 5,
+        "test_runtime_filters": 6,
+        "test_runtime_models": 3,
+        "test_runtime_routing": 4,
+        "test_safety_r1_delete_scope": 9,
+        "test_safety_r2_nested_scope": 7,
+        "test_safety_r3_post_admission": 5,
+        "test_safety_r4_delete_effects": 5
+      },
+      "failed": 0,
+      "passed": 71,
+      "skipped": 0,
+      "tests": 71
+    },
+    "wheel_imported_from": "/home/agent/workspace/missions/code/edw-modernize/e9-work/evidence/product/core-env/lib/python3.12/site-packages/edw/__init__.py",
+    "zero_skip_policy": true
+  },
+  "unverified": [
+    "No live database, deployment, restart, release or push was performed; all tests use synthetic SQLite in memory.",
+    "Optional auth/admin/search/task/geo extras are declared by the wheel but were not installed or verified for this pilot.",
+    "Distributed atomicity across databases is not claimed; write/replica divergence is refused, not synchronized.",
+    "The E9 gate is an offline artifact gate; independent E10.safetycheck acceptance and the human G1.safety decision are still pending.",
+    "Entity bulk POST/upsert shares the admission code path but has no new dedicated regression test; the entity endpoint is read-only by default in the synthetic harness.",
+    "The djangorestframework-filters 1.0.0.dev2 + django-filter 26.2 pin remains the accepted research matrix, not a maintained-support proof."
+  ],
+  "versions": {
+    "Django": "5.2.18",
+    "django-bitfield": "2.4.0",
+    "django-filer": "3.6.0",
+    "django-filter": "26.2",
+    "django-fsm-2": "4.2.4",
+    "django-mptt": "0.20.0",
+    "django-polymorphic": "4.11.7",
+    "django-select2": "8.4.8",
+    "djangorestframework": "3.18.3",
+    "djangorestframework-bulk": "0.3.0a1",
+    "djangorestframework-filters": "1.0.0.dev2",
+    "djangorestframework-recursive": "0.1.2",
+    "drf-nested-routers": "0.95.3",
+    "python": "3.12.3"
+  },
+  "wheel": {
+    "build": "PEP 517 setuptools --no-isolation from a copy outside the clone; SOURCE_DATE_EPOCH fixed to the implementation commit",
+    "builds_compared": 2,
+    "file": "django_edw-0.2.0-py3-none-any.whl",
+    "install": "no pip install (forbidden by the card); the wheel payload is extracted into a fresh venv site-packages and imported from there",
+    "payload_files_checked": 376,
+    "record_entries_verified": 375,
+    "record_hash_mismatches": 0,
+    "reproducible": true,
+    "sha256": "66256673025cfd5ae80ac609a8e6165972d7bfc4ed1a8cdfacb43a9dec56965e",
+    "size_bytes": 1374597
+  }
+}
