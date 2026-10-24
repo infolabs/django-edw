@@ -59,10 +59,9 @@ if [[ -z "${SOURCE_SITE}" || ! -d "${SOURCE_SITE}" ]]; then
     exit 2
 fi
 
-if [[ -z "${SOURCE_DATE_EPOCH:-}" ]]; then
-    SOURCE_DATE_EPOCH="$(git -C "${REPO_ROOT}" log -1 --format=%ct -- \
-        backend pyproject.toml runtime_tests runtime_tests_safety_alias scripts 2>/dev/null || echo 1792847103)"
-fi
+# Fixed implementation epoch: the wheel digest must depend on packaged content,
+# not on the timestamp of whichever later report/test commit touches the tree.
+SOURCE_DATE_EPOCH="${EDW_SAFETY_EPOCH:-1792847103}"
 export SOURCE_DATE_EPOCH
 
 echo "== 1/8 preflight: matrix, real namespaces, no stubs =="
@@ -112,24 +111,26 @@ PY
 
 echo "== 2/8 wheel: build outside the clone twice (reproducible) =="
 mkdir -p "${WORK}/src" "${WORK}/dist-a" "${WORK}/dist-b"
-# Canonical source snapshot: a clean commit is exported with ``git archive`` so
-# the wheel digest does not depend on the checkout umask (zip entries record
-# file modes).  A dirty tree falls back to a copy with normalised modes.
-SNAPSHOT_HEAD="$(git -C "${REPO_ROOT}" rev-parse HEAD 2>/dev/null || true)"
-SNAPSHOT_DIRTY="$(git -C "${REPO_ROOT}" status --porcelain=v1 -uall 2>/dev/null | grep -v '\.dshclaim$' || true)"
-if [ -n "${SNAPSHOT_HEAD}" ] && [ -z "${SNAPSHOT_DIRTY}" ]; then
-    git -C "${REPO_ROOT}" archive --format=tar "${SNAPSHOT_HEAD}" | tar -C "${WORK}/src" -xf -
-    echo "  source snapshot: git archive ${SNAPSHOT_HEAD} (clean tree)"
-else
-    tar -C "${REPO_ROOT}" \
-        --exclude=.git --exclude=build --exclude='*.egg-info' --exclude=__pycache__ \
-        --exclude=.pytest_cache --exclude=frontend/node_modules --exclude=docs/_build \
-        --exclude='*.sqlite3' --exclude='*.dshclaim' \
-        -cf - . | tar -C "${WORK}/src" -xf -
-    find "${WORK}/src" -type f -exec chmod 644 {} +
-    find "${WORK}/src" -type d -exec chmod 755 {} +
-    echo "  source snapshot: working tree copy with normalised modes (dirty tree)"
+# The wheel is built from a copy outside the clone.  The frontend bundle
+# (backend/edw/static/edw/js/bundle.js) is a deliberately ignored prebuilt
+# artifact of the frozen candidate, so a plain `git archive` would drop package
+# data that the reference wheel contains; the workspace copy is used instead.
+# File modes are normalised because zip entries record them: the digest then
+# depends on content, not on the checkout umask.
+tar -C "${REPO_ROOT}" \
+    --exclude=.git --exclude=build --exclude='*.egg-info' --exclude=__pycache__ \
+    --exclude=.pytest_cache --exclude=frontend/node_modules --exclude=docs/_build \
+    --exclude='*.sqlite3' --exclude='*.dshclaim' \
+    -cf - . | tar -C "${WORK}/src" -xf -
+find "${WORK}/src" -type f -exec chmod 644 {} +
+find "${WORK}/src" -type d -exec chmod 755 {} +
+BUNDLE="${WORK}/src/backend/edw/static/edw/js/bundle.js"
+BUNDLE_SHA="missing"
+if [ -f "${BUNDLE}" ]; then
+    BUNDLE_SHA="$(sha256sum "${BUNDLE}" | cut -d' ' -f1)"
 fi
+echo "  source snapshot: workspace copy outside the clone (modes normalised)"
+echo "  prebuilt frontend bundle sha256: ${BUNDLE_SHA}"
 for target in dist-a dist-b; do
     "${PYTHON}" -m build --wheel --no-isolation --outdir "${WORK}/${target}" "${WORK}/src" \
         >"${WORK}/build-${target}.log" 2>&1 || {
@@ -282,12 +283,13 @@ fi
 echo "  migrations drift: 0"
 
 echo "== 8/8 evidence counters =="
-"${PYTHON}" - "${WORK}" "${WHEEL_NAME}" "${WHEEL_SHA}" "${CORE_CLOSURE}" <<'PY'
+"${PYTHON}" - "${WORK}" "${WHEEL_NAME}" "${WHEEL_SHA}" "${CORE_CLOSURE}" "${BUNDLE_SHA}" <<'PY'
 import json
 import pathlib
 import sys
 
 work, wheel_name, wheel_sha, closure = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+bundle_sha = sys.argv[5]
 counts = {}
 for label in ('runtime', 'alias'):
     path = pathlib.Path(work, 'junit-{}.json'.format(label))
@@ -297,6 +299,7 @@ for label in ('runtime', 'alias'):
 report = {
     'wheel': wheel_name,
     'wheel_sha256': wheel_sha,
+    'frontend_bundle_sha256': bundle_sha,
     'mandatory_closure': closure,
     'runtime_suite': counts['runtime'],
     'alias_suite': counts['alias'],
