@@ -112,11 +112,24 @@ PY
 
 echo "== 2/8 wheel: build outside the clone twice (reproducible) =="
 mkdir -p "${WORK}/src" "${WORK}/dist-a" "${WORK}/dist-b"
-tar -C "${REPO_ROOT}" \
-    --exclude=.git --exclude=build --exclude='*.egg-info' --exclude=__pycache__ \
-    --exclude=.pytest_cache --exclude=frontend/node_modules --exclude=docs/_build \
-    --exclude='*.sqlite3' --exclude='*.dshclaim' \
-    -cf - . | tar -C "${WORK}/src" -xf -
+# Canonical source snapshot: a clean commit is exported with ``git archive`` so
+# the wheel digest does not depend on the checkout umask (zip entries record
+# file modes).  A dirty tree falls back to a copy with normalised modes.
+SNAPSHOT_HEAD="$(git -C "${REPO_ROOT}" rev-parse HEAD 2>/dev/null || true)"
+SNAPSHOT_DIRTY="$(git -C "${REPO_ROOT}" status --porcelain=v1 -uall 2>/dev/null | grep -v '\.dshclaim$' || true)"
+if [ -n "${SNAPSHOT_HEAD}" ] && [ -z "${SNAPSHOT_DIRTY}" ]; then
+    git -C "${REPO_ROOT}" archive --format=tar "${SNAPSHOT_HEAD}" | tar -C "${WORK}/src" -xf -
+    echo "  source snapshot: git archive ${SNAPSHOT_HEAD} (clean tree)"
+else
+    tar -C "${REPO_ROOT}" \
+        --exclude=.git --exclude=build --exclude='*.egg-info' --exclude=__pycache__ \
+        --exclude=.pytest_cache --exclude=frontend/node_modules --exclude=docs/_build \
+        --exclude='*.sqlite3' --exclude='*.dshclaim' \
+        -cf - . | tar -C "${WORK}/src" -xf -
+    find "${WORK}/src" -type f -exec chmod 644 {} +
+    find "${WORK}/src" -type d -exec chmod 755 {} +
+    echo "  source snapshot: working tree copy with normalised modes (dirty tree)"
+fi
 for target in dist-a dist-b; do
     "${PYTHON}" -m build --wheel --no-isolation --outdir "${WORK}/${target}" "${WORK}/src" \
         >"${WORK}/build-${target}.log" 2>&1 || {
