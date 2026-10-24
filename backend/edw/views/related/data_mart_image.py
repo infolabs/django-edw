@@ -19,7 +19,7 @@ class DataMartImageViewSet(viewsets.ModelViewSet):
 
     queryset = DataMartImageModel.objects.all()
     serializer_class = DataMartImageSerializer
-    filter_class = DataMartImageFilter
+    filterset_class = DataMartImageFilter
     filter_backends = (EDWFilterBackend,)
 
     @remove_empty_params_from_request()

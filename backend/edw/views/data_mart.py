@@ -26,7 +26,11 @@ from edw.rest.serializers.data_mart import (
 from edw.rest.filters.data_mart import DataMartFilter
 from edw.rest.filters.backends import EDWFilterBackend
 from edw.models.data_mart import DataMartModel
-from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.viewsets import (
+    BulkDestroyPolicyMixin,
+    CustomSerializerViewSetMixin,
+    remove_empty_params_from_request,
+)
 from edw.rest.pagination import DataMartPagination
 from edw.rest.permissions import IsSuperuserOrReadOnly
 from edw.views.generics import get_object_or_404
@@ -42,7 +46,7 @@ except ImportError:
         return action(detail=False, **kwargs)
 
 
-class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
+class DataMartViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving data marts.
     Additional actions:
@@ -63,16 +67,36 @@ class DataMartViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     permission_classes = [IsSuperuserOrReadOnly]
 
-    filter_class = DataMartFilter
+    filterset_class = DataMartFilter
     filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 
     pagination_class = DataMartPagination
 
+    bulk_destroy_scope_params = ('id__in', 'slug', 'path', 'parent_id', 'data_mart_pk')
+
+    def allow_bulk_destroy(self, qs, filtered):
+        """
+        Collection DELETE is refused unless the request names a concrete
+        subset and every named data mart is a leaf without a delete
+        restriction.
+        """
+        if not self._has_explicit_bulk_destroy_scope():
+            return False
+        return self._bulk_destroy_targets_are_explicit(filtered)
+
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(DataMartViewSet, self).initialize_request(*args, **kwargs)
+
+    def initial(self, request, *args, **kwargs):
+        # Nested /data-marts/<data_mart_pk>/children/ routes scope every
+        # action, not only list: filters and bulk admission need the parent.
+        data_mart_pk = kwargs.get('data_mart_pk')
+        if data_mart_pk is not None and request.GET.get('parent_id') is None:
+            request.GET.setdefault('parent_id', data_mart_pk)
+        return super(DataMartViewSet, self).initial(request, *args, **kwargs)
 
     def get_object(self):
         # try find object by `slug`

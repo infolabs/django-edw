@@ -37,9 +37,9 @@ from edw.models.rest import (
     DynamicCreateUpdateValidateSerializerMixin,
     DynamicCreateUpdateValidateListSerializerMixin,
     CheckPermissionsSerializerMixin,
-    CheckPermissionsBulkListSerializerMixin,
-    UpdateOrCreateSerializerMixin
+    CheckPermissionsBulkListSerializerMixin
 )
+from edw.rest.serializers.bulk import ScopedBulkAdmissionMixin
 from edw.models.term import TermModel
 from edw.rest.filters.entity import EntityFilter
 from edw.rest.serializers.data_mart import DataMartCommonSerializer, DataMartDetailSerializer
@@ -150,7 +150,15 @@ class EntityBulkListSerializer(EntityDynamicMetaMixin,
                                CheckPermissionsBulkListSerializerMixin,
                                DynamicFieldsListSerializerMixin,
                                DynamicCreateUpdateValidateListSerializerMixin,
+                               ScopedBulkAdmissionMixin,
                                BulkListSerializer):
+    """
+    Entity list serializer: bulk POST is admitted for the whole batch inside
+    the view's queryset, never through ``EntityModel.objects`` globally.
+    """
+
+    bulk_admission_new_required_fields = ('name',)
+    bulk_admission_natural_key = None
 
     class Meta:
         model = None
@@ -162,49 +170,27 @@ class EntityBulkListSerializer(EntityDynamicMetaMixin,
 class EntityValidator(object):
     """
     Entity Validator
+
+    DRF 3.15+ calls a validator as ``validator(attrs, serializer)`` when it
+    declares ``requires_context``.  POST identity and object permissions are
+    handled by ``ScopedBulkAdmissionMixin`` for the complete batch, not by a
+    global manager lookup inside a single validator.
     """
 
     FIELD_REQUIRED_ERROR_MESSAGE = _('This field is required.')
+    requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.serializer = serializer
-
-    def __call__(self, attrs):
-        model = self.serializer.Meta.model
+    def __call__(self, attrs, serializer):
+        model = serializer.Meta.model
         # Determine the existing instance, if this is an update operation.
-        instance = getattr(self.serializer, 'instance', None)
+        instance = getattr(serializer, 'instance', None)
 
         validated_data = dict(attrs)
 
-        request_method = self.serializer.request_method
+        request_method = serializer.request_method
 
-        available_terms_ids = set(self.serializer.data_mart_available_terms_ids)
+        available_terms_ids = set(serializer.data_mart_available_terms_ids)
         attr_errors = {}
-
-        # check update for POST method
-        if request_method == 'POST':
-            for id_attr in self.serializer.get_id_attrs():
-                id_value = validated_data.get(id_attr, empty)
-                if id_value != empty:
-                    try:
-                        instance = model.objects.get(**{id_attr: id_value})
-                    except ObjectDoesNotExist:
-                        pass
-                    except MultipleObjectsReturned as e:
-                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
-                    else:
-                        # try check data mart permissions
-                        if (self.serializer.data_mart_from_request is not None and
-                                not self.serializer.data_mart_permissions_from_request['can_change']):
-                            self.serializer.permission_denied(self.serializer.context['request'])
-
-                        # try check object permissions, see the CheckPermissionsSerializerMixin
-                        self.serializer.check_object_permissions(instance)
-                    break
 
         # characteristics, marks
         for (attr_name, attribute_mode) in [
@@ -261,7 +247,7 @@ class EntityValidator(object):
         # relations
         relations = validated_data.pop('relations', None)
         if relations is not None:
-            rel_subj, rel_f_ids, rel_r_ids = self.serializer.parse_relations(relations)
+            rel_subj, rel_f_ids, rel_r_ids = serializer.parse_relations(relations)
             rel_f_ids, rel_r_ids = set(rel_f_ids), set(rel_r_ids)
             errors = []
 
@@ -281,16 +267,16 @@ class EntityValidator(object):
             if not_found_ids:
                 errors.append(_("Entities with id`s [{}] not found.").format(', '.join(str(x) for x in not_found_ids)))
 
-            if self.serializer.is_data_mart_has_relations:
+            if serializer.is_data_mart_has_relations:
                 not_found = ["`{}f`".format(x) for x in list(
-                    rel_f_ids - set(self.serializer.data_mart_rel_ids[0]))] + ["`{}r`".format(x) for x in list(
-                    rel_r_ids - set(self.serializer.data_mart_rel_ids[1]))]
+                    rel_f_ids - set(serializer.data_mart_rel_ids[0]))] + ["`{}r`".format(x) for x in list(
+                    rel_r_ids - set(serializer.data_mart_rel_ids[1]))]
                 if not_found:
                     errors.append(
                         _("The relations [{}] are forbidden.").format(', '.join(str(x) for x in not_found)))
 
-                if self.serializer.is_data_mart_relations_has_subjects:
-                    for rel_id, subj_ids in self.serializer.data_mart_relations_subjects.items():
+                if serializer.is_data_mart_relations_has_subjects:
+                    for rel_id, subj_ids in serializer.data_mart_relations_subjects.items():
                         if subj_ids:
                             not_found_ids = list(set(rel_subj.get(rel_id, [])) - set(subj_ids))
                             if not_found_ids:
@@ -302,8 +288,8 @@ class EntityValidator(object):
 
             if errors:
                 attr_errors['relations'] = errors
-        elif instance is None and self.serializer.is_data_mart_has_relations and \
-                not self.serializer.is_data_mart_relations_has_subjects:
+        elif instance is None and serializer.is_data_mart_has_relations and \
+                not serializer.is_data_mart_relations_has_subjects:
             attr_errors['relations'] = _('This field is required.')
 
         if attr_errors:
@@ -349,8 +335,7 @@ class EntityValidator(object):
 #==============================================================================
 # EntityCommonSerializer
 #==============================================================================
-class EntityCommonSerializer(UpdateOrCreateSerializerMixin,
-                             CheckPermissionsSerializerMixin,
+class EntityCommonSerializer(CheckPermissionsSerializerMixin,
                              BulkSerializerMixin,
                              serializers.ModelSerializer):
     """
@@ -869,13 +854,18 @@ class EntityDetailSerializerBase(EntityDynamicMetaMixin,
                     instance.set_relations(rel_id, subj_ids, direction)
 
     def create(self, validated_data):
+        """
+        Create a single object.  Bulk POST upsert is admitted only by the list
+        serializer's scoped admission hook; this method never looks an object
+        up through the global manager.
+        """
         origin_validated_data = validated_data.copy()
         for key in ('active_terms_ids', 'terms_paths', 'characteristics', 'marks', 'relations'):
             validated_data.pop(key, None)
-        instance, is_created = self._update_or_create_instance(self.Meta.model, self.get_id_attrs(), validated_data)
-        self._update_entity(instance, is_created, origin_validated_data)
+        instance = self.Meta.model.objects.create(**validated_data)
+        self._update_entity(instance, True, origin_validated_data)
         # Добавляем признак нового объекта в возвращаемую инстанция, для использования в перекрываемом методе create
-        instance._is_created = is_created
+        instance._is_created = True
         return instance
 
     def update(self, instance, validated_data):

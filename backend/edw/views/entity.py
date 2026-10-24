@@ -24,7 +24,11 @@ from edw.rest.serializers.entity import (
     EntityDetailSerializer,
     # EntitySummarySerializer
 )
-from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.viewsets import (
+    BulkDestroyPolicyMixin,
+    CustomSerializerViewSetMixin,
+    remove_empty_params_from_request,
+)
 from edw.views.generics import get_object_or_404
 
 from rest_framework_bulk.generics import BulkModelViewSet
@@ -40,7 +44,7 @@ except ImportError:
         return action(detail=True, **kwargs)
 
 
-class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
+class EntityViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving entities.
     Additional actions:
@@ -73,7 +77,7 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer)
 
-    filter_class = EntityFilter
+    filterset_class = EntityFilter
     filter_backends = (EDWFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
                        EntityOrderingFilter)
     ordering_fields = '__all__'
@@ -234,13 +238,21 @@ class EntityViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
                     request, message=getattr(permission, 'message', None)
                 )
 
+    bulk_destroy_scope_params = ('data_mart_pk',)
+
     def allow_bulk_destroy(self, qs, filtered):
-        result = super(EntityViewSet, self).allow_bulk_destroy(qs, filtered)
-        if result:
-            # May raise a permission denied
-            for obj in filtered:
-                self.check_object_permissions(self.request, obj)
-        return result
+        """
+        Bulk DELETE of entities is allowed only inside an explicitly named data
+        mart whose own grant says ``can_delete``.  A superuser's root view
+        permission alone never authorizes an unbounded or cross-mart delete.
+        The InfLabs mixin performs the per-object permission check afterwards.
+        """
+        if not self._has_explicit_bulk_destroy_scope():
+            return False
+        permissions = self._bulk_destroy_data_mart_grant()
+        if permissions is None or not permissions.get('can_delete', False):
+            return False
+        return filtered.exists()
 
     def get_serializer_context(self):
         context = super(EntityViewSet, self).get_serializer_context()

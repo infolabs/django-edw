@@ -21,9 +21,9 @@ from edw.rest.filters.common import parse_null_boolean
 from edw.models.data_mart import DataMartModel
 from edw.models.rest import (
     BasePermissionsSerializerMixin,
-    CheckPermissionsBulkListSerializerMixin,
-    UpdateOrCreateSerializerMixin
+    CheckPermissionsBulkListSerializerMixin
 )
+from edw.rest.serializers.bulk import ScopedBulkAdmissionMixin
 from edw.models.term import TermModel
 from edw.rest.serializers.decorators import get_from_context_or_request, get_from_context
 from edw.views.generics import get_object_or_404
@@ -34,9 +34,18 @@ from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMi
 #==============================================================================
 # TermBulkListSerializer
 #==============================================================================
-class DataMartBulkListSerializer(CheckPermissionsBulkListSerializerMixin,
+class DataMartBulkListSerializer(ScopedBulkAdmissionMixin,
+                                 CheckPermissionsBulkListSerializerMixin,
                                  BulkListSerializer):
-    pass
+    """
+    Term list serializer with explicit, view-scoped POST admission.
+
+    The historical class name is kept for API compatibility; it serializes
+    ``TermModel`` items, not data marts.
+    """
+
+    bulk_admission_new_required_fields = ('slug',)
+    bulk_admission_natural_key = 'slug'
 
 
 #==============================================================================
@@ -45,38 +54,21 @@ class DataMartBulkListSerializer(CheckPermissionsBulkListSerializerMixin,
 class TermValidator(object):
     """
     Term Validator
-    """
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.serializer = serializer
 
-    def __call__(self, attrs):
-        model = self.serializer.Meta.model
+    DRF 3.15+ passes the serializer to a validator only when it declares
+    ``requires_context``; ``set_context`` is no longer called.  The global
+    model manager is not consulted here: POST identity and object permissions
+    are decided by ``ScopedBulkAdmissionMixin`` for the whole batch.
+    """
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        model = serializer.Meta.model
         # Determine the existing instance, if this is an update operation.
-        instance = getattr(self.serializer, 'instance', None)
+        instance = getattr(serializer, 'instance', None)
         validated_data = dict(attrs)
-        request_method = self.serializer.request_method
 
         attr_errors = {}
-
-        # check update for POST method
-        if request_method == 'POST':
-            for id_attr in self.serializer.Meta.lookup_fields:
-                id_value = validated_data.get(id_attr, empty)
-                if id_value != empty:
-                    try:
-                        instance = model.objects.get(**{id_attr: id_value})
-                    except ObjectDoesNotExist:
-                        pass
-                    except MultipleObjectsReturned as e:
-                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
-                    else:
-                        # try check object permissions, see the BasePermissionsSerializerMixin
-                        self.serializer.check_object_permissions(instance)
-                    break
 
         # parent__slug
         parent__slug = validated_data.pop('parent__slug', None)
@@ -89,10 +81,21 @@ class TermValidator(object):
         if attr_errors:
             raise serializers.ValidationError(attr_errors)
 
-        validate_unique = instance is None
         # model full clean
+        if instance is None:
+            candidate = model(**validated_data)
+            validate_unique = True
+        else:
+            # PATCH supplies only a subset of fields; validate the complete
+            # object state without mutating the admitted instance.
+            candidate = model()
+            for field in model._meta.fields:
+                setattr(candidate, field.attname, getattr(instance, field.attname))
+            for name, value in validated_data.items():
+                setattr(candidate, name, value)
+            validate_unique = False
         try:
-            model(**validated_data).full_clean(validate_unique=validate_unique)
+            candidate.full_clean(validate_unique=validate_unique)
         except (ObjectDoesNotExist, ValidationError) as e:
             raise serializers.ValidationError(str(e))
 
@@ -105,8 +108,7 @@ class TermValidator(object):
 #==============================================================================
 # TermSerializer
 #==============================================================================
-class TermSerializer(UpdateOrCreateSerializerMixin,
-                     BasePermissionsSerializerMixin,
+class TermSerializer(BasePermissionsSerializerMixin,
                      BulkSerializerMixin,
                      serializers.ModelSerializer):
     """
@@ -148,9 +150,12 @@ class TermSerializer(UpdateOrCreateSerializerMixin,
         return validated_data
 
     def create(self, validated_data):
+        """
+        Create a single object; upsert identity is admitted only by the bulk
+        admission hook of the list serializer (never by the global manager).
+        """
         validated_data = self.__prepare_validated_data(validated_data)
-        instance, is_created = self._update_or_create_instance(TermModel, self.Meta.lookup_fields, validated_data)
-        return instance
+        return TermModel.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         validated_data = self.__prepare_validated_data(validated_data)

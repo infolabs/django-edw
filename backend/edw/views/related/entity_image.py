@@ -29,7 +29,7 @@ class EntityImageViewSet(viewsets.ModelViewSet):
 
     queryset = EntityImageModel.objects.all()
     serializer_class = EntityImageSerializer
-    filter_class = EntityImageFilter
+    filterset_class = EntityImageFilter
     filter_backends = (EDWFilterBackend,)
 
     @remove_empty_params_from_request()

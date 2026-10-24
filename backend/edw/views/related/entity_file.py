@@ -28,7 +28,7 @@ class EntityFileViewSet(viewsets.ModelViewSet):
 
     queryset = EntityFileModel.objects.all()
     serializer_class = EntityFileSerializer
-    filter_class = EntityFileFilter
+    filterset_class = EntityFileFilter
     filter_backends = (EDWFilterBackend,)
 
     @remove_empty_params_from_request()

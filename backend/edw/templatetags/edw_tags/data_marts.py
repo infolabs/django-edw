@@ -65,7 +65,7 @@ class GetDataMarts(BaseRetrieveDataTag):
     serializer_class = DataMartSummarySerializer
     action = 'list'
 
-    filter_class = DataMartFilter
+    filterset_class = DataMartFilter
     filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter)
     ordering_fields = '__all__'
 

@@ -12,13 +12,12 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     MultipleObjectsReturned,
 )
-from django.db import models, transaction
+from django.db import models
 from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from rest_framework import exceptions
 from rest_framework import serializers
-from rest_framework.fields import empty
 
 
 class RESTOptions(object):
@@ -541,28 +540,3 @@ class DynamicGroupByMixin(object):
         return self.group_by
 
 
-class UpdateOrCreateSerializerMixin(object):
-
-    @staticmethod
-    def _update_or_create_instance(model_class, id_attrs, validated_data):
-        is_created = True
-        for id_attr in id_attrs:
-            id_value = validated_data.pop(id_attr, empty) if id_attr == 'id' else validated_data.get(id_attr, empty)
-            if id_value != empty:
-                try:
-                    instance = model_class.objects.get(**{id_attr: id_value})
-                except ObjectDoesNotExist:
-                    instance = model_class.objects.create(**validated_data)
-                except MultipleObjectsReturned as e:
-                    raise serializers.ValidationError(e)
-                else:
-                    for k, v in validated_data.items():
-                        setattr(instance, k, v)
-                    with transaction.atomic(using=model_class.objects.db, savepoint=False):
-                        instance.save(using=model_class.objects.db)
-                    is_created = False
-                break
-        else:
-            instance = model_class.objects.create(**validated_data)
-
-        return instance, is_created

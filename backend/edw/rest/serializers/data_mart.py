@@ -32,9 +32,9 @@ from edw.models.rest import (
     DynamicCreateUpdateValidateSerializerMixin,
     DynamicCreateUpdateValidateListSerializerMixin,
     CheckPermissionsSerializerMixin,
-    CheckPermissionsBulkListSerializerMixin,
-    UpdateOrCreateSerializerMixin
+    CheckPermissionsBulkListSerializerMixin
 )
+from edw.rest.serializers.bulk import ScopedBulkAdmissionMixin
 from edw.rest.serializers.decorators import get_from_context_or_request
 from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
 
@@ -81,7 +81,15 @@ class DataMartBulkListSerializer(DataMartDynamicMetaMixin,
                                  CheckPermissionsBulkListSerializerMixin,
                                  DynamicFieldsListSerializerMixin,
                                  DynamicCreateUpdateValidateListSerializerMixin,
+                                 ScopedBulkAdmissionMixin,
                                  BulkListSerializer):
+    """
+    Data-mart list serializer: bulk POST is admitted for the whole batch inside
+    the view's queryset, never through ``DataMartModel.objects`` globally.
+    """
+
+    bulk_admission_new_required_fields = ('slug',)
+    bulk_admission_natural_key = 'slug'
 
     class Meta:
         model = None
@@ -93,38 +101,21 @@ class DataMartBulkListSerializer(DataMartDynamicMetaMixin,
 class DataMartValidator(object):
     """
     DataMart Validator
-    """
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.serializer = serializer
 
-    def __call__(self, attrs):
-        model = self.serializer.Meta.model
+    DRF 3.15+ calls a validator as ``validator(attrs, serializer)`` when it
+    declares ``requires_context``.  POST identity and object permissions are
+    handled by ``ScopedBulkAdmissionMixin`` for the complete batch, not by a
+    global manager lookup inside a single validator.
+    """
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        model = serializer.Meta.model
         # Determine the existing instance, if this is an update operation.
-        instance = getattr(self.serializer, 'instance', None)
+        instance = getattr(serializer, 'instance', None)
         validated_data = dict(attrs)
-        request_method = self.serializer.request_method
 
         attr_errors = {}
-
-        # check update for POST method
-        if request_method == 'POST':
-            for id_attr in self.serializer.get_id_attrs():
-                id_value = validated_data.get(id_attr, empty)
-                if id_value != empty:
-                    try:
-                        instance = model.objects.get(**{id_attr: id_value})
-                    except ObjectDoesNotExist:
-                        pass
-                    except MultipleObjectsReturned as e:
-                        attr_errors[id_attr] = _("{} `{}`='{}'").format(str(e), id_attr, id_value)
-                    else:
-                        # try check object permissions, see the CheckPermissionsSerializerMixin
-                        self.serializer.check_object_permissions(instance)
-                    break
 
         # parent__slug
         parent__slug = validated_data.pop('parent__slug', None)
@@ -137,10 +128,21 @@ class DataMartValidator(object):
         if attr_errors:
             raise serializers.ValidationError(attr_errors)
 
-        validate_unique = instance is None
         # model full clean
+        if instance is None:
+            candidate = model(**validated_data)
+            validate_unique = True
+        else:
+            # PATCH supplies only a subset of fields; validate the complete
+            # object state without mutating the admitted instance.
+            candidate = model()
+            for field in model._meta.fields:
+                setattr(candidate, field.attname, getattr(instance, field.attname))
+            for name, value in validated_data.items():
+                setattr(candidate, name, value)
+            validate_unique = False
         try:
-            model(**validated_data).full_clean(validate_unique=validate_unique)
+            candidate.full_clean(validate_unique=validate_unique)
         except (ObjectDoesNotExist, ValidationError) as e:
             raise serializers.ValidationError(str(e))
 
@@ -150,8 +152,7 @@ class DataMartValidator(object):
         ))
 
 
-class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
-                               CheckPermissionsSerializerMixin,
+class DataMartCommonSerializer(CheckPermissionsSerializerMixin,
                                BulkSerializerMixin,
                                serializers.ModelSerializer):
     """
@@ -193,9 +194,13 @@ class DataMartCommonSerializer(UpdateOrCreateSerializerMixin,
         return validated_data
 
     def create(self, validated_data):
+        """
+        Create a single object.  Bulk POST upsert is admitted only by the list
+        serializer's scoped admission hook; this method never looks an object
+        up through the global manager.
+        """
         validated_data = self.__prepare_validated_data(validated_data)
-        instance, is_created = self._update_or_create_instance(DataMartModel, self.get_id_attrs(), validated_data)
-        return instance
+        return DataMartModel.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         validated_data = self.__prepare_validated_data(validated_data)

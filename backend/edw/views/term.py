@@ -26,7 +26,11 @@ from edw.rest.serializers.term import (
 from edw.rest.filters.term import TermFilter
 from edw.rest.filters.backends import EDWFilterBackend
 from edw.models.term import TermModel
-from edw.rest.viewsets import CustomSerializerViewSetMixin, remove_empty_params_from_request
+from edw.rest.viewsets import (
+    BulkDestroyPolicyMixin,
+    CustomSerializerViewSetMixin,
+    remove_empty_params_from_request,
+)
 from edw.rest.pagination import TermPagination
 from edw.rest.permissions import IsSuperuserOrReadOnly
 from edw.views.generics import get_object_or_404
@@ -42,7 +46,7 @@ except ImportError:
         return action(detail=False, **kwargs)
 
 
-class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
+class TermViewSet(BulkDestroyPolicyMixin, CustomSerializerViewSetMixin, BulkModelViewSet):
     """
     A simple ViewSet for listing or retrieving terms.
     Additional actions:
@@ -63,16 +67,35 @@ class TermViewSet(CustomSerializerViewSetMixin, BulkModelViewSet):
 
     permission_classes = [IsSuperuserOrReadOnly]
 
-    filter_class = TermFilter
+    filterset_class = TermFilter
     filter_backends = (filters.SearchFilter, EDWFilterBackend, filters.OrderingFilter,)
     search_fields = ('name', 'slug')
     ordering_fields = ('name', )
 
     pagination_class = TermPagination
 
+    bulk_destroy_scope_params = ('id__in', 'slug', 'path', 'parent_id', 'data_mart_pk')
+
+    def allow_bulk_destroy(self, qs, filtered):
+        """
+        Collection DELETE is refused unless the request names a concrete
+        subset and every named term is a leaf without a delete restriction.
+        """
+        if not self._has_explicit_bulk_destroy_scope():
+            return False
+        return self._bulk_destroy_targets_are_explicit(filtered)
+
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):
         return super(TermViewSet, self).initialize_request(*args, **kwargs)
+
+    def initial(self, request, *args, **kwargs):
+        # Nested /terms/<term_pk>/children/ routes scope every action, not only
+        # list: filters and bulk admission must see the parent lookup.
+        term_pk = kwargs.get('term_pk')
+        if term_pk is not None and request.GET.get('parent_id') is None:
+            request.GET.setdefault('parent_id', term_pk)
+        return super(TermViewSet, self).initial(request, *args, **kwargs)
 
     def get_object(self):
         # try find object by `slug`

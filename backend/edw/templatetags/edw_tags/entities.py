@@ -52,7 +52,7 @@ class GetEntities(BaseRetrieveDataTag):
     serializer_class = EntityTotalSummarySerializer
     action = 'list'
 
-    filter_class = EntityFilter
+    filterset_class = EntityFilter
     filter_backends = (EDWFilterBackend, EntityDynamicFilter, EntityMetaFilter, EntityGroupByFilter,
                        EntityOrderingFilter)
     ordering_fields = '__all__'
