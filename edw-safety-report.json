@@ -140,7 +140,7 @@
   "schema": "edw-modernize/e9-safety-report/1",
   "scope": "bounded R1-R6 safety repair over the frozen failed candidate; not a full runtime acceptance",
   "sha": "9cd26d68cc91316481ab2b6dff336d17ddc13ad7",
-  "source_date_epoch": 1792880757,
+  "source_date_epoch": 1792847103,
   "source_tree_sha": "6bdb05e3d956bca1908f02b592d2af25fced929a",
   "tests": {
     "alias_suite": {
@@ -199,15 +199,16 @@
     "python": "3.12.3"
   },
   "wheel": {
-    "build": "PEP 517 setuptools --no-isolation from a copy outside the clone; SOURCE_DATE_EPOCH fixed to the implementation commit",
+    "build": "PEP 517 setuptools --no-isolation from a workspace copy outside the clone (includes the ignored prebuilt frontend bundle and normalised file modes); SOURCE_DATE_EPOCH fixed to 1792847103",
     "builds_compared": 2,
     "file": "django_edw-0.2.0-py3-none-any.whl",
+    "frontend_bundle_sha256": "388d7438f290fb82ea4900b3e3eb79b4a90463ab700eeada23275f1fdc17a907",
     "install": "no pip install (forbidden by the card); the wheel payload is extracted into a fresh venv site-packages and imported from there",
     "payload_files_checked": 376,
     "record_entries_verified": 375,
     "record_hash_mismatches": 0,
     "reproducible": true,
-    "sha256": "66256673025cfd5ae80ac609a8e6165972d7bfc4ed1a8cdfacb43a9dec56965e",
+    "sha256": "b4cbe32a5a26b7e1598a4be34279533b5409fbb7c6e2c66aa89e7589656ceb7b",
     "size_bytes": 1374597
   }
 }
