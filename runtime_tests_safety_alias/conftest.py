@@ -9,6 +9,7 @@ from rest_framework.test import APIClient
 
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
+from edw.tests.safety_evidence import write_post_suite_evidence
 
 
 @pytest.fixture(autouse=True)
@@ -39,3 +40,8 @@ def superuser(db):
 def operator(api_client, superuser):
     api_client.force_authenticate(user=superuser)
     return api_client
+
+
+def pytest_sessionfinish(session, exitstatus):  # noqa: ARG001
+    """Record post-suite in-interpreter evidence (E11/R6)."""
+    write_post_suite_evidence(exitstatus)

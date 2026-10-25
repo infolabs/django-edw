@@ -57,7 +57,13 @@ class DataMartDynamicMetaMixin(object):
 
     @classmethod
     def _update_meta(cls, it, model_class):
-        key = model_class.__name__
+        # E11/S1: key by the concrete base Meta as well as the model name.
+        # Different serializer classes carry different Metas for the same
+        # model (the list serializer's Meta is deliberately bare); a cache
+        # entry created from one class's Meta must never be adopted by
+        # another class, or attributes such as
+        # ``need_add_lookup_fields_request_methods`` are silently lost.
+        key = (it.Meta, model_class.__name__)
         meta_class = cls._meta_cache.get(key, None)
         if meta_class is None:
             cls._meta_cache[key] = meta_class = DataMartDynamicMetaMixin._get_meta_class(it.Meta, model_class)

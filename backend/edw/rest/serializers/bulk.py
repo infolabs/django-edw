@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-E7/E9: scoped admission for bulk POST/upsert on the real InfLabs bulk API.
+E7/E9/E11: scoped, whole-batch admission for bulk POST/upsert on the real
+InfLabs bulk API.
 
 ``djangorestframework-bulk`` 0.3.x calls
 ``BulkListSerializer.validate_bulk_create(validated_data)`` once for the whole
@@ -23,21 +24,37 @@ EDW implements that policy here:
 * only one write database alias is used for lookups and writes.  This is a
   single-database transaction; no distributed atomicity is claimed.
 
-E9/R2/R3 add the ordering evidence: ``run_child_validation`` resolves the typed
-identity, the scoped target and the whole-batch permissions *before* the
-state-aware child validators run, then the same admitted identity is saved.  A
-forbidden or unknown identity never reaches a validator, and a nested URL parent
-is applied to the wire data instead of being replaced by the body.
+E11/R3 makes the admission *two-stage and whole-batch*:
+
+1. **admission pass** -- for every item in the batch, only the typed identity
+   fields are converted (``Field.to_internal_value``; the child serializer's
+   field hooks are not run), the scoped target is resolved, the per-object
+   permission is decided and duplicates/unknown/out-of-scope identities are
+   refused.  A batch that fails here never reaches a state-aware validator and
+   never writes;
+2. **validation pass** -- every admitted item is validated with
+   ``child.instance`` bound to the admitted target (``None`` for a create), so
+   real Dynamic RESTMeta ``create``/``update``/``validate`` hooks see the right
+   state.  Afterwards the validated identity must still be exactly the admitted
+   identity (a hook that re-points ``id``/``slug`` is refused, never resolved
+   again), and the admitted target is re-checked immediately before the write.
+
+The plan built in stage 1 is the only authority for ``create()``; admission is
+never re-run from validated data.  ``child.instance``/``initial_data`` are
+restored after every item so the items cannot leak state into each other.
 """
 from __future__ import unicode_literals
 
 from collections.abc import Mapping
+from copy import copy
 
 from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import router, transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.fields import empty
+from rest_framework.settings import api_settings
 
 from rest_framework_bulk.serializers import BulkListSerializer
 
@@ -106,6 +123,31 @@ def apply_nested_scope(serializer, attrs, validated=False):
     return data
 
 
+class BatchAdmissionPlanItem(object):
+    """
+    One admitted batch item: typed identity, scoped target and wire data.
+
+    ``identity`` is a tuple of ``(lookup_field, typed_value)`` pairs in
+    ``get_id_attrs()`` order.  ``target`` is the admitted model instance or
+    ``None`` for a brand-new object.  ``wire`` is the prepared item that the
+    child serializer validates (the nested URL scope already applied).
+    """
+
+    __slots__ = ('index', 'target', 'identity', 'wire', 'validated')
+
+    def __init__(self, index, target, identity, wire):
+        self.index = index
+        self.target = target
+        self.identity = identity
+        self.wire = wire
+        self.validated = None
+
+    def __repr__(self):
+        return '<BatchAdmissionPlanItem {} target={!r} identity={!r}>'.format(
+            self.index, getattr(self.target, 'pk', None), self.identity,
+        )
+
+
 class ScopedBulkAdmissionMixin(object):
     """
     Whole-batch, view-scoped POST/upsert admission for EDW bulk serializers.
@@ -126,58 +168,135 @@ class ScopedBulkAdmissionMixin(object):
     # ------------------------------------------------------------------ #
     # Batch state
     # ------------------------------------------------------------------ #
+    def _reset_batch_state(self):
+        self._batch_plan = None
+        self._batch_alias = None
+        self._batch_scope = None
+        self._batch_model = None
+        self._batch_view = None
+        self._batch_request = None
+        self._batch_next_index = 0
+        # The provider's update() compares the re-resolved target with the
+        # identity recorded during validation; it must exist for updates.
+        self._validated_targets = {}
+
     def to_internal_value(self, data):
-        self._pre_admission_scope = None
-        self._pre_admission_targets = []
-        self._pre_admission_seen_targets = {}
-        self._pre_admission_seen_new = {}
+        """
+        Admit the whole batch first, then run the child state-aware validators.
+
+        ``ListSerializer.to_internal_value`` calls ``run_child_validation`` per
+        item in data order; the admission pass below has already resolved and
+        authorized every item before the first of those calls, so the two passes
+        are strictly separated even though the second one is driven by the
+        provider's loop.
+        """
+        self._reset_batch_state()
+        if not isinstance(data, list):
+            return super(ScopedBulkAdmissionMixin, self).to_internal_value(data)
+        self._admit_complete_batch(data)
         return super(ScopedBulkAdmissionMixin, self).to_internal_value(data)
 
-    def run_child_validation(self, data):
+    # ------------------------------------------------------------------ #
+    # Stage 1: whole-batch admission (no child field hooks, no writes)
+    # ------------------------------------------------------------------ #
+    def _admit_complete_batch(self, data):
+        """Resolve and authorize every item; raise before any validator runs."""
+        model = self.get_admission_model()
+        alias = self.get_write_alias(model)
+        scope = self.get_admission_queryset(alias)
+        view = self.context.get('view')
+        request = getattr(view, 'request', None) or self.context.get('request')
+
+        plans = []
+        errors = {}
+        seen_targets = {}
+        seen_new_lookups = {}
+        for index, item in enumerate(data):
+            if not isinstance(item, Mapping):
+                message = self.child.error_messages['invalid'].format(
+                    datatype=type(item).__name__,
+                )
+                errors[index] = {api_settings.NON_FIELD_ERRORS_KEY: [message]}
+                plans.append(None)
+                continue
+            try:
+                prepared = apply_nested_scope(self.child, item)
+                identity = self._typed_wire_identity(prepared)
+                target = self._admit_one(
+                    identity, prepared, index, scope, alias, view, request,
+                    seen_targets, seen_new_lookups,
+                )
+            except serializers.ValidationError as exc:
+                errors[index] = exc.detail
+                plans.append(None)
+                continue
+            plans.append(BatchAdmissionPlanItem(index, target, identity, prepared))
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        self._batch_plan = plans
+        self._batch_alias = alias
+        self._batch_scope = scope
+        self._batch_model = model
+        self._batch_view = view
+        self._batch_request = request
+        return plans
+
+    def _typed_wire_identity(self, data):
         """
-        E9/R3: admission first, state-aware validation second.
+        Type only the declared identity fields of one wire item.
 
-        For a POST batch the provider leaves ``child.instance`` unresolved on
-        purpose (upsert is consumer policy).  EDW resolves the typed identity,
-        the scoped target and the object permission for every item here, before
-        ``run_validators``/``validate()`` of the child can observe the target.
+        ``Field.to_internal_value`` is the field's own type conversion; the
+        serializer-level ``validate_<field>`` hook is *not* called here (that
+        hook is part of the state-aware validation pass and may read the
+        database).
         """
-        if self.instance is not None or not isinstance(data, Mapping):
-            return super(ScopedBulkAdmissionMixin, self).run_child_validation(data)
+        identity = []
+        fields = getattr(self.child, 'fields', {}) or {}
+        for name in self.get_id_attrs():
+            value = data.get(name, empty)
+            if value is empty or value is None or value == '':
+                continue
+            field = fields.get(name)
+            if field is None:
+                raise serializers.ValidationError({
+                    name: [_('This identity field is not accepted by the serializer.')],
+                })
+            try:
+                value = self._type_lookup_value(field, value)
+            except DjangoValidationError as exc:
+                raise serializers.ValidationError({name: [str(exc)]})
+            except serializers.ValidationError as exc:
+                raise serializers.ValidationError({name: exc.detail})
+            if value is empty or value is None or value == '':
+                continue
+            identity.append((name, value))
+        return tuple(identity)
 
-        prepared = apply_nested_scope(self.child, data)
-        typed = self.child.to_internal_value(prepared)
-        index = len(self._pre_admission_targets)
-        target, payload = self._pre_admit_item(typed, index)
-        self._pre_admission_targets.append(target)
+    @staticmethod
+    def _type_lookup_value(field, value):
+        if not field.read_only:
+            return field.to_internal_value(value)
+        # A read-only field (an auto primary key) is normally skipped by
+        # ``run_validation``; the InfLabs contraction makes a shallow writable
+        # copy so the supplied identity is still typed, never re-assigned.
+        writable = copy(field)
+        writable.read_only = False
+        return writable.run_validation(value)
 
-        old_instance = getattr(self.child, 'instance', None)
-        old_initial = getattr(self.child, 'initial_data', empty)
-        try:
-            self.child.instance = target
-            self.child.initial_data = prepared
-            return self.child.run_validation(prepared)
-        finally:
-            self.child.instance = old_instance
-            if old_initial is empty:
-                self.child.__dict__.pop('initial_data', None)
-            else:
-                self.child.initial_data = old_initial
-
-    def _pre_admit_item(self, attrs, index):
-        if self._pre_admission_scope is None:
-            model = self.get_admission_model()
-            alias = self.get_write_alias(model)
-            scope = self.get_admission_queryset(alias)
-            view = self.context.get('view')
-            request = getattr(view, 'request', None) or self.context.get('request')
-            self._pre_admission_scope = (model, alias, scope, view, request)
-        model, alias, scope, view, request = self._pre_admission_scope
-        return self._admit_one(
-            attrs, index, scope, alias, view, request,
-            self._pre_admission_seen_targets, self._pre_admission_seen_new,
+    def _validated_identity(self, validated):
+        """Native lookup values present in validated data, in lookup order."""
+        if not isinstance(validated, Mapping):
+            return ()
+        return tuple(
+            (name, validated[name]) for name in self.get_id_attrs()
+            if validated.get(name, empty) not in (empty, None, '')
         )
 
+    # ------------------------------------------------------------------ #
+    # Identity / target resolution
+    # ------------------------------------------------------------------ #
     def get_id_attrs(self):
         """
         Ordered identity fields of the child serializer.
@@ -243,7 +362,22 @@ class ScopedBulkAdmissionMixin(object):
     def _is_primary_identity(self, name, model):
         return name == model._meta.pk.attname or name == model._meta.pk.name
 
-    def _admit_one(self, attrs, index, scope, alias, view, request,
+    def _resolve_identity_matches(self, identity, scope):
+        """All scoped matches for the supplied identity pairs."""
+        matches = []
+        for name, value in identity:
+            candidates = list(scope.filter(**{name: value})[:2])
+            if len(candidates) > 1:
+                raise serializers.ValidationError(
+                    _('Bulk identity `{name}` matches more than one object in the '
+                      'permitted scope.').format(name=name),
+                    code='ambiguous_bulk_identity',
+                )
+            if candidates:
+                matches.append((name, candidates[0]))
+        return matches
+
+    def _admit_one(self, identity, data, index, scope, alias, view, request,
                    seen_targets, seen_new_lookups):
         """
         Resolve and authorize one batch item before any write.
@@ -253,30 +387,14 @@ class ScopedBulkAdmissionMixin(object):
         for objects the request may not change.
         """
         model = self.get_admission_model()
-        lookup_fields = self.get_id_attrs()
 
-        matches = []
-        supplied = []
-        for name in lookup_fields:
-            value = attrs.get(name, empty)
-            if value is empty or value is None or value == '':
-                continue
-            supplied.append((name, value))
-            candidates = list(scope.filter(**{name: value})[:2])
-            if len(candidates) > 1:
-                raise serializers.ValidationError(
-                    _('Bulk item {index}: identity `{name}` matches more than one '
-                      'object in the permitted scope.').format(index=index, name=name),
-                    code='ambiguous_bulk_identity',
-                )
-            if candidates:
-                matches.append((name, candidates[0]))
+        matches = self._resolve_identity_matches(identity, scope)
 
         distinct = {}
         for name, target in matches:
             distinct[(target._meta.concrete_model, target.pk)] = target
 
-        if len(distinct) > 1 or (distinct and len(matches) != len(supplied)):
+        if len(distinct) > 1 or (distinct and len(matches) != len(identity)):
             raise serializers.ValidationError(
                 _('Bulk item {index}: supplied identity fields point to different '
                   'objects or to an object outside the permitted scope.').format(index=index),
@@ -301,12 +419,21 @@ class ScopedBulkAdmissionMixin(object):
                 # Per-object authorization before any write in the batch and
                 # before the child's state-aware validators run.
                 view.check_object_permissions(request, target)
-            return target, dict(attrs)
+            return target
+
+        if getattr(self, 'instance', None) is not None:
+            # A PUT/PATCH batch identifies existing objects only; it may never
+            # fall back to a create.
+            raise serializers.ValidationError(
+                _('Bulk item {index}: no existing object matches the supplied '
+                  'identity.').format(index=index),
+                code='unknown_bulk_identity',
+            )
 
         # A supplied primary key that is not part of the permitted scope is a
         # forbidden target when it exists elsewhere and an unknown identity when
         # it does not exist at all.  Neither may be dropped silently.
-        for name, value in supplied:
+        for name, value in identity:
             if not self._is_primary_identity(name, model):
                 continue
             if model._default_manager.using(alias).filter(**{name: value}).exists():
@@ -321,10 +448,10 @@ class ScopedBulkAdmissionMixin(object):
                 code='unknown_bulk_identity',
             )
 
-        # A brand-new object: the wire data must carry the natural key.
+        # A brand-new object: the wire data must carry the required fields.
         missing = [
             name for name in self.bulk_admission_new_required_fields
-            if attrs.get(name, empty) in (empty, None, '')
+            if data.get(name, empty) in (empty, None, '')
         ]
         if missing:
             raise serializers.ValidationError(
@@ -332,7 +459,7 @@ class ScopedBulkAdmissionMixin(object):
                 code='bulk_new_identity_required',
             )
 
-        for name, value in supplied:
+        for name, value in identity:
             lookup_key = (name, value)
             if lookup_key in seen_new_lookups:
                 raise serializers.ValidationError(
@@ -345,7 +472,8 @@ class ScopedBulkAdmissionMixin(object):
 
         natural_key = self.bulk_admission_natural_key
         if natural_key:
-            natural_value = attrs.get(natural_key, empty)
+            typed = dict(identity)
+            natural_value = typed.get(natural_key, data.get(natural_key, empty))
             if natural_value in (empty, None, ''):
                 raise serializers.ValidationError(
                     {natural_key: [_('A new bulk object requires `{0}`.').format(natural_key)]},
@@ -362,65 +490,242 @@ class ScopedBulkAdmissionMixin(object):
                     code='ambiguous_bulk_identity',
                 )
 
-        return None, dict(attrs)
+        return None
+
+    # ------------------------------------------------------------------ #
+    # Stage 2: child validation with the admitted target bound
+    # ------------------------------------------------------------------ #
+    def run_child_validation(self, data):
+        """
+        Validate one *already admitted* item with ``child.instance`` bound.
+
+        Called by the provider's ``ListSerializer.to_internal_value`` loop in
+        data order, after ``_admit_complete_batch`` authorized the whole batch.
+        """
+        plans = getattr(self, '_batch_plan', None)
+        if plans is None:
+            return super(ScopedBulkAdmissionMixin, self).run_child_validation(data)
+
+        index = self._batch_next_index
+        self._batch_next_index = index + 1
+        if index >= len(plans) or plans[index] is None:
+            raise ImproperlyConfigured(
+                'Bulk admission and child validation item order diverged.'
+            )
+        plan = plans[index]
+
+        if isinstance(data, Mapping):
+            try:
+                supplied = self._typed_wire_identity(data)
+            except serializers.ValidationError:
+                supplied = None
+            if supplied is not None and supplied != plan.identity:
+                raise ImproperlyConfigured(
+                    'Bulk validation item {} does not match the admitted item.'.format(index)
+                )
+
+        validated = self._validate_admitted_item(plan)
+        self._bind_validated_identity(plan, validated)
+        plan.validated = validated
+        if plan.target is not None and getattr(self, 'instance', None) is not None:
+            self._record_validated_target(plan, validated)
+        return validated
+
+    def _validate_admitted_item(self, plan):
+        child = self.child
+        old_instance = getattr(child, 'instance', None)
+        old_initial = getattr(child, 'initial_data', empty)
+        try:
+            # None for a create: real RESTMeta create hooks see the new state;
+            # the admitted instance for an update: they never re-resolve it.
+            child.instance = plan.target
+            child.initial_data = plan.wire
+            return child.run_validation(plan.wire)
+        finally:
+            child.instance = old_instance
+            if old_initial is empty:
+                child.__dict__.pop('initial_data', None)
+            else:
+                child.initial_data = old_initial
+
+    def _bind_validated_identity(self, plan, validated):
+        """
+        The identity admitted before validation must be the identity saved.
+
+        A hook that rewrites a lookup field is refused explicitly instead of
+        being resolved again (which is how a retarget used to succeed).
+        """
+        validated_identity = self._validated_identity(validated)
+        if validated_identity != plan.identity:
+            raise serializers.ValidationError({
+                api_settings.NON_FIELD_ERRORS_KEY: [
+                    _('Bulk item {index}: the admitted identity changed during '
+                      'validation and the item was refused.').format(index=plan.index),
+                ],
+            }, code='bulk_identity_changed')
+        target = self._resolve_admitted_target(plan.identity, self._batch_scope)
+        if plan.target is None:
+            if target is not None:
+                raise serializers.ValidationError({
+                    api_settings.NON_FIELD_ERRORS_KEY: [
+                        _('Bulk item {index}: the admitted new identity now names an '
+                          'existing object.').format(index=plan.index),
+                    ],
+                }, code='bulk_identity_changed')
+            return
+        if target is None or target.pk != plan.target.pk:
+            raise serializers.ValidationError({
+                api_settings.NON_FIELD_ERRORS_KEY: [
+                    _('Bulk item {index}: the admitted target is no longer the same '
+                      'object.').format(index=plan.index),
+                ],
+            }, code='bulk_identity_changed')
+
+    def _resolve_admitted_target(self, identity, scope):
+        """Resolve the admitted identity inside the admission scope."""
+        if not identity:
+            return None
+        matches = self._resolve_identity_matches(identity, scope)
+        distinct = {}
+        for name, target in matches:
+            distinct[(target._meta.concrete_model, target.pk)] = target
+        if not matches:
+            return None
+        if len(distinct) != 1 or len(matches) != len(identity):
+            raise serializers.ValidationError({
+                api_settings.NON_FIELD_ERRORS_KEY: [
+                    _('The admitted identity no longer resolves to exactly one object.'),
+                ],
+            }, code='bulk_identity_changed')
+        return next(iter(distinct.values()))
+
+    def _record_validated_target(self, plan, validated):
+        lookup = self._validated_identity(validated)
+        if not lookup:
+            return
+        name, value = lookup[0]
+        self._validated_targets[(name, value)] = (
+            self._batch_alias, plan.target._meta.concrete_model, plan.target.pk,
+        )
 
     # ------------------------------------------------------------------ #
     # Admission policy (the provider's non-empty hook)
     # ------------------------------------------------------------------ #
     def validate_bulk_create(self, validated_data):
         """
-        Admit or refuse the complete POST batch before the first write.
+        Admit the complete POST batch before the first write.
 
-        Raises ``serializers.ValidationError`` for identity problems and
-        ``rest_framework.exceptions.PermissionDenied`` (through the view check)
-        for objects the request may not change.
+        ``create()`` consumes the plan produced by ``to_internal_value`` and
+        never calls this hook; it stays here as the documented consumer-policy
+        marker the provider requires, and as the explicit admission entry point
+        for callers that hand it validated data directly.
         """
-        self._bulk_admission_plan = self._build_bulk_admission(validated_data)
+        plan = getattr(self, '_batch_plan', None)
+        if plan is not None and len(plan) == len(validated_data):
+            return
+        self._reset_batch_state()
+        self._admit_complete_batch(list(validated_data))
 
     def _build_bulk_admission(self, validated_data):
-        model = self.get_admission_model()
-        alias = self.get_write_alias(model)
-        scope = self.get_admission_queryset(alias)
-        view = self.context.get('view')
-        request = getattr(view, 'request', None) or self.context.get('request')
-
-        plan = []
-        seen_targets = {}
-        seen_new_lookups = {}
-        for index, attrs in enumerate(validated_data):
-            plan.append(self._admit_one(
-                attrs, index, scope, alias, view, request,
-                seen_targets, seen_new_lookups,
-            ))
-        return plan
+        """Backwards-compatible alias for the admission pass."""
+        return self._admit_complete_batch(list(validated_data))
 
     # ------------------------------------------------------------------ #
     # Scoped create/upsert
     # ------------------------------------------------------------------ #
+    def _require_batch_plan(self, count):
+        plans = getattr(self, '_batch_plan', None)
+        if plans is None or len(plans) != count:
+            raise ImproperlyConfigured(
+                'Bulk create requires the whole-batch admission plan produced by '
+                'to_internal_value(); admission is never re-run from validated data.'
+            )
+        return plans
+
+    def _recheck_batch_before_write(self, plans, alias):
+        """
+        Re-check permissions and identity stability immediately before a write.
+
+        Runs inside the single write transaction, after every hook/validator and
+        before the first row change.
+        """
+        scope = self._batch_scope
+        view = self._batch_view
+        request = self._batch_request
+        model = self._batch_model
+        natural_key = self.bulk_admission_natural_key
+
+        for plan in plans:
+            target = self._resolve_admitted_target(plan.identity, scope)
+            if plan.target is None:
+                if target is not None:
+                    raise serializers.ValidationError({
+                        api_settings.NON_FIELD_ERRORS_KEY: [
+                            _('Bulk item {index}: the admitted new identity now names '
+                              'an existing object.').format(index=plan.index),
+                        ],
+                    }, code='bulk_identity_changed')
+                if natural_key:
+                    typed = dict(plan.identity)
+                    natural_value = typed.get(natural_key, plan.wire.get(natural_key, empty))
+                    if natural_value not in (empty, None, '') and \
+                            model._default_manager.using(alias).filter(
+                                **{natural_key: natural_value}).exists():
+                        raise serializers.ValidationError({
+                            api_settings.NON_FIELD_ERRORS_KEY: [
+                                _('Bulk item {index}: the new natural key was created '
+                                  'after admission.').format(index=plan.index),
+                            ],
+                        }, code='bulk_identity_changed')
+                continue
+
+            if target is None or target.pk != plan.target.pk:
+                raise serializers.ValidationError({
+                    api_settings.NON_FIELD_ERRORS_KEY: [
+                        _('Bulk item {index}: the admitted target is no longer the same '
+                          'object.').format(index=plan.index),
+                    ],
+                }, code='bulk_identity_changed')
+            if plan.target._state.db != alias:
+                raise ImproperlyConfigured(
+                    'Bulk target is bound to a non-write database alias.'
+                )
+            if not model._default_manager.using(alias).filter(pk=plan.target.pk).exists():
+                raise serializers.ValidationError({
+                    api_settings.NON_FIELD_ERRORS_KEY: [
+                        _('Bulk item {index}: the admitted target no longer exists.'
+                          ).format(index=plan.index),
+                    ],
+                }, code='bulk_identity_changed')
+            if view is not None:
+                view.check_object_permissions(request, plan.target)
+
     def create(self, validated_data):
         """
         Apply the admitted plan: create new objects, update admitted targets.
 
-        The provider's default ``create`` loop calls ``child.create()`` for every
+        The plan resolved before validation is the only authority.  The
+        provider's default ``create`` loop calls ``child.create()`` for every
         item; with lookup retention that would delegate upsert authority to the
-        child (and thus to the global manager).  The plan resolved here is the
-        only authority.  Identity fields are never re-assigned on update.
+        child (and thus to the global manager).  Identity fields are never
+        re-assigned on update and a create never carries a supplied primary key.
         """
         model = self.get_admission_model()
         alias = self.get_write_alias(model)
+        plans = self._require_batch_plan(len(validated_data))
         with transaction.atomic(using=alias):
-            self.validate_bulk_create(validated_data)
+            self._recheck_batch_before_write(plans, alias)
             instances = []
-            for target, attrs in self._bulk_admission_plan:
+            for plan, attrs in zip(plans, validated_data):
                 payload = dict(attrs)
-                if target is None:
-                    payload.pop('id', None)
+                for name in self.get_id_attrs():
+                    if plan.target is not None or self._is_primary_identity(name, model):
+                        payload.pop(name, None)
+                if plan.target is None:
                     instances.append(self.child.create(payload))
                 else:
-                    for name in self.get_id_attrs():
-                        payload.pop(name, None)
-                    instances.append(self.child.update(target, payload))
+                    instances.append(self.child.update(plan.target, payload))
             return instances
 
 
-__all__ = ['ScopedBulkAdmissionMixin', 'apply_nested_scope']
+__all__ = ['BatchAdmissionPlanItem', 'ScopedBulkAdmissionMixin', 'apply_nested_scope']

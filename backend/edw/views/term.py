@@ -25,6 +25,7 @@ from edw.rest.serializers.term import (
 )
 from edw.rest.filters.term import TermFilter
 from edw.rest.filters.backends import EDWFilterBackend
+from edw.models.data_mart import DataMartModel
 from edw.models.term import TermModel
 from edw.rest.viewsets import (
     BulkDestroyPolicyMixin,
@@ -100,6 +101,40 @@ class TermViewSet(BulkDestroyPolicyMixin, SingleWriteAliasGuardMixin,
         if not self._bulk_destroy_targets_are_explicit(filtered):
             return False
         return self._bulk_destroy_effect_is_explicit(filtered)
+
+    def _named_delete_data_mart_pks(self):
+        """
+        Data-mart ids explicitly named by this DELETE (nested URL or query).
+
+        They are the only foreign side whose M2M membership row may be removed
+        implicitly by a term delete; a data mart that the request does not name
+        is a foreign consequence and stays default-deny.
+        """
+        query = self._bulk_destroy_query_data() or {}
+        value = query.get('data_mart_pk')
+        if value in (None, ''):
+            value = getattr(self, 'bulk_scope_data_mart_raw', None)
+        if value in (None, ''):
+            return set()
+        try:
+            return {int(value)}
+        except (TypeError, ValueError):
+            pk = DataMartModel.materialized._default_manager.filter(
+                slug=value).values_list('pk', flat=True).first()
+            return {pk} if pk is not None else set()
+
+    def _delete_effect_is_allowed(self, obj):
+        """
+        E11/R4: an auto-created data-mart membership row is authorized only
+        when the request names that exact data mart.
+        """
+        pks = self._named_delete_data_mart_pks()
+        if not pks:
+            return False
+        through = DataMartModel.materialized.terms.through
+        if not isinstance(obj, through):
+            return False
+        return getattr(obj, 'datamart_id', None) in pks
 
     @remove_empty_params_from_request()
     def initialize_request(self, *args, **kwargs):

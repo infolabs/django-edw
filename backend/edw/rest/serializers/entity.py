@@ -82,7 +82,11 @@ class EntityDynamicMetaMixin(object):
 
     @classmethod
     def _update_meta(cls, it, model_class):
-        key = model_class.__name__
+        # E11/S1: key by the concrete base Meta as well as the model name, so
+        # an entry created from one serializer class's Meta (the list
+        # serializer's Meta is deliberately bare) is never adopted by another
+        # class that carries a fuller Meta for the same model.
+        key = (it.Meta, model_class.__name__)
         meta_class = cls._meta_cache.get(key, None)
         if meta_class is None:
             cls._meta_cache[key] = meta_class = EntityDynamicMetaMixin._get_meta_class(it.Meta, model_class)

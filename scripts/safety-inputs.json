@@ -1,0 +1,35 @@
+{
+  "schema": "edw-modernize/safety-inputs/1",
+  "source_date_epoch": 1792847103,
+  "frontend_bundle": {
+    "path": "backend/edw/static/edw/js/bundle.js",
+    "sha256": "388d7438f290fb82ea4900b3e3eb79b4a90463ab700eeada23275f1fdc17a907",
+    "provenance": "prebuilt ignored frontend bundle of the frozen candidate; the only non-git input of the wheel build, pinned by hash"
+  },
+  "expected_provider": {
+    "distribution": "djangorestframework-bulk",
+    "version": "0.3.0a1",
+    "source_sha": "e39983cb549ddc5245e726ab26261e318964258a",
+    "wheel_sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6",
+    "module": "rest_framework_bulk"
+  },
+  "matrix": {
+    "python": "3.12.3",
+    "Django": "5.2.18",
+    "djangorestframework": "3.18.3",
+    "django-bitfield": "2.4.0",
+    "djangorestframework-bulk": "0.3.0a1",
+    "djangorestframework-filters": "1.0.0.dev2",
+    "django-filter": "26.2",
+    "djangorestframework-recursive": "0.1.2"
+  },
+  "tools_roots": [
+    "pytest",
+    "pytest-django",
+    "build",
+    "pyproject-hooks",
+    "setuptools",
+    "wheel",
+    "packaging"
+  ]
+}

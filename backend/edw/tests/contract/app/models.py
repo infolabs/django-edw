@@ -143,3 +143,85 @@ class ContractEntityChild(ContractEntity):
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.code)
+
+
+# ---------------------------------------------------------------------------
+# E11/R4: synthetic effect-set probes (test-only, deliberately no business
+# logic).  The managers can be made to fail *measurement* from a test, so the
+# product has to prove that an unmeasurable effect set is refused instead of
+# being treated as an empty one.  Flags default to off: ordinary tests see a
+# normal, fast-deletable related model.
+# ---------------------------------------------------------------------------
+class SafetyProbeFlags(object):
+    """Test-controlled failure injection for the DELETE effect-set probes."""
+
+    refuse_count = False
+    refuse_fetch = False
+
+
+class SafetyProbeQuerySet(models.QuerySet):
+    def count(self):
+        if SafetyProbeFlags.refuse_count:
+            raise RuntimeError('safety probe: count refused')
+        return super(SafetyProbeQuerySet, self).count()
+
+    def exists(self):
+        if SafetyProbeFlags.refuse_fetch:
+            raise RuntimeError('safety probe: existence check refused')
+        return super(SafetyProbeQuerySet, self).exists()
+
+    def _fetch_all(self):
+        if SafetyProbeFlags.refuse_fetch:
+            raise RuntimeError('safety probe: effect rows could not be read')
+        return super(SafetyProbeQuerySet, self)._fetch_all()
+
+
+class FastDeleteProbe(models.Model):
+    """A related CASCADE row whose measurement can be made to fail."""
+
+    term = models.ForeignKey(
+        Term, on_delete=models.CASCADE, related_name='safety_fast_delete_probes',
+    )
+    note = models.CharField(max_length=64, blank=True, default='')
+
+    objects = SafetyProbeQuerySet.as_manager()
+
+    class Meta:
+        app_label = 'edw_contracts'
+        base_manager_name = 'objects'
+
+    def __str__(self):
+        return 'FastDeleteProbe(pk={}, term={})'.format(self.pk, self.term_id)
+
+
+class UnknownEffectProbe(models.Model):
+    """A second related row used for the fail-closed measurement control."""
+
+    term = models.ForeignKey(
+        Term, on_delete=models.CASCADE, related_name='safety_unknown_effect_probes',
+    )
+    note = models.CharField(max_length=64, blank=True, default='')
+
+    objects = SafetyProbeQuerySet.as_manager()
+
+    class Meta:
+        app_label = 'edw_contracts'
+        base_manager_name = 'objects'
+
+    def __str__(self):
+        return 'UnknownEffectProbe(pk={}, term={})'.format(self.pk, self.term_id)
+
+
+class ProtectedProbe(models.Model):
+    """A related row with ``on_delete=PROTECT`` (DELETE must fail closed)."""
+
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name='safety_protected_probes',
+    )
+    note = models.CharField(max_length=64, blank=True, default='')
+
+    class Meta:
+        app_label = 'edw_contracts'
+
+    def __str__(self):
+        return 'ProtectedProbe(pk={}, term={})'.format(self.pk, self.term_id)

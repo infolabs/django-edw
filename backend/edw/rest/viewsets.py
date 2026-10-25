@@ -11,6 +11,10 @@ from rest_framework.exceptions import ValidationError
 from edw.rest.permissions import get_data_mart_permissions
 
 
+class DeleteEffectSetError(Exception):
+    """E11/R4: the deletion effect set could not be measured; refuse the delete."""
+
+
 def remove_empty_params_from_request(exclude=None):
     """
     ENG: Remove empty query params from request
@@ -77,7 +81,7 @@ def _request_query_data(request):
 
 class SingleWriteAliasGuardMixin(object):
     """
-    E9: one write database alias for the whole bulk validation/write chain.
+    E9/E11-R5: one write database alias for the whole validation/write chain.
 
     The InfLabs bulk unit already refuses cross-database queries, but the EDW
     models open their own ``transaction.atomic()`` and the state-aware
@@ -89,25 +93,108 @@ class SingleWriteAliasGuardMixin(object):
     disagree for the model, bulk writes are refused *before* any validator and
     before the first write; when they agree, that single alias is used for the
     complete chain.
+
+    E11 extends the same contract to the detail PUT/PATCH/DELETE methods.  The
+    authority is computed before validators and before the first write from the
+    class-level router answers *and* the instance hints: a queryset bound to
+    ``.using()``, a ``write=None`` router whose instance hint moves the write to
+    another alias, or an object whose ``_state.db`` differs from the write alias
+    are all refused instead of silently writing another database.  The refusal
+    is a 400 with an explicit reason (the connector is misconfigured; no alias
+    may receive a partial unit).
     """
+
+    def _write_alias_problem(self, model, queryset=None, instance=None):
+        """Return a human-readable reason why the alias chain is not one alias."""
+        class_write = router.db_for_write(model) or DEFAULT_DB_ALIAS
+        class_read = router.db_for_read(model) or DEFAULT_DB_ALIAS
+        if class_read != class_write:
+            return (
+                'db_for_read({model})={read!r} but db_for_write({model})={write!r}.'
+            ).format(model=model.__name__, read=class_read, write=class_write)
+        if queryset is not None:
+            explicit = getattr(queryset, '_db', None)
+            if explicit is not None and explicit != class_write:
+                return (
+                    'the queryset is bound to {explicit!r} but db_for_write({model})'
+                    '={write!r}.'
+                ).format(explicit=explicit, model=model.__name__, write=class_write)
+        if instance is not None:
+            state_db = instance._state.db
+            if state_db is not None and state_db != class_write:
+                return (
+                    'the instance is loaded from {state!r} but db_for_write({model})'
+                    '={write!r}.'
+                ).format(state=state_db, model=model.__name__, write=class_write)
+            hinted_write = router.db_for_write(model, instance=instance) or DEFAULT_DB_ALIAS
+            if hinted_write != class_write:
+                return (
+                    'a db_for_write instance hint selects {hinted!r} while the '
+                    'model-level write alias is {write!r}.'
+                ).format(hinted=hinted_write, write=class_write)
+            hinted_read = router.db_for_read(model, instance=instance) or DEFAULT_DB_ALIAS
+            if hinted_read != class_read:
+                return (
+                    'a db_for_read instance hint selects {hinted!r} while the '
+                    'model-level read alias is {read!r}.'
+                ).format(hinted=hinted_read, read=class_read)
+        return None
 
     def get_bulk_write_alias(self):
         queryset = self.get_queryset()
-        model = queryset.model
-        write_alias = router.db_for_write(model) or DEFAULT_DB_ALIAS
-        read_alias = router.db_for_read(model) or DEFAULT_DB_ALIAS
-        if read_alias != write_alias:
+        problem = self._write_alias_problem(queryset.model, queryset=queryset)
+        if problem is not None:
             raise ImproperlyConfigured(
-                'Bulk writes require one database alias for validation and writes; '
-                'db_for_read({model})={read!r} but db_for_write({model})={write!r}.'.format(
-                    model=model.__name__, read=read_alias, write=write_alias,
-                )
+                'Bulk writes require one database alias for validation and writes: '
+                + problem
             )
-        return write_alias
+        return router.db_for_write(queryset.model) or DEFAULT_DB_ALIAS
+
+    def _refuse_detail_write(self, action, problem):
+        raise ValidationError({
+            'detail': _(
+                'The %(action)s is refused: this write is not pinned to a single '
+                'database alias (%(problem)s)'
+            ) % {'action': action, 'problem': problem},
+        })
+
+    def _detail_write_instance(self, action):
+        """
+        Return the admitted detail instance or refuse before any validator/write.
+
+        The model/queryset-level alias is checked before the object is loaded, so
+        a divergent read router cannot turn the refusal into a misleading 404;
+        the instance hints (``write=None`` + ``instance=...``, ``_state.db``)
+        are checked on the loaded object.
+        """
+        queryset = self.get_queryset()
+        problem = self._write_alias_problem(queryset.model, queryset=queryset)
+        if problem is not None:
+            self._refuse_detail_write(action, problem)
+        instance = self.get_object()
+        problem = self._write_alias_problem(
+            type(instance), queryset=queryset, instance=instance,
+        )
+        if problem is not None:
+            self._refuse_detail_write(action, problem)
+        return instance
 
     def create(self, request, *args, **kwargs):
         self.get_bulk_write_alias()
         return super(SingleWriteAliasGuardMixin, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self._detail_write_instance('update')
+        return super(SingleWriteAliasGuardMixin, self).update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        self._detail_write_instance('partial update')
+        return super(SingleWriteAliasGuardMixin, self).partial_update(
+            request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        self._detail_write_instance('delete')
+        return super(SingleWriteAliasGuardMixin, self).destroy(request, *args, **kwargs)
 
     def bulk_update(self, request, *args, **kwargs):
         self.get_bulk_write_alias()
@@ -260,12 +347,18 @@ class BulkDestroyPolicyMixin(object):
 
     def _delete_cascade_objects(self, objects):
         """
-        E9/R4: objects that a DELETE of ``objects`` would remove implicitly.
+        E9/E11-R4: objects that a DELETE of ``objects`` would remove implicitly.
 
-        The database ORM collector is the only authority on the effect set
-        (MPTT subtree children and every related ``on_delete=CASCADE`` row).
-        Auto-created M2M through models are relationship bookkeeping, not
-        dependent data, and are not reported.
+        The database ORM collector is the only authority on the effect set.  It
+        reports MPTT subtree children, every related ``on_delete=CASCADE`` row
+        and *auto-created M2M through rows*: membership bookkeeping is a real
+        row change in another model (a shared term would silently lose its
+        foreign data-mart membership), so it belongs to the effect set and is
+        refused by default like any other implicit consequence.
+
+        The set is fail-closed: if a part of the effect set cannot be counted
+        (an exception, not only a positive count), the delete is refused before
+        any row is removed.  A failed count is never treated as "0 rows".
         """
         objects = list(objects)
         if not objects:
@@ -275,29 +368,47 @@ class BulkDestroyPolicyMixin(object):
             alias = router.db_for_write(objects[0]._meta.concrete_model) or DEFAULT_DB_ALIAS
         collector = Collector(using=alias)
         collector.collect(objects)
-        named = list(objects)
+        named = set(objects)
         extra = []
         for related_model, instances in collector.data.items():
-            if related_model._meta.auto_created:
-                continue
             for obj in instances:
                 if obj in named:
                     continue
                 extra.append(obj)
         # Django's collector may push related rows into ``fast_deletes``
         # (their model has no signals and no own cascade); those rows are
-        # still part of the deletion effect set and must be authorized.
+        # still part of the deletion effect set and must be authorized.  The
+        # rows themselves are materialised so the policy can name them (for an
+        # auto-created M2M through row that is a real other-model row).
         for queryset in collector.fast_deletes:
             related_model = getattr(queryset, 'model', None)
-            if related_model is None or related_model._meta.auto_created:
+            if related_model is None:
                 continue
             try:
-                count = queryset.count()
-            except Exception:
-                count = 0
-            if count:
-                extra.append((related_model, count))
+                rows = list(queryset)
+            except Exception as exc:
+                raise DeleteEffectSetError(
+                    'The deletion effect set of {} could not be measured; the delete '
+                    'is refused.'.format(related_model._meta.label_lower),
+                ) from exc
+            for row in rows:
+                if row in named:
+                    continue
+                extra.append(row)
         return extra
+
+    def _delete_effect_is_allowed(self, obj):
+        """
+        Per-consequence DELETE policy; the base implementation is default-deny.
+
+        A subclass may name a consequence that the request itself authorizes
+        (for example an M2M through row whose foreign side is named by the URL
+        scope).  Anything else is refused.
+        """
+        return False
+
+    def _delete_effect_is_explicit(self, extra):
+        return all(self._delete_effect_is_allowed(obj) for obj in extra)
 
     def _bulk_destroy_effect_is_explicit(self, filtered):
         try:
@@ -312,7 +423,7 @@ class BulkDestroyPolicyMixin(object):
             return False
         except Exception:
             return False
-        return not extra
+        return self._delete_effect_is_explicit(extra)
 
     def perform_destroy(self, instance):
         """
@@ -330,7 +441,14 @@ class BulkDestroyPolicyMixin(object):
             raise ValidationError({
                 'detail': _('DELETE is refused: protected related objects exist.'),
             })
-        if extra:
+        except DeleteEffectSetError as exc:
+            raise ValidationError({'detail': str(exc)})
+        except Exception:
+            raise ValidationError({
+                'detail': _('DELETE is refused: the deletion effect set could not be '
+                            'verified.'),
+            })
+        if not self._delete_effect_is_explicit(extra):
             raise ValidationError({
                 'detail': _(
                     'DELETE is refused: the deletion effect set includes related '

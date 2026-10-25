@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""E7: shared fixtures of the real-runtime gate."""
+"""E7/E11: shared fixtures of the real-runtime gate."""
 from __future__ import unicode_literals
 
 import pytest
@@ -7,8 +7,19 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from rest_framework.test import APIClient
 
+import safety_probe_router
+from edw.tests.safety_evidence import write_post_suite_evidence
+
 from edw.models.data_mart import DataMartModel
 from edw.models.entity import EntityModel
+
+
+@pytest.fixture(autouse=True)
+def reset_alias_routers():
+    """Every test starts and ends with the write-alias routers inert."""
+    safety_probe_router.reset_all()
+    yield
+    safety_probe_router.reset_all()
 
 
 @pytest.fixture(autouse=True)
@@ -37,6 +48,12 @@ def superuser(db):
 
 
 @pytest.fixture
+def operator(api_client, superuser):
+    api_client.force_authenticate(user=superuser)
+    return api_client
+
+
+@pytest.fixture
 def regular_user(db):
     return User.objects.create_user(
         username='runtime-user', email='runtime-user@example.invalid', password='not-a-secret'
@@ -59,3 +76,8 @@ def entity_types(db):
         'root': Term.objects.get(slug=root.__name__.lower()),
         'child': Term.objects.get(slug='contractentitychild'),
     }
+
+
+def pytest_sessionfinish(session, exitstatus):  # noqa: ARG001
+    """Record post-suite in-interpreter evidence (E11/R6)."""
+    write_post_suite_evidence(exitstatus)

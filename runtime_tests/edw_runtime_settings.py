@@ -27,8 +27,24 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.environ.get('EDW_RUNTIME_DB', ':memory:'),
-    }
+        'TEST': {'NAME': ':memory:'},
+    },
+    # E11/R5: a real second SQLite alias for the write-alias controls.  The
+    # routers below are inert until a test enables them, so every other suite
+    # keeps using ``default`` only.
+    'second': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+        'TEST': {'NAME': ':memory:'},
+    },
 }
+
+DATABASE_ROUTERS = [
+    'safety_probe_router.TermSecondAliasRouter',
+    'safety_probe_router.ReadReplicaRouter',
+    'safety_probe_router.ExplicitWriteDefaultRouter',
+    'safety_probe_router.InstanceHintWriteRouter',
+]
 
 CACHES = {
     'default': {
