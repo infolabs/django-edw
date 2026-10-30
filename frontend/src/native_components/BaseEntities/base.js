@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {expandGroup, notifyLoadingEntities, getEntities} from '../../actions/EntitiesActions';
 import {ScrollView, View, ImageBackground, StyleSheet} from 'react-native';
@@ -15,6 +15,9 @@ const RELATED_CONTAINER_SIZE = {
   large: 'large'
 };
 const MAX_ANNOTATIONS = 4;
+// Карточка не должна открываться, если палец уже ушёл в прокрутку.
+const idleScrollLock = {current: false};
+const TileScrollLock = React.createContext(idleScrollLock);
 
 export const stylesComponent = StyleSheet.create({
   badge: {
@@ -58,23 +61,25 @@ export const stylesComponent = StyleSheet.create({
 });
 
 
-function getScrollHandler(props) {
+function getScrollHandler(props, loadingMore) {
   function handleScroll(e) {
     const {items, loading, meta, entry_point_id} = props;
-    if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height * 2 > e.nativeEvent.contentSize.height
-      && !loading && meta.count > items.length) {
-      const {subj_ids, limit, offset, request_options} = meta;
-      let options = Object.assign(request_options, {'offset': offset + limit});
-
-      const params = {
+    const native = e.nativeEvent;
+    const nearEnd = native.contentOffset.y + native.layoutMeasurement.height * 2
+      > native.contentSize.height;
+    if (!nearEnd || loading || loadingMore.current || !(meta && meta.count > items.length))
+      return;
+    const {subj_ids, limit, offset, request_options} = meta;
+    const options = Object.assign(request_options, {offset: offset + limit});
+    // Пока redux не выставит loading, следующие события скролла не должны слать тот же запрос.
+    loadingMore.current = true;
+    props.notifyLoadingEntities();
+    props.getEntities({
       mart_id: entry_point_id,
-        options_obj: options,
-        append: true,
-        subj_ids
-      };
-      props.notifyLoadingEntities();
-      props.getEntities(params)
-    }
+      options_obj: options,
+      append: true,
+      subj_ids,
+    });
   }
 
   return handleScroll;
@@ -262,6 +267,12 @@ export function renderEntityItem(
   let {onPress, groupSize} = useOnEntityPress(data, meta, fromRoute);
   if (customOnPress)
     onPress = customOnPress;
+  const scrollLock = useContext(TileScrollLock);
+  const guardedPress = () => {
+    if (scrollLock.current)
+      return;
+    onPress();
+  };
 
   const {shadows, setCardSize} = useCardShadow(groupSize, 2, styles);
 
@@ -347,7 +358,7 @@ export function renderEntityItem(
 
   return (
     <>
-      <Card appearance="filled" onPress={onPress} style={cardContainerStyle}>
+      <Card appearance="filled" onPress={guardedPress} style={cardContainerStyle}>
         {shadows}
         <View onLayout={e => setCardSize(e.nativeEvent.layout)} style={cardImageContainerStyle}>
           <ImageBackground
@@ -384,7 +395,11 @@ export function renderEntityItem(
         {renderGroupBadge(groupSize, styles)}
       </Card>
       {isLastItem && !templateIsDataMart &&
-        <Card appearance="filled" style={navigateToDMCardStyle} onPress={() => navigation.navigate(toRoute)}>
+        <Card appearance="filled" style={navigateToDMCardStyle} onPress={() => {
+          if (scrollLock.current)
+            return;
+          navigation.navigate(toRoute);
+        }}>
           <View style={styles.navigateToDMViewStyle}>
             <Text>Еще</Text>
           </View>
@@ -396,8 +411,37 @@ export function renderEntityItem(
 
 
 export function renderEntityTile(props, styles, createItem) {
-  const handleScroll = getScrollHandler(props);
+  const loadingMore = useRef(false);
+  const handleScroll = getScrollHandler(props, loadingMore);
   const {items, loading} = props;
+  const scrollLock = useRef(false);
+  const unlockTimer = useRef(null);
+  const lastOffset = useRef(null);
+
+  function holdLock() {
+    scrollLock.current = true;
+    if (unlockTimer.current)
+      clearTimeout(unlockTimer.current);
+    // onPress карточки приходит вслед за отпусканием пальца, уже после конца жеста.
+    unlockTimer.current = setTimeout(() => {
+      scrollLock.current = false;
+      unlockTimer.current = null;
+    }, 200);
+  }
+
+  function onListScroll(e) {
+    const y = e.nativeEvent.contentOffset.y;
+    if (lastOffset.current !== null && Math.abs(y - lastOffset.current) > 2)
+      holdLock();
+    lastOffset.current = y;
+    handleScroll(e);
+  }
+
+  useEffect(() => {
+    loadingMore.current = false;
+  }, [items.length, loading]);
+
+  useEffect(() => () => clearTimeout(unlockTimer.current), []);
 
   const scrollRef = useRef();
 
@@ -412,10 +456,14 @@ export function renderEntityTile(props, styles, createItem) {
     instance.scrollToTop = scrollToTop;
 
   return (
+    <TileScrollLock.Provider value={scrollLock}>
     <ScrollView
       ref={scrollRef}
-      scrollEventThrottle={2000}
-      onScroll={e => handleScroll(e)}>
+      scrollEventThrottle={16}
+      onScrollBeginDrag={holdLock}
+      onScroll={onListScroll}
+      onScrollEndDrag={onListScroll}
+      onMomentumScrollEnd={onListScroll}>
       {loading ?
         <View style={styles.spinnerContainer}>
           <Spinner visible={true}/>
@@ -424,6 +472,7 @@ export function renderEntityTile(props, styles, createItem) {
       }
       <Layout style={styles.layout}>{items.map(createItem)}</Layout>
     </ScrollView>
+    </TileScrollLock.Provider>
   );
 }
 

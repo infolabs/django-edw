@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Provider} from 'react-redux';
 import DataMart from './BaseRoot/DataMart';
 import Related from './BaseRoot/Related';
@@ -14,7 +14,13 @@ export function getTemplates() {
 
 
 function BaseRoot(props) {
-  const store = configureStore();
+  // Store нельзя создавать в теле рендера: родитель (экран «Мои сообщения»)
+  // перерисовывается, пока список догоняет только что созданную запись,
+  // и новый store обнулял бы уже загруженные объекты.
+  const storeRef = useRef(null);
+  if (!storeRef.current)
+    storeRef.current = configureStore();
+  const store = storeRef.current;
   const {entry_points, entry_point_id} = props.attrs;
   const templates = getTemplates();
   // a mobile app uses its own store, in order to get the edw store

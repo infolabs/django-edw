@@ -87,6 +87,10 @@ const loadingEntity = id => dispatch => {
 
 // count sent requests so as to match last response with selected terms
 let inFetch = 0;
+// Номер запроса на каждый store витрины. Ответ более раннего GET не должен
+// затирать список, который уже обновил более поздний запрос (пустой ответ
+// сразу после создания сообщения приходит позже повторной загрузки).
+const fetchSeqByDispatch = new WeakMap();
 
 export function getEntities(params) {
   const {mart_id, template_name, unexpandedGroupTerms} = params,
@@ -110,6 +114,20 @@ export function getEntities(params) {
 
     if (treeRootLength && currentDataMartId === mart_id && inFetch > 3)
       return;
+
+    let seqByMart = fetchSeqByDispatch.get(dispatch);
+    if (!seqByMart) {
+      seqByMart = {};
+      fetchSeqByDispatch.set(dispatch, seqByMart);
+    }
+    const seqKey = String(mart_id);
+    let seq;
+    if (append) {
+      seq = seqByMart[seqKey] || 0;
+    } else {
+      seq = (seqByMart[seqKey] || 0) + 1;
+      seqByMart[seqKey] = seq;
+    }
 
     // set computed initial terms if not set
     const terms = getState().terms,
@@ -159,6 +177,9 @@ export function getEntities(params) {
       },
     }).then(response => response.json()).then(json => {
       inFetch--;
+      if (seqByMart[seqKey] !== seq)
+        return;
+
       const state = getState(),
         stateRootLength = state?.terms?.tree.root.children.length,
         stateMeta = state?.entities?.items.meta,

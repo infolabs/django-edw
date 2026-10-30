@@ -75,8 +75,16 @@ export const createEntity = params => dispatch => {
     textLoader && navigation.navigate({name: 'Preloader', props: {textLoader}, merge: true});
 
     uniFetch(url, parameters, nameFields)
-      .then(() => {
-        navigation.navigate(nextScreen.name, nextScreen.params);
+      .then(response => response.json().catch(() => null))
+      .then(json => {
+        const created = Array.isArray(json) ? json[0] : json;
+        const awaitEntityId = created && created.id;
+        // id нужен экрану списка: первая выборка витрины часто ещё без новой
+        // строки, и спиннер гаснет на пустом списке. Экран повторяет запрос.
+        navigation.navigate(nextScreen.name, {
+          ...(nextScreen.params || {}),
+          ...(awaitEntityId ? {awaitEntityId} : null),
+        });
         dispatch({type: actionType});
         slugConfig && refreshDataMart(slugConfig);
       })
