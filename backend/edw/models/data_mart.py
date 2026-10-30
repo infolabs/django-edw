@@ -241,6 +241,16 @@ class BaseDataMart(with_metaclass(BaseDataMartMetaclass, MPTTModelSignalSenderMi
             return NotImplemented
         return self.pk == other.pk
 
+    def __hash__(self):
+        """
+        RUS: Хеш по первичному ключу. В паре с __eq__: без него Python 3
+        запрещает хеширование, и удаление витрины в админке падает,
+        когда экземпляр кладут в множество связанных объектов.
+        """
+        if self.pk is None:
+            raise TypeError("Model instances without primary key value are unhashable")
+        return hash(self.pk)
+
     def data_mart_type(self):
         """
         ENG: Returns the polymorphic type of the object.
