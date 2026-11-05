@@ -1,0 +1,39 @@
+{
+  "core_edw_file": "<CLEANUP_RUN>/core-env/lib/python3.12/site-packages/edw/__init__.py",
+  "frontend_bundle_sha256": "388d7438f290fb82ea4900b3e3eb79b4a90463ab700eeada23275f1fdc17a907",
+  "gate_edw_file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/edw/__init__.py",
+  "head": "8d8f5270fb581d7947822208fdbff65ba4cb1827",
+  "mandatory_closure": 31,
+  "ok": true,
+  "payload_files": 377,
+  "provider_wheel_sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6",
+  "record_entries": 379,
+  "run": "<CLEANUP_RUN>",
+  "runtime_lock_sha256": "22a3d4ff3d4d9f763dcbfb33d23400f9daeb1b6e357c46b6ce298e2ac51a8056",
+  "schema": "edw-modernize/safety-summary/1",
+  "source_date_epoch": 1792847103,
+  "suites": {
+    "runtime_tests": {
+      "failed": 0,
+      "junit": "<CLEANUP_RUN>/junit/runtime_tests.xml",
+      "passed": 168,
+      "post_suite": "<CLEANUP_RUN>/post-suite-runtime_tests.json",
+      "tests": 168
+    },
+    "runtime_tests_safety_alias": {
+      "failed": 0,
+      "junit": "<CLEANUP_RUN>/junit/runtime_tests_safety_alias.xml",
+      "passed": 3,
+      "post_suite": "<CLEANUP_RUN>/post-suite-runtime_tests_safety_alias.json",
+      "tests": 3
+    }
+  },
+  "tests": 171,
+  "tests_failed": 0,
+  "tests_passed": 171,
+  "tools": 10,
+  "tools_lock_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+  "tree": "0c91dc42d2051a39903f57ab0e566755c0fa1c24",
+  "wheel": "<CLEANUP_RUN>/dist/django_edw-0.2.0-py3-none-any.whl",
+  "wheel_sha256": "5e53ac23a7ba59810730d7ef6103b461cc8abe83742832885f5b11a31bc05854"
+}

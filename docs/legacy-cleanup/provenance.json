@@ -1,0 +1,187 @@
+{
+  "schema": "edw-legacy-cleanup/provenance/1",
+  "tested_source": "8d8f5270fb581d7947822208fdbff65ba4cb1827",
+  "tested_tree": "0c91dc42d2051a39903f57ab0e566755c0fa1c24",
+  "parent_publication": "3a02c052d4146c0c3d09f0df02fe4533126e0221",
+  "report_commit": "the subsequent evidence-only commit containing this document",
+  "original_e12_tested_source": "50d26164383dc1df77795a5a079ffe2be1e2a9da",
+  "wheel_sha256": "5e53ac23a7ba59810730d7ef6103b461cc8abe83742832885f5b11a31bc05854",
+  "install_document_sha256": "ee52000eccada9400a67f17dda3eb66ffbcc5bb62801b07b84c8aa31dd45a3af",
+  "old_independent_50_rerun": false,
+  "sanitization": {
+    "json_and_log": "exact engineering roots replaced; originals unchanged",
+    "xml": "hostname attributes removed; testcase names/counts/timestamps unchanged",
+    "embedded_file_sha256": "hashes in reports still identify ORIGINAL raw files; this manifest maps published derivatives"
+  },
+  "sources": [
+    {
+      "published_path": "evidence/summary.json",
+      "source_reference": "<CLEANUP_RUN>/summary.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "5b17a5ef2f3943accfe032baca73071c5c0e30c47cb667149047414ed177d6cd",
+      "published_sha256": "12b03cf3fef47ea814b0d85f895075e186013d2c3c4d45507ca996274ffa39ca",
+      "source_bytes": 2376,
+      "published_bytes": 1568
+    },
+    {
+      "published_path": "evidence/preconditions.json",
+      "source_reference": "<CLEANUP_RUN>/preconditions.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "ad51fbe7e4e050886418e81e96096e0ac96c3f05907b3633724f2b96e1e3f1f1",
+      "published_sha256": "a97b399e4ad15c0dde8befe4dbb711b5227b8483e94dd8c0e604f98f3ef8cbdf",
+      "source_bytes": 7645,
+      "published_bytes": 7521
+    },
+    {
+      "published_path": "evidence/install-core.json",
+      "source_reference": "<CLEANUP_RUN>/install-core.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "a4598bc892eb947f1f650d49bc6e9d973fb5aef8fa1c1231c72394972589784d",
+      "published_sha256": "99f07391ed5bc0f250b650e4bf79a56576277aad1fafbfb21b64fe981158c5cd",
+      "source_bytes": 2064,
+      "published_bytes": 1660
+    },
+    {
+      "published_path": "evidence/install-gate.json",
+      "source_reference": "<CLEANUP_RUN>/install-gate.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "4d4ed6ae194e970d92ee1cd91645367d399878831a41f659633c02522c57dd49",
+      "published_sha256": "95118a677e64e126ad8e03763498c09d9d1a2375750db8e9e236089db6ba05a2",
+      "source_bytes": 2619,
+      "published_bytes": 2114
+    },
+    {
+      "published_path": "evidence/payload-pre.json",
+      "source_reference": "<CLEANUP_RUN>/payload-pre.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "2270845fb71be36328daf68fef99021cf52fdc772b4ca49c77b174c39f249195",
+      "published_sha256": "1be282416de8ac1a2048f5e541cdec88eb51d3fde2016762cff982d842e4ed42",
+      "source_bytes": 3143,
+      "published_bytes": 2537
+    },
+    {
+      "published_path": "evidence/payload-post.json",
+      "source_reference": "<CLEANUP_RUN>/payload-post.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "c893e242d42ab92384caedb2b98116955f1b4d782a995e3c7538159bba898127",
+      "published_sha256": "6a627226a87906b704c01aa357db79fd6e91c06cd2bd30176d93114d0ac3e1a5",
+      "source_bytes": 3144,
+      "published_bytes": 2538
+    },
+    {
+      "published_path": "evidence/post-suite-runtime_tests.json",
+      "source_reference": "<CLEANUP_RUN>/post-suite-runtime_tests.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "ac7cd69eb412e0a3e9fd56404d6808bd870f8bcdfb465f262c993c995f414078",
+      "published_sha256": "52ce6c176e476dc24743f15c7a1c1f5999bb8fd0dcbc6d7dbe8480e605a22881",
+      "source_bytes": 573,
+      "published_bytes": 371
+    },
+    {
+      "published_path": "evidence/post-suite-runtime_tests_safety_alias.json",
+      "source_reference": "<CLEANUP_RUN>/post-suite-runtime_tests_safety_alias.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "e48004706384febd10b8caf217df7b9a7ff4578791b31460e0cc18af367526fb",
+      "published_sha256": "6d37168237895ae52662745019f7a818b85286fe50776743433b4c64c94a83b6",
+      "source_bytes": 575,
+      "published_bytes": 373
+    },
+    {
+      "published_path": "evidence/post-suite-edw_runtime_settings.json",
+      "source_reference": "<CLEANUP_RUN>/evidence/post-suite-edw_runtime_settings.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "db7b4963c4b549f2ef659249c514c112da486293d10f9279a77a6e9388a37da6",
+      "published_sha256": "e0a65dbde4a0dd5d3cb895df35978ce1a92268fe2ef05d63f958cf0b24df4585",
+      "source_bytes": 5481,
+      "published_bytes": 3803
+    },
+    {
+      "published_path": "evidence/post-suite-safety_alias_settings.json",
+      "source_reference": "<CLEANUP_RUN>/evidence/post-suite-safety_alias_settings.json",
+      "transformation": "json-path-redaction",
+      "source_sha256": "8e98093cb4cc9608a7a217266062728fb12ffa064591a762a9720bc43b9886d1",
+      "published_sha256": "96bcd51a52a1d92f1fb8ad8ded154235e48327645451642ee6dccb30ec229fab",
+      "source_bytes": 5508,
+      "published_bytes": 3830
+    },
+    {
+      "published_path": "evidence/runtime_tests.xml",
+      "source_reference": "<CLEANUP_RUN>/junit/runtime_tests.xml",
+      "transformation": "xml-remove-hostname",
+      "source_sha256": "da6d1adc86c94378f8181349f6ca3cbbeab0f5221e5d302c627342cdbf85fe0d",
+      "published_sha256": "0760be6ae708ae1fd52feea61de4587a187afd8a3d4465e59fbf44a12296ba94",
+      "source_bytes": 22479,
+      "published_bytes": 22460
+    },
+    {
+      "published_path": "evidence/runtime_tests_safety_alias.xml",
+      "source_reference": "<CLEANUP_RUN>/junit/runtime_tests_safety_alias.xml",
+      "transformation": "xml-remove-hostname",
+      "source_sha256": "0784bc8e9b9bf26d31c4c6125cd9a28e80ae9d843995a80d45bd1b169fb10172",
+      "published_sha256": "815b9140d20d44d394778ad21c1743928460b93aecf2d5651e5179bedcbd03f4",
+      "source_bytes": 710,
+      "published_bytes": 691
+    },
+    {
+      "published_path": "locks/runtime.lock",
+      "source_reference": "<CLEANUP_RUN>/locks/runtime.lock",
+      "transformation": "byte-identical",
+      "source_sha256": "22a3d4ff3d4d9f763dcbfb33d23400f9daeb1b6e357c46b6ce298e2ac51a8056",
+      "published_sha256": "22a3d4ff3d4d9f763dcbfb33d23400f9daeb1b6e357c46b6ce298e2ac51a8056",
+      "source_bytes": 3207,
+      "published_bytes": 3207
+    },
+    {
+      "published_path": "locks/tools.lock",
+      "source_reference": "<CLEANUP_RUN>/locks/tools.lock",
+      "transformation": "byte-identical",
+      "source_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+      "published_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+      "source_bytes": 1017,
+      "published_bytes": 1017
+    },
+    {
+      "published_path": "locks/build.lock",
+      "source_reference": "<INSTALL_RUN>/build.lock",
+      "transformation": "byte-identical",
+      "source_sha256": "8d74d3fe4ac7c938846d5f690eaddc844a8028804f2356f651100536ac85039d",
+      "published_sha256": "8d74d3fe4ac7c938846d5f690eaddc844a8028804f2356f651100536ac85039d",
+      "source_bytes": 480,
+      "published_bytes": 480
+    },
+    {
+      "published_path": "evidence/documented-install.log",
+      "source_reference": "<CLEANUP_WORK>/documented-install.log",
+      "transformation": "text-path-redaction",
+      "source_sha256": "c0af97ff04f8a901bee721523c997b140eba741898fa530e24a83a4196a36ad0",
+      "published_sha256": "8448e426d0a682048ee22e8d0f65955f15bef269d7a7a0d4d2b11d951a0662f5",
+      "source_bytes": 8300,
+      "published_bytes": 6249
+    },
+    {
+      "published_path": "evidence/clean-source-unittest.log",
+      "source_reference": "<CLEANUP_WORK>/clean-source-unittest.log",
+      "transformation": "byte-identical",
+      "source_sha256": "6587afa114210e781bbb633860b99a0602f4b3a061f6617ba871e0b2732caae2",
+      "published_sha256": "6587afa114210e781bbb633860b99a0602f4b3a061f6617ba871e0b2732caae2",
+      "source_bytes": 1712,
+      "published_bytes": 1712
+    },
+    {
+      "published_path": "evidence/clean-source.json",
+      "source_reference": "<CLEANUP_WORK>/clean-source.json",
+      "transformation": "byte-identical",
+      "source_sha256": "2b4dfd1bdf6f0e4d5c336e2c13fd92d97b7b38aa8a7a6b2c6630fbc176e28fd8",
+      "published_sha256": "2b4dfd1bdf6f0e4d5c336e2c13fd92d97b7b38aa8a7a6b2c6630fbc176e28fd8",
+      "source_bytes": 139,
+      "published_bytes": 139
+    }
+  ],
+  "synthetic_tests": {
+    "stdlib_guard": 15,
+    "runtime": 168,
+    "write_alias": 3
+  },
+  "known_warning": "rest_framework.W001",
+  "limitations": "See VALIDATION.md and ../neural-analysis/LIMITATIONS.md"
+}

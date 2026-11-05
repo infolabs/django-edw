@@ -1,0 +1,20 @@
+test_active_code_import_refused (__main__.CleanSourceTests.test_active_code_import_refused) ... ok
+test_active_document_reference_refused (__main__.CleanSourceTests.test_active_document_reference_refused) ... ok
+test_bare_demo_imports_refused (__main__.CleanSourceTests.test_bare_demo_imports_refused) ... ok
+test_clean_supported_tree (__main__.CleanSourceTests.test_clean_supported_tree) ... ok
+test_demo_settings_namespace_refused (__main__.CleanSourceTests.test_demo_settings_namespace_refused) ... ok
+test_historical_evidence_preserved (__main__.CleanSourceTests.test_historical_evidence_preserved) ... ok
+test_ignored_text_suffixes_scanned (__main__.CleanSourceTests.test_ignored_text_suffixes_scanned) ... ok
+test_invalid_utf8_active_source_is_refused (__main__.CleanSourceTests.test_invalid_utf8_active_source_is_refused) ... ok
+test_missing_entrypoint_refused (__main__.CleanSourceTests.test_missing_entrypoint_refused) ... ok
+test_missing_redirect_refused (__main__.CleanSourceTests.test_missing_redirect_refused) ... ok
+test_obsolete_full_runner_command_refused (__main__.CleanSourceTests.test_obsolete_full_runner_command_refused) ... ok
+test_removed_directories_and_file_are_refused (__main__.CleanSourceTests.test_removed_directories_and_file_are_refused) ... ok
+test_symlink_to_removed_path_is_refused (__main__.CleanSourceTests.test_symlink_to_removed_path_is_refused) ... ok
+test_tracked_hidden_files_are_included (__main__.CleanSourceTests.test_tracked_hidden_files_are_included) ... ok
+test_warning_about_runner_is_allowed (__main__.CleanSourceTests.test_warning_about_runner_is_allowed) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.037s
+
+OK

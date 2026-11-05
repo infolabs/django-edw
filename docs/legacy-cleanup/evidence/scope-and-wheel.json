@@ -1,0 +1,42 @@
+{
+  "schema": "edw-legacy-cleanup/scope/1",
+  "ok": true,
+  "source": "8d8f5270fb581d7947822208fdbff65ba4cb1827",
+  "parent": "3a02c052d4146c0c3d09f0df02fe4533126e0221",
+  "tree": "0c91dc42d2051a39903f57ab0e566755c0fa1c24",
+  "deleted_tracked_files": 55,
+  "deleted_targets": [
+    "backend/sandbox",
+    "backend/requirements/django19",
+    "backend/docs/sample.txt"
+  ],
+  "additional_deletions": [],
+  "protected_code_and_historical_evidence_unchanged": true,
+  "allowed_package_documentation_change": "backend/edw/tests/contract/README.md",
+  "wheel_zip_members": 378,
+  "changed_wheel_members": [
+    "django_edw-0.2.0.dist-info/METADATA",
+    "django_edw-0.2.0.dist-info/RECORD",
+    "django_edw-0.2.0.dist-info/top_level.txt"
+  ],
+  "executable_package_files_unchanged": 305,
+  "package_payload_byte_identical_to_e12": true,
+  "provider_fields_checked_per_suite": 16,
+  "provider_fields_mismatch": 0,
+  "new_junit": {
+    "runtime_tests": {
+      "tests": 168,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duplicate_ids": 0
+    },
+    "runtime_tests_safety_alias": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duplicate_ids": 0
+    }
+  }
+}

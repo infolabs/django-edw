@@ -1,0 +1,10 @@
+{
+  "exitstatus": 0,
+  "file": "<CLEANUP_RUN>/evidence/post-suite-safety_alias_settings.json",
+  "file_sha256": "8e98093cb4cc9608a7a217266062728fb12ffa064591a762a9720bc43b9886d1",
+  "ok": true,
+  "record_entries": 379,
+  "schema": "edw-modernize/safety-post-suite/1",
+  "settings": "safety_alias_settings",
+  "site": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages"
+}

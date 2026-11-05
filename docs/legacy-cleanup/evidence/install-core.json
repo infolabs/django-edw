@@ -1,0 +1,54 @@
+{
+  "administrative_distributions": {
+    "pip": "24.0"
+  },
+  "administrative_pip": "pip 24.0 from <CLEANUP_RUN>/core-env/lib/python3.12/site-packages/pip (python 3.12)",
+  "distributions": {
+    "asgiref": "3.12.1",
+    "django": "5.2.18",
+    "django-appconf": "1.2.0",
+    "django-bitfield": "2.4.0",
+    "django-classy-tags": "4.1.0",
+    "django-edw": "0.2.0",
+    "django-filer": "3.6.0",
+    "django-filter": "26.2",
+    "django-fsm-2": "4.2.4",
+    "django-ipware": "8.0.0",
+    "django-js-asset": "4.2.0",
+    "django-mptt": "0.20.0",
+    "django-polymorphic": "4.11.7",
+    "django-post-office": "3.12.0",
+    "django-select2": "8.4.8",
+    "django-stubs-ext": "6.1.2",
+    "djangorestframework": "3.18.3",
+    "djangorestframework-bulk": "0.3.0a1",
+    "djangorestframework-filters": "1.0.0.dev2",
+    "djangorestframework-recursive": "0.1.2",
+    "drf-nested-routers": "0.95.3",
+    "easy-thumbnails": "2.10.1",
+    "jsonfield": "3.2.0",
+    "nh3": "0.3.7",
+    "pillow": "13.0.0",
+    "pip": "24.0",
+    "py-svg-hush": "0.3.0",
+    "python-dateutil": "2.9.0.post0",
+    "python-ipware": "4.1.1",
+    "six": "1.17.0",
+    "sqlparse": "0.6.0",
+    "typing-extensions": "4.16.0"
+  },
+  "edw_file": "<CLEANUP_RUN>/core-env/lib/python3.12/site-packages/edw/__init__.py",
+  "locks": [
+    {
+      "path": "<CLEANUP_RUN>/locks/runtime.lock",
+      "sha256": "22a3d4ff3d4d9f763dcbfb33d23400f9daeb1b6e357c46b6ce298e2ac51a8056"
+    }
+  ],
+  "ok": true,
+  "pip_check": "No broken requirements found.",
+  "python": "3.12.3",
+  "record_checked": 379,
+  "record_entries": 379,
+  "schema": "edw-modernize/safety-install/1",
+  "venv": "<CLEANUP_RUN>/core-env"
+}

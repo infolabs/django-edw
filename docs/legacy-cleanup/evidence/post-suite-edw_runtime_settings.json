@@ -1,0 +1,85 @@
+{
+  "active_stub_modules": [],
+  "cwd": "<CLEANUP_SOURCE>",
+  "dist_info_dirs": [
+    "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/django_edw-0.2.0.dist-info"
+  ],
+  "dist_version": "0.2.0",
+  "edw_contract_compat_importable": false,
+  "edw_file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/edw/__init__.py",
+  "edw_modules_outside_site": [],
+  "edw_package_imported": true,
+  "exitstatus": 0,
+  "interpreter": "<CLEANUP_RUN>/gate-env/bin/python",
+  "namespaces": {
+    "bitfield": {
+      "file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/bitfield/__init__.py",
+      "package": "bitfield"
+    },
+    "rest_framework_bulk": {
+      "file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/rest_framework_bulk/__init__.py",
+      "package": "rest_framework_bulk"
+    },
+    "rest_framework_filters": {
+      "file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/rest_framework_filters/__init__.py",
+      "package": "rest_framework_filters"
+    },
+    "rest_framework_recursive": {
+      "file": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/rest_framework_recursive/__init__.py",
+      "package": "rest_framework_recursive"
+    }
+  },
+  "optimize": 0,
+  "prefix": "<CLEANUP_RUN>/gate-env",
+  "providers": {
+    "bitfield": {
+      "dist_info": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/django_bitfield-2.4.0.dist-info",
+      "distribution": "django-bitfield",
+      "metadata_sha256": "9f85d583fb206a8f35da2726a559542c4d6e11da5ee167d268906893f5e38419",
+      "module_sha256": "5fb4aa6aec71cd7cdee20da0d848f0bc108aac7f9b4ebb8e9afe5c97d370d41d",
+      "record_sha256": "f77ee49fe24df5f36bd5d45ab0b73fecf62928e4d64c33fae90a097e1a5183c5",
+      "version": "2.4.0"
+    },
+    "rest_framework_bulk": {
+      "dist_info": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/djangorestframework_bulk-0.3.0a1.dist-info",
+      "distribution": "djangorestframework-bulk",
+      "metadata_sha256": "e9358bd3011ee8ed5420186d5e904df3689c6b6ae03001fe31586dbbe7f850a7",
+      "module_sha256": "cb9ddd9c31093f2e7311559dfd8b87d93c687fbcd1970a8e99d39f645866e0cc",
+      "record_sha256": "d759f50405926c67cbde35375ae331ad9a34fe632dbcdf01b621cfd0d9d42314",
+      "version": "0.3.0a1"
+    },
+    "rest_framework_filters": {
+      "dist_info": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/djangorestframework_filters-1.0.0.dev2.dist-info",
+      "distribution": "djangorestframework-filters",
+      "metadata_sha256": "5afb6e9d60a04c48d8745b647661b4f7026b8b1b8e2b32fdb6d9d79ce455b931",
+      "module_sha256": "762b0e865d36fc02290f5a46f89eed50a5b90fce1a6f9190030f2b74de12ce32",
+      "record_sha256": "ae3dd8fda69dadfac3ede37cc286064de91f373007dc89d847a9b088b5b9a71f",
+      "version": "1.0.0.dev2"
+    },
+    "rest_framework_recursive": {
+      "dist_info": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages/djangorestframework_recursive-0.1.2.dist-info",
+      "distribution": "djangorestframework-recursive",
+      "metadata_sha256": "af89d1c585a6d5fd8fecfc53a348201aac3111920f3d021a8abe40cfef064b97",
+      "module_sha256": "99da7609fb5fa986dd2ad3fe796bf5cfbac0532718bfa5f59ed5d23147fc2acb",
+      "record_sha256": "ce8e947d7d6e6b5cb55cbe8e3fcdb5a906af76eeaa89ddcae88eb2cd624cdc48",
+      "version": "0.1.2"
+    }
+  },
+  "python": "3.12.3",
+  "record_checked": 379,
+  "record_entries": 379,
+  "record_mismatch": [],
+  "record_missing": [],
+  "settings": "edw_runtime_settings",
+  "site": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages",
+  "stub_sys_path_entries": [],
+  "sys_path": [
+    "<CLEANUP_SOURCE>/runtime_tests",
+    "<CLEANUP_SOURCE>",
+    "<CLEANUP_SOURCE>/runtime_tests",
+    "/usr/lib/python312.zip",
+    "/usr/lib/python3.12",
+    "/usr/lib/python3.12/lib-dynload",
+    "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages"
+  ]
+}

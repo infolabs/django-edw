@@ -1,0 +1,10 @@
+{
+  "exitstatus": 0,
+  "file": "<CLEANUP_RUN>/evidence/post-suite-edw_runtime_settings.json",
+  "file_sha256": "db7b4963c4b549f2ef659249c514c112da486293d10f9279a77a6e9388a37da6",
+  "ok": true,
+  "record_entries": 379,
+  "schema": "edw-modernize/safety-post-suite/1",
+  "settings": "edw_runtime_settings",
+  "site": "<CLEANUP_RUN>/gate-env/lib/python3.12/site-packages"
+}
