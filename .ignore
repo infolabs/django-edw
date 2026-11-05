@@ -1,8 +1,6 @@
 !graft/
 graft/.cache/
 graft/.graph/
-# Песочница пакета: тестовый каркас (52 файла, bower.json, manage.py, package.json)
-backend/sandbox/
 # Собранная статика пакета
 backend/edw/static/
 frontend/dist/

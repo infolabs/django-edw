@@ -1,28 +1,23 @@
 # E1/E4/E5: характеризационные тесты контрактов django-edw
 
-Синтетический offline-контур для фиксации текущего поведения ядра EDW.
-Запуск:
+Исторический синтетический offline-контур E1/E4/E5 для характеризации ядра.
+Единственный актуальный путь изолированной установки и runtime-проверки описан
+в корневом `INSTALL.md`; он использует новые окружения и настоящие providers.
 
-```bash
-./scripts/check.sh
-```
-
-Скрипт использует предсобранный `/home/agent/workspace/venvs/edw-modernize/bin/python`,
-sqlite в памяти и locmem-кэш. `pip`/`npm install`, сеть и внешние БД не нужны.
-Кроме контрактов E1/E3 `check.sh` проверяет матрицу зависимостей G0.1, миграции
-(`makemigrations --check --dry-run`, накат на пустую sqlite и `--fake-initial`
-на снимок прежней схемы), адаптеры django-filer / django-filter / django-fsm-2
-и статический барьер E5.fix: в продуктовом коде нет `timezone.utc` и
-`UserManager.make_random_password` (удалены в Django 5.0/5.1).
+Старый `scripts/check.sh` привязан к прежнему host environment и migration checker,
+который ожидает только начальную миграцию. Он не является текущей полной проверкой
+ветки. Его прежние assertions, stubs и compatibility harness сохранены как
+характеризационные материалы, а не как замена современного runtime gate.
 
 ## Состав
 
 * `app/` — синтетическое приложение `EDW_APP_LABEL = 'edw_contracts'`:
   ровно один корневой `ContractEntity(BaseEntity)`, его полиморфный подкласс,
   `Term`, `DataMart`, `Customer`, `DataMartPermission` и relation-модели.
-* `app/migrations/` — единственная начальная миграция контура `0001_initial`:
-  позволяет проверять drift и накат схемы; прежняя схема без миграций
-  эмулируется `migrate --run-syncdb` (см. `scripts/check_migrations.py`).
+* `app/migrations/` — начальная `0001_initial` и добавленная позднее
+  `0002_fastdeleteprobe_protectedprobe_unknowneffectprobe` для synthetic safety cases.
+  Старое ожидание «только 0001» в `scripts/check_migrations.py` не является
+  подтверждённым migration path текущего контура.
 * `test_materialization.py` — контракт `edw/deferred.py`: один корень
   `BaseEntity`, запрет второй материализации, отсутствие pending-маппингов.
 * `test_term_contract.py` — MPTT-дерево, пути, `decompress`, битовые атрибуты и

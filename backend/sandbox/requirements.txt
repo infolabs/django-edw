@@ -1,3 +1,0 @@
--r ../requirements/django19/common.txt
-mysql_python
-git+https://github.com/divio/django-filer.git

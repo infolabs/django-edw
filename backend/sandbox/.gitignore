@@ -1,8 +1,0 @@
-.idea
-*.pyc
-*egg-info*
-media/
-static/
-node_modules/
-bower_components/
-.DS_Store
