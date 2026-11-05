@@ -1,0 +1,46 @@
+{
+  "dist_version": "0.2.0",
+  "edw_contract_compat_importable": false,
+  "edw_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/edw/__init__.py",
+  "edw_modules_outside_site": [],
+  "exitstatus": 0,
+  "ok": true,
+  "optimize": 0,
+  "providers": {
+    "bitfield": {
+      "metadata_sha256": "9f85d583fb206a8f35da2726a559542c4d6e11da5ee167d268906893f5e38419",
+      "module_sha256": "5fb4aa6aec71cd7cdee20da0d848f0bc108aac7f9b4ebb8e9afe5c97d370d41d",
+      "record_sha256": "4dc1065d65ac9eb1e5adb066a5fc5e6be4cb9db114e69c3afb09ceb2f3b703eb",
+      "version": "2.4.0"
+    },
+    "rest_framework_bulk": {
+      "metadata_sha256": "e9358bd3011ee8ed5420186d5e904df3689c6b6ae03001fe31586dbbe7f850a7",
+      "module_sha256": "cb9ddd9c31093f2e7311559dfd8b87d93c687fbcd1970a8e99d39f645866e0cc",
+      "record_sha256": "407e41981aa6565313440ae02c8af4bb141f48aff770d3ef2ac9a81b8bca1f11",
+      "version": "0.3.0a1"
+    },
+    "rest_framework_filters": {
+      "metadata_sha256": "5afb6e9d60a04c48d8745b647661b4f7026b8b1b8e2b32fdb6d9d79ce455b931",
+      "module_sha256": "762b0e865d36fc02290f5a46f89eed50a5b90fce1a6f9190030f2b74de12ce32",
+      "record_sha256": "15e729b4ba9a465ce12c3f4159c2fe6c694bdbb4762f8267f0965c9d51b0a50b",
+      "version": "1.0.0.dev2"
+    },
+    "rest_framework_recursive": {
+      "metadata_sha256": "af89d1c585a6d5fd8fecfc53a348201aac3111920f3d021a8abe40cfef064b97",
+      "module_sha256": "99da7609fb5fa986dd2ad3fe796bf5cfbac0532718bfa5f59ed5d23147fc2acb",
+      "record_sha256": "9e1c06450ab5da4c69f4cab16f6cc7deb581e80efa16c20d99fab39f3274f11b",
+      "version": "0.1.2"
+    }
+  },
+  "python": "<E12_CHECK_ENV>/bin/python",
+  "reasons": [],
+  "record_checked": 379,
+  "record_entries": 379,
+  "record_mismatch": [],
+  "record_missing": [],
+  "schema": "edw-modernize/e12-check/post-suite/1",
+  "settings": "e12_settings",
+  "site": "<E12_CHECK_ENV>/lib/python3.12/site-packages",
+  "stub_sys_path_entries": [],
+  "timestamp": "2026-10-26T07:34:05.059640Z"
+}

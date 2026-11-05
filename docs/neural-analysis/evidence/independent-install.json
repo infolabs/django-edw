@@ -1,0 +1,129 @@
+{
+  "dist_version": "0.2.0",
+  "distributions": [
+    "Django==5.2.18",
+    "Pygments==2.21.0",
+    "asgiref==3.12.1",
+    "build==1.4.0",
+    "django-appconf==1.2.0",
+    "django-bitfield==2.4.0",
+    "django-classy-tags==4.1.0",
+    "django-edw==0.2.0",
+    "django-filer==3.6.0",
+    "django-filter==26.2",
+    "django-fsm-2==4.2.4",
+    "django-ipware==8.0.0",
+    "django-js-asset==4.2.0",
+    "django-mptt==0.20.0",
+    "django-polymorphic==4.11.7",
+    "django-post_office==3.12.0",
+    "django-select2==8.4.8",
+    "django-stubs-ext==6.1.2",
+    "djangorestframework-bulk==0.3.0a1",
+    "djangorestframework-filters==1.0.0.dev2",
+    "djangorestframework-recursive==0.1.2",
+    "djangorestframework==3.18.3",
+    "drf-nested-routers==0.95.3",
+    "easy-thumbnails==2.10.1",
+    "iniconfig==2.3.1",
+    "jsonfield==3.2.0",
+    "nh3==0.3.7",
+    "packaging==26.3",
+    "pillow==13.0.0",
+    "pip==24.0",
+    "pluggy==1.7.0",
+    "py_svg_hush==0.3.0",
+    "pyproject_hooks==1.3.3",
+    "pytest-django==4.14.0",
+    "pytest==9.1.1",
+    "python-dateutil==2.9.0.post0",
+    "python-ipware==4.1.1",
+    "setuptools==84.2.1",
+    "six==1.17.0",
+    "sqlparse==0.6.0",
+    "typing_extensions==4.16.0",
+    "wheel==0.48.0"
+  ],
+  "edw_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/edw/__init__.py",
+  "matrix": {
+    "Django": "5.2.18",
+    "django-bitfield": "2.4.0",
+    "django-filter": "26.2",
+    "djangorestframework": "3.18.3",
+    "djangorestframework-bulk": "0.3.0a1",
+    "djangorestframework-filters": "1.0.0.dev2",
+    "djangorestframework-recursive": "0.1.2",
+    "python": "3.12.3"
+  },
+  "metadata_sha256": "9c564b4e7c99e6bed9d34a9dc0fabfffca90f5e564cc56afb74feaed759361a3",
+  "namespaces": {
+    "bitfield": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/bitfield/__init__.py",
+      "in_site": true
+    },
+    "django": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/django/__init__.py",
+      "in_site": true
+    },
+    "edw": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/edw/__init__.py",
+      "in_site": true
+    },
+    "rest_framework": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework/__init__.py",
+      "in_site": true
+    },
+    "rest_framework_bulk": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_bulk/__init__.py",
+      "in_site": true
+    },
+    "rest_framework_filters": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_filters/__init__.py",
+      "in_site": true
+    },
+    "rest_framework_recursive": {
+      "file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_recursive/__init__.py",
+      "in_site": true
+    }
+  },
+  "optimize": 0,
+  "payload_files_checked": 377,
+  "payload_mismatch": [],
+  "providers": {
+    "bitfield": {
+      "metadata_sha256": "9f85d583fb206a8f35da2726a559542c4d6e11da5ee167d268906893f5e38419",
+      "module_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/bitfield/__init__.py",
+      "module_sha256": "5fb4aa6aec71cd7cdee20da0d848f0bc108aac7f9b4ebb8e9afe5c97d370d41d",
+      "record_sha256": "4dc1065d65ac9eb1e5adb066a5fc5e6be4cb9db114e69c3afb09ceb2f3b703eb",
+      "version": "2.4.0"
+    },
+    "rest_framework_bulk": {
+      "metadata_sha256": "e9358bd3011ee8ed5420186d5e904df3689c6b6ae03001fe31586dbbe7f850a7",
+      "module_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_bulk/__init__.py",
+      "module_sha256": "cb9ddd9c31093f2e7311559dfd8b87d93c687fbcd1970a8e99d39f645866e0cc",
+      "record_sha256": "407e41981aa6565313440ae02c8af4bb141f48aff770d3ef2ac9a81b8bca1f11",
+      "version": "0.3.0a1"
+    },
+    "rest_framework_filters": {
+      "metadata_sha256": "5afb6e9d60a04c48d8745b647661b4f7026b8b1b8e2b32fdb6d9d79ce455b931",
+      "module_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_filters/__init__.py",
+      "module_sha256": "762b0e865d36fc02290f5a46f89eed50a5b90fce1a6f9190030f2b74de12ce32",
+      "record_sha256": "15e729b4ba9a465ce12c3f4159c2fe6c694bdbb4762f8267f0965c9d51b0a50b",
+      "version": "1.0.0.dev2"
+    },
+    "rest_framework_recursive": {
+      "metadata_sha256": "af89d1c585a6d5fd8fecfc53a348201aac3111920f3d021a8abe40cfef064b97",
+      "module_file": "<E12_CHECK_ENV>/lib/python3.12/site-packages/rest_framework_recursive/__init__.py",
+      "module_sha256": "99da7609fb5fa986dd2ad3fe796bf5cfbac0532718bfa5f59ed5d23147fc2acb",
+      "record_sha256": "9e1c06450ab5da4c69f4cab16f6cc7deb581e80efa16c20d99fab39f3274f11b",
+      "version": "0.1.2"
+    }
+  },
+  "python": "<E12_CHECK_ENV>/bin/python",
+  "record_checked": 379,
+  "record_entries": 379,
+  "record_mismatch": [],
+  "record_missing": [],
+  "site": "<E12_CHECK_ENV>/lib/python3.12/site-packages",
+  "wheel_sha256": "31db549ed51d4b7012e401ae06c286b148ff69afdcd471577747fb33616b0c7a"
+}

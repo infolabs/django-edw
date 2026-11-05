@@ -1,0 +1,257 @@
+{
+  "schema": "edw-neural-analysis-handoff/1",
+  "prepared_date_utc": "2026-11-05",
+  "repository": "https://github.com/infolabs/django-edw",
+  "branch": "mission/edw-modernize",
+  "tested_source_sha": "50d26164383dc1df77795a5a079ffe2be1e2a9da",
+  "tested_source_tree": "3eec4ec3913dfea16f7fdc7296a8fbac112bfccd",
+  "modernization_base_sha": "25590306df82f9605ac689c36ba55d0ab98dfb65",
+  "original_modernization_commits": 16,
+  "remote_master_observed_before_publication": "530bacf27d6d2b6317d82711bf33e60725b808e5",
+  "baseline_reachable_from_observed_public_master": true,
+  "publication_tip_policy": "docs-only descendant; determine exact tip from the enclosing Git commit, not a self-referential hash",
+  "historical_test_rerun": false,
+  "new_product_tests": false,
+  "new_migrations": false,
+  "source_integrity_note": "Probe source hashes were recorded at handoff; historical JUnit contains no source-byte attestation.",
+  "scope": "synthetic SQLite; analysis only; not deployment, release, native gate or production readiness",
+  "sanitization": {
+    "json": "replace exact engineering absolute roots by stable tokens; preserve all other scalar values and structure",
+    "root_tokens": [
+      "<E12_GATE_RUN>",
+      "<E12_CHECK_ENV>",
+      "<E12_CHECK_ROOT>"
+    ],
+    "xml": "remove hostname attribute; preserve testcase identities, counters, times and timestamps; reserialize UTF-8",
+    "locks_and_probe_sources": "byte-identical",
+    "original_reports_modified": false
+  },
+  "bulk": {
+    "repository": "https://github.com/infolabs/django-rest-framework-bulk",
+    "branch": "modernize/django52",
+    "sha": "e39983cb549ddc5245e726ab26261e318964258a",
+    "version": "0.3.0a1",
+    "remote_ref_verified_at_handoff": true,
+    "wheel_sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6"
+  },
+  "edw_wheel_sha256_from_historical_evidence": "31db549ed51d4b7012e401ae06c286b148ff69afdcd471577747fb33616b0c7a",
+  "not_included": [
+    "wheelhouse",
+    "wheels",
+    "pinned ignored frontend bundle",
+    "raw logs",
+    "databases",
+    "venvs",
+    "credentials",
+    "clinical or customer records",
+    "Host state or transcripts"
+  ],
+  "junit_recount": {
+    "evidence/runtime-tests.xml": {
+      "tests": 168,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duplicate_ids": 0
+    },
+    "evidence/write-alias-tests.xml": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duplicate_ids": 0
+    },
+    "evidence/independent-probes.xml": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duplicate_ids": 0
+    }
+  },
+  "retained_artifacts": [
+    {
+      "path": "evidence/gate-summary.json",
+      "source_label": "E12/gate-runs/run.NEihNRFy/summary.json",
+      "source_sha256": "e538b26475abb111782155a311515486776cd3081f46a47de7fc66636b6aa5c3",
+      "source_bytes": 2120,
+      "published_sha256": "d2bc34254ba81b4ba4cc341252bc36c03eecc41e8e286d6e1790a0dabb5888fd",
+      "published_bytes": 1576,
+      "transformation": "json-path-redaction"
+    },
+    {
+      "path": "evidence/gate-install.json",
+      "source_label": "E12/gate-runs/run.NEihNRFy/install-gate.json",
+      "source_sha256": "d5ab0ffbc11eeaa13a4e391c233dd32076984e94a78d217e658a2aa1caaf3f6c",
+      "source_bytes": 2459,
+      "published_sha256": "614b8e05a2ccf24d5e617ad451af35bf202a86bba14dfea92c0f8bcddb6c1297",
+      "published_bytes": 2119,
+      "transformation": "json-path-redaction"
+    },
+    {
+      "path": "evidence/independent-install.json",
+      "source_label": "E12/evidence/install-check.json",
+      "source_sha256": "b00cb99902b2cf105a0ff127ba5c2791f283ab269bbbea81bd8972ac9cb55742",
+      "source_bytes": 5426,
+      "published_sha256": "8f29b0244dc4792246cf7f39e1565acebbd2c890c3b5a0703129f82709949f45",
+      "published_bytes": 4839,
+      "transformation": "json-path-redaction"
+    },
+    {
+      "path": "evidence/independent-post-suite.json",
+      "source_label": "E12/evidence/post-suite-session.json",
+      "source_sha256": "27c59bd5eca3a86ef7273bec9406992d2ae6fa64e84af52e80c98ab5f360eba2",
+      "source_bytes": 2078,
+      "published_sha256": "fae7a2c7503f5208060ceb2c67dc70861f8e70378acf82f4c2f3ec0a3aadd29b",
+      "published_bytes": 1979,
+      "transformation": "json-path-redaction"
+    },
+    {
+      "path": "evidence/runtime-tests.xml",
+      "source_label": "E12/gate-runs/run.NEihNRFy/junit/runtime_tests.xml",
+      "source_sha256": "11e2b1488e3503437a24b8ed16d16f63167afedb06fbcbb300ff0d861e05617c",
+      "source_bytes": 22479,
+      "published_sha256": "94cff1c35b2ab3e60c5a5ef3773f645df793ab82b9e545bad365dbbb729e7024",
+      "published_bytes": 22460,
+      "transformation": "xml-remove-hostname"
+    },
+    {
+      "path": "evidence/write-alias-tests.xml",
+      "source_label": "E12/gate-runs/run.NEihNRFy/junit/runtime_tests_safety_alias.xml",
+      "source_sha256": "3329f45f72f92bae5dac8c9ebe6a59071733db90f6da8f127a740179e19eb16e",
+      "source_bytes": 710,
+      "published_sha256": "ae6647a1c736e230bf9a18b4662fbfb8f8ddf98954734694a77e18802c96354c",
+      "published_bytes": 691,
+      "transformation": "xml-remove-hostname"
+    },
+    {
+      "path": "evidence/independent-probes.xml",
+      "source_label": "E12/evidence/probes-junit.xml",
+      "source_sha256": "0e20f06c478e3f050c48f3d41c6b0b439c9f3b69bdd336b07d405e1d6a9ab124",
+      "source_bytes": 5666,
+      "published_sha256": "679686c5c32f50e3fd4733404fd993722f33f9102634687f1891d176f109210f",
+      "published_bytes": 5647,
+      "transformation": "xml-remove-hostname"
+    },
+    {
+      "path": "locks/runtime.lock",
+      "source_label": "E12/gate-runs/run.NEihNRFy/locks/runtime.lock",
+      "source_sha256": "2af1efcc9368060ea98126ee3cebdd0673fc6d285a129ec7a3dfc5aa50a52b20",
+      "source_bytes": 3207,
+      "published_sha256": "2af1efcc9368060ea98126ee3cebdd0673fc6d285a129ec7a3dfc5aa50a52b20",
+      "published_bytes": 3207,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "locks/tools.lock",
+      "source_label": "E12/gate-runs/run.NEihNRFy/locks/tools.lock",
+      "source_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+      "source_bytes": 1017,
+      "published_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+      "published_bytes": 1017,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/conftest.py",
+      "source_label": "E12/probes/conftest.py",
+      "source_sha256": "da3c961231cdcdec60798bde6e1a881d942702d64e335fe497c0473fc73c9371",
+      "source_bytes": 8021,
+      "published_sha256": "da3c961231cdcdec60798bde6e1a881d942702d64e335fe497c0473fc73c9371",
+      "published_bytes": 8021,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/e12_settings.py",
+      "source_label": "E12/probes/e12_settings.py",
+      "source_sha256": "d4c712dd7773eb7f959257c047265f96c0dab548bebeb40648e01a322013b6e1",
+      "source_bytes": 1548,
+      "published_sha256": "d4c712dd7773eb7f959257c047265f96c0dab548bebeb40648e01a322013b6e1",
+      "published_bytes": 1548,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/e12_routers.py",
+      "source_label": "E12/probes/e12_routers.py",
+      "source_sha256": "3d727ff1ceb7f94a6b442260f1f7af2cb8a5d08ed2662443a8b8660683f6a86c",
+      "source_bytes": 2679,
+      "published_sha256": "3d727ff1ceb7f94a6b442260f1f7af2cb8a5d08ed2662443a8b8660683f6a86c",
+      "published_bytes": 2679,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/e12_views.py",
+      "source_label": "E12/probes/e12_views.py",
+      "source_sha256": "f3279d7c30fe016b192c08127ad191a38cb3374f114bc5e71e0291bffd202e42",
+      "source_bytes": 6327,
+      "published_sha256": "f3279d7c30fe016b192c08127ad191a38cb3374f114bc5e71e0291bffd202e42",
+      "published_bytes": 6327,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/e12_urls.py",
+      "source_label": "E12/probes/e12_urls.py",
+      "source_sha256": "9f85b97f04af8b83fad74426e9468654cca78fa1f8ed8f5557f030bd030efcf8",
+      "source_bytes": 1210,
+      "published_sha256": "9f85b97f04af8b83fad74426e9468654cca78fa1f8ed8f5557f030bd030efcf8",
+      "published_bytes": 1210,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/test_00_smoke.py",
+      "source_label": "E12/probes/test_00_smoke.py",
+      "source_sha256": "9cba836845b26355e638059ea1126f4b7c1159eeef0b5ba9779a7e8427fcecda",
+      "source_bytes": 513,
+      "published_sha256": "9cba836845b26355e638059ea1126f4b7c1159eeef0b5ba9779a7e8427fcecda",
+      "published_bytes": 513,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/test_admission.py",
+      "source_label": "E12/probes/test_admission.py",
+      "source_sha256": "8a293ecb0eb907c7d9e5600075bfbc0fd68a278bf1b07f66304aa52c0905cd2b",
+      "source_bytes": 16161,
+      "published_sha256": "8a293ecb0eb907c7d9e5600075bfbc0fd68a278bf1b07f66304aa52c0905cd2b",
+      "published_bytes": 16161,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/test_delete_effects.py",
+      "source_label": "E12/probes/test_delete_effects.py",
+      "source_sha256": "47051a6a8188031ee5e9cd1e4d52aa73112b7a2f9f17092ce4dd3f836e813330",
+      "source_bytes": 10406,
+      "published_sha256": "47051a6a8188031ee5e9cd1e4d52aa73112b7a2f9f17092ce4dd3f836e813330",
+      "published_bytes": 10406,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/test_r1_r2_r5.py",
+      "source_label": "E12/probes/test_r1_r2_r5.py",
+      "source_sha256": "0e574c541b06491ee1df23ca2f5957641eda039e37f96b748e31d0708621bcd6",
+      "source_bytes": 11401,
+      "published_sha256": "0e574c541b06491ee1df23ca2f5957641eda039e37f96b748e31d0708621bcd6",
+      "published_bytes": 11401,
+      "transformation": "byte-identical"
+    },
+    {
+      "path": "probes/test_s1_entity_cache.py",
+      "source_label": "E12/probes/test_s1_entity_cache.py",
+      "source_sha256": "8ee7d8c7b9fa44f26f467e5fa7987b75d68f27d8bec53bb59efe0782baa10a4b",
+      "source_bytes": 3837,
+      "published_sha256": "8ee7d8c7b9fa44f26f467e5fa7987b75d68f27d8bec53bb59efe0782baa10a4b",
+      "published_bytes": 3837,
+      "transformation": "byte-identical"
+    }
+  ],
+  "handoff_documents": [
+    {
+      "path": "README.md",
+      "sha256": "631ab291982a9f4ad6673ed822c4bd2150fdb8024e9155a2dc7e27d239c58161",
+      "bytes": 11233
+    },
+    {
+      "path": "LIMITATIONS.md",
+      "sha256": "527eed4f1d22ea63629bdd2916b855d0dfaa259ddbfb50f1df6746b38575ad97",
+      "bytes": 10214
+    }
+  ]
+}

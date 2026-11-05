@@ -1,0 +1,39 @@
+{
+  "core_edw_file": "<E12_GATE_RUN>/core-env/lib/python3.12/site-packages/edw/__init__.py",
+  "frontend_bundle_sha256": "388d7438f290fb82ea4900b3e3eb79b4a90463ab700eeada23275f1fdc17a907",
+  "gate_edw_file": "<E12_GATE_RUN>/gate-env/lib/python3.12/site-packages/edw/__init__.py",
+  "head": "50d26164383dc1df77795a5a079ffe2be1e2a9da",
+  "mandatory_closure": 31,
+  "ok": true,
+  "payload_files": 377,
+  "provider_wheel_sha256": "31a26a30dbd525ca3f3620e4deaf379112548b709076de0c0e162a9d026819d6",
+  "record_entries": 379,
+  "run": "<E12_GATE_RUN>",
+  "runtime_lock_sha256": "2af1efcc9368060ea98126ee3cebdd0673fc6d285a129ec7a3dfc5aa50a52b20",
+  "schema": "edw-modernize/safety-summary/1",
+  "source_date_epoch": 1792847103,
+  "suites": {
+    "runtime_tests": {
+      "failed": 0,
+      "junit": "<E12_GATE_RUN>/junit/runtime_tests.xml",
+      "passed": 168,
+      "post_suite": "<E12_GATE_RUN>/post-suite-runtime_tests.json",
+      "tests": 168
+    },
+    "runtime_tests_safety_alias": {
+      "failed": 0,
+      "junit": "<E12_GATE_RUN>/junit/runtime_tests_safety_alias.xml",
+      "passed": 3,
+      "post_suite": "<E12_GATE_RUN>/post-suite-runtime_tests_safety_alias.json",
+      "tests": 3
+    }
+  },
+  "tests": 171,
+  "tests_failed": 0,
+  "tests_passed": 171,
+  "tools": 10,
+  "tools_lock_sha256": "ee94977723cd264b3250b863aa07c2498df1a71ceeb79bfb65ca2b59ea0bca59",
+  "tree": "3eec4ec3913dfea16f7fdc7296a8fbac112bfccd",
+  "wheel": "<E12_GATE_RUN>/dist/django_edw-0.2.0-py3-none-any.whl",
+  "wheel_sha256": "31db549ed51d4b7012e401ae06c286b148ff69afdcd471577747fb33616b0c7a"
+}
